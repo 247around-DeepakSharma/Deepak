@@ -2375,7 +2375,7 @@ class Invoice extends CI_Controller {
             );
 
             $invoices['meta']['sd'] = date("jS M, Y", strtotime($from_date));
-            $invoices['meta']['ed'] = date('jS M, Y', strtotime('-1 day', strtotime($to_date)));
+            $invoices['meta']['ed'] = date('jS M, Y', strtotime($to_date));
             $invoices['meta']['invoice_date'] = date("jS M, Y");
             if (isset($details['invoice_id'])) {
                 log_message('info', __METHOD__ . ": Invoice Id re- geneterated " . $details['invoice_id']);
@@ -2553,7 +2553,7 @@ class Invoice extends CI_Controller {
             );
 
             $invoices['meta']['sd'] = date("jS M, Y", strtotime($from_date));
-            $invoices['meta']['ed'] = date('jS M, Y', strtotime('-1 day', strtotime($to_date)));
+            $invoices['meta']['ed'] = date('jS M, Y', strtotime($to_date));
             $invoices['meta']['invoice_date'] = date("jS M, Y");
 
             if (isset($details['invoice_id'])) {
