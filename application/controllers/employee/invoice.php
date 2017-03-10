@@ -992,7 +992,7 @@ class Invoice extends CI_Controller {
                  * Update booking-invoice table to capture this new invoice against these bookings.
                  * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
                  */
-                $this->update_booking_invoice_mappings_repairs($invoices['booking'], $invoice_id);
+               
                 $this->update_invoice_id_in_unit_details($invoices['booking'], $invoice_id, $details['invoice_type'],"vendor_cash_invoice_id");
             }
 
@@ -1037,11 +1037,11 @@ class Invoice extends CI_Controller {
      */
     function update_invoice_id_in_unit_details($invoices_data, $invoice_id, $invoice_type, $unit_column) {
         log_message('info', __METHOD__ . ': Reset Invoice id ' . " invoice id " . $invoice_id);
+
         if ($invoice_type == "final") {
             $this->booking_model->update_booking_unit_details_by_any(array($unit_column => $invoice_id), array($unit_column => NULL));
             // $data = array();
             foreach ($invoices_data as $value) {
-
 
                 log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
                 $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
@@ -1456,10 +1456,10 @@ class Invoice extends CI_Controller {
                  * Update booking-invoice table to capture this new invoice against these bookings.
                  * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
                  */
-                $this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
+               
                 $this->update_invoice_id_in_unit_details($invoices, $invoice_id, $details['invoice_type'],"vendor_foc_invoice_id");
-                
-                
+
+
             }
      
             // Store foc invoices
@@ -1489,30 +1489,6 @@ class Invoice extends CI_Controller {
 
 
         return $invoice_sc_details;
-    }
-
-    /*
-     * Update booking-invoice table to capture this new invoice against these bookings.
-     * Since this is a type A invoice, it would be stored as a vendor-debit invoice.
-     */
-
-    function update_booking_invoice_mappings_repairs($bookings_completed, $invoice_id) {
-        foreach ($bookings_completed as $booking) {
-            $details = array('vendor_debit_invoice_id' => $invoice_id);
-            $this->invoices_model->update_booking_invoice_mapping($booking['booking_id'], $details);
-        }
-    }
-
-    /*
-     * Update booking-invoice table to capture this new invoice against these bookings.
-     * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
-     */
-
-    function update_booking_invoice_mappings_installations($bookings_completed, $invoice_id) {
-        foreach ($bookings_completed as $booking) {
-            $details = array('vendor_credit_invoice_id' => $invoice_id);
-            $this->invoices_model->update_booking_invoice_mapping($booking['booking_id'], $details);
-        }
     }
 
     /**
