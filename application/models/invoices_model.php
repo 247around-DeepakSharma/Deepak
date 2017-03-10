@@ -257,7 +257,8 @@ class invoices_model extends CI_Model {
 
         $custom_date = explode("-", $date_range);
         $from_date = $custom_date[0];
-        $to_date = $custom_date[1];
+        $to_date_tmp = $custom_date[1];
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $result1 = array();
 
         //for FOC invoice, around_to_vendor > 0 AND vendor_to_around = 0
@@ -329,7 +330,8 @@ class invoices_model extends CI_Model {
     function get_vendor_cash_detailed($vendor_id, $date_range) {
         $custom_date = explode("-", $date_range);
         $from_date = $custom_date[0];
-        $to_date = $custom_date[1];
+        $to_date_tmp = $custom_date[1];
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $where = "";
         for ($i = 0; $i < 2; $i++) {
             if ($i == 0) {

@@ -1129,8 +1129,9 @@ class Invoice extends CI_Controller {
             $is_upcountry = TRUE;
 
         }
-        $penalty_data = $this->penalty_model->add_penalty_in_invoice($details['vendor_partner_id'], $from_date, $to_date);
-        $courier_charges =  $this->invoices_model->get_sf_courier_charges($details['vendor_partner_id'], $from_date, $to_date);
+        $to_date1 = date('Y-m-d', strtotime('+1 day', strtotime($to_date)));
+        $penalty_data = $this->penalty_model->add_penalty_in_invoice($details['vendor_partner_id'], $from_date, $to_date1);
+        $courier_charges =  $this->invoices_model->get_sf_courier_charges($details['vendor_partner_id'], $from_date, $to_date1);
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
         $invoices = $invoices_data['invoice_details'];
@@ -1856,12 +1857,13 @@ class Invoice extends CI_Controller {
         $custom_date = explode("-", $date_range);
         $from_date = $custom_date[0];
         $to_date = $custom_date[1];
+        $to_date1 = date('Y-m-d', strtotime('+1 day', strtotime($to_date)));
         //Making invoice array
-        $invoice = $this->inventory_model->get_vendor_bracket_invoices($vendor_id, $from_date, $to_date);
+        $invoice = $this->inventory_model->get_vendor_bracket_invoices($vendor_id, $from_date, $to_date1);
 
         if (!empty($invoice)) {
 
-            $invoice[0]['period'] = date("jS M, Y", strtotime($from_date)) . " To " . date('jS M, Y', strtotime('-1 day', strtotime($to_date)));
+            $invoice[0]['period'] = date("jS M, Y", strtotime($from_date)) . " To " . date('jS M, Y');
             $invoice[0]['today'] = date("jS M, Y");
             if (isset($details['invoice_id'])) {
                 log_message('info', __METHOD__ . ": Invoice Id re- geneterated " . $details['invoice_id']);
