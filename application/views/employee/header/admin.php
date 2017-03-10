@@ -336,6 +336,10 @@
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>BookingSummary/partners_booking_report_chart" ><i class="fa fa-fw fa-desktop"></i> <strong>Partners Booking Report</strong></a>
+                        </li>
                         
 <!--                        <li class="divider"></li>
                         <li>
