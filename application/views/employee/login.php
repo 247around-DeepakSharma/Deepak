@@ -107,7 +107,71 @@
         line-height: 49px;
         }
     </style>
-
+    <div class="partner">
+            <script type="text/javascript" src="<?php echo base_url() ?>js/jssor.slider.min.js"></script>
+            <script>
+                jssor_1_slider_init = function() {
+                
+                    var jssor_1_options = {
+                      $AutoPlay: true,
+                      $Idle: 0,
+                      $AutoPlaySteps: 4,
+                      $SlideDuration: 3000,
+                      $SlideEasing: $Jease$.$Linear,
+                      $PauseOnHover: 100,
+                      $SlideWidth: 300,
+                      $Cols:4
+                
+                    };
+                
+                    var jssor_1_slider = new $JssorSlider$("jssor_2", jssor_1_options);
+                
+                
+                    function ScaleSlider() {
+                        var refSize = jssor_1_slider.$Elmt.parentNode.clientWidth;
+                        if (refSize) {
+                            refSize = Math.min(refSize, 809);
+                            jssor_1_slider.$ScaleWidth(refSize);
+                        }
+                        else {
+                            window.setTimeout(ScaleSlider, 30);
+                        }
+                    }
+                    ScaleSlider();
+                    $Jssor$.$AddEvent(window, "load", ScaleSlider);
+                    $Jssor$.$AddEvent(window, "resize", ScaleSlider);
+                    $Jssor$.$AddEvent(window, "orientationchange", ScaleSlider);
+                
+                };
+            </script>
+            <div class="container " style=" background: #F9F9F9!important ;margin=0 auto; width: 100%;">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 text-center" style="margin-bottom:40px" >
+                        <h2 style="font-family:verdana ; margin-top: 60px  ;font-weight:bold; margin-left:25px">Our Partners</h2>
+                    </div>
+                    <div class="col-md-7 col-sm-6">
+                        <div id="jssor_2" style="position: relative;margin: 4% auto  ;  top: 0px; left: 0px; width: 980px; height: 100px; overflow: hidden; visibility: hidden;">
+                            <div data-u="loading" style="position: absolute; top: 0px; left: 0px;">
+                                <div style="filter: alpha(opacity=70); opacity: 0.7; position: absolute; display: block; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
+                                <div style="position:absolute;display:block;background:url('images/loading.gif') no-repeat center center;top:0px;left:0px;width:100%;height:100%;"></div>
+                            </div>
+                            <div data-u="slides" style="cursor: default; position: relative; top: 0px; left: 0px; width: 980px; height: 100px; overflow: hidden;">
+                                <?php foreach($partner_logo as $value){ ?>
+                                <div style="display: none;">
+                                    <img data-u="images" src="<?php echo base_url().$value['partner_logo'];?>" alt="<?php echo $value['alt_text'];?>"/>
+                                </div>
+                                <?php }?>
+                            </div>
+                            <a href="http://www.jssor.com" style="display:none">Slideshow Maker</a>
+                        </div>
+                        <script>
+                            jssor_1_slider_init();
+                        </script>
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+        </div>
     <div class="container custom_container">
 <div class="row">
    <div class="col-md-12" style="text-align: center; margin-top: 65px;">

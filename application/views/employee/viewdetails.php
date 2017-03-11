@@ -162,6 +162,31 @@
                         </tr>
                     </table>
                 </div>
+                <?php if(!is_null($booking_history[0]['sub_vendor_id'])){ ?>
+                <div class="col-md-12" style="margin-top:20px;" >
+                    <h3>District HeadQuater Details</h3>
+                    <table class="table  table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <td>District</td>
+                                <td>Pincode</td>
+                            </tr>
+                        <tbody>
+                            <?php foreach ($dhq as $key => $value) { ?>
+                            <tr>
+                                <td><?php echo $value['district'];?></td>
+                                <td><?php echo $value['pincode'];?></td>
+                            </tr>
+                            
+                            <?php } ?>
+                        </tbody>
+                        </thead>
+                        
+                    </table>
+                    
+                </div>
+                
+                <?php } ?>
 
                 <?php if(!empty($unit_details)) { ?>
                 <div class="col-md-12" style="margin-top:20px;" >
