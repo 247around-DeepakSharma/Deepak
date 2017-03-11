@@ -263,7 +263,7 @@ class Miscelleneous {
                 $booking['sf_upcountry_rate'] = NULL;
                 $booking['partner_upcountry_rate'] = NULL;
                 $booking['upcountry_paid_by_customer'] = '0';
-                $booking['upcountry_partner_approved'] = '0';
+                $booking['upcountry_partner_approved'] = '1';
 
                 $this->My_CI->booking_model->update_booking($booking_id, $booking);
                 log_message('info', __METHOD__ . " => Not Upcountry Booking" . $booking_id);
