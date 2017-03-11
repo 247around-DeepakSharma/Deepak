@@ -464,9 +464,9 @@ class Invoice extends CI_Controller {
             $excel_data['total_stand_charge'] = $total_stand_charge;
             $excel_data['total_vat_charge'] = $total_vat_charge;
             $excel_data['total_charges'] = $total_charges;
-            $excel_data['period'] = $start_date . " To" . $end_date;
+            $excel_data['period'] = $start_date . " To " . $end_date;
             if(!empty($data[0]['seller_code'])){
-                $excel_data['seller_code'] = "Seller Code ".$data[0]['seller_code'];
+                $excel_data['seller_code'] = "Seller Code: ".$data[0]['seller_code'];
             } else {
                 $excel_data['seller_code'] = '';
             }
@@ -551,7 +551,8 @@ class Invoice extends CI_Controller {
             if($output_file_excel !=""){
                 $this->email->attach($output_file_excel, 'attachment');
             }
-            $this->email->attach(TMP_FOLDER .$invoice_id. ".xls", 'attachment');
+            $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
+            $this->email->attach(TMP_FOLDER .$invoice_id. ".pdf", 'attachment');
 
             $mail_ret = $this->email->send();
             
@@ -571,10 +572,12 @@ class Invoice extends CI_Controller {
                 $bucket = BITBUCKET_DIRECTORY;
 
                 $directory_xls = "invoices-excel/" . $invoice_id . ".xlsx";
+                $directory_pdf = "invoices-excel/" . $invoice_id . ".pdf";
                 $directory_detailed = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
 
                 $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . "-detailed.xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
                 $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
                 if($output_file_excel !=""){
                     $directory_upcountry_xls = "invoices-excel/" . $invoice_id . "-upcountry-detailed.xlsx";
                     $this->s3->putObjectFile($output_file_excel, $bucket, $directory_upcountry_xls, S3::ACL_PUBLIC_READ);
@@ -587,7 +590,7 @@ class Invoice extends CI_Controller {
                     'type' => 'Cash',
                     'vendor_partner' => 'partner',
                     'vendor_partner_id' => $data[0]['partner_id'],
-                    'invoice_file_excel' => $invoice_id . '.xlsx',
+                    'invoice_file_excel' => $invoice_id . '.pdf',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
                     'to_date' => date("Y-m-d", strtotime($t_date)),
@@ -599,7 +602,7 @@ class Invoice extends CI_Controller {
                     'vat' => $excel_data['total_vat_charge'],
                     'total_amount_collected' => ($excel_data['total_charges']- $tds + $excel_data['total_upcountry_price']),
                     'tds_amount' =>$tds,
-                    'tds_rate' =>'2',
+                    'tds_rate' =>'0',
                     'upcountry_booking' => $total_upcountry_booking,
                     'upcountry_distance' => $total_upcountry_distance,
                     'upcountry_price' => $excel_data['total_upcountry_price'],
@@ -1049,43 +1052,7 @@ class Invoice extends CI_Controller {
         }
     }
 
-    /**
-     * @desc: This Method used to insert Cash invoice snapshot into vendor invoices snapshot table
-     * @param $invoices_data Array Misc data about Invoice
-     * @param $invoice_id String Invoice ID
-     * @param $invoice_type String Invoice Type (draft/final)
-     */
-    function insert_cash_invoices_snapshot($invoices_data, $invoice_id, $invoice_type) {
-        $data = array();
-        log_message('info', __METHOD__ . ': Reset Invoice id ' . " invoice id " . $invoice_id);
-        //Reset Vendor Cash invoice id
-        $this->booking_model->update_booking_unit_details_by_any(array('vendor_cash_invoice_id' => $invoice_id), array('vendor_cash_invoice_id' => NULL));
-        foreach ($invoices_data['booking'] as $value) {
-            if ($invoice_type == "final") {
-                log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
-
-                $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array('vendor_cash_invoice_id' => $invoice_id));
-            }
-//            $data['booking_id'] = $value['booking_id'];
-//            $data['invoice_id'] = $invoice_id;
-//            $data['vendor_id'] = $value['id'];
-//            $data['type_code'] = "A";
-//            $data['city'] = $value['city'];
-//            $data['appliance'] = $value['services'];
-//            $data['appliance_category'] = $value['appliance_category'];
-//            $data['appliance_capacity'] = $value['appliance_capacity'];
-//            $data['closed_date'] = $value['closed_booking_date'];
-//            $data['service_category'] = $value['price_tags'];
-//            $data['service_charge'] = $value['service_charges'];
-//            $data['around_discount'] = $value['around_net_payable'];
-//            $data['addtional_service_charge'] = $value['additional_charges'];
-//            $data['parts_cost'] = $value['parts_cost'];
-//            $data['amount_paid'] = $value['amount_paid'];
-//            $data['rating'] = $value['rating_stars'];
-//
-//            $this->invoices_model->insert_invoice_row($data, $invoice_type);
-        }
-    }
+    
 
     /**
      * @desc: This is used to generates foc type invoices for vendor
@@ -1437,6 +1404,7 @@ class Invoice extends CI_Controller {
                     'upcountry_price' =>$excel_data['total_upcountry_price'],
                     'upcountry_distance' => $upcountry_distance,
                     'penalty_amount' => $penalty_amount,
+                    'penalty_bookings_count' =>array_sum(array_column($penalty_data,'penalty_times')),
                     'courier_charges' => $total_courier_charges,
                     'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
@@ -2226,6 +2194,18 @@ class Invoice extends CI_Controller {
             $R->render('excel', $output_file_excel);
             log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
             system(" chmod 777 " . $output_file_excel, $res1);
+            //convert excel to pdf
+            $output_file_pdf = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".pdf";
+            
+            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+            $tmp_path = TMP_FOLDER;
+            $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
+            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                    $output_file_excel . ' 2> ' . $tmp_output_file;
+            $output = '';
+            $result_var = '';
+            exec($cmd, $output, $result_var);
             
 //            $this->email->clear(TRUE);
 //            $this->email->from('billing@247around.com', '247around Team');

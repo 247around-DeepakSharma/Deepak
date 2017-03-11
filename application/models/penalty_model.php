@@ -294,7 +294,7 @@ class Penalty_model extends CI_Model {
             $where = " AND booking_details.current_status IN ('Cancelled') ";
         }
         if (PENALTY_ON_COMPLETED_BOOKING != FALSE && PENALTY_ON_CANCELLED_BOOKING != FALSE) {
-            $sql = "SELECT COUNT( p.booking_id ) as penalty_times,CASE WHEN (COUNT( p.booking_id ) * penalty_amount) < '" . CAP_ON_PENALTY_AMOUNT . "' 
+            $sql = "SELECT COUNT(distinct p.booking_id ) as penalty_times,CASE WHEN (COUNT( p.booking_id ) * penalty_amount) < '" . CAP_ON_PENALTY_AMOUNT . "' 
             THEN (COUNT( p.booking_id ) * penalty_amount) ELSE ( ".CAP_ON_PENALTY_AMOUNT." ) END AS p_amount, 
             p.booking_id, penalty_amount FROM  
            `penalty_on_booking` AS p, booking_details 
@@ -302,6 +302,7 @@ class Penalty_model extends CI_Model {
             AND closed_date <  '".$to_date."'
             AND service_center_id = '".$vendor_id."'
             AND p.active = 1
+            AND foc_invoice_id IS NULL
             AND booking_details.booking_id = p.booking_id $where
             GROUP BY p.booking_id";
             
