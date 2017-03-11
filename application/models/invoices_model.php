@@ -933,7 +933,7 @@ class invoices_model extends CI_Model {
                $up_country[0]['s_service_charge'] = '';
                $up_country[0]['qty'] = round($upcountry_data[0]['total_distance'],0)." KM";
                $up_country[0]['description'] = 'Upcountry Services';
-               $up_country[0]['p_rate'] =  $upcountry_data[0]['sf_upcountry_rate'];
+               $up_country[0]['p_rate'] = round(($upcountry_data[0]['total_upcountry_price']/ round($upcountry_data[0]['total_distance'],0) ), 2);
                $up_country[0]['misc_price'] =  $upcountry_data[0]['total_upcountry_price'];
               
              
