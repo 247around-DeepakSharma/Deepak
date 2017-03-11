@@ -285,7 +285,7 @@ class Miscelleneous {
                 $message1 = "Upcountry did not calculate for " . $booking_id;
                 $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Failed', $message1, "");
                 
-                $return_status = FALSE;
+                $return_status = TRUE;
                 break;
         }
 
