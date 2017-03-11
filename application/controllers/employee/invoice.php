@@ -552,6 +552,7 @@ class Invoice extends CI_Controller {
                 $this->email->attach($output_file_excel, 'attachment');
             }
             $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
+            $this->email->attach(TMP_FOLDER .$invoice_id. ".pdf", 'attachment');
 
             $mail_ret = $this->email->send();
             
@@ -571,10 +572,12 @@ class Invoice extends CI_Controller {
                 $bucket = BITBUCKET_DIRECTORY;
 
                 $directory_xls = "invoices-excel/" . $invoice_id . ".xlsx";
+                $directory_pdf = "invoices-excel/" . $invoice_id . ".pdf";
                 $directory_detailed = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
 
                 $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . "-detailed.xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
                 $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
                 if($output_file_excel !=""){
                     $directory_upcountry_xls = "invoices-excel/" . $invoice_id . "-upcountry-detailed.xlsx";
                     $this->s3->putObjectFile($output_file_excel, $bucket, $directory_upcountry_xls, S3::ACL_PUBLIC_READ);
@@ -587,7 +590,7 @@ class Invoice extends CI_Controller {
                     'type' => 'Cash',
                     'vendor_partner' => 'partner',
                     'vendor_partner_id' => $data[0]['partner_id'],
-                    'invoice_file_excel' => $invoice_id . '.xlsx',
+                    'invoice_file_excel' => $invoice_id . '.pdf',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
                     'to_date' => date("Y-m-d", strtotime($t_date)),
@@ -2191,6 +2194,18 @@ class Invoice extends CI_Controller {
             $R->render('excel', $output_file_excel);
             log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
             system(" chmod 777 " . $output_file_excel, $res1);
+            //convert excel to pdf
+            $output_file_pdf = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".pdf";
+            
+            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+            $tmp_path = TMP_FOLDER;
+            $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
+            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                    $output_file_excel . ' 2> ' . $tmp_output_file;
+            $output = '';
+            $result_var = '';
+            exec($cmd, $output, $result_var);
             
 //            $this->email->clear(TRUE);
 //            $this->email->from('billing@247around.com', '247around Team');
