@@ -992,7 +992,8 @@ class Invoice extends CI_Controller {
                  * Update booking-invoice table to capture this new invoice against these bookings.
                  * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
                  */
-                $this->update_invoice_id_in_unit_details($invoices, $invoice_id, $details['invoice_type']);
+               
+                $this->update_invoice_id_in_unit_details($invoices['booking'], $invoice_id, $details['invoice_type'],"vendor_cash_invoice_id");
             }
 
             // Store Cash Invoices details
@@ -1034,58 +1035,21 @@ class Invoice extends CI_Controller {
      * @param $invoice_id String Invoice ID
      * @param $invoice_type String Invoice Type (draft/final)
      */
-    function update_invoice_id_in_unit_details($invoices_data, $invoice_id, $invoice_type) {
+    function update_invoice_id_in_unit_details($invoices_data, $invoice_id, $invoice_type, $unit_column) {
         log_message('info', __METHOD__ . ': Reset Invoice id ' . " invoice id " . $invoice_id);
-        $this->booking_model->update_booking_unit_details_by_any(
-                array('vendor_foc_invoice_id' => $invoice_id), 
-                array('vendor_foc_invoice_id' => NULL));
-       // $data = array();
-        foreach ($invoices_data as $value) {
-            if ($invoice_type == "final") {
+
+        if ($invoice_type == "final") {
+            $this->booking_model->update_booking_unit_details_by_any(array($unit_column => $invoice_id), array($unit_column => NULL));
+            // $data = array();
+            foreach ($invoices_data as $value) {
 
                 log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
-                $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array('vendor_foc_invoice_id' => $invoice_id));
+                $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
             }
         }
     }
 
-    /**
-     * @desc: This Method used to insert Cash invoice snapshot into vendor invoices snapshot table
-     * @param $invoices_data Array Misc data about Invoice
-     * @param $invoice_id String Invoice ID
-     * @param $invoice_type String Invoice Type (draft/final)
-     */
-    function insert_cash_invoices_snapshot($invoices_data, $invoice_id, $invoice_type) {
-        $data = array();
-        log_message('info', __METHOD__ . ': Reset Invoice id ' . " invoice id " . $invoice_id);
-        //Reset Vendor Cash invoice id
-        $this->booking_model->update_booking_unit_details_by_any(array('vendor_cash_invoice_id' => $invoice_id), array('vendor_cash_invoice_id' => NULL));
-        foreach ($invoices_data['booking'] as $value) {
-            if ($invoice_type == "final") {
-                log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
-
-                $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array('vendor_cash_invoice_id' => $invoice_id));
-            }
-//            $data['booking_id'] = $value['booking_id'];
-//            $data['invoice_id'] = $invoice_id;
-//            $data['vendor_id'] = $value['id'];
-//            $data['type_code'] = "A";
-//            $data['city'] = $value['city'];
-//            $data['appliance'] = $value['services'];
-//            $data['appliance_category'] = $value['appliance_category'];
-//            $data['appliance_capacity'] = $value['appliance_capacity'];
-//            $data['closed_date'] = $value['closed_booking_date'];
-//            $data['service_category'] = $value['price_tags'];
-//            $data['service_charge'] = $value['service_charges'];
-//            $data['around_discount'] = $value['around_net_payable'];
-//            $data['addtional_service_charge'] = $value['additional_charges'];
-//            $data['parts_cost'] = $value['parts_cost'];
-//            $data['amount_paid'] = $value['amount_paid'];
-//            $data['rating'] = $value['rating_stars'];
-//
-//            $this->invoices_model->insert_invoice_row($data, $invoice_type);
-        }
-    }
+    
 
     /**
      * @desc: This is used to generates foc type invoices for vendor
@@ -1456,9 +1420,10 @@ class Invoice extends CI_Controller {
                  * Update booking-invoice table to capture this new invoice against these bookings.
                  * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
                  */
-                $this->update_invoice_id_in_unit_details($invoices, $invoice_id, $details['invoice_type']);
-                
-                
+               
+                $this->update_invoice_id_in_unit_details($invoices, $invoice_id, $details['invoice_type'],"vendor_foc_invoice_id");
+
+
             }
      
             // Store foc invoices
@@ -1700,6 +1665,7 @@ class Invoice extends CI_Controller {
                             $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range']);
                             $this->generate_cash_details_invoices_for_vendors($data, $details);
                         } else {
+                            echo "<script>alert('Data Not Found');</script>";
                             echo " Data Not found for vendor: " . $details['vendor_partner_id'];
                             log_message('info', __FUNCTION__ . " Data Not found for vendor: " . $details['vendor_partner_id']);
                         }
@@ -1716,6 +1682,7 @@ class Invoice extends CI_Controller {
                         $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range']);
                         $this->generate_cash_details_invoices_for_vendors($data, $details);
                     } else {
+                        echo "<script>alert('Data Not Found');</script>";
                         echo " Data Not found for vendor: " . $details['vendor_partner_id'];
                         log_message('info', __FUNCTION__ . " Data Not found for vendor: " . $details['vendor_partner_id']);
                     }
@@ -1740,6 +1707,7 @@ class Invoice extends CI_Controller {
                             $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], $details['date_range']);
                             $this->generate_foc_details_invoices_for_vendors($data, $details);
                         } else {
+                            echo "<script>alert('Data Not Found');</script>";
                             echo " Data Not found for vendor: " . $details['vendor_partner_id'];
                             log_message('info', __FUNCTION__ . " Data Not found for vendor: " . $details['vendor_partner_id']);
                         }
@@ -1754,6 +1722,7 @@ class Invoice extends CI_Controller {
                         $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], $details['date_range']);
                         $this->generate_foc_details_invoices_for_vendors($data, $details);
                     } else {
+                        echo "<script>alert('Data Not Found');</script>";
                         echo " Data Not found for vendor: " . $details['vendor_partner_id'];
                         log_message('info', __FUNCTION__ . " Data Not found for vendor: " . $details['vendor_partner_id']);
                     }
