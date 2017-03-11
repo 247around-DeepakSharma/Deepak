@@ -1401,6 +1401,7 @@ class Invoice extends CI_Controller {
                     'upcountry_price' =>$excel_data['total_upcountry_price'],
                     'upcountry_distance' => $upcountry_distance,
                     'penalty_amount' => $penalty_amount,
+                    'penalty_bookings_count' =>array_sum(array_column($penalty_data,'penalty_times')),
                     'courier_charges' => $total_courier_charges,
                     'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
