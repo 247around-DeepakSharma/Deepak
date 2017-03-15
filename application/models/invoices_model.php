@@ -60,7 +60,7 @@ class invoices_model extends CI_Model {
      */
     function getInvoicingData($data) {
         $this->db->where($data);
-        $this->db->order_by('create_date');
+        $this->db->order_by('from_date');
         $query = $this->db->get('vendor_partner_invoices');
 
         return $query->result_array();
