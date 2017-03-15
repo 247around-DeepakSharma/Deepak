@@ -921,7 +921,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($result)) {
             // Calculate Upcountry booking details
-            $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
+            $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, "distinct");
             $meta['total_misc_price'] = 0;
             
             if(!empty($upcountry_data)){
