@@ -54,6 +54,30 @@
                                         } ?>" placeholder="Parts Cost" >
                                 </div>
                             </div>
+                             <div class="form-group">
+                                <label for="Parts Cost" class="col-md-4">Total Upcountry Booking *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="upcountry_booking" value = "<?php if (isset($invoice_details[0]['upcountry_booking'])) {
+                                        echo $invoice_details[0]['upcountry_booking'];
+                                        } ?>" placeholder="Total Upcountry Booking" >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="Parts Cost" class="col-md-4">Upcountry Charges *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="upcountry_price" value = "<?php if (isset($invoice_details[0]['upcountry_price'])) {
+                                        echo $invoice_details[0]['upcountry_price'];
+                                        } ?>" placeholder="Upcountry Charges" >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="Parts Cost" class="col-md-4">Total Penalty Booking *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="penalty_bookings_count" value = "<?php if (isset($invoice_details[0]['penalty_bookings_count'])) {
+                                        echo $invoice_details[0]['penalty_bookings_count'];
+                                        } ?>" placeholder="Penalty Bookings Count" >
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label for="invoice_file_excel" class="col-md-4">Main Invoice Excel</label>
                                 <div class="col-md-6">
@@ -125,6 +149,30 @@
                                     <input type="text" class="form-control"  name="vat" value = "<?php if (isset($invoice_details[0]['vat'])) {
                                         echo $invoice_details[0]['vat'];
                                         } ?>" placeholder="VAT" >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="vat" class="col-md-4">Upcountry Distance *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="upcountry_distance" value = "<?php if (isset($invoice_details[0]['upcountry_distance'])) {
+                                        echo $invoice_details[0]['upcountry_distance'];
+                                        } ?>" placeholder="Upcountry Distance" >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="vat" class="col-md-4">Courier Charges *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="courier_charges" value = "<?php if (isset($invoice_details[0]['courier_charges'])) {
+                                        echo $invoice_details[0]['courier_charges'];
+                                        } ?>" placeholder="Courier Charges" >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="vat" class="col-md-4">Penalty Amount *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="penalty_amount" value = "<?php if (isset($invoice_details[0]['penalty_amount'])) {
+                                        echo $invoice_details[0]['penalty_amount'];
+                                        } ?>" placeholder="Penalty Amount" >
                                 </div>
                             </div>
                             <div class="form-group">

@@ -19,6 +19,7 @@
          <th>Parts / Stands</th>
          <th>TDS Amount</th>
          <th>Upcountry Charges</th>
+         <th>Courier Charges</th>
          <th>Penalty</th>
          <th>Amount to be Paid By 247Around</th>
          <th>Amount to be Paid By Partner</th>
@@ -60,7 +61,8 @@
          <td><?php echo $invoice['total_additional_service_charge']; $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
          <td><?php echo ($invoice['parts_cost'] + $invoice['vat']); $sum_total_parts_cost +=($invoice['parts_cost'] + $invoice['vat']); ?></td>
          <td id="<?php echo 'tds_'.$count; ?>"><?php echo $invoice['tds_amount']; $sum_tds +=$invoice['tds_amount'];?></td>
-         <td id="<?php echo 'upcountry_'.$count; ?>"><?php if($invoice['type'] == "Cash" && $invoice['vendor_partner'] = "vendor") { echo "-".$invoice['upcountry_price'];} else { echo $invoice['upcountry_price']; } ?></td>
+         <td id="<?php echo 'upcountry_'.$count; ?>"><?php if($invoice['type'] == "Cash" && $invoice['vendor_partner'] == "vendor") { echo "-".$invoice['upcountry_price'];} else { echo $invoice['upcountry_price']; } ?></td>
+         <td id="<?php echo 'courier_charges_'.$count; ?>"><?php echo $invoice['courier_charges']; ?></td>
          <td id="<?php echo 'penalty_'.$count; ?>"><?php echo "-".$invoice['penalty_amount']; ?></td>
          <td id="<?php echo 'pay_247'.$count; ?>" ><?php  if($invoice['amount_collected_paid'] < 0){ echo $invoice['amount_collected_paid']; $pay_by_247 += ($invoice['amount_collected_paid'] );} else {echo "0.00"; } ?></td>
          <td id="<?php echo 'pay_partner'.$count; ?>"><?php if($invoice['amount_collected_paid'] > 0){ echo $invoice['amount_collected_paid']; $pay_by_partner += $invoice['amount_collected_paid'];} else {echo "0.00";} ?></td>
@@ -113,6 +115,7 @@
          <td><?php echo round($sum_total_additional_service_charge,0); ?></td>
          <td><?php echo round($sum_total_parts_cost,0); ?></td>
          <td><?php echo round($sum_tds,0); ?></td>
+         <td></td>
          <td></td>
          <td></td>
          <td><?php echo round($pay_by_247,0); ?></td>

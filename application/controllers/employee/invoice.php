@@ -608,10 +608,10 @@ class Invoice extends CI_Controller {
                     'upcountry_price' => $excel_data['total_upcountry_price'],
                     'rating' => 5,
                     'invoice_date' => date('Y-m-d'),
-                    'around_royalty' => ($excel_data['total_charges']- $tds + $excel_data['total_upcountry_price']),
+                    'around_royalty' => $excel_data['total_charges'] + $excel_data['total_upcountry_price'],
                     'due_date' => date("Y-m-d", strtotime($t_date . "+1 month")),
                     //Amount needs to be collected from Vendor
-                    'amount_collected_paid' => ($excel_data['total_charges']- $tds + $excel_data['total_upcountry_price']),
+                    'amount_collected_paid' => ($excel_data['total_charges'] + $excel_data['total_upcountry_price'] -$tds),
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
@@ -2696,8 +2696,17 @@ class Invoice extends CI_Controller {
             $data['service_tax'] = $this->input->post('service_tax');
             $data['parts_cost'] = $this->input->post('parts_cost');
             $data['vat'] = $this->input->post('vat');
-            $data['total_amount_collected'] = round(($data['total_service_charge'] + $data['total_additional_service_charge'] + $data['parts_cost'] + $data['vat'] + $data['service_tax']), 0);
-
+            $data['penalty_amount'] = $this->input->post("penalty_amount");
+            $data['upcountry_booking'] = $this->input->post("upcountry_booking");
+            $data['upcountry_distance'] = $this->input->post("upcountry_distance");
+            $data['courier_charges'] = $this->input->post("courier_charges");
+            $data['upcountry_price'] = $this->input->post("upcountry_price");
+            $data['penalty_bookings_count'] = $this->input->post("penalty_bookings_count");
+            $data['total_amount_collected'] = round(($data['total_service_charge'] + 
+                    $data['total_additional_service_charge'] + 
+                    $data['parts_cost'] + $data['vat'] + 
+                    $data['service_tax'] + $data['courier_charges'] -  $data['penalty_amount']), 0);
+            
             $entity_details = array();
             $main_invoice_file = "";
             $detailed_invoice_file = "";
@@ -2714,6 +2723,7 @@ class Invoice extends CI_Controller {
                 case 'A':
                     log_message('info', __FUNCTION__ . " .. type code:- A");
                     $data['type'] = 'Cash';
+                    $data['total_amount_collected'] = ($data['total_amount_collected']+ $data['upcountry_price']);
                     $data['around_royalty'] = round($data['total_amount_collected'], 0);
                     $data['amount_collected_paid'] = round($data['total_amount_collected'], 0);
 
@@ -2726,6 +2736,8 @@ class Invoice extends CI_Controller {
 
                             $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
                         }
+                        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+                        $data['invoice_date'] = date("Y-m-d");
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
                     }
                     if ($sms_sent) {
@@ -2742,7 +2754,8 @@ class Invoice extends CI_Controller {
                 case 'B':
                     log_message('info', __FUNCTION__ . " .. type code:- B");
                     $data['type'] = "FOC";
-
+                    $data['total_amount_collected'] = ($data['total_amount_collected'] - $data['upcountry_price']);
+                
                     $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
                     $data['around_royalty'] = 0;
                     $data['amount_collected_paid'] = -($data['total_amount_collected'] - $tds['tds']);
@@ -2751,6 +2764,8 @@ class Invoice extends CI_Controller {
 
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
+                        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+                        $data['invoice_date'] = date("Y-m-d");
 
                         $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], $entity_details[0]['sc_code']);
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
@@ -2776,7 +2791,8 @@ class Invoice extends CI_Controller {
 
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
-
+                        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+                        $data['invoice_date'] = date("Y-m-d");
                         $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
                     }
@@ -2794,8 +2810,6 @@ class Invoice extends CI_Controller {
 
                     break;
             }
-
-            $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
 
             if (!empty($_FILES["invoice_file_excel"]['tmp_name'])) {
                 $temp = explode(".", $_FILES["invoice_file_excel"]["name"]);
