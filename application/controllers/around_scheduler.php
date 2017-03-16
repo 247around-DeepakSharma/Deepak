@@ -435,13 +435,23 @@ class Around_scheduler extends CI_Controller {
                 $rm_email .=$value['official_email'];
                 $rm_email .=",";
             }
+            
+            $admin_gp = $this->employee_model->get_employee_email_by_group('admin');
+            $admin_email ='';
+            foreach ($admin_gp as $key => $value){
+                $admin_email .=$value['official_email'];
+                $admin_email .=",";
+            }
+            
             $to = substr($rm_email,0,-1);
+            $cc = substr($admin_email,0,-1);
+            
             $message="Please find attached bookings list where SF is not available in the respective pincode.";
 
             $this->email->clear(TRUE);
             $this->email->from('booking@247around.com', '247around Team');
-            $this->email->to("$to");
-            $this->email->cc(ANUJ_EMAIL_ID);
+            $this->email->to($to);
+            $this->email->cc($cc);
             $this->email->subject("SF NOT AVAILABLE IN PINCODES LIST");
             $this->email->message($message);
             $this->email->attach($csv, 'attachment');
