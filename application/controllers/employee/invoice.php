@@ -608,10 +608,10 @@ class Invoice extends CI_Controller {
                     'upcountry_price' => $excel_data['total_upcountry_price'],
                     'rating' => 5,
                     'invoice_date' => date('Y-m-d'),
-                    'around_royalty' => $excel_data['total_charges'],
+                    'around_royalty' => $excel_data['total_charges'] + $excel_data['total_upcountry_price'],
                     'due_date' => date("Y-m-d", strtotime($t_date . "+1 month")),
                     //Amount needs to be collected from Vendor
-                    'amount_collected_paid' => ($excel_data['total_charges'] -$tds),
+                    'amount_collected_paid' => ($excel_data['total_charges'] + $excel_data['total_upcountry_price'] -$tds),
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
