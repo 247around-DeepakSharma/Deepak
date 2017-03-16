@@ -430,27 +430,24 @@
                 <?php } ?>
             </div>
 
+            
+            <div class="col-md-12" id="booking_history" style="margin-top:20px;"></div>
+            
             <div class="col-md-12" id="penalty_on_booking">
                 <?php if (!empty($penalty)) { ?>
                     <h1 style='font-size:24px;'>Penalty History</h1>
 
                     <table  class="table table-striped table-bordered">
                         <tr>
-                            <th class="jumbotron" style="text-align: center">Status</th>
-                            <th class="jumbotron" style="text-align: center">Booking ID</th>
-                            <th class="jumbotron" style="text-align: center">Current State</th>
-                            <th class="jumbotron" style="text-align: center">Penalty Amount</th>
-                            <th class="jumbotron" style="text-align: center">Remarks</th>
-<!--                            <th class="jumbotron" style="text-align: center">Agent</th>-->
                             <th class="jumbotron" style="text-align: center">Date</th>
+                            <th class="jumbotron" style="text-align: center">Status</th>
+                            <th class="jumbotron" style="text-align: center">Penalty Amount</th>
+                            <th class="jumbotron" style="text-align: center">Agent Name</th>
+                            <th class="jumbotron" style="text-align: center">Remarks</th>
                         </tr>
                             <?php foreach ($penalty as $key => $value){?>
+                            <?php if($penalty[$key]['active'] == 1){?>
                             <tr>
-                                <td><?php echo 'Penalty Added' ?></td>
-                                <td><?php echo $penalty[$key]['booking_id']; ?></td>
-                                <td><?php echo $penalty[$key]['current_state']; ?></td>
-                                <td><?php echo $penalty[$key]['penalty_amount']; ?></td>
-                                <td><?php echo $penalty[$key]['remarks']; ?></td>
                                 <td><?php
                                     $old_date = $penalty[$key]['create_date'];
                                     $old_date_timestamp = strtotime($old_date);
@@ -458,14 +455,14 @@
                                     echo $new_date;
                                     ?>
                                 </td>
-                            </tr>
-                            <?php if($penalty[$key]['active'] == 0){?>
-                            <tr>
-                                <td><?php echo 'Penalty Removed' ?></td>
-                                <td><?php echo $penalty[$key]['booking_id']; ?></td>
-                                <td><?php echo $penalty[$key]['current_state']; ?></td>
+                                <td><?php echo 'Penalty Added' ?></td>
                                 <td><?php echo $penalty[$key]['penalty_amount']; ?></td>
-                                <td><?php echo $penalty[$key]['penalty_remove_reason']; ?></td>
+                                <td><?php echo $penalty[$key]['agent_name']; ?></td>
+                                <td><?php echo $penalty[$key]['remarks']; ?></td>
+                                
+                            </tr>
+                            <?php }else if($penalty[$key]['active'] == 0){?>
+                            <tr>
                                 <td><?php
                                     $old_date = $penalty[$key]['penalty_remove_date'];
                                     $old_date_timestamp = strtotime($old_date);
@@ -473,6 +470,11 @@
                                     echo $new_date;
                                     ?>
                                 </td>
+                                <td><?php echo 'Penalty Removed' ?></td>
+                                <td><?php echo $penalty[$key]['penalty_amount']; ?></td>
+                                <td><?php echo $penalty[$key]['agent_name']; ?></td>
+                                <td><?php echo $penalty[$key]['penalty_remove_reason']; ?></td>
+                                
                             </tr>
                             <?php }?>
                             <?php }?>
@@ -481,7 +483,6 @@
 
                 <?php } ?>
             </div>
-            <div class="col-md-12" id="booking_history" style="margin-top:20px;"></div>
         </div>
     </div>
 </div>

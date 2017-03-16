@@ -253,9 +253,9 @@ class Penalty_model extends CI_Model {
      * 
      */
     function get_penalty_on_booking_by_booking_id($booking_id){
-        $this->db->select('penalty_on_booking.*,employee.full_name as agent_name');
+        $this->db->select('*');
         $this->db->where('booking_id',$booking_id);
-        $this->db->join('employee','penalty_on_booking.agent_id = employee.id');
+        //$this->db->join('employee','penalty_on_booking.penalty_remove_agent_id = employee.id');
         $query = $this->db->get('penalty_on_booking');
         return $query->result_array();
         
