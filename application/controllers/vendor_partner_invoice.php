@@ -258,12 +258,6 @@ class vendor_partner_invoice extends CI_Controller {
 		    'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		);
 		$this->invoices_model->insert_new_invoice($invoice_details);
-
-		/*
-		 * Update booking-invoice table to capture this new invoice against these bookings.
-		 * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
-		 */
-		$this->update_booking_invoice_mappings_repairs($bookings_completed, $invoice_id);
 	    }
 
 	    //To test for 1 vendor, break
@@ -498,12 +492,6 @@ class vendor_partner_invoice extends CI_Controller {
 		    'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		);
 		$this->invoices_model->insert_new_invoice($invoice_details);
-
-		/*
-		 * Update booking-invoice table to capture this new invoice against these bookings.
-		 * Since this is a type A invoice, it would be stored as a vendor-debit invoice.
-		 */
-		$this->update_booking_invoice_mappings_installations($bookings_completed, $invoice_id);
 	    }
 
 	    //For testing, break after 1st vendor
@@ -734,12 +722,6 @@ class vendor_partner_invoice extends CI_Controller {
 		    'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		);
 		$this->invoices_model->insert_new_invoice($invoice_details);
-
-		/*
-		 * Update booking-invoice table to capture this new invoice against these bookings.
-		 * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
-		 */
-		$this->update_booking_invoice_mappings_repairs($bookings_completed, $invoice_id);
 	    }
 
 	    //To test for 1 vendor, break
@@ -823,29 +805,4 @@ class vendor_partner_invoice extends CI_Controller {
 	    'r_vat' => $r_vat, 'r_total' => $r_total, 't_vp' => $t_vp
 	);
     }
-
-    /*
-     * Update booking-invoice table to capture this new invoice against these bookings.
-     * Since this is a type A invoice, it would be stored as a vendor-debit invoice.
-     */
-
-    function update_booking_invoice_mappings_repairs($bookings_completed, $invoice_id) {
-	foreach ($bookings_completed as $booking) {
-	    $details = array('vendor_debit_invoice_id' => $invoice_id);
-	    $this->invoices_model->update_booking_invoice_mapping($booking['booking_id'], $details);
-	}
-    }
-
-    /*
-     * Update booking-invoice table to capture this new invoice against these bookings.
-     * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
-     */
-
-    function update_booking_invoice_mappings_installations($bookings_completed, $invoice_id) {
-	foreach ($bookings_completed as $booking) {
-	    $details = array('vendor_credit_invoice_id' => $invoice_id);
-	    $this->invoices_model->update_booking_invoice_mapping($booking['booking_id'], $details);
-	}
-    }
-
 }
