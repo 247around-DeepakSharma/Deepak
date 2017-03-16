@@ -31,7 +31,7 @@ class Do_background_process extends CI_Controller {
         $this->load->library("miscelleneous");
         $this->load->library('booking_utilities');
         $this->load->library('partner_sd_cb');
-	$this->load->library('partner_cb');
+        $this->load->library('partner_cb');
         $this->load->library('asynchronous_lib');
         $this->load->library('notify');
         $this->load->library('s3');
@@ -58,7 +58,7 @@ class Do_background_process extends CI_Controller {
 
                 $upcountry_status = $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
                 if ($upcountry_status) {
-                    log_message('info', __FUNCTION__ . " => Continue Process".$booking_id);
+                    log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
                     $this->miscelleneous->send_sms_create_job_card($upcountry_status);
                 }
 
@@ -167,39 +167,39 @@ class Do_background_process extends CI_Controller {
         log_message('info', "Booking Id " . print_r($booking_id, TRUE));
 
         $data = $this->booking_model->getbooking_charges($booking_id);
-        $current_status = _247AROUND_CANCELLED ;
+        $current_status = _247AROUND_CANCELLED;
 
         $upcountry_charges = 0;
         log_message('info', ": " . " service center data " . print_r($data, TRUE));
-       
+
         foreach ($data as $key => $value) {
-            $current_status1 = _247AROUND_CANCELLED ;
-            if($value['internal_status'] == _247AROUND_COMPLETED){
+            $current_status1 = _247AROUND_CANCELLED;
+            if ($value['internal_status'] == _247AROUND_COMPLETED) {
                 $current_status1 = _247AROUND_COMPLETED;
                 $current_status = _247AROUND_COMPLETED;
             }
-            
-            if($key ==0){
+
+            if ($key == 0) {
                 $upcountry_charges = $value['upcountry_charges'];
             }
-            if(!empty($value['admin_remarks']) && !empty($value['service_center_remarks'])){
+            
+            if (!empty($value['admin_remarks']) && !empty($value['service_center_remarks'])) {
                 $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
                         "   Admin:-  " . $value['admin_remarks'];
-                
-            } else if(!empty ($value['service_center_remarks']) && empty ($value['admin_remarks'])) {
+            } else if (!empty($value['service_center_remarks']) && empty($value['admin_remarks'])) {
                 $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'];
-                
-            } else if(empty ($value['service_center_remarks']) && !empty ($value['admin_remarks'])){
+            } else if (empty($value['service_center_remarks']) && !empty($value['admin_remarks'])) {
                 $service_center['closing_remarks'] = "Admin:-  " . $value['admin_remarks'];
-            } else{
+            } else {
                 $service_center['closing_remarks'] = "";
             }
+            
             $service_center['current_status'] = $current_status1;
             $unit_details['booking_status'] = $service_center['internal_status'] = $value['internal_status'];
             $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];
 
-            $service_center['update_date'] =  date('Y-m-d H:i:s');
-            if(is_null($value['closed_date'])){
+            $service_center['update_date'] = date('Y-m-d H:i:s');
+            if (is_null($value['closed_date'])) {
                 $unit_details['ud_closed_date'] = $service_center['closed_date'] = date("Y-m-d H:i:s");
             } else {
                 $unit_details['ud_closed_date'] = $value['closed_date'];
@@ -212,80 +212,67 @@ class Do_background_process extends CI_Controller {
             $unit_details['customer_paid_basic_charges'] = $value['service_charge'];
             $unit_details['customer_paid_extra_charges'] = $value['additional_service_charge'];
             $unit_details['customer_paid_parts'] = $value['parts_cost'];
-            
-            
 
             log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
-             // update price in the booking unit details page
+            // update price in the booking unit details page
             $this->booking_model->update_unit_details($unit_details);
         }
-        if(is_null($value['closed_date'])){
+
+        if (is_null($value['closed_date'])) {
             $booking['closed_date'] = date("Y-m-d H:i:s");
-            
         } else {
             $booking['closed_date'] = $value['closed_date'];
         }
-        
+
         $booking['current_status'] = $current_status;
         $booking['internal_status'] = $current_status;
         $booking['amount_paid'] = $data[0]['amount_paid'];
         $booking['closing_remarks'] = $service_center['closing_remarks'];
         $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
-        
-        
 
         //update booking_details table
-        log_message('info', ": " . " update booking details data (" .$current_status .")".print_r($booking, TRUE));
+        log_message('info', ": " . " update booking details data (" . $current_status . ")" . print_r($booking, TRUE));
 
-        if($current_status == _247AROUND_CANCELLED){
-
+        if ($current_status == _247AROUND_CANCELLED) {
             $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
-            $booking['internal_status'] =  $booking['cancellation_reason'];
-
+            $booking['internal_status'] = $booking['cancellation_reason'];
         }
-        
+
         //check partner status from partner_booking_status_mapping table  
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
-            if(!empty($partner_status)){
-                $booking['partner_current_status'] = $partner_status[0];
-                $booking['partner_internal_status'] = $partner_status[1];
-            }
+        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
+        if (!empty($partner_status)) {
+            $booking['partner_current_status'] = $partner_status[0];
+            $booking['partner_internal_status'] = $partner_status[1];
+        }
 
         $this->booking_model->update_booking($booking_id, $booking);
         //Update Spare parts details table
-        $this->service_centers_model->update_spare_parts(array('booking_id'=> $booking_id), 
-                 array('status'=> $current_status));
+        $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => $current_status));
 
         //Log this state change as well for this booking
-        $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'],
-                $agent_id, $agent_name, _247AROUND);
+        $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, _247AROUND);
 
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-        $send['booking_id']  = $booking_id;
+        $send['booking_id'] = $booking_id;
         $send['state'] = $current_status;
         $this->asynchronous_lib->do_background_process($url, $send);
 
         $this->partner_cb->partner_callback($booking_id);
     }
 
-
     /**
      * @desc : this method send request to send sms and email for completed, cancelled, Rescheduled, open completed/cancelled booking
      */
     function send_sms_email_for_booking() {
-	log_message('info', __FUNCTION__);
-	$booking_id = $this->input->post('booking_id');
+        log_message('info', __FUNCTION__);
+        $booking_id = $this->input->post('booking_id');
         $state = $this->input->post('state');
 
-	log_message('info', __FUNCTION__ . " Booking ID :" . print_r($booking_id, true) . " Sms OR EMAIL tag: " . print_r($state, true));
+        log_message('info', __FUNCTION__ . " Booking ID :" . print_r($booking_id, true) . " Sms OR EMAIL tag: " . print_r($state, true));
 
-	$this->notify->send_sms_email_for_booking($booking_id, $state);
-        log_message('info', ":  Send sms and email request for booking_id" .print_r($booking_id, TRUE). " and state ". print_r($state, TRUE));
-
+        $this->notify->send_sms_email_for_booking($booking_id, $state);
+        log_message('info', ":  Send sms and email request for booking_id" . print_r($booking_id, TRUE) . " and state " . print_r($state, TRUE));
     }
-    
-    
-  
-    /* end controller */
 
+    /* end controller */
 }
