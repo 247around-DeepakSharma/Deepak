@@ -64,8 +64,8 @@
          <th>Vendor/Partner</th>
          <th>Amount to be Paid</th>
          <th>Amount to be Received</th>
-         <th>Pay</th>
           <?php if(isset($service_center)){ ?>
+         <th>Pay</th>
          <th>Total Defective Spare Parts</th>
          <th>Download Summary</th>
           <?php } ?>
