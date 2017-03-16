@@ -952,7 +952,7 @@
                                         ?>">
                                         <label for="bank_account" class="col-md-4">Bank Account</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control"  name="bank_account" value = "<?php
+                                            <input type="text" class="form-control allownumericwithdecimal"  name="bank_account" value = "<?php
                                                 if (isset($query[0]['bank_account'])) {
                                                     echo $query[0]['bank_account'];
                                                 }
@@ -1419,4 +1419,10 @@
         return false;
     });  
     
+    $(".allownumericwithdecimal").on("keypress keyup blur",function (event) {
+        $(this).val($(this).val().replace(/[^0-9\.]/g,''));
+        if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+            event.preventDefault();
+        }
+    });
 </script>
