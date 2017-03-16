@@ -20,6 +20,7 @@ class Booking extends CI_Controller {
     function __Construct() {
 	parent::__Construct();
 
+        $this->load->model('employee_model');
 	$this->load->model('booking_model');
 	$this->load->model('user_model');
 	$this->load->model('vendor_model');
@@ -1198,8 +1199,17 @@ class Booking extends CI_Controller {
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
-        
-        $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
+        foreach($data['penalty'] as $key=> $value){
+            if($value['active'] == 0){
+                $where=array('id'=> $value['penalty_remove_agent_id']);
+                $data1 = $this->employee_model->get_employee_by_group($where);
+                $data['penalty'][$key]['agent_name'] = $data1[0]['full_name'];
+            }else if($value['active'] == 1){
+                $where=array('id'=> $value['agent_id']);
+                $data1 = $this->employee_model->get_employee_by_group($where);
+                $data['penalty'][$key]['agent_name'] = $data1[0]['full_name'];
+            }
+        }
         if(!is_null($data['booking_history'][0]['sub_vendor_id'])){
             $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' =>$data['booking_history'][0]['sub_vendor_id']));
         }
