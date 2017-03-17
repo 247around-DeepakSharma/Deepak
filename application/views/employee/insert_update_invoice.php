@@ -103,7 +103,7 @@
                             <div class="form-group">
                                 <label for="Type Code" class="col-md-4">Type Code</label>
                                 <div class="col-md-6">
-                                    <select name="type_code" class="form-control">
+                                    <select name="type_code" class="form-control" id="type_code">
                                         <option value="A" <?php if (isset($invoice_details[0]['type_code'])) {
                                             if($invoice_details[0]['type_code'] == "A"){ echo "selected";}
                                             } ?>>Cash</option>
@@ -207,8 +207,10 @@
                                         
                                     </div>
                         <div class="col-md-offset-5" style ="margin-top: 40px; margin-bottom: 20px;">
+                            <?php if (isset($invoice_details[0]['invoice_id'])) {} else {?> <a href="javascript:void(0)" onclick="fetch_invoice_id()" class="btn btn-md btn-success" >Fetch Invoice ID</a><?php  } ?>
+                       
                             <input type="submit" value="<?php if (isset($invoice_details[0]['invoice_id'])) { echo "Update Invoice"; } else { echo "Insert Invoice";}?>" class="btn btn-md btn-primary" />
-                        </div>
+                         </div>
                     </div>
                 </div>
             </form>
@@ -249,5 +251,28 @@
     
              }
          });
+       }
+       
+       function fetch_invoice_id(){
+            
+            var vendor_partner_type = '<?php echo $vendor_partner; ?>';
+            var vendor_partner_id =  $("#vendor_partner_id").val();
+            var from_date = $("#from_date").val();
+            var type_code = $("#type_code").val();
+            
+            if(from_date !==""){
+                $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/invoice/fetch_invoice_id/' + vendor_partner_id 
+                        + '/' + vendor_partner_type + '/' + from_date + '/' + type_code,
+                    success: function (data) {
+                        alert(data);
+                        $(".panel-title").html(data);
+                    }
+                });
+                
+            }
+        
+        
        }
 </script>

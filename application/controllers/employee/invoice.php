@@ -3032,4 +3032,45 @@ class Invoice extends CI_Controller {
         }
     }
     
+    /**
+     * @desc: This method is used to fetch invoice id. It called by Ajax while 
+     * invoice invoice details.
+     * @param String $vendor_partner_id
+     * @param String $vendor_partner_type
+     * @param String $from_date
+     * @param String $type_code
+     */
+    function fetch_invoice_id($vendor_partner_id, $vendor_partner_type, $from_date, $type_code){
+        $entity_details = array();
+        if($vendor_partner_type == "vendor"){
+            
+            $entity_details = $this->vendor_model->viewvendor($vendor_partner_id);
+        } else {
+             $entity_details = $this->partner_model->getpartner($vendor_partner_id);
+        }
+        
+        if(!empty($entity_details)){
+            switch ($type_code) {
+
+                case 'A':
+                    
+                    $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
+                    echo $invoice_id;
+                    break;
+                case 'B':
+                    
+                    $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, $entity_details[0]['sc_code']);
+                    echo $invoice_id;
+                    break;
+                case 'D':
+                    $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
+                    echo $invoice_id;
+                    break;
+            }
+            
+        } else {
+            echo "DATA NOT FOUND";
+        }
+    }
+    
 }
