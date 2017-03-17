@@ -2000,8 +2000,8 @@ class Booking_model extends CI_Model {
                     $this->db->where('partner_login.id', $value['agent_id']);
                     $query1 = $this->db->get();
                     $data1 = $query1->result_array();
-                    $data[$key]['full_name'] = $data1[0]['full_name'];
-                    $data[$key]['source'] = $data1[0]['source'];
+                    $data[$key]['full_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
+                    $data[$key]['source'] = isset($data1[0]['source'])?$data1[0]['source']:'';
                 }
             } else if(!is_null($value['service_center_id'])){
                 // For Service center
@@ -2011,8 +2011,8 @@ class Booking_model extends CI_Model {
                 $this->db->join('service_centres', 'service_centres.id = service_centers_login.service_center_id');
                 $query1 = $this->db->get();
                 $data1 = $query1->result_array();
-                $data[$key]['full_name'] = $data1[0]['full_name'];
-                $data[$key]['source'] = $data1[0]['source'];
+                $data[$key]['full_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
+                $data[$key]['source'] = isset($data1[0]['source'])?$data1[0]['source']:'';
             }
             
         }
