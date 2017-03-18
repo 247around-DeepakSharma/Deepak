@@ -257,7 +257,7 @@ class Around_scheduler extends CI_Controller {
             $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, 
                     $data['cancellation_reason'] , '1', '247around', _247AROUND);
 
-            echo 'Cancelled ................' . PHP_EOL;
+            echo $booking_id . ' Cancelled ................' . PHP_EOL;
         } else {
             echo $booking_id. ' Query State Changed to => ' . $status['current_status'] . PHP_EOL;
         }
