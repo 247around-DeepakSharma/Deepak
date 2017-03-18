@@ -35,6 +35,7 @@ class service_centre_charges extends CI_Controller {
 	$this->load->model('user_model');
 	$this->load->model('booking_model');
         $this->load->model('partner_model');
+        $this->load->model('reporting_utils');
 	$this->load->model('service_centre_charges_model');
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -160,6 +161,7 @@ class service_centre_charges extends CI_Controller {
      */
     function upload_excel_form($data = "") {
         $view['data'] = $data;
+        $view['latest_file'] = $this->reporting_utils->get_all_latest_uploaded_file();
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/upload_service_price',$view);
     }
