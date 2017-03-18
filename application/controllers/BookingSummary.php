@@ -1519,5 +1519,58 @@ EOD;
         $data['ajax_call']=true;
         echo $this->load->view('employee/show_partners_booking_report_chart', $data,true);
     }
+    /**
+     * @Desc: This function is used to show the view of latest file uploaded in s3
+     * @params:void
+     * @return:void
+     * 
+     */
+    function download_latest_uploaded_file(){
+        log_message('info', __FUNCTION__ . ' => Entering, Agent_id:'.$this->session->userdata('id'));
+        $data['latest_file'] = $this->reporting_utils->get_all_latest_uploaded_file();
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/download_latest_uploaded_file',$data);
+    }
+    
+    /**
+     * @Desc: This function is used to download latest file uploaded in s3
+     * @params:string
+     * @return:void
+     * 
+     */
+    function download_latest_file($flag){
+        //Getting latest entry form pincode_mapping_s3_upload_details table
+        if($flag === 'pincode'){
+            $where = array('bucket_name' => 'vendor-pincodes');
+        }elseif($flag === 'price'){
+            $where = array('file_type' => 'SF-Price-List');
+        }elseif($flag === 'appliance'){
+            $where = array('file_type' => 'Partner-Appliance-Details');
+        }
+        $latest_file = $this->reporting_utils->get_latest_file($where);
+        $filename = $latest_file[0]['file_name'];
+        
+        //S3 file Path
+        if($flag === 'price' || $flag == 'appliance'){
+             $file_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$filename;
+        }elseif($flag === 'pincode'){
+             $file_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-pincodes/".$filename;
+        }
+        
+        //Downloading File
+        if(!empty($filename)){
+
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=\"$filename\""); 
+            readfile($file_path);
+            exit;
+        }else{
+            //Logging_error
+            log_message('info',__FUNCTION__.' No latest file has been found to be uploaded.');
+        }
+        
+        
+    }
 
 }

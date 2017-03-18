@@ -321,7 +321,7 @@
                                                                 <input class='price_checkbox' <?php if(isset($unit_details[0]['quantity'])){
                                                                     foreach ($unit_details[0]['quantity'] as  $tags) {
                                                                         if($tags['price_tags'] == $price['service_category'] ){
-                                                                           echo "checked";
+                                                                           echo " checked ";
                                                                         }
                                                                      }
                                                                     }
@@ -359,7 +359,7 @@
                                                 <div class="col-md-6">
                                                     <select type="text" onchange="getCategoryForService(this.id)" class="form-control appliance_brand"    name="appliance_brand[]" id="<?php echo "appliance_brand_".$number;?>" required>
                                                         <option disabled>Select Brand</option>
-                                                        <?php foreach ($brand as  $appliance_brand) { ?>
+                                                        <?php foreach ($brand[$key] as  $appliance_brand) { ?>
                                                         <option <?php  if (strcasecmp($appliance_brand['brand_name'], $booking_unit_details['brand']) == 0){ echo "selected";} ?> ><?php echo $appliance_brand['brand_name']; ?></option>
                                                         <?php } ?>
                                                     </select>
@@ -372,7 +372,7 @@
                                                     <select type="text" class="form-control appliance_category"   id="<?php echo "appliance_category_".$number;?>" name="appliance_category[]"  onChange="getCapacityForCategory(this.value,this.id);" required>
                                                         <option disabled>Select Appliance Category</option>
                                                         <?php if(!empty($category)){ 
-                                                        foreach ($category as  $appliance_category) { ?>
+                                                        foreach ($category[$key] as  $appliance_category) { ?>
                                                         <option <?php if( $appliance_category['category'] == $booking_unit_details['category']) { echo "selected"; } ?>><?php echo $appliance_category['category']; ?></option>
                                                         <?php } }?>
                                                     </select>
@@ -514,10 +514,11 @@
                                                                     placeholder='Enter discount' readonly />
                                                                 </td>
                                                                 <td>
+                                                                   
                                                                     <input class='price_checkbox' <?php if(isset($booking_unit_details['quantity'])){
                                                                         foreach ($unit_details[$key]['quantity'] as  $tags) {
                                                                             if($tags['price_tags'] == $price['service_category'] ){
-                                                                               echo "checked";
+                                                                               echo " checked ";
                                                                             }
                                                                          }
                                                                         }
