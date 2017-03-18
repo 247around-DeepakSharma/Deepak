@@ -175,7 +175,7 @@ class invoices_model extends CI_Model {
         foreach ($data as $value) {
 
             $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid FROM  `vendor_partner_invoices` "
-                    . "WHERE vendor_partner_id = $value[id] AND vendor_partner = '$vendor_partner' AND `due_date` <= CURRENT_DATE()";
+                    . "WHERE vendor_partner_id = $value[id] AND vendor_partner = '$vendor_partner' ";
 
             $data = $this->db->query($sql);
             $result = $data->result_array();
