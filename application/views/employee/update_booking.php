@@ -321,7 +321,7 @@
                                                                 <input class='price_checkbox' <?php if(isset($unit_details[0]['quantity'])){
                                                                     foreach ($unit_details[0]['quantity'] as  $tags) {
                                                                         if($tags['price_tags'] == $price['service_category'] ){
-                                                                           echo "checked";
+                                                                           echo " checked ";
                                                                         }
                                                                      }
                                                                     }
@@ -514,11 +514,11 @@
                                                                     placeholder='Enter discount' readonly />
                                                                 </td>
                                                                 <td>
-                                                                    
+                                                                   
                                                                     <input class='price_checkbox' <?php if(isset($booking_unit_details['quantity'])){
                                                                         foreach ($unit_details[$key]['quantity'] as  $tags) {
                                                                             if($tags['price_tags'] == $price['service_category'] ){
-                                                                               echo "checked";
+                                                                               echo " checked ";
                                                                             }
                                                                          }
                                                                         }
