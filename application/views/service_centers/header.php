@@ -31,20 +31,40 @@
                 <div class="modal-dialog">
                     <!-- Modal content-->
                     <div class="modal-content">
+                        
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">247around Call Completion Contacts:</h4>
+                            <h4 class="modal-title">247around Call Center - 9555000247</h4>
                         </div>
+                        
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Calls & CRM Issues:</h4>
+                        </div>
+                        
                         <div class="modal-body">
                             <ul>
                                 <li>Mr. Devendra – Back Office Closure Champion – Delhi Office – 8130572244 (English and Hindi) - booking@247around.com</li>
                                 <li>Mrs. Ranju - Back Office Closure – Delhi Office – 8130572244 (Bengali and Hindi) - booking@247around.com</li>
                             </ul>
                         </div>
+                        
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">247around Regional Contacts:</h4>
+                            <h4 class="modal-title">Invoices Queries:</h4>
                         </div>
+                        
+                        <div class="modal-body">
+                            <ul>
+                                <li>Mr. Adil – Delhi Office – 9990009102 (English and Hindi) – adila@247around.com</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Regional Contacts:</h4>
+                        </div>
+                        
                         <div class="modal-body">
                             <ul>
                                 <li>Escalation South India – Mr. K Suresh – Regional Service Head South India – Based in Chennai Office – 9840492171 (English, Tamil, Malayalam, Telugu and Kannada) - suresh@247around.com</li>
@@ -53,22 +73,22 @@
                                 <li>Escalation North India – Mr. Nitin Malhotra – Director & CEO – Based in Delhi Office – 9810872244 (English, Hindi and Punjabi) – nits@247around.com</li>
                             </ul>
                         </div>
+                        
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">247around TV Bracket Ordering:</h4>
+                            <h4 class="modal-title">TV Bracket Ordering:</h4>
                         </div>
+                        
                         <div class="modal-body">
                             <ul>
                                 <li>Ms. Vijaya – Delhi Office – 0120-4540185 (English and Hindi) – vijaya@247around.com, booking@247around.com</li>
                             </ul>
                         </div>
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">247around Call Center - 9555000247</h4>
-                        </div>
+                        
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
+                        
                     </div>
                 </div>
             </div>
