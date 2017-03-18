@@ -393,7 +393,11 @@ class Do_background_upload_excel extends CI_Controller {
 		$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 		$unit_details['booking_id'] = $booking['booking_id'];
 		$unit_details['partner_id'] = $booking['partner_id'];
-		$appliance_details['description'] = $unit_details['appliance_description'] = $value['Product_Type'];
+                
+                //Use this to remove special chars:
+                //preg_replace('/[^(\x20-\x7F)]*/','', $string);
+		$appliance_details['description'] = $unit_details['appliance_description'] = preg_replace('/[^(\x20-\x7F)]*/','', $value['Product_Type']);
+                
                 $appliance_details['category'] = $unit_details['appliance_category'] = isset($value['service_appliance_data']['category'])?$value['service_appliance_data']['category'] :'';
 
                 $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($value['service_appliance_data']['capacity'])?$value['service_appliance_data']['capacity'] :'';
@@ -731,7 +735,7 @@ class Do_background_upload_excel extends CI_Controller {
 	    $prod = trim($value['Product']);
             
             //check if service_id already exist or not by using product description
-            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($value['Product_Type']));
+            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim(preg_replace('/[^(\x20-\x7F)]*/','', $value['Product_Type'])));
             
             if(!empty($service_appliance_data)){
                 log_message('info', __FUNCTION__ . "=> Dsecription found");
@@ -829,7 +833,7 @@ class Do_background_upload_excel extends CI_Controller {
 	$unproductive_description = $this->unproductive_product();
 	foreach ($data['valid_data'] as $key => $value) {
 
-	    $prod = trim($value['Product_Type']);
+	    $prod = trim(preg_replace('/[^(\x20-\x7F)]*/','', $value['Product_Type']));
 
 	    foreach ($unproductive_description as $un_description) {
 		if (stristr($prod, $un_description)) {
