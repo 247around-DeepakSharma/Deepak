@@ -1731,11 +1731,11 @@ class Reporting_utils extends CI_Model {
      */
     function get_partners_booking_report_chart_data($flag=""){
         if($flag == "cuurent_month"){
-            $where ="MONTH(bd.create_date) = MONTH(CURDATE()) and 
-                      YEAR(bd.create_date) = YEAR(CURDATE())";
+            $where ="MONTH(bd.closed_date) = MONTH(CURDATE()) and 
+                      YEAR(bd.closed_date) = YEAR(CURDATE())";
         }else if($flag == "last_month"){
-            $where ="MONTH(bd.create_date) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH) and 
-                      YEAR(bd.create_date) = YEAR(CURRENT_DATE - INTERVAL 1 MONTH)";
+            $where ="MONTH(bd.closed_date) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH) and 
+                      YEAR(bd.closed_date) = YEAR(CURRENT_DATE - INTERVAL 1 MONTH)";
         }else{
             $where = "";
         }
