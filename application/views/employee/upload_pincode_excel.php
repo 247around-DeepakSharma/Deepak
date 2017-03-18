@@ -59,9 +59,13 @@
                                 </div>
                             </div>
                             <div class='col-md-6'>
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     Total Pincode&nbsp;:&nbsp;&nbsp;<b><?php echo $total_pincode?></b>
-                                </div><br><br>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Uploaded By : </strong><?php echo $latest_file[0]['full_name']?>
+                                </div>
+                                <br><br>
                                 <div class='col-md-12'>
                                     <b><i>Last Pincode Added</i></b>
                                 </div><hr>
