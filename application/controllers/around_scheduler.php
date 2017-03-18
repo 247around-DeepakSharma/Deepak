@@ -409,7 +409,7 @@ class Around_scheduler extends CI_Controller {
         $message = system('elinks -dump "https://push3.maccesssmspush.com/servlet/com.aclwireless.pushconnectivity.listeners.ConfigurationListener?action=prepaid&userid=blackmalt&pass=blackmalt67&appid=blackmalt&subappid=blackmalt"');
         
         $to = ANUJ_EMAIL_ID;
-        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+        $this->notify->sendEmail(SYS_HEALTH_EMAIL, $to, "", "", $subject, $message, "");
     }
     /**
      * @desc: This function is used to send RM weekly pincode not available booking data via cron

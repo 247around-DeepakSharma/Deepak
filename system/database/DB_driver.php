@@ -1207,7 +1207,7 @@ class CI_DB_driver {
             $load_view .= '<br>'.$key .' - '.$value;
         }
         
-        $CI->email->from('booking@247around.com', '247Around Team');
+        $CI->email->from(SYS_HEALTH_EMAIL, SYS_HEALTH_NAME);
         $CI->email->to(DEVELOPER_EMAIL);
         $CI->email->subject('Database Error');
         $CI->email->message($load_view);

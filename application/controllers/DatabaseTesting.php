@@ -399,7 +399,7 @@ class DatabaseTesting extends CI_Controller {
    
             </tbody></table>';
        // echo $table;
-        $from = "booking@247around.com";
+        $from = SYS_HEALTH_EMAIL;
         $to= "anuj@247around.com";
         $bcc= "";
         $cc = DEVELOPER_EMAIL;
@@ -427,7 +427,7 @@ class DatabaseTesting extends CI_Controller {
     function send_error_file(){
         $attachment = FCPATH."application/logs/error_" . date('Y-m-d') . ".txt";
         if(file_exists($attachment)){
-            $from = "booking@247around.com";
+            $from = SYS_HEALTH_EMAIL;
             $to= DEVELOPER_EMAIL;
             $bcc= "";
             $cc = "";
