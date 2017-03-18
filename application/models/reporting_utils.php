@@ -1748,7 +1748,7 @@ class Reporting_utils extends CI_Model {
                 SELECT MAX(create_date)
                 FROM file_uploads
                 GROUP BY file_type
-                ) ORDER BY create_date DESC) as a JOIN employee as b ON a.agent_id=b.id ";
+                ) ORDER BY create_date DESC, file_type) as a JOIN employee as b ON a.agent_id=b.id where file_type IN ('SF-Price-List','Partner-Appliance-Details')";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
