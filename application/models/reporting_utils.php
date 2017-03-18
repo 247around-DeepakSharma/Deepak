@@ -1741,14 +1741,15 @@ class Reporting_utils extends CI_Model {
      * @return:array
      * 
      */
-    function get_all_latest_uploaded_file() {
+    function get_all_latest_uploaded_file($file_type) {
+        $where = "where file_type IN ($file_type)";
         $sql = "SELECT a.file_type, b.full_name FROM (SELECT file_type, agent_id,create_date
                 FROM file_uploads
                 WHERE create_date IN (
                 SELECT MAX(create_date)
                 FROM file_uploads
                 GROUP BY file_type
-                ) ORDER BY create_date DESC, file_type) as a JOIN employee as b ON a.agent_id=b.id where file_type IN ('SF-Price-List','Partner-Appliance-Details')";
+                ) ORDER BY create_date DESC, file_type) as a JOIN employee as b ON a.agent_id=b.id $where";
         $query = $this->db->query($sql);
         return $query->result_array();
     }

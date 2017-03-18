@@ -237,10 +237,6 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/user/user_count" ><i class="fa fa-fw fa-desktop"></i> <strong> Users</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url()?>BookingSummary/download_latest_uploaded_file" ><i class="fa fa-fw fa-desktop"></i> <strong>Download Latest Uploaded File</strong></a>
-                        </li>
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>

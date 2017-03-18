@@ -1165,6 +1165,8 @@ class vendor extends CI_Controller {
         if ($error != "") {
             $mapping_file['error'] = $error;
         }
+        $file_type = "'Vendor-Pincode'";
+        $mapping_file['latest_file'] = $this->reporting_utils->get_all_latest_uploaded_file($file_type);
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/upload_pincode_excel', $mapping_file);
     }
