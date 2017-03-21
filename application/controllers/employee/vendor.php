@@ -3890,7 +3890,6 @@ class vendor extends CI_Controller {
            }
        }
     }
-
     /**
      * @desc: This function is used to get the reassign partner page
      * @param: booking id
@@ -3939,6 +3938,7 @@ class vendor extends CI_Controller {
         }
         
     }
+<<<<<<< HEAD
     /**
      * if pincode wxist in the india pincode table the echo success other wise Not Exist
      * @param String $pincode
@@ -3951,5 +3951,7 @@ class vendor extends CI_Controller {
             echo "Not Exist";
         }
     }
+=======
+>>>>>>> 55c1a41... reassign partner
    
 }
