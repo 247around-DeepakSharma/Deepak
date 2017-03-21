@@ -1034,7 +1034,10 @@ class vendor extends CI_Controller {
                     $this->session->userdata('employee_id'), _247AROUND);
             
             //Prepare job card (For Reassigned Vendor)
-            $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+            $job_card = array();
+	    $job_card_url = base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/".$booking_id;
+	    $this->asynchronous_lib->do_background_process($job_card_url, $job_card);
+
             $url = base_url() . "employee/vendor/mark_upcountry_booking/".$booking_id."/".$this->session->userdata('id')
                     ."/".$this->session->userdata('employee_id');
             $async_data['data'] = array();

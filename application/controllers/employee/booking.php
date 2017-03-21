@@ -860,6 +860,7 @@ class Booking extends CI_Controller {
 	$data['current_status'] = 'Rescheduled';
 	$data['internal_status'] = 'Rescheduled';
 	$data['update_date'] = date("Y-m-d H:i:s");
+        $data['mail_to_vendor'] = 0;
         
         //check partner status
         $partner_id=$this->input->post('partner_id');
@@ -892,15 +893,14 @@ class Booking extends CI_Controller {
 	    $send_data['booking_id'] = $booking_id;
 	    $send_data['current_status'] = "Rescheduled";
 	    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-	    $this->asynchronous_lib->do_background_process($url, $send_data);
-	    log_message('info', __FUNCTION__ . " Set mail to vendor flag to 0  " . print_r($booking_id, true));
-	    
-            //Setting mail to vendor flag to 0, once booking is rescheduled
-	    $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
+	    $this->asynchronous_lib->do_background_process($url, $send_data);	    
+           
 	    log_message('info', __FUNCTION__ . " Request to prepare Job Card  " . print_r($booking_id, true));
 	    
-            //Prepare job card
-	    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+            $job_card = array();
+	    $job_card_url = base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/".$booking_id;
+	    $this->asynchronous_lib->do_background_process($job_card_url, $job_card);
+
 	    log_message('info', __FUNCTION__ . " Partner Callback  " . print_r($booking_id, true));
 	    
             // Partner Call back

@@ -32,11 +32,11 @@ class bookingjobcard extends CI_Controller {
         $this->load->library("session");
         $this->load->library("notify");
 
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
-            return TRUE;
-        } else {
-            redirect(base_url() . "employee/login");
-        }
+//        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
+//            return TRUE;
+//        } else {
+//            redirect(base_url() . "employee/login");
+//        }
     }
 
     /**
@@ -155,7 +155,7 @@ class bookingjobcard extends CI_Controller {
         $data['success'] = "Job card generated and mailed Successfully";
         exec("rm -rf " . escapeshellarg($output_file_pdf));
         exec("rm -rf " . escapeshellarg($output_file_excel));
-
+        
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/jobcard', $data);
     }
