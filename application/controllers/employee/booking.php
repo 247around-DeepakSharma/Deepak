@@ -1203,11 +1203,11 @@ class Booking extends CI_Controller {
             if($value['active'] == 0){
                 $where=array('id'=> $value['penalty_remove_agent_id']);
                 $data1 = $this->employee_model->get_employee_by_group($where);
-                $data['penalty'][$key]['agent_name'] = $data1[0]['full_name'];
+                $data['penalty'][$key]['agent_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
             }else if($value['active'] == 1){
                 $where=array('id'=> $value['agent_id']);
                 $data1 = $this->employee_model->get_employee_by_group($where);
-                $data['penalty'][$key]['agent_name'] = $data1[0]['full_name'];
+                $data['penalty'][$key]['agent_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
             }
         }
         if(!is_null($data['booking_history'][0]['sub_vendor_id'])){
@@ -1343,10 +1343,45 @@ class Booking extends CI_Controller {
 	$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
 
         $data['p_av'] = $p_av;
-
+        $data['services'] = json_decode(json_encode($this->booking_model->selectservice()), True);
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/viewpendingqueries', $data);
     }
+//    
+//    function view_queries_ajax($status, $p_av, $service="",$page = 0, $offset = '0') {
+//        $where = array('services' => $service);
+//        if ($page == 0) {
+//	    $page = 50;
+//	}
+//
+//	//$offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
+//	$config['base_url'] = base_url() . 'employee/booking/view_queries_ajax/' . $status."/".$p_av."/".$service."/".$page;
+//        //Get count of all pending queries
+//	$total_queries = $this->booking_model->get_queries(0, "All", $status, $p_av, "",$where);
+//        
+//	$config['total_rows'] = $total_queries[0]->count;
+//	if($offset == "All"){
+//		$config['per_page'] = $config['total_rows'];
+//
+//	} else {
+//		$config['per_page'] = $page;  
+//	}
+//	
+//	$config['uri_segment'] = 7;
+//	$config['first_link'] = 'First';
+//	$config['last_link'] = 'Last';
+//
+//	$this->pagination->initialize($config);
+//	$data['links'] = $this->pagination->create_links();
+//        
+//        //Get actual data for all pending queries now
+//	$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, "",$where);
+//        $data['p_av'] = $p_av;
+//        $data['status'] = $status;
+//        $data['is_ajax_call'] = True;
+//        $data['services'] = json_decode(json_encode($this->booking_model->selectservice()), True);
+//	$this->load->view('employee/viewpendingqueriesajax', $data);
+//    }
 
     /**
      * @desc: load update booking form to update booking
