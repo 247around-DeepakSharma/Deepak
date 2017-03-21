@@ -36,6 +36,15 @@ function outbound_call(phone_number){
 <div id="page-wrapper" >
     <div class="">
         <div class="row">
+<!--            <div class="col-md-6 services">
+                <select class="form-control" id="services" name="services">
+                    <option selected disabled>Select services</option>
+                        <?php foreach ($services as $key => $values) { ?>
+                            <option  value="<?php echo $values['services']; ?>">
+                                <?php echo $values['services'];}?>
+                            </option>
+                </select>
+            </div>-->
             <?php  if($this->uri->segment(3) == 'view_queries' || $this->uri->segment(3) == 'finduser'){ $status = $this->uri->segment(4); $pv = $this->uri->segment(5);; ?>
             <div class="pagination">
                 <select id="dynamic_select">
@@ -69,6 +78,7 @@ function outbound_call(phone_number){
                    </div>';
                 }
                 ?>
+                <div id="queries_data">
                 <table class="table table-bordered table-hover table-striped">
 
                     <thead>
@@ -182,7 +192,7 @@ function outbound_call(phone_number){
 
                 </table>
                  <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
-            </div>
+                </div></div>
         </div>
     </div>
 </div>
@@ -326,4 +336,24 @@ function call_on_phone(phone)
     Android.nextScreen(phone);
 }
 </script>
+<!--<script>
+    $(document).ready(function(){
+        $('#services').change(function(){
+        var services = $('#services').val();
+        var status = '<?php echo $status ;?>';
+        var pv = '<?php echo $pv; ?>';
+        $.ajax({
+                 type: 'POST',
+                 data:{service : services},
+                 url: '<?php echo base_url(); ?>employee/booking/view_queries_ajax'+'/'+status+'/'+pv+'/'+services,
+                 success: function (data) {
+                  $('#queries_data').html(data);
 
+                 }
+               });
+        }); 
+     });
+        $('.custom_pagination a').click(function(){
+           alert("dss");
+        }); 
+</script>-->

@@ -1,5 +1,5 @@
 <!--<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>-->
-<div  id="page-wrapper">
+<div style="padding: 0 15px;">
     <div class="row">
 
 <!--        <div class="panel panel-info clear">
