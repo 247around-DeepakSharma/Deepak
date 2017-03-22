@@ -921,7 +921,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($result)) {
             // Calculate Upcountry booking details
-            $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, "distinct");
+            $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
             $meta['total_misc_price'] = 0;
             
             if(!empty($upcountry_data)){
@@ -941,7 +941,7 @@ class invoices_model extends CI_Model {
                
             }
             
-            $penalty_data = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date);
+            $penalty_data = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "distinct");
             $penalty_amount = 0;
             if(!empty($penalty_data)){
                 $penalty = array();
