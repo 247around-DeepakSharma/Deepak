@@ -1999,11 +1999,15 @@ class Invoice extends CI_Controller {
         $invoice_month = date('F', strtotime($get_invoice_month));
 
         $vendor_data = $this->vendor_model->getVendorContact($vendor_id);
+        $rm_details  = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+        $cc = NITS_ANUJ_EMAIL_ID;
+        if(!empty($rm_details)){
+            $cc = NITS_ANUJ_EMAIL_ID.", ".$rm_details[0]['official_email'];
+        }
 
         $to = $vendor_data[0]['primary_contact_email'] . ',' . $vendor_data[0]['owner_email'];
         $from = 'billing@247around.com';
-        $cc = NITS_ANUJ_EMAIL_ID;
-
+        
         $message = "Dear Partner,<br/><br/>";
         $message .= "Please find attached invoice for Brackets delivered in " . $invoice_month . ". ";
         $message .= "Hope to have a long lasting working relationship with you.";
