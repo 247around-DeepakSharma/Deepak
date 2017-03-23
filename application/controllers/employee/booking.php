@@ -622,6 +622,10 @@ class Booking extends CI_Controller {
         
 	if ($this->session->flashdata('result') != ''){
 	    $data['success'] = $this->session->flashdata('result');
+            
+        }
+        if(isset($_SESSION['result'])){
+            unset($_SESSION['result']);
         }
 
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -2424,6 +2428,9 @@ class Booking extends CI_Controller {
         
 	if ($this->session->flashdata('result') != ''){
 	    $data['success'] = $this->session->flashdata('result');
+        }
+        if(isset($_SESSION['result'])){
+            unset($_SESSION['result']);
         }
 
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));

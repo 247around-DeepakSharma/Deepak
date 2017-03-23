@@ -117,3 +117,4 @@
         
     }
 </script>
+<?php $this->session->unset_userdata('msg'); ?>
