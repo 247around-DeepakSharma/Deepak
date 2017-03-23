@@ -16,7 +16,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <input type="hidden" name="invoice_id" value="<?php if (isset($invoice_details[0]['invoice_id'])) {
+                            <input type="hidden" name="invoice_id" id="invoice_id_gen" value="<?php if (isset($invoice_details[0]['invoice_id'])) {
                                 echo $invoice_details[0]['invoice_id'];
                                 } ?>"/>
                             <div class="form-group" >
@@ -268,6 +268,7 @@
                     success: function (data) {
                         alert(data);
                         $(".panel-title").html(data);
+                        $("#invoice_id_gen").val(data);
                     }
                 });
                 
