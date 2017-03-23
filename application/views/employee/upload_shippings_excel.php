@@ -81,3 +81,4 @@ function submitForm() {
 
 }
 </script>
+<?php $this->session->unset_userdata('file_error'); ?>

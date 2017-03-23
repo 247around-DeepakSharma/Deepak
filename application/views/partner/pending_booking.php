@@ -174,6 +174,7 @@
     </div>
 </div>
 <?php $this->session->unset_userdata('success'); ?>
+<?php $this->session->unset_userdata('error'); ?>
 <script>
     $(document).on("click", ".open-AddBookDialog", function () {
         var myBookId = $(this).data('id');

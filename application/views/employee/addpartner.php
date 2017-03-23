@@ -673,3 +673,5 @@
     
     
 </script>
+<?php $this->session->unset_userdata('error'); ?>
+<?php $this->session->unset_userdata('success'); ?>

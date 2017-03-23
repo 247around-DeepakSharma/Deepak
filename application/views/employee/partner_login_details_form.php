@@ -104,3 +104,5 @@
  
 
 </script>
+<?php $this->session->unset_userdata('login_error'); ?>
+<?php $this->session->unset_userdata('login_success'); ?>
