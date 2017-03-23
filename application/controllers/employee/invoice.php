@@ -1042,17 +1042,19 @@ class Invoice extends CI_Controller {
         log_message('info', __METHOD__ . ': Reset Invoice id ' . " invoice id " . $invoice_id);
 
         if ($invoice_type == "final") {
-            $this->booking_model->update_booking_unit_details_by_any(array($unit_column => $invoice_id), array($unit_column => NULL));
-            // $data = array();
-            foreach ($invoices_data as $value) {
+            if ($invoices_data[0]['price_tags'] != "Upcountry Services") {
+                $this->booking_model->update_booking_unit_details_by_any(array($unit_column => $invoice_id), array($unit_column => NULL));
+                
+                foreach ($invoices_data as $value) {
+                    if ($value['price_tags'] != "Upcountry Services") {
 
-                log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
-                $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
+                        log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
+                        $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
+                    }
+                }
             }
         }
     }
-
-    
 
     /**
      * @desc: This is used to generates foc type invoices for vendor
