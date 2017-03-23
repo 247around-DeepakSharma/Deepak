@@ -1085,6 +1085,7 @@ class Invoice extends CI_Controller {
         }
         $to_date1 = date('Y-m-d', strtotime('+1 day', strtotime($to_date)));
         $penalty_data = $this->penalty_model->add_penalty_in_invoice($details['vendor_partner_id'], $from_date, $to_date1, "");
+        $credit_penalty = $this->penalty_model->get_removed_penalty($details['vendor_partner_id'], $from_date, "");
         $courier_charges =  $this->invoices_model->get_sf_courier_charges($details['vendor_partner_id'], $from_date, $to_date1);
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -1140,7 +1141,7 @@ class Invoice extends CI_Controller {
                 
             }
 
-            $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge + $total_courier_charges;
+            $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
             $tds = 0;
             $tds_tax_rate = 0;
             $tds_per_rate = 0;
@@ -1210,7 +1211,7 @@ class Invoice extends CI_Controller {
                 't_vat' => $total_vat_charge,
                 't_total' => $t_total,
                 't_rating' => $invoices[0]['avg_rating'],
-                'tds' => $tds,
+                'tds' => round($tds,2),
                 'tds_tax_rate' => $tds_tax_rate,
                 't_vp_w_tds' => round($t_total - $tds, 0) // vendor payment with TDS
             );
@@ -1224,10 +1225,14 @@ class Invoice extends CI_Controller {
                 $invoices_data['upcountry_details'] = array();
             }
             $penalty_amount = (array_sum(array_column($penalty_data,'p_amount')));
+            $cr_penalty_amount = (array_sum(array_column($credit_penalty,'p_amount')));
             $excel_data['total_penalty_amount'] = -$penalty_amount;
+            $excel_data['cr_total_penalty_amount'] = $cr_penalty_amount;
             $excel_data['total_upcountry_price'] = round($total_upcountry_price,2);
             $excel_data['total_courier_charges'] = round($total_courier_charges,2);
-            $excel_data['t_vp_w_tds'] = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price'] - $penalty_amount;
+            $excel_data['t_vp_w_tds'] = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price']
+                    + $excel_data['cr_total_penalty_amount'] + $excel_data['total_courier_charges'] - $penalty_amount;
+            
             $excel_data['invoice_id'] = $invoice_id;
             $excel_data['vendor_name'] = $invoices[0]['company_name'];
             $excel_data['vendor_address'] = $invoices[0]['address'];
@@ -1280,6 +1285,11 @@ class Invoice extends CI_Controller {
                     'data' => $penalty_data                   
                 ),
                 array(
+                    'id' => 'cr_penalty',
+                    'repeat' => true,
+                    'data' => $credit_penalty                   
+                ),
+                array(
                     'id' => 'courier',
                     'repeat' => true,
                     'data' => $courier_charges                   
@@ -1300,7 +1310,6 @@ class Invoice extends CI_Controller {
 
             //for xlsx: excel, for xls: excel2003
             $R->render('excel', $output_file_excel);
-         
             $res2 = 0;
             system(" chmod 777 " . $output_file_excel, $res2);
             log_message('info', __FUNCTION__ . " Excel File Created " . $output_file_excel);
@@ -1409,6 +1418,8 @@ class Invoice extends CI_Controller {
                     'upcountry_distance' => $upcountry_distance,
                     'penalty_amount' => $penalty_amount,
                     'penalty_bookings_count' =>array_sum(array_column($penalty_data,'penalty_times')),
+                    'credit_penalty_amount' => $cr_penalty_amount,
+                    'credit_penalty_bookings_count' =>array_sum(array_column($credit_penalty,'penalty_times')),
                     'courier_charges' => $total_courier_charges,
                     'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
@@ -1451,6 +1462,7 @@ class Invoice extends CI_Controller {
                     header("Content-Disposition: attachment; filename=\"$invoice_id.zip\""); 
                     readfile($output_file_dir.$invoice_id.'.zip');
                 }
+                exec("rm -rf " . escapeshellarg($output_file_dir.$invoice_id.'.zip'));
             }
             unset($excel_data);
            
@@ -2774,6 +2786,8 @@ class Invoice extends CI_Controller {
                     $data['parts_cost'] + $data['vat'] + 
                     $data['service_tax'] + $data['courier_charges'] -  $data['penalty_amount']), 0);
             
+            $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+            
             $entity_details = array();
             $main_invoice_file = "";
             $detailed_invoice_file = "";
@@ -2803,7 +2817,7 @@ class Invoice extends CI_Controller {
 
                             $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
                         }
-                        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+                        
                         $data['invoice_date'] = date("Y-m-d");
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
                     }
@@ -2831,7 +2845,7 @@ class Invoice extends CI_Controller {
 
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
-                        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+                       
                         $data['invoice_date'] = date("Y-m-d");
 
                         $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], $entity_details[0]['sc_code']);
@@ -2858,7 +2872,6 @@ class Invoice extends CI_Controller {
 
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
-                        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
                         $data['invoice_date'] = date("Y-m-d");
                         $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);

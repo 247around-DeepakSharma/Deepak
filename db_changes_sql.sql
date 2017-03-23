@@ -2126,3 +2126,7 @@ ALTER TABLE `vendor_partner_invoices` CHANGE `upcountry_rate` `upcountry_rate` D
 CHANGE `upcountry_distance` `upcountry_distance` DECIMAL(10,2) NULL DEFAULT '0.00', 
 CHANGE `upcountry_price` `upcountry_price` DECIMAL(10,2) NULL DEFAULT '0.00', 
 CHANGE `penalty_bookings_count` `penalty_bookings_count` INT(11) NULL COMMENT 'On how many bookings penalty is imposed?';
+
+--Abhay 23 March
+ALTER TABLE `vendor_partner_invoices` ADD `credit_penalty_amount` DECIMAL(10,2) NULL DEFAULT NULL AFTER `penalty_amount`, 
+ADD `credit_penalty_bookings_count` INT(10) NULL DEFAULT NULL AFTER `credit_penalty_amount`;

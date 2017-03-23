@@ -194,6 +194,10 @@ class invoices_model extends CI_Model {
                 $result[0]['count_spare_part'] = count($this->partner_model->get_spare_parts_booking($where));
             } else if (isset($value['public_name'])) {
                 $result[0]['name'] = $value['public_name'];
+                $result[0]['address'] = $value['address'];
+                $result[0]['pincode'] = $value['pincode'];
+                $result[0]['district'] = $value['district'];
+                $result[0]['state'] = $value['state'];
             }
 
             $result[0]['id'] = $value['id'];
@@ -942,7 +946,10 @@ class invoices_model extends CI_Model {
             }
             
             $penalty_data = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "distinct");
+            $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, "distinct");
+           
             $penalty_amount = 0;
+            $cr_penalty_amount = 0;
             if(!empty($penalty_data)){
                 $penalty = array();
                 $penalty[0]['s_total_service_charge'] = '';
@@ -956,6 +963,21 @@ class invoices_model extends CI_Model {
                 $penalty[0]['misc_price'] =  -$penalty_amount;
 
                 $result = array_merge($result, $penalty);
+            }
+            
+            if(!empty($credit_penalty)){
+                $cr_penalty = array();
+                $cr_penalty[0]['s_total_service_charge'] = '';
+                $cr_penalty[0]['p_tax_rate'] ='';
+                $cr_penalty[0]['p_part_cost'] =  '';
+                $cr_penalty[0]['s_service_charge'] = '';
+                $cr_penalty[0]['qty'] = array_sum(array_column($credit_penalty,'penalty_times'));
+                $cr_penalty[0]['description'] = "Credit- Bookings Not Updated";
+                $cr_penalty[0]['p_rate'] = $credit_penalty[0]['penalty_amount'];
+                $cr_penalty_amount = (array_sum(array_column($credit_penalty,'p_amount')));
+                $cr_penalty[0]['misc_price'] =  $cr_penalty_amount;
+
+                $result = array_merge($result, $cr_penalty);
             }
             
             $meta['total_part_cost'] = 0;
@@ -1040,7 +1062,7 @@ class invoices_model extends CI_Model {
      * @desc: This method is used to get Main Cash Invoice Data
      * @param String $vendor_id
      * @param String $from_date
-     * @param String $to_date
+     * @param String $to_date_tmp
      * @return boolean
      */
     function get_vendor_cash_invoice($vendor_id, $from_date, $to_date_tmp) {
