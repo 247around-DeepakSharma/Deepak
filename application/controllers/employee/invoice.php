@@ -2426,7 +2426,7 @@ class Invoice extends CI_Controller {
 
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".xlsx";
-                $directory_pdf = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".xlsx";
+                $directory_pdf = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".pdf";
 
                 $foc_upload = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 $foc_upload_pdf = $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
