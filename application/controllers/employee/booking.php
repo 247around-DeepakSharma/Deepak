@@ -583,7 +583,6 @@ class Booking extends CI_Controller {
     function addbooking($phone_number) {
 	$data = $this->booking_model->get_city_source();
         $data['user'] =  $this->user_model->search_user($phone_number);
-        $data['pincode'] = $this->vendor_model->getPincode_from_india_pincode();
         $where_internal_status = array("page" => "FollowUp", "active" => '1');
 	$data['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -1413,7 +1412,7 @@ class Booking extends CI_Controller {
         } else {
             $booking['services'] =  $this->booking_model->selectservice();
         }
-        $booking['pincode'] = $this->vendor_model->getPincode_from_india_pincode();
+        
 	$booking['capacity'] = array();
         $booking['category'] = array();
         $booking['brand'] = array();
