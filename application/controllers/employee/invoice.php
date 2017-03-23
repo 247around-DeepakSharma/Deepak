@@ -873,6 +873,7 @@ class Invoice extends CI_Controller {
             system(" chmod 777 " . $output_file_excel, $res1);
             
             if ($details['invoice_type'] === "final") {
+                
                 $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($invoices['booking'][0]['id']);
                 $rem_email_id = "";
                 if(!empty($rm_details)){
@@ -891,7 +892,7 @@ class Invoice extends CI_Controller {
                 //attach detailed invoice
                 $this->email->attach($output_file_excel, 'attachment');
                 //attach mail invoice
-                $this->email->attach($output_file_dir . $invoice_id . ".xlsx", 'attachment');
+                $this->email->attach($output_file_dir . $invoice_id . ".pdf", 'attachment');
                 $message = "Dear Partner,"."<br/><br/>Please find attached CASH invoice. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.";
                 $message .= "<br/><br/>Thanks,<br/>247around Team";
                 $this->email->message($message);
@@ -958,7 +959,7 @@ class Invoice extends CI_Controller {
                     'type_code' => 'A',
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoices['booking'][0]['id'],
-                    'invoice_file_excel' => $invoice_id . '.xlsx',
+                    'invoice_file_excel' => $invoice_id . '.pdf',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     'invoice_date' => date("Y-m-d"),
                     'from_date' => date("Y-m-d", strtotime($from_date)),
@@ -1008,7 +1009,8 @@ class Invoice extends CI_Controller {
             
             if ($details['invoice_type'] !== "final") {
                 if(file_exists($output_file_excel)){
-                    system('zip '.$output_file_dir.$invoice_id.'.zip '.$output_file_excel. ' '.$output_file_dir . $output_file . ".xlsx" );
+                    system('zip '.$output_file_dir.$invoice_id.'.zip '.$output_file_excel. ' '.$output_file_dir . $output_file . ".xlsx "
+                            .$output_file_dir . $output_file . ".pdf" );
 
                     header('Content-Description: File Transfer');
                     header('Content-Type: application/octet-stream');
@@ -1319,7 +1321,7 @@ class Invoice extends CI_Controller {
                 $this->email->cc($cc);
                 $this->email->subject($subject);
                 $this->email->attach($output_file_excel, 'attachment');
-                $this->email->attach($output_file_dir . $output_file . ".xlsx", 'attachment');
+                $this->email->attach($output_file_dir . $output_file . ".pdf", 'attachment');
                 $message = "Dear Partner,"."<br/><br/>Please find attached FOC invoice. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.";
                 $message .= "<br/><br/>Thanks,<br/>247around Team";
                 $this->email->message($message);
@@ -1378,7 +1380,7 @@ class Invoice extends CI_Controller {
                     'type_code' => 'B',
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoices[0]['id'],
-                    'invoice_file_excel' => $invoice_id . '.xlsx',
+                    'invoice_file_excel' => $invoice_id . '.pdf',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     //'invoice_file_pdf' => $output_file . '.pdf',
                     'invoice_date' => date("Y-m-d"),
@@ -1441,7 +1443,8 @@ class Invoice extends CI_Controller {
            
              if ($details['invoice_type'] !== "final") {
                 if(file_exists($output_file_excel)){
-                    system('zip '.$output_file_dir.$invoice_id.'.zip '.$output_file_excel. ' '.$output_file_dir . $output_file . ".xlsx" );
+                    system('zip '.$output_file_dir.$invoice_id.'.zip '.$output_file_excel. ' '.$output_file_dir . $output_file . ".xlsx ".
+                            $output_file_dir . $output_file . ".pdf" );
 
                     header('Content-Description: File Transfer');
                     header('Content-Type: application/octet-stream');
@@ -2403,6 +2406,19 @@ class Invoice extends CI_Controller {
             log_message('info', __METHOD__ . ": Excel FIle generated " . $output_file_excel);
             $res2 = 0;
             system(" chmod 777 " . $output_file_excel, $res2);
+            
+            //convert excel to pdf
+            $output_file_pdf = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".pdf";
+            
+            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+            $tmp_path = TMP_FOLDER;
+            $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
+            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                    $output_file_excel . ' 2> ' . $tmp_output_file;
+            $output = '';
+            $result_var = '';
+            exec($cmd, $output, $result_var);
 
 
             if ($invoice_type == "final") {
@@ -2410,8 +2426,25 @@ class Invoice extends CI_Controller {
 
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".xlsx";
+                $directory_pdf = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".xlsx";
 
                 $foc_upload = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $foc_upload_pdf = $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                if ($foc_upload_pdf) {
+                    log_message('info', __METHOD__ . ": Main FOC PDF Invoice File uploaded to s3");
+                    echo "Main FOC PDF Invoice File uploaded to s3";
+                } else {
+                    $foc_upload_pdf =  $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                    if ($foc_upload_pdf) {
+                        log_message('info', __METHOD__ . ": Main FOC PDF Invoice File uploaded to s3");
+                        echo "Main FOC PDF Invoice File uploaded to s3";
+                    } else {
+                        log_message('info', __METHOD__ . ": Main FOC PDF Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".pdf");
+                        echo "Main FOC PDF Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".pdf";
+                    }
+                }
+
+                
                 if ($foc_upload) {
                     log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3");
                     echo "Main FOC Invoice File uploaded to s3";
@@ -2588,14 +2621,42 @@ class Invoice extends CI_Controller {
             log_message('info', __FUNCTION__ . " Excel Created " . $output_file_excel);
             $res2 = 0;
             system(" chmod 777 " . $output_file_excel, $res2);
+            
+            //convert excel to pdf
+            $output_file_pdf = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".pdf";
+            
+            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+            $tmp_path = TMP_FOLDER;
+            $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
+            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                    $output_file_excel . ' 2> ' . $tmp_output_file;
+            $output = '';
+            $result_var = '';
+            exec($cmd, $output, $result_var);
 
             if ($invoice_type == "final") {
                 log_message('info', __FUNCTION__ . " Generate Final Cash Invoice ");
 
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".xlsx";
+                $directory_pdf = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".pdf";
 
                 $invoice_uploaded = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $invoice_uploaded_pdf = $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                if ($invoice_uploaded_pdf) {
+                    echo 'Main Cash PDF Invoice Uploaded' . PHP_EOL;
+                    log_message('info', __FUNCTION__ . " Main Cash PDF Invoice is uploaded to S3: " . $invoices['meta']['invoice_id'] . ".pdf");
+                } else {
+                    $invoice_uploaded_pdf = $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                    if ($invoice_uploaded_pdf) {
+                        echo 'Main Cash PDF Invoice Uploaded' . PHP_EOL;
+                        log_message('info', __FUNCTION__ . " Main Cash PDF Invoice is uploaded to S3: " . $invoices['meta']['invoice_id'] . ".pdf");
+                    } else {
+                        echo 'Main Cash PDF Invoice NOT Uploaded' . PHP_EOL;
+                        log_message('info', __FUNCTION__ . " Main Cash PDF Invoice is NOT uploaded to S3: " . $invoices['meta']['invoice_id'] . ".pdf");
+                    }
+                }
                 if ($invoice_uploaded) {
                     echo 'Main Cash Invoice Uploaded' . PHP_EOL;
                     log_message('info', __FUNCTION__ . " Main Cash Invoice is uploaded to S3: " . $invoices['meta']['invoice_id'] . ".xlsx");
