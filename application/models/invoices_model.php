@@ -18,6 +18,7 @@ class invoices_model extends CI_Model {
     function insert_new_invoice($details) {
         //Check if invoice_id present then update row, else add new 
         $this->db->insert('vendor_partner_invoices', $details);
+        return $this->db->insert_id();
     }
 
     /**
@@ -198,6 +199,9 @@ class invoices_model extends CI_Model {
                 $result[0]['pincode'] = $value['pincode'];
                 $result[0]['district'] = $value['district'];
                 $result[0]['state'] = $value['state'];
+                $result[0]['seller_code'] = $value['seller_code'];
+                $result[0]['invoice_email_cc'] = $value['invoice_email_cc'];
+                $result[0]['invoice_email_to'] = $value['invoice_email_to'];
             }
 
             $result[0]['id'] = $value['id'];
