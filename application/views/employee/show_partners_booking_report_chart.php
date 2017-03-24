@@ -141,7 +141,7 @@
                             <?php foreach ($data as $key => $value) { ?>
                                 <tr>
                                     <td><?php echo $value['public_name']; ?></td>
-                                    <td id="input_count"><?php echo $value['completed']; ?></td>
+                                    <td id="input_count"><?php echo $value['count']; ?></td>
                                 </tr>
                             <?php } ?>
                             <tr class="totalColumn info">
@@ -183,7 +183,7 @@
 
                                             <?php foreach ($data as $value) { ?>
                                                         partner_name.push("<?php echo $value['public_name']; ?>");
-                                                        completed_booking.push(parseInt("<?php echo $value['completed'];  ?>"));
+                                                        completed_booking.push(parseInt("<?php echo $value['count'];  ?>"));
 
 
                                             <?php } ?>
@@ -241,19 +241,75 @@
              <!-- show data on dropdown selection JS -->
                                             <script type="text/javascript">
                                                 $('#period').select2();
+                                                var date = new Date();
+                                                var firstDay = new Date(date.getFullYear(), date.getMonth()-1, 1);
+                                                var lastDay = new Date(date.getFullYear(), date.getMonth(), 0);
 
                                                 function get_data()
                                                 {
-                                                    var period = $("#period option:selected").val();
                                                     $.ajax({
-                                                        type:'POST',
-                                                        url:'<?php echo base_url(); ?>BookingSummary/get_partners_booking_report_chart',
-                                                        data:'flag='+period,
-                                                        success:function(response){
-                                                            //console.log(response);
-                                                            $('.chart_div').html(response);
-                                                        }
-                                                    }); 
+            type: 'POST',
+            url: '<?php echo base_url(); ?>BookingSummary/get_partners_booking_report_chart',
+            data: {sDate: firstDay, eDate: lastDay, booking_status: 'Completed'},
+            success: function (response) {
+                //console.log(response);
+//                $('#loader_gif1').attr('src', "");
+//                $('#loader_gif1').css('display', 'none');
+                var data = JSON.parse(response);
+                var partner_name = data.partner_name.split(',');
+                var completed_booking = JSON.parse("[" + data.completed_booking + "]");
+//                var booking_type = $('#booking_status').val();
+//                $('#chart_container').show();
+                //console.log(booking_type);
+                chart = new Highcharts.Chart({
+                    chart: {
+                        renderTo: 'chart_container',
+                        type: 'column',
+                        events: {
+                            load: Highcharts.drawTable
+                        },
+                    },
+                    title: {
+                        text: '',
+                        x: -20 //center
+                    },
+                    xAxis: {
+                        categories: partner_name
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Count'
+                        },
+                        plotLines: [{
+                                value: 0,
+                                width: 1,
+                                color: '#808080'
+                            }]
+                    },
+                    plotOptions: {
+                        column: {
+                            dataLabels: {
+                                enabled: true,
+                                crop: false,
+                                overflow: 'none'
+                            }
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: [
+                        {
+                            showInLegend: false,
+                            name: 'completed booking',
+                            data: completed_booking
+                        }]
+                });
+            }
+        });
                                                     
                                                 }
                                             </script>

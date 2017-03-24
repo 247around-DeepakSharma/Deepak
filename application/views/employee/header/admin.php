@@ -340,6 +340,10 @@
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/partners_booking_report_chart" ><i class="fa fa-fw fa-desktop"></i> <strong>Partners Booking Report</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/dashboard" ><i class="fa fa-fw fa-desktop"></i> <strong>New Dashboard</strong></a>
+                        </li>
                         
 <!--                        <li class="divider"></li>
                         <li>
