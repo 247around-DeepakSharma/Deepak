@@ -211,6 +211,11 @@ class Booking_utilities {
             
             //Send SMS to vendor
             $this->My_CI->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
+            
+            //For saving SMS to the database on sucess
+            $this->My_CI->notify->add_sms_sent_details($getbooking[0]['user_id'], 'vendor' , $getbooking[0]['primary_contact_phone_1'],
+                    $smsBody, $getbooking[0]['booking_id'],"booking_details_to_sf");
+            
             //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $subject,
                 "body" => $message, "type" => "Booking",
