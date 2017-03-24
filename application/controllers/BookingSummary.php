@@ -1207,6 +1207,37 @@ EOD;
 
         //echo json_encode($data);
     }
+    /**
+     * @desc: This function is used to get agent working details through ajax
+     * params: void
+     * retun :void
+     *
+     */
+    function agent_working_details_ajax($flag = "") {
+        $sDate = $this->input->post('sDate');
+        $eDate = $this->input->post('eDate');
+        $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
+        $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
+        $data['data']= $this->reporting_utils->get_agent_daily_reports($flag,$startDate,$endDate);
+        $agent_name = [];
+        $query_cancel = [];
+        $query_booking = [];
+        $calls_placed = [];
+        $calls_received = [];
+        foreach($data['data'] as $key => $value){
+            array_push($agent_name,$value['employee_id']);
+            array_push($query_cancel,$value['followup_to_cancel']);
+            array_push($query_booking,$value['followup_to_pending']);
+            array_push($calls_placed,$value['calls_placed']);
+            array_push($calls_received,$value['calls_recevied']);
+        }    
+        $data_report['agent_name'] = implode(",", $agent_name);
+        $data_report['query_cancel'] = implode(",", $query_cancel);
+        $data_report['query_booking'] = implode(",", $query_booking);
+        $data_report['calls_placed'] = implode(",", $calls_placed);
+        $data_report['calls_received'] = implode(",", $calls_received);
+        echo json_encode($data_report);
+    }
 
     /**
      * @desc: This function is used to insert agent daily calls report into table
@@ -1500,8 +1531,11 @@ EOD;
      * 
      */
     function partners_booking_report_chart(){
-        $flag = "cuurent_month";
-        $data['data']= $this->reporting_utils->get_partners_booking_report_chart_data($flag);
+        $timestamp = strtotime(date("Y-m-d"));
+        $startDate = date('Y-m-01 00:00:00', $timestamp);
+        $endDate = date('Y-m-d 23:59:59', $timestamp);
+        $bookingStatus = 'Completed';
+        $data['data']= $this->reporting_utils->get_partners_booking_report_chart_data($startDate,$endDate,$bookingStatus);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/show_partners_booking_report_chart',$data);
     }
@@ -1514,10 +1548,23 @@ EOD;
      * 
      */
     function get_partners_booking_report_chart(){
-        $flag = $this->input->post('flag');
-        $data['data']= $this->reporting_utils->get_partners_booking_report_chart_data($flag);
+        $sDate = $this->input->post('sDate');
+        $eDate = $this->input->post('eDate');
+        $bookingStatus = $this->input->post('booking_status');
+        $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
+        $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
+        $data['data']= $this->reporting_utils->get_partners_booking_report_chart_data($startDate,$endDate,$bookingStatus);
         $data['ajax_call']=true;
-        echo $this->load->view('employee/show_partners_booking_report_chart', $data,true);
+        $partner_name = [];
+        $booking_count = [];
+        foreach ($data['data'] as $value) {
+            array_push($partner_name,(string)$value['public_name']);
+            array_push($booking_count,$value['count']);
+        }
+        $data_report['partner_name'] = implode(",", $partner_name);
+        $data_report['completed_booking'] = implode(",", $booking_count);
+        echo json_encode($data_report);
+        //echo $this->load->view('employee/show_partners_booking_report_chart', $data,true);
     }
     /**
      * @Desc: This function is used to show the view of latest file uploaded in s3
