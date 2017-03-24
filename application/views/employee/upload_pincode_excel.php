@@ -99,5 +99,6 @@
         </div>
     </div>
 </div>
+<?php $this->session->unset_userdata('file_error'); ?>
 
 

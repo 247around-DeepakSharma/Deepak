@@ -39,22 +39,8 @@
                                     } ?>">
                                     <label for="booking_pincode" class="col-md-4">Pincode *</label>
                                     <div class="col-md-6">
-<!--                                        <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php //if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" >-->
-                                            <select   class="form-control"  id="booking_pincode" name="booking_pincode" required>
-                                                <option selected="selected" disabled="disabled">Select Pincode</option>
-                                                <?php
-
-                                                     $flag = 0;
-                                                    foreach ($pincode as $key => $value) {
-
-                                                        ?>
-                                                <option <?php if($value['pincode'] == $booking_history[0]['pincode']){ echo "Selected"; $flag = 1; }?>><?php echo $value['pincode']; ?></option>
-                                                <?php  }
-                                                    ?>
-                                                <?php if($flag == 0){ ?>
-                                                <option selected="selected" ><?php echo $booking_history[0]['pincode']; ?></option>
-                                                <?php } ?>
-                                            </select>
+                                        <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" >
+                                           
                                     </div>
                                 </div>
                                 <div class="form-group ">

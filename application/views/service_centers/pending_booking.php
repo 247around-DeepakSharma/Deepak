@@ -357,3 +357,5 @@
     
     
 </script>
+<?php $this->session->unset_userdata('success'); ?>
+<?php $this->session->unset_userdata('error'); ?>

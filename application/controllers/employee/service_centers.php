@@ -468,11 +468,6 @@ class Service_centers extends CI_Controller {
 
         $data['count'] = $config['total_rows'];
         $data['bookings'] = $this->service_centers_model->getcompleted_or_cancelled_booking($config['per_page'], $offset, $service_center_id, "Completed", $booking_id);
-
-        if ($this->session->flashdata('result') != '') {
-            $data['success'] = $this->session->flashdata('result');
-        }
-
         $data['status'] = "Completed";
 
         $this->load->view('service_centers/header');
@@ -504,11 +499,6 @@ class Service_centers extends CI_Controller {
 
         $data['count'] = $config['total_rows'];
         $data['bookings'] = $this->service_centers_model->getcompleted_or_cancelled_booking($config['per_page'], $offset, $service_center_id, "Cancelled", $booking_id);
-
-        if ($this->session->flashdata('result') != '') {
-            $data['success'] = $this->session->flashdata('result');
-        }
-
         $data['status'] = "Cancelled";
 
         $this->load->view('service_centers/header');

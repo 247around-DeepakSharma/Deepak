@@ -196,6 +196,8 @@ function outbound_call(phone_number){
         </div>
     </div>
 </div>
+<?php $this->session->unset_userdata('success'); ?>
+<?php $this->session->unset_userdata('error'); ?>
 <script src="<?php echo base_url();?>js/jquery.filtertable.min.js"></script>
 
 <script>

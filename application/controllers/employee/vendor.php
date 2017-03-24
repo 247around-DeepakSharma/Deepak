@@ -1033,8 +1033,10 @@ class vendor extends CI_Controller {
                     "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), _247AROUND);
             
-            //Prepare job card (For Reassigned Vendor)
-            $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+            $sp['service_center_id'] = $service_center_id;
+            $this->service_centers_model->update_spare_parts(array('booking_id'=>$booking_id), $sp);
+            
+            //Mark Upcountry & Create Job Card
             $url = base_url() . "employee/vendor/mark_upcountry_booking/".$booking_id."/".$this->session->userdata('id')
                     ."/".$this->session->userdata('employee_id');
             $async_data['data'] = array();

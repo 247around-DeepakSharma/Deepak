@@ -873,6 +873,7 @@ class Invoice extends CI_Controller {
             system(" chmod 777 " . $output_file_excel, $res1);
             
             if ($details['invoice_type'] === "final") {
+                
                 $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($invoices['booking'][0]['id']);
                 $rem_email_id = "";
                 if(!empty($rm_details)){
@@ -891,7 +892,7 @@ class Invoice extends CI_Controller {
                 //attach detailed invoice
                 $this->email->attach($output_file_excel, 'attachment');
                 //attach mail invoice
-                $this->email->attach($output_file_dir . $invoice_id . ".xlsx", 'attachment');
+                $this->email->attach($output_file_dir . $invoice_id . ".pdf", 'attachment');
                 $message = "Dear Partner,"."<br/><br/>Please find attached CASH invoice. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.";
                 $message .= "<br/><br/>Thanks,<br/>247around Team";
                 $this->email->message($message);
@@ -958,7 +959,7 @@ class Invoice extends CI_Controller {
                     'type_code' => 'A',
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoices['booking'][0]['id'],
-                    'invoice_file_excel' => $invoice_id . '.xlsx',
+                    'invoice_file_excel' => $invoice_id . '.pdf',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     'invoice_date' => date("Y-m-d"),
                     'from_date' => date("Y-m-d", strtotime($from_date)),
@@ -1008,7 +1009,8 @@ class Invoice extends CI_Controller {
             
             if ($details['invoice_type'] !== "final") {
                 if(file_exists($output_file_excel)){
-                    system('zip '.$output_file_dir.$invoice_id.'.zip '.$output_file_excel. ' '.$output_file_dir . $output_file . ".xlsx" );
+                    system('zip '.$output_file_dir.$invoice_id.'.zip '.$output_file_excel. ' '.$output_file_dir . $output_file . ".xlsx "
+                            .$output_file_dir . $output_file . ".pdf" );
 
                     header('Content-Description: File Transfer');
                     header('Content-Type: application/octet-stream');
@@ -1042,17 +1044,19 @@ class Invoice extends CI_Controller {
         log_message('info', __METHOD__ . ': Reset Invoice id ' . " invoice id " . $invoice_id);
 
         if ($invoice_type == "final") {
-            $this->booking_model->update_booking_unit_details_by_any(array($unit_column => $invoice_id), array($unit_column => NULL));
-            // $data = array();
-            foreach ($invoices_data as $value) {
+            if ($invoices_data[0]['price_tags'] != "Upcountry Services") {
+                $this->booking_model->update_booking_unit_details_by_any(array($unit_column => $invoice_id), array($unit_column => NULL));
+                
+                foreach ($invoices_data as $value) {
+                    if ($value['price_tags'] != "Upcountry Services") {
 
-                log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
-                $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
+                        log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
+                        $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
+                    }
+                }
             }
         }
     }
-
-    
 
     /**
      * @desc: This is used to generates foc type invoices for vendor
@@ -1081,6 +1085,7 @@ class Invoice extends CI_Controller {
         }
         $to_date1 = date('Y-m-d', strtotime('+1 day', strtotime($to_date)));
         $penalty_data = $this->penalty_model->add_penalty_in_invoice($details['vendor_partner_id'], $from_date, $to_date1, "");
+        $credit_penalty = $this->penalty_model->get_removed_penalty($details['vendor_partner_id'], $from_date, "");
         $courier_charges =  $this->invoices_model->get_sf_courier_charges($details['vendor_partner_id'], $from_date, $to_date1);
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -1136,7 +1141,7 @@ class Invoice extends CI_Controller {
                 
             }
 
-            $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge + $total_courier_charges;
+            $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
             $tds = 0;
             $tds_tax_rate = 0;
             $tds_per_rate = 0;
@@ -1206,7 +1211,7 @@ class Invoice extends CI_Controller {
                 't_vat' => $total_vat_charge,
                 't_total' => $t_total,
                 't_rating' => $invoices[0]['avg_rating'],
-                'tds' => $tds,
+                'tds' => round($tds,2),
                 'tds_tax_rate' => $tds_tax_rate,
                 't_vp_w_tds' => round($t_total - $tds, 0) // vendor payment with TDS
             );
@@ -1220,10 +1225,14 @@ class Invoice extends CI_Controller {
                 $invoices_data['upcountry_details'] = array();
             }
             $penalty_amount = (array_sum(array_column($penalty_data,'p_amount')));
+            $cr_penalty_amount = (array_sum(array_column($credit_penalty,'p_amount')));
             $excel_data['total_penalty_amount'] = -$penalty_amount;
+            $excel_data['cr_total_penalty_amount'] = $cr_penalty_amount;
             $excel_data['total_upcountry_price'] = round($total_upcountry_price,2);
             $excel_data['total_courier_charges'] = round($total_courier_charges,2);
-            $excel_data['t_vp_w_tds'] = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price'] - $penalty_amount;
+            $excel_data['t_vp_w_tds'] = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price']
+                    + $excel_data['cr_total_penalty_amount'] + $excel_data['total_courier_charges'] - $penalty_amount;
+            
             $excel_data['invoice_id'] = $invoice_id;
             $excel_data['vendor_name'] = $invoices[0]['company_name'];
             $excel_data['vendor_address'] = $invoices[0]['address'];
@@ -1276,6 +1285,11 @@ class Invoice extends CI_Controller {
                     'data' => $penalty_data                   
                 ),
                 array(
+                    'id' => 'cr_penalty',
+                    'repeat' => true,
+                    'data' => $credit_penalty                   
+                ),
+                array(
                     'id' => 'courier',
                     'repeat' => true,
                     'data' => $courier_charges                   
@@ -1296,7 +1310,6 @@ class Invoice extends CI_Controller {
 
             //for xlsx: excel, for xls: excel2003
             $R->render('excel', $output_file_excel);
-         
             $res2 = 0;
             system(" chmod 777 " . $output_file_excel, $res2);
             log_message('info', __FUNCTION__ . " Excel File Created " . $output_file_excel);
@@ -1317,7 +1330,7 @@ class Invoice extends CI_Controller {
                 $this->email->cc($cc);
                 $this->email->subject($subject);
                 $this->email->attach($output_file_excel, 'attachment');
-                $this->email->attach($output_file_dir . $output_file . ".xlsx", 'attachment');
+                $this->email->attach($output_file_dir . $output_file . ".pdf", 'attachment');
                 $message = "Dear Partner,"."<br/><br/>Please find attached FOC invoice. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.";
                 $message .= "<br/><br/>Thanks,<br/>247around Team";
                 $this->email->message($message);
@@ -1376,7 +1389,7 @@ class Invoice extends CI_Controller {
                     'type_code' => 'B',
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoices[0]['id'],
-                    'invoice_file_excel' => $invoice_id . '.xlsx',
+                    'invoice_file_excel' => $invoice_id . '.pdf',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     //'invoice_file_pdf' => $output_file . '.pdf',
                     'invoice_date' => date("Y-m-d"),
@@ -1405,6 +1418,8 @@ class Invoice extends CI_Controller {
                     'upcountry_distance' => $upcountry_distance,
                     'penalty_amount' => $penalty_amount,
                     'penalty_bookings_count' =>array_sum(array_column($penalty_data,'penalty_times')),
+                    'credit_penalty_amount' => $cr_penalty_amount,
+                    'credit_penalty_bookings_count' =>array_sum(array_column($credit_penalty,'penalty_times')),
                     'courier_charges' => $total_courier_charges,
                     'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
@@ -1439,13 +1454,15 @@ class Invoice extends CI_Controller {
            
              if ($details['invoice_type'] !== "final") {
                 if(file_exists($output_file_excel)){
-                    system('zip '.$output_file_dir.$invoice_id.'.zip '.$output_file_excel. ' '.$output_file_dir . $output_file . ".xlsx" );
+                    system('zip '.$output_file_dir.$invoice_id.'.zip '.$output_file_excel. ' '.$output_file_dir . $output_file . ".xlsx ".
+                            $output_file_dir . $output_file . ".pdf" );
 
                     header('Content-Description: File Transfer');
                     header('Content-Type: application/octet-stream');
                     header("Content-Disposition: attachment; filename=\"$invoice_id.zip\""); 
                     readfile($output_file_dir.$invoice_id.'.zip');
                 }
+                exec("rm -rf " . escapeshellarg($output_file_dir.$invoice_id.'.zip'));
             }
             unset($excel_data);
            
@@ -1999,11 +2016,15 @@ class Invoice extends CI_Controller {
         $invoice_month = date('F', strtotime($get_invoice_month));
 
         $vendor_data = $this->vendor_model->getVendorContact($vendor_id);
+        $rm_details  = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+        $cc = NITS_ANUJ_EMAIL_ID;
+        if(!empty($rm_details)){
+            $cc = NITS_ANUJ_EMAIL_ID.", ".$rm_details[0]['official_email'];
+        }
 
         $to = $vendor_data[0]['primary_contact_email'] . ',' . $vendor_data[0]['owner_email'];
         $from = 'billing@247around.com';
-        $cc = NITS_ANUJ_EMAIL_ID;
-
+        
         $message = "Dear Partner,<br/><br/>";
         $message .= "Please find attached invoice for Brackets delivered in " . $invoice_month . ". ";
         $message .= "Hope to have a long lasting working relationship with you.";
@@ -2226,63 +2247,7 @@ class Invoice extends CI_Controller {
 //                echo "Mail could not be sent..............." . PHP_EOL;
 //            }
 
-            
-            if ($invoice_type == "final") {
-                log_message('info', __FUNCTION__ . ' Final');
-                $bucket = BITBUCKET_DIRECTORY;
-                $directory_xls = "invoices-excel/" . $output_file_excel;
 
-                $invoice_excel = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                if ($invoice_excel) {
-                    log_message('info', __METHOD__ . ":  Partner Main Invoice File uploaded to s3");
-                    echo "Partner Invoice File uploaded to s3";
-                } else {
-                    $invoice_excel = $this->s3->putObjectFile(TMP_FOLDER . $output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    if ($invoice_excel) {
-                        log_message('info', __METHOD__ . ": Partner Main Invoice File uploaded to s3");
-                        echo "Partner Invoice File uploaded to s3";
-                    } else {
-                        log_message('info', __METHOD__ . ": Partner Main Invoice File uploaded to s3 " . $output_file_excel);
-                        echo "Partner Invoice File uploaded to s3 " . $output_file_excel;
-                    }
-                }
-
-                log_message('info', __FUNCTION__ . ' File Uploaded to S3');
-
-                // Dump data in a file as a Json
-                $file = fopen(TMP_FOLDER. $invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
-                $res = 0;
-                system(" chmod 777 ".TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt", $res);
-                $json_data['invoice_data'] = $invoices;
-
-                $contents = " Patner Invoice Json Data:\n";
-                fwrite($file, $contents);
-                fwrite($file, print_r(json_encode($json_data), TRUE));
-                fclose($file);
-                log_message('info', __METHOD__ . ": Json File Created");
-
-                $directory_xls = "invoices-json/" . $invoices['meta']['invoice_id'] . ".txt";
-                $json_s3 = $this->s3->putObjectFile(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-               
-                if ($json_s3) {
-                    log_message('info', __METHOD__ . ":  Partner TXT File uploaded to s3");
-                    echo "Partner Invoice File uploaded to s3";
-                } else {
-                    $json_s3 = $this->s3->putObjectFile(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    if ($json_s3) {
-                        log_message('info', __METHOD__ . ": Partner TXT File uploaded to s3");
-                        echo "Partner Invoice File uploaded to s3";
-                    } else {
-                        log_message('info', __METHOD__ . ": Partner TXT File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".txt");
-                        echo "Partner Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".txt";
-                    }
-                }
-                log_message('info', __METHOD__ . ": Json File Uploded to S3");
-
-                //Delete JSON files now
-                exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt"));
-            }
-            //exec("rm -rf " . escapeshellarg($output_file_excel));
             log_message('info', __FUNCTION__ . ' return with invoice id' . $invoices['meta']['invoice_id']);
             return $invoices['meta']['invoice_id'];
         } else {
@@ -2397,6 +2362,19 @@ class Invoice extends CI_Controller {
             log_message('info', __METHOD__ . ": Excel FIle generated " . $output_file_excel);
             $res2 = 0;
             system(" chmod 777 " . $output_file_excel, $res2);
+            
+            //convert excel to pdf
+            $output_file_pdf = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".pdf";
+            
+            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+            $tmp_path = TMP_FOLDER;
+            $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
+            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                    $output_file_excel . ' 2> ' . $tmp_output_file;
+            $output = '';
+            $result_var = '';
+            exec($cmd, $output, $result_var);
 
 
             if ($invoice_type == "final") {
@@ -2404,8 +2382,25 @@ class Invoice extends CI_Controller {
 
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".xlsx";
+                $directory_pdf = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".pdf";
 
                 $foc_upload = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $foc_upload_pdf = $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                if ($foc_upload_pdf) {
+                    log_message('info', __METHOD__ . ": Main FOC PDF Invoice File uploaded to s3");
+                    echo "Main FOC PDF Invoice File uploaded to s3";
+                } else {
+                    $foc_upload_pdf =  $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                    if ($foc_upload_pdf) {
+                        log_message('info', __METHOD__ . ": Main FOC PDF Invoice File uploaded to s3");
+                        echo "Main FOC PDF Invoice File uploaded to s3";
+                    } else {
+                        log_message('info', __METHOD__ . ": Main FOC PDF Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".pdf");
+                        echo "Main FOC PDF Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".pdf";
+                    }
+                }
+
+                
                 if ($foc_upload) {
                     log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3");
                     echo "Main FOC Invoice File uploaded to s3";
@@ -2582,14 +2577,42 @@ class Invoice extends CI_Controller {
             log_message('info', __FUNCTION__ . " Excel Created " . $output_file_excel);
             $res2 = 0;
             system(" chmod 777 " . $output_file_excel, $res2);
+            
+            //convert excel to pdf
+            $output_file_pdf = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".pdf";
+            
+            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+            $tmp_path = TMP_FOLDER;
+            $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
+            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                    $output_file_excel . ' 2> ' . $tmp_output_file;
+            $output = '';
+            $result_var = '';
+            exec($cmd, $output, $result_var);
 
             if ($invoice_type == "final") {
                 log_message('info', __FUNCTION__ . " Generate Final Cash Invoice ");
 
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".xlsx";
+                $directory_pdf = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".pdf";
 
                 $invoice_uploaded = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $invoice_uploaded_pdf = $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                if ($invoice_uploaded_pdf) {
+                    echo 'Main Cash PDF Invoice Uploaded' . PHP_EOL;
+                    log_message('info', __FUNCTION__ . " Main Cash PDF Invoice is uploaded to S3: " . $invoices['meta']['invoice_id'] . ".pdf");
+                } else {
+                    $invoice_uploaded_pdf = $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                    if ($invoice_uploaded_pdf) {
+                        echo 'Main Cash PDF Invoice Uploaded' . PHP_EOL;
+                        log_message('info', __FUNCTION__ . " Main Cash PDF Invoice is uploaded to S3: " . $invoices['meta']['invoice_id'] . ".pdf");
+                    } else {
+                        echo 'Main Cash PDF Invoice NOT Uploaded' . PHP_EOL;
+                        log_message('info', __FUNCTION__ . " Main Cash PDF Invoice is NOT uploaded to S3: " . $invoices['meta']['invoice_id'] . ".pdf");
+                    }
+                }
                 if ($invoice_uploaded) {
                     echo 'Main Cash Invoice Uploaded' . PHP_EOL;
                     log_message('info', __FUNCTION__ . " Main Cash Invoice is uploaded to S3: " . $invoices['meta']['invoice_id'] . ".xlsx");
@@ -2707,6 +2730,8 @@ class Invoice extends CI_Controller {
                     $data['parts_cost'] + $data['vat'] + 
                     $data['service_tax'] + $data['courier_charges'] -  $data['penalty_amount']), 0);
             
+            $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+            
             $entity_details = array();
             $main_invoice_file = "";
             $detailed_invoice_file = "";
@@ -2731,12 +2756,14 @@ class Invoice extends CI_Controller {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
                         if ($data['vendor_partner'] == "partner") {
                             $entity_details = $this->partner_model->getpartner($data['vendor_partner_id']);
-                            $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
+                            $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
+                            $data['invoice_id'] =  $tmp_invoice['invoice_id'];
                         } else if ($data['vendor_partner'] == "vendor") {
 
-                            $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
+                            $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
+                            $data['invoice_id'] =  $tmp_invoice['invoice_id'];
                         }
-                        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+                        
                         $data['invoice_date'] = date("Y-m-d");
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
                     }
@@ -2764,10 +2791,11 @@ class Invoice extends CI_Controller {
 
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
-                        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+                       
                         $data['invoice_date'] = date("Y-m-d");
 
-                        $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], $entity_details[0]['sc_code']);
+                        $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], $entity_details[0]['sc_code']);
+                        $data['invoice_id'] =  $tmp_invoice['invoice_id'];
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
                     }
 
@@ -2791,9 +2819,10 @@ class Invoice extends CI_Controller {
 
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
-                        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+                        
                         $data['invoice_date'] = date("Y-m-d");
-                        $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
+                        $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
+                        $data['invoice_id'] =  $tmp_invoice['invoice_id'];
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
                     }
 
@@ -2927,11 +2956,11 @@ class Invoice extends CI_Controller {
                         (strcasecmp($entity_details[0]['state'], "New Delhi") == 0) ) {
         
             $invoice_version = "T";
-            $invoices['meta']['invoice_type'] = "TAX INVOICE";
+            $invoices['invoice_type'] = "TAX INVOICE";
             
         } else {
             $invoice_version = "R";
-            $invoices['meta']['invoice_type'] = "RETAIL INVOICE";
+            $invoices['invoice_type'] = "RETAIL INVOICE";
         }
 
         $current_month = date('m');
@@ -2947,7 +2976,8 @@ class Invoice extends CI_Controller {
         $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
         $invoice_no = $this->invoices_model->get_invoices_details($where);
         log_message('info', __FUNCTION__ . " Exit....");
-        return $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+        $invoices['invoice_id'] =  $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+        return $invoices;
         
     }
     /**
@@ -3055,16 +3085,16 @@ class Invoice extends CI_Controller {
                 case 'A':
                     
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
-                    echo $invoice_id;
+                    echo $invoice_id['invoice_id'];
                     break;
                 case 'B':
                     
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, $entity_details[0]['sc_code']);
-                    echo $invoice_id;
+                    echo $invoice_id['invoice_id'];
                     break;
                 case 'D':
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
-                    echo $invoice_id;
+                    echo $invoice_id['invoice_id'];
                     break;
             }
             
@@ -3072,5 +3102,158 @@ class Invoice extends CI_Controller {
             echo "DATA NOT FOUND";
         }
     }
-    
+    /**
+     * @desc: This is used to Insert CRM SETUP invoice
+     */
+    function generate_crm_setup() {
+        log_message('info', __FUNCTION__ . " Entering....");
+        $this->form_validation->set_rules('partner_name', 'Partner Name', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('partner_id', 'Partner ID', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('partner_address', 'Partner Address', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('from_date', 'Start Date', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('partner_state', 'State', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('service_charge', 'Service Charge', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('email_to', 'Partner Email To', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('email_cc', 'Partner_Email CC', 'trim|xss_clean');
+        if ($this->form_validation->run() == TRUE) {
+            $entity_details = array();
+            $booking = array();
+
+            $state = $this->input->post('partner_state');
+            $email_to = $this->input->post('email_to');
+            $email_cc = $this->input->post('email_cc');
+            $seller_code = $this->input->post('seller_code');
+            $from_date = $this->input->post('from_date');
+            $meta['sub_service_cost'] = $meta['grand_part'] = $this->input->post('service_charge');
+
+            $setup_insert['vendor_partner'] = "partner";
+            $setup_insert['vendor_partner_id'] = $partner_id = $this->input->post('partner_id');
+
+            $meta['company_address'] = $this->input->post('partner_address');
+            $meta['company_name'] = $this->input->post('partner_name');
+            $meta['total_service_cost_14'] = $meta['sub_service_cost'] * .14;
+            $meta['total_service_cost_5'] = $meta['sub_service_cost'] * 0.05;
+            $meta['invoice_date'] = date('jS M, Y', strtotime($from_date));
+            $meta['sd'] = date('jS M, Y', strtotime($from_date));
+            $meta['ed'] = date('jS M, Y', strtotime('+1 year', strtotime($from_date)));
+            $meta['seller_code'] = "Seller Code - " . $seller_code;
+            $meta['total_part_cost'] = $meta['part_cost_vat'] = $meta['sub_part'] = $meta['total_upcountry_charges'] = '';
+            $meta['price_inword'] = convert_number_to_words($meta['grand_part']);
+
+            $setup_insert['service_tax'] = ($meta['total_service_cost_14'] + $meta['total_service_cost_5']*2);
+            $setup_insert['total_service_charge'] = $meta['total_service_cost'] = $meta['sub_service_cost'] - $setup_insert['service_tax'];
+            $setup_insert['total_amount_collected'] = $setup_insert['amount_collected_paid'] = $setup_insert['amount_paid'] = $setup_insert['around_royalty'] = $meta['sub_service_cost'];
+            $setup_insert['settle_amount'] = 1;
+            $setup_insert['invoice_date'] = $setup_insert['from_date'] = date("Y-m-d", strtotime($from_date));
+            $setup_insert['due_date'] =  $setup_insert['to_date'] = date('Y-m-d', strtotime('+1 year', strtotime($from_date)));
+            $setup_insert['type'] = "Cash";
+            $setup_insert['type_code'] = "A";
+
+            $entity_details[0]['state'] = $state;
+            $invoice_details = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
+            $setup_insert['invoice_id'] = $meta['invoice_id'] = $invoice_details['invoice_id'];
+            $meta['invoice_type'] = $invoice_details['invoice_type'];
+
+            $booking[0]['description'] = "Annual Setup Charges";
+            $booking[0]['p_tax_rate'] = $booking[0]['p_rate'] = $booking[0]['s_service_charge'] = $booking[0]['upcountry_charges'] = '';
+            $booking[0]['s_total_service_charge'] = $meta['total_service_cost'];
+            $booking[0]['p_part_cost'] = 0;
+            $booking[0]['qty'] = 1;
+
+            $template = 'partner_invoice_Main_v3.xlsx';
+            // directory
+            $templateDir = __DIR__ . "/../excel-templates/";
+
+            $config = array(
+                'template' => $template,
+                'templateDir' => $templateDir
+            );
+
+            $R = new PHPReport($config);
+            $R->load(array(
+                array(
+                    'id' => 'meta',
+                    'repeat' => false,
+                    'data' => $meta,
+                    'format' => array(
+                        'date' => array('datetime' => 'd/M/Y')
+                    )
+                ),
+                array(
+                    'id' => 'booking',
+                    'repeat' => true,
+                    'data' => $booking,
+                ),
+                    )
+            );
+
+            $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-invoice-setup.xlsx";
+            $res1 = 0;
+            if (file_exists($output_file_excel)) {
+
+                system(" chmod 777 " . $output_file_excel, $res1);
+                unlink($output_file_excel);
+            }
+            //for xlsx: excel, for xls: excel2003
+            $R->render('excel', $output_file_excel);
+            $output_file_pdf = TMP_FOLDER . $meta['invoice_id'] . "-invoice-setup.pdf";
+
+            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+            $tmp_path = TMP_FOLDER;
+            $tmp_output_file = TMP_FOLDER . 'output_' . __FUNCTION__ . '.txt';
+            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                    $output_file_excel . ' 2> ' . $tmp_output_file;
+            $output = '';
+            $result_var = '';
+            exec($cmd, $output, $result_var);
+
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "invoices-excel/" . $meta['invoice_id'] . "-invoice-setup.xlsx";
+            $directory_pdf = "invoices-excel/" . $meta['invoice_id'] . "-invoice-setup.pdf";
+
+            $this->s3->putObjectFile(TMP_FOLDER . $meta['invoice_id'] . "-invoice-setup.xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $this->s3->putObjectFile(TMP_FOLDER . $meta['invoice_id'] . "-invoice-setup.pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+            $setup_insert['invoice_file_excel'] = $meta['invoice_id'] . "-invoice-setup.pdf";
+
+            $status = $this->invoices_model->insert_new_invoice($setup_insert);
+            if ($status) {
+                //Send report via email
+                $this->email->clear(TRUE);
+                $this->email->from('billing@247around.com', '247around Team');
+                $to = $email_to;
+                $subject = "PARTNER CRM SETUP INVOICE- 247around - " . $meta['company_name'] .
+                        " Invoice for period: " . $meta['sd'] . " to " . $meta['ed'];
+                $cc = $email_cc . ", " . NITS_ANUJ_EMAIL_ID;
+
+                $this->email->to($to);
+                $this->email->cc($cc);
+
+                $this->email->subject($subject);
+                $this->email->attach(TMP_FOLDER . $meta['invoice_id'] . "-invoice-setup.pdf", 'attachment');
+
+                $mail_ret = $this->email->send();
+
+                if ($mail_ret) {
+                    log_message('info', __METHOD__ . ": Mail sent successfully");
+                    echo "Mail sent successfully..............." . PHP_EOL;
+                } else {
+                    log_message('info', __METHOD__ . ": Mail could not be sent");
+                    echo "Mail could not be sent..............." . PHP_EOL;
+                }
+                exec("rm -rf " . escapeshellarg(TMP_FOLDER . $meta['invoice_id'] . "-invoice-setup.pdf"));
+                exec("rm -rf " . escapeshellarg(TMP_FOLDER . $meta['invoice_id'] . "-invoice-setup.xlsx"));
+                $this->session->set_flashdata('file_error', 'CRM SETUP INVOICE- GENERATED');
+                redirect(base_url() . "employee/invoice/invoice_partner_view");
+            } else {
+                log_message('info', __METHOD__ . ": Invoice ID is not inserted");
+                $this->session->set_flashdata('file_error', 'CRM SETUP INVOICE NOT INSERTED');
+                redirect(base_url() . "employee/invoice/invoice_partner_view");
+            }
+        } else {
+            log_message('info', __METHOD__ . ": Validation Failed");
+            $this->invoice_partner_view();
+        }
+    }
+
 }

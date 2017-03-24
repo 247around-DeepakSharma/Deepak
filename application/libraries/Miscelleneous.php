@@ -448,7 +448,7 @@ class Miscelleneous {
 
         //Prepare job card
         $this->My_CI->booking_utilities->lib_prepare_job_card_using_booking_id($query[0]['booking_id']);
-        $this->MY_CI->booking_utilities->lib_send_mail_to_vendor($query[0]['booking_id'], "");
+        $this->My_CI->booking_utilities->lib_send_mail_to_vendor($query[0]['booking_id'], "");
         log_message('info', "Async Process to create Job card: " . $query[0]['booking_id']);
 
     }

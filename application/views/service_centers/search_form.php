@@ -93,3 +93,5 @@
         background-color: #2C9D9C;
     }
 </style>
+<?php $this->session->unset_userdata('success'); ?>
+<?php $this->session->unset_userdata('error'); ?>
