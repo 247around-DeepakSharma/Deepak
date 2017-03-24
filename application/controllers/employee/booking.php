@@ -1207,6 +1207,7 @@ class Booking extends CI_Controller {
             }else if($value['active'] == 1){
                 $where=array('id'=> $value['agent_id']);
                 $data1 = $this->employee_model->get_employee_by_group($where);
+                //echo $data1[0]['full_name'];
                 $data['penalty'][$key]['agent_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
             }
         }
