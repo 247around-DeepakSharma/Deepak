@@ -1758,6 +1758,7 @@ class Booking extends CI_Controller {
 	$additional_charge = $this->input->post('additional_charge');
 	// Parts cost is comming in array
 	$parts_cost = $this->input->post('parts_cost');
+        $customer_net_payable = $this->input->post('customer_net_payable');
 	$booking_status = $this->input->post('booking_status');
 	$total_amount_paid = $this->input->post('grand_total_price');
 	$admin_remarks = $this->input->post('admin_remarks');
@@ -1779,7 +1780,11 @@ class Booking extends CI_Controller {
             } else {
                 $data['serial_number'] = "";
             }
-	    
+            
+            if(isset($customer_net_payable[$unit_id])){
+                $data['customer_net_payable'] = $customer_net_payable[$unit_id];
+            }
+          
 	    // it checks string new in unit_id variable
 	    if (strpos($unit_id, 'new') !== false) {
 		if (isset($booking_status[$unit_id])) {
