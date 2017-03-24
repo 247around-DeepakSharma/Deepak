@@ -2791,7 +2791,7 @@ class Partner extends CI_Controller {
                     //Uploading images to S3 
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory = "misc-images/" . $file_name;
-                    //$this->s3->putObjectFile(TMP_FOLDER.$file_name, $bucket, $directory, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$file_name, $bucket, $directory, S3::ACL_PUBLIC_READ);
                     $data['partner_id']=$partner_id;
                     $data['partner_logo'] = 'images/'.$file_name;
                     $data['alt_text'] = $partner_name;

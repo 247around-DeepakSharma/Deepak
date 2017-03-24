@@ -1522,11 +1522,15 @@ class Reporting_utils extends CI_Model {
      * 
      * @return: Array
      */
-    function get_agent_daily_reports($flag) {
+    function get_agent_daily_reports($flag ,$startDate = "" , $endDate= "" ) {
 
         $data = array();
-
-        if ($flag == 'month') {
+        if($flag == "" && $startDate != " " && $endDate != " "){
+            $where1 = "AND booking_state_change.create_date >=". "'$startDate'" . " AND booking_state_change.create_date <=" ."'$endDate'";
+            $where2 = "AND agent_outbound_call_log.create_date >=". "'$startDate'" . " AND agent_outbound_call_log.create_date <=" ."'$endDate'";
+            $where3 = "AND CallType = 'completed' AND DialCallDuration >0 AND passthru_misscall_log.create_date >=". "'$startDate'" . " AND passthru_misscall_log.create_date <=" ."'$endDate'";
+        }
+        else if ($flag == 'month') {
             $where1 = 'and month(booking_state_change.create_date) = month(CURDATE()) and 
                       YEAR(booking_state_change.create_date) = YEAR(CURDATE())';
             $where2 = 'and month(agent_outbound_call_log.create_date) = month(CURDATE()) and 
@@ -1714,25 +1718,23 @@ class Reporting_utils extends CI_Model {
      * @return: array()
      * 
      */
-    function get_partners_booking_report_chart_data($flag = "") {
-        if ($flag == "cuurent_month") {
-            $where = "MONTH(bd.create_date) = MONTH(CURDATE()) and 
-                      YEAR(bd.create_date) = YEAR(CURDATE())";
-        } else if ($flag == "last_month") {
-            $where = "MONTH(bd.create_date) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH) and 
-                      YEAR(bd.create_date) = YEAR(CURRENT_DATE - INTERVAL 1 MONTH)";
-        } else {
-            $where = "";
+    function get_partners_booking_report_chart_data($startDate,$endDate,$bookingStatus) {
+        $where="";
+        if($bookingStatus == 'Completed' || $bookingStatus == 'Cancelled'){
+            $where .= "bd.closed_date >=". "'$startDate'" . " AND bd.closed_date <=" ."'$endDate'";
+        }else if ($bookingStatus == 'FollowUp' || $bookingStatus == 'Pending' || $bookingStatus == 'Rescheduled'){
+            $where .= "bd.create_date >=". "'$startDate'" . " AND bd.create_date <=" ."'$endDate'";
         }
+        
         $this->db->distinct();
-        $this->db->select('bd.partner_id,p.public_name,count(*) as completed');
+        $this->db->select('bd.partner_id,p.public_name,count(*) as count');
         $this->db->from('booking_details as bd');
         $this->db->join('partners as p', 'bd.partner_id=p.id', 'left');
-        $this->db->where('bd.current_status', 'completed');
+        $this->db->where('bd.current_status', $bookingStatus);
         $this->db->where($where);
         $this->db->group_by('partner_id');
         $query = $this->db->get();
-        return $query->result_array();
+        return  $query->result_array();
     }
     
     /**
