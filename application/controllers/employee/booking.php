@@ -1211,6 +1211,7 @@ class Booking extends CI_Controller {
                 $where=array('id'=> $value['agent_id']);
                 $data1 = $this->employee_model->get_employee_by_group($where);
                 $data['penalty'][$key]['agent_name'] = $data1[0]['full_name'];
+                $data['penalty'][$key]['agent_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
             }
         }
         if(!is_null($data['booking_history'][0]['sub_vendor_id'])){
