@@ -130,6 +130,7 @@ class Upcountry_model extends CI_Model {
            
             if(count($upcountry_vendor_details) == 1){
                 log_message('info', __FUNCTION__ ." mark Upcountry" );
+               
                 return $this->mark_upcountry_vendor($upcountry_vendor_details[0], $partner_data);
 
             } else {
@@ -164,7 +165,7 @@ class Upcountry_model extends CI_Model {
             $min_threshold_distance = UPCOUNTRY_MIN_DISTANCE;
             $max_threshold_distance = UPCOUNTRY_DISTANCE_THRESHOLD;
         }
-        $upcountry_distance = $upcountry_vendor_details['upcountry_distance'] - $min_threshold_distance;
+        $upcountry_distance = $upcountry_vendor_details['upcountry_distance'];
 
         if ($upcountry_distance <= ($min_threshold_distance)) {
            
