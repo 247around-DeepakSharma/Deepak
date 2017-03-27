@@ -56,7 +56,19 @@ class Booking_utilities {
             if ($booking_details[0]['upcountry_paid_by_customer'] == 1) {
                 $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
             }
+            
             $meta['appliance_description'] = $unit_details[0]['appliance_description'];
+            $booking_unit_details = array();
+            foreach ($unit_details as $value) {
+                $array = array();
+                $array['appliance_category'] = $value['appliance_category'];
+                $array['appliance_capacity'] = $value['appliance_capacity'];
+                $array['appliance_brand'] = $value['appliance_brand'];
+                $array['model_number'] = $value['model_number'];
+                $array['price_tags'] = $value['price_tags'];
+                $array['customer_net_payable'] = $value['customer_net_payable'];
+                array_push($booking_unit_details, $array);
+            }
             $R->load(array(
                 array(
                     'id' => 'booking',
@@ -71,7 +83,7 @@ class Booking_utilities {
                 array(
                     'id' => 'unit',
                     'repeat' => TRUE,
-                    'data' => $unit_details,
+                    'data' => $booking_unit_details,
                     //'minRows' => 2,
                     'format' => array(
                         //'create_date' => array('datetime' => 'd/M/Y'),
@@ -106,6 +118,7 @@ class Booking_utilities {
             $res1 = 0;
             system(" chmod 777 " . $output_file_excel, $res1);
             $output_file_pdf = $output_file_dir . $output_file . ".pdf";
+            
 
             //Update output file name in DB
             $this->My_CI->reporting_utils->update_booking_jobcard($booking_details[0]['id'], $output_file . ".pdf");

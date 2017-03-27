@@ -3556,8 +3556,16 @@ class vendor extends CI_Controller {
         
     }
 
-    
-    function check_unit_exist_in_sc($booking_id){
+    /**
+     * @desc This method is used toi update sc booking table and upcountry details in booking details.
+     * @param String $booking_id
+     * @param Integer $up_falg
+     */
+    function update_upcountry_and_unit_in_sc($booking_id, $up_falg){
+        if($up_falg == 1){
+            $this->miscelleneous->assign_upcountry_booking($booking_id, 
+                    _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME);
+        }
         $this->miscelleneous->check_unit_in_sc($booking_id);
     }
 

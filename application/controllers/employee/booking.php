@@ -290,7 +290,14 @@ class Booking extends CI_Controller {
                     }
                 } else if($booking['is_send_sms'] == 2 || $booking_id != INSERT_NEW_BOOKING) {
                     //Pending booking getting updated
-                    $url = base_url() . "employee/vendor/check_unit_exist_in_sc/".$booking['booking_id'];
+                    $up_flag =0;
+                    if(isset($upcountry_data['vendor_id'])){
+                        $assigned_vendor_id = $this->input->post('assigned_vendor_id');
+                        if($upcountry_data['vendor_id'] == $assigned_vendor_id){
+                            $up_flag = 1;
+                        }
+                    }
+                    $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/".$booking['booking_id']."/".$up_flag;
                     $async_data['booking'] = array();
                     $this->asynchronous_lib->do_background_process($url, $async_data);
                     

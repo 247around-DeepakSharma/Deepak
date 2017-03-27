@@ -40,6 +40,16 @@
                 </div>';
                 }
                 ?>
+            <?php if($this->session->userdata('success')) {
+                echo '<div class="alert alert-success alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <strong>' . $this->session->flashdata('success') . '</strong>
+                </div>';
+                }
+                ?>
+            
            
             <div id="tabs" style="border:0px solid #fff;"> 
                 <div class="col-md-12" style="    margin-left: -10px;">
