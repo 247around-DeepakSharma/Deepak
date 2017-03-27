@@ -341,12 +341,12 @@ class Partner extends CI_Controller {
                         $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price, $unit_details['appliance_category'],"delivered", $partner_data);
                         if($is_sms){
                             $booking['sms_count'] = 1;
-                             
+                            $booking['internal_status'] = _247AROUND_FOLLOWUP; 
                         } else {
                             $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
                         }
                             
-                        $booking['current_status'] = "FollowUp";
+                        $booking['current_status'] = _247AROUND_FOLLOWUP;
                         $booking['type'] = "Query";
                         $booking['booking_date'] = '';
                         $booking['booking_timeslot'] = '';
@@ -356,7 +356,7 @@ class Partner extends CI_Controller {
                         $booking['state'] = $distict_details['state'];
                         $booking['district'] = $distict_details['district'];
                         $booking['taluk'] = $distict_details['taluk'];
-                        $unit_details['booking_status'] = "FollowUp";
+                        $unit_details['booking_status'] = _247AROUND_FOLLOWUP;
                         
                         //check partner status from partner_booking_status_mapping table 
                         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
