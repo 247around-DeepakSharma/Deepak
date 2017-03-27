@@ -343,7 +343,7 @@
        $.ajax({
          type: 'POST',
          <?php if(!empty($booking_id)){ ?>
-             url: '<?php echo base_url(); ?>employee/service_centers/pending_booking_on_tab/'+ <?php echo $booking_id; ?>,
+             url: '<?php echo base_url(); ?>employee/service_centers/pending_booking_on_tab/'+ "<?php echo $booking_id; ?>",
          <?php } else { ?>
              url: '<?php echo base_url(); ?>employee/service_centers/pending_booking_on_tab/',
          <?php } ?>
