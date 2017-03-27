@@ -5,6 +5,7 @@
    <thead>
       <tr >
          <th>No #</th>
+         <th>Invoice ID</th>
          <th>Period</th>
          <th>Type</th>
          <th>Invoice Excel File</th>
@@ -29,7 +30,7 @@
 
       <tr <?php if($invoice['settle_amount'] == 1){ ?> style="background-color: #90EE90; " <?php } ?>>
          <td><?php echo $count;?></td>
-         
+         <td><?php echo $invoice['invoice_id'];?></td>
          <td><?php echo date("jS M, Y", strtotime($invoice['from_date'])). " to ". date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
          <td><?php echo $invoice['type']; ?></td>
          <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_file_excel']; ?>"><?php echo $invoice['invoice_file_excel']; ?></a></td>
