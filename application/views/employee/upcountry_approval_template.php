@@ -18,7 +18,7 @@
         <p style="max-width: 900px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">City - <?php echo $city; ?></p>
         <p style="max-width: 900px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">Pincode- <?php echo $booking_pincode; ?></p>
         <p style="max-width: 900px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">State- <?php echo $state; ?></p>
-        <p><?php echo $upcountry_distance; ?> KM upcountry distance needs to be approved by your office by clicking on the <a href="<?php echo base_url();?>partner/upcountry_charges_approval/<?php echo $booking_id;?>/0">link.</a></p>
+        <p><?php echo $upcountry_distance; ?> KM (Rs. <?php echo $upcountry_distance* $partner_upcountry_rate; ?>) upcountry distance needs to be approved by your office by clicking on the <a href="<?php echo base_url();?>partner/upcountry_charges_approval/<?php echo $booking_id;?>/0">link.</a></p>
         <p><a href="<?php echo base_url();?>partner/reject_upcountry_charges/<?php echo $booking_id; ?>/0">Click Here</a> to reject this booking. Please note that this booking would be automatically cancelled by the system after 2 working days.</p>
         
         <br/><br/>
