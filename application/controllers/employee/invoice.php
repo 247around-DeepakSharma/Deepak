@@ -798,9 +798,15 @@ class Invoice extends CI_Controller {
                 //Make sure it is unique
                 $invoice_id_tmp = "Around-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
                 $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no = $this->invoices_model->get_invoices_details($where);
+                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+                $invoice_no = 1;
+                if(!empty($invoice_no_temp)){
+                    $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                    $invoice_no = $explode[1] +1;
+                }
 
-                $invoice_id = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+                $invoice_id = $invoice_id_tmp . "-" . $invoice_no;
+                
             }
 
             $excel_data = $invoices['meta'];
@@ -1121,9 +1127,14 @@ class Invoice extends CI_Controller {
                 //Make sure it is unique
                 $invoice_id_tmp = $invoices[0]['sc_code'] . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
                 $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no = $this->invoices_model->get_invoices_details($where);
+                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+                $invoice_no = 1;
+                if(!empty($invoice_no_temp)){
+                    $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                    $invoice_no = $explode[1] +1;
+                }
 
-                $invoice_id = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+                $invoice_id = $invoice_id_tmp . "-" . $invoice_no;
                 log_message('info', __FUNCTION__ . " Generate Invoice id " . $invoice_id);
             }
 
@@ -1839,9 +1850,14 @@ class Invoice extends CI_Controller {
                 //Make sure it is unique
                 $invoice_id_tmp = "Around-" . $type . "-" . $financial . "-" . date("M", strtotime(date($from_date)));
                 $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no = $this->invoices_model->get_invoices_details($where);
+                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+                $invoice_no = 1;
+                if(!empty($invoice_no_temp)){
+                    $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                    $invoice_no = $explode[1] +1;
+                }
 
-                $invoice[0]['invoice_number'] = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+                $invoice[0]['invoice_number'] = $invoice_id_tmp . "-" . $invoice_no;
             }
 
             log_message('info', __FUNCTION__ . " Entering......... Invoice Id " . $invoice[0]['invoice_number']);
@@ -2180,10 +2196,15 @@ class Invoice extends CI_Controller {
             //Make sure it is unique
             $invoice_id_tmp = "Around" . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
             $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-            $invoice_no = $this->invoices_model->get_invoices_details($where);
-
-            $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
-
+            $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+            $invoice_no = 1;
+            if(!empty($invoice_no_temp)){
+                $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                $invoice_no = $explode[1] +1;
+            }
+            
+            $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . $invoice_no;
+            
             log_message('info', __FUNCTION__ . ' Invoice id ' . $invoices['meta']['invoice_id']);
             //load template
             $R = new PHPReport($config);
@@ -2321,9 +2342,14 @@ class Invoice extends CI_Controller {
                 $invoice_id_tmp = $invoices['meta']['sc_code'] . "-" . $invoice_version
                         . "-" . $financial . "-" . date("M", strtotime($from_date));
                 $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no = $this->invoices_model->get_invoices_details($where);
+                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+                $invoice_no = 1;
+                if(!empty($invoice_no_temp)){
+                    $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                    $invoice_no = $explode[1] +1;
+                }
 
-                $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+                $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" .$invoice_no;
                 log_message('info', __METHOD__ . ": Invoice Id geneterated "
                         . $invoices['meta']['invoice_id']);
             }
@@ -2532,9 +2558,14 @@ class Invoice extends CI_Controller {
                 //Make sure it is unique
                 $invoice_id_tmp = "Around-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
                 $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no = $this->invoices_model->get_invoices_details($where);
+                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+                $invoice_no = 1;
+                if(!empty($invoice_no_temp)){
+                    $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                    $invoice_no = $explode[1] +1;
+                }
 
-                $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+                $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" .$invoice_no;
                 
                 log_message('info', __FUNCTION__ . " New Invoice ID Generated: " . $invoices['meta']['invoice_id']);
                 echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
@@ -2974,9 +3005,14 @@ class Invoice extends CI_Controller {
         //Make sure it is unique
         $invoice_id_tmp = $start_name ."-". $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
         $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-        $invoice_no = $this->invoices_model->get_invoices_details($where);
+        $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+        $invoice_no = 1;
+        if(!empty($invoice_no_temp)){
+            $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+            $invoice_no = $explode[1] +1;
+        }
         log_message('info', __FUNCTION__ . " Exit....");
-        $invoices['invoice_id'] =  $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+        $invoices['invoice_id'] =  $invoice_id_tmp . "-" . $invoice_no;
         return $invoices;
         
     }
