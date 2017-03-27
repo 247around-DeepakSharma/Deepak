@@ -65,8 +65,8 @@ class Miscelleneous {
                 if($is_return ==1){
                    
                     if(count($mesg1) > 1){
-                        $msg['message'] = SF_DOES_NOT_EXIST;
-                        return $msg;
+                        $multiple_vendor['message'] = SF_DOES_NOT_EXIST;
+                        return $multiple_vendor;
                         
                     } else {
                         

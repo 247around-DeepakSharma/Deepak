@@ -157,7 +157,7 @@
 
             };
         </script>
-        <div class="container " style=" background: #F9F9F9!important ;margin=0 auto; width: 100%;">
+        <div class="container " style=" background: #F9F9F9!important ;margin:0px auto; width: 100%;">
             <div class="row">
                 <div class="col-md-3 col-sm-6 text-center" style="margin-bottom:40px" >
                     <h2 style="font-family:verdana ; margin-top: 60px  ;font-weight:bold; margin-left:25px">Our Partners</h2>

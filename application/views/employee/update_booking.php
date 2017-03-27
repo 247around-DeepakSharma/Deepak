@@ -27,6 +27,7 @@
                                     <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="partner_type" value="<?php echo $partner_type; ?>" id="partner_type" />
+                                        <input type="hidden" name="assigned_vendor_id" value="<?php echo $booking_history[0]['assigned_vendor_id'] ?>" id="assigned_vendor_id" />
                                         <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $booking_history[0]['booking_primary_contact_no']?>" required/>
                                     </div>
                                     <div class="col-md-2">
@@ -650,9 +651,7 @@
 
     $(".booking_source").select2();
     $("#service_id").select2();
-    $("#booking_pincode").select2({
-         tags: true
-    });
+    
     $("#booking_city").select2({
          tags: true
     });
