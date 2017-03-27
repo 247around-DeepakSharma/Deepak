@@ -2757,6 +2757,7 @@ class Invoice extends CI_Controller {
             $data['upcountry_distance'] = $this->input->post("upcountry_distance");
             $data['courier_charges'] = $this->input->post("courier_charges");
             $data['upcountry_price'] = $this->input->post("upcountry_price");
+            $new_invoice_id_flag = $this->input->post("new_invoice_id_flag");
             $data['penalty_bookings_count'] = $this->input->post("penalty_bookings_count");
             $data['total_amount_collected'] = round(($data['total_service_charge'] + 
                     $data['total_additional_service_charge'] + 
@@ -2775,12 +2776,23 @@ class Invoice extends CI_Controller {
             if (!empty($invoice_id)) {
                 $data['invoice_id'] = $invoice_id;
             }
+            
+            if($new_invoice_id_flag == 1){
+                $data['invoice_date'] = date("Y-m-d");
+            }
 
             switch ($data['type_code']) {
 
                 case 'A':
-                    log_message('info', __FUNCTION__ . " .. type code:- A");
-                    $data['type'] = 'Cash';
+                case 'E':
+                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type_code']);
+                    if($data['type_code'] == 'A'){
+                        $data['type'] = 'Cash';
+                        
+                    } else if($data['type_code'] == 'E'){
+                        $data['type'] = 'DebitNote';
+                    }
+                    
                     $data['total_amount_collected'] = ($data['total_amount_collected']+ $data['upcountry_price']);
                     $data['around_royalty'] = round($data['total_amount_collected'], 0);
                     $data['amount_collected_paid'] = round($data['total_amount_collected'], 0);
@@ -2797,12 +2809,12 @@ class Invoice extends CI_Controller {
                             $data['invoice_id'] =  $tmp_invoice['invoice_id'];
                         }
                         
-                        $data['invoice_date'] = date("Y-m-d");
+                       
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
                     }
                     if ($sms_sent) {
                         $sms['tag'] = "vendor_invoice_mailed";
-                        $sms['smsData']['type'] = 'Cash';
+                        $sms['smsData']['type'] =  $data['type'];
                         $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
                         $sms['smsData']['amount'] = $data['amount_collected_paid'];
                         $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
@@ -2812,11 +2824,20 @@ class Invoice extends CI_Controller {
                     }
                     break;
                 case 'B':
-                    log_message('info', __FUNCTION__ . " .. type code:- B");
-                    $data['type'] = "FOC";
+                case 'C': 
+                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
                     $data['total_amount_collected'] = ($data['total_amount_collected'] - $data['upcountry_price']);
-                
-                    $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
+                    $tds = array();
+                    if($data['type_code'] == 'B'){
+                        $data['type'] = 'FOC';
+                        $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
+                        
+                    } else if($data['type_code'] == 'C'){
+                        $data['type'] = 'CreditNote';
+                        $tds['tds'] = 0;
+                        $tds['tds_rate'] = 0;
+                    }
+
                     $data['around_royalty'] = 0;
                     $data['amount_collected_paid'] = -($data['total_amount_collected'] - $tds['tds']);
                     $data['tds_amount'] = $tds['tds'];
@@ -2824,8 +2845,6 @@ class Invoice extends CI_Controller {
 
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
-                       
-                        $data['invoice_date'] = date("Y-m-d");
 
                         $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], $entity_details[0]['sc_code']);
                         $data['invoice_id'] =  $tmp_invoice['invoice_id'];
@@ -2834,7 +2853,7 @@ class Invoice extends CI_Controller {
 
                     if ($sms_sent) {
                         $sms['tag'] = "vendor_invoice_mailed";
-                        $sms['smsData']['type'] = 'FOC';
+                        $sms['smsData']['type'] = $data['type'];
                         $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
                         $sms['smsData']['amount'] = abs($data['amount_collected_paid']);
                         $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
@@ -2852,8 +2871,7 @@ class Invoice extends CI_Controller {
 
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
-                        
-                        $data['invoice_date'] = date("Y-m-d");
+
                         $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
                         $data['invoice_id'] =  $tmp_invoice['invoice_id'];
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
@@ -3121,17 +3139,16 @@ class Invoice extends CI_Controller {
             switch ($type_code) {
 
                 case 'A':
+                case 'D': 
+                case 'E':  
                     
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
                     echo $invoice_id['invoice_id'];
                     break;
                 case 'B':
+                case 'C':
                     
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, $entity_details[0]['sc_code']);
-                    echo $invoice_id['invoice_id'];
-                    break;
-                case 'D':
-                    $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
                     echo $invoice_id['invoice_id'];
                     break;
             }
