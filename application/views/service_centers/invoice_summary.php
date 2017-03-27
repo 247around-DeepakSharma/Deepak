@@ -38,8 +38,8 @@
          <td><?php echo $invoice['num_bookings'];  $sum_no_of_booking += $invoice['num_bookings']; ?></td>
         
           <td><?php echo $invoice['tds_amount'];$tds += abs($invoice['tds_amount']); ?></td>
-         <td ><?php  if($invoice['amount_collected_paid'] < 0){ echo abs($invoice['amount_collected_paid']); $pay_247 += abs($invoice['amount_collected_paid']);} else {echo "0.00"; } ?></td>
-         <td ><?php if($invoice['amount_collected_paid'] > 0){ echo $invoice['amount_collected_paid']; $pay_sf += abs($invoice['amount_collected_paid']); } else {echo "0.00";} ?></td>
+         <td ><?php  if($invoice['amount_collected_paid'] < 0){ echo abs($invoice['amount_collected_paid']); $pay_247 += $invoice['amount_collected_paid'];} else {echo "0.00"; } ?></td>
+         <td ><?php if($invoice['amount_collected_paid'] > 0){ echo $invoice['amount_collected_paid']; $pay_sf += $invoice['amount_collected_paid']; } else {echo "0.00";} ?></td>
 
          <?php  $count = $count+1;  ?>
 
@@ -52,10 +52,11 @@
          <td></td>
          <td></td>
          <td></td>
+         <td></td>
          <td><?php echo $sum_no_of_booking;?></td>
          <td><?php echo round($tds,2);?></td>
-         <td><?php echo round($pay_247,2);?></td>
-         <td><?php echo round($pay_sf,2);?></td>
+         <td><?php echo abs(round($pay_247,2));?></td>
+         <td><?php echo abs(round($pay_sf,2));?></td>
         
       </tr>
    </tbody>
@@ -102,9 +103,19 @@
              <td><?php echo $debit_amount;?></td>
              <td><?php echo $tds_amount;?></td>
              <td></td>
+              <td></td>
              </tr>
        </tbody>
       </table>
     
 <?php } ?>
+ <br>
+ 
+<?php 
+       
+    $final_settlement = $pay_247 + $pay_sf + $debit_amount - $credit_amount;
+    ?>
+    <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo round($final_settlement,0);} else { echo 0;} ?></h4></p>
+    <p ><h4 style="margin-bottom: 30px;">247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(round($final_settlement,0));} else {echo 0;} ?></h4></p>
     </div>
+
