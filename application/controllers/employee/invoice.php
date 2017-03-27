@@ -1515,20 +1515,22 @@ class Invoice extends CI_Controller {
 
     /**
      * @desc This is used to generate invoice from terminal.
-     * Use param like this - 'vendor','final','1','04','foc'
+     * Use param like this - 'vendor','final','1','2017-04-01', '2017-04-31','foc'
      * @param type $vendor_partner
      * @param type $invoice_type
      * @param type $vendor_partner_id
      * @param type $date_range
      * @param type $vendor_invoice_type
      */
-    function process_invoices_from_terminal($vendor_partner, $invoice_type, $vendor_partner_id, $date_range, $vendor_invoice_type) {
+    function process_invoices_from_terminal($vendor_partner, $invoice_type, $vendor_partner_id, 
+            $from_date_range_tmp, $to_date_range_tmp, $vendor_invoice_type) {
         log_message('info', __FUNCTION__ . " Entering......");
-        
+        $from_date_range = str_replace("-","/",$from_date_range_tmp);
+        $to_date_range = str_replace("-","/",$to_date_range_tmp);
         $details['vendor_partner'] = $vendor_partner;
         $details['invoice_type'] = $invoice_type;
         $details['vendor_partner_id'] = $vendor_partner_id;
-        $details['date_range'] = $date_range;
+        $details['date_range'] = $from_date_range."-".$to_date_range;
         $details['vendor_invoice_type'] = $vendor_invoice_type;
 
         $this->generate_vendor_partner_invoices($details);
