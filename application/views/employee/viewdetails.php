@@ -162,31 +162,7 @@
                         </tr>
                     </table>
                 </div>
-                <?php if(!is_null($booking_history[0]['sub_vendor_id'])){ ?>
-                <div class="col-md-12" style="margin-top:20px;" >
-                    <h3>District HeadQuater Details</h3>
-                    <table class="table  table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <td>District</td>
-                                <td>Pincode</td>
-                            </tr>
-                        <tbody>
-                            <?php foreach ($dhq as $key => $value) { ?>
-                            <tr>
-                                <td><?php echo $value['district'];?></td>
-                                <td><?php echo $value['pincode'];?></td>
-                            </tr>
-                            
-                            <?php } ?>
-                        </tbody>
-                        </thead>
-                        
-                    </table>
-                    
-                </div>
                 
-                <?php } ?>
 
                 <?php if(!empty($unit_details)) { ?>
                 <div class="col-md-12" style="margin-top:20px;" >
@@ -425,9 +401,23 @@
                             <td><?php if(isset($service_center[0]['primary_contact_phone_1'])){echo $service_center[0]['primary_contact_phone_1'];}?>
                             </td>
                         </tr>
+                    
+                <?php } ?>
+                <?php if(!is_null($booking_history[0]['sub_vendor_id'])){ ?>
+                        <tr>
+                            <th>District: </th>
+                            <td><?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?></td>
+                                 
+                        </tr>
+                        <tr>
+                            <th>District Pincode: </th>
+                            <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
+                                 
+                        </tr>
+                      
+                <?php } ?>
                     </table>
                 </div>
-                <?php } ?>
             </div>
 
             
