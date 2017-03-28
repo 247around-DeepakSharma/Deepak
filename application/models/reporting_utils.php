@@ -1525,7 +1525,7 @@ class Reporting_utils extends CI_Model {
     function get_agent_daily_reports($flag ,$startDate = "" , $endDate= "" ) {
 
         $data = array();
-        if($flag == "" && $startDate != " " && $endDate != " "){
+        if($flag == "" && $startDate != "" && $endDate != ""){
             $where1 = "AND booking_state_change.create_date >=". "'$startDate'" . " AND booking_state_change.create_date <=" ."'$endDate'";
             $where2 = "AND agent_outbound_call_log.create_date >=". "'$startDate'" . " AND agent_outbound_call_log.create_date <=" ."'$endDate'";
             $where3 = "AND CallType = 'completed' AND DialCallDuration >0 AND passthru_misscall_log.create_date >=". "'$startDate'" . " AND passthru_misscall_log.create_date <=" ."'$endDate'";
