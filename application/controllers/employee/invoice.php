@@ -527,10 +527,12 @@ class Invoice extends CI_Controller {
                 }
                 //for xlsx: excel, for xls: excel2003
                 $R1->render('excel', $output_file_excel);
+                system(" chmod 777 " . $output_file_excel, $res1);
+                array_push($file_names, $output_file_excel);
+                $files_name = $this->combined_partner_invoice_sheet($files_name,$output_file_excel);
                 
             }
-
-
+            system(" chmod 777 " . $files_name.".xlsx", $res1);
 
             log_message('info', __METHOD__ . "=> File created " . $files_name);
             //Send report via email
@@ -548,9 +550,9 @@ class Invoice extends CI_Controller {
             $this->email->to($to);
             $this->email->subject($subject);
             $this->email->attach($files_name . ".xlsx", 'attachment');
-            if($output_file_excel !=""){
-                $this->email->attach($output_file_excel, 'attachment');
-            }
+//            if($output_file_excel !=""){
+//                $this->email->attach($output_file_excel, 'attachment');
+//            }
             $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
             $this->email->attach(TMP_FOLDER .$invoice_id. ".pdf", 'attachment');
 
@@ -565,7 +567,8 @@ class Invoice extends CI_Controller {
             }
 
             array_push($file_names, $files_name . ".xlsx");
-            //array_push($file_names, $files_name . ".pdf");
+            array_push($file_names, TMP_FOLDER .$invoice_id. ".xlsx");
+             array_push($file_names, TMP_FOLDER .$invoice_id. ".pdf");
 
             if ($invoice_type == "final") {
                 log_message('info', __METHOD__ . "=> Final");
@@ -634,7 +637,7 @@ class Invoice extends CI_Controller {
 
             //Delete XLS files now
             foreach ($file_names as $file_name) {
-               //exec("rm -rf " . escapeshellarg($file_name));
+               exec("rm -rf " . escapeshellarg($file_name));
             }
         } else {
             log_message('info', __METHOD__ . "=> Data Not found" . $invoice_type . " Partner Id " . $partner_id);
@@ -3309,6 +3312,30 @@ class Invoice extends CI_Controller {
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
         }
+    }
+    /**
+     * @desc Combined detailed and upcountry excell sheet in a Single sheet
+     * @param String $details_excel
+     * @param String $upcountry_excel
+     * @return String 
+     */
+    function combined_partner_invoice_sheet($details_excel, $upcountry_excel){
+        
+        // Files are loaded to PHPExcel using the IOFactory load() method
+        $objPHPExcel1 = PHPExcel_IOFactory::load($details_excel.".xlsx");
+        $objPHPExcel2 = PHPExcel_IOFactory::load($upcountry_excel);
+
+        // Copy worksheets from $objPHPExcel2 to $objPHPExcel1
+        foreach($objPHPExcel2->getAllSheets() as $sheet) {
+            $objPHPExcel1->addExternalSheet($sheet);
+        }
+
+        // Save $objPHPExcel1 to browser as an .xls file
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, "Excel2007");
+        
+        $objWriter->save($details_excel.".xlsx");
+        
+        return $details_excel;
     }
 
 }
