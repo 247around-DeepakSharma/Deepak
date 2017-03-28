@@ -202,7 +202,7 @@
 <!--                                        <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Serial No </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control"  name="serial_number[]" id="serial_number_1" value = "<?php if(isset($unit_details[0]['serial_number'])) { echo $unit_details[0]['serial_number']; } ?>" placeholder="Enter Appliance Serial Number"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                                <input  type="text" class="form-control"  name="serial_number[]" id="serial_number_1" value = "<?php //if(isset($unit_details[0]['serial_number'])) { echo $unit_details[0]['serial_number']; } ?>" placeholder="Enter Appliance Serial Number"  <?php// if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                             </div>
                                         </div>-->
                                         <div class="form-group ">
@@ -264,13 +264,13 @@
                                                     </tr>
                                                     <tbody>
                                                         <?php if(!empty($prices)) { ?>
-                                                        <?php $i=0; $div = 1; $k=0; foreach ( $prices[0] as  $price) { ?>
+                                                        <?php $clone_number = 1; $i=0; $div = 1; $k=0; foreach ( $prices[0] as  $price) { ?>
                                                         
                                                         <tr>
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php echo $price['customer_total']; ?></td>
                                                             <td>
-                                                                <input type="text" class="form-control partner_discount" name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand_id']."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges_". $div . "_1"; ?>" value = "<?php  if(isset($unit_details[0]['quantity'])){
+                                                                <input type="text" class="form-control partner_discount" name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges_". $div . "_1"; ?>" value = "<?php  if(isset($unit_details[0]['quantity'])){
                                                                     $partner_net_payable = NUll;
                                                                        foreach ($unit_details[0]['quantity'] as  $tags) {
                                                                            if($tags['price_tags'] == $price['service_category'] ){
@@ -301,7 +301,7 @@
                                                                         echo $customer_net_payable;
                                                                     }?>
                                                             </td>
-                                                            <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand_id']."][". $price['id']."][]"; ?>" id="<?php echo "discount_".$div . "_1"; ?>"
+                                                            <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "discount_".$div . "_1"; ?>"
                                                                 value = "<?php  if(isset($unit_details[0]['quantity'])){
                                                                     $around_net_payable = NUll;
                                                                        foreach ($unit_details[0]['quantity'] as  $tags) {
@@ -329,7 +329,7 @@
                                                                     }
                                                                     
                                                                     ?>
-                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($price['customer_total'])."_".$div."_1" ?>">
+                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($price['customer_total'])."_".$div."_1" ?>">
                                                             </td>
                                                         </tr>
                                                         <?php  $i++; $div++; if(count($unit_details[0]['quantity']) > $k){  $k++;} }} ?>
@@ -346,7 +346,7 @@
                     <div class="cloned">
                         <?php if(count($unit_details) > 1) { ?>
                         <?php $number = 1; foreach ($unit_details as $key => $booking_unit_details) { ?>
-                        <?php if($number > 1) { ?>
+                        <?php if($number > 1) { $clone_number++; ?>
                         <div class="clonedInput panel panel-info " id="<?php echo "cat_".$number;?>">
                             <div class="panel-heading">
                                 <button class="clone btn btn-sm btn-info">Add</button>
@@ -397,12 +397,12 @@
                                                     <input  type="text" class="form-control"  name="model_number[]" id="<?php echo "model_number_".$number;?>" value = "<?php echo $booking_unit_details['model_number']; ?>" placeholder="Enter Model" >
                                                 </div>
                                             </div>
-                                            <div class="form-group ">
+<!--                                            <div class="form-group ">
                                                 <label for="type" class="col-md-4">Appliance Serial No </label>
                                                 <div class="col-md-6">
-                                                    <input  type="text" class="form-control"  name="serial_number[]" id="<?php echo "serial_number".$number;?>" value = "<?php if(isset($booking_unit_details['serial_number'])) { echo $booking_unit_details['serial_number']; } ?>" placeholder="Enter Appliance Serial Number"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                                    <input  type="text" class="form-control"  name="serial_number[]" id="<?php //echo "serial_number".$number;?>" value = "<?php //if(isset($booking_unit_details['serial_number'])) { echo $booking_unit_details['serial_number']; } ?>" placeholder="Enter Appliance Serial Number"  <?php //if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                                 </div>
-                                            </div>
+                                            </div>-->
                                             <div class="form-group ">
                                                 <label for="type" class="col-md-4">Appliance Description </label>
                                                 <div class="col-md-6">
@@ -467,7 +467,7 @@
                                                                 <td><?php echo $price['service_category']; ?></td>
                                                                 <td><?php echo $price['customer_total']; ?></td>
                                                                 <td>
-                                                                    <input type="text" class="form-control partner_discount" name="<?php echo "partner_paid_basic_charges[".$booking_unit_details['brand_id']."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges_". $div . "_".$number; ?>" value = "<?php  if(isset($booking_unit_details['quantity'])){
+                                                                    <input type="text" class="form-control partner_discount" name="<?php echo "partner_paid_basic_charges[".$booking_unit_details['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges_". $div . "_".$number; ?>" value = "<?php  if(isset($booking_unit_details['quantity'])){
                                                                         $partner_net_payable = NUll;
                                                                            foreach ($booking_unit_details['quantity'] as  $tags) {
                                                                                if($tags['price_tags'] == $price['service_category'] ){
@@ -498,7 +498,7 @@
                                                                             echo $customer_net_payable;
                                                                         }?>
                                                                 </td>
-                                                                <td><input type="text" class="form-control discount" name="<?php echo "discount[".$booking_unit_details['brand_id']."][". $price['id']."][]"; ?>" id="<?php echo "discount_". $div . "_".$number; ?>"
+                                                                <td><input type="text" class="form-control discount" name="<?php echo "discount[".$booking_unit_details['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "discount_". $div . "_".$number; ?>"
                                                                     value = "<?php  if(isset($booking_unit_details['quantity'])){
                                                                         $around_net_payable = NUll;
                                                                            foreach ($booking_unit_details['quantity'] as  $tags) {
@@ -526,7 +526,7 @@
                                                                         }
                                                                         
                                                                         ?>
-                                                                        type='checkbox' id="<?php echo "checkbox_" . $div . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($price['customer_total'])."_".$div."_".$number ?>">
+                                                                        type='checkbox' id="<?php echo "checkbox_" . $div . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][<?php echo $clone_number;?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($price['customer_total'])."_".$div."_".$number ?>">
                                                                 </td>
                                                             </tr>
                                                             <?php  $i++; $div++; if(count($booking_unit_details['quantity']) > $k){ $k++;} }} ?>
@@ -651,7 +651,6 @@
 
     $(".booking_source").select2();
     $("#service_id").select2();
-    
     $("#booking_city").select2({
          tags: true
     });

@@ -1482,24 +1482,48 @@ class Booking_model extends CI_Model {
 
     }
 
-    function check_price_tags_status($booking_id, $price_tags){
+    function check_price_tags_status($booking_id, $unit_id_array){
+        
         $this->db->select('id, price_tags');
         $this->db->like('booking_id', $booking_id);
+        $this->db->where_not_in('id', $unit_id_array);
         $query = $this->db->get('booking_unit_details');
         if($query->num_rows>0){
             $result = $query->result_array();
             foreach ($result as $value) {
-                 if (in_array($value['price_tags'], $price_tags)) {
-                   // echo "Match found";
-                 }
-                 else {
-                    //echo "Match not found";
-                   $this->db->where('id', $value['id']);
-                   $this->db->delete('booking_unit_details');
-
-                }
+                $this->db->where('id', $value['id']);
+                $this->db->delete('booking_unit_details');
             }
         }
+        
+                
+//        $this->db->select('id, price_tags');
+//        $this->db->like('booking_id', $booking_id);
+//        $query = $this->db->get('booking_unit_details');
+//        if($query->num_rows>0){
+//            $result = $query->result_array();
+//            foreach ($result as $value) {
+//                $flag = 0;
+//               foreach($price_tags as $p_value){
+//                   if($value['price_tags'] == $p_value['price_tags'] 
+//                           && $value['appliance_id'] == $p_value['appliance_id']){
+//                       $flag = 1;
+//                    }
+//                    if($flag == 0){
+//                        
+//                    }
+//               }
+////                 if (in_array($value['price_tags'], $price_tags)) {
+////                   // echo "Match found";
+////                 }
+////                 else {
+////                    //echo "Match not found";
+////                   $this->db->where('id', $value['id']);
+////                   $this->db->delete('booking_unit_details');
+////
+////                }
+//            }
+//        }
         return;
     }
 
@@ -1581,6 +1605,8 @@ class Booking_model extends CI_Model {
             log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[0]['id'], true));
             $this->db->where('id', $unit_details[0]['id']);
             $this->db->update('booking_unit_details', $result);
+            $u_unit_id = $unit_details[0]['id'];
+            
         } else {
             //trim booking only digit
             $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
@@ -1594,24 +1620,28 @@ class Booking_model extends CI_Model {
                 if (count($unit_num) > 1) {
 
                     $this->db->insert('booking_unit_details', $result);
+                    $u_unit_id = $this->db->insert_id();
                     log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
                 } else {
                     //$this->db->where('booking_id',  $booking_id);
                     if (empty($unit_num[0]['price_tags'])) {
                         $this->db->where('id', $unit_num[0]['id']);
                         $this->db->update('booking_unit_details', $result);
+                        $u_unit_id = $unit_num[0]['id'];
                         log_message('info', __METHOD__ . " Update Unit details SQL" . $this->db->last_query());
                     } else {
                         $this->db->insert('booking_unit_details', $result);
+                        $u_unit_id = $this->db->insert_id();
                         log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
                     }
                 }
             } else {
                 $this->db->insert('booking_unit_details', $result);
+                $u_unit_id = $this->db->insert_id();
                 log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
             }
         }
-        $return_details['price_tags'] = $data[0]['price_tags'];
+        $return_details['unit_id'] = $u_unit_id;
         $return_details['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
 
         return $return_details;

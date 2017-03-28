@@ -116,7 +116,7 @@
                                
                                 <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                     <label for="Booking Date ">Booking Date *</label>
-                                    <input type="date" min="<?php echo date("Y-m-d"); ?>" class="form-control"  id="booking_date" name="booking_date"  value = "<?php echo date('Y-m-d', strtotime($booking_history[0]['booking_date'])); ?>"  >
+                                    <input type="date" class="form-control"  id="booking_date" name="booking_date"  value = "<?php echo date('Y-m-d', strtotime($booking_history[0]['booking_date'])); ?>"  >
                                     <!--   -->
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
@@ -229,7 +229,7 @@
                                                 <option selected="selected" value="" >Year</option>
                                                 <?php for($i = 0; $i> -26; $i--){ ?>
                                                 <option  <?php if(set_value('purchase_year') == date("Y",strtotime($i." year"))){ echo "selected";} 
-                                                else if($unit_details[0]['purchase_month'] ==date("Y",strtotime($i." year"))){ echo "selected";} 
+                                                else if($unit_details[0]['purchase_year'] ==date("Y",strtotime($i." year"))){ echo "selected";} 
                                                   ?> >
                                                     <?php echo date("Y",strtotime($i." year")); ?>
                                                 </option>

@@ -111,7 +111,7 @@ class Booking extends CI_Controller {
         log_message('info', " Booking Insert User ID: " . $user_id . " Booking ID" . $booking_id." Done By " . $this->session->userdata('employee_id'));
 
         $user['user_id'] = $booking['user_id'] = $user_id;
-        $price_tags = array();
+        $updated_unit_id = array();
 
         // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
         $appliance_brand = $this->input->post('appliance_brand');
@@ -141,8 +141,8 @@ class Booking extends CI_Controller {
                     $appliance_id = array_unique($appliance_id_array);
                 }
             }
-
-            $serial_number = $this->input->post('serial_number');
+            // Do not un comment until serial input added in the form
+           // $serial_number = $this->input->post('serial_number');
 
             $partner_net_payable = $this->input->post('partner_paid_basic_charges');
             $appliance_description = $this->input->post('appliance_description');
@@ -175,7 +175,9 @@ class Booking extends CI_Controller {
                 // get purchase year from purchase year array for only specific key such as $purchase_year[0].
                 $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
                 $services_details['booking_id'] = $booking['booking_id'];
-                $appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
+                
+                //$appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
+                
                 $appliances_details['description'] = $services_details['appliance_description'] = $appliance_description[$key];
                 // get purchase months from months array for only specific key such as $months[0].
                 $appliances_details['purchase_month'] = $services_details['purchase_month'] = $months[$key];
@@ -218,13 +220,13 @@ class Booking extends CI_Controller {
                 }
 
                 //Array ( ['brand'] => Array ( [0] => id_price ) )
-                foreach ($pricesWithId[$brand_id] as $values) {
+                foreach ($pricesWithId[$brand_id][$key+1] as $values) {
 
                     $prices = explode("_", $values);  // split string..
                     $services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
-                    // discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) )
-                    $services_details['around_paid_basic_charges'] = $discount[$brand_id][$services_details['id']][0];
-                    $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$services_details['id']][0];
+                    
+                    $services_details['around_paid_basic_charges'] = $discount[$brand_id][$key+1][$services_details['id']][0];
+                    $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$key+1][$services_details['id']][0];
                     $services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
                     $services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
                     $services_details['booking_status'] = $booking['current_status'];
@@ -240,14 +242,14 @@ class Booking extends CI_Controller {
                             log_message('info', __METHOD__ . " Update Booking Unit Details: " . " Previous booking id: " . $booking_id);
                             $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
 
-                            array_push($price_tags, $result['price_tags']);
+                            array_push($updated_unit_id, $result['unit_id']);
                             break;
                     }
                 }
             }
-            if (!empty($price_tags)) {
-                log_message('info', __METHOD__ . " Price Tags: " . print_r($price_tags, true));
-                $this->booking_model->check_price_tags_status($booking['booking_id'], $price_tags);
+            if (!empty($updated_unit_id)) {
+                log_message('info', __METHOD__ . " UNIT ID: " . print_r($updated_unit_id, true));
+                $this->booking_model->check_price_tags_status($booking['booking_id'], $updated_unit_id);
             }
 
             $this->user_model->edit_user($user);
@@ -1084,16 +1086,16 @@ class Booking extends CI_Controller {
                 
 		$html .="<tr><td>" . $prices['service_category'] . "</td>";
 		$html .= "<td>" . $prices['customer_total'] . "</td>";
-		$html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
+		$html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
 		$html .= "<td>" . $prices['customer_net_payable'] . "</td>";
-		$html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
+		$html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
 		$html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "_" . $clone_number . "' value ='".$prices['is_upcountry']."' /><input class='price_checkbox'";
 //		if ($prices['service_category'] == 'Repair') {
 //		    $html .= "checked";
 //		}
 
 		$html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
-		$html .= "name='prices[$brand_id][]'";
+		$html .= "name='prices[$brand_id][$clone_number][]'";
 		$html .= "  onclick='final_price(), enable_discount(this.id), set_upcountry()'" .
 		    "value=" . $prices['id'] . "_" . intval($prices['customer_total'])."_".$i ."_".$clone_number. " ></td><tr>";
 
