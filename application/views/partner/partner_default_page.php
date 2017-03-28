@@ -31,12 +31,12 @@
 <div class="container-fluid">
     <div class="row" style="margin-top: 10px;">
         <div class="col-md-12">
-            <?php if($this->session->flashdata('error')) {
+            <?php if($this->session->userdata('error')) {
                 echo '<div class="alert alert-danger alert-dismissible" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <strong>' . $this->session->flashdata('error') . '</strong>
+                    <strong>' . $this->session->userdata('error') . '</strong>
                 </div>';
                 }
                 ?>
