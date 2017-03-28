@@ -1177,14 +1177,14 @@ class Partner_model extends CI_Model {
         $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text')";
         $where_booking_id = "AND `booking_id` LIKE '%$searched_text%'";
        
-        $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, services.services, current_status, assigned_engineer_id "
+        $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, current_status, assigned_engineer_id "
                 . " FROM `booking_details`,users, services "
                 . " WHERE users.user_id = booking_details.user_id "
                 . " AND services.id = booking_details.service_id "
                 . " AND `partner_id` = '$partner_id' ". $where_phone
 
                 . " UNION "
-                . "SELECT `booking_id`,`booking_date`,`booking_timeslot`,`order_id`, users.name as customername, services.services, current_status, assigned_engineer_id "
+                . "SELECT `booking_id`,`booking_date`,`booking_timeslot`,`order_id`, users.name as customername, users.phone_number, services.services, current_status, assigned_engineer_id "
                 . " FROM `booking_details`,users, services "
                 . " WHERE users.user_id = booking_details.user_id "
                 . " AND services.id = booking_details.service_id "

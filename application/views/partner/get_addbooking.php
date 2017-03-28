@@ -16,6 +16,15 @@
                                 </div>';
                                 }
                                 ?>
+                            <?php if($this->session->userdata('error')) {
+                                echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>' . $this->session->userdata('error') . '</strong>
+                                </div>';
+                                }
+                                ?>
                            
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12   <?php if( form_error('booking_primary_contact_no') ) { echo 'has-error';} ?>">
@@ -437,6 +446,7 @@
     }
 </style>
 <?php $this->session->unset_userdata('success'); ?>
+<?php $this->session->unset_userdata('error'); ?>
 <script type="text/javascript">
     $("#booking_city").select2({
          tags: true

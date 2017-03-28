@@ -298,12 +298,18 @@ class Partner extends CI_Controller {
      * @desc: This method loads abb booking form
      * it gets user details(if exist), city, source, services
      */
-    function get_addbooking_form(){
+    function get_addbooking_form($phone_number = ""){
         $this->checkUserSession();
+        if(!empty($phone_number)){
+            $_POST['phone_number'] = $phone_number;
+        }
         $this->form_validation->set_rules('phone_number', 'Phone Number', 'trim|required|regex_match[/^[7-9]{1}[0-9]{9}$/]');
 
         if ($this->form_validation->run() == FALSE) {
-            redirect(base_url()."partner/get_user_form");
+            $output = "Please Enter Valid Mobile Number";
+            $userSession = array('error' => $output);
+            $this->session->set_userdata($userSession);
+            redirect(base_url()."partner/home");
         } else {
             $phone_number = $this->input->post('phone_number');
             $data['user'] = $this->user_model->search_user($phone_number);
@@ -2416,9 +2422,15 @@ class Partner extends CI_Controller {
             $this->load->view('partner/bookinghistory', $data);
         } else {
             //if user not found set error session data
-            $this->session->set_flashdata('error', 'Booking Not Found');
-
-            redirect(base_url() . 'employee/partner/partner_default_page');
+            $output = "Booking Not Found";
+            $userSession = array('error' => $output);
+            $this->session->set_userdata($userSession);
+            if (preg_match("/^[7-9]{1}[0-9]{9}$/", $searched_text)) {
+                redirect(base_url() . 'partner/booking_form/'.$searched_text);
+                
+            } else {
+                redirect(base_url() . 'partner/home');
+            }
         }
     }
     

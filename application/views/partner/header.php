@@ -138,9 +138,9 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Add Booking</a>
                             <ul class="dropdown-menu" role="menu">
                                 <li>
-                                    <form method="POST" class="navbar-form navbar-left" action ="<?php echo base_url(); ?>partner/booking_form" role="add booking">
+                                    <form method="POST" class="navbar-form navbar-left" action ="<?php echo base_url(); ?>partner/search" role="add booking">
                                         <div class="form-group">
-                                            <input type="text" id="phone_number" class="form-control" name="phone_number" placeholder="Phone Number">
+                                            <input type="text" id="phone_number" class="form-control" name="searched_text" placeholder="Phone Number">
                                         </div>
                                         <input type="submit" value="Add Booking" onclick="return submit_button()" class="btn btn-default btn-block submitBtn" />
                                     </form>
@@ -155,9 +155,10 @@
                     <ul class="nav navbar-nav navbar-right">
 
                         <li>
-                            <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>partner/search">
+                            <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>partner/search" onsubmit="return checkStringLength()">
                                 <div class="form-group">
-                                    <input style="width:125%" type="text" class="form-control pull-right" placeholder="Search Booking ID or Mobile" name="searched_text">
+                                    <input style="width:125%" type="text" class="form-control pull-right" id="searched_text" placeholder="Search Booking ID or Mobile" 
+                                           name="searched_text" >
                                 </div> 
                             </form>
                         </li>
@@ -194,7 +195,7 @@
     function submit_button() {
         var phone = $("#phone_number").val();
 
-        if (phone.length != 10) {
+        if (phone.length !== 10) {
             return false;
 
         }
@@ -207,5 +208,13 @@
         }
 
 
+    }
+    function checkStringLength(){
+         var searched_text = $("#searched_text").val();
+         if (searched_text.length < 9) {
+             alert("Enter Atleast 8 Character For Booking ID");
+            return false;
+        }
+        
     }
 </script>
