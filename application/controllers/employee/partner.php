@@ -1543,7 +1543,8 @@ class Partner extends CI_Controller {
             } else {
                 log_message('info', 'Appliance is not update in Appliance details: ' . $booking_id . " Appliance data" . print_r($appliance_details, true) . "Appliamce id " . $unit_details['appliance_id']);
             }
-            $price_tags = array();
+            $updated_unit_id = array();
+            
             foreach ($post['requestType'] as $sc) {
                 $explode = explode("_", $sc);
                     
@@ -1555,12 +1556,12 @@ class Partner extends CI_Controller {
                 $unit_details['booking_status'] = "Pending";
             
                 $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state']);   
-                array_push($price_tags, $result['price_tags']);
+                array_push($updated_unit_id, $result['unit_id']);
             }
             
-            if (!empty($price_tags)) {
-                log_message('info', __METHOD__ . " Price Tags: " . print_r($price_tags, true));
-                $this->booking_model->check_price_tags_status($booking_id, $price_tags);
+            if (!empty($updated_unit_id)) {
+                log_message('info', __METHOD__ . " UNIT ID: " . print_r($updated_unit_id, true));
+                $this->booking_model->check_price_tags_status($booking_id, $updated_unit_id);
             }
 
             $booking_details['amount_due'] = $post['amount_due'];
