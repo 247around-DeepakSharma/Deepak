@@ -1495,35 +1495,7 @@ class Booking_model extends CI_Model {
                 $this->db->delete('booking_unit_details');
             }
         }
-        
-                
-//        $this->db->select('id, price_tags');
-//        $this->db->like('booking_id', $booking_id);
-//        $query = $this->db->get('booking_unit_details');
-//        if($query->num_rows>0){
-//            $result = $query->result_array();
-//            foreach ($result as $value) {
-//                $flag = 0;
-//               foreach($price_tags as $p_value){
-//                   if($value['price_tags'] == $p_value['price_tags'] 
-//                           && $value['appliance_id'] == $p_value['appliance_id']){
-//                       $flag = 1;
-//                    }
-//                    if($flag == 0){
-//                        
-//                    }
-//               }
-////                 if (in_array($value['price_tags'], $price_tags)) {
-////                   // echo "Match found";
-////                 }
-////                 else {
-////                    //echo "Match not found";
-////                   $this->db->where('id', $value['id']);
-////                   $this->db->delete('booking_unit_details');
-////
-////                }
-//            }
-//        }
+       
         return;
     }
 
