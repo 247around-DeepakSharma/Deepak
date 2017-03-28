@@ -341,6 +341,7 @@ class Partner extends CI_Controller {
                         $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price, $unit_details['appliance_category'],"delivered", $partner_data);
                         if($is_sms){
                             $booking['sms_count'] = 1;
+                            $booking['internal_status'] = _247AROUND_FOLLOWUP; 
                              
                         } else {
                             $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
