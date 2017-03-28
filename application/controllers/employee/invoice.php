@@ -538,16 +538,22 @@ class Invoice extends CI_Controller {
             //Send report via email
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');
-            $to = ANUJ_EMAIL_ID;
+            $cc = "";
             if($invoice_type == "final"){
+                $to = $data[0]['invoice_email_to'];
                 $subject = "FINAL Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
                     " Invoice for period: " . $f_date . " to " . $t_date;
+                
+                $cc = $data[0]['invoice_email_cc'];
             } else {
+                $to = ANUJ_EMAIL_ID;
+                $cc = "";
                 $subject = "DRAFT Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
                     " Invoice for period: " . $f_date . " to " . $t_date;
             }
 
             $this->email->to($to);
+            $this->email->cc($cc);
             $this->email->subject($subject);
             $this->email->attach($files_name . ".xlsx", 'attachment');
 //            if($output_file_excel !=""){
