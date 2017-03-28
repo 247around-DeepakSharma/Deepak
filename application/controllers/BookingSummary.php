@@ -1555,16 +1555,7 @@ EOD;
         $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
         $data['data']= $this->reporting_utils->get_partners_booking_report_chart_data($startDate,$endDate,$bookingStatus);
         $data['ajax_call']=true;
-        $partner_name = [];
-        $booking_count = [];
-        foreach ($data['data'] as $value) {
-            array_push($partner_name,(string)$value['public_name']);
-            array_push($booking_count,$value['count']);
-        }
-        $data_report['partner_name'] = implode(",", $partner_name);
-        $data_report['completed_booking'] = implode(",", $booking_count);
-        echo json_encode($data_report);
-        //echo $this->load->view('employee/show_partners_booking_report_chart', $data,true);
+        print_r(json_encode($data['data']));
     }
     /**
      * @Desc: This function is used to show the view of latest file uploaded in s3
