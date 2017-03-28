@@ -1,9 +1,11 @@
 <style>
+    .tile_stats_count{color:#333;}
     .tile_count .tile_stats_count, ul.quick-list li {
         white-space: normal;
         overflow: visible;
         text-overflow: clip;
     }
+    .highcharts-credits,.highcharts-button-symbol{display:none}
 </style>
 
 <!-- page content -->
@@ -90,6 +92,13 @@
                     <div class="col-md-6">
                         <h3>PAID VS FOC Bookings &nbsp;&nbsp;&nbsp;
                             <small>
+                                <select class="form-control" style="width:30%; display: inline-block;" id="booking_status2">
+                                    <option selected>Completed</option>
+                                    <option>Cancelled</option>
+                                    <option>FollowUp</option>
+                                    <option>Pending</option>
+                                    <option>Rescheduled</option>
+                                </select>
                             </small>
                         </h3>
                     </div>
@@ -115,21 +124,29 @@
 <!-- /page content -->
 <!-- create chart using MySQL data -->
 <script>
+    var partner_name = [];
+    var completed_booking = [];
+    var partner_id = [];
 
+<?php foreach ($partner_data as $key => $value) { ?>
+        partner_name.push("<?php echo $value['public_name']; ?>");
+        completed_booking.push(parseInt("<?php echo $value['count']; ?>"));
+        partner_id['<?php echo $value['public_name']; ?>'] = <?php echo $value['partner_id']; ?>
+
+
+<?php } ?>
+    
     window.chart = new Highcharts.Chart({
         chart: {
             renderTo: 'chart_container',
-            type: 'column',
-            events: {
-                load: Highcharts.drawTable
-            },
+            type: 'column'
         },
         title: {
             text: '',
             x: -20 //center
         },
         xAxis: {
-            categories: <?php echo $partner_name ?>
+            categories: partner_name
         },
         yAxis: {
             title: {
@@ -150,20 +167,20 @@
                 }
             }
         },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0
-        },
         series: [
             {
-                showInLegend: false,
                 name: 'Completed Booking',
-                data: [<?php echo $completed_booking ?>]
+                data: completed_booking,
+                cursor: 'pointer',
+                point: {
+                    events: {
+                        click: function () {
+                            window.open(baseUrl+'/employee/dashboard/partner_reports/'+this.category+'/'+partner_id[this.category], '_blank');
+                        }
+                    }
+                }
             }]
     });
-
 
 
     window.chart = new Highcharts.Chart({
@@ -222,8 +239,7 @@
                 data: [<?php echo $calls_received; ?>]
             }]
     });
-</script>
-<script>
+
     $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
 
         var startDate = picker.startDate.format('YYYY-MM-DD');
@@ -238,29 +254,29 @@
             url: url,
             data: {sDate: startDate, eDate: endDate, booking_status: booking_status},
             success: function (response) {
-                //console.log(response);
+                var partners = [];
+                var bookings = [];
+                var partnerid = [];
+                $.each(JSON.parse(response), function (key, value) {
+                    partners.push(value.public_name);
+                    bookings.push(parseInt(value.count));
+                    partnerid[value.public_name]=parseInt(value.partner_id);
+
+                });                
                 $('#loader_gif1').attr('src', "");
                 $('#loader_gif1').css('display', 'none');
-                var data = JSON.parse(response);
-                var partner_name = data.partner_name.split(',');
-                var completed_booking = JSON.parse("[" + data.completed_booking + "]");
-                var booking_type = $('#booking_status').val();
                 $('#chart_container').show();
-                //console.log(booking_type);
                 chart = new Highcharts.Chart({
                     chart: {
                         renderTo: 'chart_container',
-                        type: 'column',
-                        events: {
-                            load: Highcharts.drawTable
-                        },
+                        type: 'column'
                     },
                     title: {
                         text: '',
                         x: -20 //center
                     },
                     xAxis: {
-                        categories: partner_name
+                        categories: partners
                     },
                     yAxis: {
                         title: {
@@ -281,24 +297,24 @@
                             }
                         }
                     },
-                    legend: {
-                        layout: 'vertical',
-                        align: 'right',
-                        verticalAlign: 'middle',
-                        borderWidth: 0
-                    },
                     series: [
                         {
-                            showInLegend: false,
-                            name: booking_type,
-                            data: completed_booking
+                            name: booking_status,
+                            data: bookings,
+                            cursor: 'pointer',
+                            point: {
+                                events: {
+                                    click: function () {
+                                        window.open(baseUrl+'/employee/dashboard/partner_reports/'+this.category+'/'+partnerid[this.category], '_blank');
+                                    }
+                                }
+                            }
                         }]
                 });
             }
         });
-
-        //console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
     });
+
     var start = moment().startOf('month');
     var end = moment().endOf('month');
     $(function () {
@@ -361,7 +377,6 @@
             url: url,
             data: {sDate: startDate, eDate: endDate},
             success: function (response) {
-                console.log(response);
                 $('#loader_gif2').attr('src', "");
                 $('#loader_gif2').css('display', 'none');
                 $('#chart_container2').show();
@@ -414,7 +429,7 @@
                     series: [
                         {
                             name: 'Cancelled Queries',
-                            data: query_cancel
+                            data: query_cancel,
                         }, {
                             name: 'Booked Queries',
                             data: query_booking
@@ -484,13 +499,27 @@
         // Build the chart
         Highcharts.chart('piechart', {
             chart: {
-                plotBackgroundColor: null,
-                plotBorderWidth: 0,
-                plotShadow: false,
-                type: 'pie'
+                type: 'pie',
+                events: {
+                    drilldown: function (e) {
+                        if (!e.seriesOptions) {
+                            var get_date = $('#reportrange3 span').text().split('-');
+                            var startdate = get_date[0];
+                            var enddate = get_date[1];
+                            var type = e.point.name;
+                            var booking_status = $('#booking_status2').val();
+                            var chart = this;
+                            foc_paid_ajax_data(e, startdate, enddate, type, chart, booking_status);
+
+                        }
+                    }
+                }
             },
             title: {
                 text: ''
+            },
+            lang: {
+                drillUpText: '<< back {series.name}'
             },
             plotOptions: {
                 pie: {
@@ -512,21 +541,26 @@
                     colorByPoint: true,
                     data: [{
                             name: 'FOC',
-                            y: <?php echo $foc_and_paid[0]['FOC']; ?>
+                            y: <?php echo $foc_and_paid[0]['FOC']; ?>,
+                            drilldown: true
                         }, {
                             name: 'PAID',
                             y: <?php echo $foc_and_paid[0]['Paid']; ?>,
                             sliced: true,
-                            selected: true
+                            selected: true,
+                            drilldown: true
                         }]
-                }]
+                }],
+            drilldown: {
+                series: []
+            }
         });
     });
     $('#reportrange3').on('apply.daterangepicker', function (ev, picker) {
 
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
-//        var booking_status = $('#booking_status').val();
+        var booking_status = $('#booking_status2').val();
         var url = baseUrl + '/employee/dashboard/get_paid_foc_count_ajax';
         $('#loader_gif3').css('display', 'inherit');
         $('#loader_gif3').attr('src', "<?php echo base_url(); ?>images/loader.gif");
@@ -534,7 +568,7 @@
         $.ajax({
             type: 'POST',
             url: url,
-            data: {sDate: startDate, eDate: endDate},
+            data: {sDate: startDate, eDate: endDate, current_status: booking_status},
             success: function (response) {
                 $('#loader_gif3').attr('src', "");
                 $('#loader_gif3').css('display', 'none');
@@ -545,9 +579,26 @@
                         renderTo: 'piechart',
                         type: 'pie',
                         plotBorderWidth: 0,
+                        events: {
+                            drilldown: function (e) {
+                                if (!e.seriesOptions) {
+                                    var get_date = $('#reportrange3 span').text().split('-');
+                                    var startdate = get_date[0];
+                                    var enddate = get_date[1];
+                                    var type = e.point.name;
+                                    var booking_status = $('#booking_status2').val();
+                                    var chart = this;
+                                    foc_paid_ajax_data(e, startdate, enddate, type, chart, booking_status)
+                                }
+
+                            }
+                        }
                     },
                     title: {
                         text: ''
+                    },
+                    lang: {
+                        drillUpText: '<< back {series.name}'
                     },
                     plotOptions: {
                         pie: {
@@ -569,18 +620,84 @@
                             colorByPoint: true,
                             data: [{
                                     name: 'FOC',
-                                    y: parseInt(data.foc)
+                                    y: parseInt(data.foc),
+                                    drilldown: true
                                 }, {
                                     name: 'PAID',
                                     y: parseInt(data.paid),
                                     sliced: true,
-                                    selected: true
+                                    selected: true,
+                                    drilldown: true
                                 }]
-                        }]
+                        }],
+                    drilldown: {
+                        series: []
+                    }
+
                 });
             }
         });
-
-        //console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
     });
+
+    function foc_paid_ajax_data(e, startdate, enddate, type, chart, booking_status) {
+        var url = baseUrl + '/employee/dashboard/get_total_foc_or_paid_booking';
+        var partner_name = [];
+        var count = [];
+        var drilldown_data = [];
+        chart.showLoading('Loading Data ...');
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {sDate: startdate, eDate: enddate, type: type, current_status: booking_status},
+            success: function (response) {
+                var data = JSON.parse(response);
+                partner_name = data.partner_name.split(',');
+                count = JSON.parse("[" + data.count + "]");
+                for (var i = 0; i < partner_name.length; i++) {
+                    var arr = [partner_name[i], count[i]];
+                    drilldown_data.push(arr);
+                }
+                var drilldowns = {
+                    'FOC': {
+                        name: 'FOC',
+                        data: drilldown_data
+                    },
+                    'PAID': {
+                        name: 'PAID',
+                        data: drilldown_data
+                    }
+                },
+                series = drilldowns[e.point.name];
+                chart.hideLoading();
+                chart.addSeriesAsDrilldown(e.point, series);
+            }
+        });
+    }
+
+    function get_partner_booking_based_services(e, chart, startdate, enddate, partner_name, partner_id, booking_status) {
+        var url = baseUrl + '/employee/dashboard/get_partner_booking_based_on_services';
+
+        var drilldown_data = [];
+        chart.showLoading('Loading Data ...');
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {sDate: startdate, eDate: enddate, current_status: booking_status, partner_id: partner_id},
+            success: function (response) {
+                $.each(JSON.parse(response), function (key, value) {
+                    var arr = [value.services, parseInt(value.total)];
+                    drilldown_data.push(arr);
+
+                });
+
+                var data = {'': {
+                        name: partner_name,
+                        data: drilldown_data
+                    }}
+                series = data[''];
+                chart.hideLoading();
+                chart.addSeriesAsDrilldown(e.point, series);
+            }
+        });
+    }
 </script>

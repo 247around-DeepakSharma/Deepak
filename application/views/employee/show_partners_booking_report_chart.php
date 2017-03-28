@@ -241,26 +241,36 @@
              <!-- show data on dropdown selection JS -->
                                             <script type="text/javascript">
                                                 $('#period').select2();
-                                                var date = new Date();
-                                                var firstDay = new Date(date.getFullYear(), date.getMonth()-1, 1);
-                                                var lastDay = new Date(date.getFullYear(), date.getMonth(), 0);
-
+                                                
+                                                
+                                                var firstDay ="";
+                                                var lastDay = "";
+                                                
                                                 function get_data()
                                                 {
+                                                    var date = new Date();
+                                                    var period = $('#period').val();
+                                                    if(period === 'last_month'){
+                                                        firstDay = new Date(date.getFullYear(), date.getMonth()-1, 1);
+                                                        lastDay = new Date(date.getFullYear(), date.getMonth(), 0);
+                                                    }else{
+                                                        firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+                                                        lastDay = new Date(date.getFullYear(), date.getMonth()+1, 0);
+                                                    }
                                                     $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>BookingSummary/get_partners_booking_report_chart',
             data: {sDate: firstDay, eDate: lastDay, booking_status: 'Completed'},
             success: function (response) {
-                //console.log(response);
-//                $('#loader_gif1').attr('src', "");
-//                $('#loader_gif1').css('display', 'none');
-                var data = JSON.parse(response);
-                var partner_name = data.partner_name.split(',');
-                var completed_booking = JSON.parse("[" + data.completed_booking + "]");
-//                var booking_type = $('#booking_status').val();
-//                $('#chart_container').show();
-                //console.log(booking_type);
+                var partners = [];
+                var bookings = [];
+                var partnerid = [];
+                $.each(JSON.parse(response), function (key, value) {
+                    partners.push(value.public_name);
+                    bookings.push(parseInt(value.count));
+                    partnerid[value.public_name]=parseInt(value.partner_id);
+
+                }); 
                 chart = new Highcharts.Chart({
                     chart: {
                         renderTo: 'chart_container',
@@ -274,7 +284,7 @@
                         x: -20 //center
                     },
                     xAxis: {
-                        categories: partner_name
+                        categories: partners
                     },
                     yAxis: {
                         title: {
@@ -305,7 +315,7 @@
                         {
                             showInLegend: false,
                             name: 'completed booking',
-                            data: completed_booking
+                            data: bookings
                         }]
                 });
             }
