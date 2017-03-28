@@ -527,30 +527,38 @@ class Invoice extends CI_Controller {
                 }
                 //for xlsx: excel, for xls: excel2003
                 $R1->render('excel', $output_file_excel);
+                system(" chmod 777 " . $output_file_excel, $res1);
+                array_push($file_names, $output_file_excel);
+                $files_name = $this->combined_partner_invoice_sheet($files_name,$output_file_excel);
                 
             }
-
-
+            system(" chmod 777 " . $files_name.".xlsx", $res1);
 
             log_message('info', __METHOD__ . "=> File created " . $files_name);
             //Send report via email
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');
-            $to = ANUJ_EMAIL_ID;
+            $cc = "";
             if($invoice_type == "final"){
+                $to = $data[0]['invoice_email_to'];
                 $subject = "FINAL Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
                     " Invoice for period: " . $f_date . " to " . $t_date;
+                
+                $cc = $data[0]['invoice_email_cc'];
             } else {
+                $to = ANUJ_EMAIL_ID;
+                $cc = "";
                 $subject = "DRAFT Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
                     " Invoice for period: " . $f_date . " to " . $t_date;
             }
 
             $this->email->to($to);
+            $this->email->cc($cc);
             $this->email->subject($subject);
             $this->email->attach($files_name . ".xlsx", 'attachment');
-            if($output_file_excel !=""){
-                $this->email->attach($output_file_excel, 'attachment');
-            }
+//            if($output_file_excel !=""){
+//                $this->email->attach($output_file_excel, 'attachment');
+//            }
             $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
             $this->email->attach(TMP_FOLDER .$invoice_id. ".pdf", 'attachment');
 
@@ -565,7 +573,8 @@ class Invoice extends CI_Controller {
             }
 
             array_push($file_names, $files_name . ".xlsx");
-            //array_push($file_names, $files_name . ".pdf");
+            array_push($file_names, TMP_FOLDER .$invoice_id. ".xlsx");
+             array_push($file_names, TMP_FOLDER .$invoice_id. ".pdf");
 
             if ($invoice_type == "final") {
                 log_message('info', __METHOD__ . "=> Final");
@@ -634,7 +643,7 @@ class Invoice extends CI_Controller {
 
             //Delete XLS files now
             foreach ($file_names as $file_name) {
-               //exec("rm -rf " . escapeshellarg($file_name));
+               exec("rm -rf " . escapeshellarg($file_name));
             }
         } else {
             log_message('info', __METHOD__ . "=> Data Not found" . $invoice_type . " Partner Id " . $partner_id);
@@ -798,9 +807,15 @@ class Invoice extends CI_Controller {
                 //Make sure it is unique
                 $invoice_id_tmp = "Around-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
                 $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no = $this->invoices_model->get_invoices_details($where);
+                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+                $invoice_no = 1;
+                if(!empty($invoice_no_temp)){
+                    $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                    $invoice_no = $explode[1] +1;
+                }
 
-                $invoice_id = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+                $invoice_id = $invoice_id_tmp . "-" . $invoice_no;
+                
             }
 
             $excel_data = $invoices['meta'];
@@ -1121,9 +1136,14 @@ class Invoice extends CI_Controller {
                 //Make sure it is unique
                 $invoice_id_tmp = $invoices[0]['sc_code'] . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
                 $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no = $this->invoices_model->get_invoices_details($where);
+                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+                $invoice_no = 1;
+                if(!empty($invoice_no_temp)){
+                    $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                    $invoice_no = $explode[1] +1;
+                }
 
-                $invoice_id = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+                $invoice_id = $invoice_id_tmp . "-" . $invoice_no;
                 log_message('info', __FUNCTION__ . " Generate Invoice id " . $invoice_id);
             }
 
@@ -1504,20 +1524,22 @@ class Invoice extends CI_Controller {
 
     /**
      * @desc This is used to generate invoice from terminal.
-     * Use param like this - 'vendor','final','1','04','foc'
+     * Use param like this - 'vendor','final','1','2017-04-01', '2017-04-31','foc'
      * @param type $vendor_partner
      * @param type $invoice_type
      * @param type $vendor_partner_id
      * @param type $date_range
      * @param type $vendor_invoice_type
      */
-    function process_invoices_from_terminal($vendor_partner, $invoice_type, $vendor_partner_id, $date_range, $vendor_invoice_type) {
+    function process_invoices_from_terminal($vendor_partner, $invoice_type, $vendor_partner_id, 
+            $from_date_range_tmp, $to_date_range_tmp, $vendor_invoice_type) {
         log_message('info', __FUNCTION__ . " Entering......");
-        
+        $from_date_range = str_replace("-","/",$from_date_range_tmp);
+        $to_date_range = str_replace("-","/",$to_date_range_tmp);
         $details['vendor_partner'] = $vendor_partner;
         $details['invoice_type'] = $invoice_type;
         $details['vendor_partner_id'] = $vendor_partner_id;
-        $details['date_range'] = $date_range;
+        $details['date_range'] = $from_date_range."-".$to_date_range;
         $details['vendor_invoice_type'] = $vendor_invoice_type;
 
         $this->generate_vendor_partner_invoices($details);
@@ -1839,9 +1861,14 @@ class Invoice extends CI_Controller {
                 //Make sure it is unique
                 $invoice_id_tmp = "Around-" . $type . "-" . $financial . "-" . date("M", strtotime(date($from_date)));
                 $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no = $this->invoices_model->get_invoices_details($where);
+                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+                $invoice_no = 1;
+                if(!empty($invoice_no_temp)){
+                    $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                    $invoice_no = $explode[1] +1;
+                }
 
-                $invoice[0]['invoice_number'] = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+                $invoice[0]['invoice_number'] = $invoice_id_tmp . "-" . $invoice_no;
             }
 
             log_message('info', __FUNCTION__ . " Entering......... Invoice Id " . $invoice[0]['invoice_number']);
@@ -2180,10 +2207,15 @@ class Invoice extends CI_Controller {
             //Make sure it is unique
             $invoice_id_tmp = "Around" . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
             $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-            $invoice_no = $this->invoices_model->get_invoices_details($where);
-
-            $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
-
+            $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+            $invoice_no = 1;
+            if(!empty($invoice_no_temp)){
+                $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                $invoice_no = $explode[1] +1;
+            }
+            
+            $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . $invoice_no;
+            
             log_message('info', __FUNCTION__ . ' Invoice id ' . $invoices['meta']['invoice_id']);
             //load template
             $R = new PHPReport($config);
@@ -2321,9 +2353,14 @@ class Invoice extends CI_Controller {
                 $invoice_id_tmp = $invoices['meta']['sc_code'] . "-" . $invoice_version
                         . "-" . $financial . "-" . date("M", strtotime($from_date));
                 $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no = $this->invoices_model->get_invoices_details($where);
+                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+                $invoice_no = 1;
+                if(!empty($invoice_no_temp)){
+                    $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                    $invoice_no = $explode[1] +1;
+                }
 
-                $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+                $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" .$invoice_no;
                 log_message('info', __METHOD__ . ": Invoice Id geneterated "
                         . $invoices['meta']['invoice_id']);
             }
@@ -2532,9 +2569,14 @@ class Invoice extends CI_Controller {
                 //Make sure it is unique
                 $invoice_id_tmp = "Around-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
                 $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no = $this->invoices_model->get_invoices_details($where);
+                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+                $invoice_no = 1;
+                if(!empty($invoice_no_temp)){
+                    $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+                    $invoice_no = $explode[1] +1;
+                }
 
-                $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+                $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" .$invoice_no;
                 
                 log_message('info', __FUNCTION__ . " New Invoice ID Generated: " . $invoices['meta']['invoice_id']);
                 echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
@@ -2724,6 +2766,7 @@ class Invoice extends CI_Controller {
             $data['upcountry_distance'] = $this->input->post("upcountry_distance");
             $data['courier_charges'] = $this->input->post("courier_charges");
             $data['upcountry_price'] = $this->input->post("upcountry_price");
+            $new_invoice_id_flag = $this->input->post("new_invoice_id_flag");
             $data['penalty_bookings_count'] = $this->input->post("penalty_bookings_count");
             $data['total_amount_collected'] = round(($data['total_service_charge'] + 
                     $data['total_additional_service_charge'] + 
@@ -2742,12 +2785,23 @@ class Invoice extends CI_Controller {
             if (!empty($invoice_id)) {
                 $data['invoice_id'] = $invoice_id;
             }
+            
+            if($new_invoice_id_flag == 1){
+                $data['invoice_date'] = date("Y-m-d");
+            }
 
             switch ($data['type_code']) {
 
                 case 'A':
-                    log_message('info', __FUNCTION__ . " .. type code:- A");
-                    $data['type'] = 'Cash';
+                case 'E':
+                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type_code']);
+                    if($data['type_code'] == 'A'){
+                        $data['type'] = 'Cash';
+                        
+                    } else if($data['type_code'] == 'E'){
+                        $data['type'] = 'DebitNote';
+                    }
+                    
                     $data['total_amount_collected'] = ($data['total_amount_collected']+ $data['upcountry_price']);
                     $data['around_royalty'] = round($data['total_amount_collected'], 0);
                     $data['amount_collected_paid'] = round($data['total_amount_collected'], 0);
@@ -2764,12 +2818,12 @@ class Invoice extends CI_Controller {
                             $data['invoice_id'] =  $tmp_invoice['invoice_id'];
                         }
                         
-                        $data['invoice_date'] = date("Y-m-d");
+                       
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
                     }
                     if ($sms_sent) {
                         $sms['tag'] = "vendor_invoice_mailed";
-                        $sms['smsData']['type'] = 'Cash';
+                        $sms['smsData']['type'] =  $data['type'];
                         $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
                         $sms['smsData']['amount'] = $data['amount_collected_paid'];
                         $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
@@ -2779,11 +2833,20 @@ class Invoice extends CI_Controller {
                     }
                     break;
                 case 'B':
-                    log_message('info', __FUNCTION__ . " .. type code:- B");
-                    $data['type'] = "FOC";
+                case 'C': 
+                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
                     $data['total_amount_collected'] = ($data['total_amount_collected'] - $data['upcountry_price']);
-                
-                    $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
+                    $tds = array();
+                    if($data['type_code'] == 'B'){
+                        $data['type'] = 'FOC';
+                        $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
+                        
+                    } else if($data['type_code'] == 'C'){
+                        $data['type'] = 'CreditNote';
+                        $tds['tds'] = 0;
+                        $tds['tds_rate'] = 0;
+                    }
+
                     $data['around_royalty'] = 0;
                     $data['amount_collected_paid'] = -($data['total_amount_collected'] - $tds['tds']);
                     $data['tds_amount'] = $tds['tds'];
@@ -2791,8 +2854,6 @@ class Invoice extends CI_Controller {
 
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
-                       
-                        $data['invoice_date'] = date("Y-m-d");
 
                         $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], $entity_details[0]['sc_code']);
                         $data['invoice_id'] =  $tmp_invoice['invoice_id'];
@@ -2801,7 +2862,7 @@ class Invoice extends CI_Controller {
 
                     if ($sms_sent) {
                         $sms['tag'] = "vendor_invoice_mailed";
-                        $sms['smsData']['type'] = 'FOC';
+                        $sms['smsData']['type'] = $data['type'];
                         $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
                         $sms['smsData']['amount'] = abs($data['amount_collected_paid']);
                         $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
@@ -2819,8 +2880,7 @@ class Invoice extends CI_Controller {
 
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
-                        
-                        $data['invoice_date'] = date("Y-m-d");
+
                         $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
                         $data['invoice_id'] =  $tmp_invoice['invoice_id'];
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
@@ -2974,9 +3034,14 @@ class Invoice extends CI_Controller {
         //Make sure it is unique
         $invoice_id_tmp = $start_name ."-". $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
         $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-        $invoice_no = $this->invoices_model->get_invoices_details($where);
+        $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+        $invoice_no = 1;
+        if(!empty($invoice_no_temp)){
+            $explode = explode($invoice_id_tmp."-", $invoice_no_temp[0]['invoice_id']);
+            $invoice_no = $explode[1] +1;
+        }
         log_message('info', __FUNCTION__ . " Exit....");
-        $invoices['invoice_id'] =  $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+        $invoices['invoice_id'] =  $invoice_id_tmp . "-" . $invoice_no;
         return $invoices;
         
     }
@@ -3083,17 +3148,16 @@ class Invoice extends CI_Controller {
             switch ($type_code) {
 
                 case 'A':
+                case 'D': 
+                case 'E':  
                     
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
                     echo $invoice_id['invoice_id'];
                     break;
                 case 'B':
+                case 'C':
                     
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, $entity_details[0]['sc_code']);
-                    echo $invoice_id['invoice_id'];
-                    break;
-                case 'D':
-                    $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
                     echo $invoice_id['invoice_id'];
                     break;
             }
@@ -3254,6 +3318,30 @@ class Invoice extends CI_Controller {
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
         }
+    }
+    /**
+     * @desc Combined detailed and upcountry excell sheet in a Single sheet
+     * @param String $details_excel
+     * @param String $upcountry_excel
+     * @return String 
+     */
+    function combined_partner_invoice_sheet($details_excel, $upcountry_excel){
+        
+        // Files are loaded to PHPExcel using the IOFactory load() method
+        $objPHPExcel1 = PHPExcel_IOFactory::load($details_excel.".xlsx");
+        $objPHPExcel2 = PHPExcel_IOFactory::load($upcountry_excel);
+
+        // Copy worksheets from $objPHPExcel2 to $objPHPExcel1
+        foreach($objPHPExcel2->getAllSheets() as $sheet) {
+            $objPHPExcel1->addExternalSheet($sheet);
+        }
+
+        // Save $objPHPExcel1 to browser as an .xls file
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, "Excel2007");
+        
+        $objWriter->save($details_excel.".xlsx");
+        
+        return $details_excel;
     }
 
 }

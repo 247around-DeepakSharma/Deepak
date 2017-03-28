@@ -7,18 +7,30 @@
             <form class="form-horizontal" method="POST" action="<?php echo base_url();?>employee/invoice/process_insert_update_invoice/<?php echo $vendor_partner;?>" enctype="multipart/form-data" >
                 <div class="row">
                     <div class="col-md-12">
+                    <div class="col-md-6 col-md-offset-4">
+                        <div class="form-group">
+                               
+                               <div class="col-md-6">
+                                   <input type="text" class="form-control" name="invoice_id" id="invoice_id_gen" value="<?php if (isset($invoice_details[0]['invoice_id'])) {
+                               echo $invoice_details[0]['invoice_id'];
+                               } ?>" placeholder="Invoice ID" <?php if (isset($invoice_details[0]['invoice_id'])) { echo "readonly";;} ?>/>
+                               </div>
+                           </div>
+                    </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 20px;">
                         <div class="col-md-6">
+                           
                             <div class="form-group">
                                 <label for="Vendor Partner" class="col-md-4">Entity</label>
                                 <div class="col-md-6">
                                     <select type="text" class="form-control"  id="vendor_partner_id" name="vendor_partner_id"  required>
                                     </select>
-                                    </select>
+
                                 </div>
                             </div>
-                            <input type="hidden" name="invoice_id" id="invoice_id_gen" value="<?php if (isset($invoice_details[0]['invoice_id'])) {
-                                echo $invoice_details[0]['invoice_id'];
-                                } ?>"/>
+                            
+                             <input type="hidden" name="new_invoice_id_flag" id="new_invoice_id_flag" value="0"/>
                             <div class="form-group" >
                                 <label for="From Date" class="col-md-4">From Date</label>
                                 <div class="col-md-6">
@@ -107,6 +119,12 @@
                                         <option value="A" <?php if (isset($invoice_details[0]['type_code'])) {
                                             if($invoice_details[0]['type_code'] == "A"){ echo "selected";}
                                             } ?>>Cash</option>
+                                        <option value="C" <?php if (isset($invoice_details[0]['type_code'])) {
+                                            if($invoice_details[0]['type_code'] == "C"){ echo "selected";}
+                                            } ?>>CreditNote</option>
+                                        <option value="E" <?php if (isset($invoice_details[0]['type_code'])) {
+                                            if($invoice_details[0]['type_code'] == "E"){ echo "selected";}
+                                            } ?>>DebitNote</option>
                                         <option value="B" <?php if (isset($invoice_details[0]['type_code'])) {
                                             if($invoice_details[0]['type_code'] == "B"){ echo "selected";}
                                             } ?>>FOC</option>
@@ -269,6 +287,7 @@
                         alert(data);
                         $(".panel-title").html(data);
                         $("#invoice_id_gen").val(data);
+                        $("#new_invoice_id_flag").val('1');
                     }
                 });
                 

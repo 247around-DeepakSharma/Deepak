@@ -168,7 +168,7 @@ class bookingjobcard extends CI_Controller {
 
     public function prepare_job_card_using_booking_id($booking_id) {
         log_message('info', __FUNCTION__);
-
+ 
         log_message('info', $booking_id);
 
         $template = 'BookingJobCard_Template-v8.xlsx';
@@ -190,7 +190,21 @@ class bookingjobcard extends CI_Controller {
         if($booking_details[0]['upcountry_paid_by_customer'] == 1){
             $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
         }
-        $meta['appliance_description'] = $unit_details[0]['appliance_description'];
+        $meta['appliance_description'] = "";
+        if(!empty($unit_details)){
+            $meta['appliance_description'] = $unit_details[0]['appliance_description'];
+        }
+        $booking_unit_details = array();
+            foreach ($unit_details as $value) {
+                $array = array();
+                $array['appliance_category'] = $value['appliance_category'];
+                $array['appliance_capacity'] = $value['appliance_capacity'];
+                $array['appliance_brand'] = $value['appliance_brand'];
+                $array['model_number'] = $value['model_number'];
+                $array['price_tags'] = $value['price_tags'];
+                $array['customer_net_payable'] = $value['customer_net_payable'];
+                array_push($booking_unit_details, $array);
+            }
         $R->load(array(
             array(
                 'id' => 'booking',
@@ -205,7 +219,7 @@ class bookingjobcard extends CI_Controller {
             array(
                 'id' => 'unit',
                 'repeat' => TRUE,
-                'data' => $unit_details,
+                'data' => $booking_unit_details,
                 //'minRows' => 2,
                 'format' => array(
                     //'create_date' => array('datetime' => 'd/M/Y'),
@@ -230,9 +244,12 @@ class bookingjobcard extends CI_Controller {
         $output_file_dir = TMP_FOLDER;
         $output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
         $output_file_excel = $output_file_dir . $output_file . ".xlsx";
+        
         $R->render('excel', $output_file_excel);
+        
         $res1 = 0;
         system(" chmod 777 ".$output_file_excel, $res1);
+        
         $output_file_pdf = $output_file_dir . $output_file . ".pdf";
         //Update output file name in DB
         $this->reporting_utils->update_booking_jobcard($booking_details[0]['id'], $output_file . ".pdf");
@@ -261,7 +278,7 @@ class bookingjobcard extends CI_Controller {
         $directory_pdf = "jobcards-pdf/" . $output_file . ".pdf";
         $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
-        $this->session->set_flashdata('result', 'Job card generated successfully');
+       //$this->session->set_flashdata('result', 'Job card generated successfully');
         exec("rm -rf " . escapeshellarg($output_file_pdf));
         exec("rm -rf " . escapeshellarg($output_file_excel));
         redirect(base_url() . 'employee/booking/view');

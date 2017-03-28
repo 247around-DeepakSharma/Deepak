@@ -40,6 +40,7 @@ class Service_centers_model extends CI_Model {
         if($booking_id !=""){
             $booking = " AND bd.booking_id = '".$booking_id."' ";
         } 
+        $status = "";
         for($i =1; $i < 4;$i++ ){
             if($booking_id !=""){
                 if($i==2){
@@ -337,13 +338,13 @@ class Service_centers_model extends CI_Model {
     /**
      * @desc: This method is used to search booking by phone number or booking id
      * this is called by SF panel
-     * @param String $searched_text
+     * @param String $searched_text_tmp
      * @param String $service_center_id
      * @return Array
      */
-    function search_booking_history($searched_text,$service_center_id) {
+    function search_booking_history($searched_text_tmp,$service_center_id) {
         //Sanitizing Searched text - Getting only Numbers, Alphabets and '-'
-        $searched_text = preg_replace('/[^A-Za-z0-9-]/', '', $searched_text);
+        $searched_text = preg_replace('/[^A-Za-z0-9-]/', '', $searched_text_tmp);
         
         $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text')";
         $where_booking_id = "AND `booking_id` LIKE '%$searched_text%'";

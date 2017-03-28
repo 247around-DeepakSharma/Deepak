@@ -87,6 +87,7 @@ $route['partner/booking_details/(:any)'] = 'employee/partner/booking_details/$1'
 $route['partner/pending_queries'] = 'employee/partner/pending_queries';
 $route['partner/pending_queries/(:any)'] = 'employee/partner/pending_queries/$1';
 $route['partner/booking_form'] = 'employee/partner/get_addbooking_form';
+$route['partner/booking_form/(:any)'] = 'employee/partner/get_addbooking_form/$1';
 $route['partner/invoices_details'] = 'employee/partner/invoices_details';
 $route['partner/get_user_form'] = 'employee/partner/get_user_form';
 $route['partner/invoices_details'] = 'employee/partner/invoices_details';
@@ -119,7 +120,7 @@ $route['partner/get_waiting_for_approval_upcountry_charges'] = 'employee/partner
 $route['partner/upcountry_charges_approval/(:any)/(:any)'] = 'employee/partner/upcountry_charges_approval/$1/$2';
 $route['partner/reject_upcountry_charges/(:any)/(:any)'] = 'employee/partner/reject_upcountry_charges/$1/$2';
 $route['partner/download_partner_summary/(:any)'] = 'BookingSummary/send_leads_summary_mail_to_partners/$1';
-
+$route['partner/update_upcountry_details/(:any)/(:any)'] = 'employee/partner/update_upcountry_details/$1/$2';
 
 //$route['api/(:any)'] = 'partner/$2';
 
