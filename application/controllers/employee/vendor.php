@@ -40,6 +40,8 @@ class vendor extends CI_Controller {
         $this->load->library('email');
         $this->load->helper('download');
         $this->load->library('user_agent');
+        $this->load->dbutil();
+        $this->load->helper('file');
     }
 
     /**
@@ -2287,42 +2289,65 @@ class vendor extends CI_Controller {
      */
     function download_unique_pincode_excel(){
 
-        log_message('info', __FUNCTION__);
-
-        $template = 'Vendor_Pincode_Mapping_Template.xlsx';
-        //set absolute path to directory with template files
-        $templateDir = __DIR__ . "/../excel-templates/";
-        //set config for report
-        $config = array(
-            'template' => $template,
-            'templateDir' => $templateDir
-        );
-        //load template
-        $R = new PHPReport($config);
-        $vendor = $this->vendor_model->get_all_pincode_mapping();
-
-        $R->load(array(
-
-                 'id' => 'vendor',
-                'repeat' => TRUE,
-                'data' => $vendor
-            ));
-
-        $output_file_dir = TMP_FOLDER;
-        $output_file = "Vendor_Pincode_Mapping" . date('y-m-d');
-        $output_file_name = $output_file . ".xlsx";
-        $output_file_excel = $output_file_dir . $output_file_name;
-        $R->render('excel', $output_file_excel);
-        
-        //Downloading File
-        if(file_exists($output_file_excel)){
-
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
-            readfile($output_file_excel);
-            exit;
-        }
+//        log_message('info', __FUNCTION__);
+//
+//        $template = 'Vendor_Pincode_Mapping_Template.xlsx';
+//        //set absolute path to directory with template files
+//        $templateDir = __DIR__ . "/../excel-templates/";
+//        //set config for report
+//        $config = array(
+//            'template' => $template,
+//            'templateDir' => $templateDir
+//        );
+//        //load template
+//        $R = new PHPReport($config);
+//        $vendor = $this->vendor_model->get_all_pincode_mapping();
+//
+//        $R->load(array(
+//
+//                 'id' => 'vendor',
+//                'repeat' => TRUE,
+//                'data' => $vendor
+//            ));
+//
+//        $output_file_dir = TMP_FOLDER;
+//        $output_file = "Vendor_Pincode_Mapping" . date('y-m-d');
+//        $output_file_name = $output_file . ".xlsx";
+//        $output_file_excel = $output_file_dir . $output_file_name;
+//        $R->render('excel', $output_file_excel);
+//        
+//        //Downloading File
+//        if(file_exists($output_file_excel)){
+//
+//            header('Content-Description: File Transfer');
+//            header('Content-Type: application/octet-stream');
+//            header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+//            readfile($output_file_excel);
+//            exit;
+//        }
+            log_message('info', __FUNCTION__);
+            $newCSVFileName = "Vendor_Pincode_Mapping_Template_" . date('j-M-Y') . ".csv";
+            $csv = TMP_FOLDER . $newCSVFileName;
+            $vendor = $this->vendor_model->get_all_pincode_mapping();
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($vendor, $delimiter, $newline);
+            
+            log_message('info', __FUNCTION__ . ' => Rendered CSV');
+            write_file($csv, $new_report);
+            //Downloading Generated CSV
+             if (file_exists($csv)) {
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($csv));
+                readfile($csv);
+                exec("rm -rf " . escapeshellarg($csv));
+                exit;
+            }
         
 
     }
