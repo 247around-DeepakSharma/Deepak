@@ -1175,7 +1175,7 @@ class vendor_model extends CI_Model {
                 . "AND services.id = `Appliance_ID` "
                 . "GROUP BY vendor_pincode_mapping.Pincode";
         $query = $this->db->query($sql);
-        return $query->result_array();
+        return $query;
     }
 
     /**
