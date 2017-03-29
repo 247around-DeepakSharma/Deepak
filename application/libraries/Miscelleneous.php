@@ -432,17 +432,18 @@ class Miscelleneous {
             $sms['type_id'] = $query[0]['user_id'];
             $sms['phone_no'] = $query[0]['booking_primary_contact_no'];
             $this->My_CI->notify->send_sms($sms);
-        } else {
-            //Send SMS to customer
-            $sms['tag'] = "service_centre_assigned";
-            $sms['phone_no'] = $query[0]['booking_primary_contact_no'];
-            $sms['booking_id'] = $query[0]['booking_id'];
-            $sms['type'] = "user";
-            $sms['type_id'] = $query[0]['user_id'];
-            $sms['smsData'] = "";
-
-            $this->My_CI->notify->send_sms_acl($sms);
-        }
+        } 
+        //else {
+//            //Send SMS to customer
+//            $sms['tag'] = "service_centre_assigned";
+//            $sms['phone_no'] = $query[0]['booking_primary_contact_no'];
+//            $sms['booking_id'] = $query[0]['booking_id'];
+//            $sms['type'] = "user";
+//            $sms['type_id'] = $query[0]['user_id'];
+//            $sms['smsData'] = "";
+//
+//            $this->My_CI->notify->send_sms_acl($sms);
+//        }
 
 
         log_message('info', "Send SMS to customer: " . $query[0]['booking_id']);
