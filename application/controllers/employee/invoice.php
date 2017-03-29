@@ -273,7 +273,7 @@ class Invoice extends CI_Controller {
                 $expected_tds = $partner_amount -$amount;
                 $per_tds = ($expected_tds * 100) /$partner_amount;
                 
-                $this->settle_partner_tds_amount($invoice_id,$partner_amount,$amount, $expected_tds, $per_tds );
+                $this->settle_partner_tds_amount($invoice_id, $per_tds );
             }
         }
 
@@ -303,7 +303,7 @@ class Invoice extends CI_Controller {
         //redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
     }
     
-    function settle_partner_tds_amount($invoice_id,$partner_amount,$amount, $expected_tds, $per_tds ){
+    function settle_partner_tds_amount($invoice_id, $per_tds ){
         for($i=0; $i < count($invoice_id); $i++){
             $invoice_data = array();
             $where = " invoice_id = '".$invoice_id[$i]."' ";
