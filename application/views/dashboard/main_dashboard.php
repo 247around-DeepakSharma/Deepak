@@ -5,9 +5,10 @@
         overflow: visible;
         text-overflow: clip;
     }
-    .highcharts-credits,.highcharts-button-symbol{display:none}
+    .highcharts-credits{display:none}
+    #preview{display: none;}
 </style>
-
+<pre id="preview"></pre>
 <!-- page content -->
 <div class="right_col" role="main">
     <!-- top tiles -->
@@ -700,4 +701,6 @@
             }
         });
     }
+    
+    $('#preview').html(chart.getCSV());
 </script>
