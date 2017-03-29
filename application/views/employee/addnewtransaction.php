@@ -152,7 +152,7 @@ color: red;
                <div class="form-group">
                 <label for="name" class="col-md-2">TDS <span class="red">*</span></label>
                 <div class="col-md-6">
-                    <input type="text" class="form-control" id="tds_amount" name="tds_amount" value="<?php if(isset($selected_tds)){ echo $selected_tds; }?>" <?php if(!empty($id)) {?>readonly <?php } ?>required>
+                    <input type="text" class="form-control" id="tds_amount" name="tds_amount" value="<?php if(isset($selected_tds)){ echo $selected_tds; }?>" <?php if($vendor_partner == "vendor") {?>readonly <?php } ?>required>
                 </div>
                 <span id="errmsg4"></span>
               </div>
