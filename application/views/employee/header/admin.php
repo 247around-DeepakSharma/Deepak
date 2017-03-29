@@ -342,7 +342,7 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url()?>employee/dashboard" ><i class="fa fa-fw fa-desktop"></i> <strong>New Dashboard</strong></a>
+                            <a href="<?php echo base_url()?>employee/dashboard" target="_blank"><i class="fa fa-fw fa-desktop"></i> <strong>New Dashboard</strong></a>
                         </li>
                         
 <!--                        <li class="divider"></li>
