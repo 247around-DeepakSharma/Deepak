@@ -248,6 +248,7 @@ class Invoice extends CI_Controller {
         $account_statement['credit_debit'] = $this->input->post('credit_debit');
         $account_statement['transaction_mode'] = $this->input->post('transaction_mode');
         $account_statement['tds_amount'] = $this->input->post('tds_amount');
+        $partner_amount = $this->input->post("partner_amount");
         //Get bank txn id while update other wise empty.
         $bank_txn_id = $this->input->post("bank_txn_id");
         $amount = $this->input->post('amount');
@@ -267,6 +268,14 @@ class Invoice extends CI_Controller {
         $account_statement['description'] = $this->input->post('description');
 
         $invoice_id = explode(',', $account_statement['invoice_id']);
+        if($account_statement['partner_vendor'] == "partner"){
+            if($partner_amount > $amount){
+                $expected_tds = $partner_amount -$amount;
+                $per_tds = ($expected_tds * 100) /$partner_amount;
+                
+                $this->settle_partner_tds_amount($invoice_id, $per_tds );
+            }
+        }
 
         $this->invoices_model->update_settle_invoices($invoice_id, $paid_amount, $account_statement['partner_vendor'], $account_statement['partner_vendor_id']);
         if(empty($bank_txn_id)){
@@ -291,7 +300,23 @@ class Invoice extends CI_Controller {
             $this->notify->send_sms_acl($sms);
         }
 
-        redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
+        //redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
+    }
+    
+    function settle_partner_tds_amount($invoice_id, $per_tds ){
+        for($i=0; $i < count($invoice_id); $i++){
+            $invoice_data = array();
+            $where = " invoice_id = '".$invoice_id[$i]."' ";
+            $data = $this->invoices_model->get_invoices_details($where);
+            $invoice_data['tds_amount'] = ($data[0]['total_amount_collected'] *$per_tds)/100;
+            $invoice_data['tds_rate'] = $per_tds;
+            $amount_collected = $data[0]['total_amount_collected'] - $invoice_data['tds_amount'];
+            
+            $invoice_data['around_royalty'] = $invoice_data['amount_collected_paid'] = $amount_collected;
+            $this->invoices_model->update_partner_invoices(array('invoice_id' =>$invoice_id[$i] ), $invoice_data);
+            
+        }
+        return true;
     }
 
     /**
