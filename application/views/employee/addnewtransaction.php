@@ -103,6 +103,7 @@ color: red;
                     </div>';
                     }
                     ?>
+          <?php $flag = 0; if(!empty($selected_amount_collected)){ $flag =1;}?>
           <form name="myForm1" id="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/invoice/post_add_new_transaction" method="POST">
               <h1><?php if(isset($bank_txn_details)){ echo "Update Transaction"; } else { echo "Add New Transaction";} ?></h1>
         <br>
@@ -134,8 +135,8 @@ color: red;
               <div class="form-group ">
       <label for="name" class="col-md-2">Credit / Debit in 247Around <span class="red">*</span></label>
       <div class="col-md-6">
-          <input type="radio" onclick="cre_deb_validation1()"  name="credit_debit" value = "Credit" <?php if($selected_amount_collected > 0){ echo "checked";}?>>   Credit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <input type="radio" onclick="cre_deb_validation1()"  name="credit_debit" value = "Debit" <?php if($selected_amount_collected < 0){ echo "checked";}?>>    Debit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="radio"   name="credit_debit" value = "Credit" <?php if($selected_amount_collected > 0){ echo "checked";}?>>   Credit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="radio"  name="credit_debit" value = "Debit" <?php if($selected_amount_collected < 0){ echo "checked";}?>>    Debit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
                 </div>
             <span id="errmsg1"></span>
@@ -145,6 +146,8 @@ color: red;
                 <label for="name" class="col-md-2">Amount <span class="red">*</span></label>
                 <div class="col-md-6">
                     <input type="text" class="form-control" id="amount" name="amount" value="<?php if(isset($selected_amount_collected)){ echo abs($selected_amount_collected); }?>" required>
+                    <input type="hidden" class="form-control" id="partner_amount" name="partner_amount" value="<?php if(isset($selected_amount_collected)){ echo abs($selected_amount_collected); }?>" >
+            
                 </div>
                 <span id="errmsg4"></span>
               </div>
@@ -161,13 +164,13 @@ color: red;
               <div class="form-group">
       <label for="name" class="col-md-2">Transaction Mode<span class="red">*</span></label>
       <div>
-          <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Cash" 
+          <input type="radio" name="transaction_mode" value = "Cash" 
               <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Cash"){ echo "checked";}} else { echo "checked";} ?>>    Cash &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" onclick="cre_deb_validation1()"  name="transaction_mode" value = "Cheque"
+        <input type="radio"  name="transaction_mode" value = "Cheque"
                <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Cheque"){ echo "checked";}} else { echo "checked";} ?>>    Cheque &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Transfer"
+        <input type="radio"  name="transaction_mode" value = "Transfer"
                <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Transfer"){ echo "checked";}} else { echo "checked";} ?>>    Transfer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Other"
+        <input type="radio"  name="transaction_mode" value = "Other"
                <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Other"){ echo "checked";}}  ?>>    Other
                 </div>
 
@@ -198,7 +201,7 @@ color: red;
               </div>
             </div>
         <div class="col-md-12" style="text-align: center;">
-            <input type= "submit"  class="btn btn-danger btn-lg"  value ="Save" >
+            <input onclick="return check_amount(<?php echo $flag;?>)" type= "submit"  class="btn btn-danger btn-lg"  value ="Save" >
         </div>
           </form>
 
@@ -220,6 +223,19 @@ color: red;
 //   });
 //});
 
+
+function check_amount(flag){
+    
+    if(flag === 1){
+        var partner_amount = $("#partner_amount").val();
+        var amount = $("#amount").val() +  $("#tds_amount").val();
+        
+        if(amount >partner_amount ){
+            alert("Do not Allow Advance Transaction");
+            return false;
+        }
+    } 
+}
 
 </script>
 

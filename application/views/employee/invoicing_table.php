@@ -107,6 +107,7 @@
       <tr>
          <td><b>Total</b></td>
          <td></td>
+          <td></td>
          <td></td>
          <td></td>
          <td></td>
@@ -122,7 +123,7 @@
          <td><?php echo round($pay_by_partner,0); ?></td>
          <td id="final_amount_selected"></td>
          <td><input type="submit" class="form-control btn btn-sm btn-primary" value="Pay"></td>
-        
+          <td> </td>
          <td> </td>
          
       </tr>
@@ -284,7 +285,7 @@
     <h2><u>Final Summary</u></h2>
     <br>
     <?php 
-       
+ 
         $final_settlement = $pay_by_247 + $pay_by_partner + $debit_amount - $credit_amount;
     ?>
     <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo round($final_settlement,0);} else { echo 0;} ?></h4></p>
