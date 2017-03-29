@@ -30,8 +30,10 @@
     <!-- Highchart.js -->
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/data.js"></script>
-        <script src="https://code.highcharts.com/modules/drilldown.js"></script>
+    <script src="https://code.highcharts.com/modules/drilldown.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="http://highcharts.github.io/export-csv/export-csv.js"></script>
+    
     <!-- bootstrap-daterangepicker -->
     <script src="<?php echo base_url()?>js/moment.min.js"></script>
     <script src="<?php echo base_url()?>js/daterangepicker.js"></script>
