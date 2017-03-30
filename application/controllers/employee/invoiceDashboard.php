@@ -88,5 +88,45 @@ class InvoiceDashboard extends CI_Controller {
         $data = $this->invoice_dashboard_model->installation_not_added($partner_id, date('Y-m-01'),date('Y-m-01', strtotime(' +1 months')));
         print_r(json_encode($data, TRUE));
     }
+    /**
+     * @desc load Service Center invoice check page 
+     */
+    function service_center_invoice(){
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/sf_invoice_check');
+
+    }
+    /**
+     * @desc This is used to get count completed  line item for SF
+     */
+    function get_completd_booking_for_sf(){
+        $data = $this->invoice_dashboard_model->get_completd_booking_for_sf(date('Y-m-01'),date('Y-m-01', strtotime(' +1 months')));
+        print_r(json_encode($data, TRUE));
+    }
+    /**
+     * @desc Vendor Baisc Charge not match
+     */
+    function get_mis_match_vendor_basic(){
+        $data = $this->invoice_dashboard_model->get_mis_match_vendor_basic( date('Y-m-01'),date('Y-m-01', strtotime(' +1 months')));
+        print_r(json_encode($data, TRUE));
+    }
+    /**
+     * @desc Total customer paid is less than Due
+     */
+    function get_customer_paid_less_than_due(){
+        $data = $this->invoice_dashboard_model->get_customer_paid_less_than_due( date('Y-m-01'),date('Y-m-01', strtotime(' +1 months')));
+        print_r(json_encode($data, TRUE));
+    }
+    /**
+     * @desc SUM of Customer net payable, Around Net Payable, Partner Net Payable should not zero
+     */
+    function charges_total_should_not_zero(){
+        $data = $this->invoice_dashboard_model->charges_total_should_not_zero( date('Y-m-01'),date('Y-m-01', strtotime(' +1 months')));
+        print_r(json_encode($data, TRUE));
+    }
     
+    function around_to_vendor_to_around(){
+        $data = $this->invoice_dashboard_model->around_to_vendor_to_around( date('Y-m-01'),date('Y-m-01', strtotime(' +1 months')));
+        print_r(json_encode($data, TRUE));
+    }
 }

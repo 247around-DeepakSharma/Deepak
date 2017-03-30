@@ -134,4 +134,74 @@ class Invoice_dashboard_model extends CI_Model {
         log_message('info', $this->db->last_query());
         return $query->result_array();
     }
+    
+    function get_completd_booking_for_sf($from_date,$to_date_tmp){
+        
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        
+        $sql = "SELECT sc.id as sf_id, sc.name, COUNT( booking_unit_details.id ) AS total_unit
+                FROM  `booking_unit_details` , booking_details, service_centres as sc
+                WHERE booking_status =  'Completed'
+                AND ud_closed_date >=  '$from_date'
+                AND ud_closed_date <  '$to_date'
+                AND (vendor_cash_invoice_id IS NULL OR vendor_foc_invoice_id IS NULL) 
+                AND booking_unit_details.booking_id = booking_details.booking_id
+                AND booking_details.assigned_vendor_id = sc.id
+                GROUP BY booking_details.assigned_vendor_id ORDER BY sc.name
+                ";
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_mis_match_vendor_basic($from_date, $to_date_tmp){
+         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        $sql = "SELECT `booking_id`,`product_or_services`,`vendor_basic_charges`,"
+                . " round(((`customer_total` * `vendor_basic_percentage`)/100)/((100+`tax_rate`)/100),2) as amount  "
+                . " from booking_unit_details "
+                . " WHERE "
+                . " `vendor_basic_charges` -  round(((`customer_total` * `vendor_basic_percentage`)/100)/((100+`tax_rate`)/100),2) > 2 "
+                . " AND ud_closed_date >= '$from_date' AND ud_closed_date  < '$to_date' "
+                . " AND booking_status = 'Completed' AND partner_net_payable > 0 ";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_customer_paid_less_than_due($from_date, $to_date_tmp){
+         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        $sql = "SELECT `booking_id`,customer_net_payable,(`customer_paid_basic_charges` + `customer_paid_extra_charges` + `vendor_parts`) as amount "
+                . " from booking_unit_details "
+                . " WHERE  ud_closed_date >= '$from_date' AND ud_closed_date < '$to_date' "
+                . " AND booking_status = 'Completed' AND booking_status = 'Completed' 
+                    AND customer_net_payable > (`customer_paid_basic_charges` + `customer_paid_extra_charges` + `vendor_parts`)";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function charges_total_should_not_zero($from_date, $to_date_tmp){
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        $sql = "SELECT booking_id,  `customer_total` ,  `customer_net_payable` ,  `partner_net_payable` ,  `around_net_payable` 
+            FROM booking_unit_details
+            WHERE ud_closed_date >=  '$from_date'
+            AND ud_closed_date <  '$to_date'
+            AND booking_status =  'Completed'
+            AND (
+            customer_net_payable + around_net_payable + partner_net_payable
+            ) =0
+            AND price_tags !=  Repeat Booking'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function around_to_vendor_to_around($from_date, $to_date_tmp){
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+         $sql = "SELECT booking_id,  customer_total, price_tags
+            FROM booking_unit_details
+            WHERE ud_closed_date >=  '$from_date'
+            AND ud_closed_date <  '$to_date'
+            AND booking_status =  'Completed'
+            AND customer_total > 0 AND (vendor_to_around + around_to_vendor) = 0";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 }
