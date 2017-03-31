@@ -7,14 +7,15 @@
             <form class="form-horizontal" method="POST" action="<?php echo base_url();?>employee/invoice/process_insert_update_invoice/<?php echo $vendor_partner;?>" enctype="multipart/form-data" >
                 <div class="row">
                     <div class="col-md-12">
-                    <div class="col-md-6 col-md-offset-4">
+                    <div class="col-md-6 col-md-offset-4 <?php if( form_error('invoice_id') ) { echo 'has-error';} ?>">
                         <div class="form-group">
                                
                                <div class="col-md-6">
                                    <input type="text" class="form-control" name="invoice_id" id="invoice_id_gen" value="<?php if (isset($invoice_details[0]['invoice_id'])) {
                                echo $invoice_details[0]['invoice_id'];
-                               } ?>" placeholder="Invoice ID" <?php if (isset($invoice_details[0]['invoice_id'])) { echo "readonly";;} ?>/>
+                               } ?>" placeholder="Invoice ID" <?php if (isset($invoice_details[0]['invoice_id'])) { echo "readonly";;} ?> required/>
                                </div>
+                            <?php echo form_error('invoice_id'); ?>
                            </div>
                     </div>
                     </div>
