@@ -158,7 +158,7 @@
 
                             <div class="form-group">
                                 <div  class="col-md-12">
-                                    <table class="table priceList table-striped table-bordered"  style="font-family: monospace;"name="priceList" id="priceList">
+                                    <table class="table priceList table-striped table-bordered" name="priceList" id="priceList">
                                         <tr class="text-center">
                                             <th class="text-center">Service Category</th>
                                             <th class="text-center">Final Charges</th>
