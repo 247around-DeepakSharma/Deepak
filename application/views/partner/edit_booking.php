@@ -95,7 +95,7 @@
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
                                     <label for="appliance_capacity">Capacity  <span id="error_capacity" style="color: red;"> <span style="color:grey;display:none" id="capacity_loading">Loading ...</span></label>
                                    
-                                    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models()">
+                                    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return getPrice()">
                                         <option selected disabled value="option1">Select Appliance Capacity</option>
                                     </select>
                                     <?php echo form_error('appliance_capacity'); ?>
@@ -158,7 +158,7 @@
 
                             <div class="form-group">
                                 <div  class="col-md-12">
-                                    <table class="table priceList table-striped table-bordered"  style="font-family: monospace;"name="priceList" id="priceList">
+                                    <table class="table priceList table-striped table-bordered" name="priceList" id="priceList">
                                         <tr class="text-center">
                                             <th class="text-center">Service Category</th>
                                             <th class="text-center">Final Charges</th>
@@ -459,7 +459,6 @@
         service_id =  $("#service_name").find(':selected').attr('data-id');
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
         partner_type = '<?php echo $partner_type;?>';
-        $("#total_price").html("<br/>Rs.");
         
          $.ajax({
                         type: 'POST',
@@ -489,7 +488,7 @@
         brand =  $("#appliance_brand_1").val();
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
         partner_type = '<?php echo $partner_type;?>';
-        $("#total_price").html("<br/>Rs.");
+        
         $.ajax({
                         type: 'POST',
                         beforeSend: function(){
@@ -520,7 +519,7 @@
         category = $("#appliance_category_1").find(':selected').val();
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
         partner_type = '<?php echo $partner_type;?>';
-        $("#total_price").html("<br/>Rs.");
+        
         $.ajax({
             type: 'POST',
             beforeSend: function(){
@@ -537,7 +536,7 @@
                     //$("#appliance_capacity_1 option[value !='option1']").remove();
                     //$('#appliance_capacity_1').append(data).change();
                     $('#appliance_capacity_1').html(data).change();
-                    get_models();
+                    getPrice();
                 },
             complete: function(){
                 $('#capacity_loading').css("display", "none");
@@ -556,7 +555,7 @@
         if(capacity === null && capacity === ""){
             capacity = '';
         }
-        $("#total_price").html("<br/>Rs.");
+       
         $.ajax({
                         type: 'POST',
                         url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner',
@@ -616,7 +615,7 @@
                 url: '<?php echo base_url(); ?>employee/partner/get_price_for_partner',
                 data: postData,
                 success: function (data) {
-                   
+                   console.log(data);
                      if(data === "ERROR"){
                          // $("#total_price").text("Price is not defined" );
                           alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
