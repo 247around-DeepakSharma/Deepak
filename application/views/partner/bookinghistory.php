@@ -19,12 +19,12 @@
 </script>
 
 
-<div id="page-wrapper" style="width:100%;"> 
+<div id="page-wrapper" style="width:100%; margin-bottom:40px;"> 
     <div class="">
         <div class="row">
             <div id="for_user">
                 <div class="panel">
-                    <div class="panel-heading"><h3><form action="<?php echo base_url()."partner/booking_form"; ?>" method="POST"><b>Booking History</b><input type="hidden" name="phone_number" value="<?php echo $data[0]['phone_number']; ?>"><input type="submit" value="New AddBooking" class="pull-right btn btn-sm btn-primary"></form></h3>
+                    <div class="panel-heading"><h3>Booking History</h3>
                         
                     </div>
                 </div>
@@ -121,6 +121,10 @@
                 </table>
 
             </div>
+             <form  action="<?php echo base_url()."partner/booking_form"; ?>" method="POST"> 
+                <input type="hidden" name="phone_number" value="<?php echo $data[0]['phone_number']; ?>">
+                <input type="submit" value="New Booking"  class=" btn btn-md btn-primary col-md-offset-4">
+            </form>
         </div>
         <div style="margin-left:35px;">
             <?php if (!empty($links)) { ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php
