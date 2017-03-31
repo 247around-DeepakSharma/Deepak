@@ -140,6 +140,7 @@ class Penalty_model extends CI_Model {
 	    $data['criteria_id'] = $penalty_details['id'];
 	    $data['penalty_amount'] = $penalty_details['penalty_amount'];
             $data['active'] = 1;
+            $data['create_date'] = date('Y-m-d H:i:s');
             $this->insert_penalty_on_booking($data);
             if($data['criteria_id']  == '2')
             {
