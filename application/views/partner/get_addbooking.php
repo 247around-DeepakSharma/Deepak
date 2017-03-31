@@ -106,7 +106,7 @@
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
                                     <label for="appliance_capacity">Capacity   <span style="color:grey;display:none" id="capacity_loading">Loading ...</span> <span id="error_capacity" style="color: red;"></label>
                                    
-                                    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models()">
+                                    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return getPrice()">
                                         <option selected disabled value="option1">Select Appliance Capacity</option>
                                     </select>
                                     <?php echo form_error('appliance_capacity'); ?>
@@ -466,7 +466,7 @@
         service_id =  $("#service_name").find(':selected').attr('data-id');
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
         partner_type = $("#partner_type").val();
-        $("#total_price").html("<br/>Rs.");
+        
         
          $.ajax({
                         type: 'POST',
@@ -496,7 +496,7 @@
         brand =  $("#appliance_brand_1").val();
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
         partner_type = $("#partner_type").val();
-        $("#total_price").html("<br/>Rs.");
+       
         $.ajax({
                         type: 'POST',
                         beforeSend: function(){
@@ -527,7 +527,7 @@
         category = $("#appliance_category_1").find(':selected').val();
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
         partner_type = $("#partner_type").val();
-        $("#total_price").html("<br/>Rs.");
+        
         $.ajax({
             type: 'POST',
             beforeSend: function(){
@@ -547,7 +547,7 @@
                      
                       $('#appliance_capacity_1').html(data).change();
                      
-                    get_models();
+                    getPrice();
                 },
             complete: function(){
                 $('#capacity_loading').css("display", "none");
@@ -566,7 +566,7 @@
         if(capacity === null && capacity === ""){
             capacity = '';
         }
-        $("#total_price").html("<br/>Rs.");
+        
         $.ajax({
                         type: 'POST',
                         url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner',
@@ -591,7 +591,7 @@
     }
     
     function getPrice() {
-    
+        
         var postData = {};       
        
         postData['service_id'] = $("#service_name").find(':selected').attr('data-id');
@@ -609,14 +609,14 @@
         postData['city'] = $("#booking_city").val();
         postData['partner_price_mapping_id'] = $("#partner_price_mapping_id").val();
         postData['partner_type'] = $('#partner_type').val();
-        $("#total_price").html("<br/>Rs.");
+        
         if(postData['brand'] !== null 
                 && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
-           
+          
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
-                  $("#total_price").html("Loading......");
+                  
                   $('#submitform').attr('disabled',true);
                   
                 },
@@ -638,7 +638,7 @@
                 }
             });
         } else {
-       
+          //console.log("error");
         }
     
     }
