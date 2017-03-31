@@ -2769,6 +2769,7 @@ class Invoice extends CI_Controller {
     function process_insert_update_invoice($vendor_partner){
         log_message('info', __FUNCTION__ . " Entering...." . $vendor_partner);
         $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|trim|xss_clean');
         if ($this->form_validation->run()) {
 
             $sms_sent = $this->input->post('sms_sent');
@@ -2981,7 +2982,7 @@ class Invoice extends CI_Controller {
 
              redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
         } else {
-            echo "Please Enter Vendor Partner";
+            $this->insert_update_invoice($vendor_partner);
         }
     }
     /**
