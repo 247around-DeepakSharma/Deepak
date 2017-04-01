@@ -1691,6 +1691,8 @@ class Partner extends CI_Controller {
         $flag = FALSE;
     }
 
+    //Same Order ID can not be given for 2 bookings but same serial no can 
+    //be used to insert multiple bookings
     if(!empty($request['orderID'])){
         $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
         if (!is_null($lead)) {

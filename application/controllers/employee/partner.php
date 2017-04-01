@@ -373,13 +373,13 @@ class Partner extends CI_Controller {
                 if (isset($responseData['data']['code'])) {
                     
                     if($responseData['data']['code'] == -1003){
-                        $output = "Order ID Already Exists. Its Booking ID ".$responseData['data']['response']['247aroundBookingID'] ;
+                        $output = "Order ID Already Exists, Booking ID: ".$responseData['data']['response']['247aroundBookingID'] ;
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
 
                         redirect(base_url() . "partner/pending_booking");
                     } else if ($responseData['data']['code'] == 247) {
-                        $output = "Booking Inserted Successfully. Its Booking ID ".$responseData['data']['response']['247aroundBookingID'];
+                        $output = "Booking Inserted Successfully, Booking ID: ".$responseData['data']['response']['247aroundBookingID'];
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
 
@@ -390,7 +390,7 @@ class Partner extends CI_Controller {
                         log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
                         $this->insertion_failure($postData);
 
-                        $output = "Sorry, Booking Could Not be Inserted. Please Check Try Again.";
+                        $output = "Sorry, Booking Could Not be Inserted. Please Try Again.";
                         $userSession = array('error' => $output);
                         $this->session->set_userdata($userSession);
                         redirect(base_url() . "partner/pending_booking");                        
@@ -399,7 +399,7 @@ class Partner extends CI_Controller {
                     log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
                     $this->insertion_failure($postData);
 
-                    $output = "Sorry, Booking Could Not Be Inserted. Please Check Try Again.";
+                    $output = "Sorry, Booking Could Not Be Inserted. 247around Team Is Looking Into This.";
                     $userSession = array('error' => $output);
                     $this->session->set_userdata($userSession);
 
@@ -414,8 +414,6 @@ class Partner extends CI_Controller {
             $phone_number = $this->input->post('booking_primary_contact_no');
             $_POST['phone_number'] = $phone_number;
             $this->get_addbooking_form();
-            
-            
         }
     }
     
