@@ -41,7 +41,7 @@
                                     <label for="booking_pincode" class="col-md-4">Pincode *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" >
-                                           
+                                           <span id="error_pincode" style="color:red"></span>;
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -648,7 +648,7 @@
    
 </script>
 <script>
-
+    check_pincode();
     $(".booking_source").select2();
     $("#service_id").select2();
     $("#booking_city").select2({
@@ -657,6 +657,12 @@
     $("#partner_source").select2();
 
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+     $("#booking_pincode").keyup(function(event) {
+       
+        check_pincode();
+        getBrandForService();
+        
+    });
 
 </script>
 </script>
