@@ -300,7 +300,7 @@ class Invoice extends CI_Controller {
             $this->notify->send_sms_acl($sms);
         }
 
-        //redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
+        redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
     }
     
     function settle_partner_tds_amount($invoice_id, $per_tds ){
@@ -566,7 +566,7 @@ class Invoice extends CI_Controller {
             $cc = "";
             if($invoice_type == "final"){
                 $to = $data[0]['invoice_email_to'];
-                $subject = "FINAL Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
+                $subject = "247around - " . $data[0]['company_name'] .
                     " Invoice for period: " . $f_date . " to " . $t_date;
                 
                 $cc = $data[0]['invoice_email_cc'];

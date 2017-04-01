@@ -201,7 +201,9 @@ class Penalty_model extends CI_Model {
 	return $this->db->insert_id();
     }
     /**
-     *
+     * Applies penalty on SF for bookings which have not been updated today
+     * This is triggered from CRON.
+     * 
      * @return boolean
      */
     function penalty_on_service_center_for_update_booking() {
@@ -220,6 +222,8 @@ class Penalty_model extends CI_Model {
 	    foreach ($result as $value) {
                 $data = $this->check_any_update_in_state_change($value['booking_id'], $value['assigned_vendor_id']);
                 if(empty($data)){
+                    $value['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                    $value['remarks'] = 'Booking Not Updated On Time';
                     $where = array('criteria' => BOOKING_NOT_UPDATED_BY_SERVICE_CENTER, 'active' => '1');
 		    $this->get_data_penalty_on_booking($value, $where);
                 }
