@@ -41,7 +41,7 @@
                                     <label for="booking_pincode" class="col-md-4">Pincode *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" >
-                                           <span id="error_pincode" style="color:red"></span>;
+                                           <span id="error_pincode" style="color:red"></span>
                                     </div>
                                 </div>
                                 <div class="form-group ">

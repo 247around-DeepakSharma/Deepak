@@ -266,6 +266,8 @@ class Booking extends CI_Controller {
                     $this->send_sms_email($booking_id, "Pincode_not_found");
                 }
                 
+                //1 means booking is getting inserted for the first time
+                //2 means booking is getting updated
                 if ($booking['is_send_sms'] == 1) {
                     //Query converted to Booking OR New Booking Inserted
                     $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -291,7 +293,7 @@ class Booking extends CI_Controller {
                             break;
                     }
                 } else if($booking['is_send_sms'] == 2 || $booking_id != INSERT_NEW_BOOKING) {
-                    //Pending booking getting updated
+                    //Pending booking getting updated, not query getting converted to booking
                     $up_flag =0;
                     if(isset($upcountry_data['vendor_id'])){
                         $assigned_vendor_id = $this->input->post('assigned_vendor_id');

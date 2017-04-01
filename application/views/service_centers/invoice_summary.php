@@ -14,7 +14,6 @@
          <th>TDS</th>
          <th>Amount Paid By 247Around</th>
          <th>Amount Paid By Partner</th>
-
       </tr>
    </thead>
    <tbody>
@@ -38,8 +37,8 @@
          <td><?php echo $invoice['num_bookings'];  $sum_no_of_booking += $invoice['num_bookings']; ?></td>
         
           <td><?php echo $invoice['tds_amount'];$tds += abs($invoice['tds_amount']); ?></td>
-         <td ><?php  if($invoice['amount_collected_paid'] < 0){ echo abs($invoice['amount_collected_paid']); $pay_247 += $invoice['amount_collected_paid'];} else {echo "0.00"; } ?></td>
-         <td ><?php if($invoice['amount_collected_paid'] > 0){ echo $invoice['amount_collected_paid']; $pay_sf += $invoice['amount_collected_paid']; } else {echo "0.00";} ?></td>
+         <td ><?php  if($invoice['amount_collected_paid'] < 0){ echo abs(round($invoice['amount_collected_paid'],0)); $pay_247 += $invoice['amount_collected_paid'];} else {echo "0.00"; } ?></td>
+         <td ><?php if($invoice['amount_collected_paid'] > 0){ echo round($invoice['amount_collected_paid'],0); $pay_sf += $invoice['amount_collected_paid']; } else {echo "0.00";} ?></td>
 
          <?php  $count = $count+1;  ?>
 
@@ -54,9 +53,9 @@
          <td></td>
          <td></td>
          <td><?php echo $sum_no_of_booking;?></td>
-         <td><?php echo round($tds,2);?></td>
-         <td><?php echo abs(round($pay_247,2));?></td>
-         <td><?php echo abs(round($pay_sf,2));?></td>
+         <td><?php echo round($tds,0);?></td>
+         <td><?php echo abs(round($pay_247,0));?></td>
+         <td><?php echo abs(round($pay_sf,0));?></td>
         
       </tr>
    </tbody>
