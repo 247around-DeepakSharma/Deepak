@@ -3938,9 +3938,9 @@ class vendor extends CI_Controller {
         }
         
     }
-<<<<<<< HEAD
+
     /**
-     * if pincode wxist in the india pincode table the echo success other wise Not Exist
+     * if pincode exist in the india pincode table the echo success other wise Not Exist
      * @param String $pincode
      */
     function check_pincode_exist_in_india_pincode($pincode){
@@ -3951,7 +3951,5 @@ class vendor extends CI_Controller {
             echo "Not Exist";
         }
     }
-=======
->>>>>>> 55c1a41... reassign partner
    
 }
