@@ -3891,4 +3891,65 @@ class vendor extends CI_Controller {
        }
     }
 
+    /**
+     * @desc: This function is used to get the reassign partner page
+     * @param: booking id
+     * @return : void
+     */
+    function get_reassign_partner_form() {
+        $partners = $this->partner_model->get_all_partner();
+
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+
+        $this->load->view('employee/reassignvendor', array('partners' => $partners,'type'=>'partner'));
+    }
+
+    
+    /**
+     * @desc: This function reassigns partner for a particular booking.
+     * @param: void
+     * @return : void
+     */
+    function process_reassign_partner_form(){
+        $booking_id = $this->input->post('booking_id');
+        $partner = $this->input->post('partner');
+        if(sizeof($booking_id) === sizeof($partner)){
+            foreach($booking_id as $key=>$value){
+                
+                // update partner to corresponding booking id in booking_details table
+                $booking_details_data = array('partner_id'=>$partner[$key],);
+                $this->booking_model->update_booking($value, $booking_details_data);
+                
+                // update partner to corresponding booking id in booking_unit_details table
+                $booking_unit_details_data = array('partner_id'=>$partner[$key],);
+                $this->booking_model->update_booking_unit_details($value, $booking_unit_details_data);
+                
+                log_message('info', "Reassigned Partner For Booking_id: " . $value . "  By " .
+                $this->session->userdata('employee_id') . " and new Partner Id =" . $partner[$key]);
+            }
+            $output = "Booking Updated Successfully";
+            $userSession = array('success' => $output);
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
+        }else{
+            $output = "Please fill all the input field";
+            $userSession = array('error' => $output);
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
+        }
+        
+    }
+    /**
+     * if pincode wxist in the india pincode table the echo success other wise Not Exist
+     * @param String $pincode
+     */
+    function check_pincode_exist_in_india_pincode($pincode){
+        $city = $this->vendor_model->getDistrict("",$pincode);
+        if(!empty($city)){
+            echo "Success";
+        } else {
+            echo "Not Exist";
+        }
+    }
+   
 }

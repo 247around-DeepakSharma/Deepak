@@ -49,7 +49,9 @@
       return false;
     }
     
-	}
+    
+    
+    }
 
 </script>
 
@@ -125,7 +127,7 @@
                   <label for="pincode" class="col-md-2">Pincode</span></label>
                       <div class="col-md-6">
                         <input type="text" class="form-control"  id="pincode" name="pincode" value = "<?php echo set_value('pincode');  ?>" placeholder="Please enter user's pincode." >
-                        
+                        <span id="error_pincode" style="color:red;"></span>
                         <?php echo form_error('pincode'); ?>
                       </div>  
                  </div>
@@ -137,7 +139,7 @@
                         <?php echo form_error('alternate_phone_number'); ?>
                       </div>  
                  </div>
-            		<input type="submit" value="Register User" class="btn btn-primary">	
+            		<input type="submit" value="Register User" id="submitform" class="btn btn-primary">	
             	</form>
            	</div>
         </div>
@@ -146,9 +148,7 @@
 
 <script type="text/javascript">
   $('#state').select2();
-  $("#pincode").select2({
-         tags: true
-    });
+  
   $("#city").select2({
          tags: true
     });
@@ -179,3 +179,48 @@
 </style>
 
 </html>
+
+<script>
+    $('#submitform').attr('disabled', true);
+    $("#pincode").keyup(function(event) {
+       
+       check_pincode();
+        
+    });
+    
+    function check_pincode(){
+        var pincode = $("#pincode").val();
+        if(pincode.length === 6){
+            
+            $.ajax({
+                type: 'POST',
+                beforeSend: function(){
+                    $('#loader_gif').css('display','inherit');
+                    $('#loader_gif').attr('src', "<?php echo base_url(); ?>/images/loader.gif");
+                  
+                    $('#submitform').attr('disabled', true); 
+                },
+                url:  '<?php echo base_url();?>employee/vendor/check_pincode_exist_in_india_pincode/'+ pincode,          
+                success: function (data) {
+                   console.log(data);
+                    if(data === "Not Exist"){
+                        $('#submitform').attr('disabled', true); 
+                        alert("Check Pincode.. Pincode Not Exist");
+                         document.getElementById("error_pincode").style.borderColor = "red";
+                         document.getElementById("error_pincode").innerHTML = "Check Pincode.. Pincode Not Exist";
+                         $('#loader_gif').attr('src', "");
+                         $('#loader_gif').css('display','none');
+                        return false;
+                    } else {
+                        $('#submitform').attr('disabled', false); 
+                        $('#loader_gif').attr('src', "");
+                        $('#loader_gif').css('display','none');
+                        document.getElementById("error_pincode").style.borderColor = "red";
+                        document.getElementById("error_pincode").innerHTML = "";
+                    }
+                }
+                 
+            }); 
+        }
+    }
+</script>
