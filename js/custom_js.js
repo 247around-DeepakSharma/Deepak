@@ -186,7 +186,7 @@
  function addBookingDialog(){
 
      count_number++;
-
+    
     
      var p_contact_no = $('#booking_primary_contact_no').val();
      var address = $('#booking_address').val();
@@ -308,7 +308,6 @@
         $('.clone_m').html("");
      }
      
-     check_pincode();
     
     var regex1 = /^(.+?)(\d+)$/i; 
     
@@ -333,11 +332,11 @@
         return false;
     }
     
-    $("#submitform").button('loading');
     for(var k =1; k<= numItems; k ++){
       cloned_price(regex1, priceIndexClone,k);
-     
    }
+   
+   $("#submitform").button('loading');
    
 }
 
