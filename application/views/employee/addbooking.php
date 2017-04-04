@@ -122,6 +122,7 @@
                                     <option>Ebay</option>
                                     <option>Offline</option>
                                     <option>Shopclues</option>
+                                    <option>TataCliq</option>
                                     <option>STS</option>
                                     <option>Snapdeal-delivered-excel</option>
                                     <option>Snapdeal-shipped-excel</option>
