@@ -121,6 +121,7 @@
                                             <option  <?php if($booking_history[0]['partner_source'] === "Ebay" ){ echo "selected"; } ?>>Ebay</option>
                                             <option  <?php if($booking_history[0]['partner_source'] === "Offline" ){ echo "selected"; } ?>>Offline</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "Shopclues" ){ echo "selected"; } ?> >Shopclues</option>
+                                            <option <?php if($booking_history[0]['partner_source'] === "TataCliq" ){ echo "selected"; } ?> >TataCliq</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "STS" ){ echo "selected"; } ?> >STS</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-delivered-excel" ){ echo "selected"; } ?> >Snapdeal-delivered-excel</option>
                                             <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-shipped-excel" ){ echo "selected"; } ?> >Snapdeal-shipped-excel</option>
