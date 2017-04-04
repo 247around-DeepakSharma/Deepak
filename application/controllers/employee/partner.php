@@ -2576,7 +2576,7 @@ class Partner extends CI_Controller {
      * @param String $pincode
      */
     function get_district_by_pincode($pincode){
-        $city = $this->vendor_model->getDistrict("", $pincode);
+        $city = $this->vendor_model->getDistrict_from_india_pincode("", $pincode);
         if(!empty($city)){
             foreach ($city as $district){
                  echo '<option selected>'.$district['district'].'</option>';
