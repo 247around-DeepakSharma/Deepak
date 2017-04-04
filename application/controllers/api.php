@@ -3968,9 +3968,9 @@ class Api extends CI_Controller {
         log_message('info', print_r($booking, TRUE));
 
         //TEMP: Need to use template for sending email to user
-        $user_email = "anuj.aggarwal@gmail.com, abhaya@247around.com";
+        $user_email = "anuj@247around.com, abhaya@247around.com";
 
-        $subject = "Booking confirmation from 247Around";
+        $subject = "Booking confirmation from 247Around Mobile App";
 
         $message = "Dear $name ($phone_number),<br/><br/>Thank you for allowing us to assist you. Please note down your booking details:<br/>";
         $message .= "Booking ID: " . $booking_id . "<br/>";
