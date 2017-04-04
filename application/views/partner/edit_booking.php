@@ -95,7 +95,7 @@
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
                                     <label for="appliance_capacity">Capacity  <span id="error_capacity" style="color: red;"> <span style="color:grey;display:none" id="capacity_loading">Loading ...</span></label>
                                    
-                                    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return getPrice()">
+                                    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(), getPrice()">
                                         <option selected disabled value="option1">Select Appliance Capacity</option>
                                     </select>
                                     <?php echo form_error('appliance_capacity'); ?>
@@ -136,6 +136,7 @@
                                         <option <?php if(set_value('partner_source') == "Offline"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Offline') { echo "selected";} ?>>Offline</option>
                                         <option <?php if(set_value('partner_source') == "Paytm"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Paytm') { echo "selected";} ?>>Paytm</option>
                                         <option <?php if(set_value('partner_source') == "Shopclues"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Shopclues') { echo "selected";} ?>>Shopclues</option>
+                                        <option <?php if(set_value('partner_source') == "TataCliq"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'TataCliq') { echo "selected";} ?>>TataCliq</option>
                                         <option <?php if(set_value('partner_source') == "Snapdeal"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Snapdeal') { echo "selected";} ?>>Snapdeal</option>
                                         
                                     </select>
@@ -536,6 +537,7 @@
                     //$("#appliance_capacity_1 option[value !='option1']").remove();
                     //$('#appliance_capacity_1').append(data).change();
                     $('#appliance_capacity_1').html(data).change();
+                    get_models();
                     getPrice();
                 },
             complete: function(){
