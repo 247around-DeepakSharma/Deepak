@@ -136,6 +136,7 @@
                                         <option <?php if(set_value('partner_source') == "Offline"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Offline') { echo "selected";} ?>>Offline</option>
                                         <option <?php if(set_value('partner_source') == "Paytm"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Paytm') { echo "selected";} ?>>Paytm</option>
                                         <option <?php if(set_value('partner_source') == "Shopclues"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Shopclues') { echo "selected";} ?>>Shopclues</option>
+                                        <option <?php if(set_value('partner_source') == "TataCliq"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'TataCliq') { echo "selected";} ?>>TataCliq</option>
                                         <option <?php if(set_value('partner_source') == "Snapdeal"){ echo "selected";} else if($booking_history[0]['partner_source'] == 'Snapdeal') { echo "selected";} ?>>Snapdeal</option>
                                         
                                     </select>
