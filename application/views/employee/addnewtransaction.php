@@ -227,14 +227,17 @@ color: red;
 function check_amount(flag){
     
     if(flag === 1){
-        var partner_amount = $("#partner_amount").val();
-        var amount = $("#amount").val() +  $("#tds_amount").val();
+        var partner_amount = Number($("#partner_amount").val());
+        var amount = Number($("#amount").val()) +  Number($("#tds_amount").val());
         
         if(amount >partner_amount ){
+            console.log(amount); 
+            console.log(partner_amount);
             alert("Do not Allow Advance Transaction");
             return false;
         }
-    } 
+    }
+
 }
 
 </script>
