@@ -2027,6 +2027,7 @@ class Api extends CI_Controller {
         $b_unit['appliance_id'] = $appliance_id;
         $b_unit['appliance_capacity'] = $unit['capacity'];
         $b_unit['appliance_category'] = $unit['category'];
+        $b_unit['model_number'] = $unit['modelNo'];
         $price_tags = $unit['priceTags'];
         $p_explode = explode(",", $price_tags);
         foreach($p_explode as $p_tags){
@@ -2378,7 +2379,7 @@ class Api extends CI_Controller {
         log_message('info', "Entering: " . __METHOD__);
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //print_r($requestData);
+        
         //$activity = array('activity' => 'process save booking',
         //    'data' => json_encode($requestData), 'time' => $this->microtime_float());
         //$this->apis->logTable($activity);
