@@ -2865,7 +2865,12 @@ class Invoice extends CI_Controller {
                     $tds = array();
                     if($data['type_code'] == 'B'){
                         $data['type'] = 'FOC';
-                        $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
+                        if($vendor_partner == "vendor"){
+                            $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
+                        } else {
+                            $tds['tds'] = 0;
+                            $tds['tds_rate'] = 0;
+                        }
                         
                     } else if($data['type_code'] == 'C'){
                         $data['type'] = 'CreditNote';
