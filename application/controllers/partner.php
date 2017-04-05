@@ -374,7 +374,7 @@ class Partner extends CI_Controller {
                         $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
                         
                         if(!empty($prices)){
-                            $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
+                            $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'],0);
                         }else{
                             $this->booking_model->addunitdetails($unit_details);
                         }
@@ -1560,7 +1560,7 @@ class Partner extends CI_Controller {
             $return_id = $this->booking_model->addbooking($booking);
             if(!empty($return_id)){
             $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
-            foreach ($requestData['requestType'] as $sc) {
+            foreach ($requestData['requestType'] as $key => $sc) {
                 $explode = explode("_", $sc);
                     
                 $unit_details['id'] =  $explode[0];
@@ -1569,7 +1569,7 @@ class Partner extends CI_Controller {
                 $unit_details['partner_net_payable'] = $explode[2];
                 $unit_details['booking_status'] = "Pending";
             
-                $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
+                $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], $key);
                     
             }
                 

@@ -1543,7 +1543,7 @@ class Partner extends CI_Controller {
             }
             $updated_unit_id = array();
             
-            foreach ($post['requestType'] as $sc) {
+            foreach ($post['requestType'] as $key => $sc) {
                 $explode = explode("_", $sc);
                     
                 $unit_details['id'] =  $explode[0];
@@ -1553,7 +1553,7 @@ class Partner extends CI_Controller {
                 $unit_details['ud_update_date'] = date('Y-m-d H:i:s');
                 $unit_details['booking_status'] = "Pending";
             
-                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state']);   
+                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key);   
                 array_push($updated_unit_id, $result['unit_id']);
             }
             
