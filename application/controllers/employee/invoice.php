@@ -1106,7 +1106,7 @@ class Invoice extends CI_Controller {
      * @param: Array()
      * @return: Array (booking id)
      */
-    function generate_foc_details_invoices_for_vendors($invoices_data, $details) {
+    function generate_foc_details_invoices_for_vendors($invoices_data, $details, $is_regenerate) {
         log_message('info', __FUNCTION__ . '=> Entering...');
         $custom_date = explode("-", $details['date_range']);
         $from_date = $custom_date[0];
@@ -1127,7 +1127,7 @@ class Invoice extends CI_Controller {
 
         }
         $to_date1 = date('Y-m-d', strtotime('+1 day', strtotime($to_date)));
-        $penalty_data = $this->penalty_model->add_penalty_in_invoice($details['vendor_partner_id'], $from_date, $to_date1, "");
+        $penalty_data = $this->penalty_model->add_penalty_in_invoice($details['vendor_partner_id'], $from_date, $to_date1, "", $is_regenerate);
         $credit_penalty = $this->penalty_model->get_removed_penalty($details['vendor_partner_id'], $from_date, "");
         $courier_charges =  $this->invoices_model->get_sf_courier_charges($details['vendor_partner_id'], $from_date, $to_date1);
         // directory
@@ -1596,7 +1596,7 @@ class Invoice extends CI_Controller {
                     print_r($details['date_range'], true) . ", Invoice version" . print_r($details['invoice_type'], true) . ", Invoice type" .
                     print_r($details['vendor_invoice_type'], true));
 
-             return $this->generate_vendor_invoices($details);
+             return $this->generate_vendor_invoices($details,0);
         } else if ($details['vendor_partner'] === "partner") {
             log_message('info', "Invoice generate - partner id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
                     print_r($details['date_range'], true) . ", Invoice status" . print_r($details['invoice_type'], true));
@@ -1624,18 +1624,7 @@ class Invoice extends CI_Controller {
             $details['vendor_partner_id'] = $invoice_details[0]['vendor_partner_id'];
             $details['date_range'] = str_replace("-", "/", $invoice_details[0]['from_date']) . "-" . str_replace("-", "/", date('Y-m-d', strtotime($invoice_details[0]['to_date'])));
 
-            if ($invoice_details[0]['vendor_partner'] == 'partner') {
-//            if($invoice_type == 'final'){
-//                $where_unit = array('partner_invoice_id'=>$invoice_id);
-//                $data['partner_invoice_id'] = NULL;
-//                //Reset Partner invoice id
-//                $this->booking_model->update_booking_unit_details_by_any($where_unit, $data);
-//                log_message('info', "Invoice generate - partner id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
-//                    print_r($details['date_range'], true) . ", Invoice status" . print_r($details['invoice_type'], true));
-//            }
-//            //Generate Invoice Id     
-//      $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type']);
-            } else if ($invoice_details[0]['vendor_partner'] == 'vendor' && $invoice_details[0]['type'] != "Stand") {
+            if ($invoice_details[0]['vendor_partner'] == 'vendor' && $invoice_details[0]['type'] != "Stand") {
                 $exist_invoice_type = "";
                 if ($invoice_details[0]['type'] == "FOC") {
                     $exist_invoice_type = "foc";
@@ -1655,7 +1644,7 @@ class Invoice extends CI_Controller {
                                 print_r($details['date_range'], true) . ", Invoice version" . print_r($details['invoice_type'], true) . ", Invoice type" .
                                 print_r($details['vendor_invoice_type'], true));
 
-                        $this->generate_vendor_invoices($details);
+                        $this->generate_vendor_invoices($details, 1);
                     }
                     // Check is null vendor foc invoice id
                     if (!is_null($unit_details[0]['vendor_foc_invoice_id'])) {
@@ -1664,8 +1653,8 @@ class Invoice extends CI_Controller {
                         log_message('info', "Invoice generate - vendor id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
                                 print_r($details['date_range'], true) . ", Invoice version" . print_r($details['invoice_type'], true) . ", Invoice type" .
                                 print_r($details['vendor_invoice_type'], true));
-
-                        $this->generate_vendor_invoices($details);
+                    
+                        $this->generate_vendor_invoices($details,1);
                     }
                 } else {
                     $details['vendor_invoice_type'] = $exist_invoice_type;
@@ -1673,14 +1662,14 @@ class Invoice extends CI_Controller {
                     log_message('info', "Invoice generate - vendor id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
                                 print_r($details['date_range'], true) . ", Invoice version" . print_r($details['invoice_type'], true) . ", Invoice type" .
                                 print_r($details['vendor_invoice_type'], true));
-                    $this->generate_vendor_invoices($details);
+                    $this->generate_vendor_invoices($details,1);
                 }
             } else if ($invoice_details[0]['type'] == "Stand") {
                 $details['vendor_invoice_type'] = "brackets";
                 log_message('info', "Invoice generate - vendor id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
                         print_r($details['date_range'], true) . ", Invoice version" . print_r($details['invoice_type'], true) . ", Invoice type" .
                         print_r($details['vendor_invoice_type'], true));
-                $this->generate_vendor_invoices($details);
+                $this->generate_vendor_invoices($details, 1);
             }
         }
 
@@ -1726,7 +1715,7 @@ class Invoice extends CI_Controller {
      * This method used to generates previous invoice for vendor
      * @param Array $details
      */
-    function generate_vendor_invoices($details) {
+    function generate_vendor_invoices($details, $is_regenerate) {
         log_message('info', __FUNCTION__ . " Entering......" . " Details: " . print_r($details, true));
         switch ($details['vendor_invoice_type']) {
             case "cash":
@@ -1793,12 +1782,12 @@ class Invoice extends CI_Controller {
                         $details['vendor_partner_id'] = $value['id'];
                         log_message('info', __FUNCTION__ . ": Preparing FOC Invoice Vendor Id: " . $details['vendor_partner_id']);
                         //Prepare main invoice first
-                        $details['invoice_id'] = $this->generate_vendor_foc_invoice($details);
+                        $details['invoice_id'] = $this->generate_vendor_foc_invoice($details, $is_regenerate);
 
                         if ($details['invoice_id']) {
                             //Generate detailed annexure now                
                             $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], $details['date_range']);
-                            $this->generate_foc_details_invoices_for_vendors($data, $details);
+                            $this->generate_foc_details_invoices_for_vendors($data, $details, $is_regenerate);
                         } else {
                             echo "<script>alert('Data Not Found');</script>";
                             echo " Data Not found for vendor: " . $details['vendor_partner_id'];
@@ -1807,13 +1796,13 @@ class Invoice extends CI_Controller {
                     }
                 } else {
                     //Prepare main invoice first
-                    $details['invoice_id'] = $this->generate_vendor_foc_invoice($details);
+                    $details['invoice_id'] = $this->generate_vendor_foc_invoice($details, $is_regenerate);
                     log_message('info', __FUNCTION__ . ": Preparing FOC Invoice Vendor Id: " . $details['vendor_partner_id']);
                     echo " Preparing FOC Invoice  Vendor: " . $details['vendor_partner_id'];
                     if ($details['invoice_id']) {
                         //Generate detailed annexure now                
                         $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], $details['date_range']);
-                        $this->generate_foc_details_invoices_for_vendors($data, $details);
+                        $this->generate_foc_details_invoices_for_vendors($data, $details, $is_regenerate);
                         return TRUE;
                     } else {
                         echo "<script>alert('Data Not Found');</script>";
@@ -2348,14 +2337,14 @@ class Invoice extends CI_Controller {
      * @desc: This method is used to generate vendor Foc invoice and return invoice id
      * @param Array $details
      */
-    function generate_vendor_foc_invoice($details) {
+    function generate_vendor_foc_invoice($details, $is_regenerate) {
         log_message('info', __FUNCTION__ . "Entering...");
         $vendor_id = $details['vendor_partner_id'];
         $custom_date = explode("-", $details['date_range']);
         $from_date = $custom_date[0];
         $to_date = $custom_date[1];
         $invoice_type = $details['invoice_type'];
-        $invoices = $this->invoices_model->get_vendor_foc_invoice($vendor_id, $from_date, $to_date);
+        $invoices = $this->invoices_model->get_vendor_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
        
         if (!empty($invoices)) {
 
@@ -3250,7 +3239,9 @@ class Invoice extends CI_Controller {
             $email_cc = $this->input->post('email_cc');
             $seller_code = $this->input->post('seller_code');
             $from_date = $this->input->post('from_date');
-            $meta['sub_service_cost'] = $meta['grand_part'] = $this->input->post('service_charge');
+            $meta['grand_part'] = $this->input->post('service_charge');
+            
+            $meta['sub_service_cost'] = $meta['grand_part'] * .15;
 
             $setup_insert['vendor_partner'] = "partner";
             $setup_insert['vendor_partner_id'] = $partner_id = $this->input->post('partner_id');
@@ -3268,7 +3259,7 @@ class Invoice extends CI_Controller {
 
             $setup_insert['service_tax'] = ($meta['total_service_cost_14'] + $meta['total_service_cost_5']*2);
             $setup_insert['total_service_charge'] = $meta['total_service_cost'] = $meta['sub_service_cost'] - $setup_insert['service_tax'];
-            $setup_insert['total_amount_collected'] = $setup_insert['amount_collected_paid'] = $setup_insert['amount_paid'] = $setup_insert['around_royalty'] = $meta['sub_service_cost'];
+            $setup_insert['total_amount_collected'] = $setup_insert['amount_collected_paid'] = $setup_insert['amount_paid'] = $setup_insert['around_royalty'] = $meta['grand_part'];
             $setup_insert['settle_amount'] = 1;
             $setup_insert['invoice_date'] = $setup_insert['from_date'] = date("Y-m-d", strtotime($from_date));
             $setup_insert['due_date'] =  $setup_insert['to_date'] = date('Y-m-d', strtotime('+1 year', strtotime($from_date)));
