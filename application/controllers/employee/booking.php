@@ -668,7 +668,9 @@ class Booking extends CI_Controller {
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
 	$data['Bookings'] = $this->booking_model->view_completed_or_cancelled_booking($config['per_page'], $offset, $status, $booking_id);
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+//	echo $this->db->last_query();
+//        echo "<pre>";print_r($data['Bookings']);exit();
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
 	$this->load->view('employee/viewcompletedbooking', $data);
     }
@@ -709,6 +711,7 @@ class Booking extends CI_Controller {
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($data['booking_history'][0]['source']);
 	$data['prices'] = array();
 	//log_message('info', __FUNCTION__ . " data " . print_r($data, true));
+        $upcountry_price = 0;
 	foreach ($data['booking_unit_details'] as $keys => $value) {
             if($source[0]['partner_type'] == OEM){
 	        $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], 
