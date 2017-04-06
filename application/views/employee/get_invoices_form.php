@@ -136,6 +136,15 @@ color: red;
                     </div>';
                     }
                     ?>
+           <?php if($this->session->userdata('error')) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:20;">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->userdata('error') . '</strong>
+                    </div>';
+                    }
+                    ?>
           <form name="myForm1" id="myForm1" class="form-horizontal" action="<?php echo base_url() ?>employee/invoice/process_invoices_form" method="POST">
               <h1>Generate Invoices</h1>
 	      <br>
@@ -199,6 +208,7 @@ color: red;
 </div>
 
 <?php if($this->session->userdata('success')) { $this->session->unset_userdata('success'); } ?>
+<?php if($this->session->userdata('error')) { $this->session->unset_userdata('error'); } ?>
     <script type="text/javascript">
      $("#name").select2();
      
