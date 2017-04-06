@@ -167,7 +167,7 @@ class Booking_model extends CI_Model {
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            LEFT JOIN `penalty_on_booking` ON `booking_details`.`booking_id` = `penalty_on_booking`.`booking_id`
+            LEFT JOIN `penalty_on_booking` ON `booking_details`.`booking_id` = `penalty_on_booking`.`booking_id` and penalty_on_booking.active = '1'
             WHERE `booking_details`.booking_id NOT LIKE '%Q-%' AND $where
             (booking_details.current_status = '$status')
 	    ORDER BY closed_date DESC $add_limit "
