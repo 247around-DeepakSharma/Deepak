@@ -592,6 +592,58 @@ class Partner extends CI_Controller {
                     log_message('info',__FUNCTION__.' Registration FILE is being uploaded sucessfully.');
                 }
                 
+                 //Processing TIN File
+                if(($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])){
+                    $tmpFile = $_FILES['tin_file']['tmp_name'];
+                    $tin_file = "Partner-".$this->input->post('public_name').'-TIN'.".".explode(".",$_FILES['tin_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$tin_file);
+                    
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/".$tin_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $return_data['partner']['tin_file'] = $tin_file;
+                    
+                    $attachment_tin_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$tin_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__FUNCTION__.' TIN FILE is being uploaded sucessfully.');
+                }
+                //Processing CST File
+                if(($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])){
+                    $tmpFile = $_FILES['cst_file']['tmp_name'];
+                    $cst_file = "Partner-".$this->input->post('public_name').'-CST'.".".explode(".",$_FILES['cst_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$cst_file);
+                    
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/".$cst_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $return_data['partner']['cst_file'] = $cst_file;
+                    
+                    $attachment_cst_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cst_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__FUNCTION__.' CST FILE is being uploaded sucessfully.');
+                }
+                //Processing Service Tax File
+                if(($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])){
+                    $tmpFile = $_FILES['service_tax_file']['tmp_name'];
+                    $service_tax_file = "Partner-".$this->input->post('public_name').'-CST'.".".explode(".",$_FILES['service_tax_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$service_tax_file);
+                    
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/".$service_tax_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $return_data['partner']['service_tax_file'] = $registration_file;
+                    
+                    $attachment_service_tax_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$service_tax_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__FUNCTION__.' Service Tax FILE is being uploaded sucessfully.');
+                }
+                
                 //Checking for Upcountry
                 $upcountry = $this->input->post('is_upcountry');
                 if(isset($upcountry) && $upcountry == 'on')
@@ -717,6 +769,15 @@ class Partner extends CI_Controller {
                         if(isset($attachment_registration_file)){
                             $this->email->attach($attachment_registration_file, 'attachment');
                         }
+                        if(isset($attachment_tin_file)){
+                            $this->email->attach($attachment_tin_file, 'attachment');
+                        }
+                        if(isset($attachment_cst_file)){
+                            $this->email->attach($attachment_cst_file, 'attachment');
+                        }
+                        if(isset($attachment_service_tax_file)){
+                            $this->email->attach($attachment_service_tax_file, 'attachment');
+                        }
 
                         if ($this->email->send()) {
                             log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
@@ -824,6 +885,57 @@ class Partner extends CI_Controller {
                     
                     //Logging success for file uppload
                     log_message('info',__FUNCTION__.' Registration FILE is being uploaded sucessfully.');
+                }
+                //Processing TIN File
+                if(($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])){
+                    $tmpFile = $_FILES['tin_file']['tmp_name'];
+                    $tin_file = "Partner-".$this->input->post('public_name').'-TIN'.".".explode(".",$_FILES['tin_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$tin_file);
+                    
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/".$tin_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $return_data['partner']['tin_file'] = $tin_file;
+                    
+                    $attachment_tin_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$tin_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__FUNCTION__.' TIN FILE is being uploaded sucessfully.');
+                }
+                //Processing CST File
+                if(($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])){
+                    $tmpFile = $_FILES['cst_file']['tmp_name'];
+                    $cst_file = "Partner-".$this->input->post('public_name').'-CST'.".".explode(".",$_FILES['cst_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$cst_file);
+                    
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/".$cst_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $return_data['partner']['cst_file'] = $cst_file;
+                    
+                    $attachment_cst_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cst_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__FUNCTION__.' CST FILE is being uploaded sucessfully.');
+                }
+                //Processing Service Tax File
+                if(($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])){
+                    $tmpFile = $_FILES['service_tax_file']['tmp_name'];
+                    $service_tax_file = "Partner-".$this->input->post('public_name').'-CST'.".".explode(".",$_FILES['service_tax_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$service_tax_file);
+                    
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/".$service_tax_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $return_data['partner']['service_tax_file'] = $registration_file;
+                    
+                    $attachment_service_tax_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$service_tax_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__FUNCTION__.' Service Tax FILE is being uploaded sucessfully.');
                 }
                
                 
@@ -970,8 +1082,15 @@ class Partner extends CI_Controller {
         $return_data['invoice_email_cc']=$this->input->post('invoice_email_cc');
         $return_data['pan']=$this->input->post('pan');
         $return_data['registration_no']=$this->input->post('registration_no');
+        $return_data['tin']=$this->input->post('tin_no');
+        $return_data['cst_no']=$this->input->post('cst_no');
+        $return_data['service_tax']=$this->input->post('service_tax_no');
+        if($this->input->post('is_reporting_mail') == 'on'){
+            $return_data['is_reporting_mail']= '1';
+        }else{
+            $return_data['is_reporting_mail']= '0';
+        }
 //        $partner_data_final['partner'] = $return_data;
-        
         return $return_data;
 
     }
@@ -1087,7 +1206,7 @@ class Partner extends CI_Controller {
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
-        
+
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results));
     }
@@ -2330,7 +2449,7 @@ class Partner extends CI_Controller {
       * 
       */
      function process_partner_login_details_form(){
-         $choice = $this->input->post('choice');
+        $choice = $this->input->post('choice');
         $partner_id = $this->input->post('partner_id');
         $login_id_array = $this->input->post('id');
         if (!empty($choice)) {
@@ -2338,7 +2457,7 @@ class Partner extends CI_Controller {
                 $password = $this->input->post('password')[0];
                 $retype_password = $this->input->post('retype_password')[0];
                 $username = $this->input->post('username')[0];
-
+                         
                 //checking for password and retype password value
                 if (strcmp($password, $retype_password) == 0) {
                     if (!empty($login_id_array[$value])) {
@@ -2375,17 +2494,17 @@ class Partner extends CI_Controller {
                         $data['password'] = md5($password);
                         $data['clear_text'] = $password;
                         $data['active'] = 1;
-
+                        
                         //Checking for Already Present Username
                         $login_data['user_name'] = $username;
                         $login_data['partner_id'] = $partner_id;
+                        
                         $check_username = $this->partner_model->get_partner_username($login_data);
                         if (!isset($check_username['user_name'])) {
 
                             //Getting name of Partner by Partner ID
                             $partner_details = $this->partner_model->get_all_partner($partner_id);
-                            $data['full_name'] = $partner_details[0]['public_name'] . ' ' . $value;
-
+                            $data['full_name'] = $partner_details[0]['public_name'];
                             if ($this->partner_model->add_partner_login($data)) {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
