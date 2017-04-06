@@ -158,7 +158,8 @@ class bookings_excel extends CI_Controller {
 
 	    if (empty($output)) {
 		//User doesn't exist
-		$user['name'] = $rowData[0]['CustomerName'];
+                $user_name = $this->is_user_name_empty($rowData[0]['CustomerName'],$rowData[0]['customer_email'],$rowData[0]['CustomerContactNo']);
+		$user['name'] = $user_name;
 		$user['phone_number'] = $rowData[0]['CustomerContactNo'];
 		$user['user_email'] = $rowData[0]['customer_email'];
 		$user['home_address'] = $rowData[0]['CustomerAddress1'] . " ," . $rowData[0]['CustomerAddress2'];
@@ -320,9 +321,9 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_date'] = '';
 		$booking['booking_timeslot'] = '';
 		$booking['amount_due'] = '';
-		$booking['booking_remarks'] = 'Installation and Demo';
-		$booking['query_remarks'] = 'Installation and Demo';
-		$booking['request_type'] = 'Installation and Demo';
+		$booking['booking_remarks'] = 'Installation & Demo';
+		$booking['query_remarks'] = 'Installation & Demo';
+		$booking['request_type'] = 'Installation & Demo';
 
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
@@ -484,6 +485,28 @@ class bookings_excel extends CI_Controller {
         $this->s3->putObjectFile(TMP_FOLDER . $delivered_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
         //Logging
         log_message('info', __FUNCTION__ . ' Paytm Delivered File has been uploaded in S3');
+    }
+    
+    /**
+     * @Desc: This function is used to check if user name is empty or not
+     * if user name is not empty then return username otherwise check if email is not
+     * empty.if email is empty then return mobile number as username otherwise return email as username 
+     * @params: String
+     * @return: void
+     * 
+     */
+    private function is_user_name_empty($userName , $userEmail,$userContactNo){
+        if(empty($userName)){
+            if(empty($userEmail)){
+                $user_name = $userContactNo;
+            }else{
+                $user_name = $userEmail;
+            }
+        }else{
+            $user_name = $userName;
+        }
+        
+        return $user_name;
     }
 
 }
