@@ -2791,6 +2791,7 @@ class Invoice extends CI_Controller {
             $data['upcountry_distance'] = $this->input->post("upcountry_distance");
             $data['courier_charges'] = $this->input->post("courier_charges");
             $data['upcountry_price'] = $this->input->post("upcountry_price");
+            $data['remarks'] = $this->input->post("remarks");
             $new_invoice_id_flag = $this->input->post("new_invoice_id_flag");
             $data['penalty_bookings_count'] = $this->input->post("penalty_bookings_count");
             $data['total_amount_collected'] = round(($data['total_service_charge'] + 
