@@ -57,7 +57,7 @@
                                             <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
-                                            <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ ?> <span style="font-weight:bold">Paid </span> <?php } else { ?> <span style="font-weight:bold">Free </span><?php  } } echo $row->request_type." ". $row->services; ?>
+                                            <?php if($row->amount_due > 0){ ?> <span style="font-weight:bold">Paid </span> <?php } else { ?> <span style="font-weight:bold">Free </span><?php  }  echo $row->request_type." ". $row->services; ?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <?= $row->booking_date."<br/>"; ?> 
