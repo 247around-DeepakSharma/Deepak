@@ -215,11 +215,16 @@
                                 <td><?php  print_r($unit_detail['customer_total']); ?></td>
                                 <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                 <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
-                                <td><?php if($key == 0){ if($booking_history[0]['is_upcountry'] == 1){ echo ($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate']);} } ?></td>
-                                <td><?php if($key == 0){ if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo $booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'];} else { echo "0.00";} } ?></td>
+                                
+                                <!--Upcountry Charges-->
+                                <td><?php if($key == 0){ if($booking_history[0]['is_upcountry'] == 1){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } } ?></td>
+                                <!--Partner Offer Upcountry Charges-->
+                                <td><?php if($key == 0){ if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } else { echo "0.00";} } ?></td>
+                                <!--Total Charges-->
                                 <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ print_r($unit_detail['customer_net_payable']);
                                 } else if($key == 0) { print_r($unit_detail['customer_net_payable'] + ($booking_history[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE));  } else { print_r($unit_detail['customer_net_payable']); } ?></td>
                                 <?php } else {   ?>
+                                
                                 <td><?php  print_r($unit_detail['price_tags']); ?></td>
                                  <td><?php  print_r($unit_detail['customer_total']); ?></td>
                                 <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
@@ -405,12 +410,12 @@
                 <?php } ?>
                 <?php if(!is_null($booking_history[0]['sub_vendor_id'])){ ?>
                         <tr>
-                            <th>District: </th>
+                            <th>Upcountry District: </th>
                             <td><?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?></td>
                                  
                         </tr>
                         <tr>
-                            <th>District Pincode: </th>
+                            <th>Upcountry Pincode: </th>
                             <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
                                  
                         </tr>

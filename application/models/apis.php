@@ -759,9 +759,9 @@ class Apis extends CI_Model {
      */
     function getreviewhandyman($handyman_id) {
         $this->db->select('review, handyman_review.user_id as user_id,
-      		handyman_review.create_date as create_date,
-      		name as user_name,
-      		handyman_review.behaviour as rating');
+            handyman_review.create_date as create_date,
+            name as user_name,
+            handyman_review.behaviour as rating');
         $this->db->from('handyman_review');
         $this->db->where('handyman_id', $handyman_id);
         $this->db->where('handyman_review.status', 1);
@@ -1373,7 +1373,7 @@ class Apis extends CI_Model {
     function getAppliancesList() {
         //log_message('info', __METHOD__ . "-> " . $id);
 
-        $sql = "SELECT * FROM services WHERE isBookingActive = '1'";
+        $sql = "SELECT * FROM services WHERE isBookingActive = '1' order by services";
 
         $query = $this->db->query($sql);
 
@@ -1391,6 +1391,7 @@ class Apis extends CI_Model {
     function getBrandsForServiceId($service_id) {
         $this->db->select('brand_name');
         $this->db->where('service_id', $service_id);
+        $this->db->where('seo', 1);
         $this->db->order_by('brand_name', "asc");
         $query = $this->db->get("appliance_brands");
 
@@ -1449,12 +1450,19 @@ class Apis extends CI_Model {
         return $query->result_array();
     }
 
-    function getPricingForServiceById($service_id) {
+    function getPricingForServiceById($service_id, $partner_id) {
         //log_message('info', "service id: " . $service_id);
 
-        $this->db->select('category, capacity, service_category, check_box, total_charges');
-        $this->db->where('service_id', $service_id);
-        $query = $this->db->get("service_centre_charges");
+        $this->db->distinct();
+        $this->db->select('service_category,category, capacity,customer_net_payable as customer_total, check_box');
+        $this->db->where('service_id',$service_id);
+        $this->db->where('active', 1);
+        $this->db->where('check_box', 1);
+        $this->db->where('partner_id', $partner_id);
+        $this->db->where_not_in('service_category', array('Repeat Booking', 'Visit'));
+        
+
+        $query = $this->db->get('service_centre_charges');
 
         return $query->result_array();
     }
@@ -1465,13 +1473,13 @@ class Apis extends CI_Model {
         $sql = "insert into booking_details "
             . "(`user_id`, `service_id`, `booking_id`, `appliance_id`, `type`,"
             . "`source`, `booking_location`, `booking_date`, `booking_timeslot`,"
-	    . "`booking_picture_file`, `booking_remarks`,"
+        . "`booking_picture_file`, `booking_remarks`,"
             . "`quantity`, `booking_address`, `booking_pincode`, "
             . "`booking_primary_contact_no`, `booking_alternate_contact_no`, "
             . "`discount_coupon`, `discount_amount`, `amount_due`) "
             . "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-	$this->db->query($sql, $booking_details);
+    $this->db->query($sql, $booking_details);
 
         $result = (bool) ($this->db->affected_rows() > 0);
         log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
@@ -1577,14 +1585,14 @@ class Apis extends CI_Model {
     }
 
     //Method to fetch booking cancellation reasons
-    function getCancellationReasons($tag) {
+    function getCancellationReasons() {
         //log_message('info', __METHOD__);
 
         $this->db->select("reason");
-	//show only reasons which are meant for mobile app users
-	$this->db->where("show_on_app", '1');
+        //show only reasons which are meant for mobile app users
+        $this->db->where("show_on_app", '1');
 
-	$query = $this->db->get("booking_cancellation_reasons");
+        $query = $this->db->get("booking_cancellation_reasons");
 
         $result = (bool) ($this->db->affected_rows() > 0);
         log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);

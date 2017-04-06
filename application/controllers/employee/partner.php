@@ -373,13 +373,13 @@ class Partner extends CI_Controller {
                 if (isset($responseData['data']['code'])) {
                     
                     if($responseData['data']['code'] == -1003){
-                        $output = "Order ID Already Exists. Its Booking ID ".$responseData['data']['response']['247aroundBookingID'] ;
+                        $output = "Order ID Already Exists, Booking ID: ".$responseData['data']['response']['247aroundBookingID'] ;
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
 
                         redirect(base_url() . "partner/pending_booking");
                     } else if ($responseData['data']['code'] == 247) {
-                        $output = "Booking Inserted Successfully. Its Booking ID ".$responseData['data']['response']['247aroundBookingID'];
+                        $output = "Booking Inserted Successfully, Booking ID: ".$responseData['data']['response']['247aroundBookingID'];
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
 
@@ -390,7 +390,7 @@ class Partner extends CI_Controller {
                         log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
                         $this->insertion_failure($postData);
 
-                        $output = "Sorry, Booking Could Not be Inserted. Please Check Try Again.";
+                        $output = "Sorry, Booking Could Not be Inserted. Please Try Again.";
                         $userSession = array('error' => $output);
                         $this->session->set_userdata($userSession);
                         redirect(base_url() . "partner/pending_booking");                        
@@ -399,7 +399,7 @@ class Partner extends CI_Controller {
                     log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
                     $this->insertion_failure($postData);
 
-                    $output = "Sorry, Booking Could Not Be Inserted. Please Check Try Again.";
+                    $output = "Sorry, Booking Could Not Be Inserted. 247around Team Is Looking Into This.";
                     $userSession = array('error' => $output);
                     $this->session->set_userdata($userSession);
 
@@ -414,8 +414,6 @@ class Partner extends CI_Controller {
             $phone_number = $this->input->post('booking_primary_contact_no');
             $_POST['phone_number'] = $phone_number;
             $this->get_addbooking_form();
-            
-            
         }
     }
     
@@ -1700,7 +1698,7 @@ class Partner extends CI_Controller {
             }
             $updated_unit_id = array();
             
-            foreach ($post['requestType'] as $sc) {
+            foreach ($post['requestType'] as $key => $sc) {
                 $explode = explode("_", $sc);
                     
                 $unit_details['id'] =  $explode[0];
@@ -1710,7 +1708,7 @@ class Partner extends CI_Controller {
                 $unit_details['ud_update_date'] = date('Y-m-d H:i:s');
                 $unit_details['booking_status'] = "Pending";
             
-                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state']);   
+                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key);   
                 array_push($updated_unit_id, $result['unit_id']);
             }
             
@@ -2697,7 +2695,7 @@ class Partner extends CI_Controller {
      * @param String $pincode
      */
     function get_district_by_pincode($pincode){
-        $city = $this->vendor_model->getDistrict("", $pincode);
+        $city = $this->vendor_model->getDistrict_from_india_pincode("", $pincode);
         if(!empty($city)){
             foreach ($city as $district){
                  echo '<option selected>'.$district['district'].'</option>';

@@ -471,7 +471,7 @@ class Do_background_upload_excel extends CI_Controller {
                     if ($unit_details['appliance_id']) {
                         log_message('info', __METHOD__ . "=> Appliance added: " . $unit_details['appliance_id']);
                         if(!empty($prices)){
-                            $unit_id = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
+                            $unit_id = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], 0);
                         }else{
                             $unit_id = $this->booking_model->addunitdetails($unit_details);
                         }

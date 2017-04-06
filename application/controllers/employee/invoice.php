@@ -300,7 +300,7 @@ class Invoice extends CI_Controller {
             $this->notify->send_sms_acl($sms);
         }
 
-        //redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
+        redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
     }
     
     function settle_partner_tds_amount($invoice_id, $per_tds ){
@@ -566,7 +566,7 @@ class Invoice extends CI_Controller {
             $cc = "";
             if($invoice_type == "final"){
                 $to = $data[0]['invoice_email_to'];
-                $subject = "FINAL Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
+                $subject = "247around - " . $data[0]['company_name'] .
                     " Invoice for period: " . $f_date . " to " . $t_date;
                 
                 $cc = $data[0]['invoice_email_cc'];
@@ -670,8 +670,11 @@ class Invoice extends CI_Controller {
             foreach ($file_names as $file_name) {
                exec("rm -rf " . escapeshellarg($file_name));
             }
+            return true;
         } else {
+            
             log_message('info', __METHOD__ . "=> Data Not found" . $invoice_type . " Partner Id " . $partner_id);
+            return FALSE;
         }
     }
 
@@ -1543,7 +1546,16 @@ class Invoice extends CI_Controller {
         $details['date_range'] = $this->input->post('daterange');
         $details['vendor_invoice_type'] = $this->input->post('vendor_invoice_type');
               
-        $this->generate_vendor_partner_invoices($details);
+        $status = $this->generate_vendor_partner_invoices($details);
+        if($status){
+            $output = "Invoice Generated...";
+            $userSession = array('success' => $output);
+            $this->session->set_userdata($userSession);
+        } else {
+            $output = "Data Not Found! Invoice did not Generate.";
+            $userSession = array('error' => $output);
+            $this->session->set_userdata($userSession);
+        }
         redirect(base_url() . "employee/invoice/get_invoices_form");
     }
 
@@ -1584,12 +1596,12 @@ class Invoice extends CI_Controller {
                     print_r($details['date_range'], true) . ", Invoice version" . print_r($details['invoice_type'], true) . ", Invoice type" .
                     print_r($details['vendor_invoice_type'], true));
 
-            $this->generate_vendor_invoices($details);
+             return $this->generate_vendor_invoices($details);
         } else if ($details['vendor_partner'] === "partner") {
             log_message('info', "Invoice generate - partner id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
                     print_r($details['date_range'], true) . ", Invoice status" . print_r($details['invoice_type'], true));
 
-            $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type']);
+            return $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type']);
         }
 
         log_message('info', __FUNCTION__ . " Exit......");
@@ -1692,12 +1704,19 @@ class Invoice extends CI_Controller {
             foreach ($partner as $value) {
                 log_message('info', __FUNCTION__ . '=> Partner Id ' . $value['partner_id']);
                 $invoice_id = $this->create_partner_invoice($value['partner_id'], $from_date, $to_date, $invoice_type);
-                $this->create_partner_invoices_detailed($value['partner_id'], $from_date, $to_date, $invoice_type, $invoice_id);
+                if($invoice_id){
+                    $this->create_partner_invoices_detailed($value['partner_id'], $from_date, $to_date, $invoice_type, $invoice_id);
+                }
+                
             }
         } else {
             log_message('info', __FUNCTION__ . '=> Partner Id ' . $partner_id);
             $invoice_id = $this->create_partner_invoice($partner_id, $from_date, $to_date, $invoice_type);
-            $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoice_id);
+            if($invoice_id){
+                return $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoice_id);
+            } else{
+                return False;
+            }
         }
 
         log_message('info', __FUNCTION__ . '=> Exiting...');
@@ -1732,9 +1751,12 @@ class Invoice extends CI_Controller {
                             //Generate detailed annexure now
                             $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range']);
                             $this->generate_cash_details_invoices_for_vendors($data, $details);
+                            
+
                         } else {
-                            echo "<script>alert('Data Not Found');</script>";
+                            
                             echo " Data Not found for vendor: " . $details['vendor_partner_id'];
+                            
                             log_message('info', __FUNCTION__ . " Data Not found for vendor: " . $details['vendor_partner_id']);
                         }
                     }
@@ -1749,10 +1771,13 @@ class Invoice extends CI_Controller {
                         //Generate detailed annexure now
                         $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range']);
                         $this->generate_cash_details_invoices_for_vendors($data, $details);
+                        return TRUE;
+
                     } else {
                         echo "<script>alert('Data Not Found');</script>";
                         echo " Data Not found for vendor: " . $details['vendor_partner_id'];
                         log_message('info', __FUNCTION__ . " Data Not found for vendor: " . $details['vendor_partner_id']);
+                        return FALSE;
                     }
                 }
                 break;
@@ -1789,10 +1814,12 @@ class Invoice extends CI_Controller {
                         //Generate detailed annexure now                
                         $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], $details['date_range']);
                         $this->generate_foc_details_invoices_for_vendors($data, $details);
+                        return TRUE;
                     } else {
                         echo "<script>alert('Data Not Found');</script>";
                         echo " Data Not found for vendor: " . $details['vendor_partner_id'];
                         log_message('info', __FUNCTION__ . " Data Not found for vendor: " . $details['vendor_partner_id']);
+                        return FALSE;
                     }
                 }
                 break;
@@ -1814,7 +1841,9 @@ class Invoice extends CI_Controller {
                 } else {
                     log_message('info', __FUNCTION__ . " Brackets Vendor Id: " . $details['vendor_partner_id']);
                     //Generating and sending invoice to vendors
-                    $this->send_brackets_invoice_to_vendors($details, $vendor_all_flag);
+                     return $this->send_brackets_invoice_to_vendors($details, $vendor_all_flag);
+                   
+                    
                 }
                 break;
         }
@@ -2179,6 +2208,7 @@ class Invoice extends CI_Controller {
                 }
             }
             exec("rm -rf " . escapeshellarg($output_file_excel));
+            return true;
         } else {
            
             log_message('info', __FUNCTION__ . " Excel file Not exist ");
@@ -2769,6 +2799,7 @@ class Invoice extends CI_Controller {
     function process_insert_update_invoice($vendor_partner){
         log_message('info', __FUNCTION__ . " Entering...." . $vendor_partner);
         $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|trim|xss_clean');
         if ($this->form_validation->run()) {
 
             $sms_sent = $this->input->post('sms_sent');
@@ -2865,7 +2896,12 @@ class Invoice extends CI_Controller {
                     $tds = array();
                     if($data['type_code'] == 'B'){
                         $data['type'] = 'FOC';
-                        $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
+                        if($vendor_partner == "vendor"){
+                            $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
+                        } else {
+                            $tds['tds'] = 0;
+                            $tds['tds_rate'] = 0;
+                        }
                         
                     } else if($data['type_code'] == 'C'){
                         $data['type'] = 'CreditNote';
@@ -2982,7 +3018,7 @@ class Invoice extends CI_Controller {
 
              redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
         } else {
-            echo "Please Enter Vendor Partner";
+            $this->insert_update_invoice($vendor_partner);
         }
     }
     /**

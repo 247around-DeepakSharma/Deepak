@@ -220,7 +220,7 @@ class Booking extends CI_Controller {
                 }
 
                 //Array ( ['brand'] => Array ( [0] => id_price ) )
-                foreach ($pricesWithId[$brand_id][$key+1] as $values) {
+                foreach ($pricesWithId[$brand_id][$key+1] as $b_key => $values) {
 
                     $prices = explode("_", $values);  // split string..
                     $services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
@@ -235,17 +235,18 @@ class Booking extends CI_Controller {
                     switch ($booking_id){
                         case INSERT_NEW_BOOKING:
                             log_message('info', __METHOD__ . " Insert Booking Unit Details: " );
-                            $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
+                            $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state'], $b_key);
                             break;
                         default:
                             
                             log_message('info', __METHOD__ . " Update Booking Unit Details: " . " Previous booking id: " . $booking_id);
-                            $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
+                            $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state'], $b_key);
 
                             array_push($updated_unit_id, $result['unit_id']);
                             break;
                     }
                 }
+               
             }
             if (!empty($updated_unit_id)) {
                 log_message('info', __METHOD__ . " UNIT ID: " . print_r($updated_unit_id, true));
@@ -266,6 +267,8 @@ class Booking extends CI_Controller {
                     $this->send_sms_email($booking_id, "Pincode_not_found");
                 }
                 
+                //1 means booking is getting inserted for the first time
+                //2 means booking is getting updated
                 if ($booking['is_send_sms'] == 1) {
                     //Query converted to Booking OR New Booking Inserted
                     $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -291,7 +294,7 @@ class Booking extends CI_Controller {
                             break;
                     }
                 } else if($booking['is_send_sms'] == 2 || $booking_id != INSERT_NEW_BOOKING) {
-                    //Pending booking getting updated
+                    //Pending booking getting updated, not query getting converted to booking
                     $up_flag =0;
                     if(isset($upcountry_data['vendor_id'])){
                         $assigned_vendor_id = $this->input->post('assigned_vendor_id');

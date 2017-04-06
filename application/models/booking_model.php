@@ -1538,7 +1538,7 @@ class Booking_model extends CI_Model {
      * @param: Array
      * @return: Price tags.
      */
-    function update_booking_in_booking_details($services_details, $booking_id, $state){
+    function update_booking_in_booking_details($services_details, $booking_id, $state, $update_key){
 
         $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
@@ -1557,12 +1557,10 @@ class Booking_model extends CI_Model {
         $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
         log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
         // Update request type If price tags is installation OR repair
-        if (stristr($result['price_tags'], "Installation")) {
+        if ($update_key == 0) {
             $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
              
-        } else if (stristr($result['price_tags'], "Repair")) {
-            $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
-        }
+        } 
         
         $this->db->select('id');
         $this->db->where('appliance_id', $services_details['appliance_id']);
@@ -1805,7 +1803,7 @@ class Booking_model extends CI_Model {
      * @param: Array()
      * @return : Array()
      */
-    function insert_data_in_booking_unit_details($services_details, $state) {
+    function insert_data_in_booking_unit_details($services_details, $state, $update_key) {
 	log_message('info', __FUNCTION__);
 	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
@@ -1830,12 +1828,10 @@ class Booking_model extends CI_Model {
 	$this->db->insert('booking_unit_details', $result);
        // $result['id'] = $this->db->insert_id();
         //Update request type If price tags is installation OR repair
-        if (stristr($result['price_tags'], "Installation")) {
+        if ($update_key == 0) {
             $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
              
-        } else if (stristr($result['price_tags'], "Repair")) {
-            $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
-        }
+        } 
         
         $result['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
         return $result;

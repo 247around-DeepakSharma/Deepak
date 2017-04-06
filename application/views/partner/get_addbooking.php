@@ -106,7 +106,7 @@
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
                                     <label for="appliance_capacity">Capacity   <span style="color:grey;display:none" id="capacity_loading">Loading ...</span> <span id="error_capacity" style="color: red;"></label>
                                    
-                                    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models()">
+                                    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(), getPrice()">
                                         <option selected disabled value="option1">Select Appliance Capacity</option>
                                     </select>
                                     <?php echo form_error('appliance_capacity'); ?>
@@ -145,6 +145,7 @@
                                         <option <?php if(set_value('partner_source') == "Offline"){ echo "selected";} ?>>Offline</option>
                                         <option <?php if(set_value('partner_source') == "Paytm"){ echo "selected";} ?>>Paytm</option>
                                         <option <?php if(set_value('partner_source') == "Shopclues"){ echo "selected";} ?>>Shopclues</option>
+                                        <option <?php if(set_value('partner_source') == "TataCliq"){ echo "selected";} ?>>TataCliq</option>
                                         <option <?php if(set_value('partner_source') == "Snapdeal"){ echo "selected";} ?>>Snapdeal</option>
                                         
                                     </select>
@@ -167,7 +168,7 @@
 
                             <div class="form-group">
                                 <div  class="col-md-12">
-                                    <table class="table priceList table-striped table-bordered" style="font-family: monospace;" name="priceList" id="priceList">
+                                    <table class="table priceList table-striped table-bordered" name="priceList" id="priceList">
                                         <tr class="text-center">
                                             <th class="text-center">Service Category</th>
                                             <th class="text-center">Final Charges</th>
@@ -466,7 +467,7 @@
         service_id =  $("#service_name").find(':selected').attr('data-id');
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
         partner_type = $("#partner_type").val();
-        $("#total_price").html("<br/>Rs.");
+        
         
          $.ajax({
                         type: 'POST',
@@ -496,7 +497,7 @@
         brand =  $("#appliance_brand_1").val();
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
         partner_type = $("#partner_type").val();
-        $("#total_price").html("<br/>Rs.");
+       
         $.ajax({
                         type: 'POST',
                         beforeSend: function(){
@@ -527,7 +528,7 @@
         category = $("#appliance_category_1").find(':selected').val();
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
         partner_type = $("#partner_type").val();
-        $("#total_price").html("<br/>Rs.");
+        
         $.ajax({
             type: 'POST',
             beforeSend: function(){
@@ -546,8 +547,8 @@
 //                    $('#appliance_capacity_1').append(data).change();
                      
                       $('#appliance_capacity_1').html(data).change();
-                     
                     get_models();
+                    getPrice();
                 },
             complete: function(){
                 $('#capacity_loading').css("display", "none");
@@ -566,7 +567,7 @@
         if(capacity === null && capacity === ""){
             capacity = '';
         }
-        $("#total_price").html("<br/>Rs.");
+        
         $.ajax({
                         type: 'POST',
                         url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner',
@@ -591,7 +592,7 @@
     }
     
     function getPrice() {
-    
+        
         var postData = {};       
        
         postData['service_id'] = $("#service_name").find(':selected').attr('data-id');
@@ -609,14 +610,14 @@
         postData['city'] = $("#booking_city").val();
         postData['partner_price_mapping_id'] = $("#partner_price_mapping_id").val();
         postData['partner_type'] = $('#partner_type').val();
-        $("#total_price").html("<br/>Rs.");
+        
         if(postData['brand'] !== null 
                 && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
-           
+          
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
-                  $("#total_price").html("Loading......");
+                  
                   $('#submitform').attr('disabled',true);
                   
                 },
@@ -638,7 +639,7 @@
                 }
             });
         } else {
-       
+          //console.log("error");
         }
     
     }

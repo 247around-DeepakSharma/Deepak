@@ -34,10 +34,10 @@
                                 if (form_error('booking_pincode')) {
                                     echo 'has-error';
                                 } ?>">
-                                <label for="booking_pincode" class="col-md-4">Pincode *</label>
+                                     <label for="booking_pincode" class="col-md-4">Pincode * </label>
                                 <div class="col-md-6">
                                      <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} ?>" placeholder="Enter Area Pin" > 
-                                    
+                                    <span id="error_pincode" style="color:red"></span>
                                         <?php echo form_error('booking_pincode'); ?>
                                 </div>
                             </div>
@@ -122,6 +122,7 @@
                                     <option>Ebay</option>
                                     <option>Offline</option>
                                     <option>Shopclues</option>
+                                    <option>TataCliq</option>
                                     <option>STS</option>
                                     <option>Snapdeal-delivered-excel</option>
                                     <option>Snapdeal-shipped-excel</option>
@@ -369,6 +370,12 @@
     $("#partner_source").select2();
 
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+    $("#booking_pincode").keyup(function(event) {
+       
+        check_pincode();
+        getBrandForService();
+        
+    });
 </script>
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;

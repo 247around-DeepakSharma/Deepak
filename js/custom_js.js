@@ -350,7 +350,6 @@ function addBookingDialog() {
         cloned_price(regex1, priceIndexClone, k);
 
     }
-
 }
 
 function setAppliances(i) {
@@ -564,6 +563,42 @@ function set_upcountry() {
         $('#submitform').attr('disabled', true);
     }
 }
+
+    $("#booking_pincode").keyup(function(event) {
+        alert();
+       // check_pincode();
+        
+    });
+    
+    function check_pincode(){
+        var pincode = $("#booking_pincode").val();
+        if(pincode.length === 6){
+            
+            $.ajax({
+                type: 'POST',
+                beforeSend: function(){
+                  
+                    $('#submitform').attr('disabled', true); 
+                },
+                url: baseUrl +'/employee/vendor/check_pincode_exist_in_india_pincode/'+ pincode,          
+                success: function (data) {
+                   console.log(data);
+                    if(data === "Not Exist"){
+                        $('#submitform').attr('disabled', true); 
+                        alert("Check Pincode.. Pincode Not Exist");
+                         document.getElementById("error_pincode").style.borderColor = "red";
+                         document.getElementById("error_pincode").innerHTML = "Check Pincode.. Pincode Not Exist";
+                        return false;
+                    }  else {
+                        $('#submitform').attr('disabled', false); 
+                        document.getElementById("error_pincode").style.borderColor = "red";
+                         document.getElementById("error_pincode").innerHTML = "";
+                    } 
+                }
+                 
+            }); 
+        }
+    }
 
 
 
