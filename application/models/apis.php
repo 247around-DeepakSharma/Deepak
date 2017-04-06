@@ -1585,14 +1585,14 @@ class Apis extends CI_Model {
     }
 
     //Method to fetch booking cancellation reasons
-    function getCancellationReasons($tag) {
+    function getCancellationReasons() {
         //log_message('info', __METHOD__);
 
         $this->db->select("reason");
-    //show only reasons which are meant for mobile app users
-    $this->db->where("show_on_app", '1');
+        //show only reasons which are meant for mobile app users
+        $this->db->where("show_on_app", '1');
 
-    $query = $this->db->get("booking_cancellation_reasons");
+        $query = $this->db->get("booking_cancellation_reasons");
 
         $result = (bool) ($this->db->affected_rows() > 0);
         log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
