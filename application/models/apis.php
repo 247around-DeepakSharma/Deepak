@@ -1373,7 +1373,7 @@ class Apis extends CI_Model {
     function getAppliancesList() {
         //log_message('info', __METHOD__ . "-> " . $id);
 
-        $sql = "SELECT * FROM services WHERE isBookingActive = '1' order by services";
+        $sql = "SELECT * FROM services WHERE isBookingActive = '1' AND id IN ('46','50','42','37', '28')  order by services";
 
         $query = $this->db->query($sql);
 
