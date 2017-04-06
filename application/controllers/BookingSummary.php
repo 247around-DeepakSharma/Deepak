@@ -412,7 +412,8 @@ class BookingSummary extends CI_Controller {
 
     public function get_partner_summary_table($partner_id) {
         $partner_summary_params = $this->partner_model->get_partner_summary_params($partner_id);
-
+        echo "<pre>";
+        print_r($partner_summary_params);exit();
         $total_install_req = $partner_summary_params['total_install_req'];
         $today_install_req = $partner_summary_params['today_install_req'];
         $yday_install_req = $partner_summary_params['yday_install_req'];

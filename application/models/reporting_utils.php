@@ -1721,17 +1721,21 @@ class Reporting_utils extends CI_Model {
      */
     function get_partners_booking_report_chart_data($startDate,$endDate,$bookingStatus) {
         $where="";
-        if($bookingStatus == 'Completed' || $bookingStatus == 'Cancelled'){
-            $where .= "bd.closed_date >=". "'$startDate'" . " AND bd.closed_date <=" ."'$endDate'";
-        }else if ($bookingStatus == 'FollowUp' || $bookingStatus == 'Pending' || $bookingStatus == 'Rescheduled'){
+        if($bookingStatus == 'ALL'){
             $where .= "bd.create_date >=". "'$startDate'" . " AND bd.create_date <=" ."'$endDate'";
+        }else if($bookingStatus == 'Completed' || $bookingStatus == 'Cancelled'){
+            $where .= "bd.current_status = '$bookingStatus' AND bd.closed_date >=". "'$startDate'" . " AND bd.closed_date <=" ."'$endDate'";
+        }else if ( $bookingStatus == 'Pending' || $bookingStatus == 'Rescheduled'){
+            $where .= "bd.current_status = '$bookingStatus' AND bd.create_date >=". "'$startDate'" . " AND bd.create_date <=" ."'$endDate'";
+        }
+        else if($bookingStatus == 'FollowUp'){
+            $where .= "bd.current_status = '$bookingStatus' AND SUBSTR(bd.booking_id ,1,2) = 'Q-' AND bd.create_date >=". "'$startDate'" . " AND bd.create_date <=" ."'$endDate'";
         }
         
         $this->db->distinct();
         $this->db->select('bd.partner_id,p.public_name,count(*) as count');
         $this->db->from('booking_details as bd');
         $this->db->join('partners as p', 'bd.partner_id=p.id', 'left');
-        $this->db->where('bd.current_status', $bookingStatus);
         $this->db->where($where);
         $this->db->group_by('partner_id');
         $query = $this->db->get();
