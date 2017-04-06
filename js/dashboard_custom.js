@@ -72,7 +72,7 @@ function init_sidebar() {
     };
 
     $SIDEBAR_MENU.find('a').on('click', function (ev) {
-        console.log('clicked - sidebar_menu');
+//        console.log('clicked - sidebar_menu');
         var $li = $(this).parent();
 
         if ($li.is('.active')) {
@@ -89,34 +89,33 @@ function init_sidebar() {
             {
                 if ($BODY.is(".nav-sm"))
                 {
-                    $SIDEBAR_MENU.find("li").removeClass("active active-sm");
-                    $SIDEBAR_MENU.find("li ul").slideUp();
+//                    $SIDEBAR_MENU.find("li").removeClass("active active-sm");
+//                    $SIDEBAR_MENU.find("li ul").slideUp();
                 }
             }
-            $li.addClass('active');
+//            $li.addClass('active');
 
-            $('ul:first', $li).slideDown(function () {
-                setContentHeight();
-            });
+//            $('ul:first', $li).slideDown(function () {
+//                setContentHeight();
+//            });
         }
     });
 
 // toggle small or large menu 
-    $MENU_TOGGLE.on('click', function () {
-        console.log('clicked - menu toggle');
-
-        if ($BODY.hasClass('nav-md')) {
-            $SIDEBAR_MENU.find('li.active ul').hide();
-            $SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
-        } else {
-            $SIDEBAR_MENU.find('li.active-sm ul').show();
-            $SIDEBAR_MENU.find('li.active-sm').addClass('active').removeClass('active-sm');
-        }
-
-        $BODY.toggleClass('nav-md nav-sm');
-
-        setContentHeight();
-    });
+//    $MENU_TOGGLE.on('click', function () {
+//
+//        if ($BODY.hasClass('nav-md')) {
+//            $SIDEBAR_MENU.find('li.active ul').hide();
+//            $SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
+//        } else {
+//            $SIDEBAR_MENU.find('li.active-sm ul').show();
+//            $SIDEBAR_MENU.find('li.active-sm').addClass('active').removeClass('active-sm');
+//        }
+//
+//        $BODY.toggleClass('nav-md nav-sm');
+//
+//        setContentHeight();
+//    });
 
     // check active menu
     $SIDEBAR_MENU.find('a[href="' + CURRENT_URL + '"]').parent('li').addClass('current-page');
@@ -1619,81 +1618,81 @@ function init_IonRangeSlider() {
 
 /* DATERANGEPICKER */
 
-function init_daterangepicker() {
-
-    if (typeof ($.fn.daterangepicker) === 'undefined') {
-        return;
-    }
-    //console.log('init_daterangepicker');
-
-    var cb = function (start, end, label) {
-        //console.log(start.toISOString(), end.toISOString(), label);
-        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-    };
-
-    var optionSet1 = {
-        startDate: moment().startOf('month'),
-        endDate: moment().endOf('month'),
-        minDate: '01/01/2000',
-        maxDate: '12/31/2030',
-        dateLimit: {
-            days: 120
-        },
-        showDropdowns: true,
-        showWeekNumbers: true,
-        timePicker: false,
-        timePickerIncrement: 1,
-        timePicker12Hour: true,
-        ranges: {
-            'Today': [moment(), moment()],
-            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-            'This Month': [moment().startOf('month'), moment().endOf('month')],
-            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-        },
-        opens: 'left',
-        buttonClasses: ['btn btn-default'],
-        applyClass: 'btn-small btn-primary',
-        cancelClass: 'btn-small',
-        format: 'MM/DD/YYYY',
-        separator: ' to ',
-        locale: {
-            applyLabel: 'Submit',
-            cancelLabel: 'Clear',
-            fromLabel: 'From',
-            toLabel: 'To',
-            customRangeLabel: 'Custom',
-            daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-            monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            firstDay: 1
-        }
-    };
-
-    $('#reportrange span').html(moment().startOf('month').format('MMMM D, YYYY') + ' - ' + moment().endOf('month').format('MMMM D, YYYY'));
-    $('#reportrange').daterangepicker(optionSet1, cb);
-    $('#reportrange').on('show.daterangepicker', function () {
-        //console.log("show event fired");
-    });
-    $('#reportrange').on('hide.daterangepicker', function () {
-        //console.log("hide event fired");
-
-    });
-   
-    $('#reportrange').on('cancel.daterangepicker', function (ev, picker) {
-        //console.log("cancel event fired");
-    });
-    $('#options1').click(function () {
-        $('#reportrange').data('daterangepicker').setOptions(optionSet1, cb);
-    });
-    $('#options2').click(function () {
-        $('#reportrange').data('daterangepicker').setOptions(optionSet2, cb);
-    });
-    $('#destroy').click(function () {
-        $('#reportrange').data('daterangepicker').remove();
-    });
-
-}
+//function init_daterangepicker() {
+//
+//    if (typeof ($.fn.daterangepicker) === 'undefined') {
+//        return;
+//    }
+//    //console.log('init_daterangepicker');
+//
+//    var cb = function (start, end, label) {
+//        //console.log(start.toISOString(), end.toISOString(), label);
+//        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+//    };
+//
+//    var optionSet1 = {
+//        startDate: moment().startOf('month'),
+//        endDate: moment().endOf('month'),
+//        minDate: '01/01/2000',
+//        maxDate: '12/31/2030',
+//        dateLimit: {
+//            days: 120
+//        },
+//        showDropdowns: true,
+//        showWeekNumbers: true,
+//        timePicker: false,
+//        timePickerIncrement: 1,
+//        timePicker12Hour: true,
+//        ranges: {
+//            'Today': [moment(), moment()],
+//            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+//            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+//            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+//            'This Month': [moment().startOf('month'), moment().endOf('month')],
+//            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+//        },
+//        opens: 'left',
+//        buttonClasses: ['btn btn-default'],
+//        applyClass: 'btn-small btn-primary',
+//        cancelClass: 'btn-small',
+//        format: 'MM/DD/YYYY',
+//        separator: ' to ',
+//        locale: {
+//            applyLabel: 'Submit',
+//            cancelLabel: 'Clear',
+//            fromLabel: 'From',
+//            toLabel: 'To',
+//            customRangeLabel: 'Custom',
+//            daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+//            monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+//            firstDay: 1
+//        }
+//    };
+//
+//    $('#reportrange span').html(moment().startOf('month').format('MMMM D, YYYY') + ' - ' + moment().endOf('month').format('MMMM D, YYYY'));
+//    $('#reportrange').daterangepicker(optionSet1, cb);
+//    $('#reportrange').on('show.daterangepicker', function () {
+//        //console.log("show event fired");
+//    });
+//    $('#reportrange').on('hide.daterangepicker', function () {
+//        //console.log("hide event fired");
+//
+//    });
+//   
+//    $('#reportrange').on('cancel.daterangepicker', function (ev, picker) {
+//        //console.log("cancel event fired");
+//    });
+//    $('#options1').click(function () {
+//        $('#reportrange').data('daterangepicker').setOptions(optionSet1, cb);
+//    });
+//    $('#options2').click(function () {
+//        $('#reportrange').data('daterangepicker').setOptions(optionSet2, cb);
+//    });
+//    $('#destroy').click(function () {
+//        $('#reportrange').data('daterangepicker').remove();
+//    });
+//
+//}
 
 function init_daterangepicker_right() {
 
@@ -5119,7 +5118,7 @@ $(document).ready(function () {
     init_ColorPicker();
     init_TagsInput();
     init_parsley();
-    init_daterangepicker();
+    //init_daterangepicker();
     init_daterangepicker_right();
     init_daterangepicker_single_call();
     init_daterangepicker_reservation();
