@@ -44,7 +44,7 @@
                                 <div class="form-group ">
                                     <label for="booking_city" class="col-md-4">City *</label>
                                     <div class="col-md-6">
-                                        <select type="text"  class="form-control"  id="booking_city" name="city" required>
+                                        <select  class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
                                             <?php
 
@@ -55,9 +55,9 @@
                                             <option <?php if($cites['district'] == $user[0]['city']){ echo "Selected"; $flag = 1; }?>><?php echo $cites['district']; ?></option>
                                             <?php  }
                                                 ?>
-                                            <?php if($flag == 0){ ?>
-                                            <option selected="selected" ><?php echo $user[0]['city']; ?></option>
-                                            <?php } ?>
+                                            <?php //if($flag == 0){ ?>
+                                            
+                                            <?php //} ?>
                                         </select>
                                     </div>
                                 </div>

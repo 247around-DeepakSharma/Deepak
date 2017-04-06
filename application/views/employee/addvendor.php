@@ -68,7 +68,7 @@
                                         ?>">
                                         <label  for="company_name" class="col-md-3">Company Name</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control" id="company_name" name="company_name" value = "<?php
+                                            <input  type="text" class="form-control blockspacialchar" id="company_name" name="company_name" value = "<?php
                                                 if (isset($query[0]['company_name'])) {
                                                     echo $query[0]['company_name'];
                                                 }
@@ -85,7 +85,7 @@
                                         ?>">
                                         <label  for="name" class="col-md-3">Display Name</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control" id="name" name="name" value = "<?php
+                                            <input  type="text" class="form-control blockspacialchar" id="name" name="name" value = "<?php
                                                 if (isset($query[0]['name'])) {
                                                     echo $query[0]['name'];
                                                 }
@@ -255,7 +255,7 @@
                                         ?>">
                                         <label  for="phone_2" class="col-md-3">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="phone_2" name="phone_2" value = "<?php
+                                            <input type="text" class="form-control verigymobileNumber" id="phone_2" name="phone_2" value = "<?php
                                                 if (isset($query[0]['phone_2'])) {
                                                     echo $query[0]['phone_2'];
                                                 }
@@ -395,7 +395,7 @@
                                         ?>">
                                         <label  for="primary_contact_name" class="col-md-3">Name</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control"  name="primary_contact_name" value = "<?php
+                                            <input  type="text" class="form-control blockspacialchar"  name="primary_contact_name" value = "<?php
                                                 if (isset($query[0]['primary_contact_name'])) {
                                                     echo $query[0]['primary_contact_name'];
                                                 }
@@ -448,7 +448,7 @@
                                         ?>">
                                         <label for="primary_contact_phone_2" class="col-md-3">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="primary_contact_phone_2" name="primary_contact_phone_2" value = "<?php
+                                            <input type="text" class="form-control verigymobileNumber" id="primary_contact_phone_2" name="primary_contact_phone_2" value = "<?php
                                                 if (isset($query[0]['primary_contact_phone_2'])) {
                                                     echo $query[0]['primary_contact_phone_2'];
                                                 }
@@ -472,7 +472,7 @@
                                         ?>">
                                         <label for="owner_name" class="col-md-3">Name</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control"  name="owner_name" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar"  name="owner_name" value = "<?php
                                                 if (isset($query[0]['owner_name'])) {
                                                     echo $query[0]['owner_name'];
                                                 }
@@ -525,7 +525,7 @@
                                         ?>">
                                         <label for="owner_phone_2" class="col-md-3">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="owner_phone_2" name="owner_phone_2" value = "<?php
+                                            <input type="text" class="form-control verigymobileNumber" id="owner_phone_2" name="owner_phone_2" value = "<?php
                                                 if (isset($query[0]['owner_phone_2'])) {
                                                     echo $query[0]['owner_phone_2'];
                                                 }
@@ -615,7 +615,7 @@
                                         ?>">
                                         <label  for="name_on_pan" class="col-md-4">PAN </label>
                                         <div class="col-md-7">
-                                            <input placeholder="Name on PAN CARD" type="text" class="form-control"  id="name_on_pan" name="name_on_pan" value = "<?php
+                                            <input placeholder="Name on PAN CARD" type="text" class="form-control blockspacialchar"  id="name_on_pan" name="name_on_pan" value = "<?php
                                                 if (isset($query[0]['name_on_pan'])) {
                                                     echo $query[0]['name_on_pan'];
                                                 }
@@ -631,7 +631,7 @@
                                         }
                                         ?>">
                                         <!--                                        <label  for="pan_no" class="col-md-4">PAN No.</label>-->
-                                        <input type="text" class="form-control"  id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
+                                        <input type="text" class="form-control blockspacialchar"  id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
                                             if (isset($query[0]['pan_no'])) {
                                                 echo $query[0]['pan_no'];
                                             }
@@ -642,7 +642,7 @@
                                 <div class="col-md-3" style="margin-left:40px;">
                                     <div class="form-group">
                                         <!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
-                                        <input type="file" class="form-control"  id="pan_file" name="pan_file" value = "<?php
+                                        <input type="file" class="form-control blockspacialchar"  id="pan_file" name="pan_file" value = "<?php
                                             if (isset($query[0]['pan_file'])) {
                                                 echo $query[0]['pan_file'];
                                             }
@@ -736,7 +736,7 @@
                                         ?>">
                                         <label  for="cst_no" class="col-md-4">CST No.</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control"  name="cst_no" id="cst_no" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar"  name="cst_no" id="cst_no" value = "<?php
                                                 if (isset($query[0]['cst_no'])) {
                                                     echo $query[0]['cst_no'];
                                                 }
@@ -751,7 +751,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="cst_file" class="col-md-4">CST File</label>
+                                        <label  for="cst_file" class="col-md-4 blockspacialchar">CST File</label>
                                         <div class="col-md-7">
                                             <input type="file" class="form-control"  name="cst_file" value = "<?php
                                                 if (isset($query[0]['cst_file'])) {
@@ -795,7 +795,7 @@
                                         ?>">
                                         <label  for="tin_no" class="col-md-4">TIN/VAT No.</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control"  id="tin_no" name="tin_no" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar"  id="tin_no" name="tin_no" value = "<?php
                                                 if (isset($query[0]['tin_no'])) {
                                                     echo $query[0]['tin_no'];
                                                 }
@@ -810,7 +810,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="tin_file" class="col-md-4">TIN/VAT File</label>
+                                        <label  for="tin_file" class="col-md-4 blockspacialchar">TIN/VAT File</label>
                                         <div class="col-md-7">
                                             <input type="file" class="form-control"  name="tin_file" value = "<?php
                                                 if (isset($query[0]['tin_file'])) {
@@ -854,7 +854,7 @@
                                         ?>">
                                         <label  for="service_tax_no" class="col-md-4">Service Tax No.</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control"  id ="service_tax_no" name="service_tax_no" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar"  id ="service_tax_no" name="service_tax_no" value = "<?php
                                                 if (isset($query[0]['service_tax_no'])) {
                                                     echo $query[0]['service_tax_no'];
                                                 }
@@ -869,7 +869,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="service_tax_no" class="col-md-4">Tax File</label>
+                                        <label for="service_tax_no" class="col-md-4 blockspacialchar">Tax File</label>
                                         <div class="col-md-7">
                                             <input type="file" class="form-control"  name="service_tax_file" value = "<?php
                                                 if (isset($query[0]['service_tax_file'])) {
@@ -918,7 +918,7 @@
                                         ?>">
                                         <label  for="bank_name" class="col-md-4">Bank Name</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control"  name="bank_name" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar"  name="bank_name" value = "<?php
                                                 if (isset($query[0]['bank_name'])) {
                                                     echo $query[0]['bank_name'];
                                                 }
@@ -935,7 +935,7 @@
                                         ?>">
                                         <label for="account_type" class="col-md-4">Account Type</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control"  name="account_type" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar"  name="account_type" value = "<?php
                                                 if (isset($query[0]['account_type'])) {
                                                     echo $query[0]['account_type'];
                                                 }
@@ -971,7 +971,7 @@
                                         ?>">
                                         <label for="ifsc_code" class="col-md-4">IFSC Code</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control"  name="ifsc_code" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar"  name="ifsc_code" value = "<?php
                                                 if (isset($query[0]['ifsc_code'])) {
                                                     echo $query[0]['ifsc_code'];
                                                 }
@@ -988,7 +988,7 @@
                                         ?>">
                                         <label for="beneficiary_name" class="col-md-4">Beneficiary Name</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control"  name="beneficiary_name" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar"  name="beneficiary_name" value = "<?php
                                                 if (isset($query[0]['beneficiary_name'])) {
                                                     echo $query[0]['beneficiary_name'];
                                                 }
@@ -1303,6 +1303,9 @@
     }
 </style>
 <script type="text/javascript">
+    $.validator.addMethod("regx", function (value, element, regexpr) {
+        return regexpr.test(value);
+    }, "Please enter a valid Phone Number.");
     (function ($, W, D)
     {
     var JQUERY4U = {};
@@ -1323,7 +1326,8 @@
         phone_1: {
             required: true,
             minlength: 10,
-            number: true
+            number: true,
+            regx: /^[7-9]{1}[0-9]{9}$/
         },
         phone_2: {
             minlength: 10,
@@ -1332,7 +1336,8 @@
         primary_contact_phone_1: {
             required: true,
             minlength: 10,
-            number: true
+            number: true,
+            regx: /^[7-9]{1}[0-9]{9}$/
         },
         primary_contact_phone_2: {
             minlength: 10,
@@ -1341,7 +1346,8 @@
         owner_phone_1: {
             required: true,
             minlength: 10,
-            number: true
+            number: true,
+            regx: /^[7-9]{1}[0-9]{9}$/
         },
         owner_phone_2: {
             minlength: 10,
@@ -1424,5 +1430,35 @@
         if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
             event.preventDefault();
         }
+    });
+    
+    $(document).ready(function () {
+        var charReg = /^\s*[a-zA-Z0-9,\s]+\s*$/;
+        $('.blockspacialchar').keyup(function () {
+            var inputVal = $(this).val();
+
+            if (!charReg.test(inputVal)) {
+                alert("Spacial Characters are not allowed");
+                $(this).css({'border-color' : 'red'})
+            }else{
+                $(this).css({'border-color' : '#ccc'})
+            }
+
+        });
+    });
+    
+    $(document).ready(function () {
+        var regxp = /^[7-9]{1}[0-9]{9}$/;
+        $('.verigymobileNumber').blur(function () {
+            var inputVal = $(this).val();
+
+            if (!regxp.test(inputVal)) {
+                alert("Please Enter Valid Phone Number");
+                $(this).css({'border-color' : 'red'})
+            }else{
+                $(this).css({'border-color' : '#ccc'})
+            }
+
+        });
     });
 </script>
