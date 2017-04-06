@@ -168,15 +168,18 @@ class invoices_model extends CI_Model {
         if ($vendor_partner == "vendor") {
 
             $data = $this->vendor_model->getActiveVendor("", 0);
+            $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
         } else if ($vendor_partner == "partner") {
 
             $data = $this->partner_model->getpartner();
+            $due_date_status = "";
         }
 
         foreach ($data as $value) {
 
             $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid FROM  `vendor_partner_invoices` "
-                    . "WHERE vendor_partner_id = $value[id] AND vendor_partner = '$vendor_partner' ";
+
+                    . "WHERE vendor_partner_id = $value[id] AND vendor_partner = '$vendor_partner' $due_date_status";
 
             $data = $this->db->query($sql);
             $result = $data->result_array();
@@ -834,7 +837,7 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return boolean
      */
-    function get_vendor_foc_invoice($vendor_id, $from_date, $to_date_tmp) {
+    function get_vendor_foc_invoice($vendor_id, $from_date, $to_date_tmp, $is_regenerate) {
 
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, sum(`courier_charges_by_sf`) AS misc_price,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
@@ -949,7 +952,7 @@ class invoices_model extends CI_Model {
                
             }
             
-            $penalty_data = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "distinct");
+            $penalty_data = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "distinct", $is_regenerate);
             $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, "distinct");
            
             $penalty_amount = 0;
@@ -1069,7 +1072,7 @@ class invoices_model extends CI_Model {
      * @param String $to_date_tmp
      * @return boolean
      */
-    function get_vendor_cash_invoice($vendor_id, $from_date, $to_date_tmp) {
+    function get_vendor_cash_invoice($vendor_id, $from_date, $to_date_tmp, $is_regenerate) {
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         for ($i = 0; $i < 2; $i++) {
             if ($i == 0) {
