@@ -585,7 +585,7 @@
     function getPrice() {
     
         var postData = {};       
-       
+       $("#priceList").html('<div class="text-center"><img src= "<?php echo base_url(); ?>images/loadring.gif" /></div>').delay(1200).queue(function () {
         postData['service_id'] = $("#service_name").find(':selected').attr('data-id');
         postData['brand'] = $('#appliance_brand_1').val();
         postData['category'] = $("#appliance_category_1").val();
@@ -637,6 +637,10 @@
        // $("#total_price").html("Please Enter Above Field");
          //  return false;
         }
+        
+        $(this).dequeue();
+    });
+
     
     }
     

@@ -112,7 +112,8 @@ function getCapacityForCategory(category, div_id) {
 function getPricesForCategoryCapacity(div_id) {
     var postData = {};
     var div_no = div_id.split('_');
-    $("#priceList_" + div_no[2]).html('loading...').delay(1200).queue(function () {
+    $("#priceList_" + div_no[2]).html('<div class="text-center"><img src= "'+ baseUrl+'/images/loadring.gif" /></div>').delay(1200).queue(function () {
+        
         postData['service_id'] = $("#service_id").val();
         postData['brand'] = $('#appliance_brand_' + div_no[2]).val();
         postData['category'] = $("#appliance_category_" + div_no[2]).val();
