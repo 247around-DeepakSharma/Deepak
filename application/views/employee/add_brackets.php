@@ -8,6 +8,7 @@
                     <tr>
                         <th>S.N.</th>
                         <th>Order Received From</th>
+                        <th>Order Given To</th>
                         <th>19 to 24 inch</th>
                         <th>26 to 32 inch</th>
                         <th>36 to 42 inch</th>
@@ -63,6 +64,14 @@
                                 </select>
                             </td>
                             <td>
+                                <select name="order_given_to[]" class="order_given_to" id="order_given_to_<?php echo $i ?>" class = "form-control" disabled="">
+                                    <option selected disabled hidden>Select Vendor</option>
+                                    <?php foreach ($vendor as $value) { ?>
+                                        <option value="<?php echo $value['id'] ?>" <?php if($value['id'] == '10'){ echo 'selected';}?> ><?php echo $value['name'] ?> </option>
+                                    <?php } ?>
+                                </select>
+                            </td>
+                            <td>
                                 <input typt='text' name='_19_24[]' id ="_19_24_<?php echo $i ?>"   disabled="" class = "form-control" onchange="return add_value(this.id)"/>
                             </td>
                             <td>
@@ -83,7 +92,7 @@
                                     <option value="10" selected>Manish Kapoor</option>
                                 </select>
                             </td>-->
-                        <input type="hidden" name = "order_given_to[]" value="10"/>
+<!--                        <input type="hidden" name = "order_given_to[]" value="10"/>-->
 
 
                         </tr>
@@ -168,6 +177,7 @@ $this->session->unset_userdata('brackets_error');
             $("#_19_24_" + id).attr('required', true);
             $("#_19_24_" + id).attr('disabled', false);
             $("#order_received_from_" + id).attr('disabled', false);
+            $("#order_given_to_" + id).attr('disabled', false);
             $("#_26_32_" + id).attr('required', true);
             $("#_26_32_" + id).attr('disabled', false);
             $("#_36_42_" + id).attr('required', true);
@@ -175,9 +185,12 @@ $this->session->unset_userdata('brackets_error');
             $("#_43__" + id).attr('required', true);
             $("#_43__" + id).attr('disabled', false);
             $("#order_received_from_" + id).attr('required', true);
+            $("#order_given_to_" + id).attr('required', true);
         } else {
             $("#order_received_from_" + id).attr('disabled', true);
             $("#order_received_from_" + id).removeAttr('required');
+            $("#order_given_to_" + id).attr('disabled', true);
+            $("#order_given_to_" + id).removeAttr('required');
             $("#_19_24_" + id).removeAttr('required');
             $("#_19_24_" + id).attr('disabled', true);
             $("#_26_32_" + id).removeAttr('required');
