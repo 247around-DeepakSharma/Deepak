@@ -2794,7 +2794,7 @@ class Invoice extends CI_Controller {
             $sms_sent = $this->input->post('sms_sent');
             $mail_sent = $this->input->post('mail_sent');
 
-            $data['type_code'] = $this->input->post('type_code');
+            $data['type'] = $this->input->post('type');
             $data['vendor_partner'] = $vendor_partner;
             $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
             $data['from_date'] = $this->input->post('from_date');
@@ -2836,18 +2836,14 @@ class Invoice extends CI_Controller {
                 $data['invoice_date'] = date("Y-m-d");
             }
 
-            switch ($data['type_code']) {
+            switch ($data['type']) {
 
-                case 'A':
-                case 'E':
-                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type_code']);
-                    if($data['type_code'] == 'A'){
-                        $data['type'] = 'Cash';
-                        
-                    } else if($data['type_code'] == 'E'){
-                        $data['type'] = 'DebitNote';
-                    }
+                case 'Cash':
+                case 'DebitNote':
+                case 'Byback Cash':
+                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
                     
+                    $data['type_code'] = 'A';
                     $data['total_amount_collected'] = ($data['total_amount_collected']+ $data['upcountry_price']);
                     $data['around_royalty'] = round($data['total_amount_collected'], 0);
                     $data['amount_collected_paid'] = round($data['total_amount_collected'], 0);
@@ -2878,13 +2874,15 @@ class Invoice extends CI_Controller {
                         $sms['type_id'] = $data['vendor_partner_id'];
                     }
                     break;
-                case 'B':
-                case 'C': 
+                case 'FOC':
+                case 'CreditNote': 
+                case 'Byback FOC':  
                     log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
                     $data['total_amount_collected'] = ($data['total_amount_collected'] - $data['upcountry_price']);
+                    $data['type_code'] = 'B';
                     $tds = array();
-                    if($data['type_code'] == 'B'){
-                        $data['type'] = 'FOC';
+                    if($data['type'] == 'FOC'){
+                        
                         if($vendor_partner == "vendor"){
                             $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
                         } else {
@@ -2892,8 +2890,8 @@ class Invoice extends CI_Controller {
                             $tds['tds_rate'] = 0;
                         }
                         
-                    } else if($data['type_code'] == 'C'){
-                        $data['type'] = 'CreditNote';
+                    } else if($data['type'] == 'CreditNote' ||  $data['type'] == 'Byback FOC'){
+                       
                         $tds['tds'] = 0;
                         $tds['tds_rate'] = 0;
                     }
@@ -2923,9 +2921,9 @@ class Invoice extends CI_Controller {
                     }
 
                     break;
-                case 'D':
-                    log_message('info', __FUNCTION__ . " .. type code:- D");
-                    $data['type'] = "Stand";
+                case 'Stand':
+                    log_message('info', __FUNCTION__ . " .. type :- Stand");
+                    $data['type_code'] = "D";
                     $data['around_royalty'] = $data['total_amount_collected'];
                     $data['amount_collected_paid'] = $data['total_amount_collected'];
 
