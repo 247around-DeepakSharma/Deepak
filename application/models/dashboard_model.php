@@ -142,7 +142,7 @@ class dashboard_model extends CI_Model {
     }
     /**
      * @desc: This function is used to get the booking data grou by request type on  ajax call
-     * @param void
+     * @param string
      * @return array
      */
     function get_data_onScroll($startDate = "", $endDate = "",$partner_id=""){
@@ -164,7 +164,7 @@ class dashboard_model extends CI_Model {
      * group by current_status
      * case 1: when partner_id is null then get data for all partner
      * case 2: when partner is not null then get data according to partner_id
-     * @param void
+     * @param string
      * @return array
      */
     function get_bookings_basedon_request_type_status($startDate = "", $endDate = "",$request_type = "",$partner_id=""){
@@ -182,7 +182,7 @@ class dashboard_model extends CI_Model {
     
     /**
      * @desc: This function is used to get booking based on RM 
-     * @param void
+     * @param string
      * @return array
      */
     function get_booking_data_by_rm_region($startDate = "", $endDate = "",$service_centers_id,$partner_id=""){
