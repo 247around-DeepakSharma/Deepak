@@ -53,7 +53,7 @@
                </div>
             </form>
               <a href="<?php echo base_url(); ?>BookingSummary/download_latest_file/price" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>
-              <p class="col-md-4"><strong>Uploaded By : </strong><?php echo $latest_file[1]['full_name']?></p>
+              <p class="col-md-4"><strong>Uploaded By : </strong><?php echo $latest_file[0]['full_name']?></p>
               <!--          <div class="clear"></div>
             <form class="col-md-12" action="<?php echo base_url()?>employee/service_centre_charges/upload_tax_rate_from_excel" method="POST" enctype="multipart/form-data">
                <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">
@@ -78,7 +78,7 @@
                </div>
             </form>
           <a href="<?php echo base_url(); ?>BookingSummary/download_latest_file/appliance" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>
-          <p class="col-md-4"><strong>Uploaded By : </strong><?php echo $latest_file[0]['full_name']?></p>
+          <p class="col-md-4"><strong>Uploaded By : </strong><?php echo $latest_file[1]['full_name']?></p>
           </div>
           
 <!--          <div id="only_price_excel">
