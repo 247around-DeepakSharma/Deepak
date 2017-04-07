@@ -1684,6 +1684,13 @@ class Booking_model extends CI_Model {
         if(isset($data['internal_status'])){
             unset($data['internal_status']);
         }
+        
+        if($unit_details[0]['vendor_basic_percentage'] == 0){
+             $data['around_to_vendor'] = 0;
+             $data['vendor_to_around'] = 0;
+             $data['around_st_or_vat_basic_charges'] = 0;
+             $data['around_comm_basic_charges'] = 0;
+        }
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
     }
