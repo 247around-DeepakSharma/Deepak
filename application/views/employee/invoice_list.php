@@ -251,6 +251,6 @@ if(isset($_SESSION['file_error'])){
         $("#model_email_to").val(email_to);
         $("#model_email_cc").val(email_cc);
     }
-    $("#from_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+    $("#from_date").datepicker({dateFormat: 'yy-mm-dd'});
     
 </script>

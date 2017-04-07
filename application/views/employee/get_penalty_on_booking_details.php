@@ -10,6 +10,7 @@
                     <tr>
                         <th class="text-center">Booking Id</th>
                         <th class="text-center">Penalty Date</th>
+                        <th class="text-center">Remarks</th>
                         <th class="text-center">Penalty Remove Reason</th>
                         <th class="text-center">Remove Penalty</th>
                     </tr>
@@ -25,6 +26,7 @@
                         <td>
                             <?php echo date_format(date_create($row['create_date']),"d/m/Y");?>
                         </td>
+                        <td><?php if(!empty($row['remarks'])){echo $row['remarks'];}else{ echo "No remarks Found";} ?></td>
                         <td>
                             <textarea rows="3" cols="40" name="penalty_remove_reason[]" placeholder="Enter Penalty removal reason" id="penalty_remove_reason"></textarea>
               

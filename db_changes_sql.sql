@@ -2130,3 +2130,8 @@ CHANGE `penalty_bookings_count` `penalty_bookings_count` INT(11) NULL COMMENT 'O
 --Abhay 23 March
 ALTER TABLE `vendor_partner_invoices` ADD `credit_penalty_amount` DECIMAL(10,2) NULL DEFAULT NULL AFTER `penalty_amount`, 
 ADD `credit_penalty_bookings_count` INT(10) NULL DEFAULT NULL AFTER `credit_penalty_amount`;
+
+
+-- sachin 06 april
+ALTER TABLE `partners` ADD `cst_no` VARCHAR(256) NOT NULL AFTER `tin`, ADD `tin_file` VARCHAR(512) NOT NULL AFTER `tin`, 
+ADD `cst_file` VARCHAR(512) NOT NULL AFTER `service_tax_no`, ADD `service_tax_file` VARCHAR(512) NOT NULL AFTER `cst_file`;

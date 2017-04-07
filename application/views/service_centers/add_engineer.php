@@ -282,7 +282,9 @@
 </style>
 
 <script type="text/javascript">
-
+    $.validator.addMethod("regx", function (value, element, regexpr) {
+        return regexpr.test(value);
+    }, "Please enter a valid Phone Number.");
     (function ($, W, D)
     {
     var JQUERY4U = {};
@@ -298,12 +300,14 @@
                 phone: {
                         required: true,
                         minlength: 10,
-                        number: true
+                        number: true,
+                        regx: /^[7-9]{1}[0-9]{9}$/
                     },
                 alternate_phone:{
                     
                     minlength: 10,
-                    number: true
+                    number: true,
+                    regx: /^[7-9]{1}[0-9]{9}$/
                     },
                 
                 bank_ifsc_code: {
@@ -338,7 +342,7 @@
 
                 },
                 submitHandler: function (form) {
-                form.submit();
+                alert('success');
                 }
             });
             }

@@ -111,6 +111,12 @@
                                         ?>
                                 </div>
                             </div>
+                             <div class="form-group">
+                                <label for="remarks" class="col-md-4">Remarks</label>
+                                <div class="col-md-6">
+                                    <textarea class="form-control" cols="50" rows="5" id="remarks" name="remarks" placeholder="remarks"><?php if (isset($invoice_details[0]['remarks'])){echo $invoice_details[0]['remarks'];}?></textarea>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
@@ -214,8 +220,7 @@
                                         ?>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-offset-4">
+                            <div class="col-md-offset-4">
                                 <label class="checkbox-inline">
                                 <input type="checkbox" checked data-toggle="toggle" name="sms_sent"> SMS Sent
                               </label>
@@ -225,6 +230,9 @@
                              
                                         
                                     </div>
+                        </div>
+                        <div class="clearfix" ></div>
+                        
                         <div class="col-md-offset-5" style ="margin-top: 40px; margin-bottom: 20px;">
                             <?php if (isset($invoice_details[0]['invoice_id'])) {} else {?> <a href="javascript:void(0)" onclick="fetch_invoice_id()" class="btn btn-md btn-success" >Fetch Invoice ID</a><?php  } ?>
                        

@@ -321,9 +321,9 @@
                             <a href="<?php echo base_url()?>BookingSummary/get_pending_bookings/0"><i class="fa fa-fw fa-desktop "></i> <strong>Download SF Pending Summary</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li>
+<!--                        <li>
                             <a href="<?php echo base_url()?>employee/vendor/show_around_dashboard"><i class="fa fa-fw fa-desktop "></i> <strong>247around Dashboard</strong></a>
-                        </li>
+                        </li>-->
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/get_sc_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF Missed Target Report</strong></a>
@@ -336,14 +336,14 @@
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/show_reports_chart" ><i class="fa fa-fw fa-desktop"></i> <strong> RM Performance Stats</strong></a>
                         </li>
-                        <li class="divider"></li>
+<!--                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/partners_booking_report_chart" ><i class="fa fa-fw fa-desktop"></i> <strong>Partners Booking Report</strong></a>
-                        </li>
+                        </li>-->
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/dashboard" target="_blank"><i class="fa fa-fw fa-desktop"></i> <strong>New Dashboard</strong></a>

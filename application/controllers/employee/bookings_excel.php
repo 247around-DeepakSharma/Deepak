@@ -158,7 +158,8 @@ class bookings_excel extends CI_Controller {
 
 	    if (empty($output)) {
 		//User doesn't exist
-		$user['name'] = $rowData[0]['CustomerName'];
+                $user_name = $this->is_user_name_empty($rowData[0]['CustomerName'],$rowData[0]['customer_email'],$rowData[0]['CustomerContactNo']);
+		$user['name'] = $user_name;
 		$user['phone_number'] = $rowData[0]['CustomerContactNo'];
 		$user['user_email'] = $rowData[0]['customer_email'];
 		$user['home_address'] = $rowData[0]['CustomerAddress1'] . " ," . $rowData[0]['CustomerAddress2'];
@@ -186,7 +187,8 @@ class bookings_excel extends CI_Controller {
 	    //Add this lead into the leads table
 	    //Check whether this is a new Lead or Not
 	    //Pass order id and partner source
-	    if ($this->booking_model->check_booking_exists_by_order_id($rowData[0]['OrderID'], "Paytm-delivered-excel") == FALSE) {
+            $partner_booking = $this->partner_model->get_order_id_for_partner("3", $rowData[0]['OrderID']);
+	    if (is_null($partner_booking)) {
 		$booking['order_id'] = $rowData[0]['OrderID'];
 
 		//$lead_details['Unique_id'] = $rowData[0]['Item ID'];
@@ -253,7 +255,7 @@ class bookings_excel extends CI_Controller {
 		$booking['shipped_date'] = date('Y-m-d H:i:s', strtotime($dateObj2->format('d-m-Y')));
 
 		$booking['current_status'] = "FollowUp";
-		$booking['internal_status'] = "FollowUp";
+		$booking['internal_status'] = "Missed_call_not_confirmed";
 
 		//Add this as a Query now
 		$booking['booking_id'] = '';
@@ -300,6 +302,7 @@ class bookings_excel extends CI_Controller {
                 }
                 $booking['amount_due'] = '0';
                 $is_price = array();
+                $flag = array();
                 if(!empty($prices)){
                     $unit_details['id'] =  $prices[0]['id'];
                     $unit_details['price_tags'] =  "Installation & Demo";
@@ -309,6 +312,7 @@ class bookings_excel extends CI_Controller {
                     $booking['amount_due'] = $prices[0]['customer_net_payable'];
                     $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
                     $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
+                    $flag = array('1');
                 }
 
 
@@ -317,12 +321,13 @@ class bookings_excel extends CI_Controller {
 
 
 		$booking['type'] = "Query";
-		$booking['booking_date'] = '';
+                
+		$booking['booking_date'] = date('d-m-Y', strtotime("+3 days",strtotime($booking['shipped_date'])));
 		$booking['booking_timeslot'] = '';
 		$booking['amount_due'] = '';
-		$booking['booking_remarks'] = 'Installation and Demo';
-		$booking['query_remarks'] = 'Installation and Demo';
-		$booking['request_type'] = 'Installation and Demo';
+		$booking['booking_remarks'] = 'Installation & Demo';
+		$booking['query_remarks'] = 'Installation & Demo';
+		$booking['request_type'] = 'Installation & Demo';
 
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
@@ -333,6 +338,20 @@ class bookings_excel extends CI_Controller {
                     $booking['partner_internal_status'] = $partner_status[1];
                 }
                 
+                $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
+                $vendors_count = count($vendors);
+
+                if ($vendors_count > 0) {
+                    $this->send_sms_to_customer($lead_details['Product'],
+                            $booking['booking_primary_contact_no'], $user_id,
+                            $booking['booking_id'], $unit_details['appliance_category'],$booking['amount_due'], $flag);
+                } else { //if ($vendors_count > 0) {
+                    //update booking
+                    $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+
+                    log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                }
+                
 		$return_id = $this->booking_model->addbooking($booking);
 		
                 if (!$return_id) {
@@ -340,7 +359,7 @@ class bookings_excel extends CI_Controller {
                 } else {
                     $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
                     if (!empty($prices)) {
-                        $unit_id = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
+                        $unit_id = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], 0);
                     } else {
                         $unit_id = $this->booking_model->addunitdetails($unit_details);
                     }
@@ -365,6 +384,32 @@ class bookings_excel extends CI_Controller {
 	}
 
 	redirect(base_url() . DEFAULT_SEARCH_PAGE);
+    }
+    
+    function send_sms_to_customer($appliance, $phone_number, $user_id, $booking_id, $category, $amount_due, $flag) {
+        $sms['tag'] = "sd_shipped_missed_call_initial";
+
+        //ordering of smsData is important, it should be as per the %s in the SMS
+        $sms['smsData']['service'] = $appliance;
+        $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
+        if(!empty($flag)){
+            if($amount_due == 0){
+                $sms['smsData']['message'] = "FREE";
+            
+            } else {
+                $sms['smsData']['message'] = "Rs. ".$amount_due;
+            }
+            
+        } else {
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
+        }
+
+	$sms['phone_no'] = $phone_number;
+	$sms['booking_id'] = $booking_id;
+	$sms['type'] = "user";
+	$sms['type_id'] = $user_id;
+
+	$this->notify->send_sms_acl($sms);
     }
 
      /**
@@ -484,6 +529,28 @@ class bookings_excel extends CI_Controller {
         $this->s3->putObjectFile(TMP_FOLDER . $delivered_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
         //Logging
         log_message('info', __FUNCTION__ . ' Paytm Delivered File has been uploaded in S3');
+    }
+    
+    /**
+     * @Desc: This function is used to check if user name is empty or not
+     * if user name is not empty then return username otherwise check if email is not
+     * empty.if email is empty then return mobile number as username otherwise return email as username 
+     * @params: String
+     * @return: void
+     * 
+     */
+    private function is_user_name_empty($userName , $userEmail,$userContactNo){
+        if(empty($userName)){
+            if(empty($userEmail)){
+                $user_name = $userContactNo;
+            }else{
+                $user_name = $userEmail;
+            }
+        }else{
+            $user_name = $userName;
+        }
+        
+        return $user_name;
     }
 
 }

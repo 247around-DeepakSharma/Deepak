@@ -1373,7 +1373,7 @@ class Apis extends CI_Model {
     function getAppliancesList() {
         //log_message('info', __METHOD__ . "-> " . $id);
 
-        $sql = "SELECT * FROM services WHERE isBookingActive = '1' order by services";
+        $sql = "SELECT * FROM services WHERE isBookingActive = '1' AND id IN ('46','50','42','37', '28')  order by services";
 
         $query = $this->db->query($sql);
 
@@ -1459,6 +1459,8 @@ class Apis extends CI_Model {
         $this->db->where('active', 1);
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
+        $this->db->where_not_in('service_category', array('Repeat Booking', 'Visit'));
+        
 
         $query = $this->db->get('service_centre_charges');
 
@@ -1583,14 +1585,14 @@ class Apis extends CI_Model {
     }
 
     //Method to fetch booking cancellation reasons
-    function getCancellationReasons($tag) {
+    function getCancellationReasons() {
         //log_message('info', __METHOD__);
 
         $this->db->select("reason");
-    //show only reasons which are meant for mobile app users
-    $this->db->where("show_on_app", '1');
+        //show only reasons which are meant for mobile app users
+        $this->db->where("show_on_app", '1');
 
-    $query = $this->db->get("booking_cancellation_reasons");
+        $query = $this->db->get("booking_cancellation_reasons");
 
         $result = (bool) ($this->db->affected_rows() > 0);
         log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);

@@ -220,7 +220,7 @@ class Booking extends CI_Controller {
                 }
 
                 //Array ( ['brand'] => Array ( [0] => id_price ) )
-                foreach ($pricesWithId[$brand_id][$key+1] as $values) {
+                foreach ($pricesWithId[$brand_id][$key+1] as $b_key => $values) {
 
                     $prices = explode("_", $values);  // split string..
                     $services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
@@ -235,17 +235,18 @@ class Booking extends CI_Controller {
                     switch ($booking_id){
                         case INSERT_NEW_BOOKING:
                             log_message('info', __METHOD__ . " Insert Booking Unit Details: " );
-                            $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
+                            $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state'], $b_key);
                             break;
                         default:
                             
                             log_message('info', __METHOD__ . " Update Booking Unit Details: " . " Previous booking id: " . $booking_id);
-                            $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
+                            $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state'], $b_key);
 
                             array_push($updated_unit_id, $result['unit_id']);
                             break;
                     }
                 }
+               
             }
             if (!empty($updated_unit_id)) {
                 log_message('info', __METHOD__ . " UNIT ID: " . print_r($updated_unit_id, true));
@@ -667,7 +668,9 @@ class Booking extends CI_Controller {
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
 	$data['Bookings'] = $this->booking_model->view_completed_or_cancelled_booking($config['per_page'], $offset, $status, $booking_id);
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+//	echo $this->db->last_query();
+//        echo "<pre>";print_r($data['Bookings']);exit();
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
 	$this->load->view('employee/viewcompletedbooking', $data);
     }
@@ -708,6 +711,7 @@ class Booking extends CI_Controller {
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($data['booking_history'][0]['source']);
 	$data['prices'] = array();
 	//log_message('info', __FUNCTION__ . " data " . print_r($data, true));
+        $upcountry_price = 0;
 	foreach ($data['booking_unit_details'] as $keys => $value) {
             if($source[0]['partner_type'] == OEM){
 	        $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], 

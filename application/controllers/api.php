@@ -1874,7 +1874,8 @@ class Api extends CI_Controller {
         $booking_id .= (intval($this->apis->getBookingCountByUser($user_id)) + 1);
         $booking_id = "SA-" . $booking_id;
         $booking['booking_id'] = $booking_id;
-        $booking['partner_id'] = "247002";
+        $booking['partner_id'] = "247001";
+        $booking['partner_source'] = "AndroidApp";
         log_message('info', "Booking ID (generated): " . $booking_id);
 
       
@@ -2027,9 +2028,10 @@ class Api extends CI_Controller {
         $b_unit['appliance_id'] = $appliance_id;
         $b_unit['appliance_capacity'] = $unit['capacity'];
         $b_unit['appliance_category'] = $unit['category'];
+        $b_unit['model_number'] = $unit['modelNo'];
         $price_tags = $unit['priceTags'];
         $p_explode = explode(",", $price_tags);
-        foreach($p_explode as $p_tags){
+        foreach($p_explode as $key => $p_tags){
             $s_charges = $this->partner_model->getPrices( $b_unit['service_id'], $b_unit['appliance_category'], 
                     $b_unit['appliance_capacity'], $this->app_price_mapping_id, trim($p_tags),"");
             if($i == 0){
@@ -2046,7 +2048,7 @@ class Api extends CI_Controller {
             $b_unit['id'] = $s_charges[0]['id'];
             $b_unit['booking_status'] = _247AROUND_PENDING;
             
-            $this->booking_model->insert_data_in_booking_unit_details($b_unit, $state);
+            $this->booking_model->insert_data_in_booking_unit_details($b_unit, $state , $key);
             $i++;
         }
            
@@ -2378,7 +2380,7 @@ class Api extends CI_Controller {
         log_message('info', "Entering: " . __METHOD__);
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //print_r($requestData);
+        
         //$activity = array('activity' => 'process save booking',
         //    'data' => json_encode($requestData), 'time' => $this->microtime_float());
         //$this->apis->logTable($activity);
@@ -2708,7 +2710,12 @@ class Api extends CI_Controller {
 
         //Get snack bar notification messages
         $msgs = $this->apis->getAroundMessgaes("snack_bar_msgs");
-        $snack_bar_msgs = explode("|", $msgs[0]['message']);
+        if(!empty($msgs)){
+            $snack_bar_msgs = explode("|", $msgs[0]['message']);
+        } else {
+            $snack_bar_msgs = array();
+        }
+        
         $this->jsonResponseString['response'] = array(
             "appData" => $appData,
             "userAppliances" => $user_appliances,
@@ -2716,7 +2723,7 @@ class Api extends CI_Controller {
             "popularKeywords" => $popular_keywords,
             "snack_bar_msgs" => $snack_bar_msgs
         ); //$appData;
-
+        log_message('info'," Appliance ". print_r($user_appliances, true));
         $this->sendJsonResponse(array('0000', 'success'));
     }
 
