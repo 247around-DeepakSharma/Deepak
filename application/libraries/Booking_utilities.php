@@ -154,51 +154,51 @@ class Booking_utilities {
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
     }
 
-    //This function sends email to the assigned vendor
+    //This function sends email/sms to the assigned vendor
     function lib_send_mail_to_vendor($booking_id, $additional_note) {
         log_message('info', __FUNCTION__ . " => Entering, Booking Id: ". $booking_id);
 
         $getbooking = $this->My_CI->booking_model->getbooking_history($booking_id,"join");
 
         if (!empty($getbooking)) {
-            $salutation = "Dear " . $getbooking[0]['primary_contact_name'];
-            $heading = "<br><br>Please find attached job card " . $getbooking[0]['booking_id'] . " for "
-                    . $getbooking[0]['services'] .
-                    "<br><br>Date: " . $getbooking[0]['booking_date'] .
-                    "<br>Time Slot: " . $getbooking[0]['booking_timeslot'];
+//            $salutation = "Dear " . $getbooking[0]['primary_contact_name'];
+//            $heading = "<br><br>Please find attached job card " . $getbooking[0]['booking_id'] . " for "
+//                    . $getbooking[0]['services'] .
+//                    "<br><br>Date: " . $getbooking[0]['booking_date'] .
+//                    "<br>Time Slot: " . $getbooking[0]['booking_timeslot'];
+//
+//            $booking_remarks = "<br><br>Booking remarks: " . $getbooking[0]['booking_remarks'];
+//            $heading .= $booking_remarks;
+//            $note = "<br>Special Note: " . urldecode($additional_note) . "<br>";
+//
+//            $fixedPara = "<br><br>Engineer should follow below guidelines:<br>
+//                        <br>1. Be very polite,
+//                        <br>2. Carry tools, No service to be attended without tools,
+//                        <br>3. Carry soap in case of AC Service,
+//                        <br>4. Helper to clean the service area after completing service.
+//                        <br>5. Be very careful while Uninstalling and Installing any Appliance.
+//                        <br>6. RUN AND CHECK THE Appliance after repair for 5-10 minutes..
+//                        <br><br>With Regards
+//                        <br>Devendra - 247Around - 9555118612
+//                        <br>247Around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
+//                        <br>Follow us on Facebook: www.facebook.com/247Around | Website:
+//                        <br>www.247Around.com
+//                        <br>You will Love our Video Advertisements:
+//                        <br>https://www.youtube.com/watch?v=y8sBWDPHAhI
+//                        <br>Playstore - 247Around -
+//                        <br>https://play.google.com/store/apps/details?id=com.handymanapp
+//                        ";
 
-            $booking_remarks = "<br><br>Booking remarks: " . $getbooking[0]['booking_remarks'];
-            $heading .= $booking_remarks;
-            $note = "<br>Special Note: " . urldecode($additional_note) . "<br>";
+//            $message = $salutation . $heading . $note . $fixedPara;
+//
+//	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
+//                    " / " . $getbooking[0]['booking_timeslot'];
 
-            $fixedPara = "<br><br>Engineer should follow below guidelines:<br>
-                        <br>1. Be very polite,
-                        <br>2. Carry tools, No service to be attended without tools,
-                        <br>3. Carry soap in case of AC Service,
-                        <br>4. Helper to clean the service area after completing service.
-                        <br>5. Be very careful while Uninstalling and Installing any Appliance.
-                        <br>6. RUN AND CHECK THE Appliance after repair for 5-10 minutes..
-                        <br><br>With Regards
-                        <br>Devendra - 247Around - 9555118612
-                        <br>247Around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
-                        <br>Follow us on Facebook: www.facebook.com/247Around | Website:
-                        <br>www.247Around.com
-                        <br>You will Love our Video Advertisements:
-                        <br>https://www.youtube.com/watch?v=y8sBWDPHAhI
-                        <br>Playstore - 247Around -
-                        <br>https://play.google.com/store/apps/details?id=com.handymanapp
-                        ";
+//            $file_pdf = $getbooking[0]['booking_jobcard_filename'];
+//            $output_file_pdf = TMP_FOLDER . $getbooking[0]['booking_jobcard_filename'];
 
-            $message = $salutation . $heading . $note . $fixedPara;
-
-	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
-                    " / " . $getbooking[0]['booking_timeslot'];
-
-            $file_pdf = $getbooking[0]['booking_jobcard_filename'];
-            $output_file_pdf = TMP_FOLDER . $getbooking[0]['booking_jobcard_filename'];
-
-            $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
-            exec($cmd);
+//            $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
+//            exec($cmd);
 
             $date1 = date('d-m-Y', strtotime('now'));
             $date2 = $getbooking[0]['booking_date'];
@@ -230,12 +230,12 @@ class Booking_utilities {
                     $smsBody, $getbooking[0]['booking_id'],"booking_details_to_sf");
             
             //Save email in database
-            $details = array("booking_id" => $booking_id, "subject" => $subject,
-                "body" => $message, "type" => "Booking",
-                "attachment" => $getbooking[0]['booking_jobcard_filename']);
-            $this->My_CI->booking_model->save_vendor_email($details);
+//            $details = array("booking_id" => $booking_id, "subject" => $subject,
+//                "body" => $message, "type" => "Booking",
+//                "attachment" => $getbooking[0]['booking_jobcard_filename']);
+           // $this->My_CI->booking_model->save_vendor_email($details);
 
-            $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
+           // $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
            
         } else {
             echo "Booking does not exist.";
