@@ -1814,204 +1814,210 @@ class Api extends CI_Controller {
     function processInsertBooking() {
         log_message('info', "Entering: " . __METHOD__);
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-       
+
         //log_message('info'," Process Insert Booking ".$requestData);
-      
+
 
         $activity = array('activity' => 'process save booking',
             'data' => json_encode($requestData), 'time' => $this->microtime_float());
         $this->apis->logTable($activity);
-
-        $user_id = $requestData["user_id"];
-        $booking['user_id'] = $user_id;
         $searched_service = $requestData["searched_service"];
-        $booking_date = trim($requestData["booking_date"]);
-
-        $yy = date("y", strtotime($booking_date));
-        $yyyy = date("Y", strtotime($booking_date));
-        $mm = date("m", strtotime($booking_date));
-        $dd = date("d", strtotime($booking_date));
-
-        //Format = DD-MM-YYYY for database
-        $booking_date_formatted = date("d-m-Y", strtotime($booking_date));
-        $booking['booking_date'] = $booking_date_formatted;
-        $booking['initial_booking_date'] = $booking_date_formatted;
-
-        $booking_time = $requestData["booking_time"];
-        $booking['booking_timeslot'] =$booking_time;
-        $booking['booking_address'] = $requestData["booking_address"];
-        $booking['booking_pincode'] = $requestData["booking_pincode"];
-        $booking['booking_remarks'] = ($requestData["booking_comments"] == "" ? "" :
-                trim($requestData["booking_comments"]));
-        $amount_due_intial = $requestData["amount_due"];
-
-        $booking['discount_coupon'] = $requestData["discount_coupon"];
-        $booking['discount_amount'] = $requestData["discount_amount"];
-
-        if (is_null($booking['discount_coupon'])) {
-            $booking['discount_coupon'] = '';
-        }
-        if (is_null($booking['discount_amount'])) {
-            $booking['discount_amount'] = '0';
-        }
-
-        $booking['amount_due'] = intval($amount_due_intial) - intval( $booking['discount_amount']);
-        $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
-        $booking['state'] = $distict_details['state'];
-        $booking['district'] = $distict_details['district'];
-        $booking['taluk'] = $distict_details['taluk'];
-        
-        $unit_details = $requestData["unit_details"];
-        log_message('info', "Unit details: " . print_r($unit_details, TRUE));
-        
-        $units = json_decode($unit_details, true);
-        $booking['quantity'] = count($units);
-
-        //Booking ID Format: USER_ID (4 digits) + YYMMDD + Bookings_done_by_user_till_now
-        //Date format: 1 Jan, 2015
-        $booking_id = str_pad($user_id, 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
-
-        $booking_id .= (intval($this->apis->getBookingCountByUser($user_id)) + 1);
-        $booking_id = "SA-" . $booking_id;
-        $booking['booking_id'] = $booking_id;
-        $booking['partner_id'] = "247001";
-        $booking['partner_source'] = "AndroidApp";
-        log_message('info', "Booking ID (generated): " . $booking_id);
-
-      
-        
         $searched_service_id = $this->apis->getservice_id($searched_service);
-        $appliance_id = $requestData["appliance_id"];
-
-        //Save individual unit details first for this booking
-        //Count of units saved is returned
-       
-        $user_profile = $this->apis->getuserProfileid($user_id);
-        $user_name = $user_profile[0]['name'];
-        $user_email = $user_profile[0]['user_email'];
-        $user_phone = $user_profile[0]['phone_number'];
-
-        $booking['booking_primary_contact_no'] = $user_phone;
-        $booking['booking_alternate_contact_no'] = "";
-        $booking['service_id'] = $searched_service_id;
+        $vendors = $this->vendor_model->check_vendor_availability($requestData["booking_pincode"], $searched_service_id);
+        $vendors_count = count($vendors);
         
-        log_message('info', $user_name . $user_email . $user_phone);
+        if ($vendors_count > 0) {
 
-        //check whether booking image file is there
-        if (isset($_FILES['bookingPic']['name'])) {
-            //log_message('info', "Booking Image file received: " . $_FILES['bookingPic']['name'] . ", " .
-            //    $_FILES['bookingPic']['tmp_name']);
-            //log_message('info', filesize($_FILES['contacts']['tmp_name']));
-            //log_message('info', file_get_contents($_FILES['contacts']['tmp_name']));
-            //log_message('info', $_FILES['bookingPic']['size']);
-
-            $booking['booking_picture_file'] = "./uploads/" . mt_rand('1000', '9999') .
-                "_booking_image_user_id_" . $user_id . ".jpg";
-            if (move_uploaded_file($_FILES['bookingPic']['tmp_name'], $booking['booking_picture_file'])) {
-                //log_message('info', "Image file copied successfully");
-            }
-        } else {
-            $booking['booking_picture_file'] = "";
-            //log_message('info', "No Image file with the booking");
-            //log_message('info', "file count=" . $_FILES['csHMtmp']['name']);
-        }
-        
-        $booking['type'] = "Booking";
-        $booking['source'] = "SA";
-        $booking['current_status'] = 'Pending';
-        $booking['internal_status'] = 'Scheduled'; 
-
-        log_message('info', "User ID:" . $user_id . ", service: " . $searched_service
-            . ", date: " . $booking['booking_date'] . ", Address: " . $booking['booking_address']
-            . ", Pincode: " . $booking['booking_pincode'] . ", time: " . $booking['booking_timeslot']);
-        
-        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking_id);
-        if(!empty($partner_status)){
-            $booking['partner_current_status'] = $partner_status[0];
-            $booking['partner_internal_status'] = $partner_status[1];
-        }
-
-       //Save Booking
-        $status = $this->booking_model->addbooking($booking);
-        log_message('info', "Booking ID Returned (with appl, from wallet): " . $status);
-
-       
-        $add_appliance = $requestData["add_appliance"];
-
-        $inserted_appliance_array = array();
-
-        //Check for Appliance ID. If it is there, update appliance details as well
-        if ($appliance_id != "0") {
-
+            $user_id = $requestData["user_id"];
+            $booking['user_id'] = $user_id;
             
-             //Update brand, category & capacity if required
-            $this->apis->updateApplianceCategoryCapacity($appliance_id, $units[0]['brand'], $units[0]['category'], $units[0]['capacity']);
-            $units_saved = $this->saveUnitDetails($unit_details, $booking_id, $booking['discount_amount'],$searched_service_id, $appliance_id, $booking['state']); 
-            $count = count($units);
-            //Insert more appliances if required
-            if ($add_appliance == 'true') {
-                for ($c = 1; $c < $count; $c++) {
-                    $appl = array($user_id, $searched_service_id,
-                        $units[$c]['brand'], $units[$c]['category'], $units[$c]['capacity'], $units[$c]['applianceTag']);
-                    log_message('info', "Appliance details from simple booking (wallet): " . print_r($appl, true));
+            $booking_date = trim($requestData["booking_date"]);
 
-                    $r = $this->apis->addApplianceFromBooking($appl);
-                    $inserted_appliance = $r[0];
-                    log_message('info', "Inserted Appliance ID (wallet):" . $inserted_appliance['id']);
+            $yy = date("y", strtotime($booking_date));
+            $yyyy = date("Y", strtotime($booking_date));
+            $mm = date("m", strtotime($booking_date));
+            $dd = date("d", strtotime($booking_date));
 
-                    array_push($inserted_appliance_array, $inserted_appliance);
-                }
+            //Format = DD-MM-YYYY for database
+            $booking_date_formatted = date("d-m-Y", strtotime($booking_date));
+            $booking['booking_date'] = $booking_date_formatted;
+            $booking['initial_booking_date'] = $booking_date_formatted;
+
+            $booking_time = $requestData["booking_time"];
+            $booking['booking_timeslot'] = $booking_time;
+            $booking['booking_address'] = $requestData["booking_address"];
+            $booking['booking_pincode'] = $requestData["booking_pincode"];
+            $booking['booking_remarks'] = ($requestData["booking_comments"] == "" ? "" :
+                            trim($requestData["booking_comments"]));
+            $amount_due_intial = $requestData["amount_due"];
+
+            $booking['discount_coupon'] = $requestData["discount_coupon"];
+            $booking['discount_amount'] = $requestData["discount_amount"];
+
+            if (is_null($booking['discount_coupon'])) {
+                $booking['discount_coupon'] = '';
             }
-        } else {
-            //NO appliance ID, check whether this appliance needs to be
-            //added into User Wallet
-            if ($add_appliance == "true") {
+            if (is_null($booking['discount_amount'])) {
+                $booking['discount_amount'] = '0';
+            }
 
-               
-                $appl = array($user_id, $searched_service_id,
-                    $units[0]['brand'], $units[0]['category'], $units[0]['capacity'], $units[0]['applianceTag']);
-                log_message('info', "Appliance details from simple booking: " . print_r($appl, true));
+            $booking['amount_due'] = intval($amount_due_intial) - intval($booking['discount_amount']);
+            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
+            $booking['state'] = $distict_details['state'];
+            $booking['district'] = $distict_details['district'];
+            $booking['taluk'] = $distict_details['taluk'];
 
-                $r = $this->apis->addApplianceFromBooking($appl);
-                $inserted_appliance = $r[0];
-                log_message('info', "Inserted Appliance:" . print_r($inserted_appliance, TRUE));
+            $unit_details = $requestData["unit_details"];
+            log_message('info', "Unit details: " . print_r($unit_details, TRUE));
 
-                array_push($inserted_appliance_array, $inserted_appliance);
+            $units = json_decode($unit_details, true);
+            $booking['quantity'] = count($units);
 
-                //Save booking
-                $appliance_id = $inserted_appliance['id'];
-                $units_saved = $this->saveUnitDetails($unit_details, $booking_id, $booking['discount_amount'],$searched_service_id, $appliance_id, $booking['state']); 
-               
-                //Now add remaining appliances if there are more than one
-                for ($c = 1; $c < count($units); $c++) {
+            //Booking ID Format: USER_ID (4 digits) + YYMMDD + Bookings_done_by_user_till_now
+            //Date format: 1 Jan, 2015
+            $booking_id = str_pad($user_id, 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
+
+            $booking_id .= (intval($this->apis->getBookingCountByUser($user_id)) + 1);
+            $booking_id = "SA-" . $booking_id;
+            $booking['booking_id'] = $booking_id;
+            $booking['partner_id'] = "247001";
+            $booking['partner_source'] = "AndroidApp";
+            log_message('info', "Booking ID (generated): " . $booking_id);
+
+            $appliance_id = $requestData["appliance_id"];
+
+            //Save individual unit details first for this booking
+            //Count of units saved is returned
+
+            $user_profile = $this->apis->getuserProfileid($user_id);
+            $user_name = $user_profile[0]['name'];
+            $user_email = $user_profile[0]['user_email'];
+            $user_phone = $user_profile[0]['phone_number'];
+
+            $booking['booking_primary_contact_no'] = $user_phone;
+            $booking['booking_alternate_contact_no'] = "";
+            $booking['service_id'] = $searched_service_id;
+
+            log_message('info', $user_name . $user_email . $user_phone);
+
+            //check whether booking image file is there
+            if (isset($_FILES['bookingPic']['name'])) {
+                //log_message('info', "Booking Image file received: " . $_FILES['bookingPic']['name'] . ", " .
+                //    $_FILES['bookingPic']['tmp_name']);
+                //log_message('info', filesize($_FILES['contacts']['tmp_name']));
+                //log_message('info', file_get_contents($_FILES['contacts']['tmp_name']));
+                //log_message('info', $_FILES['bookingPic']['size']);
+
+                $booking['booking_picture_file'] = "./uploads/" . mt_rand('1000', '9999') .
+                        "_booking_image_user_id_" . $user_id . ".jpg";
+                if (move_uploaded_file($_FILES['bookingPic']['tmp_name'], $booking['booking_picture_file'])) {
+                    //log_message('info', "Image file copied successfully");
+                }
+            } else {
+                $booking['booking_picture_file'] = "";
+                //log_message('info', "No Image file with the booking");
+                //log_message('info', "file count=" . $_FILES['csHMtmp']['name']);
+            }
+
+            $booking['type'] = "Booking";
+            $booking['source'] = "SA";
+            $booking['current_status'] = 'Pending';
+            $booking['internal_status'] = 'Scheduled';
+
+            log_message('info', "User ID:" . $user_id . ", service: " . $searched_service
+                    . ", date: " . $booking['booking_date'] . ", Address: " . $booking['booking_address']
+                    . ", Pincode: " . $booking['booking_pincode'] . ", time: " . $booking['booking_timeslot']);
+
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+            }
+
+            //Save Booking
+            $status = $this->booking_model->addbooking($booking);
+            log_message('info', "Booking ID Returned (with appl, from wallet): " . $status);
+
+
+            $add_appliance = $requestData["add_appliance"];
+
+            $inserted_appliance_array = array();
+
+            //Check for Appliance ID. If it is there, update appliance details as well
+            if ($appliance_id != "0") {
+
+
+                //Update brand, category & capacity if required
+                $this->apis->updateApplianceCategoryCapacity($appliance_id, $units[0]['brand'], $units[0]['category'], $units[0]['capacity']);
+                $units_saved = $this->saveUnitDetails($unit_details, $booking_id, $booking['discount_amount'], $searched_service_id, $appliance_id, $booking['state']);
+                $count = count($units);
+                //Insert more appliances if required
+                if ($add_appliance == 'true') {
+                    for ($c = 1; $c < $count; $c++) {
+                        $appl = array($user_id, $searched_service_id,
+                            $units[$c]['brand'], $units[$c]['category'], $units[$c]['capacity'], $units[$c]['applianceTag']);
+                        log_message('info', "Appliance details from simple booking (wallet): " . print_r($appl, true));
+
+                        $r = $this->apis->addApplianceFromBooking($appl);
+                        $inserted_appliance = $r[0];
+                        log_message('info', "Inserted Appliance ID (wallet):" . $inserted_appliance['id']);
+
+                        array_push($inserted_appliance_array, $inserted_appliance);
+                    }
+                }
+            } else {
+                //NO appliance ID, check whether this appliance needs to be
+                //added into User Wallet
+                if ($add_appliance == "true") {
+
+
                     $appl = array($user_id, $searched_service_id,
-                        $units[$c]['brand'], $units[$c]['category'], $units[$c]['capacity'], $units[$c]['applianceTag']);
+                        $units[0]['brand'], $units[0]['category'], $units[0]['capacity'], $units[0]['applianceTag']);
                     log_message('info', "Appliance details from simple booking: " . print_r($appl, true));
 
                     $r = $this->apis->addApplianceFromBooking($appl);
                     $inserted_appliance = $r[0];
-                    log_message('info', "Inserted Appliance ID (extra units):" . $inserted_appliance['id']);
+                    log_message('info', "Inserted Appliance:" . print_r($inserted_appliance, TRUE));
 
                     array_push($inserted_appliance_array, $inserted_appliance);
+
+                    //Save booking
+                    $appliance_id = $inserted_appliance['id'];
+                    $units_saved = $this->saveUnitDetails($unit_details, $booking_id, $booking['discount_amount'], $searched_service_id, $appliance_id, $booking['state']);
+
+                    //Now add remaining appliances if there are more than one
+                    for ($c = 1; $c < count($units); $c++) {
+                        $appl = array($user_id, $searched_service_id,
+                            $units[$c]['brand'], $units[$c]['category'], $units[$c]['capacity'], $units[$c]['applianceTag']);
+                        log_message('info', "Appliance details from simple booking: " . print_r($appl, true));
+
+                        $r = $this->apis->addApplianceFromBooking($appl);
+                        $inserted_appliance = $r[0];
+                        log_message('info', "Inserted Appliance ID (extra units):" . $inserted_appliance['id']);
+
+                        array_push($inserted_appliance_array, $inserted_appliance);
+                    }
+                } else {
+                    
                 }
-            } else {
             }
-        }
 
-        //Send booking mails to Admin, Vendor and User
-        $this->sendBookingMails($user_profile[0], $booking, $searched_service);
+            //Send booking mails to Admin, Vendor and User
+            $this->sendBookingMails($user_profile[0], $booking, $searched_service);
 
-        $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-        $send['booking_id'] = $booking['booking_id'];
-        $send['state'] = "Newbooking";
-        $this->asynchronous_lib->do_background_process($url, $send);
-       
-        $this->jsonResponseString['response'] = array('booking_id' => $booking_id,
+            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+            $send['booking_id'] = $booking['booking_id'];
+            $send['state'] = "Newbooking";
+            $this->asynchronous_lib->do_background_process($url, $send);
+
+            $this->jsonResponseString['response'] = array('booking_id' => $booking_id,
                 'inserted_appliances' => $inserted_appliance_array);
-        $this->sendJsonResponse(array('0000', 'success'));
-
+            $this->sendJsonResponse(array('0000', 'success'));
+        } else {
+            
+            $this->sendJsonResponse(array('0008', 'failure'));
+        }
     }
-    
 
     function saveUnitDetails($unit_details, $booking_id, $discount_amount, $service_id, $appliance_id, $state) {
         log_message('info', "Entering: " . __METHOD__);
