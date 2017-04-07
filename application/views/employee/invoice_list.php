@@ -177,13 +177,13 @@
                         <div class="col-md-12">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="Amount">Total Service Charge:</label>
+                                    <label for="Amount">Annual Charge:</label>
                                     <input type="text" class="form-control" style="width:92%" id="service_charge" name="service_charge" placeholder="Total Service Charge" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="email">Invoice Date:</label>
+                                    <label for="email">Agreement Date:</label>
                                     <div class="input-group input-append date">
                                         <input id="from_date" class="form-control" style="z-index: 1059; background-color:#fff;" name="from_date" type="date" required readonly='true'>
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
