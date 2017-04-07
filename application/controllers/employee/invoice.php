@@ -3240,28 +3240,32 @@ class Invoice extends CI_Controller {
             $seller_code = $this->input->post('seller_code');
             $from_date = $this->input->post('from_date');
             $meta['grand_part'] = $this->input->post('service_charge');
+            $service_tax = $this->booking_model->get_calculated_tax_charge($meta['grand_part'], 15);
             
-            $meta['sub_service_cost'] = $meta['grand_part'] * .15;
+            $sub_service_cost = $meta['grand_part'] - $service_tax;
 
             $setup_insert['vendor_partner'] = "partner";
             $setup_insert['vendor_partner_id'] = $partner_id = $this->input->post('partner_id');
 
             $meta['company_address'] = $this->input->post('partner_address');
             $meta['company_name'] = $this->input->post('partner_name');
-            $meta['total_service_cost_14'] = $meta['sub_service_cost'] * .14;
-            $meta['total_service_cost_5'] = $meta['sub_service_cost'] * 0.05;
-            $meta['invoice_date'] = date('jS M, Y', strtotime($from_date));
+            $meta['total_service_cost_14'] = $sub_service_cost * .14;
+            $meta['total_service_cost_5'] = $sub_service_cost * 0.005;
+           
+            $meta['invoice_date'] = date('jS M, Y');
             $meta['sd'] = date('jS M, Y', strtotime($from_date));
             $meta['ed'] = date('jS M, Y', strtotime('+1 year', strtotime($from_date)));
             $meta['seller_code'] = "Seller Code - " . $seller_code;
             $meta['total_part_cost'] = $meta['part_cost_vat'] = $meta['sub_part'] = $meta['total_upcountry_charges'] = '';
             $meta['price_inword'] = convert_number_to_words($meta['grand_part']);
 
-            $setup_insert['service_tax'] = ($meta['total_service_cost_14'] + $meta['total_service_cost_5']*2);
-            $setup_insert['total_service_charge'] = $meta['total_service_cost'] = $meta['sub_service_cost'] - $setup_insert['service_tax'];
+            $setup_insert['service_tax'] = $service_tax;
+            $setup_insert['total_service_charge'] = $meta['total_service_cost'] =  $sub_service_cost;
+            $meta['sub_service_cost'] = $meta['grand_part'];
             $setup_insert['total_amount_collected'] = $setup_insert['amount_collected_paid'] = $setup_insert['amount_paid'] = $setup_insert['around_royalty'] = $meta['grand_part'];
             $setup_insert['settle_amount'] = 1;
-            $setup_insert['invoice_date'] = $setup_insert['from_date'] = date("Y-m-d", strtotime($from_date));
+            $setup_insert['from_date'] = date("Y-m-d", strtotime($from_date));
+            $setup_insert['invoice_date'] = date('Y-m-d');
             $setup_insert['due_date'] =  $setup_insert['to_date'] = date('Y-m-d', strtotime('+1 year', strtotime($from_date)));
             $setup_insert['type'] = "Cash";
             $setup_insert['type_code'] = "A";
