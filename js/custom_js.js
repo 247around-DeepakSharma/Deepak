@@ -227,7 +227,7 @@ function addBookingDialog() {
         return false;
 
     }
-
+    
     if (type === null || type === undefined) {
 
         alert("Please Select Booking Type ");
@@ -310,8 +310,7 @@ function addBookingDialog() {
 //            return false;
 //        }
     }
-    
-    return false;
+
     if (timeslot === null) {
 
         alert('Please Select Booking Time Slot');
@@ -346,12 +345,11 @@ function addBookingDialog() {
         return false;
     }
 
-
-    $("#submitform").button('loading');
     for (var k = 1; k <= numItems; k++) {
         cloned_price(regex1, priceIndexClone, k);
 
     }
+    $("#submitform").button('loading');
 }
 
 function setAppliances(i) {
