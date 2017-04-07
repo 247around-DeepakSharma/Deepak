@@ -229,7 +229,9 @@ class dashboard_model extends CI_Model {
             //new_state = pending
             $booking_pending_sql = "SELECT COUNT(*) as booking_pending
                                     FROM booking_state_change 
-                                    WHERE booking_state_change.partner_id= '" . $value['id'] . "' 
+                                    JOIN booking_details
+                                    ON booking_state_change.booking_id = booking_details.booking_id
+                                    WHERE booking_details.partner_id= '" . $value['id'] . "' 
                                     AND old_state IN('New_Booking','FollowUp') AND new_state = 'Pending' 
                                     AND booking_state_change.create_date >='$startDate' AND booking_state_change.create_date<='$endDate'";
             $query1 = $this->db->query($booking_pending_sql);
