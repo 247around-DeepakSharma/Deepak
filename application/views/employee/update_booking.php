@@ -666,7 +666,6 @@
     });
 
 </script>
-</script>
 
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
