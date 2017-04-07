@@ -89,28 +89,28 @@ function outbound_call(phone_number){
                     <th>User Name</th>
                     <th >Phone No.</th>
                     <th >Service Name</th>
-                    <th class="hide_div" >Booking Date/Time</th>
+                    <th >Booking Date/Time</th>
                     <?php if($status != "Cancelled"){?>
-                    <th class="hide_div" >Status</th>
+                    <th  >Status</th>
                      <?php } ?>
-                    <th class="hide_div">City</th>
+                    <th >City</th>
 
-                    <th class="hide_div">Query Remarks</th>
+                    <th >Query Remarks</th>
                      
                     <?php if($status != "Cancelled"){ ?>
                     <?php if($p_av == PINCODE_NOT_AVAILABLE){ ?>
-                    <th class="hide_div">Pincode</th>
+                    <th >Pincode</th>
                     <?php } else { ?>
-                    <th class="hide_div">Vendor Status</th>
+                    <th >Vendor Status</th>
                    <?php } } ?>
-                    <th class="hide_div" >Call</th>
-                    <th class="hide_div">View</th>
+                    <th  >Call</th>
+                    <th >View</th>
                      <?php if($status != "Cancelled"){?>
-                    <th class="hide_div">Update</th>
+                    <th >Update</th>
 
-                    <th class="hide_div">Cancel</th>
+                    <th >Cancel</th>
                     <?php } if($status == "Cancelled"){ ?>
-                     <th class="hide_div">Un-Cancel</th>
+                     <th >Un-Cancel</th>
                     <?php } ?>
 
                     </tr>

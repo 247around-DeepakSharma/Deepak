@@ -289,7 +289,7 @@ class Penalty_model extends CI_Model {
      * @param String $to_date
      * @return boolean
      */
-    function add_penalty_in_invoice($vendor_id, $from_date, $to_date,$distinct){
+    function add_penalty_in_invoice($vendor_id, $from_date, $to_date,$distinct, $is_regenerate){
         $where = "";
         if (PENALTY_ON_COMPLETED_BOOKING == TRUE && PENALTY_ON_CANCELLED_BOOKING == TRUE) {
             $where = " AND booking_details.current_status IN ('Completed', 'Cancelled') ";
@@ -297,6 +297,10 @@ class Penalty_model extends CI_Model {
             $where = " AND booking_details.current_status IN ('Completed') ";
         } else if (PENALTY_ON_COMPLETED_BOOKING == FALSE && PENALTY_ON_CANCELLED_BOOKING == TRUE) {
             $where = " AND booking_details.current_status IN ('Cancelled') ";
+        }
+        $invoice_check = "";
+        if($is_regenerate == 0){
+            $invoice_check =" AND foc_invoice_id IS NULL ";
         }
         if (PENALTY_ON_COMPLETED_BOOKING != FALSE && PENALTY_ON_CANCELLED_BOOKING != FALSE) {
             $sql = "SELECT COUNT( $distinct p.booking_id ) as penalty_times,CASE WHEN (COUNT( p.booking_id ) * penalty_amount) < '" . CAP_ON_PENALTY_AMOUNT . "' 
@@ -307,7 +311,7 @@ class Penalty_model extends CI_Model {
             AND closed_date <  '".$to_date."'
             AND service_center_id = '".$vendor_id."'
             AND p.active = 1
-            AND foc_invoice_id IS NULL
+            $invoice_check
             AND booking_details.booking_id = p.booking_id $where
             GROUP BY p.booking_id";
             
