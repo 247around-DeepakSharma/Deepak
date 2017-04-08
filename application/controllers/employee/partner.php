@@ -1425,7 +1425,6 @@ class Partner extends CI_Controller {
             $data['current_status'] = 'Rescheduled';
             $data['internal_status'] = 'Rescheduled';
             $data['update_date'] = date("Y-m-d H:i:s"); 
-            $data['mail_to_vendor'] = 0;
             
             //check partner status from partner_booking_status_mapping table  
             $partner_id=$this->input->post('partner_id');
@@ -1458,8 +1457,6 @@ class Partner extends CI_Controller {
                 $send_data['current_status'] = "Rescheduled";
                 $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                 $this->asynchronous_lib->do_background_process($url, $send_data);
-                log_message('info', __FUNCTION__ . " Set mail to vendor flag to 0  " . print_r($booking_id, true));
-
                
                 log_message('info', __FUNCTION__ . " Request to prepare Job Card  " . print_r($booking_id, true));
 

@@ -80,7 +80,7 @@
                             <th class="text-center">Pay</th>
                             <?php if (isset($service_center)) { ?>
                             <th class="text-center">Total Defective Spare Parts</th>
-                            <th class="text-center">Download Summary</th>
+                            <th class="text-center">Download Summary  <input type="checkbox" id="selecctall_amt"/></th>
                             <?php } else { ?>
                             <th class="text-center">CRM Setup Invoice</th>
                             <?php } ?>
@@ -123,9 +123,16 @@
                                 </td>
                                 <?php if (isset($service_center)) { ?>
                                 <td><?php echo $value['count_spare_part']; ?></td>
-                                <td ><input type="checkbox" name="<?php echo "amount_service_center[" . $value['id'] . "]"; ?>" value ="<?php echo abs($value['final_amount']); ?>" class="form-control" <?php if ($value['is_verified'] == 0) {
+                                
+                                <td ><input type="checkbox" class="<?php if (isset($value['on_off'])) {
+                                        if ($value['active'] == 1 && $value['on_off'] == 1) {
+                                            echo 'checkbox_amt';
+                                        }
+                                    }
+                                    ?>" name="<?php echo "amount_service_center[" . $value['id'] . "]"; ?>" value ="<?php echo abs($value['final_amount']); ?>" class="form-control" <?php if ($value['is_verified'] == 0) {
                                     echo "disabled";
                                     } ?>> </td>
+                                
                                 <?php } else { ?>
                                 <td><a href="#myModel" id="<?php echo "invoice_setup_" . $value['id']; ?>" onclick="invoice_setup_model('<?php echo $value['id']; ?>','<?php echo $value["name"]; ?>', 
                                             '<?php echo $value['address']
@@ -177,7 +184,7 @@
                         <div class="col-md-12">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="Amount">Annual Charge:</label>
+                                    <label for="Amount">Invoice Value:</label>
                                     <input type="text" class="form-control" style="width:92%" id="service_charge" name="service_charge" placeholder="Total Service Charge" required>
                                 </div>
                             </div>
@@ -253,4 +260,12 @@ if(isset($_SESSION['file_error'])){
     }
     $("#from_date").datepicker({dateFormat: 'yy-mm-dd'});
     
+</script>
+
+<script type="text/javascript">
+   $(document).ready(function(){
+            $("#selecctall_amt").change(function(){
+                       $(".checkbox_amt").prop('checked', $(this).prop("checked"));
+                              });
+               });
 </script>

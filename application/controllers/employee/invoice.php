@@ -1552,7 +1552,7 @@ class Invoice extends CI_Controller {
             $userSession = array('success' => $output);
             $this->session->set_userdata($userSession);
         } else {
-            $output = "Data Not Found! Invoice did not Generate.";
+            $output = "Data Not Found, No Invoice Generated !";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
         }
@@ -2840,7 +2840,7 @@ class Invoice extends CI_Controller {
 
                 case 'Cash':
                 case 'DebitNote':
-                case 'Byback Cash':
+                case 'BuybackCash':
                     log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
                     
                     $data['type_code'] = 'A';
@@ -2876,7 +2876,7 @@ class Invoice extends CI_Controller {
                     break;
                 case 'FOC':
                 case 'CreditNote': 
-                case 'Byback FOC':  
+                case 'BuybackFOC':  
                     log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
                     $data['total_amount_collected'] = ($data['total_amount_collected'] - $data['upcountry_price']);
                     $data['type_code'] = 'B';
@@ -2890,7 +2890,7 @@ class Invoice extends CI_Controller {
                             $tds['tds_rate'] = 0;
                         }
                         
-                    } else if($data['type'] == 'CreditNote' ||  $data['type'] == 'Byback FOC'){
+                    } else if($data['type'] == 'CreditNote' ||  $data['type'] == 'BuybackFOC'){
                        
                         $tds['tds'] = 0;
                         $tds['tds_rate'] = 0;
@@ -3158,7 +3158,7 @@ class Invoice extends CI_Controller {
 
                 $sc_details['payment_date'] = date("d-M-Y");
                 $sc_details['ifsc_code'] = $sc['ifsc_code'];
-                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['company_name']);
+                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
 
                 array_push($payment_data, $sc_details);
             }
