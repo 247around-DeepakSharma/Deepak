@@ -1023,7 +1023,7 @@ class vendor extends CI_Controller {
                 $data['current_status'] = "Pending";
                 $data['internal_status'] = "Pending";
                 $data['service_center_id'] = $service_center_id;
-                $data['booking_id'] = $blib_prepare_job_card_using_booking_idooking_id;
+                $data['booking_id'] = $booking_id;
                 $data['create_date'] = date('Y-m-d H:i:s');
                 $data['update_date'] = date('Y-m-d H:i:s');
                 $data['unit_details_id'] = $value['unit_id'];

@@ -670,8 +670,6 @@ class Booking extends CI_Controller {
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
 	$data['Bookings'] = $this->booking_model->view_completed_or_cancelled_booking($config['per_page'], $offset, $status, $booking_id);
-//	echo $this->db->last_query();
-//        echo "<pre>";print_r($data['Bookings']);exit();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
 	$this->load->view('employee/viewcompletedbooking', $data);
@@ -2202,7 +2200,6 @@ class Booking extends CI_Controller {
                 break;
         }
     }
-
     /**
      * @desc: This function is used to update inventory of vendor
      * parmas: Booking ID
