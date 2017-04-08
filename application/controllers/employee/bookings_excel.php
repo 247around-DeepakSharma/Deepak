@@ -387,7 +387,7 @@ class bookings_excel extends CI_Controller {
     }
     
     function send_sms_to_customer($appliance, $phone_number, $user_id, $booking_id, $category, $amount_due, $flag) {
-        $sms['tag'] = "sd_shipped_missed_call_initial";
+        $sms['tag'] = "paytm_shipped_missed_call_initial";
 
         //ordering of smsData is important, it should be as per the %s in the SMS
         $sms['smsData']['service'] = $appliance;
