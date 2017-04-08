@@ -258,6 +258,8 @@ define("PENALTY_ON_COMPLETED_BOOKING", TRUE);
 define("PENALTY_ON_CANCELLED_BOOKING", TRUE);
 
 define ('SF_UNAVAILABLE_SMS_NOT_SENT', 'SMS Not Sent To Customer For Installation');
+//Upcountry Cap For Partner
+define ('UPCOUNTRY_DISTANCE_CAP', '100');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
