@@ -330,8 +330,7 @@ class Booking extends CI_Controller {
         $booking = $this->get_booking_input();
        
         $remarks = $this->input->post('query_remarks');
-        $partner_id = $this->partner_model->get_all_partner_source("", $booking['source']);
-        $booking['partner_id'] = $partner_id[0]['partner_id'];
+       
         $booking['quantity'] = $quantity;
         $booking['user_id'] = $user_id;
 
@@ -478,6 +477,8 @@ class Booking extends CI_Controller {
         $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
         $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
         $booking['update_date'] = date("Y-m-d H:i:s");
+         
+        $booking['partner_id'] = $this->input->post('partner_id');
         
 
         return $booking;
@@ -668,8 +669,6 @@ class Booking extends CI_Controller {
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
 	$data['Bookings'] = $this->booking_model->view_completed_or_cancelled_booking($config['per_page'], $offset, $status, $booking_id);
-//	echo $this->db->last_query();
-//        echo "<pre>";print_r($data['Bookings']);exit();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
 	$this->load->view('employee/viewcompletedbooking', $data);
@@ -2126,9 +2125,46 @@ class Booking extends CI_Controller {
             $this->form_validation->set_rules('partner_paid_basic_charges', 'Please Select Partner Charged', 'required');
             $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
             $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|xss_clean');
+            $this->form_validation->set_rules('order_id', 'Order ID', 'callback_validate_order_id');
             
             return $this->form_validation->run();
     }  
+    /**
+     * @desc Validate Order ID
+     * @return boolean
+     */
+    function validate_order_id(){
+        $source_code = $this->input->post('source_code');
+        $partner_details = $this->partner_model->get_all_partner_source("", $source_code);
+        $_POST['partner_id'] = $partner_details[0]['partner_id'];
+        switch ($source_code){
+            case 'SA':
+            case 'SW':
+            case 'SC':
+                return true;
+               // break;
+            default :
+               
+                $order_id = $this->input->post('order_id');
+                if(!empty($order_id)){
+                    $partner_booking = $this->partner_model->get_order_id_for_partner($partner_details[0]['partner_id'], 
+                            $order_id);
+                    if (is_null($partner_booking)) {
+                        return true;
+                        
+                    } else {
+                        $this->form_validation->set_message('validate_order_id', 'Duplicate Order ID');
+                        return FALSE;
+                    }
+                    
+                } else {
+                    $this->form_validation->set_message('validate_order_id', 'Please Enter Order ID');
+                    return FALSE;
+                }
+                break;
+        }
+        
+    }
    
    /**
      * @desc: This function is used to update inventory of vendor

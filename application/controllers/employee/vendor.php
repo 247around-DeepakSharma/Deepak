@@ -1043,6 +1043,8 @@ class vendor extends CI_Controller {
                     ."/".$this->session->userdata('employee_id');
             $async_data['data'] = array();
             $this->asynchronous_lib->do_background_process($url, $async_data);
+            
+            $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
 
 	    log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
             $this->session->userdata('employee_id') . " service center id " . $service_center_id);

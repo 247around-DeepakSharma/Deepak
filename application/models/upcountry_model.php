@@ -640,8 +640,8 @@ class Upcountry_model extends CI_Model {
     function upcountry_partner_invoice($partner_id, $from_date, $to_date){
         $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.order_id ) ) , '' ) AS order_id, "
                 . " CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking_id, "
-                . " upcountry_distance, "
-                . " (partner_upcountry_rate *upcountry_distance ) AS upcountry_price,"
+                . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (".UPCOUNTRY_DISTANCE_CAP.") ELSE (upcountry_distance) END AS upcountry_distance, "
+                . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (partner_upcountry_rate * ".UPCOUNTRY_DISTANCE_CAP." ) ELSE  (partner_upcountry_rate *upcountry_distance ) END AS upcountry_price,"
                 . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate, upcountry_pincode, services, taluk as city, booking_pincode"
                 . " FROM `booking_details` AS bd, booking_unit_details AS ud, services "
                 . " WHERE ud.booking_id = bd.booking_id "

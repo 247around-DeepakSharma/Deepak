@@ -142,7 +142,7 @@ class dashboard_model extends CI_Model {
     }
     /**
      * @desc: This function is used to get the booking data grou by request type on  ajax call
-     * @param void
+     * @param string
      * @return array
      */
     function get_data_onScroll($startDate = "", $endDate = "",$partner_id=""){
@@ -164,7 +164,7 @@ class dashboard_model extends CI_Model {
      * group by current_status
      * case 1: when partner_id is null then get data for all partner
      * case 2: when partner is not null then get data according to partner_id
-     * @param void
+     * @param string
      * @return array
      */
     function get_bookings_basedon_request_type_status($startDate = "", $endDate = "",$request_type = "",$partner_id=""){
@@ -182,7 +182,7 @@ class dashboard_model extends CI_Model {
     
     /**
      * @desc: This function is used to get booking based on RM 
-     * @param void
+     * @param string
      * @return array
      */
     function get_booking_data_by_rm_region($startDate = "", $endDate = "",$service_centers_id,$partner_id=""){
@@ -229,7 +229,9 @@ class dashboard_model extends CI_Model {
             //new_state = pending
             $booking_pending_sql = "SELECT COUNT(*) as booking_pending
                                     FROM booking_state_change 
-                                    WHERE booking_state_change.partner_id= '" . $value['id'] . "' 
+                                    JOIN booking_details
+                                    ON booking_state_change.booking_id = booking_details.booking_id
+                                    WHERE booking_details.partner_id= '" . $value['id'] . "' 
                                     AND old_state IN('New_Booking','FollowUp') AND new_state = 'Pending' 
                                     AND booking_state_change.create_date >='$startDate' AND booking_state_change.create_date<='$endDate'";
             $query1 = $this->db->query($booking_pending_sql);

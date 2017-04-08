@@ -122,21 +122,27 @@
                             <div class="form-group">
                                 <label for="Type Code" class="col-md-4">Type Code</label>
                                 <div class="col-md-6">
-                                    <select name="type_code" class="form-control" id="type_code">
-                                        <option value="A" <?php if (isset($invoice_details[0]['type_code'])) {
-                                            if($invoice_details[0]['type_code'] == "A"){ echo "selected";}
+                                    <select name="type" class="form-control" id="type_code">
+                                        <option value="Cash" <?php if (isset($invoice_details[0]['type_code'])) {
+                                            if($invoice_details[0]['type'] == "Cash"){ echo "selected";}
                                             } ?>>Cash</option>
-                                        <option value="C" <?php if (isset($invoice_details[0]['type_code'])) {
-                                            if($invoice_details[0]['type_code'] == "C"){ echo "selected";}
+                                        <option value="BuybackCash" <?php if (isset($invoice_details[0]['type_code'])) {
+                                            if($invoice_details[0]['type'] == "BuybackCash"){ echo "selected";}
+                                            } ?>>BuybackCash</option>
+                                        <option value="CreditNote" <?php if (isset($invoice_details[0]['type_code'])) {
+                                            if($invoice_details[0]['type'] == "CreditNote"){ echo "selected";}
                                             } ?>>CreditNote</option>
-                                        <option value="E" <?php if (isset($invoice_details[0]['type_code'])) {
-                                            if($invoice_details[0]['type_code'] == "E"){ echo "selected";}
+                                        <option value="DebitNote" <?php if (isset($invoice_details[0]['type_code'])) {
+                                            if($invoice_details[0]['type'] == "DebitNote"){ echo "selected";}
                                             } ?>>DebitNote</option>
-                                        <option value="B" <?php if (isset($invoice_details[0]['type_code'])) {
-                                            if($invoice_details[0]['type_code'] == "B"){ echo "selected";}
+                                        <option value="FOC" <?php if (isset($invoice_details[0]['type_code'])) {
+                                            if($invoice_details[0]['type'] == "FOC"){ echo "selected";}
                                             } ?>>FOC</option>
-                                        <option value="D" <?php if (isset($invoice_details[0]['type_code'])) {
-                                            if($invoice_details[0]['type_code'] == "D"){ echo "selected";}
+                                         <option value=">BuybackFOC" <?php if (isset($invoice_details[0]['type_code'])) {
+                                            if($invoice_details[0]['type'] == "BuybackFOC"){ echo "selected";}
+                                            } ?>>BuybackFOC</option>
+                                        <option value="Stand" <?php if (isset($invoice_details[0]['type_code'])) {
+                                            if($invoice_details[0]['type'] == "Stand"){ echo "selected";}
                                             } ?>>Stand</option>
                                     </select>
                                 </div>
@@ -247,6 +253,8 @@
 <script>
     $("#to_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $("#from_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    $("#vendor_partner_id").select2();
+    $("#type_code").select2();
     
      function from_calendar() {
            $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true}).datepicker('show');
@@ -273,8 +281,8 @@
              url: '<?php echo base_url(); ?>employee/invoice/getPartnerOrVendor/' + vendor_partner,
              data: {vendor_partner_id: vendor_partner_id,invoice_flag: 0},
              success: function (data) {
-    
-                 $("#vendor_partner_id").html(data);
+                 $("#vendor_partner_id").select2().html(data).change();
+                 //$("#vendor_partner_id").html(data);
     
              }
          });

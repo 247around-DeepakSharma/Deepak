@@ -112,7 +112,8 @@ function getCapacityForCategory(category, div_id) {
 function getPricesForCategoryCapacity(div_id) {
     var postData = {};
     var div_no = div_id.split('_');
-    $("#priceList_" + div_no[2]).html('loading...').delay(1200).queue(function () {
+    $("#priceList_" + div_no[2]).html('<div class="text-center"><img src= "'+ baseUrl+'/images/loadring.gif" /></div>').delay(1200).queue(function () {
+        
         postData['service_id'] = $("#service_id").val();
         postData['brand'] = $('#appliance_brand_' + div_no[2]).val();
         postData['category'] = $("#appliance_category_" + div_no[2]).val();
@@ -226,7 +227,7 @@ function addBookingDialog() {
         return false;
 
     }
-
+    
     if (type === null || type === undefined) {
 
         alert("Please Select Booking Type ");
@@ -280,17 +281,17 @@ function addBookingDialog() {
     }
 
 
-    if (source_code === "SA" || source_code === 'SC' || source_code === "SW" || source_code === "SO") {
-    } else {
+   if (source_code === "SA" || source_code === 'SC' || source_code === "SW") {
+   } else {
 
-        var order_id = $('#order_id').val();
+       var order_id = $('#order_id').val();
 
-        if (order_id === "") {
+       if (order_id === "") {
 
-            alert('Please Fill Order Id');
-            return false;
-        }
-    }
+           alert('Please Fill Order Id');
+           return false;
+       }
+   }
 
     if (booking_date === "") {
 
@@ -309,8 +310,7 @@ function addBookingDialog() {
 //            return false;
 //        }
     }
-    
-    return false;
+
     if (timeslot === null) {
 
         alert('Please Select Booking Time Slot');
@@ -345,12 +345,11 @@ function addBookingDialog() {
         return false;
     }
 
-
-    $("#submitform").button('loading');
     for (var k = 1; k <= numItems; k++) {
         cloned_price(regex1, priceIndexClone, k);
 
     }
+    $("#submitform").button('loading');
 }
 
 function setAppliances(i) {
@@ -566,8 +565,9 @@ function set_upcountry() {
 }
 
     $("#booking_pincode").keyup(function(event) {
-        alert();
-       // check_pincode();
+       
+        check_pincode();
+        getBrandForService();
         
     });
     

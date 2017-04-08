@@ -584,7 +584,7 @@ class Invoice extends CI_Controller {
 //            if($output_file_excel !=""){
 //                $this->email->attach($output_file_excel, 'attachment');
 //            }
-            $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
+           // $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
             $this->email->attach(TMP_FOLDER .$invoice_id. ".pdf", 'attachment');
 
             $mail_ret = $this->email->send();
@@ -1552,7 +1552,7 @@ class Invoice extends CI_Controller {
             $userSession = array('success' => $output);
             $this->session->set_userdata($userSession);
         } else {
-            $output = "Data Not Found! Invoice did not Generate.";
+            $output = "Data Not Found, No Invoice Generated !";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
         }
@@ -2794,7 +2794,7 @@ class Invoice extends CI_Controller {
             $sms_sent = $this->input->post('sms_sent');
             $mail_sent = $this->input->post('mail_sent');
 
-            $data['type_code'] = $this->input->post('type_code');
+            $data['type'] = $this->input->post('type');
             $data['vendor_partner'] = $vendor_partner;
             $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
             $data['from_date'] = $this->input->post('from_date');
@@ -2836,18 +2836,14 @@ class Invoice extends CI_Controller {
                 $data['invoice_date'] = date("Y-m-d");
             }
 
-            switch ($data['type_code']) {
+            switch ($data['type']) {
 
-                case 'A':
-                case 'E':
-                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type_code']);
-                    if($data['type_code'] == 'A'){
-                        $data['type'] = 'Cash';
-                        
-                    } else if($data['type_code'] == 'E'){
-                        $data['type'] = 'DebitNote';
-                    }
+                case 'Cash':
+                case 'DebitNote':
+                case 'BuybackCash':
+                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
                     
+                    $data['type_code'] = 'A';
                     $data['total_amount_collected'] = ($data['total_amount_collected']+ $data['upcountry_price']);
                     $data['around_royalty'] = round($data['total_amount_collected'], 0);
                     $data['amount_collected_paid'] = round($data['total_amount_collected'], 0);
@@ -2878,13 +2874,15 @@ class Invoice extends CI_Controller {
                         $sms['type_id'] = $data['vendor_partner_id'];
                     }
                     break;
-                case 'B':
-                case 'C': 
+                case 'FOC':
+                case 'CreditNote': 
+                case 'BuybackFOC':  
                     log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
                     $data['total_amount_collected'] = ($data['total_amount_collected'] - $data['upcountry_price']);
+                    $data['type_code'] = 'B';
                     $tds = array();
-                    if($data['type_code'] == 'B'){
-                        $data['type'] = 'FOC';
+                    if($data['type'] == 'FOC'){
+                        
                         if($vendor_partner == "vendor"){
                             $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
                         } else {
@@ -2892,8 +2890,8 @@ class Invoice extends CI_Controller {
                             $tds['tds_rate'] = 0;
                         }
                         
-                    } else if($data['type_code'] == 'C'){
-                        $data['type'] = 'CreditNote';
+                    } else if($data['type'] == 'CreditNote' ||  $data['type'] == 'BuybackFOC'){
+                       
                         $tds['tds'] = 0;
                         $tds['tds_rate'] = 0;
                     }
@@ -2923,9 +2921,9 @@ class Invoice extends CI_Controller {
                     }
 
                     break;
-                case 'D':
-                    log_message('info', __FUNCTION__ . " .. type code:- D");
-                    $data['type'] = "Stand";
+                case 'Stand':
+                    log_message('info', __FUNCTION__ . " .. type :- Stand");
+                    $data['type_code'] = "D";
                     $data['around_royalty'] = $data['total_amount_collected'];
                     $data['amount_collected_paid'] = $data['total_amount_collected'];
 
@@ -3160,7 +3158,7 @@ class Invoice extends CI_Controller {
 
                 $sc_details['payment_date'] = date("d-M-Y");
                 $sc_details['ifsc_code'] = $sc['ifsc_code'];
-                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['company_name']);
+                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
 
                 array_push($payment_data, $sc_details);
             }
@@ -3240,28 +3238,32 @@ class Invoice extends CI_Controller {
             $seller_code = $this->input->post('seller_code');
             $from_date = $this->input->post('from_date');
             $meta['grand_part'] = $this->input->post('service_charge');
+            $service_tax = $this->booking_model->get_calculated_tax_charge($meta['grand_part'], 15);
             
-            $meta['sub_service_cost'] = $meta['grand_part'] * .15;
+            $sub_service_cost = $meta['grand_part'] - $service_tax;
 
             $setup_insert['vendor_partner'] = "partner";
             $setup_insert['vendor_partner_id'] = $partner_id = $this->input->post('partner_id');
 
             $meta['company_address'] = $this->input->post('partner_address');
             $meta['company_name'] = $this->input->post('partner_name');
-            $meta['total_service_cost_14'] = $meta['sub_service_cost'] * .14;
-            $meta['total_service_cost_5'] = $meta['sub_service_cost'] * 0.05;
-            $meta['invoice_date'] = date('jS M, Y', strtotime($from_date));
+            $meta['total_service_cost_14'] = $sub_service_cost * .14;
+            $meta['total_service_cost_5'] = $sub_service_cost * 0.005;
+           
+            $meta['invoice_date'] = date('jS M, Y');
             $meta['sd'] = date('jS M, Y', strtotime($from_date));
             $meta['ed'] = date('jS M, Y', strtotime('+1 year', strtotime($from_date)));
             $meta['seller_code'] = "Seller Code - " . $seller_code;
             $meta['total_part_cost'] = $meta['part_cost_vat'] = $meta['sub_part'] = $meta['total_upcountry_charges'] = '';
             $meta['price_inword'] = convert_number_to_words($meta['grand_part']);
 
-            $setup_insert['service_tax'] = ($meta['total_service_cost_14'] + $meta['total_service_cost_5']*2);
-            $setup_insert['total_service_charge'] = $meta['total_service_cost'] = $meta['sub_service_cost'] - $setup_insert['service_tax'];
+            $setup_insert['service_tax'] = $service_tax;
+            $setup_insert['total_service_charge'] = $meta['total_service_cost'] =  $sub_service_cost;
+            $meta['sub_service_cost'] = $meta['grand_part'];
             $setup_insert['total_amount_collected'] = $setup_insert['amount_collected_paid'] = $setup_insert['amount_paid'] = $setup_insert['around_royalty'] = $meta['grand_part'];
             $setup_insert['settle_amount'] = 1;
-            $setup_insert['invoice_date'] = $setup_insert['from_date'] = date("Y-m-d", strtotime($from_date));
+            $setup_insert['from_date'] = date("Y-m-d", strtotime($from_date));
+            $setup_insert['invoice_date'] = date('Y-m-d');
             $setup_insert['due_date'] =  $setup_insert['to_date'] = date('Y-m-d', strtotime('+1 year', strtotime($from_date)));
             $setup_insert['type'] = "Cash";
             $setup_insert['type_code'] = "A";

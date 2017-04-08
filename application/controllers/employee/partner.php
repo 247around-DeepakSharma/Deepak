@@ -1457,14 +1457,12 @@ class Partner extends CI_Controller {
                 $send_data['current_status'] = "Rescheduled";
                 $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                 $this->asynchronous_lib->do_background_process($url, $send_data);
-                log_message('info', __FUNCTION__ . " Set mail to vendor flag to 0  " . print_r($booking_id, true));
-
-                //Setting mail to vendor flag to 0, once booking is rescheduled
-                $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
+               
                 log_message('info', __FUNCTION__ . " Request to prepare Job Card  " . print_r($booking_id, true));
 
                 //Prepare job card
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
 
                 $this->session->set_flashdata('success', $booking_id . ' Booking Rescheduled');
                 redirect(base_url() . "partner/get_user_form");

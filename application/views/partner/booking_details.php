@@ -83,6 +83,10 @@
                             <th>Booking closed date: </th>
                             <td><?php echo $booking_history[0]['closed_date']; ?></td>
                         </tr>
+                        <tr>
+                            <th>Rating Star </th>
+                            <td><?php if(!empty($booking_history[0]['rating_stars'])){echo $booking_history[0]['rating_stars'].'/5'; }?></td>
+                        </tr>
                     </table>
                 </div>
                 <?php if(!empty($unit_details)) { ?>
