@@ -3159,15 +3159,17 @@ class Invoice extends CI_Controller {
         if (!empty($entity_details)) {
             switch ($type_code) {
 
-                case 'A':
-                case 'D':
-                case 'E':
+                case 'Cash':
+                case 'DebitNote':
+                case 'BuybackCash':
+                case 'Stand':
 
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
                     echo $invoice_id['invoice_id'];
                     break;
-                case 'B':
-                case 'C':
+                case 'FOC':
+                case 'CreditNote': 
+                case 'BuybackFOC':  
 
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, $entity_details[0]['sc_code']);
                     echo $invoice_id['invoice_id'];
