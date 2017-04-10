@@ -69,35 +69,38 @@ class Booking extends CI_Controller {
      *  @return : void
      */
     public function index($user_id) {
-        if($this->input->post()){
-        $primary_contact_no = $this->input->post('booking_primary_contact_no');
-        //Check Validation
-        $checkValidation  = $this->validate_booking();
-            
-        if($checkValidation){
-        log_message('info', __FUNCTION__);
-        log_message('info', " Booking Insert User ID: " . $user_id);
-        $this->getAllBookingInput($user_id,INSERT_NEW_BOOKING);
+        if ($this->input->post()) {
+            $primary_contact_no = $this->input->post('booking_primary_contact_no');
+            //Check Validation
+            $checkValidation = $this->validate_booking();
 
-        //Redirect to Default Search Page
-        redirect(base_url() . DEFAULT_SEARCH_PAGE);
-        
-        }else{  
-               //Redirect to edit booking page if validation err occurs
-                if(!empty($primary_contact_no)){
-                $this->addbooking($primary_contact_no);
-                }else{
+            if ($checkValidation) {
+                log_message('info', __FUNCTION__);
+                log_message('info', " Booking Insert User ID: " . $user_id);
+                $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
+                if ($status) {
+                    //Redirect to Default Search Page
+                    redirect(base_url() . DEFAULT_SEARCH_PAGE);
+                } else {
+                    
+                    $this->addbooking($primary_contact_no);
+                }
+            } else {
+                //Redirect to edit booking page if validation err occurs
+                if (!empty($primary_contact_no)) {
+                    $this->addbooking($primary_contact_no);
+                } else {
                     //Redirect to Default Search Page if Primary Phone number not found in Post
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 }
-        }
-        }else{
-                //Logging error message if No input is provided
-                log_message('info', __FUNCTION__." Error in Booking Insert User ID: " . $user_id);
-                $heading = "247Around Booking Error";
-                $message = "Oops... No input provided !";
-                $error =& load_class('Exceptions', 'core');
-		echo $error->show_error($heading, $message, 'custom_error');
+            }
+        } else {
+            //Logging error message if No input is provided
+            log_message('info', __FUNCTION__ . " Error in Booking Insert User ID: " . $user_id);
+            $heading = "247Around Booking Error";
+            $message = "Oops... No input provided !";
+            $error = & load_class('Exceptions', 'core');
+            echo $error->show_error($heading, $message, 'custom_error');
         }
     }
 
@@ -311,11 +314,8 @@ class Booking extends CI_Controller {
 
             return $booking;
         } else {
-            echo "Booking Insert/Update Failed";
-            
             log_message('info', __FUNCTION__. " Booking Failed!");
-            
-            exit();
+            return false;
         }
     }
 
@@ -326,11 +326,11 @@ class Booking extends CI_Controller {
      * @param String $quantity
      * @return boolean
      */
-    function insert_data_in_booking_details($booking_id, $user_id, $quantity){
+    function insert_data_in_booking_details($booking_id, $user_id, $quantity) {
         $booking = $this->get_booking_input();
-       
+
         $remarks = $this->input->post('query_remarks');
-       
+
         $booking['quantity'] = $quantity;
         $booking['user_id'] = $user_id;
 
@@ -340,7 +340,7 @@ class Booking extends CI_Controller {
                 $is_send_sms = 1;
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
-            
+
                 log_message('info', "New Booking ID created" . print_r($booking['booking_id'], true));
                 break;
             default :
@@ -359,82 +359,84 @@ class Booking extends CI_Controller {
                 break;
         }
 
-        if ($booking['type'] == 'Booking') {
-            $booking['current_status'] = 'Pending';
-            $booking['internal_status'] = 'Scheduled'; 
-            $booking['initial_booking_date'] = $booking['booking_date'];
-            $booking['booking_remarks'] = $remarks;
-            $new_state = $booking_id_with_flag['new_state'];
-            $old_state = $booking_id_with_flag['old_state'];
-
-        } else if ($booking['type'] == 'Query') {
-
-            $booking['current_status'] = "FollowUp";
-            $internal_status = $this->input->post('internal_status');
-            if (!empty($internal_status)) {
-                $booking['internal_status'] = $internal_status;
-            } else {
-                $booking['internal_status'] = "FollowUp";
-            }
-            if ($booking['internal_status'] == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
-                $this->send_sms_email($booking_id, "Customer not reachable");
-            }
-            
-            $booking['query_remarks'] = $remarks;
-
-            $new_state = $booking_id_with_flag['new_state'];
-            $old_state = $booking_id_with_flag['old_state'];
-        }
+        $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id']);
         
-        // check partner status
-        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking_id);
-        if(!empty($partner_status)){
-            $booking['partner_current_status'] = $partner_status[0];
-            $booking['partner_internal_status'] = $partner_status[1];
-        }
+        if ($validate_order_id) {
+           
+            if ($booking['type'] == 'Booking') {
+                $booking['current_status'] = 'Pending';
+                $booking['internal_status'] = 'Scheduled';
+                $booking['initial_booking_date'] = $booking['booking_date'];
+                $booking['booking_remarks'] = $remarks;
+                $new_state = $booking_id_with_flag['new_state'];
+                $old_state = $booking_id_with_flag['old_state'];
+            } else if ($booking['type'] == 'Query') {
 
-        switch ($booking_id) {
+                $booking['current_status'] = "FollowUp";
+                $internal_status = $this->input->post('internal_status');
+                if (!empty($internal_status)) {
+                    $booking['internal_status'] = $internal_status;
+                } else {
+                    $booking['internal_status'] = "FollowUp";
+                }
+                if ($booking['internal_status'] == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
+                    $this->send_sms_email($booking_id, "Customer not reachable");
+                }
 
-            case INSERT_NEW_BOOKING:
-                
-                $status = $this->booking_model->addbooking($booking);
-                if ($status) {
-                    $booking['is_send_sms'] = $is_send_sms;
-                    if ($booking['is_send_sms'] == 1) {
-                        $upcountry_data_json = $this->input->post('upcountry_data');
-                        $upcountry_data = json_decode($upcountry_data_json, TRUE);
+                $booking['query_remarks'] = $remarks;
 
-                        switch ($upcountry_data['message']) {
-                            case UPCOUNTRY_BOOKING:
-                            case UPCOUNTRY_LIMIT_EXCEED:
-                                $booking['is_upcountry'] = 1;
-                                break;
+                $new_state = $booking_id_with_flag['new_state'];
+                $old_state = $booking_id_with_flag['old_state'];
+            }
+
+            // check partner status
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+            }
+
+            switch ($booking_id) {
+
+                case INSERT_NEW_BOOKING:
+
+                    $status = $this->booking_model->addbooking($booking);
+                    if ($status) {
+                        $booking['is_send_sms'] = $is_send_sms;
+                        if ($booking['is_send_sms'] == 1) {
+                            $upcountry_data_json = $this->input->post('upcountry_data');
+                            $upcountry_data = json_decode($upcountry_data_json, TRUE);
+
+                            switch ($upcountry_data['message']) {
+                                case UPCOUNTRY_BOOKING:
+                                case UPCOUNTRY_LIMIT_EXCEED:
+                                    $booking['is_upcountry'] = 1;
+                                    break;
+                            }
                         }
+                    } else {
+                        return false;
                     }
-                } else {
-                    return false;
-                }
 
-                break;
-                
-            default :
-                $status = $this->booking_model->update_booking($booking_id, $booking);
-                if ($status) {
-                    $booking['is_send_sms'] = $is_send_sms;
-                    
-                } else {
-                    return false;
-                }
-                break;
+                    break;
+
+                default :
+                    $status = $this->booking_model->update_booking($booking_id, $booking);
+                    if ($status) {
+                        $booking['is_send_sms'] = $is_send_sms;
+                    } else {
+                        return false;
+                    }
+                    break;
+            }
+
+            $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+
+            return $booking;
+        } else {
+            return false;
+            
         }
-        
-        $this->notify->insert_state_change($booking['booking_id'], $new_state,
-                $old_state , $remarks , 
-                $this->session->userdata('id'), 
-                $this->session->userdata('employee_id'),
-                _247AROUND);
-        
-        return $booking;
     }
 
     /**
@@ -477,10 +479,9 @@ class Booking extends CI_Controller {
         $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
         $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
         $booking['update_date'] = date("Y-m-d H:i:s");
+        $partner_details = $this->partner_model->get_all_partner_source("", $booking['source']);
+        $booking['partner_id'] = $partner_details[0]['partner_id'];
          
-        $booking['partner_id'] = $this->input->post('partner_id');
-        
-
         return $booking;
     }
 
@@ -1496,32 +1497,36 @@ class Booking extends CI_Controller {
      */
     function update_booking($user_id, $booking_id) {
         $bookings = $this->booking_model->getbooking_history($booking_id);
-        if(!empty($bookings)){
-        if ($this->input->post()) {
-            $checkValidation = $this->validate_booking();
+        if (!empty($bookings)) {
+            if ($this->input->post()) {
+                $checkValidation = $this->validate_booking();
 
-            if ($checkValidation) {
-                log_message('info', __FUNCTION__ . " Booking ID  " . $booking_id . " User ID: " . $user_id);
+                if ($checkValidation) {
+                    log_message('info', __FUNCTION__ . " Booking ID  " . $booking_id . " User ID: " . $user_id);
 
-                $this->getAllBookingInput($user_id, $booking_id);
-                
-                log_message('info', __FUNCTION__ . " Partner callback  " . $booking_id);
-                $this->partner_cb->partner_callback($booking_id);
+                    $status = $this->getAllBookingInput($user_id, $booking_id);
+                    if ($status) {
+                        log_message('info', __FUNCTION__ . " Partner callback  " . $booking_id);
+                        $this->partner_cb->partner_callback($booking_id);
 
-                //Redirect to Default Search Page
-                redirect(base_url() . DEFAULT_SEARCH_PAGE);
+                        //Redirect to Default Search Page
+                        redirect(base_url() . DEFAULT_SEARCH_PAGE);
+                    } else {
+                        //Redirect to edit booking page if validation err occurs
+                        $this->get_edit_booking_form($booking_id);
+                    }
+                } else {
+                    //Redirect to edit booking page if validation err occurs
+                    $this->get_edit_booking_form($booking_id);
+                }
             } else {
-                //Redirect to edit booking page if validation err occurs
-                $this->get_edit_booking_form($booking_id);
+                //Logging error if No input is provided
+                log_message('info', __FUNCTION__ . "Error in Update Booking ID  " . print_r($booking_id, true) . " User ID: " . print_r($user_id, true));
+                $heading = "247Around Booking Error";
+                $message = "Oops... No input provided !";
+                $error = & load_class('Exceptions', 'core');
+                echo $error->show_error($heading, $message, 'custom_error');
             }
-        } else {
-            //Logging error if No input is provided
-            log_message('info', __FUNCTION__ . "Error in Update Booking ID  " . print_r($booking_id, true) . " User ID: " . print_r($user_id, true));
-            $heading = "247Around Booking Error";
-            $message = "Oops... No input provided !";
-            $error = & load_class('Exceptions', 'core');
-            echo $error->show_error($heading, $message, 'custom_error');
-        }
         } else {
             echo "Booking Id Not Exist...\n Already Updated.";
         }
@@ -2161,7 +2166,6 @@ class Booking extends CI_Controller {
             $this->form_validation->set_rules('partner_paid_basic_charges', 'Please Select Partner Charged', 'required');
             $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
             $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|xss_clean');
-            $this->form_validation->set_rules('order_id', 'Order ID', 'callback_validate_order_id');
             
             return $this->form_validation->run();
     }  
@@ -2169,41 +2173,37 @@ class Booking extends CI_Controller {
      * @desc Validate Order ID
      * @return boolean
      */
-    function validate_order_id(){
-        $source_code = $this->input->post('source_code');
-        $partner_details = $this->partner_model->get_all_partner_source("", $source_code);
-        $_POST['partner_id'] = $partner_details[0]['partner_id'];
-        switch ($source_code){
-            case 'SA':
-            case 'SW':
-            case 'SO':
-            case 'SC':
+    function validate_order_id($partner_id, $booking_id, $order_id) {
+
+        switch ($partner_id) {
+            case '247001':
+            case '247002':
+            case '247003':
                 return true;
-               // break;
+            // break;
             default :
-               
-                $order_id = $this->input->post('order_id');
-                if(!empty($order_id)){
-                    $partner_booking = $this->partner_model->get_order_id_for_partner($partner_details[0]['partner_id'], 
-                            $order_id);
+
+                if (!empty($order_id)) {
+                    $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $order_id, $booking_id);
                     if (is_null($partner_booking)) {
                         return true;
-                        
                     } else {
-                        $this->form_validation->set_message('validate_order_id', 'Duplicate Order ID');
+                        $output = "Duplicate Order ID";
+                        $userSession = array('error' => $output);
+                        $this->session->set_userdata($userSession);
                         return FALSE;
                     }
-                    
                 } else {
-                    $this->form_validation->set_message('validate_order_id', 'Please Enter Order ID');
+                    $output = "Please Enter Order ID";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
                     return FALSE;
                 }
                 break;
         }
-        
     }
-   
-   /**
+
+    /**
      * @desc: This function is used to update inventory of vendor
      * parmas: Booking ID
      * @return: void

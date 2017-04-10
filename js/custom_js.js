@@ -270,7 +270,7 @@ function addBookingDialog() {
     }
     
     if (alternate_contact_no != "" && !alternate_contact_no.match(exp1)) {
-        alert("Enter Valid Phone Number Only");
+        alert("Enter Valid Alternate Phone Number Only");
         return false;
     }
 
