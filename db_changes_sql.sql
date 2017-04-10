@@ -2055,3 +2055,23 @@ ADD `credit_penalty_bookings_count` INT(10) NULL DEFAULT NULL AFTER `credit_pena
 -- sachin 06 april
 ALTER TABLE `partners` ADD `cst_no` VARCHAR(256) NOT NULL AFTER `tin`, ADD `tin_file` VARCHAR(512) NOT NULL AFTER `tin`, 
 ADD `cst_file` VARCHAR(512) NOT NULL AFTER `service_tax_no`, ADD `service_tax_file` VARCHAR(512) NOT NULL AFTER `cst_file`;
+
+-- sachin 07 April
+CREATE TABLE `challan_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `serial_no` int(11) NOT NULL,
+  `cin_no` varchar(256) NOT NULL,
+  `type` varchar(128) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `bank_name` varchar(256) NOT NULL,
+  `paid_by` varchar(128) NOT NULL,
+  `challan_file` varchar(256) NOT NULL,
+  `remarks` varchar(256) DEFAULT NULL,
+  `challan_tender_date` date NOT NULL,
+  `from_date` date NOT NULL,
+  `to_date` date NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `challan_details`
+  ADD PRIMARY KEY (`id`);
