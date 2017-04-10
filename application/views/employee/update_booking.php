@@ -658,12 +658,7 @@
     $("#partner_source").select2();
 
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
-     $("#booking_pincode").keyup(function(event) {
-       
-        check_pincode();
-        getBrandForService();
-        
-    });
+     
 
 </script>
 
