@@ -156,6 +156,7 @@ color: red;
                 <label for="name" class="col-md-2">TDS <span class="red">*</span></label>
                 <div class="col-md-6">
                     <input type="text" class="form-control" id="tds_amount" name="tds_amount" value="<?php if(isset($selected_tds)){ echo $selected_tds; }?>" <?php if($vendor_partner == "vendor") {?>readonly <?php } ?>required>
+                    <input type="hidden" class="form-control" id="selected_tds_amount" name="selected_tds_amount" value="<?php if(isset($selected_tds)){ echo $selected_tds; }?>" >
                 </div>
                 <span id="errmsg4"></span>
               </div>
@@ -227,7 +228,7 @@ color: red;
 function check_amount(flag){
     
     if(flag === 1){
-        var partner_amount = Number($("#partner_amount").val());
+        var partner_amount = Number($("#partner_amount").val())+Number($('#selected_tds_amount').val());
         var amount = Number($("#amount").val()) +  Number($("#tds_amount").val());
         
         if(amount >partner_amount ){
@@ -236,6 +237,7 @@ function check_amount(flag){
             alert("Do not Allow Advance Transaction");
             return false;
         }
+        
     }
 
 }
