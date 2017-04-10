@@ -242,7 +242,7 @@ class invoices_model extends CI_Model {
         //for FOC invoice, around_to_vendor > 0 AND vendor_to_around = 0
         $where = " AND `booking_unit_details`.around_to_vendor > 0  AND `booking_unit_details`.vendor_to_around = 0 ";
 
-        $where .= " AND pay_to_sf = '1'  AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date <= '$to_date' ";
+        $where .= " AND pay_to_sf = '1' AND vendor_foc_invoice_id IS NULL  AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' ";
         $date = "  '$from_date' as start_date,  '" . date('Y-m-d', strtotime($to_date . " - 1 day")) . "'  as end_date,  ";
 
 
@@ -351,6 +351,7 @@ class invoices_model extends CI_Model {
                     . " From booking_details, booking_unit_details, services, service_centres
                     WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  
                     AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' 
+                    AND vendor_cash_invoice_id IS NULL
                     AND assigned_vendor_id = '" . $vendor_id . "' "
                     . " AND `booking_unit_details`.booking_status = 'Completed' $where";
 
@@ -879,6 +880,7 @@ class invoices_model extends CI_Model {
                 AND sc.id = bd.assigned_vendor_id
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0
                 AND pay_to_sf = '1'
+                AND vendor_foc_invoice_id IS NULL
                 GROUP BY  `vendor_basic_charges`,ud.service_id, price_tags";
 
         $query = $this->db->query($sql);
@@ -922,6 +924,7 @@ class invoices_model extends CI_Model {
                 AND sc.id = bd.assigned_vendor_id
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0 
                 AND pay_to_sf = '1'
+                AND vendor_foc_invoice_id IS NULL
                 GROUP BY  `vendor_basic_charges`,ud.service_id,price_tags";
 
         $query1 = $this->db->query($sql1);
@@ -1071,7 +1074,7 @@ class invoices_model extends CI_Model {
      * @param String $to_date_tmp
      * @return boolean
      */
-    function get_vendor_cash_invoice($vendor_id, $from_date, $to_date_tmp, $is_regenerate) {
+    function get_vendor_cash_invoice($vendor_id, $from_date, $to_date_tmp) {
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         for ($i = 0; $i < 2; $i++) {
             if ($i == 0) {
@@ -1122,9 +1125,10 @@ class invoices_model extends CI_Model {
                 AND ud.booking_id = bd.booking_id
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <=  '$to_date'
+                AND ud.ud_closed_date <  '$to_date'
                 AND ud.service_id = services.id
                 AND sc.id = bd.assigned_vendor_id
+                AND vendor_cash_invoice_id IS NULL
                 $where
                 GROUP BY  (`around_comm_basic_charges` + `around_st_or_vat_basic_charges`),ud.service_id,price_tags ";
 
@@ -1229,7 +1233,7 @@ class invoices_model extends CI_Model {
                 ud.booking_status =  'Completed'
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <=  '$to_date'
+                AND ud.ud_closed_date <  '$to_date'
                 AND pay_to_sf = '1'
                 AND courier_charges_by_sf > 0 ";
         
