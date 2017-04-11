@@ -6,9 +6,20 @@
         <div class="panel panel-danger" style="margin-top:10px;margin-bottom:-10px;">
             <div class="panel-heading" style="padding:7px 0px 0px 13px">
             <?php echo validation_errors(); ?>
+            
             </div>
         </div>
         <?php }?>
+        <?php
+                if ($this->session->userdata('error')) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:10px;">
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('error') . '</strong>
+               </div>';
+                }
+                ?>
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Add Booking</div>
             <div class="panel-body">
@@ -432,3 +443,4 @@
 color: red;
 }
 </style>
+<?php $this->session->unset_userdata('error'); ?>

@@ -270,7 +270,7 @@ function addBookingDialog() {
     }
     
     if (alternate_contact_no != "" && !alternate_contact_no.match(exp1)) {
-        alert("Enter Valid Phone Number Only");
+        alert("Enter Valid Alternate Phone Number Only");
         return false;
     }
 
@@ -281,17 +281,17 @@ function addBookingDialog() {
     }
 
 
-//    if (source_code === "SA" || source_code === 'SC' || source_code === "SW" || source_code === "SO") {
-//    } else {
-//
-//        var order_id = $('#order_id').val();
-//
-//        if (order_id === "") {
-//
-//            alert('Please Fill Order Id');
-//            return false;
-//        }
-//    }
+   if (source_code === "SA" || source_code === 'SC' || source_code === "SW") {
+   } else {
+
+       var order_id = $('#order_id').val();
+
+       if (order_id === "") {
+
+           alert('Please Fill Order Id');
+           return false;
+       }
+   }
 
     if (booking_date === "") {
 

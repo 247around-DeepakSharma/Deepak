@@ -126,9 +126,9 @@
                                         <option value="Cash" <?php if (isset($invoice_details[0]['type_code'])) {
                                             if($invoice_details[0]['type'] == "Cash"){ echo "selected";}
                                             } ?>>Cash</option>
-                                        <option value="Byback Cash" <?php if (isset($invoice_details[0]['type_code'])) {
-                                            if($invoice_details[0]['type'] == "Byback Cash"){ echo "selected";}
-                                            } ?>>Byback Cash</option>
+                                        <option value="BuybackCash" <?php if (isset($invoice_details[0]['type_code'])) {
+                                            if($invoice_details[0]['type'] == "BuybackCash"){ echo "selected";}
+                                            } ?>>BuybackCash</option>
                                         <option value="CreditNote" <?php if (isset($invoice_details[0]['type_code'])) {
                                             if($invoice_details[0]['type'] == "CreditNote"){ echo "selected";}
                                             } ?>>CreditNote</option>
@@ -138,9 +138,9 @@
                                         <option value="FOC" <?php if (isset($invoice_details[0]['type_code'])) {
                                             if($invoice_details[0]['type'] == "FOC"){ echo "selected";}
                                             } ?>>FOC</option>
-                                         <option value=">Byback FOC" <?php if (isset($invoice_details[0]['type_code'])) {
-                                            if($invoice_details[0]['type'] == "Byback FOC"){ echo "selected";}
-                                            } ?>>Byback FOC</option>
+                                         <option value=">BuybackFOC" <?php if (isset($invoice_details[0]['type_code'])) {
+                                            if($invoice_details[0]['type'] == "BuybackFOC"){ echo "selected";}
+                                            } ?>>BuybackFOC</option>
                                         <option value="Stand" <?php if (isset($invoice_details[0]['type_code'])) {
                                             if($invoice_details[0]['type'] == "Stand"){ echo "selected";}
                                             } ?>>Stand</option>

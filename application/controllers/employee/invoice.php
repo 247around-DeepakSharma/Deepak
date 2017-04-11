@@ -1528,7 +1528,7 @@ class Invoice extends CI_Controller {
             $userSession = array('success' => $output);
             $this->session->set_userdata($userSession);
         } else {
-            $output = "Data Not Found! Invoice did not Generate.";
+            $output = "Data Not Found, No Invoice Generated !";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
         }
@@ -2805,9 +2805,9 @@ class Invoice extends CI_Controller {
 
                 case 'Cash':
                 case 'DebitNote':
-                case 'Byback Cash':
-                    log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
-
+                case 'BuybackCash':
+                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
+                    
                     $data['type_code'] = 'A';
                     $data['total_amount_collected'] = ($data['total_amount_collected'] + $data['upcountry_price']);
                     $data['around_royalty'] = round($data['total_amount_collected'], 0);
@@ -2840,9 +2840,9 @@ class Invoice extends CI_Controller {
                     }
                     break;
                 case 'FOC':
-                case 'CreditNote':
-                case 'Byback FOC':
-                    log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
+                case 'CreditNote': 
+                case 'BuybackFOC':  
+                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
                     $data['total_amount_collected'] = ($data['total_amount_collected'] - $data['upcountry_price']);
                     $data['type_code'] = 'B';
                     $tds = array();
@@ -2854,8 +2854,9 @@ class Invoice extends CI_Controller {
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;
                         }
-                    } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Byback FOC') {
-
+                        
+                    } else if($data['type'] == 'CreditNote' ||  $data['type'] == 'BuybackFOC'){
+                       
                         $tds['tds'] = 0;
                         $tds['tds_rate'] = 0;
                     }
@@ -3121,7 +3122,7 @@ class Invoice extends CI_Controller {
 
                 $sc_details['payment_date'] = date("d-M-Y");
                 $sc_details['ifsc_code'] = $sc['ifsc_code'];
-                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['company_name']);
+                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
 
                 array_push($payment_data, $sc_details);
             }
@@ -3158,15 +3159,17 @@ class Invoice extends CI_Controller {
         if (!empty($entity_details)) {
             switch ($type_code) {
 
-                case 'A':
-                case 'D':
-                case 'E':
+                case 'Cash':
+                case 'DebitNote':
+                case 'BuybackCash':
+                case 'Stand':
 
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
                     echo $invoice_id['invoice_id'];
                     break;
-                case 'B':
-                case 'C':
+                case 'FOC':
+                case 'CreditNote': 
+                case 'BuybackFOC':  
 
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, $entity_details[0]['sc_code']);
                     echo $invoice_id['invoice_id'];
