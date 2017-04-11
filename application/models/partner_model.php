@@ -52,8 +52,11 @@ class Partner_model extends CI_Model {
     }
 
     //Find order id for a partner
-    function get_order_id_for_partner($partner_id, $order_id) {
+    function get_order_id_for_partner($partner_id, $order_id, $booking_id = "") {
       $this->db->where(array("partner_id" => $partner_id, "order_id" => $order_id));
+      if($booking_id != ""){
+           $this->db->not_like('booking_id', preg_replace("/[^0-9]/","",$booking_id));
+      }
       $query = $this->db->get("booking_details");
       $results = $query->result_array();
 
@@ -510,10 +513,16 @@ class Partner_model extends CI_Model {
 
 
 	//Count total installations scheduled
-	$this->db->where('partner_id', $partner_id);
-	$this->db->where_in('current_status', array('Pending', 'Rescheduled'));
-	$total_install_sched = $this->db->count_all_results('booking_details');
-
+//	$this->db->where('partner_id', $partner_id);
+//	$this->db->where_in('current_status', array('Pending', 'Rescheduled'));
+//	$total_install_sched = $this->db->count_all_results('booking_details');
+        $sql = "SELECT COUNT(distinct(booking_id)) FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
+	    . " AND (new_state = 'Pending' OR new_state = 'Rescheduled') "
+	    . " AND (old_state = 'FollowUp' OR old_state = 'New_Booking' ) ";
+        $scheduled_query = $this->db->query($sql);
+	$total__scheduled = $scheduled_query->result_array();
+	$total_install_sched = count($total__scheduled);
+        
 	//Count today installations scheduled
         $this->db->distinct();
         $this->db->select('count(booking_id) as count');
