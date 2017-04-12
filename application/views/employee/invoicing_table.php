@@ -27,7 +27,6 @@
          <th>Select</th>
          <th>ReGenerate</th>
          <th>Update</th>
-<!--         <th>Send Email</th>-->
       </tr>
    </thead>
    <tbody>
@@ -71,7 +70,12 @@
          
         
          <td ><?php if($invoice['settle_amount'] == 0){ ?><input type="checkbox" class="form-control" name ="invoice_id[]" value="<?php echo $invoice['invoice_id'] ?>" id="<?php echo 'checkbox_'.$count; ?>" onclick="sum_amount()" />
-         <?php } ?>
+            
+             <input type="hidden" class ="in_disable" name="<?php echo "tds_amount[".$invoice['invoice_id']."] "; ?>" id="<?php echo "intdsAmount_".$count; ?>" value="<?php if($invoice['amount_paid'] > 0 ) { echo "0.00";} else { echo $invoice['tds_amount'];} ?>"/>
+             <input type="hidden" class ="in_disable"    name="<?php echo "amount_collected[".$invoice['invoice_id']."] "; ?>" id="<?php echo "inAmountCollected_".$count; ?>" value="<?php if($invoice['amount_collected_paid'] > 0) {echo $invoice['amount_collected_paid'] - $invoice['amount_paid'];} else { echo $invoice['amount_collected_paid'] + $invoice['amount_paid'];}?>"/>
+            
+            <?php } ?>
+            
         
 
          </td>
@@ -133,14 +137,18 @@
 
       </form>
   <script type="text/javascript">
-     
+     $(".in_disable").prop('disabled', true);
      
       function sum_amount(){
               var total_amount_collected = 0;
               var total_tds = 0;
               var total_amount_paid = 0;
+              $(".in_disable").prop('disabled', true);
               $("input[type=checkbox]:checked").each(function(i) {
               div = this.id .split('_');
+              $("#intdsAmount_"+div[1]).prop('disabled', false);
+              $("#inAmountCollected_"+div[1]).prop('disabled', false);
+              $("#inAmountPaid__"+div[1]).prop('disabled', false);
               var amount_paid = $('#amount_paid_'+ div[1]).text();
               var tds_amount = $('#tds_'+ div[1]).text();
               if(amount_paid > 0){
@@ -297,5 +305,6 @@
     <p><h4>247around has to pay to vendor = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] < 0){ echo abs(round($unbilled_amount[0]['unbilled_amount'],0));} else { echo 0;} ?></h4></p>
     
     <?php } } ?>
+
 
     

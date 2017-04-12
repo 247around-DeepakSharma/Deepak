@@ -81,6 +81,7 @@ class invoices_model extends CI_Model {
     //Function to insert banks account/statement
     function bankAccountTransaction($account_statement) {
         $this->db->insert('bank_transactions', $account_statement);
+        return $this->db->insert_id();
     }
 
     function get_bank_transactions_details($data) {
@@ -1274,6 +1275,11 @@ class invoices_model extends CI_Model {
      */
     function insert_invoice_challan_id_mapping_data($data){
         $this->db->insert_batch('invoice_challan_id_mapping', $data);
+        return $this->db->insert_id();
+    }
+    
+    function insert_batch_payment_history($data){
+        $this->db->insert_batch('payment_history', $data);
         return $this->db->insert_id();
     }
 
