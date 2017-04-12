@@ -122,6 +122,7 @@ function getPricesForCategoryCapacity(div_id) {
         postData['booking_city'] = $("#booking_city").val();
         postData['booking_pincode'] = $("#booking_pincode").val();
         postData['clone_number'] = div_no[2];
+        postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
         $('#submitform').attr('disabled', true);
 
         if ($("#appliance_capacity_" + div_no[2]).val() !== "") {
