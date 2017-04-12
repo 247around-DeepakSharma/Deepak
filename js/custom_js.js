@@ -34,18 +34,19 @@ function getBrandForService() {
     var postData = {};
     postData['service_id'] = $("#service_id").val();
     postData['source_code'] = $("#source_code").val();
-
+   
     var service = $("#service_id option:selected").text();
     $("#services").val(service);
+    if( postData['source_code'] !== null){
+        sendAjaxRequest(postData, brandServiceUrl).done(function (data) {
+            var data1 = jQuery.parseJSON(data);
+            $("#partner_type").val(data1.partner_type);
 
-    sendAjaxRequest(postData, brandServiceUrl).done(function (data) {
-        var data1 = jQuery.parseJSON(data);
-        $("#partner_type").val(data1.partner_type);
-
-        $(".appliance_brand").html(data1.brand);
+            $(".appliance_brand").html(data1.brand);
 
 
-    });
+        });
+    }
 }
 
 function getCategoryForService(div_id) {
