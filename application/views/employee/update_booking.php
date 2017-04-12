@@ -64,7 +64,7 @@
                                                 $flag = 0;
                                                 foreach ($city as $key => $cites) {
                                                     ?>
-                                            <option <?php if($cites['district'] == $booking_history[0]['city']){ echo "Selected"; $flag = 1; }?>><?php echo $cites['district']; ?></option>
+                                            <option <?php if(strtolower($cites['district']) == strtolower($booking_history[0]['city'])){ echo "Selected"; $flag = 1; }?>><?php echo $cites['district']; ?></option>
                                             <?php }
                                                 ?>
                                             <?php //if($flag ==0){ ?>
