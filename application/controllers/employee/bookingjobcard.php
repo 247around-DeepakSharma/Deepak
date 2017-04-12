@@ -52,115 +52,6 @@ class bookingjobcard extends CI_Controller {
     }
 
     /*
-     * @desc: This function is to prepare jobcard of a booking.
-     * @param: void
-     * @return: void
-     */
-
-    public function prepare_job_card_by_booking_id() {
-        log_message('info', __FUNCTION__);
-
-        $booking_id = $this->input->post('booking_id');
-        log_message('info', $booking_id);
-
-        $template = 'BookingJobCard_Template-v8.xlsx';
-	//set absolute path to directory with template files
-        $templateDir = FCPATH."application/controllers/excel-templates/";
-        //set config for report
-        $config = array(
-            'template' => $template,
-            'templateDir' => $templateDir
-        );
-        //load template
-        $R = new PHPReport($config);
-        $booking_details = $this->booking_model->getbooking_history($booking_id);
-        $unit_where = array('booking_id'=>$booking_id, 'pay_to_sf' => '1');
-        $unit_details = $this->booking_model->get_unit_details($unit_where);
-        $meta =  array();
-        $meta['upcountry_charges'] = 0;
-        if($booking_details[0]['upcountry_paid_by_customer'] == 1){
-            $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
-        }
-        $meta['appliance_description'] = $unit_details[0]['appliance_description'];
-        $R->load(array(
-            array(
-                'id' => 'booking',
-                //'repeat' => TRUE,
-                'data' => $booking_details[0],
-                //'minRows' => 2,
-                'format' => array(
-                    'booking_date' => array('datetime' => 'd/M/Y'),
-                    'amount_due' => array('number' => array('prefix' => 'Rs. ')),
-                )
-            ),
-            array(
-                'id' => 'unit',
-                'repeat' => TRUE,
-                'data' => $unit_details,
-                //'minRows' => 2,
-                'format' => array(
-                    //'create_date' => array('datetime' => 'd/M/Y'),
-                    'total_price' => array('number' => array('prefix' => 'Rs. ')),
-                )
-             ),
-            array(
-                'id' => 'meta',
-                'repeat' => false,
-                'data' => $meta,
-             ),
-            )
-        );
-
-        //Get populated XLS with data
-        if ($booking_details[0]['current_status'] == "Rescheduled"){
-            $output_file_suffix = "-RESC-" . $booking_details[0]['booking_date'];
-        } else{
-            $output_file_suffix = "";
-        }
-
-        $output_file_dir = TMP_FOLDER;
-        $output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
-        $output_file_excel = $output_file_dir . $output_file . ".xlsx";
-        $R->render('excel', $output_file_excel);
-        $res1 = 0;
-        system(" chmod 777 ".$output_file_excel, $res1);
-        $output_file_pdf = $output_file_dir . $output_file . ".pdf";
-        //Update output file name in DB
-        $this->reporting_utils->update_booking_jobcard($booking_details[0]['id'], $output_file . ".pdf");
-
-        //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=278325305" . " -o " . $output_file_pdf;
-        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        $tmp_path = libreoffice_pdf;
-        $tmp_output_file = libreoffice_output_file;
-
-        $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-                '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-                $output_file_excel . ' 2> ' . $tmp_output_file;
-
-        //echo $cmd;
-        $output = '';
-        $result_var = '';
-        exec($cmd, $output, $result_var);
-        $res2 = 0;
-        system(" chmod 777 ".$output_file_pdf, $res2);
-
-        //Upload Excel & PDF files to AWS
-        $bucket = BITBUCKET_DIRECTORY;
-        $directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
-        $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-
-        $directory_pdf = "jobcards-pdf/" . $output_file . ".pdf";
-        $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
-
-        $data['success'] = "Job card generated and mailed Successfully";
-        exec("rm -rf " . escapeshellarg($output_file_pdf));
-        exec("rm -rf " . escapeshellarg($output_file_excel));
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-        $this->load->view('employee/jobcard', $data);
-    }
-
-    /*
      * @desc: This function is to prepare jobcard of a booking using booking id.
      * @param: $booking_id- Booking Id of which we want want to prepare the jobcard
      * @return: void
@@ -250,36 +141,38 @@ class bookingjobcard extends CI_Controller {
         $res1 = 0;
         system(" chmod 777 ".$output_file_excel, $res1);
         
-        $output_file_pdf = $output_file_dir . $output_file . ".pdf";
-        //Update output file name in DB
-        $this->reporting_utils->update_booking_jobcard($booking_details[0]['id'], $output_file . ".pdf");
+       // $output_file_pdf = $output_file_dir . $output_file . ".pdf";
+        
 
         //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=278325305" . " -o " . $output_file_pdf;
-        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+       // putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
 
-        $tmp_path = libreoffice_pdf;
-        $tmp_output_file = libreoffice_output_file;
-        $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-                '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-                $output_file_excel . ' 2> ' . $tmp_output_file;
-
-        $output = '';
-        $result_var = '';
-        exec($cmd, $output, $result_var);
-        
-        $res2 = 0;
-        system(" chmod 777 ".$output_file_pdf, $res2);
+//        $tmp_path = libreoffice_pdf;
+//        $tmp_output_file = libreoffice_output_file;
+//        $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+//                '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+//                $output_file_excel . ' 2> ' . $tmp_output_file;
+//
+//        $output = '';
+//        $result_var = '';
+//        exec($cmd, $output, $result_var);
+//        
+//        $res2 = 0;
+//        system(" chmod 777 ".$output_file_pdf, $res2);
 
         //Upload Excel & PDF files to AWS
         $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
         $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        
+        //Update JOb Card Booking
+        $this->booking_model->update_booking($booking_id,  array('booking_jobcard_filename'=>$output_file . ".xlsx"));
 
-        $directory_pdf = "jobcards-pdf/" . $output_file . ".pdf";
-        $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+//        $directory_pdf = "jobcards-pdf/" . $output_file . ".pdf";
+//        $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
        //$this->session->set_flashdata('result', 'Job card generated successfully');
-        exec("rm -rf " . escapeshellarg($output_file_pdf));
+        //exec("rm -rf " . escapeshellarg($output_file_pdf));
         exec("rm -rf " . escapeshellarg($output_file_excel));
         redirect(base_url() . 'employee/booking/view');
     }

@@ -399,7 +399,7 @@ class Miscelleneous {
                        foreach ($sc_data1 as $value1) {
                            $unit_details = $this->My_CI->booking_model->get_unit_details(array('id'=> $value1['unit_details_id'], 'booking_id'=>$booking_id));
                            if(empty($unit_details)){
-                               log_message('info', __FUNCTION__ . " Booking Unit details not exist  unit_id" . $value['unit_details_id']);
+                               log_message('info', __FUNCTION__ . " Booking Unit details not exist  unit_id" . $value1['unit_details_id']);
                                $this->My_CI->service_centers_model->delete_sc_unit_details(array('unit_details_id' => $value1['unit_details_id'], 'booking_id' => $booking_id));
                            }
                        }

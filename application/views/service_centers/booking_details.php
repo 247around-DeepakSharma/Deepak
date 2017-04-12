@@ -6,7 +6,7 @@
     }
     tr:nth-child(even) {background-color: #f2f2f2}
 </style>
-   <a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $booking_history[0]['booking_jobcard_filename']; ?> " class='btn btn-md btn-warning  pull-right' download style="margin-right: 40px;margin-top:15px;"><i class="fa fa-download" aria-hidden="true"></i></a>
+   <a href="https://s3.amazonaws.com/bookings-collateral/jobcards-excel/<?php echo $booking_history[0]['booking_jobcard_filename']; ?> " class='btn btn-md btn-warning  pull-right' download style="margin-right: 40px;margin-top:15px;"><i class="fa fa-download" aria-hidden="true"></i></a>
 <div id="page-wrapper">
     <div class="">
         <div class="row">
