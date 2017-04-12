@@ -81,6 +81,7 @@ class invoices_model extends CI_Model {
     //Function to insert banks account/statement
     function bankAccountTransaction($account_statement) {
         $this->db->insert('bank_transactions', $account_statement);
+        return $this->db->insert_id();
     }
 
     function get_bank_transactions_details($data) {
@@ -1240,6 +1241,47 @@ class invoices_model extends CI_Model {
         
         $query = $this->db->query($sql);
         return $query->result_array();
+    }
+    
+    /**
+     * @desc: This Function is used to insert the challan details into database
+     * @param: array
+     * @return : string
+     */
+    function insert_challan_details($data){
+        $this->db->insert('challan_details', $data);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: This Function is used to get the challan details from database
+     * @param: string
+     * @return : array
+     */
+    function fetch_challan_details($challan_type){
+        if($challan_type != 'ALL'){
+            $this->db->where('type',$challan_type);
+        }
+        $this->db->select('id,serial_no,from_date,to_date,challan_tender_date,amount,challan_file');
+        $this->db->from('challan_details');
+        
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This Function is used to insert the challan and invoice id into database
+     * @param: array
+     * @return : string
+     */
+    function insert_invoice_challan_id_mapping_data($data){
+        $this->db->insert_batch('invoice_challan_id_mapping', $data);
+        return $this->db->insert_id();
+    }
+    
+    function insert_batch_payment_history($data){
+        $this->db->insert_batch('payment_history', $data);
+        return $this->db->insert_id();
     }
 
 }
