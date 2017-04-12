@@ -2839,6 +2839,7 @@ class Invoice extends CI_Controller {
                     $data['service_tax'] + $data['courier_charges'] - $data['penalty_amount']), 0);
 
             $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+            $data['invoice_date'] = date('Y-m-d');
 
             $entity_details = array();
             $main_invoice_file = "";

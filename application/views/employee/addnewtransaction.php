@@ -97,7 +97,7 @@
                                     <th class="text-center">
                                         <div class="form-group ">
                                             <label class="radio-inline">
-                                            <input name="partner_vendor" type="radio"  onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor" <?php if($vendor_partner ==""){ echo "checked"; } else if($vendor_partner == "vendor"){ echo "checked"; }?> value = "vendor"><b>Service Center</b>
+                                                <input name="partner_vendor" type="radio"  onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor" <?php if($vendor_partner ==""){ echo "checked"; } else if($vendor_partner == "vendor"){ echo "checked"; }?> value = "vendor" ><b>Service Center</b>
                                             </label>
                                             <label class="radio-inline">
                                             <input type="radio" <?php if($vendor_partner == "partner"){ echo "checked"; } ?> onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner"><b>Partner</b>
@@ -154,36 +154,36 @@
                                     <?php $flag =0; if(!empty($invoice_id_array)){ foreach ($invoice_id_array as $key => $invoice_id) { $flag =1;?>
                                     <tr>
                                         <td>
-                                            <input type="text" class="form-control" name="invoice_id[]" value="<?php echo $invoice_id; ?>" />
+                                            <input type="text" class="form-control" name="invoice_id[]" value="<?php echo $invoice_id; ?>" readonly required />
                                         </td>
                                         <td>
-                                            <select class="form-control" name="credit_debit[]" id="<?php echo "cre_amount_".$key; ?>" readonly>
+                                            <select class="form-control" name="credit_debit[]" id="<?php echo "cre_amount_".$key; ?>" onchange="check_price_details()" readonly>
                                                 <option value="Credit" <?php if($amount_collected[$invoice_id] > 0){ echo "selected"; } ?>>Credit</option>
                                                 <option value="Debit" <?php if($amount_collected[$invoice_id] <= 0){ echo "selected"; } ?> >Debit</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control cal_amount" id="<?php echo "cal_amount_".$key; ?>" name="credit_debit_amount[]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" />
+                                            <input type="text" class="form-control cal_amount" id="<?php echo "cal_amount_".$key; ?>" name="credit_debit_amount[]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" required/>
                                             <input type="hidden" class="form-control" name="pre_credit_amount[]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" />
                                             
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control cal_tds_amount" name="tds_amount[]" value="<?php echo $tds_amount[$invoice_id]; ?>" />
+                                            <input type="text" class="form-control cal_tds_amount" name="tds_amount[]" value="<?php echo $tds_amount[$invoice_id]; ?>" <?php if($vendor_partner == "vendor") {?>readonly <?php } ?> />
                                         </td>
                                     </tr>
                                     <?php } } else { ?>
                                     <tr>
                                         <td>
-                                            <input  type="text" class="form-control" name="invoice_id[]" value="" placeholder="Invoice ID" />
+                                            <input  type="text" class="form-control" name="invoice_id[]" value="" placeholder="Invoice ID" required />
                                         </td>
                                         <td>
-                                            <select class="form-control" name="credit_debit[]" id="cre_amount_0">
+                                            <select class="form-control" name="credit_debit[]" id="cre_amount_0" onchange="check_price_details()">
                                                 <option value="Credit" >Credit</option>
                                                 <option value="Debit" >Debit</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <input  type="text" class="form-control cal_amount" id="cal_amount_1" name="credit_amount[]" value="" placeholder="Amount" />
+                                            <input  type="text" class="form-control cal_amount" id="cal_amount_0" name="credit_amount[]" value="" placeholder="Amount" required/>
                                         </td>
                                         <td>
                                             <input  type="text" class="form-control cal_tds_amount" name="tds_amount[]" value="" placeholder="TDS Amount" />
@@ -194,7 +194,7 @@
                                             <input  type="text" class="form-control" name="invoice_id[]" value="" placeholder="Invoice ID" />
                                         </td>
                                         <td>
-                                            <select class="form-control" name="credit_debit[]" id="cre_amount_1">
+                                            <select class="form-control" name="credit_debit[]" id="cre_amount_1" onchange="check_price_details()">
                                                 <option value="Credit" >Credit</option>
                                                 <option value="Debit" >Debit</option>
                                             </select>
@@ -240,17 +240,18 @@
                                     <tr>
                                     <tr>
                                         <td class="text-center" style="vertical-align: middle;"> 
-                                            <input type="text" name='bankname'  class="form-control" value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['bankname'];}?>" placeholder="Please Enter Bank Name">
+                                            <input style="margin-bottom:25px;" type="text" name='bankname'  class="form-control" value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['bankname'];}?>" placeholder="Please Enter Bank Name">
+                                            <div class="input-group input-append date" >
+                                                <input style="background-color: #fff;" type="text" id="datepicker" class="form-control" name="tdate" readonly='true' value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['transaction_date'];} else { echo date('Y-m-d');}?>">
+                                                <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                            </div>
                                         </td>
                                         <td></td>
                                         <td  class="text-center">
                                             <textarea class="form-control"  name="description" cols="5" rows="5" placeholder="Add transaction remarks"><?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['description'];}?></textarea>
                                         </td>
                                         <td  class="text-center" style="vertical-align: middle;">
-                                            <div class="input-group input-append date" >
-                                                <input style="background-color: #fff;" type="text" id="datepicker" class="form-control" name="tdate" readonly='true' value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['transaction_date'];} else { echo date('Y-m-d');}?>">
-                                                <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
-                                            </div>
+                                            
                                         </td>
                                     </tr>
                                 </tbody>
@@ -284,18 +285,24 @@
 }
 
 $(document).on('keyup', '.cal_amount', function (e) {
-    f_amount = 0;
+   check_price_details();
+});
+
+function check_price_details(){
+     f_amount = 0;
     $('.cal_amount').each(function() {
           var id_key = this.id.split('cal_amount_');
           var credit_debit =  $("#cre_amount_"+id_key[1]).val();
           var amount = $("#cal_amount_"+ id_key[1]).val();
-          
-          if(credit_debit === "Debit"){
-              f_amount = Number(f_amount) + Number(amount);
-              
-          } else {
-               f_amount = Number(f_amount)- Number(amount);
-              
+         
+          if(amount > 0){
+            if(credit_debit === "Debit"){
+                f_amount = Number(f_amount) - Number(amount);
+
+            } else {
+                 f_amount = Number(f_amount) + Number(amount);
+
+            }
           }
     });
     if(f_amount > 0){
@@ -304,7 +311,7 @@ $(document).on('keyup', '.cal_amount', function (e) {
         $("#span_c_d").text("Debit"); 
     }
     $("#in_amount").val(Math.abs(f_amount.toFixed(0)));
-});
+}
 
 </script>
 <?php if($this->session->userdata('success')) { $this->session->unset_userdata('success'); } ?>
