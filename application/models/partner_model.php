@@ -513,12 +513,12 @@ class Partner_model extends CI_Model {
 //	$this->db->where('partner_id', $partner_id);
 //	$this->db->where_in('current_status', array('Pending', 'Rescheduled'));
 //	$total_install_sched = $this->db->count_all_results('booking_details');
-        $sql = "SELECT COUNT(distinct(booking_id)) FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
+        $sql = "SELECT COUNT(distinct(booking_id)) as total FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
 	    . " AND (new_state = 'Pending' OR new_state = 'Rescheduled') "
 	    . " AND (old_state = 'FollowUp' OR old_state = 'New_Booking' ) ";
         $scheduled_query = $this->db->query($sql);
-	$total__scheduled = $scheduled_query->result_array();
-	$total_install_sched = count($total__scheduled);
+	$total_install_sched = $scheduled_query->result_array();
+	$total_install_sched = $total_install_sched[0]['total'];
         
 	//Count today installations scheduled
         $this->db->distinct();
