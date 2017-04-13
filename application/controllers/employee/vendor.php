@@ -740,8 +740,9 @@ class vendor extends CI_Controller {
      * @return : array(of details) to view
      */
     function editvendor($id) {
+        
         $query = $this->vendor_model->editvendor($id);
-
+        if(!empty($query)){
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->getall_state();
@@ -762,6 +763,9 @@ class vendor extends CI_Controller {
         $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
             => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
             'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm));
+        } else{
+            echo "Vendor Not Exist";
+        }
     }
 
     /**
@@ -806,6 +810,7 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function activate($id) {
+        if(!empty($id)){
         $this->vendor_model->activate($id);
         
         //Getting Vendor Details
@@ -835,6 +840,7 @@ class vendor extends CI_Controller {
         //Storing State change values in Booking_State_Change Table
         $this->notify->insert_state_change('', _247AROUND_VENDOR_ACTIVATED, _247AROUND_VENDOR_DEACTIVATED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
+        } 
     }
 
     /**
@@ -971,12 +977,14 @@ class vendor extends CI_Controller {
      * @param: booking id
      * @return : void
      */
-    function get_reassign_vendor_form($booking_id = "") {
-        $service_centers = $this->booking_model->select_service_center();
+    function get_reassign_vendor_form($booking_id) {
+        if(!empty($booking_id)){
+            $service_centers = $this->booking_model->select_service_center();
 
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
-        $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers));
+            $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers));
+        }
     }
 
     /**
@@ -988,10 +996,12 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function process_reassign_vendor_form() {
-        $booking_id = $this->input->post('booking_id');
-        $service_center_id = $this->input->post('service');
+        $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
+        $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
+        if ($this->form_validation->run()) {
+            $booking_id = $this->input->post('booking_id');
+            $service_center_id = $this->input->post('service');
 
-	if ($service_center_id != "Select") {
 //            if (IS_DEFAULT_ENGINEER == TRUE) {
 //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
 //            } else {
@@ -1001,24 +1011,24 @@ class vendor extends CI_Controller {
 //                }
 //            }
             //Assign service centre and engineer
-            $assigned_data = array('assigned_vendor_id'=>$service_center_id, 
-                'assigned_engineer_id' =>DEFAULT_ENGINEER,
-                'is_upcountry'=>0,
-                'upcountry_pincode' =>NULL,
-                'sub_vendor_id'=> NULL,
-                'sf_upcountry_rate'=> NULL,
-                'partner_upcountry_rate'=> NULL,
+            $assigned_data = array('assigned_vendor_id' => $service_center_id,
+                'assigned_engineer_id' => DEFAULT_ENGINEER,
+                'is_upcountry' => 0,
+                'upcountry_pincode' => NULL,
+                'sub_vendor_id' => NULL,
+                'sf_upcountry_rate' => NULL,
+                'partner_upcountry_rate' => NULL,
                 'is_penalty' => 0,
                 'upcountry_partner_approved' => 1,
-                'upcountry_paid_by_customer' =>0,
-                'upcountry_distance'=> NULL);
-            
+                'upcountry_paid_by_customer' => 0,
+                'upcountry_distance' => NULL);
+
             $this->booking_model->update_booking($booking_id, $assigned_data);
 
             $this->vendor_model->delete_previous_service_center_action($booking_id);
             $unit_details = $this->booking_model->getunit_details($booking_id);
-           
-            foreach ($unit_details[0]['quantity'] as $value ) {
+
+            foreach ($unit_details[0]['quantity'] as $value) {
                 $data = array();
                 $data['current_status'] = "Pending";
                 $data['internal_status'] = "Pending";
@@ -1028,43 +1038,42 @@ class vendor extends CI_Controller {
                 $data['update_date'] = date('Y-m-d H:i:s');
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
-                
             }
 
-            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, 
-                    "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), 
-                    $this->session->userdata('employee_id'), _247AROUND);
-            
+            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+
             $sp['service_center_id'] = $service_center_id;
-            $this->service_centers_model->update_spare_parts(array('booking_id'=>$booking_id), $sp);
-            
+            $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), $sp);
+
             //Mark Upcountry & Create Job Card
-            $url = base_url() . "employee/vendor/mark_upcountry_booking/".$booking_id."/".$this->session->userdata('id')
-                    ."/".$this->session->userdata('employee_id');
+            $url = base_url() . "employee/vendor/mark_upcountry_booking/" . $booking_id . "/" . $this->session->userdata('id')
+                    . "/" . $this->session->userdata('employee_id');
             $async_data['data'] = array();
             $this->asynchronous_lib->do_background_process($url, $async_data);
-            
+
             $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
 
-	    log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
-            $this->session->userdata('employee_id') . " service center id " . $service_center_id);
-             
+            log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
+                    $this->session->userdata('employee_id') . " service center id " . $service_center_id);
+
 
 
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
-	} else {
+        } else {
             $output = "Please select any service center.";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
-            redirect(base_url() . 'employee/vendor/get_reassign_vendor_form/' . $booking_id, 'refresh');
+            redirect(base_url() . DEFAULT_SEARCH_PAGE);
         }
     }
-    
-    function mark_upcountry_booking($booking_id, $agent_id,$agent_name){
-        log_message('info', __METHOD__ ." Booking_id " . $booking_id . "  By agent id " .
-            $agent_id . $agent_name);
-        $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
-        $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+
+    function mark_upcountry_booking($booking_id, $agent_id, $agent_name) {
+        if (!empty($booking_id)) {
+            log_message('info', __METHOD__ . " Booking_id " . $booking_id . "  By agent id " .
+                    $agent_id . $agent_name);
+            $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
+            $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+        }
     }
 
     /**
