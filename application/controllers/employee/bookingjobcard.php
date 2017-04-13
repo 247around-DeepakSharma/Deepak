@@ -162,7 +162,7 @@ class bookingjobcard extends CI_Controller {
 
         //Upload Excel & PDF files to AWS
         $bucket = BITBUCKET_DIRECTORY;
-        $directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
+        $directory_xls = "jobcards-pdf/" . $output_file . ".xlsx";
         $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
         
         //Update JOb Card Booking
@@ -279,14 +279,14 @@ class bookingjobcard extends CI_Controller {
 
 	    if ($is_mail) {
 		$data['success'] = "Mail sent to Service Center successfully.";
-                $this->session->set_flashdata('result', 'Mail sent to Service Center successfully');
+               // $this->session->set_flashdata('result', 'Mail sent to Service Center successfully');
                 //Setting flag to 1, once mail is sent.
                 $this->booking_model->set_mail_to_vendor($booking_id);
             } else {
                 log_message('info', __FUNCTION__ . " => Error: Mail could not be sent");
                 
                 $data['success'] = "Mail could not be sent, please try again.";
-                $this->session->set_flashdata('result', 'Mail could not be sent, please try again');
+               // $this->session->set_flashdata('result', 'Mail could not be sent, please try again');
             }
 
             redirect(base_url() . 'employee/booking/view');

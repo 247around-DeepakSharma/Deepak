@@ -143,7 +143,7 @@ class Booking_utilities {
 
             //Upload Excel & PDF files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
+            $directory_xls = "jobcards-pdf/" . $output_file . ".xlsx";
             $this->My_CI->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             
             //Update JOb Card Booking

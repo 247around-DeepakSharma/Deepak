@@ -182,7 +182,7 @@
                     <td><?=$row->id?>.</td>
 
                             <td><?php
-				    echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-excel/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
+				    echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
     			    </td>
 
                     <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
