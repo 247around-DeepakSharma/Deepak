@@ -2160,3 +2160,13 @@ ALTER TABLE `challan_details`
 ---Abhay 11-04--
 ALTER TABLE `bank_transactions` ADD `agent_id` INT(11) NULL DEFAULT NULL AFTER `description`;
 
+CREATE TABLE `invoice_challan_id_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `challan_id` int(11) NOT NULL,
+  `invoice_id` varchar(255) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `invoice_challan_id_mapping`
+  ADD PRIMARY KEY (`id`);
+

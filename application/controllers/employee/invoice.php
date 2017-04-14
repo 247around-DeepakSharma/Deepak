@@ -33,6 +33,7 @@ class Invoice extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library("session");
         $this->load->library('s3');
+        $this->load->library('table');
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
@@ -646,6 +647,7 @@ class Invoice extends CI_Controller {
                 $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
             }
             $this->email->attach(TMP_FOLDER .$invoice_id. ".pdf", 'attachment');
+            
 
             $mail_ret = $this->email->send();
 
@@ -3175,7 +3177,6 @@ class Invoice extends CI_Controller {
             echo "DATA NOT FOUND";
         }
     }
-
     /**
      * @desc: This is used to Insert CRM SETUP invoice
      */
@@ -3362,13 +3363,24 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * @desc: This Function is used to show tha challan upload form
+     * @desc: This Function is used to show the challan upload form
      * @param: void
      * @return : void
      */
     function get_challan_upload_form() {
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/upload_challan_details');
+    }
+
+    /**
+     * @desc: This Function is used to show the challan EDIT form
+     * @param: string
+     * @return : void
+     */
+    function get_challan_edit_form($challan_id = "") {
+        $data['challan_data'] = $this->invoices_model->fetch_challan_details('', $challan_id);
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/upload_challan_details', $data);
     }
 
     /**
@@ -3385,6 +3397,7 @@ class Invoice extends CI_Controller {
                 $tmpFile = $_FILES['challan_file']['tmp_name'];
                 $challan_file = implode("", explode(" ", $this->input->post('cin_no'))) . '_challanfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['challan_file']['name'])[1];
                 move_uploaded_file($tmpFile, TMP_FOLDER . $challan_file);
+                $_POST['challan_file_name'] = $challan_file;
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "vendor-partner-docs/" . $challan_file;
@@ -3393,13 +3406,18 @@ class Invoice extends CI_Controller {
                 log_message('info', __CLASS__ . 'Challan FILE is being uploaded sucessfully.');
             } else {
                 //Redirect back to Form
-                $error_msg = "Please Upload Valid Challan File";
-                $this->session->set_flashdata('error_msg', $error_msg);
-                redirect(base_url() . 'employee/invoice/get_challan_upload_form');
+                if ($this->input->post('id')) {
+                    $is_image_exist = true;
+                } else {
+                    $error_msg = "Please Upload Valid Challan File";
+                    $this->session->set_flashdata('error_msg', $error_msg);
+                    redirect(base_url() . 'employee/invoice/get_challan_upload_form');
+                }
             }
             $daterange = explode('-', $this->input->post('daterange'));
             $from_date = $daterange[0];
             $to_date = $daterange[1];
+            //get all the data from the form
             $data = array('serial_no' => $this->input->post('serial_no'),
                 'cin_no' => $this->input->post('cin_no'),
                 'type' => $this->input->post('challan_type'),
@@ -3408,11 +3426,23 @@ class Invoice extends CI_Controller {
                 'paid_by' => $this->input->post('paid_by'),
                 'challan_tender_date' => $this->input->post('tender_date'),
                 'remarks' => $this->input->post('remarks'),
-                'challan_file' => $challan_file,
                 'from_date' => $from_date,
                 'to_date' => $to_date
             );
-            $insert_id = $this->invoices_model->insert_challan_details($data);
+
+            //if challan file exist then get the file name
+            if ($this->input->post('challan_file_name')) {
+                $data['challan_file'] = $this->input->post('challan_file_name');
+            }
+
+            //if challan id exist then edit the details else add the details
+            if ($this->input->post('id')) {
+                $insert_id = $this->invoices_model->edit_challan_details($data, $this->input->post('id'));
+            } else {
+                $insert_id = $this->invoices_model->insert_challan_details($data);
+            }
+
+            //show message on the basis of previous action on database
             if ($insert_id) {
                 $success_msg = "Challan Details uploaded successfully";
                 $this->session->set_flashdata('success_msg', $success_msg);
@@ -3423,9 +3453,11 @@ class Invoice extends CI_Controller {
                 redirect(base_url() . 'employee/invoice/get_challan_upload_form');
             }
         } else {
-            $error_msg = "Error!!! Please Try Again";
-            $this->session->set_flashdata('error_msg', $error_msg);
-            redirect(base_url() . 'employee/invoice/get_challan_upload_form');
+            if ($this->input->post('id')) {
+                $this->get_challan_edit_form($this->input->post('id'));
+            } else {
+                $this->get_challan_upload_form();
+            }
         }
     }
 
@@ -3461,7 +3493,7 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * @desc: This Function is get the challan history view on ajax call
+     * @desc: This Function is use to get the challan history view on ajax call
      * @param: void
      * @return : string
      */
@@ -3472,34 +3504,123 @@ class Invoice extends CI_Controller {
         $this->load->view('employee/challan_details', $data);
     }
 
+    /**
+     * @desc: This Function is use to do mapping between invoice id and challan id
+     * @param: void
+     * @return : void
+     */
     function mapping_challanId_to_InvoiceId() {
-        $challan_id = $this->input->post('challan_id');
-        $invoice_id = $this->input->post('invoice_id');
+        $this->form_validation->set_rules('challan_id', 'Challan Id', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('invoice_id', 'Invoice Id', 'required|trim|xss_clean');
+        if ($this->form_validation->run() == FALSE) {
+            $error_msg = "Please Try Again!!! You are trying to submit an empty form.";
+            $this->session->set_flashdata('error_msg', $error_msg);
+            redirect(base_url() . 'employee/invoice/get_challan_details');
+        } else {
+            $challan_id = $this->input->post('challan_id');
+            $invoice_id = $this->input->post('invoice_id');
 
-        //getting invoice id corresponding to challan id
-        foreach ($challan_id as $challan_id_key => $challan_id_value) {
-            $data = [];
-            $invoice_id_array = explode(',', $invoice_id[$challan_id_key]);
+            //getting invoice id corresponding to challan id
+            foreach ($challan_id as $challan_id_key => $challan_id_value) {
+                $data = [];
+                $invoice_id_array = explode(',', $invoice_id[$challan_id_key]);
 
-            //getting data to insert into database
-            foreach ($invoice_id_array as $invoice_id_key => $invoice_id_value) {
-                $arr = array('challan_id' => $challan_id_value,
-                    'invoice_id' => $invoice_id_value);
-                array_push($data, $arr);
+                //getting data to insert into database
+                foreach ($invoice_id_array as $invoice_id_key => $invoice_id_value) {
+                    $arr = array('challan_id' => $challan_id_value,
+                        'invoice_id' => $invoice_id_value);
+                    array_push($data, $arr);
+                }
+
+                //insert data into database in batch
+                $insert_id = $this->invoices_model->insert_invoice_challan_id_mapping_data($data);
+                if ($insert_id) {
+                    log_message('info', __METHOD__ . " : Invoice ID corresponding to challan ID = $challan_id_value inserted successfully");
+                } else {
+                    log_message('info', __METHOD__ . " : Error in inserting Invoice ID corresponding to challan ID = $challan_id_value");
+                }
             }
 
-            //insert data into database in batch
-            $insert_id = $this->invoices_model->insert_invoice_challan_id_mapping_data($data);
-            if ($insert_id) {
-                log_message('info', __METHOD__ . " : Invoice ID corresponding to challan ID = $challan_id_value inserted successfully");
-            } else {
-                log_message('info', __METHOD__ . " : Error in inserting Invoice ID corresponding to challan ID = $challan_id_value");
-            }
+            $success_msg = "Mapping has been done successfully";
+            $this->session->set_flashdata('success_msg', $success_msg);
+            redirect(base_url() . 'employee/invoice/get_challan_details');
         }
+    }
+    
+    /**
+     * @desc: This Function is used to show the payment report
+     * @param: void
+     * @return : void
+     */
+    function sales_purchase_payment_report() {
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/payment_history_report_view');
+    }
+    
+    /**
+     * @desc: This Function is used to show the payment report by ajax call
+     * @param: void
+     * @return : view
+     */
+    function get_sales_purchase_payment_report() {
+        $payment_type = $this->input->post('type');
+        $from_date = $this->input->post('from_date');
+        $to_date = $this->input->post('to_date');
+        $partner_vendor = $this->input->post('partner_vendor');
+        $data['report_data'] = $this->invoices_model->get_payment_history_data($payment_type, $from_date, $to_date, $partner_vendor);
+        $data['partner_vendor'] = $partner_vendor;
+        $data['payment_type'] = $payment_type;
+        echo $this->load->view('employee/paymnet_history_table_view.php', $data);
+    }
+    
+    
+    /**
+     * @desc: This Function is used to download the the payment report by ajax call
+     * in excel
+     * @param: void
+     * @return : view
+     */
+    function download_sales_purchase_report() {
+        $from_date = $this->input->post('from_date');
+        $to_date = $this->input->post('to_date');
+        $data['partner_sales_report'] = $this->invoices_model->get_payment_history_data('sales', $from_date, $to_date, 'partner');
+        $data['vendor_sales_report'] = $this->invoices_model->get_payment_history_data('sales', $from_date, $to_date, 'vendor');
+        $data['stand_sales_report'] = $this->invoices_model->get_payment_history_data('sales', $from_date, $to_date, 'stand');
+        $data['partner_purchase_report'] = $this->invoices_model->get_payment_history_data('purchase', $from_date, $to_date, 'partner');
+        $data['vendor_purchase_report'] = $this->invoices_model->get_payment_history_data('purchase', $from_date, $to_date, 'vendor');
+        $data['stand_purchase_report'] = $this->invoices_model->get_payment_history_data('purchase', $from_date, $to_date, 'stand');
 
-        $success_msg = "Mapping has been done successfully";
-        $this->session->set_flashdata('success_msg', $success_msg);
-        redirect(base_url() . 'employee/invoice/get_challan_details');
+        $partner_sales_report_template = 'partner_sale_report.xlsx';
+        $vendor_sales_report_template = 'vendor_sale_report.xlsx';
+
+        $partner_sales_excel = $this->generate_payment_report_excel_file($partner_sales_report_template, $data['partner_sales_report'], 'partner_sales');
+        $vendor_sales_excel = $this->generate_payment_report_excel_file($vendor_sales_report_template, $data['vendor_sales_report'], 'vendor_sales');
+    }
+    
+    /**
+     * @desc: This Function is used to combined the generated excel sheet payment report
+     * into single sheet 
+     * @param: string,array
+     * @return : string
+     */
+    function generate_payment_report_excel_file($template, $data, $file_name) {
+        $templateDir = __DIR__ . "/../excel-templates/";
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        $R = new PHPReport($config);
+        $R->load(array(
+            array(
+                'id' => 'report_data',
+                'repeat' => true,
+                'data' => $data,
+            ),
+        ));
+        //Get populated XLS with data
+        $output_file = TMP_FOLDER . "" . $file_name . "_Payment_report - " . date('d-M-Y') . ".xlsx";
+        $R->render('excel', $output_file);
+        return $output_file;
     }
 
 }

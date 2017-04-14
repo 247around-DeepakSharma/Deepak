@@ -301,8 +301,21 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Check</strong></a>
                         </li>
+                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoiceDashboard/service_center_invoice"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Check</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/get_challan_upload_form"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Challan</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/get_challan_details"><i class="fa fa-fw fa-desktop "></i> <strong>Challan History</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/sales_purchase_payment_report"><i class="fa fa-fw fa-desktop "></i> <strong>Payment Report</strong></a>
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
