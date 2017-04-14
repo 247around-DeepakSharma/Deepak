@@ -2086,3 +2086,7 @@ CREATE TABLE `invoice_challan_id_mapping` (
 ALTER TABLE `invoice_challan_id_mapping`
   ADD PRIMARY KEY (`id`);
 
+
+
+---Abhay 11-04--
+ALTER TABLE `bank_transactions` ADD `agent_id` INT(11) NULL DEFAULT NULL AFTER `description`;

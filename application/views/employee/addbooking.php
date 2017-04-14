@@ -32,6 +32,7 @@
                                     <div class="col-md-6">
                                         <input type="hidden" name="upcountry_data" value="" id="upcountry_data" /> 
                                          <input type="hidden" name="partner_type" value="" id="partner_type" />
+                                          <input type="hidden" name="assigned_vendor_id" value="" id="assigned_vendor_id" />
                                         <input type="text" class="form-control" id="name" name="user_name" value = "<?php echo $user[0]['name'] ?>" readonly="readonly">
                                     </div>
                                 </div>

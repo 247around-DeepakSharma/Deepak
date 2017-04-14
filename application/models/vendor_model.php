@@ -1697,10 +1697,16 @@ class vendor_model extends CI_Model {
      * @return boolean
      */
     function assign_service_center_for_booking($booking_id, $data){
-        $this->db->where('booking_id', $booking_id);
-        $this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
-        $this->db->update('booking_details',$data);
-        return $this->db->affected_rows();
+        if($booking_id != 0 || $booking_id != ''){
+            $this->db->where('booking_id', $booking_id);
+            $this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
+            $this->db->update('booking_details',$data);
+            log_message('info', __METHOD__ . "=> Assigned Vendor SQL: " . $this->db->last_query() );
+            return $this->db->affected_rows();
+        } else {
+            return false;
+        }
+       
     }
     /**
      * @desc This is used to retuen auto assigned booking

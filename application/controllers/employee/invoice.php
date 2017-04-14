@@ -197,9 +197,11 @@ class Invoice extends CI_Controller {
     function get_add_new_transaction($vendor_partner = "", $id = "") {
         $data['vendor_partner'] = $vendor_partner;
         $data['id'] = $id;
-        $data['invoice_id'] = $this->input->post('invoice_id');
+        $data['invoice_id_array'] = $this->input->post('invoice_id');
         $data['selected_amount_collected'] = $this->input->post('selected_amount_collected');
         $data['selected_tds'] = $this->input->post('selected_tds');
+        $data['tds_amount'] = $this->input->post('tds_amount');
+        $data['amount_collected'] = $this->input->post('amount_collected');
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/addnewtransaction', $data);
@@ -222,15 +224,31 @@ class Invoice extends CI_Controller {
             } else if ($details[0]['debit_amount'] > 0) {
                 $amount = -$details[0]['debit_amount'];
             }
-            $data['invoice_id'] = explode(",", $details[0]['invoice_id']);
+            $data['invoice_id_array'] = explode(",", $details[0]['invoice_id']);
             $data['selected_amount_collected'] = $amount;
             $data['selected_tds'] = $details[0]['tds_amount'];
+            $amount_collected = array();
+            $tds = array();
+            foreach($data['invoice_id_array'] as $value ){
+                $where = " invoice_id = '" . $value . "' ";
+                $data1 = $this->invoices_model->get_invoices_details($where);
+                if($data1[0]['amount_collected_paid'] > 0){
+                    $amount = $data1[0]['amount_collected_paid'] - $data1[0]['amount_paid'];
+                } else {
+                     $amount = $data1[0]['amount_collected_paid'] + $data1[0]['amount_paid'];
+                }
+                $amount_collected[$value] = $amount;
+                $tds[$value] = $data1[0]['tds_amount'];
+                
+            }
+            
+            $data['tds_amount'] = $amount_collected;
+            $data['amount_collected'] = $tds;
 
             $this->load->view('employee/header/' . $this->session->userdata('user_group'));
             $this->load->view('employee/addnewtransaction', $data);
         }
     }
-
     /**
      *  @desc : This is used to insert and update bank transaction table. It gets bank transaction id while update other wise empty
      *  @param : void
@@ -239,78 +257,114 @@ class Invoice extends CI_Controller {
     function post_add_new_transaction() {
         $account_statement['partner_vendor'] = $this->input->post('partner_vendor');
         $account_statement['partner_vendor_id'] = $this->input->post('partner_vendor_id');
-        $account_statement['invoice_id'] = $this->input->post('invoice_id');
         $account_statement['bankname'] = $this->input->post('bankname');
-        $account_statement['credit_debit'] = $this->input->post('credit_debit');
         $account_statement['transaction_mode'] = $this->input->post('transaction_mode');
-        $account_statement['tds_amount'] = $this->input->post('tds_amount');
-        $partner_amount = $this->input->post("partner_amount");
-        //Get bank txn id while update other wise empty.
-        $bank_txn_id = $this->input->post("bank_txn_id");
-        $amount = $this->input->post('amount');
-        $paid_amount = 0;
-        if ($account_statement['credit_debit'] == 'Credit') {
-            $account_statement['debit_amount'] = '0';
-            $account_statement['credit_amount'] = $amount;
-            $paid_amount = -$amount;
-        } else if ($account_statement['credit_debit'] == 'Debit') {
-            $account_statement['credit_amount'] = '0';
-            $account_statement['debit_amount'] = $amount;
-            $paid_amount = $amount;
-        }
-
+        $invoice_id_array = $this->input->post('invoice_id');
+        $credit_debit_array = $this->input->post('credit_debit');
+        
+        $tds_amount_array = $this->input->post('tds_amount');
+        $credit_debit_amount = $this->input->post('credit_debit_amount');
         $transaction_date = $this->input->post('tdate');
         $account_statement['transaction_date'] = date("Y-m-d", strtotime($transaction_date));
         $account_statement['description'] = $this->input->post('description');
+        //Get bank txn id while update other wise empty.
+        $bank_txn_id = $this->input->post("bank_txn_id");
+        $account_statement['invoice_id'] = implode(",", $invoice_id_array);
+        $paid_amount = 0;
+        $tds = 0;
+        $payment_history = array();
+        foreach ($invoice_id_array as $key => $invoice_id) {
+            if (!empty($invoice_id)) {
+                $p_history = array();
+                $vp_details = array();
+                $where = " invoice_id = '" . $invoice_id . "' ";
+                $data = $this->invoices_model->get_invoices_details($where);
+                $credit_debit = $credit_debit_array[$key];
+                $p_history['invoice_id'] = $invoice_id;
+                $p_history['credit_debit'] = $credit_debit;
+                $p_history['credit_debit_amount'] = round($credit_debit_amount[$key],0);
+                $p_history['agent_id'] = $this->session->userdata('id');
+                $p_history['tds_amount'] = $tds_amount_array[$key];
+                $p_history['create_date'] = date("Y-m-d H:i:s");
+                array_push($payment_history, $p_history);
 
-        $invoice_id = explode(',', $account_statement['invoice_id']);
-        if ($account_statement['partner_vendor'] == "partner") {
-            if ($partner_amount > $amount) {
-                $expected_tds = $partner_amount - $amount;
-                $per_tds = ($expected_tds * 100) / $partner_amount;
+                if ($credit_debit == 'Credit') {
 
-                $this->settle_partner_tds_amount($invoice_id, $per_tds);
+                    $paid_amount += round($credit_debit_amount[$key], 0);
+                } else if ($credit_debit == 'Debit') {
+
+                    $paid_amount += (-round($credit_debit_amount[$key], 0));
+                }
+                $tds += $tds_amount_array[$key];
+                $amount_collected = abs(round(($data[0]['amount_collected_paid'] + $data[0]['amount_paid']), 0));
+                if ($amount_collected == round($credit_debit_amount[$key], 0)) {
+                    $vp_details['settle_amount'] = 1;
+                    $vp_details['amount_paid'] = $amount_collected;
+                } else {
+                    //partner Pay to 247Around
+                    if ($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Debit') {
+                        $per_tds = ($tds_amount_array[$key] * 100) / $data[0]['amount_collected_paid'];
+                        $vp_details['tds_amount'] = $tds_amount_array[$key];
+                        $vp_details['tds_rate'] = $per_tds;
+                        $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
+                        $vp_details['around_royalty'] = $vp_details['amount_collected_paid'] = $amount_collected;
+                        if (round($amount_collected, 0) == round($credit_debit_amount[$key])) {
+                            $vp_details['settle_amount'] = 1;
+                        } else {
+                            $vp_details['settle_amount'] = 0;
+                        }
+                    } else {
+                        $vp_details['settle_amount'] = 0;
+                        $vp_details['amount_paid'] = $data[0]['amount_paid'] + $credit_debit_amount[$key];
+                    }
+                }
+
+                $this->invoices_model->update_partner_invoices(array('invoice_id' => $invoice_id), $vp_details);
             }
         }
 
-        $this->invoices_model->update_settle_invoices($invoice_id, $paid_amount, $account_statement['partner_vendor'], $account_statement['partner_vendor_id']);
+        if ($paid_amount > 0) {
+            $account_statement['debit_amount'] = '0';
+            $account_statement['credit_amount'] = abs($paid_amount);
+            $account_statement['credit_debit'] = 'Credit';
+        } else {
+            $account_statement['debit_amount'] = abs($paid_amount);
+            $account_statement['credit_amount'] = '0';
+            $account_statement['credit_debit'] = 'Debit';
+        }
+        $account_statement['agent_id'] =  $this->session->userdata('id');           
         if (empty($bank_txn_id)) {
-            $this->invoices_model->bankAccountTransaction($account_statement);
+            $bank_txn_id = $this->invoices_model->bankAccountTransaction($account_statement);
         } else {
             $this->invoices_model->update_bank_transactions(array('id' => $bank_txn_id), $account_statement);
         }
+        
+        foreach($payment_history as $key => $value){
+            $payment_history[$key]['bank_transaction_id	'] = $bank_txn_id;
+        }
+        $this->invoices_model->insert_batch_payment_history($payment_history);
 
         //Send SMS to vendors about payment
         if ($account_statement['partner_vendor'] == 'vendor') {
-            $vendor_arr = $this->vendor_model->getVendorContact($account_statement['partner_vendor_id']);
-            $v = $vendor_arr[0];
-
-            $sms['tag'] = "payment_made_to_vendor";
-            $sms['phone_no'] = $v['owner_phone_1'];
-            $sms['smsData'] = "previous month";
-            $sms['booking_id'] = "";
-            $sms['type'] = $account_statement['partner_vendor'];
-            $sms['type_id'] = $account_statement['partner_vendor_id'];
-
-            $this->notify->send_sms_acl($sms);
+            $this->send_payment_sms_to_vendor($account_statement);
         }
 
         redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
     }
+    
+    function send_payment_sms_to_vendor($account_statement){
+        $vendor_arr = $this->vendor_model->getVendorContact($account_statement['partner_vendor_id']);
+        $v = $vendor_arr[0];
 
-    function settle_partner_tds_amount($invoice_id, $per_tds) {
-        for ($i = 0; $i < count($invoice_id); $i++) {
-            $invoice_data = array();
-            $where = " invoice_id = '" . $invoice_id[$i] . "' ";
-            $data = $this->invoices_model->get_invoices_details($where);
-            $invoice_data['tds_amount'] = ($data[0]['total_amount_collected'] * $per_tds) / 100;
-            $invoice_data['tds_rate'] = $per_tds;
-            $amount_collected = $data[0]['total_amount_collected'] - $invoice_data['tds_amount'];
+        $sms['tag'] = "payment_made_to_vendor";
+        $sms['phone_no'] = $v['owner_phone_1'];
+        $sms['smsData'] = "previous month";
+        $sms['booking_id'] = "";
+        $sms['type'] = $account_statement['partner_vendor'];
+        $sms['type_id'] = $account_statement['partner_vendor_id'];
 
-            $invoice_data['around_royalty'] = $invoice_data['amount_collected_paid'] = $amount_collected;
-            $this->invoices_model->update_partner_invoices(array('invoice_id' => $invoice_id[$i]), $invoice_data);
-        }
-        return true;
+        $this->notify->send_sms_acl($sms);
+        
     }
 
     /**
@@ -2785,6 +2839,7 @@ class Invoice extends CI_Controller {
                     $data['service_tax'] + $data['courier_charges'] - $data['penalty_amount']), 0);
 
             $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+            $data['invoice_date'] = date('Y-m-d');
 
             $entity_details = array();
             $main_invoice_file = "";

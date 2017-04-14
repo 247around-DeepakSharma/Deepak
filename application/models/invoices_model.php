@@ -81,6 +81,7 @@ class invoices_model extends CI_Model {
     //Function to insert banks account/statement
     function bankAccountTransaction($account_statement) {
         $this->db->insert('bank_transactions', $account_statement);
+        return $this->db->insert_id();
     }
 
     function get_bank_transactions_details($data) {
@@ -1248,8 +1249,7 @@ class invoices_model extends CI_Model {
         $this->db->insert('challan_details', $data);
         return $this->db->insert_id();
     }
-    
-    
+
     /**
      * @desc: This Function is used to edit the challan details
      * @param: array
@@ -1260,8 +1260,7 @@ class invoices_model extends CI_Model {
         $this->db->update('challan_details', $data);
         if ($this->db->affected_rows() > 0) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -1271,10 +1270,10 @@ class invoices_model extends CI_Model {
      * @param: string
      * @return : array
      */
-    function fetch_challan_details($challan_type="" ,$challan_id="") {
+    function fetch_challan_details($challan_type = "", $challan_id = "") {
         if ($challan_type != 'ALL' && $challan_id == "") {
             $this->db->where('type', $challan_type);
-        }else if($challan_type == "" && $challan_id != ""){
+        } else if ($challan_type == "" && $challan_id != "") {
             $this->db->where('id', $challan_id);
         }
         $this->db->select('*');
@@ -1293,8 +1292,7 @@ class invoices_model extends CI_Model {
         $this->db->insert_batch('invoice_challan_id_mapping', $data);
         return $this->db->insert_id();
     }
-    
-    
+
     /**
      * @desc: This Function is used to get the payment report based on payment type
      * @param: string
@@ -1316,7 +1314,7 @@ class invoices_model extends CI_Model {
 
         return $return_data;
     }
-    
+
     /**
      * @desc: This Function is used to get the SALES PAYMENT REPORT
      * @param: string
@@ -1343,7 +1341,7 @@ class invoices_model extends CI_Model {
                     WHERE V.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)
                     AND V.vendor_partner =  'vendor' AND V.invoice_date >= '$from_date' AND V.invoice_date <= '$to_date'
                     AND type_code = 'A' AND type = 'Cash'";
-        }else if($partner_vendor == 'stand'){
+        } else if ($partner_vendor == 'stand') {
             $sql = "SELECT `invoice_id` as 'InvoiceNo', name as 'CompanyName', sc.state as State, IFNULL(tin_no,'') as 'TINNo', 
                     invoice_date as 'InvoiceDate', vpi.`from_date` as 'FromDate', vpi.`to_date` as 'ToDate', 
                     `parts_cost` as Parts, `vat` as VAT, `total_amount_collected` as 'TotalAmount',
@@ -1353,18 +1351,18 @@ class invoices_model extends CI_Model {
                     AND type_code = 'A' AND type =  'Stand'
                     AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'";
         }
-        
+
         $query = $this->db->query($sql);
         $data = $query->result_array();
         return $data;
     }
-    
+
     /**
      * @desc: This Function is used to get the purchase PAYMENT REPORT
      * @param: string
      * @return : array
      */
-    function get_purchase_payment_history_report($from_date, $to_date, $partner_vendor){
+    function get_purchase_payment_history_report($from_date, $to_date, $partner_vendor) {
         if ($partner_vendor == 'partner') {
             $sql = "SELECT `invoice_id` as 'InvoiceNo', company_name as 'CompanyName', p.state as State, 
                     IFNULL(p.service_tax,'') as 'ServiceTaxNo', IFNULL(tin,'') as 'TINNo', 
@@ -1389,7 +1387,7 @@ class invoices_model extends CI_Model {
                     WHERE `type_code` = 'B' AND `type` = 'FOC' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
                     AND `vendor_partner` = 'vendor' AND `vendor_partner_id`=sc.id AND tax_code='VAT' AND product_type='wall_bracket' 
                     AND sc.state=tr.state AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
-        }else if($partner_vendor == 'stand'){
+        } else if ($partner_vendor == 'stand') {
             $sql = "SELECT `invoice_id` as 'InvoiceNo', company_name as 'CompanyName', P.state as State, IFNULL(P.service_tax,'') as 'ServiceTaxNo',
                     IFNULL(tin,'') as 'TINNo', invoice_date as 'InvoiceDate', `parts_cost` as Parts, `vat` as VAT, 
                     (abs(`amount_collected_paid`) + tds_amount ) as 'TotalAmount',
@@ -1399,10 +1397,15 @@ class invoices_model extends CI_Model {
                     AND `vendor_partner_id`=P.id AND tax_code='VAT' AND product_type='wall_bracket' AND P.state=tr.state 
                     AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
         }
-        
+
         $query = $this->db->query($sql);
         $data = $query->result_array();
         return $data;
+    }
+
+    function insert_batch_payment_history($data) {
+        $this->db->insert_batch('payment_history', $data);
+        return $this->db->insert_id();
     }
 
 }

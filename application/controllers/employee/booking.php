@@ -301,7 +301,7 @@ class Booking extends CI_Controller {
                     $up_flag =0;
                     if(isset($upcountry_data['vendor_id'])){
                         $assigned_vendor_id = $this->input->post('assigned_vendor_id');
-                        if($upcountry_data['vendor_id'] == $assigned_vendor_id){
+                        if(!empty($assigned_vendor_id)){
                             $up_flag = 1;
                         }
                     }
@@ -1058,6 +1058,10 @@ class Booking extends CI_Controller {
 	$partner_code = $this->input->post('partner_code');
         $partner_type = $this->input->post('partner_type');
 	$clone_number = $this->input->post('clone_number');
+        $assigned_vendor_id = $this->input->post('assigned_vendor_id');
+        if(empty($assigned_vendor_id)){
+            $assigned_vendor_id = FALSE;
+        }
 	
         $where_get_partner = array('bookings_sources.code'=>$partner_code);
         $select = "bookings_sources.partner_id,bookings_sources.price_mapping_id, "
@@ -1108,7 +1112,7 @@ class Booking extends CI_Controller {
 		$i++;
 	    }
 	    $data['price_table'] = $html;
-            $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, FALSE);
+            $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, $assigned_vendor_id);
             
             
             $data['upcountry_data'] = json_encode($upcountry_data,true);
