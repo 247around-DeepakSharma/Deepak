@@ -89,14 +89,15 @@ class invoices_model extends CI_Model {
         $query = $this->db->get('bank_transactions');
         return $query->result_array();
     }
+
     /**
      * @desc: This is used to update bank transaction table
      * @param Array $where
      * @param Array $data
      */
-    function update_bank_transactions($where, $data){
+    function update_bank_transactions($where, $data) {
         $this->db->where($where);
-        $this->db->update('bank_transactions',$data);
+        $this->db->update('bank_transactions', $data);
     }
 
     /*
@@ -183,7 +184,7 @@ class invoices_model extends CI_Model {
             $data = $this->db->query($sql);
             $result = $data->result_array();
             $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $value['id']);
-            
+
             $result[0]['vendor_partner'] = $vendor_partner;
 
             if (isset($value['name'])) {
@@ -191,8 +192,8 @@ class invoices_model extends CI_Model {
                 $result[0]['on_off'] = $value['on_off'];
                 $result[0]['active'] = $value['active'];
                 $result[0]['is_verified'] = $value['is_verified'];
-                $where = "service_center_id = '".$value['id']. "' AND approved_defective_parts_by_partner = '0' "
-                    . " AND parts_shipped IS NOT NULL ";
+                $where = "service_center_id = '" . $value['id'] . "' AND approved_defective_parts_by_partner = '0' "
+                        . " AND parts_shipped IS NOT NULL ";
 
                 $result[0]['count_spare_part'] = count($this->partner_model->get_spare_parts_booking($where));
             } else if (isset($value['public_name'])) {
@@ -297,9 +298,8 @@ class invoices_model extends CI_Model {
         $result1['invoice_details'] = $query1->result_array();
         // Calculate Upcountry booking details
         $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
-        if(!empty($upcountry_data)){
+        if (!empty($upcountry_data)) {
             $result1['upcountry_details'] = $upcountry_data;
-            
         }
 
         return $result1;
@@ -361,7 +361,7 @@ class invoices_model extends CI_Model {
         }
         $result = array_merge($invoice[0], $invoice[1]);
         $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date, $to_date);
-        
+
         $result1 = array_merge($result, $upcountry_data);
         if (count($result1) > 0) {
 
@@ -385,11 +385,11 @@ class invoices_model extends CI_Model {
             }
             $meta['t_rating'] = $rating / $i;
             $data['booking'] = $result1;
-            if(!empty($upcountry_data)){
-               
-             $data['upcountry'] = $upcountry_data[0];   
+            if (!empty($upcountry_data)) {
+
+                $data['upcountry'] = $upcountry_data[0];
             }
-            
+
             $data['meta'] = $meta;
 
             return $data;
@@ -679,7 +679,7 @@ class invoices_model extends CI_Model {
     function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp, $upcountry_flag = true) {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
-        log_message("info", $from_date. "- ". $to_date);
+        log_message("info", $from_date . "- " . $to_date);
         // For Product
         $sql = "SELECT DISTINCT (`partner_net_payable`) AS p_rate, '' AS upcountry_charges,  '' AS s_service_charge, '' AS s_total_service_charge,
                 5.00 AS p_tax_rate, 
@@ -775,13 +775,13 @@ class invoices_model extends CI_Model {
         $query1 = $this->db->query($sql1);
         $service = $query1->result_array();
         $result = array_merge($service, $product);
-           
+
         if (!empty($result)) {
-             $meta['total_upcountry_charges'] = 0;
+            $meta['total_upcountry_charges'] = 0;
             if ($upcountry_flag) {
                 $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
 
-               
+
                 if (!empty($upcountry_data)) {
                     $up_country = array();
                     $up_country[0]['s_total_service_charge'] = '';
@@ -813,14 +813,14 @@ class invoices_model extends CI_Model {
 
 
             $meta['company_name'] = $result[0]['company_name'];
-            $meta['company_address'] = $result[0]['company_address'].", ".
-                    $result[0]['district']. ", Pincode -". $result[0]['pincode']. ", ".$result[0]['state'];
-            if(!empty($result[0]['seller_code'])){
-                $meta['seller_code'] = "Seller Code: ". $result[0]['seller_code'];
+            $meta['company_address'] = $result[0]['company_address'] . ", " .
+                    $result[0]['district'] . ", Pincode -" . $result[0]['pincode'] . ", " . $result[0]['state'];
+            if (!empty($result[0]['seller_code'])) {
+                $meta['seller_code'] = "Seller Code: " . $result[0]['seller_code'];
             } else {
                 $meta['seller_code'] = "";
             }
-            
+
 
             $data['booking'] = $result;
             $data['meta'] = $meta;
@@ -936,59 +936,58 @@ class invoices_model extends CI_Model {
             // Calculate Upcountry booking details
             $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
             $meta['total_misc_price'] = 0;
-            
-            if(!empty($upcountry_data)){
+
+            if (!empty($upcountry_data)) {
                 $up_country = array();
-             
-               $up_country[0]['s_total_service_charge'] = '';
-               $up_country[0]['p_tax_rate'] ='';
-               $up_country[0]['p_part_cost'] =  '';
-               $up_country[0]['s_service_charge'] = '';
-               $up_country[0]['qty'] = round($upcountry_data[0]['total_distance'],0)." KM";
-               $up_country[0]['description'] = 'Upcountry Services';
-               $up_country[0]['p_rate'] = round(($upcountry_data[0]['total_upcountry_price']/ round($upcountry_data[0]['total_distance'],0) ), 2);
-               $up_country[0]['misc_price'] =  $upcountry_data[0]['total_upcountry_price'];
-              
-             
-               $result = array_merge($result, $up_country);
-               
+
+                $up_country[0]['s_total_service_charge'] = '';
+                $up_country[0]['p_tax_rate'] = '';
+                $up_country[0]['p_part_cost'] = '';
+                $up_country[0]['s_service_charge'] = '';
+                $up_country[0]['qty'] = round($upcountry_data[0]['total_distance'], 0) . " KM";
+                $up_country[0]['description'] = 'Upcountry Services';
+                $up_country[0]['p_rate'] = round(($upcountry_data[0]['total_upcountry_price'] / round($upcountry_data[0]['total_distance'], 0)), 2);
+                $up_country[0]['misc_price'] = $upcountry_data[0]['total_upcountry_price'];
+
+
+                $result = array_merge($result, $up_country);
             }
-            
+
             $penalty_data = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "distinct", $is_regenerate);
             $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, "distinct");
-           
+
             $penalty_amount = 0;
             $cr_penalty_amount = 0;
-            if(!empty($penalty_data)){
+            if (!empty($penalty_data)) {
                 $penalty = array();
                 $penalty[0]['s_total_service_charge'] = '';
-                $penalty[0]['p_tax_rate'] ='';
-                $penalty[0]['p_part_cost'] =  '';
+                $penalty[0]['p_tax_rate'] = '';
+                $penalty[0]['p_part_cost'] = '';
                 $penalty[0]['s_service_charge'] = '';
-                $penalty[0]['qty'] = array_sum(array_column($penalty_data,'penalty_times'));
+                $penalty[0]['qty'] = array_sum(array_column($penalty_data, 'penalty_times'));
                 $penalty[0]['description'] = "Deduction- Bookings Not Updated";
                 $penalty[0]['p_rate'] = $penalty_data[0]['penalty_amount'];
-                $penalty_amount = (array_sum(array_column($penalty_data,'p_amount')));
-                $penalty[0]['misc_price'] =  -$penalty_amount;
+                $penalty_amount = (array_sum(array_column($penalty_data, 'p_amount')));
+                $penalty[0]['misc_price'] = -$penalty_amount;
 
                 $result = array_merge($result, $penalty);
             }
-            
-            if(!empty($credit_penalty)){
+
+            if (!empty($credit_penalty)) {
                 $cr_penalty = array();
                 $cr_penalty[0]['s_total_service_charge'] = '';
-                $cr_penalty[0]['p_tax_rate'] ='';
-                $cr_penalty[0]['p_part_cost'] =  '';
+                $cr_penalty[0]['p_tax_rate'] = '';
+                $cr_penalty[0]['p_part_cost'] = '';
                 $cr_penalty[0]['s_service_charge'] = '';
-                $cr_penalty[0]['qty'] = array_sum(array_column($credit_penalty,'penalty_times'));
+                $cr_penalty[0]['qty'] = array_sum(array_column($credit_penalty, 'penalty_times'));
                 $cr_penalty[0]['description'] = "Credit- Bookings Not Updated";
                 $cr_penalty[0]['p_rate'] = $credit_penalty[0]['penalty_amount'];
-                $cr_penalty_amount = (array_sum(array_column($credit_penalty,'p_amount')));
-                $cr_penalty[0]['misc_price'] =  $cr_penalty_amount;
+                $cr_penalty_amount = (array_sum(array_column($credit_penalty, 'p_amount')));
+                $cr_penalty[0]['misc_price'] = $cr_penalty_amount;
 
                 $result = array_merge($result, $cr_penalty);
             }
-            
+
             $meta['total_part_cost'] = 0;
             $meta['total_service_cost'] = 0;
 
@@ -998,11 +997,11 @@ class invoices_model extends CI_Model {
                 $meta['total_misc_price'] += $value['misc_price'];
             }
 
-            if (is_null($result[0]['tin']) ) {
+            if (is_null($result[0]['tin'])) {
 
                 $meta['part_cost_vat'] = 0.00;
             } else {
-                if(!empty($product)){
+                if (!empty($product)) {
                     $meta['part_cost_vat'] = ($meta['total_part_cost'] * $product[0]['p_tax_rate']) / 100;
                 } else {
                     $meta['part_cost_vat'] = 0.00;
@@ -1017,50 +1016,47 @@ class invoices_model extends CI_Model {
                 $meta['total_service_cost_14'] = $meta['total_service_cost'] * .14;
                 $meta['total_service_cost_5'] = $meta['total_service_cost'] * .005;
             }
-            
+
             $meta['sc_code'] = $result[0]['sc_code'];
             $meta['service_tax_no'] = $result[0]['service_tax_no'];
-            $meta['sub_service_cost'] = $meta['total_service_cost']  + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] *2;
+            $meta['sub_service_cost'] = $meta['total_service_cost'] + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] * 2;
             $meta['vendor_name'] = $result[0]['company_name'];
             $meta['owner_email'] = $result[0]['owner_email'];
             $meta['vendor_address'] = $result[0]['vendor_address'];
             $meta['primary_contact_email'] = $result[0]['primary_contact_email'];
             $meta['owner_email'] = $result[0]['owner_email'];
             $meta['vat_tax'] = $result[0]['p_tax_rate'];
-            $meta['tin'] =  $result[0]['tin'];
-            $meta['sub_part'] = $meta['total_part_cost']  + $meta['part_cost_vat'];
-            
-            if(empty($result[0]['pan_no'])){
-                $meta['tds'] =  $meta['sub_service_cost'] *.20;
+            $meta['tin'] = $result[0]['tin'];
+            $meta['sub_part'] = $meta['total_part_cost'] + $meta['part_cost_vat'];
+
+            if (empty($result[0]['pan_no'])) {
+                $meta['tds'] = $meta['sub_service_cost'] * .20;
                 $meta['tds_tax_rate'] = "20%";
-                
-            } else if(empty ($result[0]['contract_file'])){
-                
-                 $meta['tds'] = $meta['sub_service_cost'] *.05;
-                 $meta['tds_tax_rate'] = "5%";
-                 
+            } else if (empty($result[0]['contract_file'])) {
+
+                $meta['tds'] = $meta['sub_service_cost'] * .05;
+                $meta['tds_tax_rate'] = "5%";
             } else {
-                switch($result[0]['company_type']){
+                switch ($result[0]['company_type']) {
                     case "Individual":
                     case 'Proprietorship Firm':
-                        $meta['tds'] = $meta['sub_service_cost'] *.01;
+                        $meta['tds'] = $meta['sub_service_cost'] * .01;
                         $meta['tds_tax_rate'] = "1%";
                         break;
-                    
+
                     case "Partnership Firm":
                     case "Company (Pvt Ltd)":
-                        $meta['tds'] = $meta['sub_service_cost'] *.02;
+                        $meta['tds'] = $meta['sub_service_cost'] * .02;
                         $meta['tds_tax_rate'] = "2%";
                         break;
                 }
             }
-            $meta['grand_total_price']=  round( $meta['sub_part']+ $meta['sub_service_cost'] 
-                    + $meta['total_misc_price'], 0);
+            $meta['grand_total_price'] = round($meta['sub_part'] + $meta['sub_service_cost'] + $meta['total_misc_price'], 0);
             $meta['price_inword'] = convert_number_to_words($meta['grand_total_price']);
 
             $data['meta'] = $meta;
             $data['booking'] = $result;
-            
+
             return $data;
         } else {
             return FALSE;
@@ -1136,33 +1132,33 @@ class invoices_model extends CI_Model {
             $result[$i] = $query->result_array();
         }
         $data = array_merge($result[0], $result[1]);
-        
+
         $meta['total_misc_price'] = 0;
         // Calculate Upcountry booking details
         $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date, $to_date);
-        if(!empty($upcountry_data)){
-           $up_country = array();
+        if (!empty($upcountry_data)) {
+            $up_country = array();
 
-           $up_country[0]['installation_charge'] = '';
-           $up_country[0]['additional_charge'] ='';
-           $up_country[0]['qty'] = round($upcountry_data[0]['total_distance'],0)." KM";
-           $up_country[0]['description'] = 'Upcountry Services';
-           $up_country[0]['misc_charge'] =  $upcountry_data[0]['total_upcountry_price'];
-           $up_country[0]['tin'] =  $upcountry_data[0]['tin'];
-           $up_country[0]['service_tax_no'] =  $upcountry_data[0]['service_tax_no'];
-           $up_country[0]['company_name'] =  $upcountry_data[0]['company_name'];
-           $up_country[0]['vendor_address'] =  $upcountry_data[0]['vendor_address'];
-           $up_country[0]['primary_contact_email'] =  $upcountry_data[0]['primary_contact_email'];
-           $up_country[0]['owner_email'] =  $upcountry_data[0]['owner_email'];
-           $up_country[0]['state'] =  $upcountry_data[0]['state'];
-          
-           if(!empty($data)){
+            $up_country[0]['installation_charge'] = '';
+            $up_country[0]['additional_charge'] = '';
+            $up_country[0]['qty'] = round($upcountry_data[0]['total_distance'], 0) . " KM";
+            $up_country[0]['description'] = 'Upcountry Services';
+            $up_country[0]['misc_charge'] = $upcountry_data[0]['total_upcountry_price'];
+            $up_country[0]['tin'] = $upcountry_data[0]['tin'];
+            $up_country[0]['service_tax_no'] = $upcountry_data[0]['service_tax_no'];
+            $up_country[0]['company_name'] = $upcountry_data[0]['company_name'];
+            $up_country[0]['vendor_address'] = $upcountry_data[0]['vendor_address'];
+            $up_country[0]['primary_contact_email'] = $upcountry_data[0]['primary_contact_email'];
+            $up_country[0]['owner_email'] = $upcountry_data[0]['owner_email'];
+            $up_country[0]['state'] = $upcountry_data[0]['state'];
+
+            if (!empty($data)) {
                 $data = array_merge($result, $up_country);
-           } else {
+            } else {
                 $data = $up_country;
-           }
+            }
         }
-       
+
         if (count($data) > 0) {
             $meta['total_charge'] = 0;
 
@@ -1191,16 +1187,17 @@ class invoices_model extends CI_Model {
             return FALSE;
         }
     }
+
     /**
      * @desc: Calculate unbilled Amount for vendor
      * @param String $vendor_id
      * @param String $to_date
      * @return Array
      */
-    function get_unbilled_amount($vendor_id, $to_date){
+    function get_unbilled_amount($vendor_id, $to_date) {
         $where = "";
-        if(!empty($to_date)){
-            $where = "AND ud_closed_date >= '".$to_date."' ";
+        if (!empty($to_date)) {
+            $where = "AND ud_closed_date >= '" . $to_date . "' ";
         }
         $sql = "SELECT SUM(`vendor_to_around` - `around_to_vendor`) AS unbilled_amount
                 FROM booking_unit_details AS ud, booking_details AS bd
@@ -1209,13 +1206,14 @@ class invoices_model extends CI_Model {
                 AND booking_status =  'Completed'
                 AND bd.booking_id = ud.booking_id 
                 $where
-                AND ud_closed_date < '".date('Y-m-d')."'
+                AND ud_closed_date < '" . date('Y-m-d') . "'
                 AND `vendor_cash_invoice_id` IS NULL
                 AND `vendor_foc_invoice_id` IS NULL";
-        
+
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+
     /**
      * @desc This method returns booking id and curier charges for completed booking
      * @param String $vendor_id
@@ -1223,8 +1221,8 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function get_sf_courier_charges($vendor_id, $from_date, $to_date){
-        $sql =" SELECT distinct bd.booking_id, courier_charges_by_sf 
+    function get_sf_courier_charges($vendor_id, $from_date, $to_date) {
+        $sql = " SELECT distinct bd.booking_id, courier_charges_by_sf 
                 FROM  `booking_unit_details` AS ud 
                 JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
                 LEFT JOIN spare_parts_details as sp ON sp.booking_id = ud.booking_id
@@ -1236,45 +1234,175 @@ class invoices_model extends CI_Model {
                 AND ud.ud_closed_date <  '$to_date'
                 AND pay_to_sf = '1'
                 AND courier_charges_by_sf > 0 ";
-        
+
         $query = $this->db->query($sql);
         return $query->result_array();
     }
-    
+
     /**
      * @desc: This Function is used to insert the challan details into database
      * @param: array
      * @return : string
      */
-    function insert_challan_details($data){
+    function insert_challan_details($data) {
         $this->db->insert('challan_details', $data);
         return $this->db->insert_id();
     }
     
+    
+    /**
+     * @desc: This Function is used to edit the challan details
+     * @param: array
+     * @return : string
+     */
+    function edit_challan_details($data, $id) {
+        $this->db->where('id', $id);
+        $this->db->update('challan_details', $data);
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     /**
      * @desc: This Function is used to get the challan details from database
      * @param: string
      * @return : array
      */
-    function fetch_challan_details($challan_type){
-        if($challan_type != 'ALL'){
-            $this->db->where('type',$challan_type);
+    function fetch_challan_details($challan_type="" ,$challan_id="") {
+        if ($challan_type != 'ALL' && $challan_id == "") {
+            $this->db->where('type', $challan_type);
+        }else if($challan_type == "" && $challan_id != ""){
+            $this->db->where('id', $challan_id);
         }
-        $this->db->select('id,serial_no,from_date,to_date,challan_tender_date,amount,challan_file');
+        $this->db->select('*');
         $this->db->from('challan_details');
-        
+
         $query = $this->db->get();
         return $query->result_array();
     }
-    
+
     /**
      * @desc: This Function is used to insert the challan and invoice id into database
      * @param: array
      * @return : string
      */
-    function insert_invoice_challan_id_mapping_data($data){
+    function insert_invoice_challan_id_mapping_data($data) {
         $this->db->insert_batch('invoice_challan_id_mapping', $data);
         return $this->db->insert_id();
+    }
+    
+    
+    /**
+     * @desc: This Function is used to get the payment report based on payment type
+     * @param: string
+     * @return : array
+     */
+    function get_payment_history_data($payment_type, $from_date, $to_date, $partner_vendor) {
+        $return_data = [];
+        switch ($payment_type) {
+            case 'sales':
+                $return_data = $this->get_sales_payment_history_report($from_date, $to_date, $partner_vendor);
+                break;
+            case 'purchase':
+                $return_data = $this->get_purchase_payment_history_report($from_date, $to_date, $partner_vendor);
+                break;
+            case 'tds' :
+                $return_data = $this->get_tds_payment_history_report($from_date, $to_date, $partner_vendor);
+                break;
+        }
+
+        return $return_data;
+    }
+    
+    /**
+     * @desc: This Function is used to get the SALES PAYMENT REPORT
+     * @param: string
+     * @return : array
+     */
+    function get_sales_payment_history_report($from_date, $to_date, $partner_vendor) {
+        if ($partner_vendor == 'partner') {
+            $sql = "Select V.invoice_id AS 'InvoiceNo',P.company_name as 'CompanyName', P.state as 'State',
+                    V.invoice_date AS 'InvoiceDate',V.from_date AS 'FromDate',V.to_date AS 'ToDate', total_service_charge AS 'TotalServiceCharge' ,
+                    V.service_tax AS 'ServiceTax', parts_cost as ' Parts',vat as 'VAT' ,`upcountry_price` as 'ConveyanceCharges',
+                    courier_charges as 'Courier', total_amount_collected AS 'TotalAmountCollected', IFNULL(`rate`,0) as 'VAT Rate'
+                    FROM  vendor_partner_invoices AS V
+                    JOIN partners AS P on V.vendor_partner_id=P.id
+                    JOIN tax_rates as tr  on tax_code='VAT' AND product_type='wall_bracket' AND P.state=tr.state
+                    WHERE V.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)
+                    AND V.`invoice_date`>='$from_date'  AND V.`invoice_date` <'$to_date'";
+        } else if ($partner_vendor == 'vendor') {
+            $sql = "Select V.invoice_id AS 'InvoiceNo',SC.company_name as 'CompanyName',state as 'State',
+                    V.invoice_date AS 'InvoiceDate',from_date AS 'FromDate',to_date AS 'ToDate',
+                    round((total_service_charge/1.15),2) AS 'AroundRoyalty' , round(((total_service_charge/1.15) * .15),2) AS 'ServiceTax',
+                    total_amount_collected AS 'TotalAmountCollected'
+                    FROM  vendor_partner_invoices AS V
+                    JOIN service_centres AS SC on V.vendor_partner_id=SC.id
+                    WHERE V.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)
+                    AND V.vendor_partner =  'vendor' AND V.invoice_date >= '$from_date' AND V.invoice_date <= '$to_date'
+                    AND type_code = 'A' AND type = 'Cash'";
+        }else if($partner_vendor == 'stand'){
+            $sql = "SELECT `invoice_id` as 'InvoiceNo', name as 'CompanyName', sc.state as State, IFNULL(tin_no,'') as 'TINNo', 
+                    invoice_date as 'InvoiceDate', vpi.`from_date` as 'FromDate', vpi.`to_date` as 'ToDate', 
+                    `parts_cost` as Parts, `vat` as VAT, `total_amount_collected` as 'TotalAmount',
+                    '5%' as 'VATRate', 'Iron Stands' AS 'Item'
+                    FROM `vendor_partner_invoices` as vpi, service_centres as sc
+                    WHERE `vendor_partner_id`=sc.id
+                    AND type_code = 'A' AND type =  'Stand'
+                    AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'";
+        }
+        
+        $query = $this->db->query($sql);
+        $data = $query->result_array();
+        return $data;
+    }
+    
+    /**
+     * @desc: This Function is used to get the purchase PAYMENT REPORT
+     * @param: string
+     * @return : array
+     */
+    function get_purchase_payment_history_report($from_date, $to_date, $partner_vendor){
+        if ($partner_vendor == 'partner') {
+            $sql = "SELECT `invoice_id` as 'InvoiceNo', company_name as 'CompanyName', p.state as State, 
+                    IFNULL(p.service_tax,'') as 'ServiceTaxNo', IFNULL(tin,'') as 'TINNo', 
+                    invoice_date as 'InvoiceDate', vpi.`from_date` as 'FromDate', vpi.`to_date` as 'ToDate',
+                    `total_service_charge` as 'ServiceCharges', '' as 'ServiceTax', `parts_cost` as Parts, 
+                    `vat` as VAT, `upcountry_price` as 'ConveyanceCharges', courier_charges as Courier,`penalty_amount` AS 'MiscDebit',
+                    `credit_penalty_amount` AS 'MiscCredit', (abs(`amount_collected_paid`) + tds_amount ) as 'TotalAmount',
+                    IFNULL(`rate`,0) as 'VATRate'
+                    FROM `vendor_partner_invoices` as vpi, partners as p, tax_rates as tr
+                    WHERE `type_code` = 'B' AND `type` = 'FOC' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
+                    AND `vendor_partner` = 'vendor' AND `vendor_partner_id`=p.id AND tax_code='VAT' AND product_type='wall_bracket' 
+                    AND p.state=tr.state AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
+        } else if ($partner_vendor == 'vendor') {
+            $sql = "SELECT `invoice_id` as 'InvoiceNo', name as 'CompanyName', sc.state as State, 
+                    IFNULL(service_tax_no,'') as 'ServiceTaxNo', IFNULL(tin_no,'') as 'TINNo', 
+                    invoice_date as 'InvoiceDate', vpi.`from_date` as 'FromDate', vpi.`to_date` as 'ToDate',
+                    `total_service_charge` as 'ServiceCharges', `service_tax` as 'ServiceTax', `parts_cost` as Parts, 
+                    `vat` as VAT, `upcountry_price` as 'ConveyanceCharges', courier_charges as Courier,`penalty_amount` AS 'MiscDebit',
+                    `credit_penalty_amount` AS 'MiscCredit', (abs(`amount_collected_paid`) + tds_amount ) as 'TotalAmount',
+                    IFNULL(`rate`,0) as 'VATRate'
+                    FROM `vendor_partner_invoices` as vpi, service_centres as sc, tax_rates as tr
+                    WHERE `type_code` = 'B' AND `type` = 'FOC' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
+                    AND `vendor_partner` = 'vendor' AND `vendor_partner_id`=sc.id AND tax_code='VAT' AND product_type='wall_bracket' 
+                    AND sc.state=tr.state AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
+        }else if($partner_vendor == 'stand'){
+            $sql = "SELECT `invoice_id` as 'InvoiceNo', company_name as 'CompanyName', P.state as State, IFNULL(P.service_tax,'') as 'ServiceTaxNo',
+                    IFNULL(tin,'') as 'TINNo', invoice_date as 'InvoiceDate', `parts_cost` as Parts, `vat` as VAT, 
+                    (abs(`amount_collected_paid`) + tds_amount ) as 'TotalAmount',
+                    IFNULL(`rate`,0) as 'VATRate'
+                    FROM `vendor_partner_invoices` as vpi, partners as P, tax_rates as tr
+                    WHERE `type_code` = 'B' AND vpi.type='Stand' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
+                    AND `vendor_partner_id`=P.id AND tax_code='VAT' AND product_type='wall_bracket' AND P.state=tr.state 
+                    AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
+        }
+        
+        $query = $this->db->query($sql);
+        $data = $query->result_array();
+        return $data;
     }
 
 }

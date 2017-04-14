@@ -305,7 +305,7 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
         $('table.paginated').each(function() {
             $('#loader_gif').attr('src', "");
             var currentPage = 0;
-            var numPerPage = 40;
+            var numPerPage = 20;
             var $table = $(this);
             $table.bind('repaginate', function() {
                 $table.find('tbody tr').hide().slice(currentPage * numPerPage, (currentPage + 1) * numPerPage).show();

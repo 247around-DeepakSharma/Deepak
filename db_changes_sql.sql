@@ -2075,3 +2075,14 @@ CREATE TABLE `challan_details` (
 
 ALTER TABLE `challan_details`
   ADD PRIMARY KEY (`id`);
+
+CREATE TABLE `invoice_challan_id_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `challan_id` int(11) NOT NULL,
+  `invoice_id` varchar(255) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `invoice_challan_id_mapping`
+  ADD PRIMARY KEY (`id`);
+

@@ -9,6 +9,7 @@
                     <th colspan="2"> Challan Period</th>
                     <th> Payment Date</th>
                     <th> Amount</th>
+                    <th>Edit</th>
                     <th> Insert Invoice Id</th>
                 </tr>
                 <tr>
@@ -16,6 +17,7 @@
                     <th></th>
                     <th>From</th>
                     <th>To</th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -32,6 +34,11 @@
                             <td><?php echo $value['challan_tender_date'] ?></td>
                             <td><?php echo round($value['amount']) ?></td>
                             <td>
+                                <a target="_blank" href="<?php echo base_url();?>employee/invoice/get_challan_edit_form/<?php echo $value['id'] ; ?>">
+                                    <div class="btn btn-primary">Edit</div>
+                                </a>
+                            </td>
+                            <td>
                                 <div class="input-group" style="width: 100%">
                                     <textarea class="form-control" id="invoiceId_<?php echo $sn; ?>" name="invoice_id[]" disabled></textarea>
                                     <span class="input-group-addon"><input type="checkbox" id="isCheckedInvoiceId_<?php echo $sn; ?>" onchange="return validate(this.id)"></span>
@@ -40,6 +47,7 @@
                         </tr>
                     <?php $sn++;} ?>   
                         <tr> 
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
