@@ -234,21 +234,22 @@ class Invoice extends CI_Controller {
             $data['selected_tds'] = $details[0]['tds_amount'];
             $amount_collected = array();
             $tds = array();
-            foreach($data['invoice_id_array'] as $value ){
-                $where = " invoice_id = '" . $value . "' ";
-                $data1 = $this->invoices_model->get_invoices_details($where);
-                if($data1[0]['amount_collected_paid'] > 0){
-                    $amount = $data1[0]['amount_collected_paid'] - $data1[0]['amount_paid'];
+
+
+            $bank_payment_history = $this->invoices_model->get_payment_history(array('bank_transaction_id' => $id));
+            foreach ($bank_payment_history as $value){
+                if($value == "Debit"){
+                    $amount = -$value['credit_debit_amount'];
+                    
                 } else {
-                     $amount = $data1[0]['amount_collected_paid'] + $data1[0]['amount_paid'];
+                    $amount = $value['credit_debit_amount'];
                 }
-                $amount_collected[$value] = $amount;
-                $tds[$value] = $data1[0]['tds_amount'];
-                
+                $amount_collected[$value['invoice_id']] = $amount;
+                $tds[$value['invoice_id']] = $value['tds_amount'];
             }
             
-            $data['tds_amount'] = $amount_collected;
-            $data['amount_collected'] = $tds;
+            $data['tds_amount'] = $tds;
+            $data['amount_collected'] = $amount_collected;
 
             $this->load->view('employee/header/' . $this->session->userdata('user_group'));
             $this->load->view('employee/addnewtransaction', $data);
