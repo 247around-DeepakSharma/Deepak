@@ -1424,5 +1424,12 @@ class invoices_model extends CI_Model {
             return false;
         }
     }
+    
+    function get_payment_history($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('payment_history');
+        return $query->result_array();
+    }
 
 }
