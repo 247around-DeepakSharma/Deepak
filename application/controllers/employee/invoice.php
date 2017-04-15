@@ -338,8 +338,9 @@ class Invoice extends CI_Controller {
             $account_statement['credit_debit'] = 'Debit';
         }
 
-        $account_statement['agent_id'] =  $this->session->userdata('id');           
-
+        $account_statement['agent_id'] =  $this->session->userdata('id');   
+        $account_statement['tds_amount'] = $tds;            
+                    
         if (empty($bank_txn_id)) {
             $bank_txn_id = $this->invoices_model->bankAccountTransaction($account_statement);
         } else {
