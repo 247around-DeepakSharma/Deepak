@@ -256,6 +256,7 @@ class Invoice extends CI_Controller {
             $this->load->view('employee/addnewtransaction', $data);
         }
     }
+
     /**
      *  @desc : This is used to insert and update bank transaction table. It gets bank transaction id while update other wise empty
      *  @param : void
@@ -361,8 +362,8 @@ class Invoice extends CI_Controller {
 
         redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
     }
-    
-    function send_payment_sms_to_vendor($account_statement){
+
+    function send_payment_sms_to_vendor($account_statement) {
         $vendor_arr = $this->vendor_model->getVendorContact($account_statement['partner_vendor_id']);
         $v = $vendor_arr[0];
 
@@ -374,7 +375,6 @@ class Invoice extends CI_Controller {
         $sms['type_id'] = $account_statement['partner_vendor_id'];
 
         $this->notify->send_sms_acl($sms);
-        
     }
 
     /**
@@ -3510,26 +3510,27 @@ class Invoice extends CI_Controller {
      * @return : void
      */
     function mapping_challanId_to_InvoiceId() {
-        $this->form_validation->set_rules('challan_id', 'Challan Id', 'required|trim|xss_clean');
-        $this->form_validation->set_rules('invoice_id', 'Invoice Id', 'required|trim|xss_clean');
-        if ($this->form_validation->run() == FALSE) {
-            $error_msg = "Please Try Again!!! You are trying to submit an empty form.";
-            $this->session->set_flashdata('error_msg', $error_msg);
-            redirect(base_url() . 'employee/invoice/get_challan_details');
-        } else {
-            $challan_id = $this->input->post('challan_id');
-            $invoice_id = $this->input->post('invoice_id');
 
-            //getting invoice id corresponding to challan id
+        $challan_id = $this->input->post('challan_id');
+        $invoice_id = $this->input->post('invoice_id');
+        //getting invoice id corresponding to challan id
+        if (!empty($challan_id)) {
             foreach ($challan_id as $challan_id_key => $challan_id_value) {
                 $data = [];
                 $invoice_id_array = explode(',', $invoice_id[$challan_id_key]);
 
                 //getting data to insert into database
                 foreach ($invoice_id_array as $invoice_id_key => $invoice_id_value) {
-                    $arr = array('challan_id' => $challan_id_value,
-                        'invoice_id' => $invoice_id_value);
-                    array_push($data, $arr);
+                    if ($invoice_id_value != 0) {
+                        $arr = array('challan_id' => $challan_id_value,
+                            'invoice_id' => $invoice_id_value,
+                            'create_date' => date('Y-m-d H:i:s'));
+                        array_push($data, $arr);
+                    } else {
+                        $error_msg = "Please Insert Valid Invoice Id";
+                        $this->session->set_flashdata('error_msg', $error_msg);
+                        redirect(base_url() . 'employee/invoice/get_challan_details');
+                    }
                 }
 
                 //insert data into database in batch
@@ -3544,9 +3545,13 @@ class Invoice extends CI_Controller {
             $success_msg = "Mapping has been done successfully";
             $this->session->set_flashdata('success_msg', $success_msg);
             redirect(base_url() . 'employee/invoice/get_challan_details');
+        } else {
+            $error_msg = "Empty field could't be inserted";
+            $this->session->set_flashdata('error_msg', $error_msg);
+            redirect(base_url() . 'employee/invoice/get_challan_details');
         }
     }
-    
+
     /**
      * @desc: This Function is used to show the payment report
      * @param: void
@@ -3556,7 +3561,7 @@ class Invoice extends CI_Controller {
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/payment_history_report_view');
     }
-    
+
     /**
      * @desc: This Function is used to show the payment report by ajax call
      * @param: void
@@ -3572,8 +3577,7 @@ class Invoice extends CI_Controller {
         $data['payment_type'] = $payment_type;
         echo $this->load->view('employee/paymnet_history_table_view.php', $data);
     }
-    
-    
+
     /**
      * @desc: This Function is used to download the the payment report by ajax call
      * in excel
@@ -3596,7 +3600,7 @@ class Invoice extends CI_Controller {
         $partner_sales_excel = $this->generate_payment_report_excel_file($partner_sales_report_template, $data['partner_sales_report'], 'partner_sales');
         $vendor_sales_excel = $this->generate_payment_report_excel_file($vendor_sales_report_template, $data['vendor_sales_report'], 'vendor_sales');
     }
-    
+
     /**
      * @desc: This Function is used to combined the generated excel sheet payment report
      * into single sheet 
