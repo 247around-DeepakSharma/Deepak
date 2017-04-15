@@ -1314,17 +1314,17 @@ class invoices_model extends CI_Model {
      * @param: string
      * @return : array
      */
-    function get_payment_history_data($payment_type, $from_date, $to_date, $partner_vendor) {
+    function get_payment_report_data($payment_type, $from_date, $to_date, $partner_vendor) {
         $return_data = [];
         switch ($payment_type) {
             case 'sales':
-                $return_data = $this->get_sales_payment_history_report($from_date, $to_date, $partner_vendor);
+                $return_data = $this->get_sales_payment_report($from_date, $to_date, $partner_vendor);
                 break;
             case 'purchase':
-                $return_data = $this->get_purchase_payment_history_report($from_date, $to_date, $partner_vendor);
+                $return_data = $this->get_purchase_payment_report($from_date, $to_date, $partner_vendor);
                 break;
             case 'tds' :
-                $return_data = $this->get_tds_payment_history_report($from_date, $to_date, $partner_vendor);
+                $return_data = $this->get_tds_payment_report($from_date, $to_date, $partner_vendor);
                 break;
         }
 
@@ -1336,7 +1336,7 @@ class invoices_model extends CI_Model {
      * @param: string
      * @return : array
      */
-    function get_sales_payment_history_report($from_date, $to_date, $partner_vendor) {
+    function get_sales_payment_report($from_date, $to_date, $partner_vendor) {
         if ($partner_vendor == 'partner') {
             $sql = "Select V.invoice_id AS 'InvoiceNo',P.company_name as 'CompanyName', P.state as 'State',
                     V.invoice_date AS 'InvoiceDate',V.from_date AS 'FromDate',V.to_date AS 'ToDate', total_service_charge AS 'TotalServiceCharge' ,
@@ -1378,7 +1378,8 @@ class invoices_model extends CI_Model {
      * @param: string
      * @return : array
      */
-    function get_purchase_payment_history_report($from_date, $to_date, $partner_vendor){
+
+    function get_purchase_payment_report($from_date, $to_date, $partner_vendor) {
         if ($partner_vendor == 'partner') {
             $sql = "SELECT `invoice_id` as 'InvoiceNo', company_name as 'CompanyName', p.state as State, 
                     IFNULL(p.service_tax,'') as 'ServiceTaxNo', IFNULL(tin,'') as 'TINNo', 
@@ -1417,6 +1418,28 @@ class invoices_model extends CI_Model {
         $query = $this->db->query($sql);
         $data = $query->result_array();
         return $data;
+    }
+
+    function insert_batch_payment_history($data) {
+        $this->db->insert_batch('payment_history', $data);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: This Function is used untag invoice id from challan id
+     * @param: string
+     * @return : array
+     */
+    function untag_challan_invoice_id($challan_id,$invoice_id){
+        $set = array('active' => 0);
+        $this->db->where('challan_id',$challan_id);
+        $this->db->where('invoice_id',$invoice_id);
+        $this->db->update('invoice_challan_id_mapping',$set);
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

@@ -3573,7 +3573,7 @@ class Invoice extends CI_Controller {
         $from_date = $this->input->post('from_date');
         $to_date = $this->input->post('to_date');
         $partner_vendor = $this->input->post('partner_vendor');
-        $data['report_data'] = $this->invoices_model->get_payment_history_data($payment_type, $from_date, $to_date, $partner_vendor);
+        $data['report_data'] = $this->invoices_model->get_payment_report_data($payment_type, $from_date, $to_date, $partner_vendor);
         $data['partner_vendor'] = $partner_vendor;
         $data['payment_type'] = $payment_type;
         echo $this->load->view('employee/paymnet_history_table_view.php', $data);
@@ -3583,16 +3583,16 @@ class Invoice extends CI_Controller {
      * @desc: This Function is used to download the the payment report by ajax call
      * in excel
      * @param: void
-     * @return : view
+     * @return : viewget_payment_report_data
      */
     function download_sales_purchase_report() {
         $from_date = $this->input->post('from_date');
         $to_date = $this->input->post('to_date');
-        $data['partner_sales_report'] = $this->invoices_model->get_payment_history_data('sales', $from_date, $to_date, 'partner');
-        $data['vendor_sales_report'] = $this->invoices_model->get_payment_history_data('sales', $from_date, $to_date, 'vendor');
-        $data['stand_sales_report'] = $this->invoices_model->get_payment_history_data('sales', $from_date, $to_date, 'stand');
-        $data['partner_purchase_report'] = $this->invoices_model->get_payment_history_data('purchase', $from_date, $to_date, 'partner');
-        $data['vendor_purchase_report'] = $this->invoices_model->get_payment_history_data('purchase', $from_date, $to_date, 'vendor');
+        $data['partner_sales_report'] = $this->invoices_model->get_payment_report_data('sales', $from_date, $to_date, 'partner');
+        $data['vendor_sales_report'] = $this->invoices_model->get_payment_report_data('sales', $from_date, $to_date, 'vendor');
+        $data['stand_sales_report'] = $this->invoices_model->get_payment_report_data('sales', $from_date, $to_date, 'stand');
+        $data['partner_purchase_report'] = $this->invoices_model->get_payment_report_data('purchase', $from_date, $to_date, 'partner');
+        $data['vendor_purchase_report'] = $this->invoices_model->get_payment_report_data('purchase', $from_date, $to_date, 'vendor');
         $data['stand_purchase_report'] = $this->invoices_model->get_payment_history_data('purchase', $from_date, $to_date, 'stand');
 
         $partner_sales_report_template = 'partner_sale_report.xlsx';
@@ -3626,6 +3626,64 @@ class Invoice extends CI_Controller {
         $output_file = TMP_FOLDER . "" . $file_name . "_Payment_report - " . date('d-M-Y') . ".xlsx";
         $R->render('excel', $output_file);
         return $output_file;
+    }
+
+    /**
+     * @desc: This Function is used to show the view for search the invoice Id 
+     * @param: void
+     * @return : void
+     */
+    function show_search_invoice_id_view() {
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/search_invoice_id');
+    }
+
+    /**
+     * @desc: This Function is used to search the invoice Id 
+     * @param: void
+     * @return : view
+     */
+    function search_invoice_id() {
+        $invoice_id = $this->input->post('invoice_id');
+        $request_data = array('invoice_id' => $invoice_id);
+        $data['invoiceid_data'] = $this->invoices_model->getInvoicingData($request_data);
+        if (!empty($data['invoiceid_data'])) {
+            if ($data['invoiceid_data'][0]['vendor_partner'] == 'vendor') {
+                $data['vendor_name'] = $this->vendor_model->getVendorContact($data['invoiceid_data'][0]['vendor_partner_id']);
+            } else if ($data['invoiceid_data'][0]['vendor_partner'] == 'partner') {
+                $data['partner_name'] = $this->partner_model->getpartner($data['invoiceid_data'][0]['vendor_partner_id']);
+            }
+            echo $this->load->view('employee/invoiceid_details_data_table', $data);
+        } else {
+            echo "<div class='text-danger text-center'> <b>No Data Found <b></div>";
+        }
+    }
+
+    /**
+     * @desc: This Function is used untag those 
+     * invoice id which mapped with incorrect challan id
+     * @param: void
+     * @return : view
+     */
+    function untag_challan_invoice_id() {
+        $challan_id = $this->input->post('challan_id');
+        $invoice_id = $this->input->post('invoice_id');
+        if (!empty($invoice_id)) {
+            $invoice_id_arr = explode(',', rtrim($invoice_id, ','));
+            foreach ($invoice_id_arr as $value) {
+                $id = $this->invoices_model->untag_challan_invoice_id($challan_id, $value);
+                if ($id == false) {
+                    $response[] = $value;
+                }
+            }
+            if (empty($response)) {
+                echo "All Invoice Id has been successfully untag from Challan Id";
+            } else {
+                echo "Unable to untag these invoice id " . implode(',', $response);
+            }
+        }else {
+            echo "Could not update empty invoice Id";
+        }
     }
 
 }

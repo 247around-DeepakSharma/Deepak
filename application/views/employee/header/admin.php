@@ -317,6 +317,10 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/sales_purchase_payment_report"><i class="fa fa-fw fa-desktop "></i> <strong>Payment Report</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/show_search_invoice_id_view"><i class="fa fa-fw fa-desktop "></i> <strong>Search Invoice Id</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
