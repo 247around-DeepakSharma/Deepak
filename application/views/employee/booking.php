@@ -1,6 +1,6 @@
 <?php $offset = $this->uri->segment(5); ?>
 
-<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
+<!--<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>-->
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
 <script>
 
@@ -124,13 +124,8 @@
         padding: 2px;
     }
 
-    th{
-        height: 50px;
-        background-color: #4CBA90;
-        color: white;
-    }
-    tr:nth-child(even) {background-color: #f2f2f2}
-
+    
+    
 
 </style>
 
@@ -215,7 +210,7 @@
 
                     <tr id="row_color<?php echo $count;?>">
                     <td><input type="hidden" class="mail_to_vendor<?php echo $count;?>" id="mail_to_vendor<?php echo $count;?>" value="<?php echo $row->mail_to_vendor;?>"></td>
-                    <td><?php echo $offset; if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
+                    <td><?php echo $offset; if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
 
                             <td>
                             <?php
@@ -394,6 +389,22 @@
         </div>
     </div>
 </div>
+<div id="myModal1" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="open_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Upcountry Call</h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     $("#search").keyup(function () {
     var value = this.value.toLowerCase().trim();
@@ -408,6 +419,19 @@
         });
     });
 });
+
+ function open_upcountry_model(sc_id, booking_id, amount_due){
+      
+       $.ajax({
+      type: 'POST',
+      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
+      success: function (data) {
+       $("#open_model").html(data);   
+       $('#myModal1').modal('toggle');
+    
+      }
+    });
+    }
 </script>
 <style type="text/css">
     .sup {
