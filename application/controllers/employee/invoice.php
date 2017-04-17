@@ -3560,8 +3560,9 @@ class Invoice extends CI_Controller {
         $payment_type = $this->input->post('type');
         $from_date = $this->input->post('from_date');
         $to_date = $this->input->post('to_date');
+        $new_to_date = date('Y/m/d',strtotime($to_date . "+1 days"));
         $partner_vendor = $this->input->post('partner_vendor');
-        $data['report_data'] = $this->invoices_model->get_payment_report_data($payment_type, $from_date, $to_date, $partner_vendor);
+        $data['report_data'] = $this->invoices_model->get_payment_report_data($payment_type, $from_date, $new_to_date, $partner_vendor);
         $data['partner_vendor'] = $partner_vendor;
         $data['payment_type'] = $payment_type;
         echo $this->load->view('employee/paymnet_history_table_view.php', $data);

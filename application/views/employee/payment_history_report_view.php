@@ -39,7 +39,7 @@
                                 <select class="form-control" id="type">
                                     <option value="sales">Sales</option>
                                     <option value="purchase">Purchase</option>
-                                    <option value="tds" disabled>TDS</option>
+                                    <option value="tds">TDS</option>
                                 </select>
                             </div>
                             <div class="form-group" style="margin-right: 10px;">

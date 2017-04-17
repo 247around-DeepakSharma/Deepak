@@ -1372,7 +1372,7 @@ class invoices_model extends CI_Model {
                     `credit_penalty_amount` AS 'MiscCredit', (abs(`amount_collected_paid`) + tds_amount ) as 'TotalAmount',
                     IFNULL(`rate`,0) as 'VATRate'
                     FROM `vendor_partner_invoices` as vpi, partners as p, tax_rates as tr
-                    WHERE `type_code` = 'B' AND `type` = 'FOC' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
+                    WHERE `type_code` = 'B' AND vpi.`type` = 'FOC' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
                     AND `vendor_partner` = 'vendor' AND `vendor_partner_id`=p.id AND tax_code='VAT' AND product_type='wall_bracket' 
                     AND p.state=tr.state AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
         } else if ($partner_vendor == 'vendor') {
@@ -1396,6 +1396,31 @@ class invoices_model extends CI_Model {
                     WHERE `type_code` = 'B' AND vpi.type='Stand' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
                     AND `vendor_partner_id`=P.id AND tax_code='VAT' AND product_type='wall_bracket' AND P.state=tr.state 
                     AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
+        }
+
+        $query = $this->db->query($sql);
+        $data = $query->result_array();
+        return $data;
+    }
+    
+    function get_tds_payment_report($from_date, $to_date, $partner_vendor){
+        if ($partner_vendor == 'partner') {
+            $sql ="";
+            return false;
+        } else if ($partner_vendor == 'vendor') {
+            $sql = "SELECT company_name, company_type, payment_history.invoice_id, invoice_date, type,type_code,name_on_pan,
+                    pan_no, owner_name, vendor_partner_invoices.total_service_charge, 
+                    vendor_partner_invoices.total_additional_service_charge, vendor_partner_invoices.service_tax,
+                    vendor_partner_invoices.total_amount_collected,(total_amount_collected - payment_history.tds_amount) as net_amount,
+                    payment_history.tds_amount, tax_rates.rate as tds_rate ,abs(vendor_partner_invoices.amount_collected_paid) as amount_collected_paid
+                    FROM `payment_history`, vendor_partner_invoices, service_centres, tax_rates 
+                    WHERE payment_history.create_date >= '$from_date' AND payment_history.create_date < '$to_date' 
+                    AND payment_history.tds_amount > 0 AND vendor_partner_invoices.invoice_id = payment_history.invoice_id 
+                    AND vendor_partner_invoices.vendor_partner = 'vendor' AND service_centres.id = vendor_partner_invoices.vendor_partner_id 
+                    AND tax_rates.state = service_centres.state AND tax_rates.tax_code = 'ST'";
+        } else if ($partner_vendor == 'stand') {
+            $sql ="";
+            return false;
         }
 
         $query = $this->db->query($sql);
