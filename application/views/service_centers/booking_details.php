@@ -167,8 +167,8 @@
                                 <?php if($booking_history[0]['is_upcountry'] ==1){ ?>
                                 <td><?php echo $booking_history[0]['customer_paid_upcountry_charges'];?></td>
                                 <?php } ?>
-                                <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] ); } else{
-                                    print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] + $booking_history[0]['customer_paid_upcountry_charges']  );
+                                <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo ($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts']); } else{
+                                    echo ($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] + $booking_history[0]['customer_paid_upcountry_charges']);
                                 }   ?></td>
                                 
                                 <?php }?>
