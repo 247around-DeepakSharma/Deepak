@@ -632,6 +632,9 @@ class Invoice extends CI_Controller {
 //            }
 
            // $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
+            if ($invoice_type == "draft") {
+                $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
+            }
             $this->email->attach(TMP_FOLDER .$invoice_id. ".pdf", 'attachment');
 
             $mail_ret = $this->email->send();
