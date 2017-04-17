@@ -534,30 +534,16 @@ class Notify {
             case 'Microwave':
             case 'Refrigerator':
 	    case 'Washing Machine':
-            case 'Water Purifier':
+            
 		$status = 'FREE';
 		break;
-
+            case 'Water Purifier':
 	    case 'Air Conditioner':
+            case 'Chimney': 
+            case 'Geyser': 
                 $status = 'To be Paid';
                 break;
-            
-	    case 'Chimney':
-                $status = 'To be Paid';
-		break;
-            case 'Geyser':
-                switch ($category){
-                
-                case 'Geyser-PAID':
-                    $status = 'Rs 250';
-                    break;
-                default :
-                    
-                    $status = 'FREE';
-                    break;
-                }
-                
-                break;
+         
 	}
         
 	return $status;
