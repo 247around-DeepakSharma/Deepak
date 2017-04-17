@@ -244,6 +244,10 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/upcountry/get_distance_between_pincodes_form"><i class="fa fa-fw fa-desktop "></i> <strong>Update Pincode Distance</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
