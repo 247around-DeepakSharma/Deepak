@@ -63,7 +63,18 @@
                                     Total Pincode&nbsp;:&nbsp;&nbsp;<b><?php echo $total_pincode?></b>
                                 </div>
                                 <div class="col-md-6">
-                                    <strong>Uploaded By : </strong><?php echo $latest_file[0]['full_name']?>
+                                    <table class="table table-bordered table-hover table-responsive">
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Uploaded By</strong></td>
+                                                <td><?php echo $latest_file[0]['full_name']?></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Upload Date</strong></td>
+                                                <td><?php echo date('d-m-Y',  strtotime($latest_file[0]['upload_date']))?></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                                 <br><br>
                                 <div class='col-md-12'>

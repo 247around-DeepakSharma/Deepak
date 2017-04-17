@@ -1750,7 +1750,7 @@ class Reporting_utils extends CI_Model {
      */
     function get_all_latest_uploaded_file($file_type) {
         $where = "where file_type IN ($file_type)";
-        $sql = "SELECT a.file_type, b.full_name FROM (SELECT file_type, agent_id,create_date
+        $sql = "SELECT a.file_type, b.full_name,a.upload_date FROM (SELECT file_type, agent_id,create_date as upload_date
                 FROM file_uploads
                 WHERE create_date IN (
                 SELECT MAX(create_date)
