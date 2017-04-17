@@ -70,7 +70,7 @@
          
         
          <td ><?php if($invoice['settle_amount'] == 0){ ?><input type="checkbox" class="form-control" name ="invoice_id[]" value="<?php echo $invoice['invoice_id'] ?>" id="<?php echo 'checkbox_'.$count; ?>" onclick="sum_amount()" />
-            
+             
              <input type="hidden" class ="in_disable" name="<?php echo "tds_amount[".$invoice['invoice_id']."] "; ?>" id="<?php echo "intdsAmount_".$count; ?>" value="<?php if($invoice['amount_paid'] > 0 ) { echo "0.00";} else { echo $invoice['tds_amount'];} ?>"/>
              <input type="hidden" class ="in_disable"    name="<?php echo "amount_collected[".$invoice['invoice_id']."] "; ?>" id="<?php echo "inAmountCollected_".$count; ?>" value="<?php if($invoice['amount_collected_paid'] > 0) {echo $invoice['amount_collected_paid'] - $invoice['amount_paid'];} else { echo $invoice['amount_collected_paid'] + $invoice['amount_paid'];}?>"/>
             
@@ -81,7 +81,7 @@
          </td>
          <td>
              <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">ReGenerate
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?>>ReGenerate
                 <span class="caret"></span></button>
                 <ul class="dropdown-menu">
                     <li><a href="<?php echo base_url();?>employee/invoice/regenerate_invoice/<?php echo $invoice['invoice_id'];?>/final">Final</a></li>
@@ -91,7 +91,7 @@
               </div>
          </td>
          <td>
-             <a href="<?php echo base_url()?>employee/invoice/insert_update_invoice/<?php echo $invoice['vendor_partner'];?>/<?php echo $invoice['invoice_id'];?>" class="btn btn-sm btn-info" >Update</a>
+             <a href="<?php echo base_url()?>employee/invoice/insert_update_invoice/<?php echo $invoice['vendor_partner'];?>/<?php echo $invoice['invoice_id'];?>" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?> class="btn btn-sm btn-info" >Update</a>
          </td>
 
           <?php  $count = $count+1;  ?>
@@ -250,7 +250,7 @@
              <th>TDS Deducted</th>
              <th>Invoices</th>
              <th>Bank Name / Mode</th>
-             <th colspan="2">Edit/Delete</th>
+<!--             <th colspan="2">Edit/Delete</th>-->
           </tr>
        </thead>
        
@@ -268,14 +268,14 @@
                <td><?php echo $value['tds_amount']; $tds_amount += intval($value['tds_amount']); ?></td>
                <td><?php echo $value['invoice_id']; ?></td>
                <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>   
-               <td>
-               <a href="<?php echo base_url();?>employee/invoice/update_banktransaction/<?php echo $value['id'];?>" class="btn btn-sm btn-success">Edit</a>
+<!--               <td>
+               <a href="<?php //echo base_url();?>employee/invoice/update_banktransaction/<?php //echo $value['id'];?>" class="btn btn-sm btn-success">Edit</a>
 
                </td>   
                <td>
-               <a href="<?php echo base_url();?>employee/invoice/delete_banktransaction/<?php echo $value['id'];?>/<?php echo $value['partner_vendor'];?>/<?php echo $value['partner_vendor_id']; ?>" class="btn btn-sm btn-danger">Delete</a>
+               <a href="<?php //echo base_url();?>employee/invoice/delete_banktransaction/<?php //echo $value['id'];?>/<?php //echo $value['partner_vendor'];?>/<?php //echo $value['partner_vendor_id']; ?>" class="btn btn-sm btn-danger">Delete</a>
 
-               </td>                  
+               </td>                  -->
            <?php } ?>
            </tr>
            <tr>
