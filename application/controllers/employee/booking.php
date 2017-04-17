@@ -2464,4 +2464,13 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/booking', $data);
     }
+    
+    function booking_upcountry_details($service_center_id, $booking_id, $is_customer_paid){
+        if($is_customer_paid > 0){
+            $is_customer_paid = 1;
+        }
+        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid);
+       
+        $this->load->view('service_centers/upcountry_booking_details', $data);
+    }
 }

@@ -131,12 +131,8 @@
     vertical-align: center;
     padding: 2px;
     }
-    th{
-    height: 50px;
-    background-color: #4CBA90;
-    color: white;
-    }
-    tr:nth-child(even) {background-color: #f2f2f2}
+    
+    
 </style>
 <!--Cancel Modal-->
 <div id="penaltycancelmodal" class="modal fade" role="dialog">
@@ -286,7 +282,7 @@
                     <?php foreach($Bookings as $key =>$row){ if($row->current_status == "Pending" || $row->current_status == "Rescheduled"){ ?>
                     <tr id="row_color<?php echo $count;?>">
                       
-                        <td><input type="hidden" class="mail_to_vendor<?php echo $count;?>" id="mail_to_vendor<?php echo $count;?>" value="<?php echo $row->mail_to_vendor;?>"><?php if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
+                        <td><input type="hidden" class="mail_to_vendor<?php echo $count;?>" id="mail_to_vendor<?php echo $count;?>" value="<?php echo $row->mail_to_vendor;?>"><?php if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
                         
                         <td>
                             <?php
@@ -660,7 +656,22 @@
     </div>
 </div>
 </div>
-
+<div id="myModal1" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="open_model1">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Upcountry Call</h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
         $(document).ready(function() {
         <?php if(isset($data['FollowUp_count'])){ ?>
@@ -676,7 +687,19 @@
         }
         <?php } ?>
     });
+     function open_upcountry_model(sc_id, booking_id, amount_due){
+      
+       $.ajax({
+      type: 'POST',
+      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
+      success: function (data) {
+       $("#open_model1").html(data); 
+      
+       $('#myModal1').modal('toggle');
     
+      }
+    });
+    }
     function get_vendor(pincode, service_id, index){
         
         $.ajax({

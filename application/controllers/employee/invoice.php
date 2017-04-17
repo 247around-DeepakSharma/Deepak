@@ -201,6 +201,12 @@ class Invoice extends CI_Controller {
         $data['selected_tds'] = $this->input->post('selected_tds');
         $data['tds_amount'] = $this->input->post('tds_amount');
         $data['amount_collected'] = $this->input->post('amount_collected');
+       $data['invoice_id_list'] = array();
+        if(empty($vendor_partner)){
+            $where = " amount_paid = 0 ";
+            $data['invoice_id_list'] = $this->invoices_model->get_invoices_details($where);
+
+        }
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/addnewtransaction', $data);
@@ -228,21 +234,22 @@ class Invoice extends CI_Controller {
             $data['selected_tds'] = $details[0]['tds_amount'];
             $amount_collected = array();
             $tds = array();
-            foreach($data['invoice_id_array'] as $value ){
-                $where = " invoice_id = '" . $value . "' ";
-                $data1 = $this->invoices_model->get_invoices_details($where);
-                if($data1[0]['amount_collected_paid'] > 0){
-                    $amount = $data1[0]['amount_collected_paid'] - $data1[0]['amount_paid'];
+
+
+            $bank_payment_history = $this->invoices_model->get_payment_history(array('bank_transaction_id' => $id));
+            foreach ($bank_payment_history as $value){
+                if($value == "Debit"){
+                    $amount = -$value['credit_debit_amount'];
+                    
                 } else {
-                     $amount = $data1[0]['amount_collected_paid'] + $data1[0]['amount_paid'];
+                    $amount = $value['credit_debit_amount'];
                 }
-                $amount_collected[$value] = $amount;
-                $tds[$value] = $data1[0]['tds_amount'];
-                
+                $amount_collected[$value['invoice_id']] = $amount;
+                $tds[$value['invoice_id']] = $value['tds_amount'];
             }
             
-            $data['tds_amount'] = $amount_collected;
-            $data['amount_collected'] = $tds;
+            $data['tds_amount'] = $tds;
+            $data['amount_collected'] = $amount_collected;
 
             $this->load->view('employee/header/' . $this->session->userdata('user_group'));
             $this->load->view('employee/addnewtransaction', $data);
@@ -331,7 +338,10 @@ class Invoice extends CI_Controller {
             $account_statement['credit_amount'] = '0';
             $account_statement['credit_debit'] = 'Debit';
         }
-        $account_statement['agent_id'] =  $this->session->userdata('id');           
+
+        $account_statement['agent_id'] =  $this->session->userdata('id');   
+        $account_statement['tds_amount'] = $tds;            
+                    
         if (empty($bank_txn_id)) {
             $bank_txn_id = $this->invoices_model->bankAccountTransaction($account_statement);
         } else {
@@ -1996,7 +2006,7 @@ class Invoice extends CI_Controller {
                     $invoice_details = array(
                         'invoice_id' => $invoice[0]['invoice_number'],
                         'type' => 'Stand',
-                        'type_code' => 'D',
+                        'type_code' => 'A',
                         'vendor_partner' => 'vendor',
                         'vendor_partner_id' => $invoice[0]['vendor_id'],
                         'invoice_file_excel' => $invoice[0]['invoice_number'] . '.xlsx',
@@ -2834,7 +2844,6 @@ class Invoice extends CI_Controller {
             $data['courier_charges'] = $this->input->post("courier_charges");
             $data['upcountry_price'] = $this->input->post("upcountry_price");
             $data['remarks'] = $this->input->post("remarks");
-            $new_invoice_id_flag = $this->input->post("new_invoice_id_flag");
             $data['penalty_bookings_count'] = $this->input->post("penalty_bookings_count");
             $data['total_amount_collected'] = round(($data['total_service_charge'] +
                     $data['total_additional_service_charge'] +
@@ -2842,7 +2851,9 @@ class Invoice extends CI_Controller {
                     $data['service_tax'] + $data['courier_charges'] - $data['penalty_amount']), 0);
 
             $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
-            $data['invoice_date'] = date('Y-m-d');
+            $invoice_date = $this->input->post('invoice_date');
+            $data['invoice_date'] = date('Y-m-d', strtotime($invoice_date));
+            $data['type_code'] = $this->input->post('around_type');
 
             $entity_details = array();
             $main_invoice_file = "";
@@ -2855,54 +2866,21 @@ class Invoice extends CI_Controller {
                 $data['invoice_id'] = $invoice_id;
             }
 
-            if ($new_invoice_id_flag == 1) {
-                $data['invoice_date'] = date("Y-m-d");
-            }
 
-            switch ($data['type']) {
+            switch ($data['type_code']) {
+                case 'A':
+                    log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
 
-                case 'Cash':
-                case 'DebitNote':
-                case 'BuybackCash':
-                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
-                    
-                    $data['type_code'] = 'A';
                     $data['total_amount_collected'] = ($data['total_amount_collected'] + $data['upcountry_price']);
                     $data['around_royalty'] = round($data['total_amount_collected'], 0);
                     $data['amount_collected_paid'] = round($data['total_amount_collected'], 0);
 
-                    if (empty($invoice_id)) {
-                        log_message('info', __FUNCTION__ . " Invoice Id Empty");
-                        if ($data['vendor_partner'] == "partner") {
-                            $entity_details = $this->partner_model->getpartner($data['vendor_partner_id']);
-                            $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
-                            $data['invoice_id'] = $tmp_invoice['invoice_id'];
-                        } else if ($data['vendor_partner'] == "vendor") {
-
-                            $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
-                            $data['invoice_id'] = $tmp_invoice['invoice_id'];
-                        }
-
-
-                        log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
-                    }
-                    if ($sms_sent) {
-                        $sms['tag'] = "vendor_invoice_mailed";
-                        $sms['smsData']['type'] = $data['type'];
-                        $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
-                        $sms['smsData']['amount'] = $data['amount_collected_paid'];
-                        $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
-                        $sms['booking_id'] = "";
-                        $sms['type'] = "vendor";
-                        $sms['type_id'] = $data['vendor_partner_id'];
-                    }
                     break;
-                case 'FOC':
-                case 'CreditNote': 
-                case 'BuybackFOC':  
-                    log_message('info', __FUNCTION__ . " .. type code:- ".$data['type']);
+
+                case 'B':
+                    log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
+
                     $data['total_amount_collected'] = ($data['total_amount_collected'] - $data['upcountry_price']);
-                    $data['type_code'] = 'B';
                     $tds = array();
                     if ($data['type'] == 'FOC') {
 
@@ -2912,9 +2890,9 @@ class Invoice extends CI_Controller {
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;
                         }
-                        
-                    } else if($data['type'] == 'CreditNote' ||  $data['type'] == 'BuybackFOC'){
-                       
+
+                    } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand') {
+
                         $tds['tds'] = 0;
                         $tds['tds_rate'] = 0;
                     }
@@ -2923,52 +2901,6 @@ class Invoice extends CI_Controller {
                     $data['amount_collected_paid'] = -($data['total_amount_collected'] - $tds['tds']);
                     $data['tds_amount'] = $tds['tds'];
                     $data['tds_rate'] = $tds['tds_rate'];
-
-                    if (empty($invoice_id)) {
-                        log_message('info', __FUNCTION__ . " Invoice Id Empty");
-
-                        $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], $entity_details[0]['sc_code']);
-                        $data['invoice_id'] = $tmp_invoice['invoice_id'];
-                        log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
-                    }
-
-                    if ($sms_sent) {
-                        $sms['tag'] = "vendor_invoice_mailed";
-                        $sms['smsData']['type'] = $data['type'];
-                        $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
-                        $sms['smsData']['amount'] = abs($data['amount_collected_paid']);
-                        $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
-                        $sms['booking_id'] = "";
-                        $sms['type'] = "vendor";
-                        $sms['type_id'] = $data['vendor_partner_id'];
-                    }
-
-                    break;
-                case 'Stand':
-                    log_message('info', __FUNCTION__ . " .. type :- Stand");
-                    $data['type_code'] = "D";
-                    $data['around_royalty'] = $data['total_amount_collected'];
-                    $data['amount_collected_paid'] = $data['total_amount_collected'];
-
-                    if (empty($invoice_id)) {
-                        log_message('info', __FUNCTION__ . " Invoice Id Empty");
-
-                        $tmp_invoice = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
-                        $data['invoice_id'] = $tmp_invoice['invoice_id'];
-                        log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
-                    }
-
-                    if ($sms_sent) {
-                        $sms['tag'] = "vendor_invoice_mailed";
-                        $sms['smsData']['type'] = 'Stand';
-                        $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
-                        $sms['smsData']['amount'] = $data['amount_collected_paid'];
-                        $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
-                        $sms['booking_id'] = "";
-                        $sms['type'] = "vendor";
-                        $sms['type_id'] = $data['vendor_partner_id'];
-                    }
-
                     break;
             }
 
@@ -3004,12 +2936,22 @@ class Invoice extends CI_Controller {
                     log_message('info', __FUNCTION__ . " Main Invoice upload failed");
                 }
             }
-
+            
             $status = $this->invoices_model->action_partner_invoice($data);
 
             if ($status) {
                 log_message('info', __METHOD__ . ' Invoice details inserted ' . $data['invoice_id']);
                 if ($sms_sent) {
+
+                    $sms['tag'] = "vendor_invoice_mailed";
+                    $sms['smsData']['type'] = $data['type'];
+                    $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
+                    $sms['smsData']['amount'] = $data['amount_collected_paid'];
+                    $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
+                    $sms['booking_id'] = "";
+                    $sms['type'] = "vendor";
+                    $sms['type_id'] = $data['vendor_partner_id'];
+
 
                     $this->notify->send_sms_acl($sms);
                     log_message('info', __METHOD__ . ' SMS Sent ' . $data['invoice_id']);
@@ -3217,17 +3159,13 @@ class Invoice extends CI_Controller {
         if (!empty($entity_details)) {
             switch ($type_code) {
 
-                case 'Cash':
-                case 'DebitNote':
-                case 'BuybackCash':
-                case 'Stand':
-
+                case 'A':
+                    
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
                     echo $invoice_id['invoice_id'];
                     break;
-                case 'FOC':
-                case 'CreditNote': 
-                case 'BuybackFOC':  
+
+                case 'B':
 
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, $entity_details[0]['sc_code']);
                     echo $invoice_id['invoice_id'];

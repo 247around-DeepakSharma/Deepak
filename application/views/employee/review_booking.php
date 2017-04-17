@@ -31,8 +31,7 @@
                         <th>Booking Id</th>
                         <th>Service Center </th>
                         <th>User Name</th>
-                        <th>User Phone Number</th>
-                        <th>Quantity</th>
+                        <th>Original Booking Date</th>
                         <th>Booking Date</th>
                         <th>Reschedule Booking Date</th>
                         <th>Reschedule Reason</th>
@@ -42,14 +41,21 @@
                   <tbody>
                      <?php $sno = 1; foreach ($data as $key => $value) { ?>
                      <tr>
-                        <td><?php echo $sno; ?></td>
+                        <td><?php echo $sno; if($value['is_upcountry'] == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $value['assigned_vendor_id'];?>','<?php echo $value['booking_id'];?>', '<?php echo $value['amount_due'];?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
                         <td><?php echo $value['booking_id'];  ?></td>
                         <td><?php echo $value['service_center_name'];  ?></td>
-                        <td><?php echo $value['customername'];  ?></td>
-                        <td><?php echo $value['booking_primary_contact_no'];  ?></td>
-                        <td><?php echo $value['quantity'];  ?></td>
+                        <td><?php echo $value['customername'];  ?><br/><?php echo $value['booking_primary_contact_no'];  ?></td>
+                       
+                        <td><?php echo $value['initial_booking_date'];  ?></td>
                         <td><?php echo $value['booking_date']." / ".$value['booking_timeslot'] ;  ?></td>
-                        <td><?php echo  date('d-m-Y',strtotime($value['reschedule_date_request'])) ;  ?>
+                        <td><?php echo  date('d-m-Y',strtotime($value['reschedule_date_request'])) ; ?>
+                        <div class="blink">
+                           <div class="esclate"><?php echo '<b>' . $value['count_reschedule'] . " times</b><br>";?></div>
+                                
+                            </div>
+                           
+                            
+                        
                            <input type="hidden" name="reschedule_booking_date[<?php echo $value['booking_id']; ?>]" value="<?php echo $value['reschedule_date_request'] ?>" ></input>
 <!--                           <input type="hidden" name="reschedule_booking_timeslot[<?php //echo $value['booking_id']; ?>]" value="<?php //echo $value['reschedule_timeslot_request'] ?>" ></input>-->
                            <input type="hidden" name="reschedule_reason[<?php echo $value['booking_id']; ?>]" value="<?php echo $value['reschedule_reason'] ?>" ></input>
@@ -221,6 +227,22 @@
       </div>
    </div>
 </div>
+    <div id="myModal1" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="open_model1">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Upcountry Call</h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
    $(document).ready(function(){
      $("#selecctall").change(function(){
@@ -306,4 +328,42 @@
           return true;
       }
    }
+   
+   function open_upcountry_model(sc_id, booking_id, amount_due){
+      
+       $.ajax({
+      type: 'POST',
+      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
+      success: function (data) {
+       $("#open_model1").html(data); 
+      
+       $('#myModal1').modal('toggle');
+    
+      }
+    });
+    }
 </script>
+<style >
+    @keyframes blink {
+      50% { opacity: 0.0; }
+    }
+    @-webkit-keyframes blink {
+      50% { opacity: 0.0; }
+    }
+    .blink {
+      animation: blink 1s step-start 0s infinite;
+      -webkit-animation: blink 1s step-start 0s infinite;
+    }
+    
+    .esclate {
+    width: auto;
+    height: 17px;
+   
+    color: #F73006;
+    /* transform: rotate(-26deg); */
+    margin-left: 0px;
+    font-weight: bold;
+    margin-right: 0px;
+    font-size: 12px;
+}
+</style>

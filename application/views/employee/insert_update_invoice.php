@@ -6,10 +6,28 @@
         <div class="panel-body">
             <form class="form-horizontal" method="POST" action="<?php echo base_url();?>employee/invoice/process_insert_update_invoice/<?php echo $vendor_partner;?>" enctype="multipart/form-data" >
                 <div class="row">
-                    <div class="col-md-12">
-                    <div class="col-md-6 col-md-offset-4 <?php if( form_error('invoice_id') ) { echo 'has-error';} ?>">
+                    <div class="col-md-12 col-md-offset-3">
                         <div class="form-group">
-                               
+            <label class="col-md-3 control-label" for="Around Type">247Around is</label>
+            <div class="col-md-9">
+                <label class="radio-inline">
+                    <input onchange="control_type_code(1)" checked="checked" data-val="true" data-val-required="247Around Type is required." id="around_type" name="around_type" type="radio" value="B">
+                    Buyer
+                </label>
+                <label class="radio-inline">
+                    <input onchange="control_type_code(1)" id="around_type" name="around_type" type="radio" value="A">
+                     Seller
+                </label>
+              	
+            </div>
+        </div>
+                    </div>
+                  
+                    <div class="col-md-12" style="margin-top: 20px;">
+                        <div class="col-md-6 <?php if( form_error('invoice_id') ) { echo 'has-error';} ?>">
+                            
+                            <div class="form-group">
+                               <label for="Vendor Partner" class="col-md-4">Invoice ID</label>
                                <div class="col-md-6">
                                    <input type="text" class="form-control" name="invoice_id" id="invoice_id_gen" value="<?php if (isset($invoice_details[0]['invoice_id'])) {
                                echo $invoice_details[0]['invoice_id'];
@@ -17,10 +35,6 @@
                                </div>
                             <?php echo form_error('invoice_id'); ?>
                            </div>
-                    </div>
-                    </div>
-                    <div class="col-md-12" style="margin-top: 20px;">
-                        <div class="col-md-6">
                            
                             <div class="form-group">
                                 <label for="Vendor Partner" class="col-md-4">Entity</label>
@@ -31,7 +45,7 @@
                                 </div>
                             </div>
                             
-                             <input type="hidden" name="new_invoice_id_flag" id="new_invoice_id_flag" value="0"/>
+                            
                             <div class="form-group" >
                                 <label for="From Date" class="col-md-4">From Date</label>
                                 <div class="col-md-6">
@@ -119,34 +133,47 @@
                             </div>
                         </div>
                         <div class="col-md-6">
+                            <div class="form-group" >
+                                <label for="Invoice Date" class="col-md-4">Invoice Date</label>
+                                <div class="col-md-6">
+                                    <div class="input-group input-append date">
+                                        <input id="invoice_date" class="form-control" placeholder="Select Date" name="invoice_date" type="text" required readonly='true' style="background-color:#fff;cursor: pointer;" value="<?php if (isset($invoice_details[0]['invoice_date'])) {
+                                            echo $invoice_details[0]['invoice_date'];
+                                            } else { echo date('Y-m-d');} ?>">
+                                        <span class="input-group-addon add-on" onclick="from_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label for="Type Code" class="col-md-4">Type Code</label>
                                 <div class="col-md-6">
                                     <select name="type" class="form-control" id="type_code">
-                                        <option value="Cash" <?php if (isset($invoice_details[0]['type_code'])) {
+                                        <option value="" disabled selected>Select Type Code</option>
+                                        <option  value="Cash" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "Cash"){ echo "selected";}
                                             } ?>>Cash</option>
-                                        <option value="BuybackCash" <?php if (isset($invoice_details[0]['type_code'])) {
-                                            if($invoice_details[0]['type'] == "BuybackCash"){ echo "selected";}
-                                            } ?>>BuybackCash</option>
-                                        <option value="CreditNote" <?php if (isset($invoice_details[0]['type_code'])) {
-                                            if($invoice_details[0]['type'] == "CreditNote"){ echo "selected";}
-                                            } ?>>CreditNote</option>
-                                        <option value="DebitNote" <?php if (isset($invoice_details[0]['type_code'])) {
+                                        <option value="DebitNote" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "DebitNote"){ echo "selected";}
                                             } ?>>DebitNote</option>
-                                        <option value="FOC" <?php if (isset($invoice_details[0]['type_code'])) {
+                                        <option value="CreditNote" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == "CreditNote"){ echo "selected";}
+                                            } ?>>CreditNote</option>
+                                        <option value="FOC" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "FOC"){ echo "selected";}
                                             } ?>>FOC</option>
-                                         <option value=">BuybackFOC" <?php if (isset($invoice_details[0]['type_code'])) {
-                                            if($invoice_details[0]['type'] == "BuybackFOC"){ echo "selected";}
-                                            } ?>>BuybackFOC</option>
-                                        <option value="Stand" <?php if (isset($invoice_details[0]['type_code'])) {
+                                         <option value=">Buyback" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == "Buyback"){ echo "selected";}
+                                            } ?>>Buyback</option>
+                                        <option value="Stand" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "Stand"){ echo "selected";}
                                             } ?>>Stand</option>
+                                        <option value="Parts" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == "Parts"){ echo "selected";}
+                                            } ?>>Parts</option>
                                     </select>
                                 </div>
                             </div>
+                            
                             <div class="form-group" >
                                 <label for="From Date" class="col-md-4">To Date</label>
                                 <div class="col-md-6">
@@ -252,9 +279,11 @@
 </div>
 <script>
     $("#to_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $("#from_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $("#vendor_partner_id").select2();
-    $("#type_code").select2();
+    
+    control_type_code(0);
     
      function from_calendar() {
            $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true}).datepicker('show');
@@ -293,7 +322,7 @@
             var vendor_partner_type = '<?php echo $vendor_partner; ?>';
             var vendor_partner_id =  $("#vendor_partner_id").val();
             var from_date = $("#from_date").val();
-            var type_code = $("#type_code").val();
+            var type_code = $("input[name='around_type']:checked").val();
             
             if(from_date !==""){
                 $.ajax({
@@ -304,7 +333,7 @@
                         alert(data);
                         $(".panel-title").html(data);
                         $("#invoice_id_gen").val(data);
-                        $("#new_invoice_id_flag").val('1');
+                        
                     }
                 });
                 
@@ -312,4 +341,27 @@
         
         
        }
+       
+    function control_type_code(is_value){
+        var radioValue = $("input[name='around_type']:checked").val();
+        if(is_value === 1){
+            $('#type_code option:eq(0)').prop('selected', true);
+            $('#invoice_id_gen').val('');
+        }
+      
+        if(radioValue === 'A'){
+           
+            document.getElementById("type_code").options[1].disabled = false;
+            document.getElementById("type_code").options[2].disabled = false;
+            document.getElementById("type_code").options[3].disabled = true;
+            document.getElementById("type_code").options[4].disabled = true;
+               
+        } else if(radioValue === 'B'){
+           
+            document.getElementById("type_code").options[1].disabled = true;
+            document.getElementById("type_code").options[2].disabled = true;
+            document.getElementById("type_code").options[3].disabled = false;
+            document.getElementById("type_code").options[4].disabled = false;
+        }
+    }
 </script>
