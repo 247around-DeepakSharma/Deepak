@@ -711,5 +711,22 @@ class Upcountry_model extends CI_Model {
         return $result;
     }
     
+    /**
+     * @desc This method is used to update the distance for given pincode
+     * @param string
+     * @return string 
+     */
+    function update_pincode_distance($pincode1,$pincode2,$distance){
+        $set = array('distance' => $distance);
+        $this->db->where('pincode1',$pincode1);
+        $this->db->where('pincode2',$pincode2);
+        $this->db->update('distance_between_pincode',$set);
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     
 }
