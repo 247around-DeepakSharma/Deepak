@@ -339,7 +339,7 @@ class Penalty_model extends CI_Model {
             THEN (COUNT( p.booking_id ) * penalty_amount) ELSE ( " . CAP_ON_PENALTY_AMOUNT . " ) END AS p_amount, 
             p.booking_id, penalty_amount FROM  
            `penalty_on_booking` AS p, booking_details 
-            WHERE  `criteria_id` = 2 AND  `closed_date` >=  '" . $from_date . "' 
+            WHERE  `criteria_id` IN (2,9,10,11,8) AND  `closed_date` >=  '" . $from_date . "' 
             AND closed_date <  '" . $to_date . "'
             AND service_center_id = '" . $vendor_id . "'
             AND p.active = 0
