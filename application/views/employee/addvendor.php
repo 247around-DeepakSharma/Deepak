@@ -255,7 +255,7 @@
                                         ?>">
                                         <label  for="phone_2" class="col-md-3">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control verigymobileNumber" id="phone_2" name="phone_2" value = "<?php
+                                            <input type="text" class="form-control" id="phone_2" name="phone_2" value = "<?php
                                                 if (isset($query[0]['phone_2'])) {
                                                     echo $query[0]['phone_2'];
                                                 }
@@ -448,7 +448,7 @@
                                         ?>">
                                         <label for="primary_contact_phone_2" class="col-md-3">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control verigymobileNumber" id="primary_contact_phone_2" name="primary_contact_phone_2" value = "<?php
+                                            <input type="text" class="form-control" id="primary_contact_phone_2" name="primary_contact_phone_2" value = "<?php
                                                 if (isset($query[0]['primary_contact_phone_2'])) {
                                                     echo $query[0]['primary_contact_phone_2'];
                                                 }
@@ -525,7 +525,7 @@
                                         ?>">
                                         <label for="owner_phone_2" class="col-md-3">Phone 2</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control verigymobileNumber" id="owner_phone_2" name="owner_phone_2" value = "<?php
+                                            <input type="text" class="form-control" id="owner_phone_2" name="owner_phone_2" value = "<?php
                                                 if (isset($query[0]['owner_phone_2'])) {
                                                     echo $query[0]['owner_phone_2'];
                                                 }
@@ -1326,8 +1326,7 @@
         phone_1: {
             required: true,
             minlength: 10,
-            number: true,
-            regx: /^[7-9]{1}[0-9]{9}$/
+            number: true
         },
         phone_2: {
             minlength: 10,
@@ -1336,21 +1335,17 @@
         primary_contact_phone_1: {
             required: true,
             minlength: 10,
-            number: true,
-            regx: /^[7-9]{1}[0-9]{9}$/
+            number: true
         },
         primary_contact_phone_2: {
-            minlength: 10,
             number: true
         },
         owner_phone_1: {
             required: true,
             minlength: 10,
-            number: true,
-            regx: /^[7-9]{1}[0-9]{9}$/
+            number: true
         },
         owner_phone_2: {
-            minlength: 10,
             number: true
         },
         state: "required",
@@ -1448,7 +1443,7 @@
     });
     
     $(document).ready(function () {
-        var regxp = /^[7-9]{1}[0-9]{9}$/;
+        var regxp = /^(\s*|\d+)$/;
         $('.verigymobileNumber').blur(function () {
             var inputVal = $(this).val();
 
