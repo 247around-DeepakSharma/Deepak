@@ -896,29 +896,23 @@ foreach ($results['services'] as $value) {
                                 phone_1: {
                                     required: true,
                                     minlength: 10,
-                                    number: true,
-                                    regx: /^[7-9]{1}[0-9]{9}$/
+                                    number: true
                                 },
                                 phone_2: {
-                                    minlength: 10,
                                     number: true
                                 },
                                 primary_contact_phone_1: {
                                     minlength: 10,
-                                    number: true,
-                                    regx: /^[7-9]{1}[0-9]{9}$/
+                                    number: true
                                 },
                                 primary_contact_phone_2: {
-                                    minlength: 10,
                                     number: true
                                 },
                                 owner_phone_1: {
                                     minlength: 10,
-                                    number: true,
-                                    regx: /^[7-9]{1}[0-9]{9}$/
+                                    number: true
                                 },
                                 owner_phone_2: {
-                                    minlength: 10,
                                     number: true
                                 },
                                 state: "required",
@@ -1003,7 +997,7 @@ foreach ($results['services'] as $value) {
     });
     
     $(document).ready(function () {
-        var regxp = /^[7-9]{1}[0-9]{9}$/;
+        var regxp = /^(\s*|\d+)$/;
         $('.verigymobileNumber').blur(function () {
             var inputVal = $(this).val();
 
