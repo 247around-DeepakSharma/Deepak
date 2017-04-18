@@ -14,115 +14,115 @@ class Penalty_model extends CI_Model {
      * @desc: This is
      */
     function penalty_on_service_center_for_assigned_engineer() {
-	log_message('info', __FUNCTION__);
-	$sql = "SELECT distinct(BD.booking_id), assigned_vendor_id, BD.partner_id, assigned_engineer_id, "
-	    . " SC.create_date, BD.booking_date FROM booking_details as BD,  "
-	    . " service_center_booking_action as SC, service_centres as SCS "
-	    . " WHERE BD.assigned_vendor_id IS NOT NUll "
-	    . " AND (BD.current_status='Pending' OR BD.current_status='Rescheduled') "
-	    . " AND SC.booking_id = BD.booking_id "
-	    . " AND SC.service_center_id = BD. assigned_vendor_id "
-	    . " AND (SC.current_status='Pending' OR SC.current_status='InProcess') "
-            . " AND SCS.id = SC.service_center_id "
-            . " AND SCS.is_update = 1 ";
-
-	$query = $this->db->query($sql);
-	$assigned_engineer = $query->result_array();
-
-	foreach ($assigned_engineer as $value) {
-	    $engineer = $this->check_engineer_assigned($value['booking_id'], $value['assigned_vendor_id']);
-	    $date_1 = date_create(date('Y-m-d ', strtotime($value['booking_date'])));
-	    $date_2 = date_create(date('Y-m-d', strtotime($value['create_date'])));
-
-	    $date_diff = date_diff($date_1, $date_2);
-           
-            if ($date_diff->days  == 1){
-                if(date('H', strtotime($value['create_date'])) <18 ){
-                    log_message('info', __FUNCTION__ . " Days = 1");
-                    if (empty($engineer)) {
-                        log_message('info', __FUNCTION__ . " Engineer is not assign");
-                        // If engineer is not assign till 2 PM then service center will pay penalty
-                        // Current Time is greater than 12 PM
-                        if (date('H') > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
-                            log_message('info', __FUNCTION__ . " Current Time is greater than 12 PM");
-                            $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_NOT_ASSIGN, 'active' => '1');
-                            $this->get_data_penalty_on_booking($value, $where);
-                        }
-                    } else {
-                        log_message('info', __FUNCTION__ . " Engineer assigned");
-                        log_message('info', __FUNCTION__ . " Assigned Engineer Time " . date('H', strtotime($engineer['create_date'])));
-                        if (date('H', strtotime($engineer['create_date'])) > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
-                            $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_LATE_ASSIGN, 'active' => '1');
-                            $this->get_data_penalty_on_booking($value, $where);
-                        }
-                    }
-                    
-                }
-                
-            } else if ($date_diff->days > 1) {
-		log_message('info', __FUNCTION__ . " Days > 1");
-		if (empty($engineer)) {
-		    log_message('info', __FUNCTION__ . " Engineer is not assign");
-		    // If engineer is not assign till 2 PM then service center will pay penalty
-		    // Current Time is greater than 12 PM
-		    if (date('H') > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
-			log_message('info', __FUNCTION__ . " Current Time is greater than 12 PM");
-			$where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_NOT_ASSIGN, 'active' => '1');
-			$this->get_data_penalty_on_booking($value, $where);
-		    }
-		} else {
-		    log_message('info', __FUNCTION__ . " Engineer assigned");
-		    log_message('info', __FUNCTION__ . " Assigned Engineer Time " . date('H', strtotime($engineer['create_date'])));
-		    if (date('H', strtotime($engineer['create_date'])) > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
-			$where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_LATE_ASSIGN, 'active' => '1');
-			$this->get_data_penalty_on_booking($value, $where);
-		    }
-		}
-	    } else if ($date_diff->days == 0) {
-		// Assigned Engineer for same day booking
-		log_message('info', __FUNCTION__ . " Days == 0");
-		$date3 = date('H', strtotime($value['create_date']));
-
-		if (10 >= $date3) {
-		    // Assgined Engineer befor 10AM.
-		    // Service center will not assigned till 2PM, then they will pay penalty
-		    log_message('info', __FUNCTION__ . " Assgined Engineer till 10 AM");
-		    if (empty($engineer)) {
-			log_message('info', __FUNCTION__ . " Engineer is not assign");
-			if (date('H') > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
-			    $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_NOT_ASSIGN, 'active' => '1');
-			    $this->get_data_penalty_on_booking($value, $where);
-			}
-		    } else {
-			log_message('info', __FUNCTION__ . " Engineer assigned");
-			$date4 = date('H', strtotime($engineer['create_date']));
-			if ($date4 > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
-			    $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_LATE_ASSIGN, 'active' => '1');
-			    $this->get_data_penalty_on_booking($value, $where);
-			}
-		    }
-		} else {
-		    log_message('info', __FUNCTION__ . " Assgined Engineer after 10 AM");
-		    // Assgined Engineer after 10AM.
-		    // Service centers need to be assign engineer in the next 4 hours from assigned time
-		    $date5 = date('H', strtotime($value['create_date'] . " +".Max_TIME_WITH_IN_ASSIGNED_ENGINEER." hours"));
-		    if (empty($engineer)) {
-			log_message('info', __FUNCTION__ . " Engineer is not assign");
-			if (date('H') > $date5) {
-			    $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_NOT_ASSIGN, 'active' => '1');
-			    $this->get_data_penalty_on_booking($value, $where);
-			}
-		    } else {
-			log_message('info', __FUNCTION__ . " Engineer assigned");
-			$date4 = date('H', strtotime($engineer['create_date']));
-			if ($date4 > $date5) {
-			    $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_LATE_ASSIGN, 'active' => '1');
-			    $this->get_data_penalty_on_booking($value, $where);
-			}
-		    }
-		}
-	    }
-	}
+//	log_message('info', __FUNCTION__);
+//	$sql = "SELECT distinct(BD.booking_id), assigned_vendor_id, BD.partner_id, assigned_engineer_id, "
+//	    . " SC.create_date, BD.booking_date FROM booking_details as BD,  "
+//	    . " service_center_booking_action as SC, service_centres as SCS "
+//	    . " WHERE BD.assigned_vendor_id IS NOT NUll "
+//	    . " AND (BD.current_status='Pending' OR BD.current_status='Rescheduled') "
+//	    . " AND SC.booking_id = BD.booking_id "
+//	    . " AND SC.service_center_id = BD. assigned_vendor_id "
+//	    . " AND (SC.current_status='Pending' OR SC.current_status='InProcess') "
+//            . " AND SCS.id = SC.service_center_id "
+//            . " AND SCS.is_update = 1 ";
+//
+//	$query = $this->db->query($sql);
+//	$assigned_engineer = $query->result_array();
+//
+//	foreach ($assigned_engineer as $value) {
+//	    $engineer = $this->check_engineer_assigned($value['booking_id'], $value['assigned_vendor_id']);
+//	    $date_1 = date_create(date('Y-m-d ', strtotime($value['booking_date'])));
+//	    $date_2 = date_create(date('Y-m-d', strtotime($value['create_date'])));
+//
+//	    $date_diff = date_diff($date_1, $date_2);
+//           
+//            if ($date_diff->days  == 1){
+//                if(date('H', strtotime($value['create_date'])) <18 ){
+//                    log_message('info', __FUNCTION__ . " Days = 1");
+//                    if (empty($engineer)) {
+//                        log_message('info', __FUNCTION__ . " Engineer is not assign");
+//                        // If engineer is not assign till 2 PM then service center will pay penalty
+//                        // Current Time is greater than 12 PM
+//                        if (date('H') > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
+//                            log_message('info', __FUNCTION__ . " Current Time is greater than 12 PM");
+//                            $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_NOT_ASSIGN, 'active' => '1');
+//                            $this->get_data_penalty_on_booking($value, $where);
+//                        }
+//                    } else {
+//                        log_message('info', __FUNCTION__ . " Engineer assigned");
+//                        log_message('info', __FUNCTION__ . " Assigned Engineer Time " . date('H', strtotime($engineer['create_date'])));
+//                        if (date('H', strtotime($engineer['create_date'])) > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
+//                            $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_LATE_ASSIGN, 'active' => '1');
+//                            $this->get_data_penalty_on_booking($value, $where);
+//                        }
+//                    }
+//                    
+//                }
+//                
+//            } else if ($date_diff->days > 1) {
+//		log_message('info', __FUNCTION__ . " Days > 1");
+//		if (empty($engineer)) {
+//		    log_message('info', __FUNCTION__ . " Engineer is not assign");
+//		    // If engineer is not assign till 2 PM then service center will pay penalty
+//		    // Current Time is greater than 12 PM
+//		    if (date('H') > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
+//			log_message('info', __FUNCTION__ . " Current Time is greater than 12 PM");
+//			$where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_NOT_ASSIGN, 'active' => '1');
+//			$this->get_data_penalty_on_booking($value, $where);
+//		    }
+//		} else {
+//		    log_message('info', __FUNCTION__ . " Engineer assigned");
+//		    log_message('info', __FUNCTION__ . " Assigned Engineer Time " . date('H', strtotime($engineer['create_date'])));
+//		    if (date('H', strtotime($engineer['create_date'])) > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
+//			$where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_LATE_ASSIGN, 'active' => '1');
+//			$this->get_data_penalty_on_booking($value, $where);
+//		    }
+//		}
+//	    } else if ($date_diff->days == 0) {
+//		// Assigned Engineer for same day booking
+//		log_message('info', __FUNCTION__ . " Days == 0");
+//		$date3 = date('H', strtotime($value['create_date']));
+//
+//		if (10 >= $date3) {
+//		    // Assgined Engineer befor 10AM.
+//		    // Service center will not assigned till 2PM, then they will pay penalty
+//		    log_message('info', __FUNCTION__ . " Assgined Engineer till 10 AM");
+//		    if (empty($engineer)) {
+//			log_message('info', __FUNCTION__ . " Engineer is not assign");
+//			if (date('H') > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
+//			    $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_NOT_ASSIGN, 'active' => '1');
+//			    $this->get_data_penalty_on_booking($value, $where);
+//			}
+//		    } else {
+//			log_message('info', __FUNCTION__ . " Engineer assigned");
+//			$date4 = date('H', strtotime($engineer['create_date']));
+//			if ($date4 > Max_TIME_TO_BE_ASSIGNED_ENGINEER) {
+//			    $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_LATE_ASSIGN, 'active' => '1');
+//			    $this->get_data_penalty_on_booking($value, $where);
+//			}
+//		    }
+//		} else {
+//		    log_message('info', __FUNCTION__ . " Assgined Engineer after 10 AM");
+//		    // Assgined Engineer after 10AM.
+//		    // Service centers need to be assign engineer in the next 4 hours from assigned time
+//		    $date5 = date('H', strtotime($value['create_date'] . " +".Max_TIME_WITH_IN_ASSIGNED_ENGINEER." hours"));
+//		    if (empty($engineer)) {
+//			log_message('info', __FUNCTION__ . " Engineer is not assign");
+//			if (date('H') > $date5) {
+//			    $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_NOT_ASSIGN, 'active' => '1');
+//			    $this->get_data_penalty_on_booking($value, $where);
+//			}
+//		    } else {
+//			log_message('info', __FUNCTION__ . " Engineer assigned");
+//			$date4 = date('H', strtotime($engineer['create_date']));
+//			if ($date4 > $date5) {
+//			    $where = array('partner_id' => $value['partner_id'], 'criteria' => ENGG_LATE_ASSIGN, 'active' => '1');
+//			    $this->get_data_penalty_on_booking($value, $where);
+//			}
+//		    }
+//		}
+//	    }
+//	}
     }
     /**
      *
@@ -307,7 +307,7 @@ class Penalty_model extends CI_Model {
             THEN (COUNT( p.booking_id ) * penalty_amount) ELSE ( ".CAP_ON_PENALTY_AMOUNT." ) END AS p_amount, 
             p.booking_id, penalty_amount FROM  
            `penalty_on_booking` AS p, booking_details 
-            WHERE  `criteria_id` = 2 AND  `closed_date` >=  '".$from_date."' 
+            WHERE  `criteria_id` IN (2,9,10,11,8) AND  `closed_date` >=  '".$from_date."' 
             AND closed_date <  '".$to_date."'
             AND service_center_id = '".$vendor_id."'
             AND p.active = 1

@@ -372,7 +372,20 @@
                         <a target='_blank' href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success <?php if(is_null($row->assigned_vendor_id)){ echo 'disabled';} ?>' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
                     </td>
                     <td>
-                        <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                        <?php  
+                            $b_date = date("Y-m-d", strtotime($row->booking_date));
+                            $date1=date_create($b_date);
+                            $date2=date_create(date("Y-m-d"));
+                            $diff=date_diff($date2,$date1); 
+                            $b_days = $diff->days;
+                            if($diff->invert == 1){
+                                $b_days = -$diff->days;
+                            } 
+                            $b_time = explode("-", $row->booking_timeslot);
+                            $b_timeslot =  date("H", strtotime($b_time[0]));
+                            
+                           ?>
+                        <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; } else if($b_days >0){ echo "disabled";} else if($b_days <=0){ if($b_timeslot > date("H")){ echo "disabled";} } ?>  class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                         </td>
                     
 
