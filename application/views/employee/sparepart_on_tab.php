@@ -37,8 +37,8 @@
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
-                                    
-                                        <td class="text-center"><a href="#" disabled class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
+
+                                        <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
                                    </tr>
                              
                                     <?php $sn_no++; }}?>
@@ -202,7 +202,7 @@
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>  
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
 
-                                        <td class="text-center"><a href="#" disabled class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
+                                        <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
                                    </tr>
                              
                                         <?php $sn_no++; }}?>
