@@ -787,10 +787,10 @@ class Inventory extends CI_Controller {
      * @desc: load to Spare parts booking by Admin Panel
      * @param type $booking_id
      */
-    function update_spare_parts($booking_id){
+    function update_spare_parts($id){
         log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
-        $where = "spare_parts_details.booking_id = '".$booking_id."' "
+        $where = "spare_parts_details.id = '".$id."' "
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled', 'Completed', 'Cancelled') ";
         $data['bookinghistory'] = $this->partner_model->get_spare_parts_booking($where);
         
@@ -806,10 +806,10 @@ class Inventory extends CI_Controller {
      * @desc: Process to update Spare parts booking by Admin Panel
      * @param type $booking_id
      */
-    function process_update_booking($booking_id){
+    function process_update_booking($booking_id, $id){
         log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
-        if(!empty($booking_id)){
+        if(!empty($booking_id) || !empty($id) || $id != 0){
         $data['model_number'] = $this->input->post('model_number');
         $data['serial_number'] = $this->input->post('serial_number');
         $data['parts_requested'] = $this->input->post('parts_name');
@@ -819,7 +819,6 @@ class Inventory extends CI_Controller {
         $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
         $data['courier_name_by_partner'] = $this->input->post('courier_name');
         $data['awb_by_partner'] = $this->input->post('awb');
-//        $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
         $data['shipped_date'] = $this->input->post('shipment_date');
         $data['status'] = $this->input->post('status');
         
@@ -846,8 +845,8 @@ class Inventory extends CI_Controller {
             }
         }
         
-        $where = array('booking_id'=> $booking_id);
-        $status_spare = $this->service_centers_model->spare_parts_action($where, $data);
+        $where = array('id'=> $id);
+        $status_spare = $this->service_centers_model->update_spare_parts($where, $data);
         if($status_spare){
             log_message('info', __FUNCTION__. " Spare Parts Booking is updated");
             if($data['status'] == "Spare Parts Requested"){
@@ -891,7 +890,7 @@ class Inventory extends CI_Controller {
 		    $this->form_validation->set_message('upload_spare_pic', $file["error"]);
 		} else {
 		    $pic = str_replace(' ', '-', $this->input->post('booking_id'));
-		    $picName = $type. $pic . "." . $extension;
+		    $picName = $type.rand(10,100). $pic . "." . $extension;
 		    $bucket = "bookings-collateral";
                     
 		    $directory = "misc-images/" . $picName;
