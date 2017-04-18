@@ -5,7 +5,7 @@
     </div> 
     <?php } else if(isset($partner_name)){ ?>
         <div class="vendor_partner" style="margin-bottom: 10px;">
-            <h4><strong>Partner Name : </strong> <a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/vendor/<?php echo $partner_name[0]['id']; ?>" target="_blank"><?php echo $partner_name[0]['public_name']; ?></a></h4>
+            <h4><strong>Partner Name : </strong> <a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $partner_name[0]['id']; ?>" target="_blank"><?php echo $partner_name[0]['public_name']; ?></a></h4>
     </div>
     <?php } ?>
 </div>

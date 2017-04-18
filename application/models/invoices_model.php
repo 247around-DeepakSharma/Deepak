@@ -1456,5 +1456,17 @@ class invoices_model extends CI_Model {
         $query = $this->db->get('payment_history');
         return $query->result_array();
     }
+    
+    /**
+     * @desc: This Function is used search the challan id
+     * @param: array $where
+     * @return : array
+     */
+    function get_challan_details($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('challan_details');
+        return $query->result_array();
+    }
 
 }
