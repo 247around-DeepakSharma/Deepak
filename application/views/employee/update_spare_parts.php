@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
-                <form class="form-horizontal" name="myForm" action="<?php echo base_url() ?>employee/inventory/process_update_booking/<?php echo $bookinghistory[0]['booking_id']; ?>" method="POST" onsubmit="return submitForm();" enctype="multipart/form-data">
+                <form class="form-horizontal" name="myForm" action="<?php echo base_url() ?>employee/inventory/process_update_booking/<?php echo $bookinghistory[0]['booking_id']; ?>/<?php echo $bookinghistory[0]['id']; ?>" method="POST" onsubmit="return submitForm();" enctype="multipart/form-data">
                     <div class="panel panel-default " style="margin-top:20px" >
                         <div class="panel-heading">
                             <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Requested Spare Parts </h2>

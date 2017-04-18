@@ -70,7 +70,7 @@
                <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Update Defective Spare Parts </h2>
             </div>
             <div class="panel-body">
-                <form action="<?php echo base_url(); ?>service_center/process_update_defective_parts/<?php echo $spare_parts[0]['booking_id']; ?>" class ="form-horizontal" id="update_form"  method="POST">
+                <form action="<?php echo base_url(); ?>service_center/process_update_defective_parts/<?php echo $spare_parts[0]['booking_id']; ?>/<?php echo $spare_parts[0]['id']; ?>" class ="form-horizontal" id="update_form"  method="POST">
                     <div class="row">
                         <div class="col-md-6">
                              <div class="form-group ">

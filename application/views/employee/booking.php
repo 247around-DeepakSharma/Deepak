@@ -1,6 +1,6 @@
 <?php $offset = $this->uri->segment(5); ?>
 
-<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
+<!--<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>-->
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
 <script>
 
@@ -124,13 +124,8 @@
         padding: 2px;
     }
 
-    th{
-        height: 50px;
-        background-color: #4CBA90;
-        color: white;
-    }
-    tr:nth-child(even) {background-color: #f2f2f2}
-
+    
+    
 
 </style>
 
@@ -215,7 +210,7 @@
 
                     <tr id="row_color<?php echo $count;?>">
                     <td><input type="hidden" class="mail_to_vendor<?php echo $count;?>" id="mail_to_vendor<?php echo $count;?>" value="<?php echo $row->mail_to_vendor;?>"></td>
-                    <td><?php echo $offset; if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
+                    <td><?php echo $offset; if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
 
                             <td>
                             <?php
@@ -377,7 +372,20 @@
                         <a target='_blank' href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success <?php if(is_null($row->assigned_vendor_id)){ echo 'disabled';} ?>' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
                     </td>
                     <td>
-                        <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                        <?php  
+                            $b_date = date("Y-m-d", strtotime($row->booking_date));
+                            $date1=date_create($b_date);
+                            $date2=date_create(date("Y-m-d"));
+                            $diff=date_diff($date2,$date1); 
+                            $b_days = $diff->days;
+                            if($diff->invert == 1){
+                                $b_days = -$diff->days;
+                            } 
+                            $b_time = explode("-", $row->booking_timeslot);
+                            $b_timeslot =  date("H", strtotime($b_time[0]));
+                            
+                           ?>
+                        <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; } else if($b_days >0){ echo "disabled";} else if($b_days <=0){ if($b_timeslot > date("H")){ echo "disabled";} } ?>  class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                         </td>
                     
 
@@ -390,6 +398,22 @@
                 <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
                 </div>
 
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal1" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="open_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Upcountry Call</h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -408,6 +432,19 @@
         });
     });
 });
+
+ function open_upcountry_model(sc_id, booking_id, amount_due){
+      
+       $.ajax({
+      type: 'POST',
+      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
+      success: function (data) {
+       $("#open_model").html(data);   
+       $('#myModal1').modal('toggle');
+    
+      }
+    });
+    }
 </script>
 <style type="text/css">
     .sup {

@@ -1834,13 +1834,13 @@ class Partner extends CI_Controller {
      * @desc: This method is used to load update form(spare parts).
      * @param String $booking_id
      */
-    function update_spare_parts_form($booking_id){
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Booking ID: ". $booking_id);
+    function update_spare_parts_form($id){
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Spare Parts ID: ". $id);
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         
         $where = "spare_parts_details.partner_id = '".$partner_id."' AND status = '".SPARE_PARTS_REQUESTED."' "
-               . " AND spare_parts_details.booking_id = '".$booking_id."' "
+               . " AND spare_parts_details.id = '".$id."' "
                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
         
@@ -1853,7 +1853,7 @@ class Partner extends CI_Controller {
      * Insert data into booking state change and update sc action table
      * @param String $booking_id
      */
-    function process_update_spare_parts($booking_id){
+    function process_update_spare_parts($booking_id, $id){
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $this->form_validation->set_rules('shipped_parts_name', 'Parts Name', 'trim|required');
@@ -1863,8 +1863,8 @@ class Partner extends CI_Controller {
 
         if ($this->form_validation->run() == FALSE) {
              log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner '. $this->session->userdata('partner_id').
-                        " booking id ". $booking_id. " Data". print_r($this->input->post(), true));
-            $this->update_spare_parts_form($booking_id);
+                        " Spare id ". $id. " Data". print_r($this->input->post(), true));
+            $this->update_spare_parts_form($id);
         } else { // if ($this->form_validation->run() == FALSE) {
             $partner_id = $this->session->userdata('partner_id');
             $data['parts_shipped'] = $this->input->post('shipped_parts_name');
@@ -1874,7 +1874,7 @@ class Partner extends CI_Controller {
             $data['shipped_date'] = $this->input->post('shipment_date');
             
             $data['status'] = "Shipped";
-            $where  = array('booking_id'=> $booking_id, 'partner_id'=> $partner_id);
+            $where  = array('id'=> $id, 'partner_id'=> $partner_id);
             $response = $this->service_centers_model->update_spare_parts($where, $data);
             if($response){
                 
@@ -2130,23 +2130,28 @@ class Partner extends CI_Controller {
      * @desc: Partner acknowledge to receive defective spare parts
      * @param String $booking_id
      */
-    function acknowledge_received_defective_parts($booking_id) {
+    function acknowledge_received_defective_parts($booking_id, $id) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id);
         $this->checkUserSession();
-        $partner_id = $this->session->userdata('partner_id');
-        $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
-        $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_RECEIVED,
+        //$partner_id = $this->session->userdata('partner_id');
+      
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner'=> '1', 'remarks_defective_part_by_partner'=> DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         if ($response) {
-            log_message('info', __FUNCTION__ . " Received Defective Spare Parts ".$booking_id
-                    ." Partner Id". $this->session->userdata('partner_id'));
-            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts");
+            $where = "spare_parts_details.booking_id = '" . $booking_id . "' AND status NOT IN ('".DEFECTIVE_PARTS_RECEIVED."', 'Completed','Cancelled') ";
+            $spare_parts = $this->partner_model->get_spare_parts_booking($where);
+            if(!empty($spare_parts)){
+            
+                log_message('info', __FUNCTION__ . " Received Defective Spare Parts ".$booking_id
+                        ." Partner Id". $this->session->userdata('partner_id'));
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts");
 
-            $sc_data['current_status'] = "InProcess";
-            $sc_data['internal_status'] = _247AROUND_COMPLETED;
-            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                $sc_data['current_status'] = "InProcess";
+                $sc_data['internal_status'] = _247AROUND_COMPLETED;
+                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
+            }
             $userSession = array('success' => ' Received Defective Spare Parts');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
@@ -2163,13 +2168,12 @@ class Partner extends CI_Controller {
      * @param Sting $booking_id
      * @param Urlencoded $status (Rejection Reason)
      */
-    function reject_defective_part($booking_id,$status){
+    function reject_defective_part($booking_id,$id,$status){
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
-        $partner_id = $this->session->userdata('partner_id');
-        $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
-        $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_REJECTED, 
+
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_REJECTED, 
             'remarks_defective_part_by_partner' => $rejection_reason, 
             'approved_defective_parts_by_partner'=> '0',
             'defective_part_shipped' => NULL,

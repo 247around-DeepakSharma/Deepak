@@ -50,7 +50,7 @@
                                         <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[<?php echo $row['partner_id'] ;?>]"  value="<?php echo $row['booking_id'];?>" />
                                     </td>
                                     <td>
-                                         <a href="<?php echo base_url() ?>service_center/update_defective_parts/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
+                                         <a href="<?php echo base_url() ?>service_center/update_defective_parts/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
                                     </td>
 
                                 </tr>
