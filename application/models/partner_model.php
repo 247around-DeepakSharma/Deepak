@@ -1295,9 +1295,30 @@ class Partner_model extends CI_Model {
         return $query->result();
     }
     
+    /**
+     * @desc: This is used to upload the partner brand logo path in datanase
+     * @param array
+     * @return string
+     */
     function upload_partner_brand_logo($data){
         $this->db->insert('partner_brand_logo',$data);
         return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: This is used to get the partners details with source code
+     * @param String $partner_id
+     * @return Array
+     */
+    function get_partner_details_with_soucre_code($partner_id=""){
+        if ($partner_id != "") {
+	        $this->db->where('partners.id', $partner_id);
+	    }
+	    $this->db->select('partners.*,bookings_sources.code');
+            $this->db->join('bookings_sources','partners.id=bookings_sources.partner_id');
+	    $query = $this->db->get('partners');
+
+	    return $query->result_array();
     }
 }
 

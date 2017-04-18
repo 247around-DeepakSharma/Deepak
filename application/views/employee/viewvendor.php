@@ -105,6 +105,7 @@
           	<th class="jumbotron">Owner Name</th>
           	<th class="jumbotron">Owner Phone No.</th>
           	<th class="jumbotron">Sub District Office</th>
+                <th class='jumbotron'>Go To Invoice Page</th>
           	<th class="jumbotron">Temporary</th>
           	<th class="jumbotron">Permanent</th>
           </tr>
@@ -138,7 +139,7 @@
                         <a style= "background-color: #fff;" target="_blank" class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>employee/vendor/get_sc_upcountry_details/<?php echo $row['id'];  ?>"><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i></a>
                     <?php } ?>    
                 </td>
-                
+                <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/vendor/<?php echo $row['id']; ?>" target="_blank" class="btn btn-info">Invoice</a></td>
                 <td>
                         <?php
                         if ($row['on_off'] == 1) { ?>
