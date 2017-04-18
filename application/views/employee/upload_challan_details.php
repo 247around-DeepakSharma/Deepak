@@ -158,6 +158,37 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 col-sm-6">
+                                    <div class="row">
+                                        <div class="col-md-8 col-sm-8">
+                                            <div class="form-group">
+                                                <label for="challan_file">Upload Annexure File</label>
+                                                <input type="file" class="form-control" id="challan_file" name="annexure_file" value = "<?php
+                                                if (isset($challan_data[0]['annexure_file'])) {
+                                                    echo $challan_data[0]['annexure_file'];
+                                                }
+                                                ?>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-4" style="margin-top:23px;">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($challan_data[0]['annexure_file']) && !empty($challan_data[0]['annexure_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$challan_data[0]['annexure_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-5px;" /></a>
+                                            <?php //if(isset($challan_data[0]['challan_file']) && !empty($challan_data[0]['challan_file'])){?>
+                                            <!--<a href="javascript:void(0)" onclick="remove_image('challan_file',<?php //echo $challan_data[0]['id']?>,'<?php //echo $challan_data[0]['challan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image">  <i class="fa fa-times" aria-hidden="true"></i></a> -->
+                                            <?php //}?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 col-sm-6">
                                     <div class="form-group">
                                         <label for="remarks">Remarks</label>
                                         <textarea id="remarks" class="form-control" placeholder="Remarks" name="remarks"><?php if (isset($challan_data[0]['remarks'])) {echo $challan_data[0]['remarks'];}?></textarea>

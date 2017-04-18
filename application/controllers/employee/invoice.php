@@ -202,11 +202,10 @@ class Invoice extends CI_Controller {
         $data['selected_tds'] = $this->input->post('selected_tds');
         $data['tds_amount'] = $this->input->post('tds_amount');
         $data['amount_collected'] = $this->input->post('amount_collected');
-       $data['invoice_id_list'] = array();
-        if(empty($vendor_partner)){
+        $data['invoice_id_list'] = array();
+        if (empty($vendor_partner)) {
             $where = " amount_paid = 0 ";
             $data['invoice_id_list'] = $this->invoices_model->get_invoices_details($where);
-
         }
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
@@ -238,17 +237,16 @@ class Invoice extends CI_Controller {
 
 
             $bank_payment_history = $this->invoices_model->get_payment_history(array('bank_transaction_id' => $id));
-            foreach ($bank_payment_history as $value){
-                if($value == "Debit"){
+            foreach ($bank_payment_history as $value) {
+                if ($value == "Debit") {
                     $amount = -$value['credit_debit_amount'];
-                    
                 } else {
                     $amount = $value['credit_debit_amount'];
                 }
                 $amount_collected[$value['invoice_id']] = $amount;
                 $tds[$value['invoice_id']] = $value['tds_amount'];
             }
-            
+
             $data['tds_amount'] = $tds;
             $data['amount_collected'] = $amount_collected;
 
@@ -2939,7 +2937,7 @@ class Invoice extends CI_Controller {
                     log_message('info', __FUNCTION__ . " Main Invoice upload failed");
                 }
             }
-            
+
             $status = $this->invoices_model->action_partner_invoice($data);
 
             if ($status) {
@@ -3163,7 +3161,7 @@ class Invoice extends CI_Controller {
             switch ($type_code) {
 
                 case 'A':
-                    
+
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
                     echo $invoice_id['invoice_id'];
                     break;
@@ -3415,6 +3413,22 @@ class Invoice extends CI_Controller {
                     redirect(base_url() . 'employee/invoice/get_challan_upload_form');
                 }
             }
+
+            //Start Processing annexure file upload if it is present
+            if (($_FILES['annexure_file']['error'] != 4) && !empty($_FILES['annexure_file']['tmp_name'])) {
+
+                $tmpFile = $_FILES['annexure_file']['tmp_name'];
+                $annexure_file = implode("", explode(" ", $this->input->post('cin_no'))) . '_annexure_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['challan_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $challan_file);
+                $_POST['annexure_file_name'] = $annexure_file;
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $annexure_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $annexure_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                //Logging success for file uppload
+                log_message('info', __CLASS__ . 'Annexure FILE is being uploaded sucessfully.');
+            }
+
             $daterange = explode('-', $this->input->post('daterange'));
             $from_date = $daterange[0];
             $to_date = $daterange[1];
@@ -3434,6 +3448,11 @@ class Invoice extends CI_Controller {
             //if challan file exist then get the file name
             if ($this->input->post('challan_file_name')) {
                 $data['challan_file'] = $this->input->post('challan_file_name');
+            }
+
+            //if annexure file exist then get the file name
+            if ($this->input->post('annexure_file_name')) {
+                $data['annexure_file'] = $this->input->post('annexure_file_name');
             }
 
             //if challan id exist then edit the details else add the details
@@ -3488,9 +3507,9 @@ class Invoice extends CI_Controller {
      * @return : string
      */
     function get_challan_details() {
-        $data['is_ajax'] = False;
+
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/challan_details', $data);
+        $this->load->view('employee/challan_details');
     }
 
     /**
@@ -3498,11 +3517,15 @@ class Invoice extends CI_Controller {
      * @param: void
      * @return : string
      */
-    function fetch_challan_details() {
+    function fetch_challan_details($is_tag = "") {
+        if ($is_tag != "") {
+            $data['is_tag'] = false;
+        } else {
+            $data['is_tag'] = true;
+        }
         $challan_type = $this->input->post('challan_type');
         $data['challan_details'] = $this->invoices_model->fetch_challan_details($challan_type);
-        $data['is_ajax'] = true;
-        $this->load->view('employee/challan_details', $data);
+        $this->load->view('employee/tag_untag_challan_id_table_view', $data);
     }
 
     /**
@@ -3514,43 +3537,92 @@ class Invoice extends CI_Controller {
 
         $challan_id = $this->input->post('challan_id');
         $invoice_id = $this->input->post('invoice_id');
+
         //getting invoice id corresponding to challan id
         if (!empty($challan_id)) {
-            foreach ($challan_id as $challan_id_key => $challan_id_value) {
-                $data = [];
-                $invoice_id_array = explode(',', $invoice_id[$challan_id_key]);
 
-                //getting data to insert into database
-                foreach ($invoice_id_array as $invoice_id_key => $invoice_id_value) {
-                    if ($invoice_id_value != 0) {
-                        $arr = array('challan_id' => $challan_id_value,
-                            'invoice_id' => $invoice_id_value,
-                            'create_date' => date('Y-m-d H:i:s'));
-                        array_push($data, $arr);
-                    } else {
-                        $error_msg = "Please Insert Valid Invoice Id";
-                        $this->session->set_flashdata('error_msg', $error_msg);
-                        redirect(base_url() . 'employee/invoice/get_challan_details');
-                    }
-                }
-
-                //insert data into database in batch
-                $insert_id = $this->invoices_model->insert_invoice_challan_id_mapping_data($data);
-                if ($insert_id) {
-                    log_message('info', __METHOD__ . " : Invoice ID corresponding to challan ID = $challan_id_value inserted successfully");
-                } else {
-                    log_message('info', __METHOD__ . " : Error in inserting Invoice ID corresponding to challan ID = $challan_id_value");
-                }
+            //getting existing invoice id from vendor_partner_invoices_table 
+            $existing_invoice_id = $this->invoices_model->get_invoices_details(1);
+            $existing_invoice_id_arr = [];
+            $non_existing_invoices_data = '';
+            foreach ($existing_invoice_id as $key => $value) {
+                array_push($existing_invoice_id_arr, $value['invoice_id']);
             }
 
-            $success_msg = "Mapping has been done successfully";
-            $this->session->set_flashdata('success_msg', $success_msg);
+            //getting invoice id for each challan id from the submitted form
+            foreach ($challan_id as $challan_id_key => $challan_id_value) {
+                $invoice_id_array = explode(',', $invoice_id[$challan_id_key]);
+
+                //prepare invoice id data to insert into table if invoice id exist in the vendor_partner_invoices table
+                $invoice_data = $this->prepare_invoice_data_to_mapped_challan_id($challan_id_value, $invoice_id_array, $existing_invoice_id_arr);
+                if (!empty($invoice_data['exist_invoices_data'])) {
+                    //insert data into database in batch
+                    $insert_id = $this->invoices_model->insert_invoice_challan_id_mapping_data($invoice_data['exist_invoices_data']);
+                    if ($insert_id) {
+                        log_message('info', __METHOD__ . " : Invoice ID corresponding to challan ID = $challan_id_value inserted successfully");
+                    } else {
+                        log_message('info', __METHOD__ . " : Error in inserting Invoice ID corresponding to challan ID = $challan_id_value");
+                    }
+                }
+                if (!empty($invoice_data['non_exist_invoices_data'])) {
+                    $str = implode(',', $invoice_data['non_exist_invoices_data']);
+                    $non_existing_invoices_data .= $str . ',';
+                }
+            }
+            $msg = "Mapping has been done successfully ";
+
+            if (!empty($non_existing_invoices_data)) {
+                $msg .= "and these Invoices are not exist in the table : " . $non_existing_invoices_data;
+            }
+            $this->session->set_flashdata('success_msg', $msg);
             redirect(base_url() . 'employee/invoice/get_challan_details');
         } else {
             $error_msg = "Empty field could't be inserted";
             $this->session->set_flashdata('error_msg', $error_msg);
             redirect(base_url() . 'employee/invoice/get_challan_details');
         }
+    }
+
+    /**
+     * @desc: This Function is use prepare invoice id to mapped with challan id
+     * @param: string $challan_id_value, $invoice_id_array, $existing_invoice_id_arr
+     * @return : array $data
+     */
+    function prepare_invoice_data_to_mapped_challan_id($challan_id_value, $invoice_id_array, $existing_invoice_id_arr) {
+        $data['exist_invoices_data'] = [];
+        $data['non_exist_invoices_data'] = [];
+        foreach ($invoice_id_array as $invoice_id_value) {
+
+            //check if invoice id is exist in vendor_partner_invoices table
+            $checked_data = $this->check_invoiceId_exist_in_table($invoice_id_value, $existing_invoice_id_arr);
+            if (!empty($checked_data['exist_invoices'])) {
+                $arr = array('challan_id' => $challan_id_value,
+                    'invoice_id' => $checked_data['exist_invoices'],
+                    'create_date' => date('Y-m-d H:i:s')
+                );
+                array_push($data['exist_invoices_data'], $arr);
+            }
+
+            if (!empty($checked_data['non_exist_invoices'])) {
+                array_push($data['non_exist_invoices_data'], $checked_data['non_exist_invoices']);
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @desc: This Function is use check if invoice id is exist in the vendor_partner_invoices
+     * @param: string $invoice_id_value, $existing_invoice_id_arr
+     * @return : array $data
+     */
+    function check_invoiceId_exist_in_table($invoice_id_value, $existing_invoice_id_arr) {
+
+        if (in_array($invoice_id_value, $existing_invoice_id_arr)) {
+            $data['exist_invoices'] = $invoice_id_value;
+        } else {
+            $data['non_exist_invoices'] = $invoice_id_value;
+        }
+        return $data;
     }
 
     /**
@@ -3572,7 +3644,7 @@ class Invoice extends CI_Controller {
         $payment_type = $this->input->post('type');
         $from_date = $this->input->post('from_date');
         $to_date = $this->input->post('to_date');
-        $new_to_date = date('Y/m/d',strtotime($to_date . "+1 days"));
+        $new_to_date = date('Y/m/d', strtotime($to_date . "+1 days"));
         $partner_vendor = $this->input->post('partner_vendor');
         $data['report_data'] = $this->invoices_model->get_payment_report_data($payment_type, $from_date, $new_to_date, $partner_vendor);
         $data['partner_vendor'] = $partner_vendor;
@@ -3664,26 +3736,81 @@ class Invoice extends CI_Controller {
      * @desc: This Function is used untag those 
      * invoice id which mapped with incorrect challan id
      * @param: void
-     * @return : view
+     * @return : void
      */
     function untag_challan_invoice_id() {
         $challan_id = $this->input->post('challan_id');
         $invoice_id = $this->input->post('invoice_id');
-        if (!empty($invoice_id)) {
-            $invoice_id_arr = explode(',', rtrim($invoice_id, ','));
-            foreach ($invoice_id_arr as $value) {
-                $id = $this->invoices_model->untag_challan_invoice_id($challan_id, $value);
-                if ($id == false) {
-                    $response[] = $value;
+
+        //check if challan id is empty
+        if (!empty($challan_id)) {
+            
+            $non_updated_invoices = '';
+            
+            //getting invoice id corresponding to challan id
+            foreach ($challan_id as $challan_id_key => $challan_id_value) {
+                $invoice_id_array = explode(',', $invoice_id[$challan_id_key]);
+                
+                //update invoice id with corresponding challan id
+                foreach ($invoice_id_array as $value) {
+                    if ($value !== 0 && $value !== '') {
+                        $update = $this->invoices_model->untag_challan_invoice_id($challan_id_value,$value);
+                        if ($update) {
+                            log_message('info', __METHOD__ . " : Invoice ID corresponding to challan ID = $challan_id_value updated successfully");
+                        } else {
+                            $non_updated_invoices .= $value.',';
+                            log_message('info', __METHOD__ . " : Error in updating Invoice ID corresponding to challan ID = $challan_id_value");
+                        }
+                        echo $this->db->last_query();
+                    }
                 }
             }
-            if (empty($response)) {
-                echo "All Invoice Id has been successfully untag from Challan Id";
-            } else {
-                echo "Unable to untag these invoice id " . implode(',', $response);
+            
+            if(!empty($non_updated_invoices)){
+                $msg = "Some invoice id successfully untag from challan id";
+                $msg .= " and these invoices are not updated : ". $non_updated_invoices;
+                
+                $this->session->set_flashdata('error_msg', $msg);
+                redirect(base_url() . 'employee/invoice/get_challan_details');
+            }else{
+                $msg = "Invoices Id successfully untag from challan id";
+                
+                $this->session->set_flashdata('success_msg', $msg);
+                redirect(base_url() . 'employee/invoice/get_challan_details');
             }
-        }else {
-            echo "Could not update empty invoice Id";
+            
+            
+        } else {
+            $error_msg = "Empty field could't be updated";
+            $this->session->set_flashdata('error_msg', $error_msg);
+            redirect(base_url() . 'employee/invoice/get_challan_details');
+        }
+    }
+    
+    /**
+     * @desc: This Function is used to show the view for search the challan Id 
+     * @param: void
+     * @return : void
+     */
+    function show_search_challan_id_view() {
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/search_challan_id');
+    }
+    
+    /**
+     * @desc: This Function is used to search the challan Id 
+     * @param: void
+     * @return : view
+     */
+    function search_challan_id() {
+        $cin_no = $this->input->post('cin_no');
+        $where = array('cin_no' => $cin_no);
+        $data['challan_details'] = $this->invoices_model->get_challan_details($where);
+        //print_r($data);exit();
+        if (!empty($data['challan_details'])) {
+            echo $this->load->view('employee/challanid_details_data_table', $data);
+        } else {
+            echo "<div class='text-danger text-center'> <b>No Data Found <b></div>";
         }
     }
 

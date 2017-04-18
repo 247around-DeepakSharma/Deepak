@@ -1444,11 +1444,6 @@ class invoices_model extends CI_Model {
         $data = $query->result_array();
         return $data;
     }
-
-    function insert_batch_payment_history($data) {
-        $this->db->insert_batch('payment_history', $data);
-        return $this->db->insert_id();
-    }
     
     /**
      * @desc: This Function is used untag invoice id from challan id
@@ -1465,6 +1460,18 @@ class invoices_model extends CI_Model {
         } else {
             return false;
         }
+    }
+    
+    /**
+     * @desc: This Function is used search the challan id
+     * @param: array $where
+     * @return : array
+     */
+    function get_challan_details($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('challan_details');
+        return $query->result_array();
     }
 
 }

@@ -2177,3 +2177,9 @@ ALTER TABLE `bank_transactions` ADD `agent_id` INT(11) NULL DEFAULT NULL AFTER `
 --- Sachin 15-04-2017
 
 ALTER TABLE `invoice_challan_id_mapping` ADD `active` TINYINT(1) NULL DEFAULT '1' COMMENT '1=active,0=inactive' AFTER `invoice_id`;
+
+
+--- Sachin 18-04-2017
+
+ALTER TABLE `challan_details` ADD `annexure_file` VARCHAR(256) NOT NULL AFTER `challan_file`;
+
