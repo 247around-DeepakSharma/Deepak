@@ -48,7 +48,7 @@
                                         <?php echo $row['name']; ?>
                                     </td>
                                     <td>
-                                         <a  style="color:black" href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                         <a  style="color:blue;" href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
                                     </td>
                                     <td>
                                         <?php echo $row['age_of_request']. " days"; ?>
@@ -68,7 +68,7 @@
                                     </td>
                                     
                                     <td>
-                                        <a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
+                                        <a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
                                     </td>
                                     <td>
                                         <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id'];?>" />
