@@ -468,9 +468,10 @@ class Booking_model extends CI_Model {
         if($query1->num_rows > 0){
             $result1 = $query1->result_array();
            
-            $result['spare_parts'] = $result1[0];
+            $result['spare_parts'] = $result1;
            
         }
+        
         return $result;
     }
 

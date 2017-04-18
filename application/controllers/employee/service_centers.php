@@ -106,11 +106,7 @@ class Service_centers extends CI_Controller {
      */
     function pending_booking($booking_id="") {
         $this->checkUserSession();
-        
-       
         $data['booking_id'] = $booking_id;
-        
-
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/pending_booking', $data);
         
@@ -869,8 +865,8 @@ class Service_centers extends CI_Controller {
             $data['service_center_id'] = $this->session->userdata('service_center_id');
             $data['booking_id'] = $booking_id;
             $data['status'] = SPARE_PARTS_REQUESTED;
-            $where = array('booking_id' => $booking_id, 'service_center_id' => $data['service_center_id']);
-            $status_spare = $this->service_centers_model->spare_parts_action($where, $data);
+            //$where = array('booking_id' => $booking_id, 'service_center_id' => $data['service_center_id']);
+            $status_spare = $this->service_centers_model->insert_data_into_spare_parts($data);
             if ($status_spare) {
 
                 $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc']);
@@ -932,7 +928,7 @@ class Service_centers extends CI_Controller {
 		    $this->form_validation->set_message('upload_spare_pic', $file["error"]);
 		} else {
 		    $pic = str_replace(' ', '-', $this->input->post('booking_id'));
-		    $picName = $type. $pic . "." . $extension;
+		    $picName = $type. rand(10,100).$pic . "." . $extension;
 		    $bucket = "bookings-collateral";
                     
 		    $directory = "misc-images/" . $picName;
@@ -953,19 +949,20 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to update acknowledge date by SF
      * @param String $booking_id
      */
-    function acknowledge_delivered_spare_parts($booking_id, $service_center_id){
+    function acknowledge_delivered_spare_parts($booking_id, $service_center_id, $id){
         log_message('info', __FUNCTION__. " Booking ID: ". $booking_id);
       //  $this->checkUserSession();
         if (!empty($booking_id)) {
            
-            $where = array('booking_id' => $booking_id, 'service_center_id' => $service_center_id);
+            $where = array('id' => $id);
             $sp_data['service_center_id'] = $service_center_id;
             $sp_data['acknowledge_date'] = date('Y-m-d');
             $sp_data['status'] = "Delivered";
             //Update Spare Parts table
-            $ss = $this->service_centers_model->spare_parts_action($where, $sp_data);
+            $ss = $this->service_centers_model->update_spare_parts($where, $sp_data);
             if ($ss) { //if($ss){
                 $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
+                $booking['update_date'] =  date("Y-m-d H:i:s");
                 $b_status = $this->booking_model->update_booking($booking_id, $booking);
                 if ($b_status) {
                     $state_change['booking_id'] = $booking_id;
@@ -1020,7 +1017,7 @@ class Service_centers extends CI_Controller {
     function get_booking_id_to_convert_pending_for_spare_parts(){
         $data = $this->service_centers_model->get_booking_id_to_convert_pending_for_spare_parts();
         foreach($data as $value){
-            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id']);
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['id']);
         }
     }
     
@@ -1265,14 +1262,14 @@ class Service_centers extends CI_Controller {
      * @desc: This method is used to load update form(defective shipped parts)
      * @param String $booking_id
      */
-    function update_defective_parts($booking_id) {
+    function update_defective_parts($id) {
         $this->checkUserSession();
-        if (!empty($booking_id) || $booking_id != '' || $booking_id != 0) {
+        if (!empty($id) || $id != '' || $id != 0) {
             log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
             $service_center_id = $this->session->userdata('service_center_id');
 
             $where = "spare_parts_details.service_center_id = '" . $service_center_id . "'  "
-                    . " AND spare_parts_details.booking_id = '" . $booking_id . "' ";
+                    . " AND spare_parts_details.id = '" . $id . "' ";
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
             if (!empty($data['spare_parts'])) {
                 $this->load->view('service_centers/header');
@@ -1289,7 +1286,7 @@ class Service_centers extends CI_Controller {
      * @desc: Process to update defective spare parts
      * @param type $booking_id
      */
-    function process_update_defective_parts($booking_id){
+    function process_update_defective_parts($booking_id, $id){
         $this->checkUserSession();
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $this->form_validation->set_rules('defective_part_shipped', 'Parts Name', 'trim|required');
@@ -1301,7 +1298,7 @@ class Service_centers extends CI_Controller {
 
         if ($this->form_validation->run() == FALSE) {
              log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center '. $this->session->userdata('service_center_name').
-                        " booking id ". $booking_id. " Data". print_r($this->input->post(), true));
+                        " booking id ". $booking_id." ID ".$id ." Data". print_r($this->input->post(), true));
             $this->update_defective_parts($booking_id);
         } else {
             $service_center_id = $this->session->userdata('service_center_id');
@@ -1312,7 +1309,7 @@ class Service_centers extends CI_Controller {
             $data['awb_by_sf'] = $this->input->post('awb_by_sf');
             $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
             $data['status'] = DEFECTIVE_PARTS_SHIPPED;
-            $where  = array('booking_id'=> $booking_id, 'service_center_id'=> $service_center_id);
+            $where  = array('id'=> $id);
             $response = $this->service_centers_model->update_spare_parts($where, $data);
             if($response){
                 
