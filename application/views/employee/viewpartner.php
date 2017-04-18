@@ -38,6 +38,7 @@
           <tr>
           	<th class='jumbotron'>ID</th>
                 <th width="200px;" class='jumbotron' style="text-align: center">Company Name</th>
+                <th class='jumbotron' style="text-align: center">Partner Code</th>
                 <th width="500px;" class='jumbotron' style="text-align: center">Appliances/Brands</th>
           	<th class='jumbotron' style="text-align: center">PoC Name</th>
           	<th class='jumbotron' style="text-align: center">PoC Phone</th>
@@ -45,6 +46,7 @@
           	<th class='jumbotron' style="text-align: center">Owner Name</th>
           	<th class='jumbotron' style="text-align: center">Owner Phone</th>
           	<th class='jumbotron' style="text-align: center">Owner Email</th>
+                <th class='jumbotron' style="text-align: center">Go To Invoice Page</th>
           	<th colspan="2" class='jumbotron' style="text-align: center">Action</th>
           </tr>
 
@@ -53,7 +55,7 @@
           <tr>
             <td><?=($key+1).'.';?></td>
             <td><a href="<?php echo base_url();?>employee/partner/editpartner/<?=$row['id'];?>"><?=$row['company_name'];?></a></td>
-
+            <td><?php echo $row['code'] ; ?></td>
                 <td>
                     <?php
                     if (!empty($service_brands[$key])) {
@@ -78,6 +80,7 @@
           	</td>
           	
           	<td><?=$row['owner_email'];?></td>
+                <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $row['id']; ?>" target="_blank" class="btn btn-info">Invoice</a></td>
                 <td>
                     <a href="javascript:void(0)" class="btn btn-md btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)' <?php echo ($row['is_active'] == 0)?'disabled=""':'' ?>  title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>">Login</a>  
               

@@ -1119,7 +1119,7 @@ class Partner extends CI_Controller {
      */
     function viewpartner($partner_id = "") {
         $data = [];
-        $query = $this->partner_model->get_all_partner($partner_id);
+        $query = $this->partner_model->get_partner_details_with_soucre_code($partner_id);
         
         foreach($query as $value){
             //Getting Appliances and Brands details for partner
