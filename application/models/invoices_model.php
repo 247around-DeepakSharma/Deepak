@@ -1053,8 +1053,16 @@ class invoices_model extends CI_Model {
                         break;
                 }
             }
-            $meta['grand_total_price'] = round($meta['sub_part'] + $meta['sub_service_cost'] + $meta['total_misc_price'], 0);
-            $meta['price_inword'] = convert_number_to_words($meta['grand_total_price']);
+            //$meta['grand_total_price'] = round($meta['sub_part'] + $meta['sub_service_cost'] + $meta['total_misc_price'], 0);
+            //$meta['price_inword'] = convert_number_to_words($meta['grand_total_price']);
+            $total_price = round($meta['sub_part'] + $meta['sub_service_cost'] + $meta['total_misc_price'], 0);
+            if ($total_price >= 0) {
+                $meta['grand_total_price'] = round($meta['sub_part'] + $meta['sub_service_cost'] + $meta['total_misc_price'], 0);
+                $meta['price_inword'] = convert_number_to_words($meta['grand_total_price']);
+            }else if ($total_price < 0){
+                $meta['grand_total_price'] = abs(round($meta['sub_part'] + $meta['sub_service_cost'] + $meta['total_misc_price'], 0))."(DR)";
+                $meta['price_inword'] = convert_number_to_words($meta['grand_total_price'])."(DR)";
+            }
 
             $data['meta'] = $meta;
             $data['booking'] = $result;
@@ -1296,18 +1304,6 @@ class invoices_model extends CI_Model {
         return $this->db->insert_id();
     }
     
-
-    function insert_batch_payment_history($data){
-        $this->db->insert_batch('payment_history', $data);
-        return $this->db->insert_id();
-    }
-    
-    function get_payment_history($where){
-        $this->db->select('*');
-        $this->db->where($where);
-        $query = $this->db->get('payment_history');
-        return $query->result_array();
-    }
     
     /**
      * @desc: This Function is used to get the payment report based on payment type
@@ -1419,10 +1415,10 @@ class invoices_model extends CI_Model {
         $data = $query->result_array();
         return $data;
     }
-    
-    function get_tds_payment_report($from_date, $to_date, $partner_vendor){
+
+    function get_tds_payment_report($from_date, $to_date, $partner_vendor) {
         if ($partner_vendor == 'partner') {
-            $sql ="";
+            $sql = "";
             return false;
         } else if ($partner_vendor == 'vendor') {
             $sql = "SELECT company_name, company_type, payment_history.invoice_id, invoice_date, type,type_code,name_on_pan,
@@ -1436,7 +1432,7 @@ class invoices_model extends CI_Model {
                     AND vendor_partner_invoices.vendor_partner = 'vendor' AND service_centres.id = vendor_partner_invoices.vendor_partner_id 
                     AND tax_rates.state = service_centres.state AND tax_rates.tax_code = 'ST'";
         } else if ($partner_vendor == 'stand') {
-            $sql ="";
+            $sql = "";
             return false;
         }
 
@@ -1444,30 +1440,45 @@ class invoices_model extends CI_Model {
         $data = $query->result_array();
         return $data;
     }
-    
+
+
+    function insert_batch_payment_history($data) {
+        $this->db->insert_batch('payment_history', $data);
+        return $this->db->insert_id();
+    }
+
     /**
      * @desc: This Function is used untag invoice id from challan id
      * @param: string
      * @return : array
      */
-    function untag_challan_invoice_id($challan_id,$invoice_id){
+    function untag_challan_invoice_id($challan_id, $invoice_id) {
         $set = array('active' => 0);
-        $this->db->where('challan_id',$challan_id);
-        $this->db->where('invoice_id',$invoice_id);
-        $this->db->update('invoice_challan_id_mapping',$set);
+        $this->db->where('challan_id', $challan_id);
+        $this->db->where('invoice_id', $invoice_id);
+        $this->db->update('invoice_challan_id_mapping', $set);
         if ($this->db->affected_rows() > 0) {
             return true;
         } else {
             return false;
         }
     }
-    
+
+
+    function get_payment_history($where) {
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('payment_history');
+        return $query->result_array();
+    }
+
+
     /**
      * @desc: This Function is used search the challan id
      * @param: array $where
      * @return : array
      */
-    function get_challan_details($where){
+    function get_challan_details($where) {
         $this->db->select('*');
         $this->db->where($where);
         $query = $this->db->get('challan_details');
