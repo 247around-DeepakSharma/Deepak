@@ -371,7 +371,7 @@ class Invoice extends CI_Controller {
         $sms['type'] = $account_statement['partner_vendor'];
         $sms['type_id'] = $account_statement['partner_vendor_id'];
 
-        $this->notify->send_sms_acl($sms);
+        $this->notify->send_sms_msg91($sms);
     }
 
     /**
@@ -1014,7 +1014,7 @@ class Invoice extends CI_Controller {
                 $sms['type'] = "vendor";
                 $sms['type_id'] = $invoices['booking'][0]['id'];
 
-                $this->notify->send_sms_acl($sms);
+                $this->notify->send_sms_msg91($sms);
 
                 //Upload Excel files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
@@ -1455,7 +1455,7 @@ class Invoice extends CI_Controller {
                 $sms['type'] = "vendor";
                 $sms['type_id'] = $invoices[0]['id'];
 
-                $this->notify->send_sms_acl($sms);
+                $this->notify->send_sms_msg91($sms);
                 log_message('info', __FUNCTION__ . " SMS Sent");
                 //Upload Excel files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
@@ -1998,7 +1998,7 @@ class Invoice extends CI_Controller {
                     $sms['type'] = "vendor";
                     $sms['type_id'] = $invoice[0]['vendor_id'];
 
-                    $this->notify->send_sms($sms);
+                    $this->notify->send_sms_msg91($sms);
                     log_message('info', __FUNCTION__ . " SMS Sent.....");
                     //Upload Excel files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
@@ -2952,7 +2952,7 @@ class Invoice extends CI_Controller {
                     $sms['type_id'] = $data['vendor_partner_id'];
 
 
-                    $this->notify->send_sms_acl($sms);
+                    $this->notify->send_sms_msg91($sms);
                     log_message('info', __METHOD__ . ' SMS Sent ' . $data['invoice_id']);
                 }
 

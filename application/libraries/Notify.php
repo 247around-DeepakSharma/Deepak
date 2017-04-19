@@ -109,7 +109,7 @@ class Notify {
      * return: Null
      */
 
-    function add_sms_sent_details($type_id, $type, $phone, $content, $booking_id, $sms_tag) {
+    function add_sms_sent_details($type_id, $type, $phone, $content, $booking_id, $sms_tag, $result = NULL) {
 	$data = array();
 
 	$data['type_id'] = $type_id;
@@ -118,6 +118,7 @@ class Notify {
 	$data['booking_id'] = $booking_id;
 	$data['content'] = $content;
         $data['sms_tag'] = $sms_tag;
+        $data['result'] = $result;
 
 	//Add SMS to Database
 	$sms_id = $this->My_CI->booking_model->add_sms_sent_details($data);
@@ -347,7 +348,7 @@ class Notify {
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
-		    $this->send_sms_acl($sms);
+		    $this->send_sms_msg91($sms);
 
 		    break;
 
@@ -395,7 +396,7 @@ class Notify {
 			    $sms['type'] = "user";
 			    $sms['type_id'] = $query1[0]['user_id'];
 
-			    $this->send_sms_acl($sms);
+			    $this->send_sms_msg91($sms);
 			}
 		    }
 
@@ -426,7 +427,7 @@ class Notify {
 			$sms['booking_id'] = $query1[0]['booking_id'];
 			$sms['type'] = "user";
 			$sms['type_id'] = $query1[0]['user_id'];
-			$this->send_sms_acl($sms);
+			$this->send_sms_msg91($sms);
 		    }
 
 		    break;
@@ -474,7 +475,7 @@ class Notify {
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
 
-		    $this->send_sms_acl($sms);
+		    $this->send_sms_msg91($sms);
 		    break;
 
 		case 'Newbooking':
@@ -493,7 +494,7 @@ class Notify {
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
 
-		    $this->send_sms_acl($sms);
+		    $this->send_sms_msg91($sms);
 
 		    break;
 
@@ -576,7 +577,16 @@ class Notify {
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_exec($ch);
                 curl_close($ch);
+                
+                $data['content'] = curl_exec($ch);
+		$data['error'] = curl_error($ch);
+		$data['info'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+		curl_close($ch);
+		break;
         }
+        
+        return $data;
     }
 
     function send_sms_acl($sms) {
@@ -593,12 +603,38 @@ class Notify {
         $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);
         if (!empty($template)) {
             $smsBody = vsprintf($template, $sms['smsData']);
-            $this->sendTransactionalSmsMsg91($sms['phone_no'], $smsBody);
-            $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], 
-                    $smsBody, $sms['booking_id'], $sms['tag']);
+            if ($smsBody) {
+                $status = $this->sendTransactionalSmsMsg91($sms['phone_no'], $smsBody);
+                if (ctype_alnum($status['content']) && strlen($status['content']) == 24) {
+                    $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);
+                } else {
+                    $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $status['content']);
+                    log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
+        		please recheck tag: '" . $sms['tag'] . "' & Phone Number - " . $sms['phone_no']);
+
+                    $subject = 'SMS not sent';
+                    $message = "Please check SMS tag and phone number. Booking id is : " .
+                            $sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'] . " Result:"
+                            . " " . $status['content'];
+                    $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
+
+                    $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+                }
+            } else {
+                log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
+        		please recheck tag: '" . $sms['tag'] . "' & Phone Number - " . $sms['phone_no']);
+
+                $subject = 'SMS not sent';
+                $message = "Please check SMS tag and phone number. Booking id is : " .
+                        $sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'] . " Result:"
+                        . " " . $status['content'];
+                $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
+
+                $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+            }
         }
     }
-    
+
     /**
      * @desc: This method is used to send sms to Engineer while assigned booking
      */
@@ -636,7 +672,7 @@ class Notify {
                 $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
                 $sms['smsData']['booking_address'] = $query1[0]['booking_address'];
                 $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
-                $this->send_sms($sms);
+                $this->send_sms_msg91($sms);
                 break;
             }
         }
