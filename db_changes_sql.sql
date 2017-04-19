@@ -2098,3 +2098,6 @@ ALTER TABLE `invoice_challan_id_mapping` ADD `active` TINYINT(1) NULL DEFAULT '1
 --- Sachin 18-04-2017
 
 ALTER TABLE `challan_details` ADD `annexure_file` VARCHAR(256) NOT NULL AFTER `challan_file`;
+
+-- Abhay 19-04-2017
+ALTER TABLE `booking_unit_details` ADD `pod` INT(2) NOT NULL DEFAULT '1' AFTER `pay_to_sf`;
