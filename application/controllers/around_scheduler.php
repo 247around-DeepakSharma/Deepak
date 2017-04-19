@@ -61,7 +61,7 @@ class Around_scheduler extends CI_Controller {
                 $sms['type'] = "user";
                 $sms['type_id'] = $value->user_id;
 
-                $this->notify->send_sms_acl($sms);   
+                $this->notify->send_sms_msg91($sms);   
                 // This nis used to increase sms count
                 $this->booking_model->increase_escalation_reschedule($value->booking_id, "sms_count");
             } else {
@@ -114,7 +114,7 @@ class Around_scheduler extends CI_Controller {
             $sms['type'] = "user";
             $sms['type_id'] = $value->user_id;
 
-            $this->notify->send_sms_acl($sms);                
+            $this->notify->send_sms_msg91($sms);                
 	}
         
         log_message ('info', __METHOD__ . '=> Exiting...');
@@ -157,7 +157,7 @@ class Around_scheduler extends CI_Controller {
             $sms['type'] = "user";
             $sms['type_id'] = $value->user_id;
 
-            $this->notify->send_sms_acl($sms);                
+            $this->notify->send_sms_msg91($sms);                
 	}
         
         log_message ('info', __METHOD__ . '=> Exiting...');
@@ -188,7 +188,7 @@ class Around_scheduler extends CI_Controller {
             $sms['type'] = "user";
             $sms['type_id'] = $value->user_id;
 
-            $this->notify->send_sms_acl($sms) ;               
+            $this->notify->send_sms_msg91($sms) ;               
 	}
         
         log_message ('info', __METHOD__ . '=> Exiting...');
@@ -351,7 +351,7 @@ class Around_scheduler extends CI_Controller {
 
            // print_r($sms);
 
-            $this->notify->send_sms_acl($sms);  
+            $this->notify->send_sms_msg91($sms);  
             echo "...<br/>";              
 	}
         

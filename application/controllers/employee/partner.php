@@ -2708,7 +2708,7 @@ class Partner extends CI_Controller {
                 $sms['type_id'] = $data[0]['user_id'];
                 $sms['smsData'] = "";
 
-                $this->notify->send_sms_acl($sms);
+                $this->notify->send_sms_msg91($sms);
                 log_message('info', "Send SMS to customer: " . $booking_id);
 
                 //Prepare job card

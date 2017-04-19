@@ -220,7 +220,7 @@ class vendor_partner_invoice extends CI_Controller {
 		$sms['type'] = "vendor";
 		$sms['type_id'] = $sc['id'];
 
-		 $this->notify->send_sms_acl($sms);
+		 $this->notify->send_sms_msg91($sms);
 
 		//Upload Excel files to AWS
 		//$bucket = 'bookings-collateral-test';
@@ -455,7 +455,7 @@ class vendor_partner_invoice extends CI_Controller {
 		$sms['type'] = "vendor";
 		$sms['type_id'] = $sc['id'];
 
-		 $this->notify->send_sms_acl($sms);
+		 $this->notify->send_sms_msg91($sms);
 
 		//Upload Excel files to AWS
 		//$bucket = 'bookings-collateral-test';
@@ -684,7 +684,7 @@ class vendor_partner_invoice extends CI_Controller {
 		$sms['type'] = "vendor";
 		$sms['type_id'] = $sc['id'];
 
-		 $this->notify->send_sms_acl($sms);
+		 $this->notify->send_sms_msg91($sms);
 
 		//Upload Excel files to AWS
 		//$bucket = 'bookings-collateral-test';
