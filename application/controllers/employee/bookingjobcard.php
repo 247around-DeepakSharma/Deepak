@@ -263,7 +263,7 @@ class bookingjobcard extends CI_Controller {
             
             //Send SMS to vendor
             //Send it through Exotel ONLY
-            $this->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
+            $this->notify->sendTransactionalSmsMsg91($getbooking[0]['primary_contact_phone_1'], $smsBody);
             
             //For saving SMS to the database on sucess
             $this->notify->add_sms_sent_details($getbooking[0]['user_id'], 'vendor' , $getbooking[0]['primary_contact_phone_1'],
