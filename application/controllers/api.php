@@ -1251,7 +1251,7 @@ class Api extends CI_Controller {
                     $sms['type'] = "user";
                     $sms['type_id'] = '';
 
-                    $this->notify->send_sms_acl($sms);
+                    $this->notify->send_sms_msg91($sms);
                     //Logging
                     log_message('info', __FUNCTION__ . ' Partner Missed Call Welcome SMS has been sent to ' . $num);
 
@@ -1474,7 +1474,7 @@ class Api extends CI_Controller {
     $sms['type'] = "user";
     $sms['type_id'] = $booking['user_id'];
 
-    $this->notify->send_sms_acl($sms);
+    $this->notify->send_sms_msg91($sms);
     }
 
     /**
@@ -1491,7 +1491,7 @@ class Api extends CI_Controller {
     $sms['type'] = "user";
     $sms['type_id'] = '';
 
-    $this->notify->send_sms_acl($sms);
+    $this->notify->send_sms_msg91($sms);
     }
 
     /**

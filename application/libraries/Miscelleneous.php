@@ -431,7 +431,7 @@ class Miscelleneous {
             $sms['type'] = "user";
             $sms['type_id'] = $query[0]['user_id'];
             $sms['phone_no'] = $query[0]['booking_primary_contact_no'];
-            $this->My_CI->notify->send_sms($sms);
+            $this->My_CI->notify->send_sms_msg91($sms);
         } 
         //else {
 //            //Send SMS to customer
@@ -442,7 +442,7 @@ class Miscelleneous {
 //            $sms['type_id'] = $query[0]['user_id'];
 //            $sms['smsData'] = "";
 //
-//            $this->My_CI->notify->send_sms_acl($sms);
+//            $this->My_CI->notify->send_sms_msg91($sms);
 //        }
 
 
@@ -620,7 +620,7 @@ class Miscelleneous {
 	$sms['type'] = "user";
 	$sms['type_id'] = $user_id;
 
-	$this->My_CI->notify->send_sms_acl($sms);
+	$this->My_CI->notify->send_sms_msg91($sms);
     }
 
 

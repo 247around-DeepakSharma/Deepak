@@ -409,7 +409,7 @@ class bookings_excel extends CI_Controller {
 	$sms['type'] = "user";
 	$sms['type_id'] = $user_id;
 
-	$this->notify->send_sms_acl($sms);
+	$this->notify->send_sms_msg91($sms);
     }
 
      /**
