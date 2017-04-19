@@ -1314,14 +1314,22 @@ class Invoice extends CI_Controller {
             } else {
                 $invoices_data['upcountry_details'] = array();
             }
+            
+            
             $penalty_amount = (array_sum(array_column($penalty_data, 'p_amount')));
             $cr_penalty_amount = (array_sum(array_column($credit_penalty, 'p_amount')));
             $excel_data['total_penalty_amount'] = -$penalty_amount;
             $excel_data['cr_total_penalty_amount'] = $cr_penalty_amount;
             $excel_data['total_upcountry_price'] = round($total_upcountry_price, 2);
             $excel_data['total_courier_charges'] = round($total_courier_charges, 2);
-            $excel_data['t_vp_w_tds'] = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price'] + $excel_data['cr_total_penalty_amount'] + $excel_data['total_courier_charges'] - $penalty_amount;
-
+            $t_vp_w_tds = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price'] + $excel_data['cr_total_penalty_amount'] + $excel_data['total_courier_charges'] - $penalty_amount;
+            if($t_vp_w_tds >= 0){
+                $excel_data['t_vp_w_tds'] = $t_vp_w_tds;
+            }else if($t_vp_w_tds < 0){
+                $excel_data['t_vp_w_tds'] = abs($t_vp_w_tds)."(DR)";
+            }
+            
+            
             $excel_data['invoice_id'] = $invoice_id;
             $excel_data['vendor_name'] = $invoices[0]['company_name'];
             $excel_data['vendor_address'] = $invoices[0]['address'];
@@ -1495,7 +1503,7 @@ class Invoice extends CI_Controller {
                     'rating' => $excel_data['t_rating'],
                     'around_royalty' => 0,
                     //Amount needs to be Paid to Vendor
-                    'amount_collected_paid' => (0 - $excel_data['t_vp_w_tds']),
+                    'amount_collected_paid' => (0 - $t_vp_w_tds),
                     //Mail has not sent
                     'mail_sent' => $mail_ret,
                     'tds_rate' => $tds_per_rate,
