@@ -169,16 +169,6 @@ class Service_centers extends CI_Controller {
         $data['booking_id'] = $booking_id;
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $data['bookng_unit_details'] = $this->booking_model->getunit_details($booking_id);
-        
-        foreach ($data['bookng_unit_details'] as $key => $value) {
-            foreach ($value['quantity'] as $keys => $line_item) {
-                $partner_id = $this->booking_model->get_price_mapping_partner_code("", $data['booking_history'][0]['partner_id']);
-
-            $result = $this->partner_model->getPrices($value['service_id'], $value['category'], $value['capacity'], $partner_id, $line_item['price_tags']);
-        
-            $data['bookng_unit_details'][$key]['quantity'][$keys]['pod'] = $result[0]['pod'];
-            }
-        }
          
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
