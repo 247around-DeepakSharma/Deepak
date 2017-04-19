@@ -2101,3 +2101,6 @@ ALTER TABLE `challan_details` ADD `annexure_file` VARCHAR(256) NOT NULL AFTER `c
 
 -- Abhay 19-04-2017
 ALTER TABLE `booking_unit_details` ADD `pod` INT(2) NOT NULL DEFAULT '1' AFTER `pay_to_sf`;
+
+-- Abhay 19-04-2017
+ALTER TABLE `penalty_details` ADD `cap_amount` INT NOT NULL DEFAULT '0' AFTER `unit_%_rate`;
