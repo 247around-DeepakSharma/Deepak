@@ -836,130 +836,134 @@ class Apis extends CI_Model {
 
     function searchservice($service, $area) {
 
-        $client = new Elasticsearch\Client();
-        $params['index'] = 'boloaaka';
-        $params['type'] = 'handyman';
-        $array = array();
-
-        for ($i = 0; $i < count($service['hits']['hits']); $i++) {
-
-            if (is_string($area)) {
-
-                $params['body']['query']['bool']['must'] = array(
-                    array('match' => array('service_id' => $service['hits']['hits'][$i]['_id'])),
-                    array('match' => array('address' => $area)),
-                    array('match' => array('action' => 1))
-                );
-            } else {
-                $json = '{
-        "sort" : [
-            {
-          "_geo_distance" : {
-              "location" : {
-                    "lat" : "' . $area['latitude'] . '",
-                    "lon" : "' . $area['longitude'] . '"
-              },
-              "order" : "asc",
-              "unit" : "km"
-          }
-            }
-        ],
-        "query": {
-          "filtered" : {
-
-       "query": {
-        "bool": {
-          "must": [
-            { "match": { "service_id":   "' . $service['hits']['hits'][$i]['_id'] . '"}},
-            { "match": { "action": 1 }}
-
-          ]
-        }
-      },
-        "filter" : {
-            "geo_distance" : {
-                "distance" : "' . $service['hits']['hits'][$i]['_source']['distance'] . "km" . '",
-                "location" : {
-                    "lat" : "' . $area['latitude'] . '",
-                    "lon" : "' . $area['longitude'] . '"
-                }
-            }
-        }
-          }
-        }
-      }';
-
-                $params['body'] = $json;
-            }
-
-
-            $searchApielasticsearch = $client->search($params);
-            array_push($array, $searchApielasticsearch);
-        }
-        //print_r($array);
-        return $array;
+//        $client = new Elasticsearch\Client();
+//        $params['index'] = 'boloaaka';
+//        $params['type'] = 'handyman';
+//        $array = array();
+//
+//        for ($i = 0; $i < count($service['hits']['hits']); $i++) {
+//
+//            if (is_string($area)) {
+//
+//                $params['body']['query']['bool']['must'] = array(
+//                    array('match' => array('service_id' => $service['hits']['hits'][$i]['_id'])),
+//                    array('match' => array('address' => $area)),
+//                    array('match' => array('action' => 1))
+//                );
+//            } else {
+//                $json = '{
+//        "sort" : [
+//            {
+//          "_geo_distance" : {
+//              "location" : {
+//                    "lat" : "' . $area['latitude'] . '",
+//                    "lon" : "' . $area['longitude'] . '"
+//              },
+//              "order" : "asc",
+//              "unit" : "km"
+//          }
+//            }
+//        ],
+//        "query": {
+//          "filtered" : {
+//
+//       "query": {
+//        "bool": {
+//          "must": [
+//            { "match": { "service_id":   "' . $service['hits']['hits'][$i]['_id'] . '"}},
+//            { "match": { "action": 1 }}
+//
+//          ]
+//        }
+//      },
+//        "filter" : {
+//            "geo_distance" : {
+//                "distance" : "' . $service['hits']['hits'][$i]['_source']['distance'] . "km" . '",
+//                "location" : {
+//                    "lat" : "' . $area['latitude'] . '",
+//                    "lon" : "' . $area['longitude'] . '"
+//                }
+//            }
+//        }
+//          }
+//        }
+//      }';
+//
+//                $params['body'] = $json;
+//            }
+//
+//
+//            $searchApielasticsearch = $client->search($params);
+//            array_push($array, $searchApielasticsearch);
+//        }
+//        //print_r($array);
+//        return $array;
+        
+        return array();
     }
 
     function searchServiceByService($service, $area) {
 
-        $client = new Elasticsearch\Client();
-        $params['index'] = 'boloaaka';
-        $params['type'] = 'handyman';
-        $array = array();
-
-        if (is_string($area)) {
-
-            $params['body']['query']['bool']['must'] = array(
-                array('match' => array('service_id' => $service[0]['id'])),
-                array('match' => array('address' => $area)),
-                array('match' => array('action' => 1))
-            );
-        } else {
-            $json = '{
-        "sort" : [
-            {
-          "_geo_distance" : {
-              "location" : {
-                    "lat" : "' . $area['latitude'] . '",
-                    "lon" : "' . $area['longitude'] . '"
-              },
-              "order" : "asc",
-              "unit" : "km"
-          }
-            }
-        ],
-        "query": {
-          "filtered" : {
-
-       "query": {
-        "bool": {
-          "must": [
-            { "match": { "service_id":   "' . $service[0]['id'] . '"}},
-            { "match": { "action": 1 }}
-
-          ]
-        }
-      },
-        "filter" : {
-            "geo_distance" : {
-                "distance" : "' . $service[0]['distance'] . "km" . '",
-                "location" : {
-                    "lat" : "' . $area['latitude'] . '",
-                    "lon" : "' . $area['longitude'] . '"
-                }
-            }
-        }
-          }
-        }
-      }';
-
-            $params['body'] = $json;
-        }
-
-
-        $searchApielasticsearch = $client->search($params);
-        array_push($array, $searchApielasticsearch);
-        return $array;
+//        $client = new Elasticsearch\Client();
+//        $params['index'] = 'boloaaka';
+//        $params['type'] = 'handyman';
+//        $array = array();
+//
+//        if (is_string($area)) {
+//
+//            $params['body']['query']['bool']['must'] = array(
+//                array('match' => array('service_id' => $service[0]['id'])),
+//                array('match' => array('address' => $area)),
+//                array('match' => array('action' => 1))
+//            );
+//        } else {
+//            $json = '{
+//        "sort" : [
+//            {
+//          "_geo_distance" : {
+//              "location" : {
+//                    "lat" : "' . $area['latitude'] . '",
+//                    "lon" : "' . $area['longitude'] . '"
+//              },
+//              "order" : "asc",
+//              "unit" : "km"
+//          }
+//            }
+//        ],
+//        "query": {
+//          "filtered" : {
+//
+//       "query": {
+//        "bool": {
+//          "must": [
+//            { "match": { "service_id":   "' . $service[0]['id'] . '"}},
+//            { "match": { "action": 1 }}
+//
+//          ]
+//        }
+//      },
+//        "filter" : {
+//            "geo_distance" : {
+//                "distance" : "' . $service[0]['distance'] . "km" . '",
+//                "location" : {
+//                    "lat" : "' . $area['latitude'] . '",
+//                    "lon" : "' . $area['longitude'] . '"
+//                }
+//            }
+//        }
+//          }
+//        }
+//      }';
+//
+//            $params['body'] = $json;
+//        }
+//
+//
+//        $searchApielasticsearch = $client->search($params);
+//        array_push($array, $searchApielasticsearch);
+//        return $array;
+        
+        return array();
     }
 
     /**  @desc : This functon  for calculate latitude and longitude
@@ -1059,119 +1063,120 @@ class Apis extends CI_Model {
 
     function searchApiNew($service, $area, $searchkeyword, $deviceId, $userLocation, $user_id) {
         //echo $service. ", ".$area. ", ".$searchkeyword. ", ".$deviceId. ", ".$userLocation. ", ".$user_id;
-        $lat1 = "28.6100";
-        $long1 = "77.2300";
-        $getdistance = "0 km";
-        $area = $this->getArea($area, $userLocation);
-
-        if ($area) {
-            $lat1 = $area['latitude'];
-            $long1 = $area['longitude'];
-            $this->checkLocation($deviceId, $lat1, $long1);
-        } else {
-            $loc = $this->getLocation($deviceId);
-            if ($loc) {
-                for ($i = 0; $i < count($loc); $i++) {
-                    $lat1 = $loc[$i]['latitude'];
-                    $long1 = $loc[$i]['longitude'];
-                }
-            }
-        }
-        $client = new Elasticsearch\Client();
-        $params['index'] = 'boloaaka';
-        $params['type'] = 'services';
-        if ($searchkeyword) {
-            $params['body']['query']['match']['keywords'] = $searchkeyword;
-            $result = $client->search($params);
-
-            $searchApi = $this->searchservice($result, $area);
-        } else {
-            $services = $this->getServiceId($service);
-            if ($services) {
-                $searchApi = $this->searchServiceByService($services, $area);
-            } else {
-                $params['body']['query']['match']['services'] = $service;
-                $result = $client->search($params);
-                $searchApi = $this->searchservice($result, $area);
-            }
-        }
-
-        if ($searchApi) {
-
-            $array = array();
-
-            for ($j = 0; $j < count($searchApi); $j++) {
-                if (array_key_exists("hits", $searchApi[$j])) {
-                    for ($k = 0; $k < count($searchApi[$j]['hits']['hits']); $k++) {
-
-                        $address = $searchApi[$j]['hits']['hits'][$k]['_source']['address'];
-                        $handyman_id = $searchApi[$j]['hits']['hits'][$k]['_id'];
-
-                        //$rating = $this->getrating($handyman_id);
-                        $review = $this->checkReview($handyman_id, $user_id);
-                        $servicess = $this->getServiceById($searchApi[$j]['hits']['hits'][$k]['_source']['service_id']);
-                        //print_r($servicess);
-                        if ($review) {
-                            $searchApi[$j]['hits']['hits'][$k]['_source']['review_by_user'] = "true";
-                        } else {
-                            $searchApi[$j]['hits']['hits'][$k]['_source']['review_by_user'] = "false";
-                        }
-                        if (isset($searchApi[$j]['hits']['hits'][$k]['sort'])) {
-                            $distance = $searchApi[$j]['hits']['hits'][$k]['sort'][0];
-                        } else {
-                            $location = explode(",", $searchApi[$j]['hits']['hits'][$k]['_source']['location']);
-                            $lat2 = $location[0];
-                            $long2 = $location[1];
-                            $distance = $this->distance($lat1, $long1, $lat2, $long2, $unit = 'k');
-                        }
-                        $getdistance = round($distance, 2);
-                        $total_review = $this->gethandymanreview($handyman_id);
-
-                        $searchApi[$j]['hits']['hits'][$k]['_source']['total_review'] = count($total_review) + 1;
-
-                        $rating = $searchApi[$j]['hits']['hits'][$k]['_source']['Rating_by_Agent'];
-                        if ($rating == "Good") {
-                            $rating = 4.0;
-                        } else if ($rating == "Average") {
-                            $rating = 3.0;
-                        } else if ($rating == "Exceptional") {
-                            $rating = 5.0;
-                        } else if ($rating == "Bad") {
-                            $rating = 2.0;
-                        } else if ($rating == "Very Bad") {
-                            $rating = 1.0;
-                        }
-                        if ($total_review > 0) {
-                            $rating = ($rating + $total_review) / 2;
-                        }
-                        $searchApi[$j]['hits']['hits'][$k]['_source']['rating'] = $rating;
-                        $searchApi[$j]['hits']['hits'][$k]['_source']['service_name'] = $servicess[0]['services'];
-                        $searchApi[$j]['hits']['hits'][$k]['_source']['service_image'] = $servicess[0]['service_image'];
-                        $searchApi[$j]['hits']['hits'][$k]['_source']['distance'] = $getdistance . " Km";
-                        $searchApi[$j]['hits']['hits'][$k]['_source']['id'] = $handyman_id;
-                        if (isset($searchApi[$j]['hits']['hits'][$k]['_source'])) {
-                            $search[$j] = $searchApi[$j]['hits']['hits'][$k]['_source'];
-                        }
-                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['action']);
-                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['current_time']);
-                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['date_of_collection']);
-                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['time_of_data_collection']);
-                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['Other_handyman_contact']);
-                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['bank_account']);
-                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['id_proof_no']);
-                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['id_proof_photo']);
-                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['handyman_previous_customers']);
-                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['updatedate']);
-                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['Agent']);
-                        //$i = $i + 1;
-                        array_push($array, $searchApi[$j]['hits']['hits'][$k]['_source']);
-                        //print_r($search);
-                    }
-                }
-            }
-            //print_r($array);
-            return $array;
-        }
+//        $lat1 = "28.6100";
+//        $long1 = "77.2300";
+//        $getdistance = "0 km";
+//        $area = $this->getArea($area, $userLocation);
+//
+//        if ($area) {
+//            $lat1 = $area['latitude'];
+//            $long1 = $area['longitude'];
+//            $this->checkLocation($deviceId, $lat1, $long1);
+//        } else {
+//            $loc = $this->getLocation($deviceId);
+//            if ($loc) {
+//                for ($i = 0; $i < count($loc); $i++) {
+//                    $lat1 = $loc[$i]['latitude'];
+//                    $long1 = $loc[$i]['longitude'];
+//                }
+//            }
+//        }
+//        $client = new Elasticsearch\Client();
+//        $params['index'] = 'boloaaka';
+//        $params['type'] = 'services';
+//        if ($searchkeyword) {
+//            $params['body']['query']['match']['keywords'] = $searchkeyword;
+//            $result = $client->search($params);
+//
+//            $searchApi = $this->searchservice($result, $area);
+//        } else {
+//            $services = $this->getServiceId($service);
+//            if ($services) {
+//                $searchApi = $this->searchServiceByService($services, $area);
+//            } else {
+//                $params['body']['query']['match']['services'] = $service;
+//                $result = $client->search($params);
+//                $searchApi = $this->searchservice($result, $area);
+//            }
+//        }
+//
+//        if ($searchApi) {
+//
+//            $array = array();
+//
+//            for ($j = 0; $j < count($searchApi); $j++) {
+//                if (array_key_exists("hits", $searchApi[$j])) {
+//                    for ($k = 0; $k < count($searchApi[$j]['hits']['hits']); $k++) {
+//
+//                        $address = $searchApi[$j]['hits']['hits'][$k]['_source']['address'];
+//                        $handyman_id = $searchApi[$j]['hits']['hits'][$k]['_id'];
+//
+//                        //$rating = $this->getrating($handyman_id);
+//                        $review = $this->checkReview($handyman_id, $user_id);
+//                        $servicess = $this->getServiceById($searchApi[$j]['hits']['hits'][$k]['_source']['service_id']);
+//                        //print_r($servicess);
+//                        if ($review) {
+//                            $searchApi[$j]['hits']['hits'][$k]['_source']['review_by_user'] = "true";
+//                        } else {
+//                            $searchApi[$j]['hits']['hits'][$k]['_source']['review_by_user'] = "false";
+//                        }
+//                        if (isset($searchApi[$j]['hits']['hits'][$k]['sort'])) {
+//                            $distance = $searchApi[$j]['hits']['hits'][$k]['sort'][0];
+//                        } else {
+//                            $location = explode(",", $searchApi[$j]['hits']['hits'][$k]['_source']['location']);
+//                            $lat2 = $location[0];
+//                            $long2 = $location[1];
+//                            $distance = $this->distance($lat1, $long1, $lat2, $long2, $unit = 'k');
+//                        }
+//                        $getdistance = round($distance, 2);
+//                        $total_review = $this->gethandymanreview($handyman_id);
+//
+//                        $searchApi[$j]['hits']['hits'][$k]['_source']['total_review'] = count($total_review) + 1;
+//
+//                        $rating = $searchApi[$j]['hits']['hits'][$k]['_source']['Rating_by_Agent'];
+//                        if ($rating == "Good") {
+//                            $rating = 4.0;
+//                        } else if ($rating == "Average") {
+//                            $rating = 3.0;
+//                        } else if ($rating == "Exceptional") {
+//                            $rating = 5.0;
+//                        } else if ($rating == "Bad") {
+//                            $rating = 2.0;
+//                        } else if ($rating == "Very Bad") {
+//                            $rating = 1.0;
+//                        }
+//                        if ($total_review > 0) {
+//                            $rating = ($rating + $total_review) / 2;
+//                        }
+//                        $searchApi[$j]['hits']['hits'][$k]['_source']['rating'] = $rating;
+//                        $searchApi[$j]['hits']['hits'][$k]['_source']['service_name'] = $servicess[0]['services'];
+//                        $searchApi[$j]['hits']['hits'][$k]['_source']['service_image'] = $servicess[0]['service_image'];
+//                        $searchApi[$j]['hits']['hits'][$k]['_source']['distance'] = $getdistance . " Km";
+//                        $searchApi[$j]['hits']['hits'][$k]['_source']['id'] = $handyman_id;
+//                        if (isset($searchApi[$j]['hits']['hits'][$k]['_source'])) {
+//                            $search[$j] = $searchApi[$j]['hits']['hits'][$k]['_source'];
+//                        }
+//                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['action']);
+//                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['current_time']);
+//                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['date_of_collection']);
+//                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['time_of_data_collection']);
+//                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['Other_handyman_contact']);
+//                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['bank_account']);
+//                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['id_proof_no']);
+//                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['id_proof_photo']);
+//                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['handyman_previous_customers']);
+//                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['updatedate']);
+//                        unset($searchApi[$j]['hits']['hits'][$k]['_source']['Agent']);
+//                        //$i = $i + 1;
+//                        array_push($array, $searchApi[$j]['hits']['hits'][$k]['_source']);
+//                        //print_r($search);
+//                    }
+//                }
+//            }
+//            //print_r($array);
+//            return $array;
+//        }
+        return array();
     }
 
     /** @description*  This function for search area,service , startid and lastid
