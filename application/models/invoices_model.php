@@ -244,13 +244,13 @@ class invoices_model extends CI_Model {
         
         $is_invoice_null = "";
         if($is_regenerate == 0){
-            $is_invoice_null =  " vendor_foc_invoice_id IS NULL ";
+            $is_invoice_null =  " AND vendor_foc_invoice_id IS NULL ";
         }
 
         //for FOC invoice, around_to_vendor > 0 AND vendor_to_around = 0
         $where = " AND `booking_unit_details`.around_to_vendor > 0  AND `booking_unit_details`.vendor_to_around = 0 ";
 
-        $where .= " AND pay_to_sf = '1' AND $is_invoice_null  AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' ";
+        $where .= " AND pay_to_sf = '1'  $is_invoice_null  AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' ";
         $date = "  '$from_date' as start_date,  '" . date('Y-m-d', strtotime($to_date . " - 1 day")) . "'  as end_date,  ";
         
         $condition = "  From booking_details, booking_unit_details, services, service_centres
