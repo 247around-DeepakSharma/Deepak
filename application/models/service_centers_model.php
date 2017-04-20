@@ -85,6 +85,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.request_type, "
                 . " bd.count_escalation, "
                 . " bd.is_upcountry, "
+                . " bd.count_reschedule, "
                 . " bd.upcountry_paid_by_customer, "
                 . " bd.is_penalty, "
                 . " bd.booking_address, "
