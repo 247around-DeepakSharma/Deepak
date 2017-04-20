@@ -431,7 +431,7 @@
                 <table >
                     <thead>
                         <tr>
-
+                            <th></th>
                             <th width="150px;">
                                 <a href="<?php echo base_url();?>employee/booking/view">Booking Id</a>
                             </th>
@@ -453,7 +453,7 @@
                     <?php foreach($Bookings as $key =>$row){
                         if($row->current_status == "Completed"){ ?>
                     <tr>
-                        
+                        <td><?php if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
                         <td><?php
                             echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
                         </td>
@@ -687,7 +687,7 @@
         }
         <?php } ?>
     });
-     function open_upcountry_model(sc_id, booking_id, amount_due){
+    function open_upcountry_model(sc_id, booking_id, amount_due){
       
        $.ajax({
       type: 'POST',

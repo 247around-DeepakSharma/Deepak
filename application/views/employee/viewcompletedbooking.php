@@ -42,16 +42,11 @@
     th,td{
         border: 1px #f2f2f2 solid;
         text-align:center;
-        vertical-align: center;
+        vertical-align:central;
         padding: 2px;
     }
 
-    th{
-        height: 50px;
-        background-color: #4CBA90;
-        color: white;
-    }
-    tr:nth-child(even) {background-color: #f2f2f2}
+    
     
     /* generic table styling */
     table { border-collapse: collapse; }
@@ -143,7 +138,7 @@
                 
 
                 <h1 align="left"><?php  if(isset($status)){ echo $status." Bookings";} else { echo $Bookings[0]->current_status." Bookings"; $status =  $Bookings[0]->current_status; } ?></h1>
-                <table >
+                <table class="table table-striped table-bordered" >
 
                     <thead>
                     <tr>
@@ -179,7 +174,7 @@
                     <?php foreach($Bookings as $key =>$row){?>
 
                     <tr>
-                    <td><?=$row->id?>.</td>
+                    <td><?=$row->id;  if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
 
                             <td><?php
 				    echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
@@ -292,7 +287,22 @@
         </div>
     </div>
 </div>
-
+<div id="myModal3" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="open_model1">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Upcountry Call</h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     $("#search").keyup(function () {
     var value = this.value.toLowerCase().trim();
@@ -307,11 +317,11 @@
         });
     });
 });
-    $(document).ready(function() {
-        $('table').filterTable({ // apply filterTable to all tables on this page
-            inputSelector: '#input-filter' // use the existing input instead of creating a new one
-        });
-        });
+//    $(document).ready(function() {
+//        $('table').filterTable({ // apply filterTable to all tables on this page
+//            inputSelector: '#input-filter' // use the existing input instead of creating a new one
+//        });
+//        });
         
         
      function form_submit() {
@@ -342,7 +352,21 @@
         
         
 </script>
-
+<script>
+function open_upcountry_model(sc_id, booking_id, amount_due, sf_rate){
+     
+    $.ajax({
+      type: 'POST',
+      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
+      success: function (data) {
+          console.log(data);
+       $("#open_model1").html(data);   
+       $('#myModal3').modal('toggle');
+    
+      }
+    });
+    }
+</script>
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
 <?php $this->session->unset_userdata('failed'); ?>

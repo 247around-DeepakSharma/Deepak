@@ -28,6 +28,10 @@
                                         <tr>
                                             <td>
                                                 <?php echo $count; ?>
+                                                <?php if($row['is_upcountry'] == 1) { ?>.
+                                                <i style="color:red; font-size:20px;" 
+                                                   onclick="open_upcountry_model('<?php echo $row['booking_id'];?>', '<?php echo $row['amount_due'];?>')" 
+                                                   class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                             </td>
                                             <td>
                                                 <?php echo $row['booking_id']; ?>
@@ -83,6 +87,22 @@
         </div>
     </div>
 </div>
+<div id="myModal1" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="open_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Upcountry Call</h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style type="text/css">
     .marquee {
@@ -128,4 +148,16 @@
             hide: 100
         }
     });
+    function open_upcountry_model(booking_id, is_customer_paid){
+      
+       $.ajax({
+      type: 'POST',
+      url: '<?php echo base_url(); ?>service_center/pending_booking_upcountry_price/' + booking_id+"/"+is_customer_paid,
+      success: function (data) {
+       $("#open_model").html(data);   
+       $('#myModal1').modal('toggle');
+    
+      }
+    });
+    }
 </script>
