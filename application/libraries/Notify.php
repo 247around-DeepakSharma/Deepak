@@ -566,6 +566,7 @@ class Notify {
     }
 
     function sendTransactionalSmsMsg91($phone_number, $body) {
+        $data = array();
         switch (ENVIRONMENT) {
 	    case 'production':
                 $message = urlencode($body);
@@ -579,9 +580,7 @@ class Notify {
                 curl_close($ch);
                 
                 $data['content'] = curl_exec($ch);
-		$data['error'] = curl_error($ch);
-		$data['info'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
+		
 		curl_close($ch);
 		break;
         }
