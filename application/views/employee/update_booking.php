@@ -67,9 +67,9 @@
                                             <option <?php if(strtolower($cites['district']) == strtolower($booking_history[0]['city'])){ echo "Selected"; $flag = 1; }?>><?php echo $cites['district']; ?></option>
                                             <?php }
                                                 ?>
-                                            <?php //if($flag ==0){ ?>
-                                           
-                                            <?php//} ?>
+                                           <?php if($flag == 0){ ?>
+                                            <option selected="selected" ><?php echo $user[0]['city']; ?></option>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                 </div>
