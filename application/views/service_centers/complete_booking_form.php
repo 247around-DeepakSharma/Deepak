@@ -1,6 +1,14 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <div id="page-wrapper" >
     <div class="container" >
+        <?php if(validation_errors()){?>
+        <div class="panel panel-danger" style="margin-top:10px;margin-bottom:-10px;">
+            <div class="panel-heading" style="padding:7px 0px 0px 13px">
+            <?php echo validation_errors(); ?>
+            
+            </div>
+        </div>
+        <?php }?>
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Complete Booking</div>
             <div class="panel-body">
@@ -143,7 +151,8 @@
                                                     <?php if ($price['pod'] == "1") { ?>
                                                     <div class="form-group">
                                                         <div class="col-md-12">
-                                                            <input type="text" id="<?php echo "serial_number" . $count ?>" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['serial_number']; ?>" placeholder="Enter Serial No"   />
+                                                            <input type="text" id="<?php echo "serial_number" . $count ?>" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['serial_number']; ?>" placeholder="Enter Serial No" required  />
+                                                            <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                         </div>
                                                     </div>
                                                     <?php } ?>
@@ -291,7 +300,7 @@
                         </div>
                     </div>
                     <div class="form-group  col-md-12" >
-                        <center>
+                        <center style="margin-top:60px;">
                             <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>')" class="btn btn-lg" style="background-color: #2C9D9A;
                                 border-color: #2C9D9A; color:#fff;" value="Complete Booking">
                     </div>
@@ -352,7 +361,7 @@
     flag = 1;
       }
     
-      if (serial_number === "0") {
+      if (serial_number === "0" ) {
     document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
     flag = 1;
       }
@@ -437,10 +446,10 @@
     #booking_form .form-group label.error {
     color: #FB3A3A;
     display: inline-block;
-    margin: 0px 0 0px 125px;
+    margin: 42px 0 0px 0px;
     padding: 0;
     text-align: left;
-    width: 220px;
+    width: 240px;
     position: absolute;
     }
 </style>
@@ -453,6 +462,7 @@
     {
       setupFormValidation: function ()
       {
+      
     //form validation rules
     $("#booking_form").validate({
        rules: {
@@ -471,7 +481,7 @@
        }
     });
       }
-    }
+    };
     
     //when the dom has loaded setup form validation rules
     $(D).ready(function ($) {

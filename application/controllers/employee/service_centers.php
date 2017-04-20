@@ -187,6 +187,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('additional_charge', 'Additional Service Charge', 'required');
         $this->form_validation->set_rules('parts_cost', 'Parts Cost', 'required');
         $this->form_validation->set_rules('booking_status', 'Status', 'required');
+        $this->form_validation->set_rules('pod', 'POD ', 'callback_validate_serial_no');
 
         if (($this->form_validation->run() == FALSE) || ($booking_id =="") || (is_null($booking_id))) {
             $this->complete_booking_form(urlencode(base64_encode($booking_id)));
@@ -208,6 +209,7 @@ class Service_centers extends CI_Controller {
             //$internal_status = "Cancelled";
             $getremarks = $this->booking_model->getbooking_charges($booking_id);
             $i = 0;
+            exit();
             foreach ($customer_basic_charge as $unit_id => $value) {
                  // variable $unit_id  is existing id in booking unit details table of given booking id 
                  $data = array();
@@ -231,7 +233,7 @@ class Service_centers extends CI_Controller {
                     $data['upcountry_charges'] = $upcountry_charges;
                  }
                  if(isset($serial_number[$unit_id])){
-                    $data['serial_number'] =  $serial_number[$unit_id];
+                    $data['serial_number'] = trim($serial_number[$unit_id]);
                  }
                  
                  if (!empty($getremarks[0]['service_center_remarks'])) {
@@ -259,6 +261,30 @@ class Service_centers extends CI_Controller {
             } else {
                 redirect(base_url() . "service_center/pending_booking");
             } 
+        }
+    }
+    /**
+     * @desc: Validate Serial Number. If pod is 1 then serial number should not empty
+     * @return boolean
+     */
+    function validate_serial_no(){
+        $serial_number = $this->input->post('serial_number');
+        $pod = $this->input->post('pod');
+        $booking_status = $this->input->post('booking_status');
+        $return_status = true;;
+        foreach ($pod as $unit_id => $value) {
+            if($booking_status[$unit_id] == _247AROUND_COMPLETED){
+                if($value == 1 && empty(trim($serial_number[$unit_id]))){
+                    $return_status = false;
+                }
+            }
+        }
+        
+        if($return_status == true){
+            return true;
+        } else {
+            $this->form_validation->set_message('validate_serial_no', 'Please Enter Serial Number');
+            return FALSE;
         }
     }
 
