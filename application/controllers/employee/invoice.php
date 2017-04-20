@@ -1780,7 +1780,7 @@ class Invoice extends CI_Controller {
                         echo " Preparing CASH Invoice for Vendor: " . $details['vendor_partner_id'] . PHP_EOL;
 
                         //Prepare main invoice first
-                        $details['invoice_id'] = $this->generate_vendor_cash_invoice($details);
+                        $details['invoice_id'] = $this->generate_vendor_cash_invoice($details,$is_regenerate);
 
                         //Invoice made successfully
                         if ($details['invoice_id']) {
@@ -1788,7 +1788,7 @@ class Invoice extends CI_Controller {
                             echo 'Invoice made successfully' . PHP_EOL;
 
                             //Generate detailed annexure now
-                            $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range']);
+                            $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range'],$is_regenerate);
                             $this->generate_cash_details_invoices_for_vendors($data, $details);
                         } else {
 
@@ -1803,10 +1803,10 @@ class Invoice extends CI_Controller {
                     log_message('info', __FUNCTION__ . ": Preparing CASH Invoice Vendor Id: " . $details['vendor_partner_id']);
 
                     //Prepare main invoice first
-                    $details['invoice_id'] = $this->generate_vendor_cash_invoice($details);
+                    $details['invoice_id'] = $this->generate_vendor_cash_invoice($details, $is_regenerate);
                     if ($details['invoice_id']) {
                         //Generate detailed annexure now
-                        $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range']);
+                        $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range'], $is_regenerate);
                         $this->generate_cash_details_invoices_for_vendors($data, $details);
                         return TRUE;
                     } else {
@@ -1833,7 +1833,7 @@ class Invoice extends CI_Controller {
 
                         if ($details['invoice_id']) {
                             //Generate detailed annexure now                
-                            $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], $details['date_range']);
+                            $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], $details['date_range'], $is_regenerate);
                             $this->generate_foc_details_invoices_for_vendors($data, $details, $is_regenerate);
                         } else {
                             echo "<script>alert('Data Not Found');</script>";
@@ -1848,7 +1848,7 @@ class Invoice extends CI_Controller {
                     echo " Preparing FOC Invoice  Vendor: " . $details['vendor_partner_id'];
                     if ($details['invoice_id']) {
                         //Generate detailed annexure now                
-                        $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], $details['date_range']);
+                        $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], $details['date_range'], $is_regenerate);
                         $this->generate_foc_details_invoices_for_vendors($data, $details, $is_regenerate);
                         return TRUE;
                     } else {
@@ -2588,7 +2588,7 @@ class Invoice extends CI_Controller {
      * @param type $details
      * @return string
      */
-    function generate_vendor_cash_invoice($details) {
+    function generate_vendor_cash_invoice($details, $is_regenerate) {
         log_message('info', __FUNCTION__ . " Entering...." . print_r($details, true));
 
         $vendor_id = $details['vendor_partner_id'];
@@ -2596,7 +2596,7 @@ class Invoice extends CI_Controller {
         $from_date = $custom_date[0];
         $to_date = $custom_date[1];
         $invoice_type = $details['invoice_type'];
-        $invoices = $this->invoices_model->get_vendor_cash_invoice($vendor_id, $from_date, $to_date);
+        $invoices = $this->invoices_model->get_vendor_cash_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
 
         if (!empty($invoices)) {
             log_message('info', __FUNCTION__ . "=> Data Found for Cash Invoice");

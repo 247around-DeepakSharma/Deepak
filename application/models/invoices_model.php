@@ -234,21 +234,25 @@ class invoices_model extends CI_Model {
      * @param: void
      * @return : array
      */
-    function generate_vendor_foc_detailed_invoices($vendor_id, $date_range) {
+    function generate_vendor_foc_detailed_invoices($vendor_id, $date_range, $is_regenerate) {
 
         $custom_date = explode("-", $date_range);
         $from_date = $custom_date[0];
         $to_date_tmp = $custom_date[1];
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $result1 = array();
+        
+        $is_invoice_null = "";
+        if($is_regenerate == 0){
+            $is_invoice_null =  " vendor_foc_invoice_id IS NULL ";
+        }
 
         //for FOC invoice, around_to_vendor > 0 AND vendor_to_around = 0
         $where = " AND `booking_unit_details`.around_to_vendor > 0  AND `booking_unit_details`.vendor_to_around = 0 ";
 
-        $where .= " AND pay_to_sf = '1' AND vendor_foc_invoice_id IS NULL  AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' ";
+        $where .= " AND pay_to_sf = '1' AND $is_invoice_null  AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' ";
         $date = "  '$from_date' as start_date,  '" . date('Y-m-d', strtotime($to_date . " - 1 day")) . "'  as end_date,  ";
-
-
+        
         $condition = "  From booking_details, booking_unit_details, services, service_centres
                           WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND assigned_vendor_id = '" . $vendor_id . "' AND `booking_unit_details`.booking_status = 'Completed' $where ";
 
@@ -307,7 +311,7 @@ class invoices_model extends CI_Model {
         return $result1;
     }
 
-    function get_vendor_cash_detailed($vendor_id, $date_range) {
+    function get_vendor_cash_detailed($vendor_id, $date_range, $is_regenerate) {
         $custom_date = explode("-", $date_range);
         $from_date = $custom_date[0];
         $to_date_tmp = $custom_date[1];
@@ -322,7 +326,10 @@ class invoices_model extends CI_Model {
                 $where = " AND  booking_unit_details.around_to_vendor > 0  AND booking_unit_details.vendor_to_around = 0 AND (booking_unit_details.customer_paid_extra_charges > 0 OR booking_unit_details.customer_paid_parts > 0) ";
             }
             $where .= " AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' ";
-
+            $is_invoice_null = "";
+            if($is_regenerate == 0){
+                $is_invoice_null = " AND vendor_cash_invoice_id IS NULL ";
+            }
 
             $sql = "SELECT booking_unit_details.id AS unit_id, service_centres.state, "
                     . "`booking_details`.booking_id, "
@@ -353,7 +360,7 @@ class invoices_model extends CI_Model {
                     . " From booking_details, booking_unit_details, services, service_centres
                     WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  
                     AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' 
-                    AND vendor_cash_invoice_id IS NULL
+                    $is_invoice_null
                     AND assigned_vendor_id = '" . $vendor_id . "' "
                     . " AND `booking_unit_details`.booking_status = 'Completed' $where";
 
@@ -842,6 +849,10 @@ class invoices_model extends CI_Model {
     function get_vendor_foc_invoice($vendor_id, $from_date, $to_date_tmp, $is_regenerate) {
 
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        $is_invoice_null = "";
+        if($is_regenerate == 0){
+            $is_invoice_null = " AND vendor_foc_invoice_id IS NULL ";
+        }
         $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, sum(`courier_charges_by_sf`) AS misc_price,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
                CASE 
                
@@ -882,7 +893,7 @@ class invoices_model extends CI_Model {
                 AND sc.id = bd.assigned_vendor_id
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0
                 AND pay_to_sf = '1'
-                AND vendor_foc_invoice_id IS NULL
+                $is_invoice_null
                 GROUP BY  `vendor_basic_charges`,ud.service_id, price_tags";
 
         $query = $this->db->query($sql);
@@ -926,7 +937,7 @@ class invoices_model extends CI_Model {
                 AND sc.id = bd.assigned_vendor_id
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0 
                 AND pay_to_sf = '1'
-                AND vendor_foc_invoice_id IS NULL
+                $is_invoice_null
                 GROUP BY  `vendor_basic_charges`,ud.service_id,price_tags";
 
         $query1 = $this->db->query($sql1);
@@ -956,7 +967,7 @@ class invoices_model extends CI_Model {
             }
 
             $penalty_data = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "distinct", $is_regenerate);
-            $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, "distinct");
+            $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, "distinct" );
 
             $penalty_amount = 0;
             $cr_penalty_amount = 0;
@@ -1080,7 +1091,7 @@ class invoices_model extends CI_Model {
      * @param String $to_date_tmp
      * @return boolean
      */
-    function get_vendor_cash_invoice($vendor_id, $from_date, $to_date_tmp) {
+    function get_vendor_cash_invoice($vendor_id, $from_date, $to_date_tmp, $is_regenerate) {
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         for ($i = 0; $i < 2; $i++) {
             if ($i == 0) {
@@ -1089,6 +1100,10 @@ class invoices_model extends CI_Model {
             } else {
                 $select = "0.00 As installation_charge,";
                 $where = " AND  around_to_vendor > 0  AND vendor_to_around = 0 AND (ud.customer_paid_extra_charges > 0 OR ud.customer_paid_parts > 0) ";
+            }
+            $is_foc_null ="";
+            if($is_regenerate == 0){
+                $is_foc_null = " AND vendor_cash_invoice_id IS NULL "; 
             }
             $sql = "SELECT  
                 $select
@@ -1134,7 +1149,7 @@ class invoices_model extends CI_Model {
                 AND ud.ud_closed_date <  '$to_date'
                 AND ud.service_id = services.id
                 AND sc.id = bd.assigned_vendor_id
-                AND vendor_cash_invoice_id IS NULL
+                $is_foc_null
                 $where
                 GROUP BY  (`around_comm_basic_charges` + `around_st_or_vat_basic_charges`),ud.service_id,price_tags ";
 
