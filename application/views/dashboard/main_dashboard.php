@@ -57,7 +57,7 @@
                     <button id="scatter" class="btn btn-sm" style="background-color:#69f0ae; color: #000;">Scatter</button>
                     <button id="pie" class="btn btn-sm" style="background-color:#ffb74d; color: #000;">Pie</button>
                 </div>
-                <div class="col-md-12"><center><img id="loader_gif1" src="" style="display: none;"></center></div>
+                <div class="col-md-12"><center><img id="loader_gif1" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div id="chart_container" class="chart_container"></div>
                 </div>
@@ -94,7 +94,7 @@
                     <button id="scatter" class="btn btn-sm" style="background-color:#69f0ae; color: #000;">Scatter</button>
                     <button id="pie" class="btn btn-sm" style="background-color:#ffb74d; color: #000;">Pie</button>
                 </div>-->
-                <div class="col-md-12"><center><img id="loader_gif7" src="" style="display: none;"></center></div>
+                <div class="col-md-12"><center><img id="loader_gif7" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div id="inflow_chart_container" class="chart_container" style="height:600px;"></div>
                 </div>
@@ -123,7 +123,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-12"><center><img id="loader_gif2" src="" style="display: none;"></center></div>
+                <div class="col-md-12"><center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
                 <div id="chart_container2" class="chart_containe2"></div>
 
                 <div class="clearfix"></div>
@@ -160,7 +160,7 @@
 
                 <div>
                 </div>
-                <div class="col-md-12"><center><img id="loader_gif3" src="" style="display: none;"></center></div>
+                <div class="col-md-12"><center><img id="loader_gif3" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
                 <div id="piechart" class="piechart"></div>
 
                 <div class="clearfix"></div>
@@ -184,7 +184,7 @@
                         </div>
                         <div class="clearfix"></div>
                     </div>
-                    <div class="col-md-12"><center><img id="loader_gif5" src="" style="display: none;"></center></div>
+                    <div class="col-md-12"><center><img id="loader_gif5" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
                     <div class="x_content">
                         <div id="services_type_booking_chart" style="width:100%; height:400px;"></div>
                     </div>
@@ -204,7 +204,7 @@
                         </div>
                         <div class="clearfix"></div>
                     </div>
-                    <div class="col-md-12"><center><img id="loader_gif6" src="" style="display: none;"></center></div>
+                    <div class="col-md-12"><center><img id="loader_gif6" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
                     <div class="x_content">
                         <div id="state_type_booking_chart" style="width:100%; height:400px;"></div>
                     </div>
@@ -217,7 +217,12 @@
 <!-- /page content -->
 <!-- create chart using MySQL data -->
 <script>
+    
     var partner_name = [];
+    var completed_booking = [];
+    var partner_id = [];
+    var change_chart_data = [];
+     var partner_name = [];
     var completed_booking = [];
     var partner_id = [];
     var change_chart_data = [];
@@ -289,114 +294,9 @@
     });
 
 
-    var chart1 = new Highcharts.Chart({
-        chart: {
-            renderTo: 'chart_container2',
-            type: 'column',
-            events: {
-                load: Highcharts.drawTable
-            },
-        },
-        title: {
-            text: '',
-            x: -20 //center
-        },
-        xAxis: {
-            categories: <?php echo $agent_name; ?>
-        },
-        yAxis: {
-            title: {
-                text: 'Count'
-            },
-            plotLines: [{
-                    value: 0,
-                    width: 1,
-                    color: '#808080'
-                }]
-        },
-        plotOptions: {
-            column: {
-                dataLabels: {
-                    enabled: true,
-                    crop: false,
-                    overflow: 'none'
-                }
-            }
-        },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0
-        },
-        series: [
-            {
-                name: 'Cancelled Queries',
-                data: [<?php echo $query_cancel; ?>]}, {
-                name: 'Booked Queries',
-                data: [<?php echo $query_booking; ?>]
-            },
-            {
-                name: 'Outgoing Calls',
-                data: [<?php echo $calls_placed; ?>]
-            }, {
-                name: 'Incoming Calls',
-                data: [<?php echo $calls_received; ?>]
-            }]
-    });
-    
-    var chart2 = new Highcharts.Chart({
-        chart: {
-            renderTo: 'inflow_chart_container',
-            type: 'bar',
-            events: {
-                load: Highcharts.drawTable
-            },
-        },
-        title: {
-            text: '',
-            x: -20 //center
-        },
-        xAxis: {
-            categories: <?php echo $inflow_partner_name; ?>
-        },
-        yAxis: {
-            title: {
-                text: 'Count'
-            },
-            plotLines: [{
-                    value: 0,
-                    width: 1,
-                    color: '#808080'
-                }]
-        },
-        plotOptions: {
-            bar: {
-            dataLabels: {
-                enabled: true
-            }
-        }
-        },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0
-        },
-        series: [
-            {
-                name: 'Booking Entered',
-                data: [<?php echo $inflow_booking_entered; ?>]
-            }, {
-                name: 'Booking Scheduled',
-                data: [<?php echo $inflow_booking_pending; ?>]
-            }]
-    });
-
-
     var start = moment().startOf('month');
     var end = moment().endOf('month');
-
+    
     $(function () {
         function cb(start, end) {
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -487,6 +387,7 @@
 
     });
 
+    
     $(function () {
         function cb(start, end) {
             $('#reportrange2 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -534,11 +435,17 @@
 
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
-        var booking_status = $('#booking_status').val();
-        var url = baseUrl + '/BookingSummary/get_partners_booking_report_chart';
+        partner_booking_status(startDate,endDate);
+       
+    });
+   // partner_booking_status (start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+    function partner_booking_status (startDate,endDate){
+         var booking_status = $('#booking_status').val();
+        var url =  '<?php echo base_url(); ?>BookingSummary/get_partners_booking_report_chart';
         $('#loader_gif1').css('display', 'inherit');
         $('#loader_gif1').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
         $('#chart_container').hide();
+        
         $.ajax({
             type: 'POST',
             url: url,
@@ -623,11 +530,17 @@
                 });
             }
         });
-    });
+    }
     $('#reportrange6').on('apply.daterangepicker', function (ev, picker) {
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
-        var url = baseUrl + '/employee/dashboard/partners_booking_inflow/1';
+        partner_flow_chart(startDate, endDate);
+        //console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
+    });
+    partner_flow_chart(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+    function partner_flow_chart(startDate,endDate ){
+       
+        var url = '<?php echo base_url(); ?>employee/dashboard/partners_booking_inflow/1';
         $('#loader_gif7').css('display', 'inherit');
         $('#loader_gif7').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
         $('#inflow_chart_container').hide();
@@ -698,13 +611,21 @@
             }
         });
 
-        //console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
-    });
+        
+    }
     
     $('#reportrange2').on('apply.daterangepicker', function (ev, picker) {
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
-        var url = baseUrl + '/BookingSummary/agent_working_details_ajax';
+        agent_daily_report(startDate,endDate);
+        
+        //console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
+    });
+    
+    agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+    
+    function agent_daily_report(startDate,endDate){
+        var url =  '<?php echo base_url();?>BookingSummary/agent_working_details_ajax';
         $('#loader_gif2').css('display', 'inherit');
         $('#loader_gif2').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
         $('#chart_container2').hide();
@@ -781,8 +702,8 @@
             }
         });
 
-        //console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
-    });
+    }
+    
     $(function () {
         function cb(start, end) {
             $('#reportrange3 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -921,74 +842,17 @@
 
     });
 
-    $(document).ready(function () {
-
-        // Build the chart
-        Highcharts.chart('piechart', {
-            chart: {
-                type: 'pie',
-                events: {
-                    drilldown: function (e) {
-                        if (!e.seriesOptions) {
-                            var get_date = $('#reportrange3 span').text().split('-');
-                            var startdate = get_date[0];
-                            var enddate = get_date[1];
-                            var type = e.point.name;
-                            var booking_status = $('#booking_status2').val();
-                            var chart = this;
-                            foc_paid_ajax_data(e, startdate, enddate, type, chart, booking_status);
-
-                        }
-                    }
-                }
-            },
-            title: {
-                text: ''
-            },
-            lang: {
-                drillUpText: '<< back {series.name}'
-            },
-            plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    borderWidth: 0,
-                    dataLabels: {
-                        enabled: true,
-                        format: '<b>{point.name}</b>: {point.y:.f} ',
-                        style: {
-                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                        }
-                    },
-                    showInLegend: true
-                }
-            },
-            series: [{
-                    name: 'Bookings',
-                    colorByPoint: true,
-                    data: [{
-                            name: 'FOC',
-                            y: <?php if(!empty($foc_and_paid[0]['FOC'])){echo $foc_and_paid[0]['FOC'];}else{echo '0';} ?>,
-                            drilldown: true
-                        }, {
-                            name: 'PAID',
-                            y: <?php if(!empty($foc_and_paid[0]['Paid'])){echo $foc_and_paid[0]['Paid'];}else{echo '0';} ?>,
-                            sliced: true,
-                            selected: true,
-                            drilldown: true
-                        }]
-                }],
-            drilldown: {
-                series: []
-            }
-        });
-    });
     $('#reportrange3').on('apply.daterangepicker', function (ev, picker) {
 
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
-        var booking_status = $('#booking_status2').val();
-        var url = baseUrl + '/employee/dashboard/get_paid_foc_count_ajax';
+        foc_paid_pie_chart(startDate,endDate );
+       
+    });
+    foc_paid_pie_chart(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY') );
+    function foc_paid_pie_chart(startDate,endDate ){
+         var booking_status = $('#booking_status2').val();
+        var url =  '<?php echo base_url(); ?>employee/dashboard/get_paid_foc_count_ajax';
         $('#loader_gif3').css('display', 'inherit');
         $('#loader_gif3').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
         $('#piechart').hide();
@@ -1062,7 +926,7 @@
                 });
             }
         });
-    });
+    }
 
     function foc_paid_ajax_data(e, startdate, enddate, type, chart, booking_status) {
         var url = baseUrl + '/employee/dashboard/get_total_foc_or_paid_booking';
