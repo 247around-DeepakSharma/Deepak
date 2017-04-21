@@ -188,7 +188,7 @@ class Invoice_dashboard_model extends CI_Model {
             AND (
             customer_net_payable + around_net_payable + partner_net_payable
             ) =0
-            AND price_tags !=  Repeat Booking'";
+            AND price_tags !=  'Repeat Booking'";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
