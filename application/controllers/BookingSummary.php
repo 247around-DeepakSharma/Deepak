@@ -24,6 +24,7 @@ class BookingSummary extends CI_Controller {
         $this->load->model('reporting_utils');
         $this->load->model('booking_model');
         $this->load->model('partner_model');
+        $this->load->model('penalty_model');
 
         $this->load->library('PHPReport');
         $this->load->library('notify');
@@ -1127,18 +1128,29 @@ EOD;
         log_message('info', __FUNCTION__);
         if (date('l') != "Sunday") {
             $vendor_details = $this->vendor_model->getactive_vendor();
-            foreach ($vendor_details as $value) {
+            foreach ($vendor_details as  $value) {
                 if ($value['is_update'] == '1') {
                     $where = " AND id = '" . $value['id'] . "'";
                     $data['data'] = $this->reporting_utils->send_sc_crimes_report_mail_data($where);
                     if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
-
+                        $file_data = $this->penalty_model->get_penalty_on_booking_any(array('service_center_id' => $data['data'][0]['service_center_id'],
+                            'criteria_id' => '2', 'create_date >=' => date('Y-m-d') ), 'booking_id');
+       
+                        $file_path = TMP_FOLDER.$data['data'][0]['service_center_name']."-". date('Y-m-d');
+                        $file = fopen( $file_path . ".txt", "a+") or die("Unable to open file!");
+                         foreach ($file_data as $booking_id){
+                             fwrite($file,  print_r($booking_id['booking_id'], TRUE)."\n");
+                         }
+                         fclose($file);
+                        
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
-                        //$cc = NITS_ANUJ_EMAIL_ID;
+                        $bcc = "abhaya@247around.com";
                         $cc = "";
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
-                        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $view, "");
+                        
+                        $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $view, $file_path);
+                        exec("rm -rf " . escapeshellarg($file_path));
                     } else {
                         log_message('info', __FUNCTION__ . " Empty Data Get");
                     }
@@ -1152,7 +1164,7 @@ EOD;
 
         log_message('info', __FUNCTION__ . " Exit");
     }
-
+    
     /**
      * @desc: If is_mal flag is 0 then it displays a table. In the table, we will show Today and Past Un-assignd booking
      * If is_mail flag is 1 then send an email with attach a table, In the table, we will show Today and Past Un-assignd booking

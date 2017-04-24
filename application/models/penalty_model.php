@@ -401,8 +401,10 @@ class Penalty_model extends CI_Model {
      * @param Array $where
      * @return Array $data
      */
-    function get_penalty_on_booking_any($where) {
-        $this->db->select('*');
+
+    function get_penalty_on_booking_any($where, $select = "*"){
+        $this->db->select($select);
+
         $this->db->where($where);
         $this->db->from('penalty_on_booking');
         $query = $this->db->get();
