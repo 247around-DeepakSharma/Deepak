@@ -1255,19 +1255,6 @@ class Reporting_utils extends CI_Model {
                     $data1['old_crimes'] = 0;
                 }
 
-                // insert or update crimes when this function is triggered by cron
-                if ($is_insert && $groups == "regionalmanager") {
-
-                    $sc_crimes['service_center_id'] = $value['id'];
-                    $sc_crimes['engineer_not_assigned'] = $un_assigned;
-                    $sc_crimes['booking_not_updated'] = $not_update;
-                    $sc_crimes['total_pending_booking'] = $total_bookings;
-                    $sc_crimes['total_missed_target'] = ($un_assigned + $not_update );
-                    $sc_crimes['update_date'] = date('Y-m-d H:i:s');
-
-                    $this->store_old_sc_crimes($sc_crimes);
-                }
-
                 $data1['service_center_id'] = $value['id'];
                 $data1['service_center_name'] = $value['name'];
                 $data1['active'] = $value['active'];
@@ -1284,6 +1271,56 @@ class Reporting_utils extends CI_Model {
             }
         }
         return $data;
+    }
+    /**
+     * @desc this is used to get data to generate sc crime report
+     * @param String $where_sf
+     * @return array
+     */
+    function send_sc_crimes_report_mail_data($where_sf){
+        // Get All Service center who has is_update filed is 1.
+        $sql = "SELECT id, name,active, on_off FROM service_centres WHERE "
+                . " active = '1' AND is_update = '1' $where_sf ORDER BY name ";
+        $query = $this->db->query($sql);
+        $sc = $query->result_array();
+        $data = array();
+        foreach ($sc as $value) {
+            $where = array('service_center_id' => $value['id'], 'create_date >=' =>  date('Y-m-d', strtotime("-1 days")));
+           
+            $result = $this->get_crimes($where);
+             
+            //Getting Monthly Crimes for each SF
+            $sql_total_crimes = "Select SUM(`total_missed_target`) as monthly_total_crimes "
+                    . "from sc_crimes WHERE MONTH(`create_date`)= MONTH(CURRENT_DATE) AND"
+                    . " service_center_id = " . $value['id'];
+            $query4 = $this->db->query($sql_total_crimes);
+            $result4 = $query4->result_array();
+
+            //Getting Monthly Escalations for each SF
+            $escalations_monthly = "SELECT COUNT(id) as monthly_escalations "
+                    . "from vendor_escalation_log "
+                    . "WHERE MONTH(`create_date`) = MONTH(CURRENT_DATE) AND"
+                    . " vendor_id = " . $value['id'];
+            $query5 = $this->db->query($escalations_monthly);
+            $result5 = $query5->result_array();
+            
+            if(!empty($result)){
+                $data1['service_center_id'] = $value['id'];
+                $data1['service_center_name'] = $value['name'];
+                $data1['active'] = $value['active'];
+                $data1['on_off'] = $value['on_off'];
+                $data1['un_assigned'] = 0;
+                $data1['not_update'] = $result[0]['booking_not_updated'];
+                $data1['update'] = $result[0]['total_pending_booking'] - $result[0]['booking_not_updated'];
+                $data1['monthly_total_crimes'] = $result4[0]['monthly_total_crimes'];
+                $data1['total_booking'] = $result[0]['total_pending_booking'];
+                $data1['monthly_escalations'] = $result5[0]['monthly_escalations'];
+
+                array_push($data, $data1);
+                unset($data1);
+            } 
+        }
+         return $data;
     }
 
     /**
@@ -1304,6 +1341,7 @@ class Reporting_utils extends CI_Model {
         $this->db->where($where);
         $this->db->order_by('id', 'desc');
         $query = $this->db->get('sc_crimes');
+       
         return $query->result_array();
     }
 
