@@ -3121,7 +3121,13 @@ class Invoice extends CI_Controller {
                 $sc_details['debit_acc_no'] = '102405500277';
                 $sc_details['bank_account'] = $sc['bank_account'];
                 $sc_details['beneficiary_name'] = $sc['beneficiary_name'];
-                $sc_details['final_amount'] = round($amount, 0);
+               
+                $sc_details['final_amount'] = abs(round($amount, 0));
+                 if($amount > 0){
+                    $sc_details['amount_type'] = "CR";
+                } else {
+                    $sc_details['amount_type'] = "DR";
+                }
 
                 if (stristr($sc['ifsc_code'], 'ICIC') !== FALSE) {
                     $sc_details['payment_mode'] = "I";

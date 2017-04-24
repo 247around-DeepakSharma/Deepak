@@ -100,7 +100,7 @@
                                 }
                                 }
                                 ?>">
-                                <td><?php echo $count; ?></td>
+                                <td><?php echo $count; if($value['is_stand']> 0) { ?>   <i class="fa fa-star" aria-hidden="true"></i> <?php } ?></td>
                                 <td> <a style="<?php if (isset($value['on_off'])) {
                                     if ($value['active'] == 0) {
                                         echo 'background-color:#FF8041;color:#fff;';
@@ -129,7 +129,7 @@
                                             echo 'checkbox_amt';
                                         }
                                     }
-                                    ?>" name="<?php echo "amount_service_center[" . $value['id'] . "]"; ?>" value ="<?php echo abs($value['final_amount']); ?>" class="form-control" <?php if ($value['is_verified'] == 0) {
+                                    ?>" name="<?php echo "amount_service_center[" . $value['id'] . "]"; ?>" value ="<?php echo $value['final_amount']; ?>" class="form-control" <?php if ($value['is_verified'] == 0) {
                                     echo "disabled";
                                     } ?>> </td>
                                 
