@@ -2104,3 +2104,18 @@ ALTER TABLE `booking_unit_details` ADD `pod` INT(2) NOT NULL DEFAULT '1' AFTER `
 
 -- Abhay 19-04-2017
 ALTER TABLE `penalty_details` ADD `cap_amount` INT NOT NULL DEFAULT '0' AFTER `unit_%_rate`;
+
+
+-- sachin 24-04-2017
+
+CREATE TABLE `bank_details` (
+  `id` int(11) NOT NULL,
+  `bank_name` varchar(256) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEF
+
+ALTER TABLE `bank_details`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `bank_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
