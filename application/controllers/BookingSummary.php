@@ -1099,7 +1099,7 @@ EOD;
                         $where = "AND service_centres.id IN (" . $sf_list . ")";
                     }
 
-                    $data['data'] = $this->reporting_utils->get_sc_crimes($where, 1, $value['groups']);
+                    $data['data'] = $this->reporting_utils->send_sc_crimes_report_mail_data($where);
                     if (!empty($data['data'])) {
                         //Loading view
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
@@ -1130,7 +1130,7 @@ EOD;
             foreach ($vendor_details as $value) {
                 if ($value['is_update'] == '1') {
                     $where = " AND id = '" . $value['id'] . "'";
-                    $data['data'] = $this->reporting_utils->get_sc_crimes($where);
+                    $data['data'] = $this->reporting_utils->send_sc_crimes_report_mail_data($where);
                     if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
 
