@@ -1732,4 +1732,11 @@ class vendor_model extends CI_Model {
        return $query->result_array();
     }
     
+    function get_bank_details(){
+        $this->db->select('*');
+        $this->db->from('bank_details');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
 }

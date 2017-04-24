@@ -918,12 +918,13 @@
                                         ?>">
                                         <label  for="bank_name" class="col-md-4">Bank Name</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control blockspacialchar"  name="bank_name" value = "<?php
-                                                if (isset($query[0]['bank_name'])) {
-                                                    echo $query[0]['bank_name'];
-                                                }
-                                                ?>">
-                                            <?php echo form_error('bank_name'); ?>
+                                            <select class="form-control" id="bank_name" name="bank_name">
+                                                <option selected disabled>Select Bank</option>
+                                                <?php foreach($results['bank_name'] as $key => $value) { ?> 
+                                                <option value="<?php echo $value['bank_name']; ?>" 
+                                                        <?php if(isset($query[0]['bank_name']) && $query[0]['bank_name'] === $value['bank_name']){ echo 'selected';}?>> <?php echo $value['bank_name'] ;?></option>
+                                                <?php } ?>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -935,12 +936,17 @@
                                         ?>">
                                         <label for="account_type" class="col-md-4">Account Type</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control blockspacialchar"  name="account_type" value = "<?php
-                                                if (isset($query[0]['account_type'])) {
-                                                    echo $query[0]['account_type'];
-                                                }
+                                           <!-- <input type="text" class="form-control blockspacialchar"  name="account_type" value = "<?php
+                                                //if (isset($query[0]['account_type'])) {
+                                                  //  echo $query[0]['account_type'];
+                                                //}
                                                 ?>">
-                                            <?php echo form_error('account_type'); ?>
+                                            <?php //echo form_error('account_type'); ?> -->
+                                            <select class="form-control" id="account_type" name="account_type">
+                                                <option selected disabled>Account Type</option>
+                                                <option value="Saving" <?php if(isset($query[0]['account_type']) && $query[0]['account_type'] === 'Saving'){echo 'selected';}?>>Saving</option>
+                                                <option value="Current" <?php if(isset($query[0]['account_type']) && $query[0]['account_type'] === 'Current'){echo 'selected';}?>>Current</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -971,7 +977,7 @@
                                         ?>">
                                         <label for="ifsc_code" class="col-md-4">IFSC Code</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control blockspacialchar"  name="ifsc_code" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar"  name="ifsc_code" id="ifsc_code" value = "<?php
                                                 if (isset($query[0]['ifsc_code'])) {
                                                     echo $query[0]['ifsc_code'];
                                                 }
@@ -1142,6 +1148,7 @@
     $("#state").select2();
     $("#pincode").select2();
     $("#rm").select2();
+    $("#bank_name").select2();
     
     
     function getDistrict() {
@@ -1420,7 +1427,7 @@
         return false;
     });  
     
-    $(".allownumericwithdecimal").on("keypress keyup blur",function (event) {
+    $(".allownumericwithdecimal").on("keypress blur",function (event) {
         $(this).val($(this).val().replace(/[^0-9\.]/g,''));
         if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
             event.preventDefault();
@@ -1456,4 +1463,15 @@
 
         });
     });
+    
+//    $('#ifsc_code').blur(function(){
+//        var regexp = /^(\s*|[a-zA-Z]{4}0[a-zA0-9]{6})$/i;
+//        var ifsc_code = $(this).val();
+//        if (!regexp.test(ifsc_code)) {
+//                alert("Please enter a valid 11 character IFSC Code");
+//                $(this).css({'border-color' : 'red'})
+//            }else{
+//                $(this).css({'border-color' : '#ccc'})
+//            }
+//    });
 </script>

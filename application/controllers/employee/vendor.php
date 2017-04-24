@@ -724,6 +724,7 @@ class vendor extends CI_Controller {
         $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->getall_state();
         $results['employee_rm'] = $this->employee_model->get_rm_details();
+        $results['bank_name'] = $this->vendor_model->get_bank_details();
    
         $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -747,6 +748,7 @@ class vendor extends CI_Controller {
         $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->getall_state();
         $results['employee_rm'] = $this->employee_model->get_rm_details();
+        $results['bank_name'] = $this->vendor_model->get_bank_details();
 
         $appliances = $query[0]['appliances'];
         $selected_appliance_list = explode(",", $appliances);
