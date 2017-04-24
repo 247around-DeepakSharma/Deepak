@@ -179,11 +179,16 @@ class invoices_model extends CI_Model {
 
         foreach ($data as $value) {
 
-            $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid FROM  `vendor_partner_invoices` "
-                    . "WHERE vendor_partner_id = $value[id] AND vendor_partner = '$vendor_partner' $due_date_status";
+            $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid, "
+                    . " CASE WHEN (SELECT count(id) FROM vendor_partner_invoices "
+                    . " WHERE type_code ='A' AND type = 'Stand' AND `settle_amount` = 0 AND vendor_partner_id = $value[id] "
+                    . " AND vendor_partner = '$vendor_partner' $due_date_status ) "
+                    . " THEN(1) ELSE 0 END as is_stand FROM  `vendor_partner_invoices` "
+                    . " WHERE vendor_partner_id = $value[id] AND vendor_partner = '$vendor_partner' $due_date_status";
 
             $data = $this->db->query($sql);
             $result = $data->result_array();
+           
             $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $value['id']);
 
             $result[0]['vendor_partner'] = $vendor_partner;
