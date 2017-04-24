@@ -320,14 +320,12 @@ class Service_centers_model extends CI_Model {
                 . " WHERE current_status ='InProcess' AND internal_status IN (".$this->stored_internal_status().") ";
         $query = $this->db->query($sql);
         log_message('info', __FUNCTION__  .$this->db->last_query());
-        $booking_date = date('d-m-Y');
+        
         $result =  $query->result_array();
         foreach ($result as $value) {
             $this->db->where('id', $value['id']);
             $this->db->update("service_center_booking_action", array('current_status'=>'Pending'));
-            
-            $this->db->where('booking_id', $value['booking_id']);
-            $this->db->update("booking_details", array('booking_date'=> $booking_date));
+           
         }
     }
     
