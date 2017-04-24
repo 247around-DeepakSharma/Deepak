@@ -982,7 +982,7 @@
         var cancelled = JSON.parse("[" + data.cancelled + "]");
         var completed = JSON.parse("[" + data.completed + "]");
         var pending = JSON.parse("[" + data.pending + "]");
-        var rescheduled = JSON.parse("[" + data.rescheduled + "]");
+        var total = JSON.parse("[" + data.total + "]");
         chart = new Highcharts.Chart({
             chart: {
                 renderTo: 'state_type_booking_chart',
@@ -1035,8 +1035,8 @@
                     name: 'Pending Bookings',
                     data: pending
                 }, {
-                    name: 'Rescheduled Bookings',
-                    data: rescheduled
+                    name: 'Total Bookings',
+                    data: total
                 }]
         });
 

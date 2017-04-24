@@ -186,16 +186,16 @@ class dashboard_model extends CI_Model {
      * @return array
      */
     function get_booking_data_by_rm_region($startDate = "", $endDate = "",$service_centers_id,$partner_id=""){
-        $where = "Where booking_details.assigned_vendor_id IN($service_centers_id)";
+        $where = "Where bd1.assigned_vendor_id IN($service_centers_id)";
         if($partner_id != ""){
-            $where .= "AND booking_details.partner_id = '$partner_id'";
+            $where .= "AND bd1.partner_id = '$partner_id'";
         }
-        $sql = "SELECT 
-                        SUM(IF(current_status ='Completed' && closed_date >= '$startDate' && closed_date <= '$endDate' , 1, 0)) AS Completed,
-                        SUM(IF(current_status ='Cancelled' && closed_date >= '$startDate' && closed_date <= '$endDate' , 1, 0)) AS Cancelled,
-                        SUM(IF(current_status ='Pending' && create_date >= '$startDate' && create_date <= '$endDate', 1, 0)) AS Pending,
-                        SUM(IF(current_status ='Rescheduled' && create_date >= '$startDate' && create_date <= '$endDate' , 1, 0)) AS Rescheduled
-                        FROM booking_details $where";
+        $sql = "SELECT SUM(Completed)+SUM(Cancelled) + SUM(Pending) as Total , Completed as Completed,Cancelled as Cancelled , Pending as Pending FROM 
+                        (SELECT 
+                            SUM(IF(current_status ='Completed' && closed_date >= '$startDate' && closed_date <= '$endDate' , 1, 0)) AS Completed,
+                            SUM(IF(current_status ='Cancelled' && closed_date >= '$startDate' && closed_date <= '$endDate' , 1, 0)) AS Cancelled,
+                            SUM(IF(current_status IN ('Pending','Rescheduled') && create_date >= '$startDate' && create_date <= '$endDate', 1, 0)) AS Pending
+                            FROM booking_details as bd1 $where) as bd2";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
