@@ -72,7 +72,7 @@ class Service_centers extends CI_Controller {
                 //Saving Login Details in Database
                 $login_data['browser'] = $this->agent->browser();
                 $login_data['agent_string'] = $this->agent->agent_string();
-                $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+                $login_data['ip'] = $this->input->ip_address();
                 $login_data['action'] = _247AROUND_LOGIN;
                 $login_data['entity_type'] = $this->session->all_userdata()['userType'];
                 $login_data['agent_id'] = $this->session->all_userdata()['service_center_agent_id'];
