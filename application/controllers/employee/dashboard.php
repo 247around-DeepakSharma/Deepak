@@ -280,7 +280,7 @@ class Dashboard extends CI_Controller {
         $cancelled = [];
         $completed = [];
         $pending = [];
-        $rescheduled = [];
+        $total = [];
         if ($partnerid != "") {
             $partner_id = $partnerid;
         } else {
@@ -294,13 +294,13 @@ class Dashboard extends CI_Controller {
             array_push($cancelled, $region_data[0]['Cancelled']);
             array_push($completed, $region_data[0]['Completed']);
             array_push($pending, $region_data[0]['Pending']);
-            array_push($rescheduled, $region_data[0]['Rescheduled']);
+            array_push($total, $region_data[0]['Total']);
         }
         $json_data['rm'] = implode(",", $rm);
         $json_data['cancelled'] = implode(",", $cancelled);
         $json_data['completed'] = implode(",", $completed);
         $json_data['pending'] = implode(",", $pending);
-        $json_data['rescheduled'] = implode(",", $rescheduled);
+        $json_data['total'] = implode(",", $total);
         echo json_encode($json_data);
     }
     
