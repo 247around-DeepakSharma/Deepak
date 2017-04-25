@@ -242,4 +242,23 @@ class dashboard_model extends CI_Model {
         }
         return $final_data;
     }
+    
+    /**
+     * @desc: This function is used to get partner completed booking data 
+     * based on month
+     * @param string
+     * @return array
+     */
+    function get_partner_monthly_bookings($partner_id){
+        $status = 'Completed';
+        $sql = "SELECT DATE_FORMAT(closed_date, '%b') AS month,DATE_FORMAT(closed_date, '%Y') AS year, COUNT(*) as completed_booking
+                FROM booking_details
+                WHERE current_status = '$status' AND partner_id = '$partner_id'
+                AND closed_date >= (NOW() - INTERVAL 11 MONTH)
+                GROUP BY DATE_FORMAT(closed_date, '%m-%Y') 
+                ORDER BY YEAR(closed_date),MONTH(closed_date)";
+        $query = $this->db->query($sql);
+        $completed_booking = $query->result_array();
+        return $completed_booking;
+    }
 }

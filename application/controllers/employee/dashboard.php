@@ -341,5 +341,28 @@ class Dashboard extends CI_Controller {
             return $json_data;
         }
     }
+    
+    /**
+     * @desc: This function is used to get partner completed booking data 
+     * based on month
+     * @param string
+     * @return array
+     */
+    function get_partner_monthly_bookings_data(){
+        $partner_id = $this->input->post('partner_id');
+        $data = $this->dashboard_model->get_partner_monthly_bookings($partner_id);
+        $month = [];
+        $year = [];
+        $completed_booking = [];
+        foreach ($data as $key => $value){
+            $temp_str = $value['month']."(".$value['year'].")";
+            array_push($month, $temp_str);
+            array_push($year, $value['year']);
+            array_push($completed_booking, $value['completed_booking']);
+        }
+        $json_data['month'] = implode(",", $month);
+        $json_data['completed_booking'] = implode(",", $completed_booking);
+        echo json_encode($json_data);
+    }
 
 }
