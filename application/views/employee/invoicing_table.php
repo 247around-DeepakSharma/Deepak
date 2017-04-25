@@ -80,6 +80,7 @@
 
          </td>
          <td>
+             <?php if($invoice['vendor_partner'] == "vendor") { ?>
              <div class="dropdown">
                 <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?>>ReGenerate
                 <span class="caret"></span></button>
@@ -89,6 +90,7 @@
                   <li><a href="<?php echo base_url();?>employee/invoice/regenerate_invoice/<?php echo $invoice['invoice_id'];?>/draft">Draft</a></li>
                 </ul>
               </div>
+             <?php } ?>
          </td>
          <td>
              <a href="<?php echo base_url()?>employee/invoice/insert_update_invoice/<?php echo $invoice['vendor_partner'];?>/<?php echo $invoice['invoice_id'];?>" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?> class="btn btn-sm btn-info" >Update</a>

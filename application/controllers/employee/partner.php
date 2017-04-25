@@ -2749,6 +2749,7 @@ class Partner extends CI_Controller {
 
                 //Prepare job card
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
                 log_message('info', "Async Process to create Job card: " . $booking_id);
 
                 $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, UPCOUNTRY_CHARGES_APPROVED, "Service Center Id: " . $data[0]['service_center_id'], $agent_id, $agent_name, $partner_id);
