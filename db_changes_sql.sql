@@ -2119,3 +2119,13 @@ ALTER TABLE `bank_details`
 
 ALTER TABLE `bank_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--Abhay 25 Aprl
+UPDATE `workbook2` SET `service_id` = 46 WHERE `service_name` = "Television";
+UPDATE `workbook2` SET `service_id` = 37 WHERE `service_name` = "Refrigerator";
+UPDATE `workbook2` SET `service_id` = 28 WHERE `service_name` = "Washing Machine";
+UPDATE `workbook2` SET `service_id` = 50 WHERE `service_name` = "Air Conditioner";
+UPDATE `workbook2` SET `service_id` = 42 WHERE `service_name` = "Microwave";
+
+ALTER TABLE `booking_unit_details` ADD `sub_order_id` VARCHAR(256) NULL DEFAULT NULL AFTER `partner_id`;
