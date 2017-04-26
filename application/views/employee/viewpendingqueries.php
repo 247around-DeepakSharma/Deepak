@@ -260,4 +260,3 @@ function outbound_call(phone_number){
     /* special filter field styling for this example */
     .input-filter-container { position: absolute; top: 7em; right: 1em; border: 2px solid #66f; background-color: #eef; padding: 0.5em; }
 </style>
-
