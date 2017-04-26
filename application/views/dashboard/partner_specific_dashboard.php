@@ -69,6 +69,25 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_panel">
                         <div class="x_title">
+                            <h2>Monthly Booking Status<small></small></h2>
+<!--                            <div class="nav navbar-right panel_toolbox">
+                                <div id="reportrange3" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                    <span></span> <b class="caret"></b>
+                                </div>
+                            </div>-->
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="col-md-12"><center><img id="loader_gif6" src="" style="display: none;"></center></div>
+                        <div class="x_content2">
+                            <div id="monthly_booking_chart" style="width:90%; height:400px;" ></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
                             <h2>Booking based on Service Type<small></small></h2>
                             <div class="nav navbar-right panel_toolbox">
                                 <div id="reportrange3" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
@@ -856,6 +875,14 @@
                     create_chart_based_on_bookings_state(data);
                 }
             });
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/dashboard/get_partner_monthly_bookings_data',
+                data: {partner_id:partner_id},
+                success: function (data) {
+                    create_montly_booking_chart(data);
+                }
+            });
 
 
         }
@@ -1040,5 +1067,48 @@
                 }]
         });
 
+    }
+    
+    function create_montly_booking_chart(response){
+        var data = JSON.parse(response);
+        var month = data.month.split(',');
+        var completed_booking = JSON.parse("[" + data.completed_booking + "]");
+        chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'monthly_booking_chart',
+                type: 'column'
+            },
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            xAxis: {
+                categories: month
+            },
+            yAxis: {
+                title: {
+                    text: 'Count'
+                },
+                plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Completed Bookings',
+                    data: completed_booking
+                }]
+        });
     }
 </script>

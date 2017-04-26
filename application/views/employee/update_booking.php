@@ -112,7 +112,7 @@
                                 <div class="form-group ">
                                     <label for="source_name" class="col-md-4">Booking Source *</label>
                                     <div class="col-md-6">
-                                        <select type="text" onchange= "getAppliance('<?php echo $booking_history[0]['service_id'];?>')" class="booking_source form-control"  id="source_code" name="source_code" required>
+                                        <select onchange= "getAppliance('<?php echo $booking_history[0]['service_id'];?>')" class="booking_source form-control"  id="source_code" name="source_code" required>
                                             <option selected="selected" disabled="disabled">Select Booking Source</option>
                                             <?php foreach ($sources as $key => $values) { ?>
                                             <option <?php if($values['code'] == $booking_history[0]['source']){ echo "selected"; } ?> value=<?php echo $values['code']; ?>>
@@ -144,13 +144,59 @@
                                 <div class="form-group ">
                                     <label for="type" class="col-md-4">Type *</label>
                                     <div class="col-md-8">
-                                     <!-- <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" name="type" value="Query"  <?php if(isset($booking_history[0]['type'])){ if($booking_history[0]['type'] == "Query" ){ echo "checked"; } } ?>  required>Query
-                                        <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" name="type" value="Booking" <?php if(isset($booking_history[0]['type'])){   if($booking_history[0]['type'] == "Booking" ){ echo "checked"; } } ?> required>Booking-->
+                                     <!-- <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" name="type" value="Query"  <?php //if(isset($booking_history[0]['type'])){ if($booking_history[0]['type'] == "Query" ){ echo "checked"; } } ?>  required>Query
+                                        <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" name="type" value="Booking" <?php //if(isset($booking_history[0]['type'])){   if($booking_history[0]['type'] == "Booking" ){ echo "checked"; } } ?> required>Booking-->
 
                                         <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" name="type" value="Query" required>Query
                                         <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" name="type" value="Booking" required>Booking
                                     </div>
                                 </div>
+                                <div class="form-group ">
+                                    <label  class="col-md-4">Support File</label>
+                                    <div class="col-md-6">
+                                        <div class="col-md-10">
+                                        <input type="file" class="form-control"  id="support_file" name="support_file" value = "<?php echo $booking_history[0]['support_file']; ?>">
+                                    
+                                        </div>
+                                        <div class="col-md-2">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($booking_history[0]['support_file']) && !empty($booking_history[0]['support_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$booking_history[0]['support_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php  echo $src?>" target="_blank"><img src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-5px;" /></a>
+                                      
+                                        </div>
+                                        </div>
+                                </div>
+                                
+<!--                                <div class="form-group">
+                                    <label for="support_file" class="col-md-4">Upload Support file</label>
+                                    <div class="col-md-6">
+                                        <input type="file" class="form-control" id="support_file" name="support_file" value="<?php 
+//                                            if (isset($booking_history[0]['support_file'])) {
+//                                                    echo $booking_history[0]['support_file'];
+//                                                }
+                                        ?>">
+                                        
+                                        <div class="col-md-4 col-sm-4" style="margin-top:23px;">
+                                            <?php
+//                                                $src = base_url() . 'images/no_image.png';
+//                                                $image_src = $src;
+//                                                if (isset($booking_history[0]['support_file']) && !empty($booking_history[0]['support_file'])) {
+//                                                    //Path to be changed
+//                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$booking_history[0]['support_file'];
+//                                                    $image_src = base_url().'images/view_image.png';
+//                                                }
+                                                ?>
+                                            <a href="<?php // echo $src?>" target="_blank"><img src="<?php // echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-5px;" /></a>
+                                        </div>
+                                    </div>
+                                </div>-->
                                 <!-- end col-md-6 -->
                             </div>
                         </div>

@@ -32,7 +32,18 @@
                         </tr>
                         <tr>
                             <th>Platform / Order ID: </th>
-                            <td><?php  echo $booking_history[0]['partner_source']." / "; if(!empty($booking_history[0]['order_id'])) { echo $booking_history[0]['order_id']; }  ?>
+                            <td><?php  echo $booking_history[0]['partner_source']." / "; 
+                                        if(!empty($booking_history[0]['order_id'])) { echo $booking_history[0]['order_id'];
+                                            $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($booking_history[0]['support_file']) && !empty($booking_history[0]['support_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$booking_history[0]['support_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                            <a href="<?php  echo $src?>" target="_blank"> <img src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
+                            <?php } ?>
                             </td>
                         </tr>
                         <tr>
