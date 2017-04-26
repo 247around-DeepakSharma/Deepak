@@ -264,5 +264,50 @@ define ('SF_UNAVAILABLE_SMS_NOT_SENT', 'SMS Not Sent To Customer For Installatio
 //Upcountry Cap For Partner
 define ('UPCOUNTRY_DISTANCE_CAP', '100');
 
+
+define('SUCCESS_CODE', 247);
+define('SUCCESS_MSG', 'Success');
+define('ERR_BOOKING_NOT_INSERTED', -24700);
+define('ERR_GENERIC_ERROR_CODE', -1000);
+define('ERR_INVALID_AUTH_TOKEN_CODE', -1001);
+define('ERR_MOBILE_NUM_MISSING_CODE', -1002);
+define('ERR_ORDER_ID_EXISTS_CODE', -1003);
+define('ERR_MANDATORY_PARAMETER_MISSING_CODE', -1004);
+define('ERR_INVALID_PRODUCT_CODE', -1005);
+define('ERR_INVALID_REQUEST_TYPE_CODE', -1006);
+//define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
+define('ERR_INVALID_BOOKING_ID_CODE', -1008);
+define('ERR_REQUEST_ALREADY_COMPLETED_CODE', -1009);
+define('ERR_REQUEST_ALREADY_CANCELLED_CODE', -1010);
+define('ERR_REQUEST_BEYOND_CUTOFF_TIME_CODE', -1011);
+define('ERR_INVALID_DATE_FORMAT_CODE', -1012);
+define('ERR_INVALID_TIMESLOT_FORMAT_CODE', -1013);
+define('ERR_INVALID_INSTALLATION_TIMESLOT_CODE', -1014);
+define('ERR_INVALID_PARTNER_NAME_CODE', -1015);
+define('ERR_INVALID_JSON_INPUT_CODE', -1016);
+define('ERR_INVALID_PRODUCT_TYPE_CODE', -1017);
+
+define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking Insertion Failed');
+define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
+define('ERR_INVALID_AUTH_TOKEN_MSG', 'Invalid Auth Token');
+define('ERR_MOBILE_NUM_MISSING_MSG', 'Mobile Number Missing');
+define('ERR_ORDER_ID_EXISTS_MSG', 'Order ID Exists');
+define('ERR_MANDATORY_PARAMETER_MISSING_MSG', 'Mandatory Parameter is Missing');
+define('ERR_INVALID_PRODUCT_MSG', 'Invalid Product');
+define('ERR_INVALID_REQUEST_TYPE_MSG', 'Invalid Request Type');
+//define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
+define('ERR_INVALID_BOOKING_ID_MSG', 'Invalid Booking ID');
+define('ERR_REQUEST_ALREADY_COMPLETED_MSG', 'Request is Already Completed');
+define('ERR_REQUEST_ALREADY_CANCELLED_MSG', 'Request is Already Cancelled');
+define('ERR_REQUEST_BEYOND_CUTOFF_TIME_MSG', 'Request Beyond Cutoff Time');
+define('ERR_INVALID_DATE_FORMAT_MSG', 'Invalid Date Format');
+define('ERR_INVALID_TIMESLOT_FORMAT_MSG', 'Invalid Timeslot Format');
+define('ERR_INVALID_INSTALLATION_TIMESLOT_MSG', 'Invalid Installation Timeslot');
+define('ERR_INVALID_PARTNER_NAME_MSG', 'Invalid Partner Name');
+define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
+define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
+
+
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

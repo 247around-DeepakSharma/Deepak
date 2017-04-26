@@ -2124,3 +2124,14 @@ ALTER TABLE `bank_details`
 -- sachin 25-04-2017
 
 ALTER TABLE `booking_details` ADD `support_file` VARCHAR(256) NULL AFTER `upcountry_price`;
+
+
+--Abhay 25 Aprl
+UPDATE `workbook2` SET `service_id` = 46 WHERE `service_name` = "Television";
+UPDATE `workbook2` SET `service_id` = 37 WHERE `service_name` = "Refrigerator";
+UPDATE `workbook2` SET `service_id` = 28 WHERE `service_name` = "Washing Machine";
+UPDATE `workbook2` SET `service_id` = 50 WHERE `service_name` = "Air Conditioner";
+UPDATE `workbook2` SET `service_id` = 42 WHERE `service_name` = "Microwave";
+
+ALTER TABLE `booking_unit_details` ADD `sub_order_id` VARCHAR(256) NULL DEFAULT NULL AFTER `partner_id`;
+

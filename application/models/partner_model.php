@@ -20,10 +20,15 @@ class Partner_model extends CI_Model {
     }
 
     function validate_partner($auth_token) {
-  //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
-
-      $this->db->where(array("auth_token" => $auth_token, "is_active" => '1'));
-      $query = $this->db->get('partners');
+      //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
+      $this->db->select('partners.id, bookings_sources.source, bookings_sources.code, '
+              . 'public_name, price_mapping_id, bookings_sources.partner_type, '
+              . 'is_upcountry, upcountry_mid_distance_threshold, upcountry_rate, '
+              . ' upcountry_rate1, upcountry_min_distance_threshold,upcountry_max_distance_threshold');
+      $this->db->from("partners");
+      $this->db->where(array("partners.auth_token" => $auth_token, "partners.is_active" => '1'));
+      $this->db->join("bookings_sources", "bookings_sources.partner_id = partners.id");
+      $query = $this->db->get();
 
       if (count($query->result_array()) > 0) {
       //Return partner details in case of success
