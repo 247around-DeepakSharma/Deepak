@@ -2119,3 +2119,7 @@ ALTER TABLE `bank_details`
 
 ALTER TABLE `bank_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- sachin 25-04-2017
+
+ALTER TABLE `booking_details` ADD `support_file` VARCHAR(256) NULL AFTER `upcountry_price`;

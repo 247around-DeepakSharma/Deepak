@@ -53,7 +53,7 @@
                         </tr>
                         <tr>
                             <th >Order ID: </th>
-                            <td><?php if(!empty($booking_history)){ echo $booking_history[0]['order_id']; } ?></td>
+                            <td><?php if(!empty($booking_history)){ if(!empty($booking_history[0]['support_file'])){echo '<a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/' . $booking_history[0]['support_file'] . '">' . $booking_history[0]['order_id'] . '</a>';} else {echo $booking_history[0]['order_id'];} } ?></td>
                         </tr>
                         <tr>
                             <th>Booking Type: </th>

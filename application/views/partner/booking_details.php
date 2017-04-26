@@ -32,7 +32,7 @@
                         </tr>
                         <tr>
                             <th>Platform / Order ID: </th>
-                            <td><?php  echo $booking_history[0]['partner_source']." / "; if(!empty($booking_history[0]['order_id'])) { echo $booking_history[0]['order_id']; }  ?>
+                            <td><?php  echo $booking_history[0]['partner_source']." / "; if(!empty($booking_history[0]['order_id'])) { if(!empty($booking_history[0]['support_file'])){ echo '<a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/' . $booking_history[0]['support_file'] . '">' . $booking_history[0]['order_id'] . '</a>';} else {echo $booking_history[0]['order_id'];} }  ?>
                             </td>
                         </tr>
                         <tr>
