@@ -3408,13 +3408,13 @@ class Invoice extends CI_Controller {
             if (($_FILES['challan_file']['error'] != 4) && !empty($_FILES['challan_file']['tmp_name'])) {
 
                 $tmpFile = $_FILES['challan_file']['tmp_name'];
-                $challan_file = implode("", explode(" ", $this->input->post('cin_no'))) . '_challanfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['challan_file']['name'])[1];
-                move_uploaded_file($tmpFile, TMP_FOLDER . $challan_file);
-                $_POST['challan_file_name'] = $challan_file;
+                $$annexure_file = implode("", explode(" ", $this->input->post('cin_no'))) . '_challanfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['challan_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $$annexure_file);
+                $_POST['challan_file_name'] = $$annexure_file;
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
-                $directory_xls = "vendor-partner-docs/" . $challan_file;
-                $this->s3->putObjectFile(TMP_FOLDER . $challan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $directory_xls = "vendor-partner-docs/" . $$annexure_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $$annexure_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 //Logging success for file uppload
                 log_message('info', __CLASS__ . 'Challan FILE is being uploaded sucessfully.');
             } else {
@@ -3432,8 +3432,8 @@ class Invoice extends CI_Controller {
             if (($_FILES['annexure_file']['error'] != 4) && !empty($_FILES['annexure_file']['tmp_name'])) {
 
                 $tmpFile = $_FILES['annexure_file']['tmp_name'];
-                $annexure_file = implode("", explode(" ", $this->input->post('cin_no'))) . '_annexure_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['challan_file']['name'])[1];
-                move_uploaded_file($tmpFile, TMP_FOLDER . $challan_file);
+                $annexure_file = implode("", explode(" ", $this->input->post('cin_no'))) . '_annexure_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['annexure_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $annexure_file);
                 $_POST['annexure_file_name'] = $annexure_file;
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;

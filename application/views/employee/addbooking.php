@@ -153,6 +153,13 @@
                                         <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" name="type" value="Booking" required>Booking
                                     </div>
                                 </div>
+                                
+                                <div class="form-group">
+                                    <label for="support_file" class="col-md-4">Upload Support file</label>
+                                    <div class="col-md-8">
+                                        <input type="file" class="form-control" id="support_file" name="support_file">
+                                    </div>
+                                </div>
                                 <!-- end col-md-6 -->
                             </div>
                         </div>
