@@ -635,7 +635,7 @@
                                             if (isset($query[0]['pan_no'])) {
                                                 echo $query[0]['pan_no'];
                                             }
-                                            ?>" style="width:117%" onchange="return check_length()">
+                                            ?>" style="width:117%">
                                         <span class="err1"><?php echo form_error('pan_no'); ?></span>
                                     </div>
                                 </div>
