@@ -2485,12 +2485,12 @@ class Booking extends CI_Controller {
 
         if (($_FILES['support_file']['error'] != 4) && !empty($_FILES['support_file']['tmp_name'])) {
                 $tmpFile = $_FILES['support_file']['tmp_name'];
-                $support_file_name = implode("", explode(" ", $booking_primary_contact_no)) . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['support_file']['name'])[1];
-                move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
+                $support_file_name =  $booking_primary_contact_no . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['support_file']['name'])[1];
+               // move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "vendor-partner-docs/" . $support_file_name;
-                $this->s3->putObjectFile(TMP_FOLDER . $support_file_name, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile($tmpFile . $support_file_name, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 //Logging success for file uppload
                 log_message('info', __CLASS__ . 'Support FILE is being uploaded sucessfully.');
         }
