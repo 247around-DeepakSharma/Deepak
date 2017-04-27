@@ -1,4 +1,4 @@
-<?php
++<?php
 
 if (!defined('BASEPATH')){
     exit('No direct script access allowed');
@@ -9,7 +9,7 @@ if (!defined('BASEPATH')){
  *
  * @author Abhay Anand
  */
-class SubmitBooking extends CI_Controller {
+class submitMultiUnitRequest extends CI_Controller {
     
     Private $partner = NULL;
     Private $ApiData = array();
@@ -28,6 +28,7 @@ class SubmitBooking extends CI_Controller {
         $this->load->library('partner_utilities');
         $this->load->model('upcountry_model');
         $this->load->helper(array('form', 'url'));
+        $this->load->library('asynchronous_lib');
     }
     
     /**
@@ -268,7 +269,7 @@ class SubmitBooking extends CI_Controller {
             "source"     => $this->partner['code'],
             "order_id"   => $this->ApiData['orderID'],
             "type"       => "Query",
-            "quantity"   => 1,
+            "quantity"   => $this->ApiData['units'],
             "city"       => $this->ApiData['city'],
             "state"      => $this->ApiData['state'],
             "taluk"      => $this->ApiData['taluk'],
@@ -324,7 +325,7 @@ class SubmitBooking extends CI_Controller {
                 "appliance_brand" => $value['brand'],
                 "model_number" => $value['model'],
                 "booking_id" => $this->ApiData['booking_id'],
-                "sub_order_id" => $value['sub_orderID'],
+                "sub_order_id" => $value['subOrderId'],
                 "appliance_description" => $value['productType'],
                 'purchase_month' => isset($value['purchase_month']) ? $value['purchase_month'] : '',
                 'purchase_year' => isset($value['purchase_year']) ? $value['purchase_year'] : ''
@@ -357,38 +358,31 @@ class SubmitBooking extends CI_Controller {
                     $this->booking_model->insert_data_in_booking_unit_details($unit_details, $this->ApiData['state'], 0);
                 } else {
                     $is_price_send_upcountry_sms = false;
-                    $unit_details['appliance_capacity'] = isset($value['capacity']) ? $value['capacity'] : '';
+                    $unit_details['appliance_capacity'] = isset($value['subCategory']) ? $value['subCategory'] : '';
                     $unit_details['appliance_category'] = isset($value['category']) ? $value['category'] : '';
                     $this->booking_model->addunitdetails($unit_details);
                 }
             } else {
                 $is_price_send_upcountry_sms = false;
-                $unit_details['appliance_capacity'] = isset($value['category']) ? $value['category'] : '';
+                $unit_details['appliance_capacity'] = isset($value['subCategory']) ? $value['subCategory'] : '';
                 $unit_details['appliance_category'] = isset($value['category']) ? $value['category'] : '';
 
                 $this->booking_model->addunitdetails($unit_details);
             }
         }
+        
+        
         $partner_data[0] = $this->partner;
-        // If $is_price_send_upcountry_sms variable is false then we will send sms in a old way( means send sms without Price)
-        if ($is_price_send_upcountry_sms == false) {
-            $is_sms = $this->miscelleneous->check_upcountry($this->ApiData, $this->ApiData['service_name'], array(), $unit_details['appliance_category'], "delivered", $partner_data);
-        } else {
-            $is_price['is_upcountry'] = $is_upcountry;
-            $is_price['customer_net_payable'] = $amount_due;
-            $is_sms = $this->miscelleneous->check_upcountry($this->ApiData, $this->ApiData['service_name'], $is_price, $unit_details['appliance_category'], "delivered", $partner_data);
-        }
-
-        //Check vendor Availabilty for pincode and service id
-        if ($is_sms) {
-            $booking['sms_count'] = 1;
-            $booking['internal_status'] = _247AROUND_FOLLOWUP;
-            $booking['amount_due'] = $amount_due;
-        } else {
-            $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
-        }
-        // Update Booking for internal status
-        return $this->booking_model->update_booking($this->ApiData['booking_id'], $booking);
+        $url = base_url() . "api-v2/submitMultiUnitRequest/Check_upcountry_send_sms";
+        $send['partner_data'] = $partner_data;
+        $send['is_price_send_upcountry_sms'] = $is_price_send_upcountry_sms;
+        $send['Apidata'] = $this->ApiData;
+        $send['is_upcountry'] = $is_upcountry;
+        $send['appliance_category'] = $unit_details['appliance_category'];
+        $send['amount_due'] = $amount_due;
+        
+        $this->asynchronous_lib->do_background_process($url, $send);
+        return true;
     }
 
     /**
@@ -410,7 +404,7 @@ class SubmitBooking extends CI_Controller {
             'purchase_month' => isset($value['purchase_month'])?$value['purchase_month']:'',
             'last_service_date' => date('Y-m-d'),
             'tag'          => $value['brand'] . " " . $this->ApiData['service_name'], 
-            'capacity'     =>  isset($this->ApiData['appliance_description'][$key]['capacity'])?$this->ApiData['appliance_description'][$key]['capacity']:$value['capacity'],
+            'capacity'     =>  isset($this->ApiData['appliance_description'][$key]['capacity'])?$this->ApiData['appliance_description'][$key]['capacity']:$value['subCategory'],
             'category'     =>  isset($this->ApiData['appliance_description'][$key]['category'])
             ?$this->ApiData['appliance_description'][$key]['category']:$value['category']
         );
@@ -501,13 +495,13 @@ class SubmitBooking extends CI_Controller {
         if (($flag === TRUE) &&
                 (($this->ApiData['orderID'] == "") ||
                 ($this->ApiData['product'] == "") ||
-                ($this->ApiData['unit_count'] == "") ||
-                ($this->ApiData['unit_count'] == 0) ||
+                ($this->ApiData['units'] == "") ||
+                ($this->ApiData['units'] == 0) ||
                 ($this->ApiData['name'] == "") ||
                 ($this->ApiData['mobile'] == "") ||
                 ($this->ApiData['address'] == "") ||
                 ($this->ApiData['pincode'] == "") ||
-                (count($this->ApiData['unit_details']) != $this->ApiData['unit_count']) ||
+                (count($this->ApiData['unit_details']) != $this->ApiData['units']) ||
                 ($this->ApiData['city'] == "")
                 )) {
             $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
@@ -725,6 +719,37 @@ class SubmitBooking extends CI_Controller {
 	);
 
 	return $unproductive_description;
+    }
+    /**
+     * @desc Its called in asynchronous way to check upcountry and send sms.
+     */
+    function Check_upcountry_send_sms(){
+        $partner_data = $this->input->post("partner_data");
+        $is_price_send_upcountry_sms = $this->input->post("is_price_send_upcountry_sms");
+        $this->ApiData = $this->input->post("Apidata");
+        $appliance_category = $this->input->post('appliance_category');
+        $is_upcountry = $this->input->post('is_upcountry');
+        $amount_due = $this->input->post("amount_due");
+         
+        // If $is_price_send_upcountry_sms variable is false then we will send sms in a old way( means send sms without Price)
+        if ($is_price_send_upcountry_sms == false) {
+            $is_sms = $this->miscelleneous->check_upcountry($this->ApiData, $this->ApiData['service_name'], array(), $appliance_category, "delivered", $partner_data);
+        } else {
+            $is_price['is_upcountry'] = $is_upcountry;
+            $is_price['customer_net_payable'] = $amount_due;
+            $is_sms = $this->miscelleneous->check_upcountry($this->ApiData, $this->ApiData['service_name'], $is_price, $appliance_category, "delivered", $partner_data);
+        }
+
+        //Check vendor Availabilty for pincode and service id
+        if ($is_sms) {
+            $booking['sms_count'] = 1;
+            $booking['internal_status'] = _247AROUND_FOLLOWUP;
+            $booking['amount_due'] = $amount_due;
+        } else {
+            $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+        }
+        // Update Booking for internal status
+        $this->booking_model->update_booking($this->ApiData['booking_id'], $booking);
     }
    
 
