@@ -611,7 +611,7 @@ class Notify {
                     log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
         		please recheck tag: '" . $sms['tag'] . "' & Phone Number - " . $sms['phone_no']);
 
-                    $subject = 'SMS not sent';
+                    $subject = 'SMS Sending Failed';
                     $message = "Please check SMS tag and phone number. Booking id is : " .
                             $sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'] . " Result:"
                             . " " . $status['content'];
@@ -623,7 +623,7 @@ class Notify {
                 log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
         		please recheck tag: '" . $sms['tag'] . "' & Phone Number - " . $sms['phone_no']);
 
-                $subject = 'SMS not sent';
+                $subject = 'SMS not sent - Template Not Found';
                 $message = "Please check SMS tag and phone number. Booking id is : " .
                         $sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'] . " Result:"
                         . " " . $status['content'];
