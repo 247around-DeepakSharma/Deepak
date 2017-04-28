@@ -209,7 +209,7 @@ class Service_centers extends CI_Controller {
             //$internal_status = "Cancelled";
             $getremarks = $this->booking_model->getbooking_charges($booking_id);
             $i = 0;
-            exit();
+            
             foreach ($customer_basic_charge as $unit_id => $value) {
                  // variable $unit_id  is existing id in booking unit details table of given booking id 
                  $data = array();
