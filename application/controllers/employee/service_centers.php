@@ -276,6 +276,8 @@ class Service_centers extends CI_Controller {
             if($booking_status[$unit_id] == _247AROUND_COMPLETED){
                 if($value == 1 && empty(trim($serial_number[$unit_id]))){
                     $return_status = false;
+                } else if($value == 1 && $serial_number[$unit_id] == 0){
+                    $return_status = false;
                 }
             }
         }
