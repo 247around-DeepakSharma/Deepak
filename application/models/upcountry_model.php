@@ -717,9 +717,11 @@ class Upcountry_model extends CI_Model {
      * @return string 
      */
     function update_pincode_distance($pincode1,$pincode2,$distance){
+        if($pincode1 < $pincode2){ $dp1 = $pincode1;$dp2 = $pincode2;} 
+        else { $dp1 = $pincode2;  $dp2 = $pincode1; }
         $set = array('distance' => $distance);
-        $this->db->where('pincode1',$pincode1);
-        $this->db->where('pincode2',$pincode2);
+        $this->db->where('pincode1',$dp1);
+        $this->db->where('pincode2',$dp2);
         $this->db->update('distance_between_pincode',$set);
         if ($this->db->affected_rows() > 0) {
             return true;
