@@ -119,10 +119,10 @@
         var action = $('#action').val();
         var type = this.value;
         if(action === 'tag'){
-            var url = '<?php echo base_url(); ?>employee/invoice/fetch_challan_details/';
+            var url = '<?php echo base_url(); ?>employee/accounting/fetch_challan_details/';
         }
         else {
-            var url = '<?php echo base_url(); ?>employee/invoice/fetch_challan_details/untag';
+            var url = '<?php echo base_url(); ?>employee/accounting/fetch_challan_details/untag';
         }
             
         $('#loader').show();

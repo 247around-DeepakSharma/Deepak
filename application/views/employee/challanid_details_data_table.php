@@ -30,7 +30,7 @@
                         <td><?php echo $value['challan_tender_date'] ?></td>
                         <td><?php echo round($value['amount']) ?></td>
                         <td>
-                            <a target="_blank" href="<?php echo base_url(); ?>employee/invoice/get_challan_edit_form/<?php echo $value['id']; ?>">
+                            <a target="_blank" href="<?php echo base_url(); ?>employee/accounting/get_challan_edit_form/<?php echo $value['id']; ?>">
                                 <div class="btn btn-primary">Edit</div>
                             </a>
                         </td>
