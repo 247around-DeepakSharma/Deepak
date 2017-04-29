@@ -271,12 +271,12 @@ class Service_centers extends CI_Controller {
         $serial_number = $this->input->post('serial_number');
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
-        $return_status = true;;
+        $return_status = true;
         foreach ($pod as $unit_id => $value) {
             if($booking_status[$unit_id] == _247AROUND_COMPLETED){
                 if($value == 1 && empty(trim($serial_number[$unit_id]))){
                     $return_status = false;
-                } else if($value == 1 && $serial_number[$unit_id] == 0){
+                } else if($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] ==0){
                     $return_status = false;
                 }
             }
