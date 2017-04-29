@@ -240,7 +240,7 @@
             </table>
             <?php } if(isset($data['Pending'])){ ?>
             <h1 align="left">
-                <b>Pending Boookings</b>
+                <b>Pending Bookings</b>
             </h1>
             <?php
                 if (isset($success) && $success !== 0) {

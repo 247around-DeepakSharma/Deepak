@@ -329,7 +329,7 @@ class vendor_model extends CI_Model {
     /**
      *  @desc : This function is used to get user details.
      *
-     *  Here user details are found with the help boooking id
+     *  Here user details are found with the help booking id
      *
      *  @param : $booking_id
      *  @return : array of user details
