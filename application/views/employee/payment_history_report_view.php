@@ -102,7 +102,7 @@
            $('#loader').show();
            $.ajax({
                method:'POST',
-               url: '<?php echo base_url();?>employee/invoice/get_sales_purchase_payment_report',
+               url: '<?php echo base_url();?>employee/accounting/show_accounting_report',
                data: {type:type,from_date:from_date,to_date:to_date,partner_vendor:partner_vendor},
                success:function(response){
                    //console.log(response);
