@@ -272,167 +272,143 @@
                
                
                 <?php if(isset($booking_history['spare_parts'])){ ?>
-                 <?php foreach ($booking_history['spare_parts'] as $sp){  ?>
+                
                 <div class="col-md-12">
                    
-                    <h1 style='font-size:24px;'>Spare Parts Requested</h1>
-                    <div class="col-md-6" style="padding-left:1px;">
+                    <h1 style='font-size:24px;'>Spare Parts Requested By SF</h1>
+                    <div class="col-md-12" style="padding-left:1px;">
                         <table class="table  table-striped table-bordered" >
-                            <tr>
-                                <th >Model Number: </th>
-                                <td><?php echo $sp['model_number']; ?></td>
+                            <thead>
+                                <tr>
+                                <th >Model Number </th>
+                                <th >Requested Parts </th>
+                                <th >Requested Date </th>
+                                <th >Invoice Image </th>
+                                <th >Serial Number Image </th>
+                                <th >Defective Part Image </th>
+                                <th >Serial Number</th>
+                                <th >Acknowledge Date BY SF </th>
+                                <th >Remarks By SC </th>
                             </tr>
-                            <tr>
-                                <th >Requested Parts: </th>
-                                <td><?php echo $sp['parts_requested']; ?></td>
-                            </tr>
-                            <tr>
-                                <th >Requested Date: </th>
-                                <td><?php echo $sp['create_date']; ?></td>
-                            </tr>
-                            <tr>
-                                <th >Invoice Image: </th>
-                                <td><?php if(!is_null($sp['invoice_pic']) ) { if($sp['invoice_pic'] != '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php } } ?></td>
-                            </tr>
-                            <tr>
-                                <th >Serial Number Image: </th>
-                                <td><?php if(!is_null($sp['serial_number_pic'])) { if( $sp['serial_number_pic'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['serial_number_pic'];  ?> " target="_blank">Click Here to view Serial Number Image</a><?php } } ?></td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table  table-striped table-bordered" >
-                            <tr>
-                                <th >Defective Part Image: </th>
-                                <td><?php if(!is_null($sp['defective_parts_pic']) ) { if($sp['defective_parts_pic'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_pic'];  ?> " target="_blank">Click Here to view Defective Part Image</a><?php } } ?></td>
-                            </tr>
+                            </thead>
                             
+                            <tbody>
+                                 <?php foreach ($booking_history['spare_parts'] as $sp){  ?>
                             <tr>
-                                <th >Serial Number: </th>
+                                <td><?php echo $sp['model_number']; ?></td>
+                                <td><?php echo $sp['parts_requested']; ?></td>
+                                <td><?php echo $sp['create_date']; ?></td>
+                                <td><?php if(!is_null($sp['invoice_pic']) ) { if($sp['invoice_pic'] != '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php } } ?></td>
+                                <td><?php if(!is_null($sp['serial_number_pic'])) { if( $sp['serial_number_pic'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['serial_number_pic'];  ?> " target="_blank">Click Here to view Serial Number Image</a><?php } } ?></td>
+                                <td><?php if(!is_null($sp['defective_parts_pic']) ) { if($sp['defective_parts_pic'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_pic'];  ?> " target="_blank">Click Here to view Defective Part Image</a><?php } } ?></td>
                                 <td><?php echo $sp['serial_number']; ?></td>
-                            </tr>
-                             <tr>
-                                <th >Acknowledge Date BY SF: </th>
                                 <td><?php echo $sp['acknowledge_date']; ?></td>
-                            </tr>
-                             <tr>
-                                <th >Remarks By SC: </th>
                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                             </tr>
+                                 <?php } ?>
+                            </tbody>
                         </table>
                     </div>
                 </div>
+                
+                 
                  <?php if(!is_null($sp['parts_shipped'])){ ?>
                 <div class="col-md-12">
-                    <h1 style='font-size:24px;'>Spare Parts Shipped</h1>
-                    <div class="col-md-6" style="padding-left:1px;">
+                    <h1 style='font-size:24px;'>Spare Parts Shipped By Partner</h1>
+                    <div class="col-md-12" style="padding-left:1px;">
                         <table class="table  table-striped table-bordered" >
-                            <tr>
-                                <th >Shipped Parts: </th>
-                                <td><?php echo $sp['parts_shipped']; ?></td>
-                            </tr>
-                            <tr>
-                                <th >Courier Name: </th>
-                                <td><?php echo $sp['courier_name_by_partner']; ?></td>
-                            </tr>
-                            <tr>
-                                <th >AWB: </th>
-                                <td><?php echo $sp['awb_by_partner']; ?></td>
-                            </tr>
+                            <thead>
+                                <tr>
+                                    <th >Shipped Parts </th>
+                                    <th >Courier Name </th>
+                                    <th >AWB </th>
+                                    <th >Shipped date </th>
+                                    <th >EDD </th>
+                                    <th >Remarks By Partner </th>
+                                </tr>
+                                
+                            </thead>
+                            <tbody>
+                                <?php foreach ($booking_history['spare_parts'] as $sp){  ?>
+                                <tr>
+                                    <td><?php echo $sp['parts_shipped']; ?></td>
+                                    <td><?php echo $sp['courier_name_by_partner']; ?></td>
+                                    <td><?php echo $sp['awb_by_partner']; ?></td>
+                                    <td><?php echo $sp['shipped_date']; ?></td>
+                                    <td><?php echo $sp['edd']; ?></td>
+                                     <td><?php echo $sp['remarks_by_partner']; ?></td>
+                                   
+                                </tr>
+                                <?php } ?>
+                            </tbody>
+                          
                         </table>
                     </div>
-                    <div class="col-md-6">
-                        <table class="table  table-striped table-bordered" >
-                            <tr>
-                                <th >Shipped date: </th>
-                                <td><?php echo $sp['shipped_date']; ?></td>
-                            </tr>
-                            <tr>
-                                <th >EDD: </th>
-                                <td><?php echo $sp['edd']; ?></td>
-                            </tr>
-                            <tr>
-                                <th >Remarks By Partner: </th>
-                                <td><?php echo $sp['remarks_by_partner']; ?></td>
-                            </tr>
-                        </table>
-                    </div>
+                   
                 </div>
-                <?php } if($sp['approved_defective_parts_by_partner'] == "1"){ ?>
+                <?php }  if($sp['approved_defective_parts_by_partner'] == "1"){ ?>
                 <div class="col-md-12">
                     <h1 style='font-size:24px;'>Defective Spare Parts Shipped By SF</h1>
-                    <div class="col-md-6" style="padding-left:1px;">
+                    <div class="col-md-12" style="padding-left:1px;">
                         <table class="table  table-striped table-bordered" >
-                            <tr>
-                                <th >Shipped Parts: </th>
-                                <td><?php echo $sp['defective_part_shipped']; ?></td>
-                            </tr>
-                            <tr>
-                                <th >Courier Name: </th>
-                                <td><?php echo $sp['courier_name_by_sf']; ?></td>
-                            </tr>
-                            <tr>
-                                <th >AWB: </th>
-                                <td><?php echo $sp['awb_by_sf']; ?></td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table  table-striped table-bordered" >
-                            <tr>
-                                <th >Shipped date: </th>
-                                <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
-                            </tr>
+                            <thead>
+                                <tr>
+                                 <th >Shipped Parts </th>
+                                 <th >Courier Name:</th>
+                                 <th >AWB </th>
+                                 <th >Shipped date </th>
+                                 <th >Remarks By SF </th>
+                                 <th >Rejected Remarks By Partner</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                 <?php foreach ($booking_history['spare_parts'] as $sp){  ?>
+                                <tr>
+                                    <td><?php echo $sp['defective_part_shipped']; ?></td>
+                                    <td><?php echo $sp['courier_name_by_sf']; ?></td>
+                                    <td><?php echo $sp['awb_by_sf']; ?></td>
+                                    <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
+                                    <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
+                                    <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
+                                </tr>
+                                 <?php } ?>
+                            </tbody>
                            
-                            <tr>
-                                <th >Remarks By SF: </th>
-                                <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
-                            </tr>
-                             <tr>
-                                <th >Rejected Remarks By Partner: </th>
-                                <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
-                            </tr>
                         </table>
                     </div>
+                    
                 </div>
-                <?php } } } ?>
+                <?php } }  ?>
                 
 
                 
                 <?php if(!empty($service_center)){?>
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <h3>Service Center Details:</h3>
                     <table class="table  table-striped table-bordered">
+                        <thead>
                         <tr>
-                            <th>Service Center Name: </th>
-                            <td><?php if(isset($service_center[0]['service_centre_name'])){echo $service_center[0]['service_centre_name'];}?>
-                            </td>
+                             <th>Service Center Name </th>
+                             <th>PoC Name </th>
+                             <th>PoC Number </th>
+                             <th>Upcountry District </th>
+                             <th>Upcountry Pincode </th>
                         </tr>
+                        </thead
+                        <tbody>
                         <tr>
-                            <th>PoC Name: </th>
-                            <td><?php if(isset($service_center[0]['primary_contact_name'])){echo $service_center[0]['primary_contact_name'];}?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>PoC Number: </th>
+                            <td><?php if(isset($service_center[0]['service_centre_name'])){echo $service_center[0]['service_centre_name'];}?></td>
+                            <td><?php if(isset($service_center[0]['primary_contact_name'])){echo $service_center[0]['primary_contact_name'];}?></td>
                             <td><?php if(isset($service_center[0]['primary_contact_phone_1'])){echo $service_center[0]['primary_contact_phone_1'];}?>
                             </td>
-                        </tr>
-                    
-                <?php } ?>
-                <?php if(!is_null($booking_history[0]['sub_vendor_id'])){ ?>
-                        <tr>
-                            <th>Upcountry District: </th>
-                            <td><?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?></td>
-                                 
-                        </tr>
-                        <tr>
-                            <th>Upcountry Pincode: </th>
+                            <td> <?php if(!is_null($booking_history[0]['sub_vendor_id'])){ ?><?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?><?php } ?></td>
                             <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
-                                 
                         </tr>
-                      
+                        </tbody>
+ 
                 <?php } ?>
+
+
                     </table>
                 </div>
             </div>
