@@ -322,7 +322,7 @@ class Penalty_model extends CI_Model {
      * @param String $to_date
      * @return boolean
      */
-    function add_penalty_in_invoice($vendor_id, $from_date, $to_date, $distinct, $is_regenerate) {
+ function add_penalty_in_invoice($vendor_id, $from_date, $to_date,$distinct, $is_regenerate){
         $where = "";
         if (PENALTY_ON_COMPLETED_BOOKING == TRUE && PENALTY_ON_CANCELLED_BOOKING == TRUE) {
             $where = " AND booking_details.current_status IN ('Completed', 'Cancelled') ";
@@ -332,29 +332,39 @@ class Penalty_model extends CI_Model {
             $where = " AND booking_details.current_status IN ('Cancelled') ";
         }
         $invoice_check = "";
-        if ($is_regenerate == 0) {
-            $invoice_check = " AND foc_invoice_id IS NULL ";
+        if($is_regenerate == 0){
+            $invoice_check =" AND foc_invoice_id IS NULL ";
         }
         if (PENALTY_ON_COMPLETED_BOOKING != FALSE && PENALTY_ON_CANCELLED_BOOKING != FALSE) {
-            $sql = "SELECT COUNT( $distinct p.booking_id ) as penalty_times,CASE WHEN (COUNT( p.booking_id ) * penalty_amount) < '" . CAP_ON_PENALTY_AMOUNT . "' 
-            THEN (COUNT( p.booking_id ) * penalty_amount) ELSE ( " . CAP_ON_PENALTY_AMOUNT . " ) END AS p_amount, 
-            p.booking_id, penalty_amount FROM  
-           `penalty_on_booking` AS p, booking_details 
-            WHERE  `criteria_id` IN (2,9,10,11,8) AND  `closed_date` >=  '" . $from_date . "' 
-            AND closed_date <  '" . $to_date . "'
-            AND service_center_id = '" . $vendor_id . "'
-            AND p.active = 1
-            $invoice_check
-            AND booking_details.booking_id = p.booking_id $where
-            GROUP BY p.booking_id";
+            
+            $sql = " SELECT COUNT( $distinct p.booking_id) as penalty_times, p.booking_id,criteria_id,
 
+                CASE WHEN ((count(p.booking_id) *  p.penalty_amount) > cap_amount) THEN (cap_amount)
+
+                ELSE (COUNT(p.booking_id) * p.penalty_amount) END  AS p_amount, p.penalty_amount
+
+                FROM `penalty_on_booking` AS p, penalty_details, booking_details 
+                WHERE criteria_id IN (".BOOKING_IS_NOT_UPDATED_BY_SERVICE_CENTER_ID.", ".INCENTIVE_CUT_RESCHEDULED_WITHOUT_REASON_ID.",
+                    ".BOOKING_RESCHEDULED_WITHOUT_REASON_ID.", ".PENALTY_FAKE_COMPLETED_CUSTOMER_WANT_INSTALLATION_ID.", ".PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT.") 
+                AND criteria_id = penalty_details.id 
+                AND  p.active = 1  
+                
+                AND  closed_date >= '".$from_date."'
+                AND closed_date < '".$to_date."'
+                AND service_center_id = '".$vendor_id."'
+                $invoice_check
+                AND booking_details.booking_id = p.booking_id $where
+                GROUP BY p.booking_id, criteria_id  ";
+            
+            
             $query = $this->db->query($sql);
             return $query->result_array();
+            
         } else {
             return FALSE;
         }
     }
-
+    
     function get_removed_penalty($vendor_id, $to_date, $distinct) {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($to_date)));
         $where = "";
@@ -367,25 +377,33 @@ class Penalty_model extends CI_Model {
         }
 
         if (PENALTY_ON_COMPLETED_BOOKING != FALSE && PENALTY_ON_CANCELLED_BOOKING != FALSE) {
-            $sql = "SELECT COUNT( $distinct p.booking_id ) as penalty_times,CASE WHEN (COUNT( p.booking_id ) * penalty_amount) < '" . CAP_ON_PENALTY_AMOUNT . "' 
-            THEN (COUNT( p.booking_id ) * penalty_amount) ELSE ( " . CAP_ON_PENALTY_AMOUNT . " ) END AS p_amount, 
-            p.booking_id, penalty_amount FROM  
-           `penalty_on_booking` AS p, booking_details 
-            WHERE  `criteria_id` IN (2,9,10,11,8) AND  `closed_date` >=  '" . $from_date . "' 
-            AND closed_date <  '" . $to_date . "'
-            AND service_center_id = '" . $vendor_id . "'
-            AND p.active = 0
-            AND foc_invoice_id IS NOT NULL
-            AND booking_details.booking_id = p.booking_id $where
-            GROUP BY p.booking_id";
+            
+            $sql = " SELECT COUNT( $distinct p.booking_id) as penalty_times, p.booking_id,criteria_id,
 
+                CASE WHEN ((count(p.booking_id) *  p.penalty_amount) > cap_amount) THEN (cap_amount)
+
+                ELSE (COUNT(p.booking_id) * p.penalty_amount) END  AS p_amount, p.penalty_amount
+
+                FROM `penalty_on_booking` AS p, penalty_details, booking_details 
+                WHERE criteria_id IN (".BOOKING_IS_NOT_UPDATED_BY_SERVICE_CENTER_ID.", ".INCENTIVE_CUT_RESCHEDULED_WITHOUT_REASON_ID.",
+                    ".BOOKING_RESCHEDULED_WITHOUT_REASON_ID.", ".PENALTY_FAKE_COMPLETED_CUSTOMER_WANT_INSTALLATION_ID.", ".PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT.") 
+                AND criteria_id = penalty_details.id 
+                AND  p.active = 0  
+                AND foc_invoice_id IS NOT NULL
+                AND  closed_date >= '".$from_date."'
+                AND closed_date < '".$to_date."'
+                AND service_center_id = '".$vendor_id."'
+                
+                AND booking_details.booking_id = p.booking_id $where
+                GROUP BY p.booking_id, criteria_id";           
+            
             $query = $this->db->query($sql);
             return $query->result_array();
         } else {
             return FALSE;
         }
     }
-
+    
     /**
      * @desc This is used to update penalty table
      * @param Array $where
