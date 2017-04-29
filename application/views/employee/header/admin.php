@@ -287,7 +287,7 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/invoice/show_search_invoice_id_view"><i class="fa fa-fw fa-desktop "></i> <strong>Search Invoice Id</strong></a>
+                            <a href="<?php echo base_url() ?>employee/accounting/show_search_invoice_id_view"><i class="fa fa-fw fa-desktop "></i> <strong>Search Invoice Id</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown dropdown-submenu">
@@ -327,21 +327,20 @@
                         <li class="dropdown dropdown-submenu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Accounts</strong></a>
                             <ul class="dropdown-menu">
-                           <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/invoice/get_challan_upload_form"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Challan</strong></a>
+                            <a href="<?php echo base_url() ?>employee/accounting/get_challan_upload_form"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Challan</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/invoice/get_challan_details"><i class="fa fa-fw fa-desktop "></i> <strong>Challan History</strong></a>
+                            <a href="<?php echo base_url() ?>employee/accounting/get_challan_details"><i class="fa fa-fw fa-desktop "></i> <strong>Challan History</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/invoice/sales_purchase_payment_report"><i class="fa fa-fw fa-desktop "></i> <strong>Payment Report</strong></a>
+                            <a href="<?php echo base_url() ?>employee/accounting/accounting_report"><i class="fa fa-fw fa-desktop "></i> <strong>Payment Report</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/invoice/show_search_challan_id_view"><i class="fa fa-fw fa-desktop "></i> <strong>Search Challan Id</strong></a>
+                            <a href="<?php echo base_url() ?>employee/accounting/show_search_challan_id_view"><i class="fa fa-fw fa-desktop "></i> <strong>Search Challan Id</strong></a>
                         </li>
                             </ul>
                         </li>

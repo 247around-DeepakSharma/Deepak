@@ -224,7 +224,7 @@ class vendor_partner_invoice extends CI_Controller {
 
 		//Upload Excel files to AWS
 		//$bucket = 'bookings-collateral-test';
-		$bucket = 'bookings-collateral';
+		$bucket = BITBUCKET_DIRECTORY;
 		$directory_xls = "invoices-excel/" . $output_file . ".xlsx";
 		$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
@@ -459,7 +459,7 @@ class vendor_partner_invoice extends CI_Controller {
 
 		//Upload Excel files to AWS
 		//$bucket = 'bookings-collateral-test';
-		$bucket = 'bookings-collateral';
+		$bucket = BITBUCKET_DIRECTORY;
 		$directory_xls = "invoices-excel/" . $output_file . ".xlsx";
 		$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
@@ -688,7 +688,7 @@ class vendor_partner_invoice extends CI_Controller {
 
 		//Upload Excel files to AWS
 		//$bucket = 'bookings-collateral-test';
-		$bucket = 'bookings-collateral';
+		$bucket = BITBUCKET_DIRECTORY;
 		$directory_xls = "invoices-excel/" . $output_file . ".xlsx";
 		$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 

@@ -29,7 +29,7 @@
                 $.ajax({
                     method: 'POST',
                     data: {invoice_id: invoice_id},
-                    url: '<?php echo base_url(); ?>employee/invoice/search_invoice_id',
+                    url: '<?php echo base_url(); ?>employee/accounting/search_invoice_id',
                     success: function (response) {
                         //console.log(response);
                         $('#loader').hide();

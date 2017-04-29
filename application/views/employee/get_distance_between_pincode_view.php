@@ -62,7 +62,7 @@
     <script type="text/javascript">
 
 
-        $(".allownumericwithdecimal").on("keypress keyup blur", function (event) {
+        $(".allownumericwithdecimal").on("keypress blur", function (event) {
             $(this).val($(this).val().replace(/[^0-9\.]/g, ''));
             if ((event.which < 48 || event.which > 57)) {
                 event.preventDefault();
@@ -115,7 +115,12 @@
                     }
                 });
             } else {
-                alert("Please Enter Valid Distance");
+                if(distance === prev_distance){
+                    alert("Please Enter New Distance To Update");
+                }else{
+                    alert("Please Enter Valid Distance");
+                }
+                
                 return false;
             }
         }

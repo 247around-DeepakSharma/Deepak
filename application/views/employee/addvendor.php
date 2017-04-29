@@ -300,7 +300,7 @@
                                                 $image_src = $src;
                                                 if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['address_proof_file'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['address_proof_file'];
                                                     $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
@@ -369,7 +369,7 @@
                                                 $image_src = $src;
                                                 if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['contract_file'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['contract_file'];
                                                     $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
@@ -557,7 +557,7 @@
                                                 $image_src = $src;
                                                 if (isset($query[0]['id_proof_1_file']) && !empty($query[0]['id_proof_1_file'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['id_proof_1_file'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['id_proof_1_file'];
                                                     $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
@@ -589,7 +589,7 @@
                                                 $image_src = $src;
                                                 if (isset($query[0]['id_proof_2_file']) && !empty($query[0]['id_proof_2_file'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['id_proof_2_file'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['id_proof_2_file'];
                                                     $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
@@ -656,7 +656,7 @@
                                         $image_src = $src;
                                         if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
                                             //Path to be changed
-                                            $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['pan_file'];
+                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['pan_file'];
                                             $image_src = base_url().'images/view_image.png';
                                         }
                                         ?>
@@ -714,7 +714,7 @@
                                     $src = base_url() . 'images/no_image.png';
                                     if (isset($query[0]['vat_file']) && !empty($query[0]['vat_file'])) {
                                         //Path to be changed
-                                        $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['vat_file'];
+                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['vat_file'];
                                     }
                                     ?>
                                             <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
@@ -766,7 +766,7 @@
                                                 $image_src = $src;
                                                 if (isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['cst_file'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['cst_file'];
                                                     $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
@@ -825,7 +825,7 @@
                                                 $image_src = $src;
                                                 if (isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['tin_file'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['tin_file'];
                                                     $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
@@ -884,7 +884,7 @@
                                                 $image_src = $src;
                                                 if (isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['service_tax_file'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['service_tax_file'];
                                                     $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
@@ -1024,7 +1024,7 @@
                                                 $image_src = $src;
                                                 if (isset($query[0]['cancelled_cheque_file']) && !empty($query[0]['cancelled_cheque_file'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['cancelled_cheque_file'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['cancelled_cheque_file'];
                                                     $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>

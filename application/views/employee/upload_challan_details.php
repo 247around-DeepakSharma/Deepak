@@ -26,7 +26,7 @@
                     ?>
                     
                     <section>
-                        <form role="form" name="challan_form" id="challan_form" action="<?php echo base_url() ?>employee/invoice/process_challan_upload_form" method="POST" enctype="multipart/form-data" >
+                        <form role="form" name="challan_form" id="challan_form" action="<?php echo base_url() ?>employee/accounting/process_challan_upload_form" method="POST" enctype="multipart/form-data" >
                             <div>
                                 <input type="hidden" name="id" value = "<?php
                                     if (isset($challan_data[0]['id'])) {

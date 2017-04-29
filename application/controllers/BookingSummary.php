@@ -398,7 +398,7 @@ class BookingSummary extends CI_Controller {
                 }
 
                 //Upload Excel files to AWS
-                $bucket = 'bookings-collateral';
+                $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "summary-excels/" . $output_file;
                 $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
             }
@@ -579,7 +579,7 @@ EOD;
                 }
 
 //        //Upload Excel to AWS/FTP
-                $bucket = 'bookings-collateral';
+                $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "summary-excels/" . $csv;
                 $this->s3->putObjectFile(realpath($csv), $bucket, $directory_xls, S3::ACL_PRIVATE);
 
@@ -672,7 +672,7 @@ EOD;
             }
 
             //Upload Excel to AWS/FTP
-            $bucket = 'bookings-collateral';
+            $bucket = BITBUCKET_DIRECTORY;
             $directory_xls = "summary-excels/" . $output_file;
             $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
 
