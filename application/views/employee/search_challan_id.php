@@ -29,7 +29,7 @@
                 $.ajax({
                     method: 'POST',
                     data: {cin_no: cin_no},
-                    url: '<?php echo base_url(); ?>employee/invoice/search_challan_id',
+                    url: '<?php echo base_url(); ?>employee/accounting/search_challan_id',
                     success: function (response) {
                         //console.log(response);
                         $('#loader').hide();
