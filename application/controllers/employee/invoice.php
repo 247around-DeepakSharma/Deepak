@@ -116,7 +116,7 @@ class Invoice extends CI_Controller {
 
         $cc = "billing@247around.com, " . NITS_ANUJ_EMAIL_ID;
         $subject = "247around - Invoice for period: " . $start_date . " To " . $end_date;
-        $attachment = 'https://s3.amazonaws.com/bookings-collateral/invoices-pdf/' . $invoiceId . '.pdf';
+        $attachment = 'https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-pdf/' . $invoiceId . '.pdf';
 
         $message = "Dear Partner <br/><br/>";
         $message .= "Please find attached invoice for jobs completed between " . $start_date . " and " . $end_date . ".<br/><br/>";

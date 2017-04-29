@@ -209,7 +209,7 @@ class Service_centers extends CI_Controller {
             //$internal_status = "Cancelled";
             $getremarks = $this->booking_model->getbooking_charges($booking_id);
             $i = 0;
-            exit();
+            
             foreach ($customer_basic_charge as $unit_id => $value) {
                  // variable $unit_id  is existing id in booking unit details table of given booking id 
                  $data = array();
@@ -275,6 +275,8 @@ class Service_centers extends CI_Controller {
         foreach ($pod as $unit_id => $value) {
             if($booking_status[$unit_id] == _247AROUND_COMPLETED){
                 if($value == 1 && empty(trim($serial_number[$unit_id]))){
+                    $return_status = false;
+                } else if($value == 1 && $serial_number[$unit_id] == 0){
                     $return_status = false;
                 }
             }
@@ -945,7 +947,7 @@ class Service_centers extends CI_Controller {
 		} else {
 		    $pic = str_replace(' ', '-', $this->input->post('booking_id'));
 		    $picName = $type. rand(10,100).$pic . "." . $extension;
-		    $bucket = "bookings-collateral";
+		    $bucket = BITBUCKET_DIRECTORY;
                     
 		    $directory = "misc-images/" . $picName;
 		    $this->s3->putObjectFile($file["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);

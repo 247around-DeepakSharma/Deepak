@@ -236,7 +236,7 @@ class bookingjobcard extends CI_Controller {
             $file_pdf = $getbooking[0]['booking_jobcard_filename'];
             $output_file_pdf = TMP_FOLDER . $getbooking[0]['booking_jobcard_filename'];
 
-            $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
+            $cmd = "curl https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
             exec($cmd);
 
             $date1 = date('d-m-Y', strtotime('now'));
@@ -263,11 +263,11 @@ class bookingjobcard extends CI_Controller {
             
             //Send SMS to vendor
             //Send it through Exotel ONLY
-            $this->notify->sendTransactionalSmsMsg91($getbooking[0]['primary_contact_phone_1'], $smsBody);
+            $status = $this->notify->sendTransactionalSmsMsg91($getbooking[0]['primary_contact_phone_1'], $smsBody);
             
             //For saving SMS to the database on sucess
             $this->notify->add_sms_sent_details($getbooking[0]['user_id'], 'vendor' , $getbooking[0]['primary_contact_phone_1'],
-                    $smsBody, $getbooking[0]['booking_id'],"booking_details_to_sf");
+                    $smsBody, $getbooking[0]['booking_id'],"booking_details_to_sf", $status['content']);
             
 	    //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $subject,
