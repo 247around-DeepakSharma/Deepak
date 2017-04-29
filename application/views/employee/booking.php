@@ -385,7 +385,7 @@
                             $b_timeslot =  date("H", strtotime($b_time[0]));
                             
                            ?>
-                        <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; } else if($b_days >0){ echo "disabled";} else if($b_days <=0){ if($b_timeslot > date("H")){ echo "disabled";} } ?>  class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                        <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; } else if($b_days >0){ echo "disabled";} else if($b_days ==0){ if($b_timeslot > date("H")){ echo "disabled";} } ?>  class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                         </td>
                     
 
