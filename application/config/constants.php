@@ -260,6 +260,17 @@ define("PENALTY_ON_CANCELLED_BOOKING", TRUE);
 define ('SF_UNAVAILABLE_SMS_NOT_SENT', 'SMS Not Sent To Customer For Installation');
 //Upcountry Cap For Partner
 define ('UPCOUNTRY_DISTANCE_CAP', '100');
+// Booking is not updated by service center
+define("BOOKING_IS_NOT_UPDATED_BY_SERVICE_CENTER_ID", 2);
+// Incentive Cut - Reschedule without reason
+define("INCENTIVE_CUT_RESCHEDULED_WITHOUT_REASON_ID", 8);
+// Booking Rescheduled But Customer Not Informed
+define("BOOKING_RESCHEDULED_WITHOUT_REASON_ID", 12);
+//Penalty - Fake Complete - Customer Want Installati...
+define("PENALTY_FAKE_COMPLETED_CUSTOMER_WANT_INSTALLATION_ID", 10);
+//Penalty - Fake Complete - Customer DOES NOT Want Installation
+define("PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT", 11);
+
 
 
 define('SUCCESS_CODE', 247);
