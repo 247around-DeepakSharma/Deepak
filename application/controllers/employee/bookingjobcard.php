@@ -236,7 +236,7 @@ class bookingjobcard extends CI_Controller {
             $file_pdf = $getbooking[0]['booking_jobcard_filename'];
             $output_file_pdf = TMP_FOLDER . $getbooking[0]['booking_jobcard_filename'];
 
-            $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
+            $cmd = "curl https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
             exec($cmd);
 
             $date1 = date('d-m-Y', strtotime('now'));

@@ -945,7 +945,7 @@ class Service_centers extends CI_Controller {
 		} else {
 		    $pic = str_replace(' ', '-', $this->input->post('booking_id'));
 		    $picName = $type. rand(10,100).$pic . "." . $extension;
-		    $bucket = "bookings-collateral";
+		    $bucket = BITBUCKET_DIRECTORY;
                     
 		    $directory = "misc-images/" . $picName;
 		    $this->s3->putObjectFile($file["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
