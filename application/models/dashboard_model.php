@@ -28,7 +28,7 @@ class dashboard_model extends CI_Model {
         if($partner_id != ''){
             $where .= "AND partner_id = '$partner_id'";
         }
-        $sql = "SELECT 
+        $sql = "SELECT DISTINCT
                 SUM(IF(partner_net_payable > 0, 1, 0)) AS FOC,
                 SUM(IF(partner_net_payable = 0 , 1, 0)) AS Paid
                 FROM 
@@ -55,7 +55,7 @@ class dashboard_model extends CI_Model {
         }else if($type == 'PAID'){
             $where .= 'AND partner_net_payable = 0';
         }
-        $sql = "SELECT public_name, COUNT(*) as count
+        $sql = "SELECT DISTINCT public_name, COUNT(*) as count
                 FROM booking_unit_details LEFT JOIN partners 
                 ON booking_unit_details.partner_id = partners.id 
                 WHERE SUBSTR(booking_unit_details.booking_id ,1,2) <> 'Q-' AND booking_status = '$current_status' $where
@@ -131,7 +131,7 @@ class dashboard_model extends CI_Model {
         }else if($type == 'PAID'){
             $where .= 'AND partner_net_payable = 0';
         }
-        $sql = "SELECT services,COUNT(*) as total
+        $sql = "SELECT DISTINCT services,COUNT(*) as total
                 FROM booking_unit_details 
                 JOIN services ON booking_unit_details.service_id = services.id 
                 WHERE SUBSTR(booking_unit_details.booking_id ,1,2) <> 'Q-' 
