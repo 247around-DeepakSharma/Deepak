@@ -38,7 +38,7 @@
                                                 $image_src = $src;
                                                 if (isset($booking_history[0]['support_file']) && !empty($booking_history[0]['support_file'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$booking_history[0]['support_file'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history[0]['support_file'];
                                                     $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
