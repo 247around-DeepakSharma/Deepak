@@ -68,7 +68,7 @@
                                             <?php }
                                                 ?>
                                            <?php if($flag == 0){ ?>
-                                            <option selected="selected" ><?php echo $user[0]['city']; ?></option>
+                                            <option selected="selected" ><?php echo $booking_history[0]['city']; ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
