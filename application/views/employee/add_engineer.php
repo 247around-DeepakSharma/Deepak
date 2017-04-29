@@ -158,7 +158,7 @@
                                                 $src = base_url() . 'images/no_image.png';
                                                 if (isset($data[0]['identity_proof_pic']) && !empty($data[0]['identity_proof_pic'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/engineer-id-proofs/" . $data[0]['identity_proof_pic'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/engineer-id-proofs/" . $data[0]['identity_proof_pic'];
                                                 }
                                                 ?>
                                             <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
@@ -221,7 +221,7 @@
                                                 $src = base_url() . 'images/no_image.png';
                                                 if (isset($data[0]['bank_proof_pic']) && !empty($data[0]['bank_proof_pic'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/engineer-bank-proofs/" . $data[0]['bank_proof_pic'];
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/engineer-bank-proofs/" . $data[0]['bank_proof_pic'];
                                                 }
                                                 ?>
                                             <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>

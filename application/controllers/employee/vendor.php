@@ -2038,7 +2038,7 @@ class vendor extends CI_Controller {
 		    $picName = $pic . "." . $extension;
 		    $_POST['bank_proof_pic'] = $picName;
                     // Uploading to S3
-		    $bucket = "bookings-collateral";
+		    $bucket = BITBUCKET_DIRECTORY;
 		    $directory = "engineer-bank-proofs/" . $picName;
 		    $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
 
@@ -2070,7 +2070,7 @@ class vendor extends CI_Controller {
 		    $picName = $pic . "." . $extension;
 		    $_POST['file'] = $picName;
                     //Uploading to S3
-		    $bucket = "bookings-collateral";
+		    $bucket = BITBUCKET_DIRECTORY;
 		    $directory = "engineer-id-proofs/" . $picName;
 		    $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
 
