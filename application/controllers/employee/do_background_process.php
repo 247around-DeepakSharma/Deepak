@@ -51,7 +51,7 @@ class Do_background_process extends CI_Controller {
         $agent_name = $this->input->post('agent_name');
 
         foreach ($data as $booking_id => $service_center_id) {
-            if ($service_center_id != "") {
+           if ($service_center_id == "" || $service_center_id ==0 || $booking_id == 0) { } else  {
 
                 log_message('info', "Async Process to Assign booking - Booking ID: " .
                         $booking_id . ", SF ID: " . $service_center_id);

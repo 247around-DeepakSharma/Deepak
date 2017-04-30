@@ -944,7 +944,7 @@ class vendor extends CI_Controller {
         $count = 0;
        
         foreach ($service_center as $booking_id => $service_center_id) {
-            if ($service_center_id != "") {
+            if ($service_center_id == "" || $service_center_id ==0 || $booking_id == 0) { } else  {
                 $assigned = $this->miscelleneous->assign_vendor_process($service_center_id,$booking_id, $agent_id,$agent_name);
                 if($assigned){
                     // Insert log into booking state change
