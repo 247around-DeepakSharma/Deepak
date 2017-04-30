@@ -2490,7 +2490,7 @@ class Booking extends CI_Controller {
                 //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
-                $directory_xls = "vendor-partner-docs/" . $support_file_name;
+                $directory_xls = "misc-images/" . $support_file_name;
                 $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 //Logging success for file uppload
                 log_message('info', __METHOD__ . 'Support FILE is being uploaded sucessfully.');
