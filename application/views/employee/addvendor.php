@@ -1413,7 +1413,7 @@
 </script>
 <script>
     <?php if((isset($query[0]['is_verified']) && !empty($query[0]['is_verified'])) && $this->session->userdata('user_group') !='admin'){?>
-        $('#bank_details').find('input').attr('disabled', 'disabled');
+        $('#bank_details').find('input').attr('readonly', true);
     <?php } ?>
         
    $('#pan_no').keypress(function (e) {
