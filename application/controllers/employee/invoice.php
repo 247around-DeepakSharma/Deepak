@@ -304,23 +304,29 @@ class Invoice extends CI_Controller {
                 }
                 $tds += $tds_amount_array[$key];
                 $amount_collected = abs(round(($data[0]['amount_collected_paid'] + $data[0]['amount_paid']), 0));
+                
                 if ($amount_collected == round($credit_debit_amount[$key], 0)) {
+                    
                     $vp_details['settle_amount'] = 1;
-                    $vp_details['amount_paid'] = $amount_collected;
+                    $vp_details['amount_paid'] = $credit_debit_amount[$key] + $data[0]['amount_paid'];
                 } else {
                     //partner Pay to 247Around
-                    if ($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Debit') {
+                    if ($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Credit') {
                         $per_tds = ($tds_amount_array[$key] * 100) / $data[0]['amount_collected_paid'];
                         $vp_details['tds_amount'] = $tds_amount_array[$key];
                         $vp_details['tds_rate'] = $per_tds;
                         $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
                         $vp_details['around_royalty'] = $vp_details['amount_collected_paid'] = $amount_collected;
-                        if (round($amount_collected, 0) == round($credit_debit_amount[$key])) {
+                       
+                        if (round($amount_collected, 0) == round($credit_debit_amount[$key],0)) {
                             $vp_details['settle_amount'] = 1;
                         } else {
                             $vp_details['settle_amount'] = 0;
                         }
+                        $vp_details['amount_paid'] = $credit_debit_amount[$key];
+                    
                     } else {
+                       
                         $vp_details['settle_amount'] = 0;
                         $vp_details['amount_paid'] = $data[0]['amount_paid'] + $credit_debit_amount[$key];
                     }
@@ -356,10 +362,10 @@ class Invoice extends CI_Controller {
 
         //Send SMS to vendors about payment
         if ($account_statement['partner_vendor'] == 'vendor') {
-            $this->send_payment_sms_to_vendor($account_statement);
+           // $this->send_payment_sms_to_vendor($account_statement);
         }
 
-        redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
+      //  redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
     }
 
     function send_payment_sms_to_vendor($account_statement) {
