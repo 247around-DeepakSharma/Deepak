@@ -56,7 +56,7 @@
                                         <?php echo $sn_no; ?>
                                     </td>
                                      <td>
-                                       <a style="color:blue;" href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                       <a style="color:blue;" href="<?php echo base_url();?>booking/viewdetails/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
                                     </td>
                                     <td>
                                          <?php echo $row['request_type']; ?>
