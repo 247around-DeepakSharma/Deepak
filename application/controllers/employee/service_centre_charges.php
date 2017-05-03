@@ -433,16 +433,17 @@ class service_centre_charges extends CI_Controller {
     	$data['id'] = $this->input->post('id');
     	$data['check_box'] = $this->input->post('check_box');
     	$data['active'] = $this->input->post('active');
-    	$data['vendor_svc_charge'] = $this->input->post('vendor_svc_charge');
-    	$data['vendor_tax'] = $this->input->post('vendor_tax');
-    	$data['around_svc_charge'] = $this->input->post('around_svc_charge');
-    	$data['around_tax'] = $this->input->post('around_tax');
+    	$data['vendor_basic_charges'] = $this->input->post('vendor_basic_charges');
+    	$data['vendor_tax_basic_charges'] = $this->input->post('vendor_tax_basic_charges');
+    	$data['around_basic_charges'] = $this->input->post('around_basic_charges');
+    	$data['around_tax_basic_charges'] = $this->input->post('around_tax_basic_charges');
     	$data['customer_total'] = $this->input->post('customer_total');
-    	$data['partner_payment'] = $this->input->post('partner_payment');
-    	$data['customer_charges'] = $this->input->post('customer_charges');
+    	$data['partner_net_payable'] = $this->input->post('partner_net_payable');
+    	$data['customer_net_payable'] = $this->input->post('customer_net_payable');
 
     	$this->service_centre_charges_model->editPriceTable($data);
 
+        
     	echo "success";
     }
     
