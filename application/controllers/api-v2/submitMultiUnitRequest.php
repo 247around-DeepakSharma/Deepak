@@ -267,7 +267,7 @@ class submitMultiUnitRequest extends CI_Controller {
             "booking_id" => $this->ApiData['booking_id'],
             "partner_id" => $this->partner['id'],
             "source"     => $this->partner['code'],
-            "craete_date" => date("Y-m-d H:i:s"),
+            "create_date" => date("Y-m-d H:i:s"),
             "order_id"   => $this->ApiData['orderID'],
             "type"       => "Query",
             "quantity"   => $this->ApiData['units'],

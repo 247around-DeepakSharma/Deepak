@@ -361,10 +361,10 @@ class Invoice extends CI_Controller {
 
         //Send SMS to vendors about payment
         if ($account_statement['partner_vendor'] == 'vendor') {
-           // $this->send_payment_sms_to_vendor($account_statement);
+            $this->send_payment_sms_to_vendor($account_statement);
         }
 
-      //  redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
+        redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
     }
 
     function send_payment_sms_to_vendor($account_statement) {
