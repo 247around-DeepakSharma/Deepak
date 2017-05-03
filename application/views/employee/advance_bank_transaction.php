@@ -108,7 +108,7 @@
             }
             ?>
         <form name="myForm1" id="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/invoice/process_advance_payment" method="POST">
-            <h1>Add New Transaction</h1>
+            <h1>Add Advance Payment Transaction</h1>
             
             <div class="form-group ">
                 <label class="col-md-2">Select Party<span class="red">*</span></label>
