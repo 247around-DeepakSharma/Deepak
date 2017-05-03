@@ -229,7 +229,7 @@ class Penalty_model extends CI_Model {
         if ($query->num_rows > 0) {
             $result = $query->result_array();
             foreach ($result as $value) {
-                $booking_id_array = explode(",", $value['group_booking_id']);
+                $booking_id_array = explode(",", $value['booking_group']);
                 $booking_not_update = 0;
                 foreach ($booking_id_array as $booking_id) {
                     $data = $this->check_any_update_in_state_change($booking_id, $value['assigned_vendor_id']);
