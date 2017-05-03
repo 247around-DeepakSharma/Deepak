@@ -267,26 +267,30 @@ class Service_centers extends CI_Controller {
      * @desc: Validate Serial Number. If pod is 1 then serial number should not empty
      * @return boolean
      */
-    function validate_serial_no(){
+    function validate_serial_no() {
         $serial_number = $this->input->post('serial_number');
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
         $return_status = true;
-        foreach ($pod as $unit_id => $value) {
-            if($booking_status[$unit_id] == _247AROUND_COMPLETED){
-                if($value == 1 && empty(trim($serial_number[$unit_id]))){
-                    $return_status = false;
-                } else if($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] ==0){
-                    $return_status = false;
+        if (isset($pod)) {
+            foreach ($pod as $unit_id => $value) {
+                if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+                    if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
+                        $return_status = false;
+                    } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
+                        $return_status = false;
+                    }
                 }
             }
-        }
-        
-        if($return_status == true){
-            return true;
+
+            if ($return_status == true) {
+                return true;
+            } else {
+                $this->form_validation->set_message('validate_serial_no', 'Please Enter Serial Number');
+                return FALSE;
+            }
         } else {
-            $this->form_validation->set_message('validate_serial_no', 'Please Enter Serial Number');
-            return FALSE;
+            return TRUE;
         }
     }
 
