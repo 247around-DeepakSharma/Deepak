@@ -79,13 +79,13 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
       postData['id'] = id;
       postData['check_box'] = $('#checkbox_input'+div).val();
       postData['active'] = $('#active_input'+div).val();
-      postData['vendor_svc_charge'] = $('#vendor_svc_charge_input'+div).val();
-      postData['vendor_tax'] = $('#vendor_tax_input'+ div).val();
-      postData['around_tax'] = $('#around_tax_input'+div).val();
-      postData['around_svc_charge'] = $('#around_svc_charge_input'+div).val();
+      postData['vendor_basic_charges'] = $('#vendor_basic_charges_input'+div).val();
+      postData['vendor_tax_basic_charges'] = $('#vendor_tax_basic_charges_input'+ div).val();
+      postData['around_tax_basic_charges'] = $('#around_tax_basic_charges_input'+div).val();
+      postData['around_basic_charges'] = $('#around_basic_charges_input'+div).val();
       postData['customer_total'] = $('#customer_total_input'+div).val();
-      postData['partner_payment'] = $('#partner_payment_input'+div).val();
-      postData['customer_charges'] = $('#customer_charges_input'+div).val();
+      postData['partner_net_payable'] = $('#partner_net_payable_input'+div).val();
+      postData['customer_net_payable'] = $('#customer_net_payable_input'+div).val();
       $('#loader_gif').attr('src', baseUrl +"/images/loader.gif");
 
       sendAjaxRequest(postData, EditPricingDetailsUrl).done(function(data) {
@@ -105,26 +105,26 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
              $('#checkbox_p'+div).removeClass('displaytrue');
              $('#checkbox_p'+div).addClass('displayfalse');
 
-             $('#vendor_svc_charge_p'+div).removeClass('displaytrue');
-             $('#vendor_svc_charge_p'+div).addClass('displayfalse');
+             $('#vendor_basic_charges_p'+div).removeClass('displaytrue');
+             $('#vendor_basic_charges_p'+div).addClass('displayfalse');
 
-             $('#vendor_tax_p'+div).removeClass('displaytrue');
-             $('#vendor_tax_p'+div).addClass('displayfalse');
+             $('#vendor_tax_basic_charges_p'+div).removeClass('displaytrue');
+             $('#vendor_tax_basic_charges_p'+div).addClass('displayfalse');
 
-             $('#around_svc_charge_p'+div).removeClass('displaytrue');
-             $('#around_svc_charge_p'+div).addClass('displayfalse');
+             $('#around_basic_charges_p'+div).removeClass('displaytrue');
+             $('#around_basic_charges_p'+div).addClass('displayfalse');
 
-             $('#around_tax_p'+div).removeClass('displaytrue');
-             $('#around_tax_p'+div).addClass('displayfalse');
+             $('#around_tax_basic_charges_p'+div).removeClass('displaytrue');
+             $('#around_tax_basic_charges_p'+div).addClass('displayfalse');
 
              $('#customer_total_p'+div).removeClass('displaytrue');
              $('#customer_total_p'+div).addClass('displayfalse');
 
-             $('#partner_payment_p'+div).removeClass('displaytrue');
-             $('#partner_payment_p'+div).addClass('displayfalse');
+             $('#partner_net_payable_p'+div).removeClass('displaytrue');
+             $('#partner_net_payable_p'+div).addClass('displayfalse');
 
-             $('#customer_charges_p'+div).removeClass('displaytrue');
-             $('#customer_charges_p'+div).addClass('displayfalse');
+             $('#customer_net_payable_p'+div).removeClass('displaytrue');
+             $('#customer_net_payable_p'+div).addClass('displayfalse');
 
              
              $('#active_input'+div).removeClass('displayfalse');
@@ -133,26 +133,26 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
              $('#checkbox_input'+div).removeClass('displayfalse');
              $('#checkbox_input'+div).addClass('displaytrue');
 
-             $('#vendor_svc_charge_input'+div).removeClass('displayfalse');
-             $('#vendor_svc_charge_input'+div).addClass('displaytrue');
+             $('#vendor_basic_charges_input'+div).removeClass('displayfalse');
+             $('#vendor_basic_charges_input'+div).addClass('displaytrue');
 
-             $('#vendor_tax_input'+div).removeClass('displayfalse');
-             $('#vendor_tax_input').addClass('displaytrue');
+             $('#vendor_tax_basic_charges_input'+div).removeClass('displayfalse');
+             $('#vendor_tax_basic_charges_input').addClass('displaytrue');
 
-             $('#around_svc_charge_input'+div).removeClass('displayfalse');
-             $('#around_svc_charge_input').addClass('displaytrue');
+             $('#around_basic_charges_input'+div).removeClass('displayfalse');
+             $('#around_basic_charges_input').addClass('displaytrue');
 
-             $('#around_tax_input'+div).removeClass('displayfalse');
-             $('#around_tax_input').addClass('displaytrue');
+             $('#around_tax_basic_charges_input'+div).removeClass('displayfalse');
+             $('#around_tax_basic_charges_input').addClass('displaytrue');
 
              $('#customer_total_input'+div).removeClass('displayfalse');
              $('#customer_total_input'+div).addClass('displaytrue');
 
-             $('#partner_payment_input'+div).removeClass('displayfalse');
-             $('#partner_payment_input').addClass('displaytrue');
+             $('#partner_net_payable_input'+div).removeClass('displayfalse');
+             $('#partner_net_payable_input').addClass('displaytrue');
 
-             $('#customer_charges_input'+div).removeClass('displayfalse');
-             $('#customer_charges_input'+div).addClass('displaytrue');
+             $('#customer_net_payable_input'+div).removeClass('displayfalse');
+             $('#customer_net_payable_input'+div).addClass('displaytrue');
 
              $('#edit'+div).removeClass('displaytrue');
              $('#edit'+div).addClass('displayfalse');
@@ -178,26 +178,26 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
              $('#checkbox_p'+div).removeClass('displayfalse');
              $('#checkbox_p'+div).addClass('displaytrue');
 
-             $('#vendor_svc_charge_p'+div).removeClass('displayfalse');
-             $('#vendor_svc_charge_p'+div).addClass('displaytrue');
+             $('#vendor_basic_charges_p'+div).removeClass('displayfalse');
+             $('#vendor_basic_charges_p'+div).addClass('displaytrue');
 
-             $('#vendor_tax_p'+div).removeClass('displayfalse');
-             $('#vendor_tax_p'+div).addClass('displaytrue');
+             $('#vendor_tax_basic_charges_p'+div).removeClass('displayfalse');
+             $('#vendor_tax_basic_charges_p'+div).addClass('displaytrue');
 
-             $('#around_svc_charge_p'+div).removeClass('displayfalse');
-             $('#around_svc_charge_p'+div).addClass('displaytrue');
+             $('#around_basic_charges_p'+div).removeClass('displayfalse');
+             $('#around_basic_charges_p'+div).addClass('displaytrue');
 
-             $('#around_tax_p'+div).removeClass('displayfalse');
-             $('#around_tax_p'+div).addClass('displaytrue');
+             $('#around_tax_basic_charges_p'+div).removeClass('displayfalse');
+             $('#around_tax_basic_charges_p'+div).addClass('displaytrue');
 
              $('#customer_total_p'+div).removeClass('displayfalse');
              $('#customer_total_p'+div).addClass('displaytrue');
 
-             $('#partner_payment_p'+div).removeClass('displayfalse');
-             $('#partner_payment_p'+div).addClass('displaytrue');
+             $('#partner_net_payable_p'+div).removeClass('displayfalse');
+             $('#partner_net_payable_p'+div).addClass('displaytrue');
 
-             $('#customer_charges_p'+div).removeClass('displayfalse');
-             $('#customer_charges_p'+div).addClass('displaytrue');
+             $('#customer_net_payable_p'+div).removeClass('displayfalse');
+             $('#customer_net_payable_p'+div).addClass('displaytrue');
 
 
               $('#active_input'+div).removeClass('displaytrue');
@@ -206,26 +206,26 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
              $('#checkbox_input'+div).removeClass('displaytrue');
              $('#checkbox_input'+div).addClass('displayfalse');
 
-              $('#vendor_svc_charge_input'+div).removeClass('displaytrue');
-             $('#vendor_svc_charge_input'+div).addClass('displayfalse');
+              $('#vendor_basic_charges_input'+div).removeClass('displaytrue');
+             $('#vendor_basic_charges_input'+div).addClass('displayfalse');
 
-             $('#vendor_tax_input'+div).removeClass('displaytrue');
-             $('#vendor_tax_input'+div).addClass('displayfalse');
+             $('#vendor_tax_basic_charges_input'+div).removeClass('displaytrue');
+             $('#vendor_tax_basic_charges_input'+div).addClass('displayfalse');
 
-             $('#around_svc_charge_input'+div).removeClass('displaytrue');
-             $('#around_svc_charge_input'+div).addClass('displayfalse');
+             $('#around_basic_charges_input'+div).removeClass('displaytrue');
+             $('#around_basic_charges_input'+div).addClass('displayfalse');
 
-             $('#around_tax_input'+div).removeClass('displaytrue');
-             $('#around_tax_input'+div).addClass('displayfalse');
+             $('#around_tax_basic_charges_input'+div).removeClass('displaytrue');
+             $('#around_tax_basic_charges_input'+div).addClass('displayfalse');
 
              $('#customer_total_input'+div).removeClass('displaytrue');
              $('#customer_total_input'+div).addClass('displayfalse');
 
-             $('#partner_payment_input'+div).removeClass('displaytrue');
-             $('#partner_payment_input'+div).addClass('displayfalse');
+             $('#partner_net_payable_input'+div).removeClass('displaytrue');
+             $('#partner_net_payable_input'+div).addClass('displayfalse');
 
-             $('#customer_charges_input'+div).removeClass('displaytrue');
-             $('#customer_charges_input'+div).addClass('displayfalse');
+             $('#customer_net_payable_input'+div).removeClass('displaytrue');
+             $('#customer_net_payable_input'+div).addClass('displayfalse');
 
              $('#edit'+div).removeClass('displayfalse');
              $('#edit'+div).addClass('displaytrue');
