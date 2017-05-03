@@ -261,10 +261,7 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/booking/get_add_new_brand_form"><i class="fa fa-fw fa-desktop"></i> <strong> Add New Brand</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url()?>employee/service_centre_charges/show_pricing_tables" ><i class="fa fa-fw fa-desktop"></i> <strong> Show Prices</strong></a>
-                        </li>
+                        
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/service_centre_charges/upload_excel_form"><i class="fa fa-fw fa-inr "></i> <strong> Upload Service Charges / Taxes Excel</strong></a>
@@ -284,6 +281,10 @@
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/get_add_new_transaction"><i class="fa fa-fw fa-desktop "></i> <strong> Add New Transaction</strong></a>
+                        </li>
+                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/get_advance_bank_transaction"><i class="fa fa-fw fa-desktop "></i> <strong> Add Advance Bank Transaction</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>

@@ -35,7 +35,7 @@
                                         <?php echo $row['name']; ?>
                                     </td>
                                     <td>
-                                         <a  href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                         <a  href="<?php echo base_url();?>partner/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id'];?></a>
                                     </td>
 
                                     <td>
