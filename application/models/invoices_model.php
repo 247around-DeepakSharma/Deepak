@@ -276,7 +276,7 @@ class invoices_model extends CI_Model {
 		     `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `service_centres`.owner_phone_1,
 		     `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_paid_basic_charges as around_net_payable,
 		     (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, service_tax_no,
-                     (case when (service_centres.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, pan_no, contract_file, company_type
+                     (case when (service_centres.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, pan_no, contract_file, company_type, service_centres.pan_no
 
                      ,$date
 
@@ -882,7 +882,8 @@ class invoices_model extends CI_Model {
                 (vendor_basic_charges * COUNT( ud.`appliance_capacity` )) AS  s_total_service_charge,
                 sc.state, sc.service_tax_no, sc.company_name,sc.address as vendor_address, sc_code,
                 (case when (sc.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, 
-                sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type
+                sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
+                sc.pan_no
 
                 FROM  `booking_unit_details` AS ud 
                 JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
@@ -929,7 +930,8 @@ class invoices_model extends CI_Model {
                 (vendor_basic_charges * COUNT( ud.`appliance_capacity` )) AS  p_part_cost,
                 (case when (sc.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, 
                 sc.state, ud.tax_rate as p_tax_rate,sc.company_name,sc.address as vendor_address,sc_code,
-                sc.primary_contact_email, sc.owner_email,service_tax_no, sc.pan_no, contract_file, company_type
+                sc.primary_contact_email, sc.owner_email,service_tax_no, sc.pan_no, contract_file, company_type,
+                sc.pan_no
 
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                 WHERE  `product_or_services` =  'Product'
@@ -1057,8 +1059,22 @@ class invoices_model extends CI_Model {
                 $meta['tds_tax_rate'] = "5%";
             } else {
                 switch ($result[0]['company_type']) {
-                    case "Individual":
                     case 'Proprietorship Firm':
+                    if (!empty($result[0]['pan_no'])) {
+                        $_4th_char = substr($result[0]['pan_no'], 3, 1);
+                        if (strcasecmp($_4th_char, "F") == 0) {
+                           $meta['tds'] = ($meta['sub_service_cost']) * .02;
+                           $meta['tds_tax_rate'] =  "2%";
+                        } else {
+                            $meta['tds'] =  ($meta['sub_service_cost']) * .01;
+                            $meta['tds_tax_rate'] = "1%";
+                        }
+                    } else {
+                        $meta['tds'] =  ($meta['sub_service_cost']) * .01;
+                        $meta['tds_tax_rate'] = "1%";
+                    }
+                    break;
+                    case "Individual":
                         $meta['tds'] = $meta['sub_service_cost'] * .01;
                         $meta['tds_tax_rate'] = "1%";
                         break;

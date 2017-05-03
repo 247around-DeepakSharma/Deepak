@@ -1247,36 +1247,11 @@ class Invoice extends CI_Controller {
             }
 
             $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
-            $tds = 0;
-            $tds_tax_rate = 0;
-            $tds_per_rate = 0;
-            if (empty($invoices[0]['pan_no'])) {
-                $tds = ($total_inst_charge + $total_st_charge) * .20;
-                $tds_tax_rate = "20%";
-                $tds_per_rate = 20;
-            } else if (empty($invoices[0]['contract_file'])) {
-
-                $tds = ($total_inst_charge + $total_st_charge) * .05;
-                $tds_tax_rate = "5%";
-                $tds_per_rate = 5;
-            } else {
-                switch ($invoices[0]['company_type']) {
-                    case 'Proprietorship Firm':
-                    case "Individual":
-                        $tds = ($total_inst_charge + $total_st_charge) * .01;
-                        $tds_tax_rate = "1%";
-                        $tds_per_rate = 1;
-                        break;
-
-                    case "Partnership Firm":
-                    case "Company (Pvt Ltd)":
-                        $tds = ($total_inst_charge + $total_st_charge) * .02;
-                        $tds_tax_rate = "2%";
-                        $tds_per_rate = 2;
-                        break;
-                }
-            }
-
+            
+            $tds_array = $this->check_tds_sc($invoices[0], $total_inst_charge + $total_st_charge);
+            $tds = $tds_array['tds'];
+            $tds_tax_rate = $tds_array['tds_rate'];
+            $tds_per_rate = $tds_array['tds_per_rate'];
 
             //this array stores unique booking id
             $unique_booking = array_unique(array_map(function ($k) {
@@ -2897,7 +2872,8 @@ class Invoice extends CI_Controller {
                     log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
 
                     $data['total_amount_collected'] = ($data['total_amount_collected'] - $data['upcountry_price']);
-                    $tds = array();
+                    $tds['tds'] = 0;
+                    $tds['tds_rate'] = 0;
                     if ($data['type'] == 'FOC') {
 
                         if ($vendor_partner == "vendor") {
@@ -3002,32 +2978,50 @@ class Invoice extends CI_Controller {
         $tds_per_rate = 0;
         if (empty($sc_details['pan_no'])) {
             $tds = ($total_sc_details) * .20;
-            $tds_tax_rate = "20%";
-            $tds_per_rate = 20;
+            $tds_tax_rate = 20;
+            $tds_per_rate = "20%";
         } else if (empty($sc_details['contract_file'])) {
 
             $tds = ($total_sc_details) * .05;
-            $tds_tax_rate = "5%";
-            $tds_per_rate = 5;
+            $tds_tax_rate = 5;
+            $tds_per_rate = "5%";
         } else {
             switch ($sc_details['company_type']) {
                 case 'Proprietorship Firm':
+                    if (!empty($sc_details['pan_no'])) {
+                        $_4th_char = substr($sc_details['pan_no'], 3, 1);
+                        if (strcasecmp($_4th_char, "F") == 0) {
+                            $tds = ($total_sc_details) * .02;
+                            $tds_tax_rate = 2;
+                            $tds_per_rate = "2%";
+                        } else {
+                            $tds = ($total_sc_details) * .01;
+                            $tds_tax_rate = 1;
+                            $tds_per_rate = "1%";
+                        }
+                    } else {
+                        $tds = ($total_sc_details) * .01;
+                        $tds_tax_rate = 1;
+                        $tds_per_rate = "1%";
+                    }
+                    break;
                 case "Individual":
                     $tds = ($total_sc_details) * .01;
-                    $tds_tax_rate = "1%";
-                    $tds_per_rate = 1;
+                    $tds_tax_rate = 1;
+                    $tds_per_rate = "1%";
                     break;
 
                 case "Partnership Firm":
                 case "Company (Pvt Ltd)":
                     $tds = ($total_sc_details) * .02;
-                    $tds_tax_rate = "2%";
-                    $tds_per_rate = 2;
+                    $tds_tax_rate = 2;
+                    $tds_per_rate = "2%";
                     break;
             }
         }
         $data['tds'] = $tds;
-        $data['tds_rate'] = $tds_per_rate;
+        $data['tds_rate'] = $tds_tax_rate;
+        $data['tds_per_rate'] = $tds_per_rate;
         log_message('info', __FUNCTION__ . " Exit....");
         return $data;
     }
