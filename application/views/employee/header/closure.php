@@ -223,7 +223,10 @@
                         </li>
                         <li class="divider"></li>
                         
-                       
+                       <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/get_advance_bank_transaction"><i class="fa fa-fw fa-desktop "></i> <strong> Add Advance Bank Transaction</strong></a>
+                        </li>
+                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Transactions</strong></a>
                         </li>
@@ -231,6 +234,7 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Check</strong></a>
                         </li>
+                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoiceDashboard/service_center_invoice"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Check</strong></a>
                         </li>

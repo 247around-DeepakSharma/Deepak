@@ -3371,4 +3371,52 @@ class Invoice extends CI_Controller {
 
         return $details_excel;
     }
+    
+    /**
+     * @desc This function adds new advance bank transactions between vendor/partner and 247around
+     * @param String $vendor_partner
+     * @param int $id
+     */
+    function get_advance_bank_transaction($vendor_partner="", $id="") {
+        $data['vendor_partner'] = $vendor_partner;
+        $data['id'] = $id;
+        
+
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/advance_bank_transaction', $data);
+    }
+    /**
+     * @desc Add new bank transaction
+     */
+    function process_advance_payment(){
+        $data['partner_vendor'] = $this->input->post("partner_vendor");
+        $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
+        $data['credit_debit'] = $this->input->post("credit_debit");
+        $data['bankname'] = $this->input->post("bankname");
+        $amount = $this->input->post("amount");
+        if($data['credit_debit'] == "Credit"){
+            $data['credit_amount'] = $amount;
+            
+        } else if($data['credit_debit'] == "Debit"){
+            $data['debit_amount'] = $amount;
+        }
+        
+        $data['tds_amount'] = $this->input->post('tds_amount');
+        $data['transaction_mode'] = $this->input->post('transaction_mode');
+        $data['transaction_date'] = $this->input->post("tdate");
+        $data['description'] = $this->input->post("description");
+        $data['agent_id'] = $this->session->userdata('id');
+        $data['create_date'] = date("Y-m-d H:i:s");
+        $status = $this->invoices_model->bankAccountTransaction($data);
+        if($status){
+            
+            $userSession = array('success' => "Bank Transaction Added");
+            $this->session->set_userdata($userSession);
+            redirect(base_url()."employee/invoice/get_advance_bank_transaction");
+        } else {
+            $userSession = array('error' => "Bank Transaction Not Added");
+            $this->session->set_userdata($userSession);
+            redirect(base_url()."employee/invoice/get_advance_bank_transaction");
+        }
+    }
 }
