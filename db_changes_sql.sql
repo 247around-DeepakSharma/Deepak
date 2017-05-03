@@ -2135,3 +2135,12 @@ UPDATE `workbook2` SET `service_id` = 42 WHERE `service_name` = "Microwave";
 
 ALTER TABLE `booking_unit_details` ADD `sub_order_id` VARCHAR(256) NULL DEFAULT NULL AFTER `partner_id`;
 
+-- sachin 25-04-2017
+
+ALTER TABLE `booking_details` ADD `support_file` VARCHAR(256) NULL AFTER `upcountry_price`;
+
+-- sachin 01-05-2017
+
+ALTER TABLE `service_centres` CHANGE `create_date` `create_date` TIMESTAMP NOT NULL;
+ALTER TABLE `service_centres` ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `active`;
+

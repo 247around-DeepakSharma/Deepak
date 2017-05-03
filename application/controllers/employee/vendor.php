@@ -341,6 +341,10 @@ class vendor extends CI_Controller {
                 $_POST['is_verified'] = '0';
             }
             
+            
+            //Getting RM Official Email details to send Welcome Mails to them as well
+            $rm_official_email = $this->employee_model->getemployeefromid($rm)[0]['official_email'];
+                
             if (!empty($this->input->post('id'))) {
                 
                 //if vendor exists, details are edited
@@ -364,7 +368,7 @@ class vendor extends CI_Controller {
                         $html .= " ".$value.'</li>';
                     }
                     $html .="</ul>";
-                    $to = ANUJ_EMAIL_ID;
+                    $to = ANUJ_EMAIL_ID.','.$rm_official_email;
                     
                     //Cleaning Email Variables
                         $this->email->clear(TRUE);
@@ -428,6 +432,7 @@ class vendor extends CI_Controller {
                 $new_vendor_mail = $owner_email.','.$primary_contact_email;
                 //Making Array to add Vendor
                 $vendor_data = $this->get_vendor_form_data();
+                $vendor_data['create_date'] = date('Y-m-d H:i:s');
                 
                 $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
 
@@ -436,8 +441,6 @@ class vendor extends CI_Controller {
                 
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
-                //Getting RM Official Email details to send Welcome Mails to them as well
-                $rm_official_email = $this->employee_model->getemployeefromid($rm)[0]['official_email'];
                 
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
