@@ -285,6 +285,10 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/get_add_new_transaction"><i class="fa fa-fw fa-desktop "></i> <strong> Add New Transaction</strong></a>
                         </li>
+                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/get_advance_bank_transaction"><i class="fa fa-fw fa-desktop "></i> <strong> Add Advance Bank Transaction</strong></a>
+                        </li>
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/accounting/show_search_invoice_id_view"><i class="fa fa-fw fa-desktop "></i> <strong>Search Invoice Id</strong></a>
