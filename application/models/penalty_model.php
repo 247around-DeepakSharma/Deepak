@@ -218,7 +218,7 @@ class Penalty_model extends CI_Model {
                 ) ) ,  '' ) AS booking_group
                 FROM service_center_booking_action AS SC, booking_details AS BD, service_centres AS SCS
                 WHERE (
-                SC.current_status =  'Pending'
+                SC.current_status =  'Pending' AND BD.current_status IN ('Pending', 'Rescheduled')
                 )
                 AND SC.booking_id = BD.booking_id
                 AND (
