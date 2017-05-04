@@ -3407,7 +3407,7 @@ class Invoice extends CI_Controller {
         
         $data['tds_amount'] = $this->input->post('tds_amount');
         $data['transaction_mode'] = $this->input->post('transaction_mode');
-        $data['transaction_date'] = $this->input->post("tdate");
+        $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
         $data['description'] = $this->input->post("description");
         $data['agent_id'] = $this->session->userdata('id');
         $data['create_date'] = date("Y-m-d H:i:s");
