@@ -235,7 +235,7 @@ class Service_centers_model extends CI_Model {
     }
 
     function delete_booking_id($booking_id) {
-        if(!empty($booking_id) || $booking_id !="0"){
+        if(!empty($booking_id) || $booking_id != '0'){
             $this->db->where('booking_id', $booking_id);
             $this->db->delete('service_center_booking_action');
         }

@@ -944,17 +944,20 @@ class vendor extends CI_Controller {
         $count = 0;
        
         foreach ($service_center as $booking_id => $service_center_id) {
-            if ($service_center_id == "" || $service_center_id ==0 || $booking_id == 0) { } else  {
-                $assigned = $this->miscelleneous->assign_vendor_process($service_center_id,$booking_id, $agent_id,$agent_name);
-                if($assigned){
-                    // Insert log into booking state change
-                    $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING,
-                            "Service Center Id: " . $service_center_id,$agent_id, $agent_name, _247AROUND);
+            if(!empty($booking_id) || $booking_id != '0'){
+           
+                if ($service_center_id != "") {
+                   
+                    $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_name);
+                    if ($assigned) {
+                        // Insert log into booking state change
+                        $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
 
-                    $count++;
-                } else {
-                    log_message('info', __METHOD__ . "=> Not Assign for Sc "
-                                    . $service_center_id);
+                        $count++;
+                    } else {
+                        log_message('info', __METHOD__ . "=> Not Assign for Sc "
+                                . $service_center_id);
+                    }
                 }
             }
         }

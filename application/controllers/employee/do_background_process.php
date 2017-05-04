@@ -51,18 +51,20 @@ class Do_background_process extends CI_Controller {
         $agent_name = $this->input->post('agent_name');
 
         foreach ($data as $booking_id => $service_center_id) {
-           if ($service_center_id == "" || $service_center_id ==0 || $booking_id == 0) { } else  {
+            if (!empty($booking_id) || $booking_id != '0') {
+                if ($service_center_id == "") {
 
-                log_message('info', "Async Process to Assign booking - Booking ID: " .
-                        $booking_id . ", SF ID: " . $service_center_id);
+                    log_message('info', "Async Process to Assign booking - Booking ID: " .
+                            $booking_id . ", SF ID: " . $service_center_id);
 
-                $upcountry_status = $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
-                if ($upcountry_status) {
-                    log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
-                    $this->miscelleneous->send_sms_create_job_card($upcountry_status);
+                    $upcountry_status = $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
+                    if ($upcountry_status) {
+                        log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
+                        $this->miscelleneous->send_sms_create_job_card($upcountry_status);
+                    }
+
+                    log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);
                 }
-
-                log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);
             }
         }
 
