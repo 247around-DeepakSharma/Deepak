@@ -1135,22 +1135,29 @@ EOD;
                     if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $file_data = $this->penalty_model->get_penalty_on_booking_any(array('service_center_id' => $data['data'][0]['service_center_id'],
-                            'criteria_id' => '2', 'create_date >=' => date('Y-m-d') ), 'booking_id');
-       
-                        $file_path = TMP_FOLDER.$data['data'][0]['service_center_name']."-". date('Y-m-d');
-                        $file = fopen( $file_path . ".txt", "a+") or die("Unable to open file!");
-                         foreach ($file_data as $booking_id){
-                             fwrite($file,  print_r($booking_id['booking_id'], TRUE)."\n");
-                         }
-                         fclose($file);
+                            'criteria_id' => '2', 'create_date >=' => date('Y-m-d', strtotime("-1 days")) ), 'booking_id');
+                        
+                        $file_path = "";
+                        if(!empty($file_data)){
+                            $file_path = TMP_FOLDER.$data['data'][0]['service_center_name']."-". date('Y-m-d');
+                            $file = fopen( $file_path . ".txt", "a+") or die("Unable to open file!");
+                            
+                             foreach ($file_data as $booking_id){
+                                 
+                                 fwrite($file,  $booking_id['booking_id']."\n");
+                             }
+                             fclose($file);
+                        }
                         
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
+                        
                         $bcc = "abhaya@247around.com";
                         $cc = "";
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
-                        
-                        $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $view, $file_path);
+                       
+                        $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $view, $file_path . ".txt");
                         exec("rm -rf " . escapeshellarg($file_path));
+                        
                     } else {
                         log_message('info', __FUNCTION__ . " Empty Data Get");
                     }
