@@ -120,12 +120,12 @@ class service_centre_charges_model extends CI_Model {
         $this->db->select('service_centre_charges.*,services.services');
         
         if($data['source'] !=""){
-          $this->db->where('partner_code', $data['source']);
+          $this->db->where('partner_id', $data['source']);
         }
 
-        if($data['city'] != ""){
-          $this->db->where('city', $data['city']);
-        }
+//        if($data['city'] != ""){
+//          $this->db->where('city', $data['city']);
+//        }
 
         if($data['service_id'] != ""){
           $this->db->where('service_id', $data['service_id']);
