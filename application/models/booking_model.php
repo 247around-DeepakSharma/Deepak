@@ -692,7 +692,7 @@ class Booking_model extends CI_Model {
      */
     //TODO: Merge with update_booking_details function
     function update_booking($booking_id, $data) {
-        if($booking_id != 0 || $booking_id != ''){
+        if(!empty($booking_id) || $booking_id != '0'){
             $this->db->where(array("booking_id" => $booking_id));
             $result =  $this->db->update("booking_details", $data);
 
