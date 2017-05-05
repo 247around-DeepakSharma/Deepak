@@ -796,10 +796,12 @@
     postData['booking_city'] =  $("#booking_city").val();
     postData['booking_pincode'] =  $("#booking_pincode").val();
     postData['clone_number'] = 1;
+     postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
     postData['capacity'] = $("#appliance_capacity_1").val();
     $('#submitform').attr('disabled',true);
 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
+        //console.log(data);
         var data1 = jQuery.parseJSON(data);
         
         $("#upcountry_data").val(data1.upcountry_data);

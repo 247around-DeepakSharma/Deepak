@@ -299,13 +299,8 @@ class Booking extends CI_Controller {
                     }
                 } else if ($booking['is_send_sms'] == 2 || $booking_id != INSERT_NEW_BOOKING) {
                     //Pending booking getting updated, not query getting converted to booking
-                    $up_flag = 0;
-                    if (isset($upcountry_data['vendor_id'])) {
-                        $assigned_vendor_id = $this->input->post('assigned_vendor_id');
-                        if (!empty($assigned_vendor_id)) {
-                            $up_flag = 1;
-                        }
-                    }
+                    $up_flag = 1;
+                    
                     $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking['booking_id'] . "/" . $up_flag;
                     $async_data['booking'] = array();
                     $this->asynchronous_lib->do_background_process($url, $async_data);
@@ -1096,8 +1091,16 @@ class Booking extends CI_Controller {
                 $i++;
             }
             $data['price_table'] = $html;
-            $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, $assigned_vendor_id);
+            if(empty($assigned_vendor_id)){
+                $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, $assigned_vendor_id);
+            } else {
+                
+                $vendor_data = array();
+                $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
+                $vendor_data[0]['city'] = $booking_city;
 
+                $upcountry_data = $this->upcountry_model->action_upcountry_booking($booking_city, $booking_pincode, $vendor_data, $partner_data);
+            }
 
             $data['upcountry_data'] = json_encode($upcountry_data, true);
             print_r(json_encode($data, true));

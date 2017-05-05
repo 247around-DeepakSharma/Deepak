@@ -44,6 +44,7 @@ class Miscelleneous {
                 } else {
                     $msg['vendor_id'] = $check_vendor[0]['Vendor_ID'];
                     $msg['message'] = NOT_UPCOUNTRY_BOOKING;
+                    $msg['upcountry_distance'] = 0;
                    
                     return $msg;
                 }
@@ -57,6 +58,7 @@ class Miscelleneous {
                     } else {
                         $msg['vendor_id'] = $vendor['Vendor_ID'];
                         $msg['message'] = NOT_UPCOUNTRY_BOOKING;
+                        $msg['upcountry_distance'] = 0;
                         $is_return = 1;
                         array_push($mesg1, $msg);
                     }
@@ -475,7 +477,6 @@ class Miscelleneous {
                 switch ($data['message']) {
                     case NOT_UPCOUNTRY_BOOKING:
                     case UPCOUNTRY_BOOKING:
-                    case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                         if ($is_price['is_upcountry'] == 0) {
                             log_message('info', __FUNCTION__ . ' Upcountry Not Provide');
                             $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
@@ -550,6 +551,7 @@ class Miscelleneous {
                         break;
 
                     case SF_DOES_NOT_EXIST:
+                    case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                         log_message('info', __FUNCTION__ . SF_DOES_NOT_EXIST );
                         return FALSE;
                     //break;
