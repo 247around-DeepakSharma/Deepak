@@ -1989,21 +1989,22 @@ class Booking extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
             $this->booking_model->convert_booking_to_pending($booking_id, $data, $status);
-
-
-            $service_center_data['internal_status'] = "Pending";
-            $service_center_data['current_status'] = "Pending";
-            $service_center_data['update_date'] = date("Y-m-d H:i:s");
-            $service_center_data['serial_number'] = "";
-            $service_center_data['cancellation_reason'] = NULL;
-            $service_center_data['reschedule_reason'] = NULL;
-            $service_center_data['admin_remarks'] = NULL;
-            $service_center_data['service_center_remarks'] = $service_center_data['admin_remarks'] = NULL;
-            $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
-            $service_center_data['closed_date'] = NULL;
-            $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
-            log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
-            $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+            $assigned_vendor_id = $this->input->post("assigned_vendor_id"); 
+            if(!empty($assigned_vendor_id)){
+                $service_center_data['internal_status'] = "Pending";
+                $service_center_data['current_status'] = "Pending";
+                $service_center_data['update_date'] = date("Y-m-d H:i:s");
+                $service_center_data['serial_number'] = "";
+                $service_center_data['cancellation_reason'] = NULL;
+                $service_center_data['reschedule_reason'] = NULL;
+                $service_center_data['admin_remarks'] = NULL;
+                $service_center_data['service_center_remarks'] = $service_center_data['admin_remarks'] = NULL;
+                $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
+                $service_center_data['closed_date'] = NULL;
+                $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
+                log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
+                $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+            }
 
 
             $unit_details['booking_status'] = "Pending";
@@ -2017,10 +2018,15 @@ class Booking extends CI_Controller {
 
             //Log this state change as well for this booking          
             $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-
+            if(!empty($assigned_vendor_id)){        
+                    
+                $this->miscelleneous->assign_upcountry_booking($booking_id, 
+                    $this->session->userdata('id'), $this->session->userdata('employee_id'));
+             
+            } 
             //Creating Job Card to Booking ID
             $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-
+            
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $send['booking_id'] = $booking_id;
             $send['state'] = "OpenBooking";
