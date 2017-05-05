@@ -2839,7 +2839,7 @@ class Invoice extends CI_Controller {
             $data['total_amount_collected'] = round(($data['total_service_charge'] +
                     $data['total_additional_service_charge'] +
                     $data['parts_cost'] + $data['vat'] +
-                    $data['service_tax'] + $data['courier_charges'] - $data['penalty_amount']), 0);
+                    $data['service_tax'] + $data['courier_charges'] +$data['upcountry_price'] - $data['penalty_amount']), 0);
 
             $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
             $invoice_date = $this->input->post('invoice_date');
@@ -2857,21 +2857,17 @@ class Invoice extends CI_Controller {
                 $data['invoice_id'] = $invoice_id;
             }
 
-
             switch ($data['type_code']) {
                 case 'A':
                     log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
-
-                    $data['total_amount_collected'] = ($data['total_amount_collected'] + $data['upcountry_price']);
+                    $data['total_amount_collected'] = ($data['total_amount_collected']);
                     $data['around_royalty'] = round($data['total_amount_collected'], 0);
                     $data['amount_collected_paid'] = round($data['total_amount_collected'], 0);
 
                     break;
-
                 case 'B':
                     log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
-
-                    $data['total_amount_collected'] = ($data['total_amount_collected'] - $data['upcountry_price']);
+                    $data['total_amount_collected'] = ($data['total_amount_collected'] );
                     $tds['tds'] = 0;
                     $tds['tds_rate'] = 0;
                     if ($data['type'] == 'FOC') {
@@ -2882,7 +2878,6 @@ class Invoice extends CI_Controller {
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;
                         }
-
                     } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand') {
 
                         $tds['tds'] = 0;
