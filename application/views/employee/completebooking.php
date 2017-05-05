@@ -279,7 +279,7 @@
 							}
 							?>
 							<?php foreach ($prices[$keys] as $index => $value) { ?>
-							    <tr style="background-color:   #FF4500; color: white;">
+							    <tr style="background-color:   #bce8f1; color: #222222;">
 
 									<td> <?php if ($value['pod'] == "1") { ?>
 	    							    <input type="text" class="form-control"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" />

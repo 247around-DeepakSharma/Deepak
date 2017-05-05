@@ -84,6 +84,10 @@ class Miscelleneous {
         
             
         } else {
+            $to = RM_EMAIL; 
+            $subject = "SF Not Exist in the Pincode ".$booking_pincode;
+            $message = "Booking City: ". $booking_city." /n  Booking Pincode: ".$booking_pincode; 
+            $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
             $msg['message'] = SF_DOES_NOT_EXIST;
             return $msg;
         }
