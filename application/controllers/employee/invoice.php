@@ -505,30 +505,7 @@ class Invoice extends CI_Controller {
             $end_date = date("jS M, Y", strtotime($t_date));
 
             foreach ($data as $key => $value) {
-                /*
-                  switch ($value['price_tags']) {
-                  case 'Wall Mount Stand':
-                  $data[$key]['remarks'] = "Stand Delivered";
-                  break;
-
-                  case 'Repair':
-                  $data[$key]['remarks'] = "Repair";
-                  break;
-
-                  case 'Repair - In Warranty':
-                  $data[$key]['remarks'] = "Repair - In Warranty";
-                  break;
-
-                  case 'Repair - Out Of Warranty':
-                  $data[$key]['remarks'] = "Repair - Out Of Warranty";
-                  break;
-
-                  default:
-                  $data[$key]['remarks'] = "Installation Completed";
-                  break;
-                  }
-                 * 
-                 */
+                
 
                 $data[$key]['remarks'] = $value['price_tags'];
                 $data[$key]['closed_date'] = date("jS M, Y", strtotime($value['closed_date']));
@@ -874,33 +851,10 @@ class Invoice extends CI_Controller {
             if (isset($details['invoice_id'])) {
                 $invoice_id = $details['invoice_id'];
             } else {
-                if ((strcasecmp($invoices['booking'][0]['state'], "DELHI") == 0) ||
-                        (strcasecmp($invoices['booking'][0]['state'], "New Delhi") == 0)) {
-                    //If matched return 0;
-                    $invoice_version = "T";
-                } else {
-                    $invoice_version = "R";
-                }
+                $invoice_id_tmp = $this->create_invoice_id_to_insert($invoices['booking'], $from_date, "Around");
+               
+                $invoice_id = $invoice_id_tmp['invoice_id'];
 
-                $current_month = date('m');
-                // 3 means March Month
-                if ($current_month > 3) {
-                    $financial = date('Y') . "-" . (date('Y') + 1);
-                } else {
-                    $financial = (date('Y') - 1) . "-" . date('Y');
-                }
-
-                //Make sure it is unique
-                $invoice_id_tmp = "Around-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
-                $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
-                $invoice_no = 1;
-                if (!empty($invoice_no_temp)) {
-                    $explode = explode($invoice_id_tmp . "-", $invoice_no_temp[0]['invoice_id']);
-                    $invoice_no = $explode[1] + 1;
-                }
-
-                $invoice_id = $invoice_id_tmp . "-" . $invoice_no;
             }
 
             $excel_data = $invoices['meta'];
@@ -1198,33 +1152,9 @@ class Invoice extends CI_Controller {
                 log_message('info', __FUNCTION__ . " Re-Generate Invoice id " . $details['invoice_id']);
                 $invoice_id = $details['invoice_id'];
             } else {
-                if ((strcasecmp($invoices[0]['state'], "DELHI") == 0) ||
-                        (strcasecmp($invoices[0]['state'], "New Delhi") == 0)) {
-                    //If matched return 0;
-                    $invoice_version = "T";
-                } else {
-                    $invoice_version = "R";
-                }
-
-                $current_month = date('m');
-                // 3 means March Month
-                if ($current_month > 3) {
-                    $financial = date('Y') . "-" . (date('Y') + 1);
-                } else {
-                    $financial = (date('Y') - 1) . "-" . date('Y');
-                }
-
-                //Make sure it is unique
-                $invoice_id_tmp = $invoices[0]['sc_code'] . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
-                $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
-                $invoice_no = 1;
-                if (!empty($invoice_no_temp)) {
-                    $explode = explode($invoice_id_tmp . "-", $invoice_no_temp[0]['invoice_id']);
-                    $invoice_no = $explode[1] + 1;
-                }
-
-                $invoice_id = $invoice_id_tmp . "-" . $invoice_no;
+                $invoice_id_tmp = $this->create_invoice_id_to_insert($invoices, $from_date, $invoices[0]['sc_code']);
+                $invoice_id = $invoice_id_tmp['invoice_type'];
+                
                 log_message('info', __FUNCTION__ . " Generate Invoice id " . $invoice_id);
             }
 
@@ -2250,35 +2180,12 @@ class Invoice extends CI_Controller {
             $invoices['meta']['sd'] = date("jS M, Y", strtotime($from_date));
             $invoices['meta']['ed'] = date('jS M, Y', strtotime($to_date));
             $invoices['meta']['invoice_date'] = date("jS M, Y");
-            if ((strcasecmp($invoices['booking'][0]['state'], "DELHI") == 0) ||
-                    (strcasecmp($invoices['booking'][0]['state'], "New Delhi") == 0)) {
-                //If matched return 0;
-                $invoice_version = "T";
-                $invoices['meta']['invoice_type'] = "TAX INVOICE";
-            } else {
-                $invoice_version = "R";
-                $invoices['meta']['invoice_type'] = "RETAIL INVOICE";
-            }
+            
+            $invoice_id_tmp = $this->create_invoice_id_to_insert($invoices['booking'], $from_date, "Around");
+            $invoices['meta']['invoice_type'] = $invoice_id_tmp['invoice_type'];
+                
+            $invoices['meta']['invoice_id'] = $invoice_id_tmp['invoice_id'];
 
-            $current_month = date('m');
-            // 3 means March Month
-            if ($current_month > 3) {
-                $financial = date('Y') . "-" . (date('y') + 1);
-            } else {
-                $financial = (date('Y') - 1) . "-" . date('y');
-            }
-
-            //Make sure it is unique
-            $invoice_id_tmp = "Around" . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
-            $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-            $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
-            $invoice_no = 1;
-            if (!empty($invoice_no_temp)) {
-                $explode = explode($invoice_id_tmp . "-", $invoice_no_temp[0]['invoice_id']);
-                $invoice_no = $explode[1] + 1;
-            }
-
-            $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . $invoice_no;
 
             log_message('info', __FUNCTION__ . ' Invoice id ' . $invoices['meta']['invoice_id']);
             //load template
@@ -2393,36 +2300,10 @@ class Invoice extends CI_Controller {
                     $invoices['meta']['invoice_type'] = "RETAIL INVOICE";
                 }
             } else {
-                if ((strcasecmp($invoices['booking'][0]['state'], "DELHI") == 0) ||
-                        (strcasecmp($invoices['booking'][0]['state'], "New Delhi") == 0)) {
-                    //If matched return 0;
-                    $invoice_version = "T";
-                    $invoices['meta']['invoice_type'] = "TAX INVOICE";
-                } else {
-                    $invoice_version = "R";
-                    $invoices['meta']['invoice_type'] = "RETAIL INVOICE";
-                }
-
-                $current_month = date('m');
-                // 3 means March Month
-                if ($current_month > 3) {
-                    $financial = date('Y') . "-" . (date('y') + 1);
-                } else {
-                    $financial = (date('Y') - 1) . "-" . date('y');
-                }
-
-                //Make sure it is unique
-                $invoice_id_tmp = $invoices['meta']['sc_code'] . "-" . $invoice_version
-                        . "-" . $financial . "-" . date("M", strtotime($from_date));
-                $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
-                $invoice_no = 1;
-                if (!empty($invoice_no_temp)) {
-                    $explode = explode($invoice_id_tmp . "-", $invoice_no_temp[0]['invoice_id']);
-                    $invoice_no = $explode[1] + 1;
-                }
-
-                $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . $invoice_no;
+                $invoice_id_tmp = $this->create_invoice_id_to_insert($invoices['booking'], $from_date, $invoices['meta']['sc_code']);
+                $invoices['meta']['invoice_type'] = $invoice_id_tmp['invoice_type'];
+                
+                $invoices['meta']['invoice_id'] = $invoice_id_tmp['invoice_id'];
                 log_message('info', __METHOD__ . ": Invoice Id geneterated "
                         . $invoices['meta']['invoice_id']);
             }
@@ -2608,35 +2489,9 @@ class Invoice extends CI_Controller {
                     $invoices['meta']['invoice_type'] = "RETAIL INVOICE";
                 }
             } else {
-                if ((strcasecmp($invoices['product'][0]['state'], "DELHI") == 0) ||
-                        (strcasecmp($invoices['product'][0]['state'], "New Delhi") == 0)) {
-                    //If matched return 0;
-                    $invoice_version = "T";
-                    $invoices['meta']['invoice_type'] = "TAX INVOICE";
-                } else {
-                    $invoice_version = "R";
-                    $invoices['meta']['invoice_type'] = "RETAIL INVOICE";
-                }
-
-                $current_month = date('m');
-                // 3 means March Month
-                if ($current_month > 3) {
-                    $financial = date('Y') . "-" . (date('y') + 1);
-                } else {
-                    $financial = (date('Y') - 1) . "-" . date('y');
-                }
-
-                //Make sure it is unique
-                $invoice_id_tmp = "Around-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
-                $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
-                $invoice_no = 1;
-                if (!empty($invoice_no_temp)) {
-                    $explode = explode($invoice_id_tmp . "-", $invoice_no_temp[0]['invoice_id']);
-                    $invoice_no = $explode[1] + 1;
-                }
-
-                $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . $invoice_no;
+                $invoice_id_tmp = $this->create_invoice_id_to_insert($invoices['product'], $from_date, "Around");
+                $invoices['meta']['invoice_type'] =  $invoice_id_tmp['invoice_type'];
+                $invoices['meta']['invoice_id'] = $invoice_id_tmp['invoice_id'];
 
                 log_message('info', __FUNCTION__ . " New Invoice ID Generated: " . $invoices['meta']['invoice_id']);
                 echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
