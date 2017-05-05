@@ -164,7 +164,7 @@
                                         </td>
                                         <td>
                                             <input type="text" class="form-control cal_amount" id="<?php echo "cal_amount_".$key; ?>" name="credit_debit_amount[]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" required/>
-                                            <input type="hidden" class="form-control" name="pre_credit_amount[]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" />
+                                            <input type="hidden" id= "<?php echo "pre_amount_".$key; ?>" class="form-control" name="pre_credit_amount[]" value="<?php echo abs($amount_collected[$invoice_id]); ?>" />
                                             
                                         </td>
                                         <td>
@@ -275,7 +275,7 @@
                                 </tbody>
                             </table>
                             <div class="col-md-12" style="text-align: center;">
-                                <input onclick="return check_amount(<?php echo $flag;?>)" type= "submit"  class="btn btn-primary btn-lg"  value ="Submit Transaction Details" >
+                                <input onclick="return check_amount(<?php echo $flag;?>)" id="form_submit" type= "submit"  class="btn btn-primary btn-lg"  value ="Submit Transaction Details" >
                             </div>
                         </div>
                     </div>
@@ -312,7 +312,15 @@ function check_price_details(){
           var id_key = this.id.split('cal_amount_');
           var credit_debit =  $("#cre_amount_"+id_key[1]).val();
           var amount = $("#cal_amount_"+ id_key[1]).val();
-         
+          var pre_amount = $("#pre_amount_"+ id_key[1]).val();
+          if(amount > pre_amount){
+              alert("Can Not Enter Amount Greater Than Rs. " +pre_amount );
+              $(':input[type="submit"]').prop('disabled', true);
+              return false;
+          } else {
+              alert(pre_amount);
+              $(':input[type="submit"]').prop('disabled', false);
+          }
           if(amount > 0){
             if(credit_debit === "Debit"){
                 f_amount = Number(f_amount) - Number(amount);
