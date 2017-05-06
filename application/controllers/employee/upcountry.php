@@ -295,5 +295,29 @@ class Upcountry extends CI_Controller {
             echo "error";
         }
     }
+    
+    
+    /**
+     * @desc This method is used to insert  the distance for given pincode if it is not exist
+     * @param void
+     * @return string 
+     */
+    function add_new_pincode_distance(){
+        $pincode1 = $this->input->post('pincode1');
+        $pincode2 = $this->input->post('pincode2');
+        $distance = $this->input->post('new_distance');
+        $regex = "/^[0-9]+(\.[0-9]{1,2})?$/";
+        $agent_id = $this->session->userdata('id');
+        if (preg_match($regex, $distance) && strlen($pincode1) === 6 && strlen($pincode2) === 6) {
+            $insert_id = $this->upcountry_model->insert_distance($pincode1,$pincode2,$distance,$agent_id);
+            if($insert_id){
+                echo "success";
+            }else{
+                echo "error dddsd";
+            }
+        } else {
+            echo "error";
+        }
+    }
 
 }

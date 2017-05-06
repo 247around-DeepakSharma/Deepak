@@ -104,7 +104,7 @@ class Sanitizer extends CI_Controller {
                         //print_r($distance);
 
                         $this->pc_distance_model->insert_distance($pc1, $pc2, $distance['distance']['value'],
-                                $do['city'], $do['state']);
+                                $do['city'], $do['state'],_247AROUND_DEFAULT_AGENT);
                     } else {
                         $fails++;
 
@@ -112,7 +112,7 @@ class Sanitizer extends CI_Controller {
 
                         //still insert it
                         $this->pc_distance_model->insert_distance($pc1, $pc2, '999999999',
-                                $do['city'], $do['state']);
+                                $do['city'], $do['state'],_247AROUND_DEFAULT_AGENT);
 
                         echo $pc1 . ", " . $pc2 . PHP_EOL;
                     }
@@ -168,7 +168,7 @@ class Sanitizer extends CI_Controller {
                         //print_r($distance);
 
                         $this->pc_distance_model->insert_distance($pc1, $pc2, $distance['distance']['value'],
-                                $do['city'], $do['state']);
+                                $do['city'], $do['state'],_247AROUND_DEFAULT_AGENT);
                     } else {
                         $fails++;
 
@@ -176,7 +176,7 @@ class Sanitizer extends CI_Controller {
 
                         //still insert it
                         $this->pc_distance_model->insert_distance($pc1, $pc2, '999999999',
-                                $do['city'], $do['state']);
+                                $do['city'], $do['state'],_247AROUND_DEFAULT_AGENT);
 
                         echo $pc1 . ", " . $pc2 . PHP_EOL;
                     }
