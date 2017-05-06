@@ -586,7 +586,7 @@ function set_upcountry() {
                 },
                 url: baseUrl +'/employee/vendor/check_pincode_exist_in_india_pincode/'+ pincode,          
                 success: function (data) {
-                   console.log(data);
+                  
                     if(data === "Not Exist"){
                         $('#submitform').attr('disabled', true); 
                         alert("Check Pincode.. Pincode Not Exist");

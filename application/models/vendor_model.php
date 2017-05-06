@@ -1697,7 +1697,7 @@ class vendor_model extends CI_Model {
      * @return boolean
      */
     function assign_service_center_for_booking($booking_id, $data){
-        if($booking_id != 0 || $booking_id != ''){
+       if(!empty($booking_id) || $booking_id != '0'){
             $this->db->where('booking_id', $booking_id);
             $this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
             $this->db->update('booking_details',$data);

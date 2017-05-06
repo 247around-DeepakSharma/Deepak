@@ -208,12 +208,12 @@ class Penalty_model extends CI_Model {
      */
     function penalty_on_service_center_for_update_booking() {
         log_message('info', __FUNCTION__);
-        $sql = "SELECT SC.service_center_id AS assigned_vendor_id, CONCAT(  '', GROUP_CONCAT( (
+        $sql = "SELECT SC.service_center_id AS assigned_vendor_id, CONCAT(  '', GROUP_CONCAT( DISTINCT (
                 BD.booking_id
                 ) ) ,  '' ) AS booking_group
                 FROM service_center_booking_action AS SC, booking_details AS BD, service_centres AS SCS
                 WHERE (
-                SC.current_status =  'Pending'
+                SC.current_status =  'Pending' AND BD.current_status IN ('Pending', 'Rescheduled')
                 )
                 AND SC.booking_id = BD.booking_id
                 AND (

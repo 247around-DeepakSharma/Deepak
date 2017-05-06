@@ -390,7 +390,7 @@ class Accounting extends CI_Controller {
                             $non_updated_invoices .= $value.',';
                             log_message('info', __METHOD__ . " : Error in updating Invoice ID corresponding to challan ID = $challan_id_value");
                         }
-                        echo $this->db->last_query();
+                        
                     }
                 }
             }

@@ -111,6 +111,7 @@ class Upcountry_model extends CI_Model {
                             ." booking_pincode ". $booking_pincode);
                     $same_pincode_vendor['vendor_id'] = $value['vendor_id'];
                     $same_pincode_vendor['message'] = NOT_UPCOUNTRY_BOOKING;
+                    $same_pincode_vendor['upcountry_distance'] = 0;
                     break;
                 }
             } else {
@@ -118,6 +119,7 @@ class Upcountry_model extends CI_Model {
                             ." booking_pincode ". $booking_pincode);
                 $same_pincode_vendor['vendor_id'] = $value['vendor_id'];
                 $same_pincode_vendor['message'] = NOT_UPCOUNTRY_BOOKING;
+                $same_pincode_vendor['upcountry_distance'] = 0;
                 break;
             }
         }
@@ -172,6 +174,7 @@ class Upcountry_model extends CI_Model {
             log_message('info', __FUNCTION__ ." Not Upcountry Booking ". print_r($upcountry_vendor_details, true) );
             $up_data['vendor_id'] = $upcountry_vendor_details['vendor_id'];
             $up_data['message'] = NOT_UPCOUNTRY_BOOKING;
+            $up_data['upcountry_distance'] = 0;
 
             
         } else if ($upcountry_distance > ($min_threshold_distance)
