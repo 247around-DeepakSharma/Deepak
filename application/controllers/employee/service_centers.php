@@ -272,7 +272,7 @@ class Service_centers extends CI_Controller {
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
         $return_status = true;
-        if (isset($pod)) {
+        if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
                 if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
                     if ($value == 1 && empty(trim($serial_number[$unit_id]))) {
