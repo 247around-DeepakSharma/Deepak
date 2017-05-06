@@ -650,11 +650,9 @@ class Invoice extends CI_Controller {
 
            // $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
             if ($invoice_type == "draft") {
-<<<<<<< HEAD
+
                 $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
-=======
-                $this->email->attach(TMP_FOLDER . $invoice_id . ".xlsx", 'attachment');
->>>>>>> c087bc9... new credit note
+
             }
             $this->email->attach(TMP_FOLDER .$invoice_id. ".pdf", 'attachment');
             
@@ -3831,7 +3829,7 @@ class Invoice extends CI_Controller {
 
 
         //send email
-        $to = 'sachinj@247around.com';
+        $to = $vendor_details[0]['owner_email'].",".ANUJ_EMAIL_ID;
         $from = 'billing@247around.com';
 
         $message = "Dear Partner,<br/><br/>";
