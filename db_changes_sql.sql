@@ -2144,3 +2144,8 @@ ALTER TABLE `service_centres` ADD `update_date` TIMESTAMP on update CURRENT_TIME
 -- sachin 06-05-2017
 
 ALTER TABLE `distance_between_pincode` ADD `agent_id` int(11) NULL AFTER `calculated_using_do`;
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'poor_rating_on_completion', 'Hmm! You Rated Us %d. We Would Come Back With Better Experience. Book MultiBrand Appliance Installation Repair on www.247around.com or Call us at 9555000247', 'send this sms for poor rating on completed booking', '1', CURRENT_TIMESTAMP),
+(NULL, 'avg_rating_on_completion', 'Hmm! You Rated Us %d. We Would Come Back With Better Experience. Book MultiBrand Appliance Installation Repair on www.247around.com or Call us at 9555000247', 'send this sms on average rating on completed booking', '1', CURRENT_TIMESTAMP),
+(NULL, 'good_rating_on_completion', 'Wow! You Rated Us %d.Appreciate Your Feedback.For MultiBrand Appliance Installation/Repair Across India, call 9555000247 or book on www.247around.com', 'send this sms on good rating on completed booking', '1', CURRENT_TIMESTAMP);
