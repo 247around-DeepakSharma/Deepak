@@ -116,7 +116,7 @@ class Invoice extends CI_Controller {
 
         $cc = "billing@247around.com, " . NITS_ANUJ_EMAIL_ID;
         $subject = "247around - Invoice for period: " . $start_date . " To " . $end_date;
-        $attachment = 'https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-pdf/' . $invoiceId . '.pdf';
+        $attachment = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-pdf/' . $invoiceId . '.pdf';
 
         $message = "Dear Partner <br/><br/>";
         $message .= "Please find attached invoice for jobs completed between " . $start_date . " and " . $end_date . ".<br/><br/>";
@@ -303,9 +303,9 @@ class Invoice extends CI_Controller {
                 }
                 $tds += $tds_amount_array[$key];
                 $amount_collected = abs(round(($data[0]['amount_collected_paid'] + $data[0]['amount_paid']), 0));
-                
+
                 if ($amount_collected == round($credit_debit_amount[$key], 0)) {
-                    
+
                     $vp_details['settle_amount'] = 1;
                     $vp_details['amount_paid'] = $credit_debit_amount[$key] + $data[0]['amount_paid'];
                 } else {
@@ -316,16 +316,15 @@ class Invoice extends CI_Controller {
                         $vp_details['tds_rate'] = $per_tds;
                         $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
                         $vp_details['around_royalty'] = $vp_details['amount_collected_paid'] = $amount_collected;
-                       
-                        if (round($amount_collected, 0) == round($credit_debit_amount[$key],0)) {
+
+                        if (round($amount_collected, 0) == round($credit_debit_amount[$key], 0)) {
                             $vp_details['settle_amount'] = 1;
                         } else {
                             $vp_details['settle_amount'] = 0;
                         }
                         $vp_details['amount_paid'] = $credit_debit_amount[$key];
-                    
                     } else {
-                       
+
                         $vp_details['settle_amount'] = 0;
                         $vp_details['amount_paid'] = $data[0]['amount_paid'] + $credit_debit_amount[$key];
                     }
@@ -361,10 +360,10 @@ class Invoice extends CI_Controller {
 
         //Send SMS to vendors about payment
         if ($account_statement['partner_vendor'] == 'vendor') {
-           // $this->send_payment_sms_to_vendor($account_statement);
+            // $this->send_payment_sms_to_vendor($account_statement);
         }
 
-      //  redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
+        //  redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
     }
 
     function send_payment_sms_to_vendor($account_statement) {
@@ -646,7 +645,7 @@ class Invoice extends CI_Controller {
 //                $this->email->attach($output_file_excel, 'attachment');
 //            }
             if ($invoice_type == "draft") {
-               $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
+                $this->email->attach(TMP_FOLDER . $invoice_id . ".xlsx", 'attachment');
             }
             $this->email->attach(TMP_FOLDER . $invoice_id . ".pdf", 'attachment');
 
@@ -1242,7 +1241,7 @@ class Invoice extends CI_Controller {
             }
 
             $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
-            
+
             $tds_array = $this->check_tds_sc($invoices[0], $total_inst_charge + $total_st_charge);
             $tds = $tds_array['tds'];
             $tds_tax_rate = $tds_array['tds_rate'];
@@ -1296,8 +1295,8 @@ class Invoice extends CI_Controller {
             } else {
                 $invoices_data['upcountry_details'] = array();
             }
-            
-            
+
+
             $penalty_amount = (array_sum(array_column($penalty_data, 'p_amount')));
             $cr_penalty_amount = (array_sum(array_column($credit_penalty, 'p_amount')));
             $excel_data['total_penalty_amount'] = -$penalty_amount;
@@ -1305,13 +1304,13 @@ class Invoice extends CI_Controller {
             $excel_data['total_upcountry_price'] = round($total_upcountry_price, 2);
             $excel_data['total_courier_charges'] = round($total_courier_charges, 2);
             $t_vp_w_tds = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price'] + $excel_data['cr_total_penalty_amount'] + $excel_data['total_courier_charges'] - $penalty_amount;
-            if($t_vp_w_tds >= 0){
+            if ($t_vp_w_tds >= 0) {
                 $excel_data['t_vp_w_tds'] = $t_vp_w_tds;
-            }else if($t_vp_w_tds < 0){
-                $excel_data['t_vp_w_tds'] = abs($t_vp_w_tds)."(DR)";
+            } else if ($t_vp_w_tds < 0) {
+                $excel_data['t_vp_w_tds'] = abs($t_vp_w_tds) . "(DR)";
             }
-            
-            
+
+
             $excel_data['invoice_id'] = $invoice_id;
             $excel_data['vendor_name'] = $invoices[0]['company_name'];
             $excel_data['vendor_address'] = $invoices[0]['address'];
@@ -1757,7 +1756,7 @@ class Invoice extends CI_Controller {
                         echo " Preparing CASH Invoice for Vendor: " . $details['vendor_partner_id'] . PHP_EOL;
 
                         //Prepare main invoice first
-                        $details['invoice_id'] = $this->generate_vendor_cash_invoice($details,$is_regenerate);
+                        $details['invoice_id'] = $this->generate_vendor_cash_invoice($details, $is_regenerate);
 
                         //Invoice made successfully
                         if ($details['invoice_id']) {
@@ -1765,7 +1764,7 @@ class Invoice extends CI_Controller {
                             echo 'Invoice made successfully' . PHP_EOL;
 
                             //Generate detailed annexure now
-                            $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range'],$is_regenerate);
+                            $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range'], $is_regenerate);
                             $this->generate_cash_details_invoices_for_vendors($data, $details);
                         } else {
 
@@ -3112,9 +3111,9 @@ class Invoice extends CI_Controller {
                 $sc_details['debit_acc_no'] = '102405500277';
                 $sc_details['bank_account'] = $sc['bank_account'];
                 $sc_details['beneficiary_name'] = $sc['beneficiary_name'];
-               
+
                 $sc_details['final_amount'] = abs(round($amount, 0));
-                 if($amount > 0){
+                if ($amount > 0) {
                     $sc_details['amount_type'] = "CR";
                 } else {
                     $sc_details['amount_type'] = "DR";
@@ -3365,36 +3364,36 @@ class Invoice extends CI_Controller {
 
         return $details_excel;
     }
-    
+
     /**
      * @desc This function adds new advance bank transactions between vendor/partner and 247around
      * @param String $vendor_partner
      * @param int $id
      */
-    function get_advance_bank_transaction($vendor_partner="", $id="") {
+    function get_advance_bank_transaction($vendor_partner = "", $id = "") {
         $data['vendor_partner'] = $vendor_partner;
         $data['id'] = $id;
-        
 
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/advance_bank_transaction', $data);
     }
+
     /**
      * @desc Add new bank transaction
      */
-    function process_advance_payment(){
+    function process_advance_payment() {
         $data['partner_vendor'] = $this->input->post("partner_vendor");
         $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
         $data['credit_debit'] = $this->input->post("credit_debit");
         $data['bankname'] = $this->input->post("bankname");
         $amount = $this->input->post("amount");
-        if($data['credit_debit'] == "Credit"){
+        if ($data['credit_debit'] == "Credit") {
             $data['credit_amount'] = $amount;
-            
-        } else if($data['credit_debit'] == "Debit"){
+        } else if ($data['credit_debit'] == "Debit") {
             $data['debit_amount'] = $amount;
         }
-        
+
         $data['tds_amount'] = $this->input->post('tds_amount');
         $data['transaction_mode'] = $this->input->post('transaction_mode');
         $data['transaction_date'] = $this->input->post("tdate");
@@ -3402,15 +3401,447 @@ class Invoice extends CI_Controller {
         $data['agent_id'] = $this->session->userdata('id');
         $data['create_date'] = date("Y-m-d H:i:s");
         $status = $this->invoices_model->bankAccountTransaction($data);
-        if($status){
-            
+        if ($status) {
+
             $userSession = array('success' => "Bank Transaction Added");
             $this->session->set_userdata($userSession);
-            redirect(base_url()."employee/invoice/get_advance_bank_transaction");
+            redirect(base_url() . "employee/invoice/get_advance_bank_transaction");
         } else {
             $userSession = array('error' => "Bank Transaction Not Added");
             $this->session->set_userdata($userSession);
-            redirect(base_url()."employee/invoice/get_advance_bank_transaction");
+            redirect(base_url() . "employee/invoice/get_advance_bank_transaction");
         }
     }
+
+    /**
+     * @desc show form for new credit note for brackets
+     * @param void
+     * @return void 
+     */
+    function show_purchase_brackets_credit_note_form() {
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/purchase_brackets_credit_note_form');
+    }
+
+    /**
+     * @desc process credit note form to update vendor_partner_invoices table and brackets table
+     * @param void
+     * @return void 
+     */
+    function process_purchase_bracket_credit_note() {
+        //validate input post variable
+        $this->form_validation->set_rules('order_id', 'Order Id', 'required|xss_clean|callback_validate_order_id');
+        $this->form_validation->set_rules('courier_charges', 'Courier Charges', 'required|xss_clean');
+        if (empty($_FILES['courier_charges_file']['name'])) {
+            $this->form_validation->set_rules('courier_charges_file', 'File', 'required|xss_clean');
+        }
+        if ($this->form_validation->run() == false) {
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->load->view('employee/purchase_brackets_credit_note_form');
+        } else {
+            //save courier charges file to s3
+            if (($_FILES['courier_charges_file']['error'] != 4) && !empty($_FILES['courier_charges_file']['tmp_name'])) {
+                $tmpFile = $_FILES['courier_charges_file']['tmp_name'];
+                $courier_charges_file_name = $this->input->post('order_id') . 'courier_charges_file' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['courier_charges_file']['name'])[1];
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $courier_charges_file_name;
+                //$this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Courier charges file is being uploaded sucessfully.');
+            }
+
+            $order_id = trim($this->input->post('order_id'));
+            $courier_charges = $this->input->post('courier_charges');
+            $order_id_data = $this->inventory_model->get_new_credit_note_brackets_data($order_id);
+
+
+            $result = array();
+            $_19_24_shipped_brackets_data = array();
+            $_26_32_shipped_brackets_data = array();
+            $_36_42_shipped_brackets_data = array();
+            $_43_shipped_brackets_data = array();
+
+
+            //prepare data to make credit note file
+            if (!empty($order_id_data[0]['19_24_shipped'])) {
+                $_19_24_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (19-24 Inch)';
+                $_19_24_shipped_brackets_data[0]['p_tax_rate'] = '';
+                $_19_24_shipped_brackets_data[0]['qty'] = $order_id_data[0]['19_24_shipped'];
+                $_19_24_shipped_brackets_data[0]['p_rate'] = '';
+                $_19_24_shipped_brackets_data[0]['p_part_cost'] = '';
+                $_19_24_shipped_brackets_data[0]['s_service_charge'] = '';
+                $_19_24_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['19_24_shipped'] * _247AROUND_BRACKETS_19_24_UNIT_PRICE;
+                $_19_24_shipped_brackets_data[0]['s_total_service_charge'] = '';
+
+                $result = array_merge($result, $_19_24_shipped_brackets_data);
+            }
+
+            if (!empty($order_id_data[0]['26_32_shipped'])) {
+                $_26_32_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (26-32 Inch)';
+                $_26_32_shipped_brackets_data[0]['p_tax_rate'] = '';
+                $_26_32_shipped_brackets_data[0]['qty'] = $order_id_data[0]['26_32_shipped'];
+                $_26_32_shipped_brackets_data[0]['p_rate'] = '';
+                $_26_32_shipped_brackets_data[0]['p_part_cost'] = '';
+                $_26_32_shipped_brackets_data[0]['s_service_charge'] = '';
+                $_26_32_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['26_32_shipped'] * _247AROUND_BRACKETS_26_32_UNIT_PRICE;
+                $_26_32_shipped_brackets_data[0]['s_total_service_charge'] = '';
+
+                $result = array_merge($result, $_26_32_shipped_brackets_data);
+            }
+
+            if (!empty($order_id_data[0]['36_42_shipped'])) {
+                $_36_42_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (36_42 Inch)';
+                $_36_42_shipped_brackets_data[0]['p_tax_rate'] = '';
+                $_36_42_shipped_brackets_data[0]['qty'] = $order_id_data[0]['36_42_shipped'];
+                $_36_42_shipped_brackets_data[0]['p_rate'] = '';
+                $_36_42_shipped_brackets_data[0]['p_part_cost'] = '';
+                $_36_42_shipped_brackets_data[0]['s_service_charge'] = '';
+                $_36_42_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['36_42_shipped'] * _247AROUND_BRACKETS_36_42_UNIT_PRICE;
+                $_36_42_shipped_brackets_data[0]['s_total_service_charge'] = '';
+
+                $result = array_merge($result, $_36_42_shipped_brackets_data);
+            }
+
+            if (!empty($order_id_data[0]['43_shipped'])) {
+                $_43_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (Greater Than 43 Inch)';
+                $_43_shipped_brackets_data[0]['p_tax_rate'] = '';
+                $_43_shipped_brackets_data[0]['qty'] = $order_id_data[0]['43_shipped'];
+                $_43_shipped_brackets_data[0]['p_rate'] = '';
+                $_43_shipped_brackets_data[0]['p_part_cost'] = '';
+                $_43_shipped_brackets_data[0]['s_service_charge'] = '';
+                $_43_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['43_shipped'] * _247AROUND_BRACKETS_43_UNIT_PRICE;
+                $_43_shipped_brackets_data[0]['s_total_service_charge'] = '';
+
+                $result = array_merge($result, $_43_shipped_brackets_data);
+            }
+            
+            //if there is no data for brackets then did not process the credit note and rdirect to form
+            if (!empty($result)) {
+                $courier_charges_data[0]['description'] = 'Courier Charges';
+                $courier_charges_data[0]['p_tax_rate'] = '';
+                $courier_charges_data[0]['qty'] = '';
+                $courier_charges_data[0]['p_rate'] = '';
+                $courier_charges_data[0]['p_part_cost'] = '';
+                $courier_charges_data[0]['s_service_charge'] = '';
+                $courier_charges_data[0]['misc_price'] = $courier_charges;
+                $courier_charges_data[0]['s_total_service_charge'] = '';
+
+                $result = array_merge($result, $courier_charges_data);
+
+
+                $total_brackets = $order_id_data[0]['19_24_shipped'] + $order_id_data[0]['26_32_shipped'] + $order_id_data[0]['36_42_shipped'] + $order_id_data[0]['43_shipped'];
+
+                $t_19_24_shipped_price = $order_id_data[0]['19_24_shipped'] * _247AROUND_BRACKETS_19_24_UNIT_PRICE;
+                $t_26_32_shipped_price = $order_id_data[0]['26_32_shipped'] * _247AROUND_BRACKETS_26_32_UNIT_PRICE;
+                $t_36_42_shipped_price = $order_id_data[0]['36_42_shipped'] * _247AROUND_BRACKETS_36_42_UNIT_PRICE;
+                $t_43_shipped_price = $order_id_data[0]['43_shipped'] * _247AROUND_BRACKETS_43_UNIT_PRICE;
+                $total_brackets_price = $t_19_24_shipped_price + $t_26_32_shipped_price + $t_36_42_shipped_price + $t_43_shipped_price;
+
+                if ((strcasecmp($order_id_data[0]['state'], "DELHI") == 0) ||
+                        (strcasecmp($order_id_data[0]['state'], "New Delhi") == 0)) {
+                    //If matched return 0;
+                    $invoice_version = "T";
+                    $meta['invoice_type'] = "TAX INVOICE";
+                } else {
+                    $invoice_version = "R";
+                    $meta['invoice_type'] = "RETAIL INVOICE";
+                }
+
+                $current_month = date('m');
+                // 3 means March Month
+                if ($current_month > 3) {
+                    $financial = date('Y') . "-" . (date('y') + 1);
+                } else {
+                    $financial = (date('Y') - 1) . "-" . date('y');
+                }
+
+                //Make sure it is unique
+                $invoice_id_tmp = $order_id_data[0]['sc_code'] . $invoice_version . "-" . $financial . "-" . date("M", strtotime($order_id_data[0]['shipment_date']));
+                $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
+                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+                $invoice_no = 1;
+                if (!empty($invoice_no_temp)) {
+                    $explode = explode($invoice_id_tmp . "-", $invoice_no_temp[0]['invoice_id']);
+                    $invoice_no = $explode[1] + 1;
+                }
+
+                $meta['invoice_id'] = $invoice_id_tmp . "-" . $invoice_no;
+                log_message('info', __METHOD__ . ": Invoice Id geneterated "
+                        . $meta['invoice_id']);
+
+                $total_charges = round($total_brackets_price + $courier_charges);
+
+                $meta['total_service_cost_14'] = '';
+                $meta['total_service_cost_5'] = '';
+                $meta['total_service_cost_5'] = '';
+                $meta['sub_service_cost'] = '';
+                $meta['sub_part'] = '';
+                $meta['part_cost_vat'] = '';
+                $meta['vat_tax'] = '';
+                $meta['total_part_cost'] = '';
+                $meta['total_service_cost'] = '';
+                $meta['total_misc_price'] = $total_charges;
+                $meta['grand_total_price'] = $total_charges;
+                $meta['price_inword'] = convert_number_to_words($total_charges);
+                $meta['vendor_name'] = $order_id_data[0]['company_name'];
+                $meta['vendor_address'] = $order_id_data[0]['address'];
+                $meta['service_tax_no'] = $order_id_data[0]['service_tax_no'];
+                $meta['tin'] = $order_id_data[0]['tin_no'];
+                $meta['invoice_date'] = date("jS M, Y");
+                $meta['sd'] = '';
+                $meta['ed'] = '';
+
+                $result_excel = $this->generate_new_credit_note_brackets($result, $meta);
+
+                if ($result_excel) {
+
+                    //Save this invoice info in table
+                    $invoice_details = array(
+                        'invoice_id' => $meta['invoice_id'],
+                        'type' => 'Stand',
+                        'type_code' => 'B',
+                        'vendor_partner' => 'vendor',
+                        'vendor_partner_id' => $order_id_data[0]['order_received_from'],
+                        'invoice_file_excel' => $meta['invoice_id'] . '.xlsx',
+                        'invoice_file_pdf' => $meta['invoice_id'] . '.pdf',
+                        'from_date' => $order_id_data[0]['shipment_date'],
+                        'to_date' => $order_id_data[0]['shipment_date'],
+                        'num_bookings' => $total_brackets,
+                        'total_service_charge' => 0,
+                        'total_additional_service_charge' => 0,
+                        'service_tax' => 0,
+                        'parts_cost' => $meta['total_misc_price'],
+                        'vat' => '0',
+                        'total_amount_collected' => $meta['grand_total_price'],
+                        'rating' => 0,
+                        'around_royalty' => 0,
+                        'amount_collected_paid' => '-' . $meta['grand_total_price'],
+                        'invoice_date' => date('Y-m-d'),
+                        'tds_amount' => 0.0,
+                        'amount_paid' => 0.0,
+                        'settle_amount' => 0,
+                        'amount_paid' => 0.0,
+                        'mail_sent' => 1,
+                        'sms_sent' => 1,
+                        'courier_charges' => $courier_charges,
+                        //Add 1 month to end date to calculate due date
+                        'due_date' => date("Y-m-d", strtotime($order_id_data[0]['shipment_date'] . "+1 month"))
+                    );
+
+                    $invoice_update_msg = $this->invoices_model->action_partner_invoice($invoice_details);
+
+                    if (!empty($invoice_update_msg)) {
+
+                        //save the brackets purchase invoice id into the table
+                        $purchase_brackets_invoice_id = $this->inventory_model->update_brackets(array('purchase_invoice_id' => $meta['invoice_id']), array('order_id' => $order_id));
+                        if ($purchase_brackets_invoice_id) {
+                            $send_mail = $this->send_brackets_credit_note_mail_sms($order_id_data, $meta['invoice_id'], $meta['grand_total_price']);
+
+                            if ($send_mail) {
+                                //Loggin Success
+                                log_message('info', __FUNCTION__ . ' Credit Note - Brackets credit note has been sent for the month of ' . $meta['invoice_date']);
+                                $success_msg = "Credit Note Created Succesfully";
+                                $this->session->set_flashdata('success_msg', $success_msg);
+                                redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');
+                            } else {
+                                //Loggin Error
+                                log_message('info', __FUNCTION__ . ' Credit Note - Error in sending Brackets credit note for the month of ' . $meta['invoice_date']);
+                                $error_msg = "Error in Sending Mail to sf";
+                                $this->session->set_flashdata('error_msg', $error_msg);
+                                redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');
+                            }
+                        } else {
+                            log_message('info', __FUNCTION__ . ' Credit Note - Error in Inserting Brackets credit note data in brackets table for the month of ' . $meta['invoice_date'] . 'and data is ' . print_r($invoice_details));
+                            $error_msg = "Error in generating credit note!!! Please Try Again";
+                            $this->session->set_flashdata('error_msg', $error_msg);
+                            redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');
+                        }
+                    } else {
+                        log_message('info', __FUNCTION__ . ' Credit Note - Error in Inserting Brackets credit note data in the vendor_partner_invoice table for the month of ' . $meta['invoice_date'] . 'and data is ' . print_r($invoice_details));
+                        log_message('info', __FUNCTION__ . ' Error in generating credit note');
+                        $error_msg = "Error in generating credit note!!! Please Try Again";
+                        $this->session->set_flashdata('error_msg', $error_msg);
+                        redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');
+                    }
+                } else {
+                    log_message('info', __FUNCTION__ . ' Error in generating credit note');
+                    $error_msg = "Error in generating credit note!!! Please Try Again";
+                    $this->session->set_flashdata('error_msg', $error_msg);
+                    redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');
+                }
+            } else {
+                log_message('info', __FUNCTION__ . 'No shipment data found for this order id');
+                $error_msg = "No shipment data found for this order id";
+                $this->session->set_flashdata('error_msg', $error_msg);
+                redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');
+            }
+        }
+    }
+
+    /**
+     * @desc validate order id before processing credit note form 
+     * @param void
+     * @return boolean 
+     */
+    function validate_order_id() {
+        $order_id = $this->input->post('order_id');
+        if (!empty($order_id)) {
+            //check if order id is present in database
+            $check_order_id_exist = $this->inventory_model->check_order_id_exist($order_id);
+            if (!empty($check_order_id_exist)) {
+                if (empty($check_order_id_exist[0]['purchase_invoice_id'])) {
+                    return true;
+                } else {
+                    $this->form_validation->set_message('validate_order_id', 'Credit Note for this order id is already exist');
+                    return false;
+                }
+            } else {
+                $this->form_validation->set_message('validate_order_id', 'Order Id does not exist');
+                return false;
+            }
+        } else {
+            $this->form_validation->set_message('validate_order_id', 'Please fill the Order ID');
+            return false;
+        }
+    }
+
+    /**
+     * @desc create excel and pdf file for new credit note for brackets 
+     * @param array $booking
+     * @param array $meta
+     * @return boolean 
+     */
+    function generate_new_credit_note_brackets($booking, $meta) {
+        $template = 'Vendor_Settlement_Template-FoC-v5.xlsx';
+        // directory
+        $templateDir = __DIR__ . "/../excel-templates/";
+
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        $R = new PHPReport($config);
+
+        $R->load(array(
+            array(
+                'id' => 'meta',
+                'repeat' => false,
+                'data' => $meta,
+                'format' => array(
+                    'date' => array('datetime' => 'd/M/Y')
+                )
+            ),
+            array(
+                'id' => 'booking',
+                'repeat' => true,
+                'data' => $booking,
+            ),
+                )
+        );
+
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . ".xlsx";
+
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
+
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+
+        $R->render('excel', $output_file_excel);
+
+        log_message('info', __METHOD__ . ": Excel FIle generated " . $output_file_excel);
+        $res2 = 0;
+        system(" chmod 777 " . $output_file_excel, $res2);
+
+        //convert excel to pdf
+        $output_file_pdf = TMP_FOLDER . $meta['invoice_id'] . ".pdf";
+
+        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+        $tmp_path = TMP_FOLDER;
+        $tmp_output_file = TMP_FOLDER . 'output_' . __FUNCTION__ . '.txt';
+        $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                $output_file_excel . ' 2> ' . $tmp_output_file;
+        $output = '';
+        $result_var = '';
+        exec($cmd, $output, $result_var);
+
+        //upload file to s3
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "invoices-excel/" . $meta['invoice_id'] . ".xlsx";
+        $directory_pdf = "invoices-excel/" . $meta['invoice_id'] . ".pdf";
+
+        $foc_upload = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $foc_upload_pdf = $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+
+        if ($foc_upload_pdf) {
+            log_message('info', __METHOD__ . ": New Credit Note For brackets File uploaded to s3");
+        } else {
+            log_message('info', __METHOD__ . ": Error in Uploading New Credit Note For brackets File to s3" . $meta['invoice_id'] . "pdf");
+        }
+
+        if ($foc_upload) {
+            log_message('info', __METHOD__ . ": New Credit Note For brackets File uploaded to s3");
+        } else {
+            log_message('info', __METHOD__ . ": Error in Uploading New Credit Note For brackets File to s3 " . $meta['invoice_id'] . ".xlsx");
+        }
+
+        if (file_exists($output_file_excel) && file_exists($output_file_pdf)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @desc send mail and sms to vendor for new credit note for brackets 
+     * @param array $vendor_details
+     * @param string $invoice_id
+     * @param string $amount
+     * @return boolean 
+     */
+    function send_brackets_credit_note_mail_sms($vendor_details, $invoice_id, $amount) {
+
+
+        //send sms
+        $sms['tag'] = "vendor_invoice_mailed";
+        $sms['smsData']['type'] = 'stand';
+        $sms['smsData']['month'] = date('M Y', strtotime($vendor_details[0]['shipment_date']));
+        $sms['smsData']['amount'] = $amount;
+        $sms['phone_no'] = $vendor_details[0]['owner_phone_1'];
+        $sms['booking_id'] = "";
+        $sms['type'] = "vendor";
+        $sms['type_id'] = $vendor_details[0]['order_received_from'];
+        $this->notify->send_sms_msg91($sms);
+        log_message('info', __METHOD__ . ' SMS Sent ' . $invoice_id);
+
+
+        //send email
+        $to = 'sachinj@247around.com';
+        $from = 'billing@247around.com';
+
+        $message = "Dear Partner,<br/><br/>";
+        $message .= "Please find attached invoice for Brackets delivered";
+        $message .= "Hope to have a long lasting working relationship with you.";
+        $message .= "<br><br>With Regards,
+                        <br>247around Team<br>
+                        <br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
+                        <br>Follow us on Facebook: www.facebook.com/247around
+                        <br>Website: www.247around.com
+                        <br>Playstore - 247around -
+                        <br>https://play.google.com/store/apps/details?id=com.handymanapp";
+
+        $output_file_excel = TMP_FOLDER . $invoice_id . ".pdf";
+        $send_mail = $this->notify->sendEmail($from, $to, '', '', 'Credit Note - Brackets Invoice - ' . $vendor_details[0]['company_name'], $message, $output_file_excel);
+        if ($send_mail) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
 }
