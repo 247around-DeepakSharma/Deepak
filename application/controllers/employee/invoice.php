@@ -1833,7 +1833,6 @@ class Invoice extends CI_Controller {
             if (isset($details['invoice_id'])) {
                 log_message('info', __METHOD__ . ": Invoice Id re- geneterated " . $details['invoice_id']);
                 $invoice[0]['invoice_number'] = $details['invoice_id'];
-            } else {
                 if ((strcasecmp($invoice[0]['state'], "DELHI") == 0) ||
                         (strcasecmp($invoice[0]['state'], "New Delhi") == 0)) {
                     //If matched return 0;
@@ -1843,27 +1842,11 @@ class Invoice extends CI_Controller {
                     $type = "R";
                     $invoice[0]['invoice_type'] = "RETAIL INVOICE";
                 }
+            } else {
+                $invoice_id_tmp = $this->create_invoice_id_to_insert($invoice, $from_date, "Around");
+                $invoice[0]['invoice_type'] = $invoice_id_tmp['invoice_type'];
+                $invoice[0]['invoice_number'] = $invoice_id_tmp['invoice_id'];
 
-                $current_month = date('m');
-                // 3 means March Month
-                if ($current_month > 3) {
-                    $financial = date('Y') . "-" . (date('y') + 1);
-                } else {
-                    $financial = (date('Y') - 1) . "-" . date('y');
-                }
-
-
-                //Make sure it is unique
-                $invoice_id_tmp = "Around-" . $type . "-" . $financial . "-" . date("M", strtotime(date($from_date)));
-                $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
-                $invoice_no = 1;
-                if (!empty($invoice_no_temp)) {
-                    $explode = explode($invoice_id_tmp . "-", $invoice_no_temp[0]['invoice_id']);
-                    $invoice_no = $explode[1] + 1;
-                }
-
-                $invoice[0]['invoice_number'] = $invoice_id_tmp . "-" . $invoice_no;
             }
 
             log_message('info', __FUNCTION__ . " Entering......... Invoice Id " . $invoice[0]['invoice_number']);
@@ -2901,16 +2884,21 @@ class Invoice extends CI_Controller {
         }
 
         //Make sure it is unique
-        $invoice_id_tmp = $start_name . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
+        $invoice_id_tmp = $start_name . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date))."-";
         $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
         $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
         $invoice_no = 1;
+        $int_invoice = array();
         if (!empty($invoice_no_temp)) {
-            $explode = explode($invoice_id_tmp . "-", $invoice_no_temp[0]['invoice_id']);
-            $invoice_no = $explode[1] + 1;
+            foreach ($invoice_no_temp as  $value) {
+                 $explode = explode($invoice_id_tmp, $value['invoice_id']);
+                 array_push($int_invoice, $explode[1] + 1);
+            }
+            asort($int_invoice);
+            $invoice_no = $int_invoice[0];
         }
         log_message('info', __FUNCTION__ . " Exit....");
-        $invoices['invoice_id'] = $invoice_id_tmp . "-" . $invoice_no;
+        $invoices['invoice_id'] = $invoice_id_tmp . $invoice_no;
         return $invoices;
     }
 
