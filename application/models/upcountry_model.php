@@ -76,7 +76,7 @@ class Upcountry_model extends CI_Model {
                         
                         if($is_distance1){
                             $distance1 = (round($is_distance1['distance']['value'] / 1000, 2));
-                            $this->insert_distance($booking_pincode, $res_sb[0]['pincode'], $distance1);
+                            $this->insert_distance($booking_pincode, $res_sb[0]['pincode'], $distance1,_247AROUND_DEFAULT_AGENT);
                              log_message('info', __FUNCTION__ ." Insert distance & pincode " . $booking_pincode.
                                      $res_sb[0]['pincode']. $distance1);
                             $distance = $distance1 * 2;
@@ -556,7 +556,7 @@ class Upcountry_model extends CI_Model {
      * @param type $pincode2
      * @param type $distance
      */
-    function insert_distance($pincode1, $pincode2, $distance){       
+    function insert_distance($pincode1, $pincode2, $distance, $agent_id){       
         if ($pincode1 < $pincode2) {
             $dp1 = $pincode1;
             $dp2 = $pincode2;
@@ -564,8 +564,11 @@ class Upcountry_model extends CI_Model {
             $dp1 = $pincode2;
             $dp2 = $pincode1;
         }
-        $this->db->insert('distance_between_pincode', array('pincode1' => $dp1, 'pincode2' => $dp2,
-            'distance' => $distance));
+        
+        $data = array('pincode1' => $dp1, 'pincode2' => $dp2,'distance' => $distance,'agent_id'=> $agent_id);
+        
+        $this->db->insert('distance_between_pincode',$data );
+        return $this->db->insert_id();
     }
     /**
      * @desc: This method is used to know that partner provides upcountry for price tags of this booking
