@@ -86,7 +86,7 @@
                     </a>
                     <ul class="dropdown-menu ">
                         <li>
-                            <a href="<?php echo base_url() ?>employee/booking/view"><i class="fa fa-fw fa-desktop"></i> <strong>Pending Booking</strong></a>
+                            <a href="<?php echo base_url() ?>employee/booking/view"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Booking</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
@@ -101,8 +101,8 @@
                             <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong>Cancelled Booking</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li >
-                            <a href="<?php echo base_url() ?>employee/booking/get_missed_calls_view"><i class="fa fa-fw fa-desktop"></i> <strong>Partner Leads</strong></a>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/booking/get_pending_booking_by_partner_id"><i class="fa fa-fw fa-desktop"></i> <strong>Repair Bookings</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li >
@@ -113,10 +113,20 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                         </li>
+                        
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/update_not_pay_to_sf_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Wall Mount Given</strong></a>
+                        </li>
                          <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/auto_assigned_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Auto Assigned Booking</strong></a>
+                        </li>         
+                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/upcountry/get_waiting_for_approval_upcountry_charges"><i class="fa fa-fw fa-desktop"></i> <strong>Waiting to Approve Upcountry Booking</strong></a>
                         </li>
+                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/upcountry/get_upcountry_failed_details"><i class="fa fa-fw fa-desktop"></i> <strong>Upcountry Failed Booking</strong></a>
                         </li>
@@ -153,6 +163,10 @@
                         <li >
                             <a href="<?php echo base_url() ?>employee/bookings_excel/upload_delivered_products_for_paytm_excel"><i class="fa fa-fw fa-desktop "></i> <strong> Upload Paytm Booking</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/service_centre_charges/show_partner_service_price"><i class="fa fa-fw fa-desktop "></i> <strong>Partner Price List</strong></a>
+                        </li>
 
                     </ul>
                     <!-- /.dropdown-alerts -->
@@ -185,8 +199,21 @@
                         </li>
 
                         <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/vendor/get_sms_template_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> SMS Template Grid</strong></a>
+                        <li class="dropdown dropdown-submenu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Edit Template</strong></a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/vendor/get_sms_template_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> SMS Template Grid</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/vendor/get_tax_rates_template_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> TAX RATES Template Grid</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/vendor/get_vandor_escalation_policy_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> Vendor Escalation Policy Template Grid</strong></a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="divider"></li>
                         <li>
@@ -234,10 +261,7 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/booking/get_add_new_brand_form"><i class="fa fa-fw fa-desktop"></i> <strong> Add New Brand</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url()?>employee/service_centre_charges/show_pricing_tables" ><i class="fa fa-fw fa-desktop"></i> <strong> Show Prices</strong></a>
-                        </li>
+                        
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/service_centre_charges/upload_excel_form"><i class="fa fa-fw fa-inr "></i> <strong> Upload Service Charges / Taxes Excel</strong></a>
@@ -255,24 +279,75 @@
                             <a href="<?php echo base_url()?>employee/invoice/get_invoices_form" ><i class="fa fa-fw fa-desktop"></i> <strong> Generate Invoices</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li >
-                            <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Invoices</strong></a>
-                        </li>
-                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/get_add_new_transaction"><i class="fa fa-fw fa-desktop "></i> <strong> Add New Transaction</strong></a>
                         </li>
-                        <li class="divider"></li>
+                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Transactions</strong></a>
+                            <a href="<?php echo base_url() ?>employee/invoice/get_advance_bank_transaction"><i class="fa fa-fw fa-desktop "></i> <strong> Add Advance Bank Transaction</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url() ?>employee/accounting/show_search_invoice_id_view"><i class="fa fa-fw fa-desktop "></i> <strong>Search Invoice Id</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/show_purchase_brackets_credit_note_form"><i class="fa fa-fw fa-desktop "></i> <strong>Create Brackets Credit Note</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="dropdown dropdown-submenu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Partner</strong></a>
+                            <ul class="dropdown-menu">
+                                <li >
+                            <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
+                        </li>
+                            <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Transactions</strong></a>
+                        </li>
+                            <li class="divider"></li>   
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Check</strong></a>
+                        </li>
+                            </ul>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="dropdown dropdown-submenu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Service Center</strong></a>
+                            <ul class="dropdown-menu">
+                            <li>
+                            <a href="<?php echo base_url() ?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Invoices</strong></a>
+                        </li>
+                            <li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Transactions</strong></a>
+                        </li>
+                            <li class="divider"></li>
+                       <li>
+                            <a href="<?php echo base_url() ?>employee/invoiceDashboard/service_center_invoice"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Check</strong></a>
+                        </li>
+                            </ul>
+                        </li>
+                            <li class="divider"></li>
+                        <li class="dropdown dropdown-submenu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Accounts</strong></a>
+                            <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/accounting/get_challan_upload_form"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Challan</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/accounting/get_challan_details"><i class="fa fa-fw fa-desktop "></i> <strong>Challan History</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/accounting/accounting_report"><i class="fa fa-fw fa-desktop "></i> <strong>Payment Report</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/accounting/show_search_challan_id_view"><i class="fa fa-fw fa-desktop "></i> <strong>Search Challan Id</strong></a>
+                        </li>
+                            </ul>
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
@@ -293,19 +368,35 @@
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/get_pending_bookings/0"><i class="fa fa-fw fa-desktop "></i> <strong>Download SF Pending Summary</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url()?>employee/vendor/show_around_dashboard"><i class="fa fa-fw fa-desktop "></i> <strong>Dashboard</strong></a>
-                        </li>
+<!--                        <li>
+                            <a href="<?php echo base_url()?>employee/vendor/show_around_dashboard"><i class="fa fa-fw fa-desktop "></i> <strong>247around Dashboard</strong></a>
+                        </li>-->
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/get_sc_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF Missed Target Report</strong></a>
                         </li>
-                        <li class="divider"></li>
+                        </li><li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/get_rm_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>RM Crimes Report</strong></a>
                         </li>
                         </li><li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>BookingSummary/show_reports_chart" ><i class="fa fa-fw fa-desktop"></i> <strong> RM Performance Stats</strong></a>
+                        </li>
+<!--                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>BookingSummary/partners_booking_report_chart" ><i class="fa fa-fw fa-desktop"></i> <strong>Partners Booking Report</strong></a>
+                        </li>-->
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/dashboard" target="_blank"><i class="fa fa-fw fa-desktop"></i> <strong>New Dashboard</strong></a>
+                        </li>
+                        
+<!--                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/vendor/vendor_performance_view"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Performance</strong></a>
                         </li>
@@ -316,7 +407,8 @@
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/user/user_count" ><i class="fa fa-fw fa-desktop"></i> <strong> Users</strong></a>
-                        </li>
+                        </li>-->
+                        
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
