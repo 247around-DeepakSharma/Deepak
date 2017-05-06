@@ -300,7 +300,7 @@ class Booking extends CI_Controller {
                 } else if ($booking['is_send_sms'] == 2 || $booking_id != INSERT_NEW_BOOKING) {
                     //Pending booking getting updated, not query getting converted to booking
                     $up_flag = 1;
-                    
+
                     $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking['booking_id'] . "/" . $up_flag;
                     $async_data['booking'] = array();
                     $this->asynchronous_lib->do_background_process($url, $async_data);
@@ -356,10 +356,10 @@ class Booking extends CI_Controller {
         
         //add support file for order id if it is uploaded
         $support_file = $this->upload_orderId_support_file($booking['booking_id']);
-        if($support_file){
+        if ($support_file) {
             $booking['support_file'] = $support_file;
         }
-        
+
         $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id']);
 
         if ($validate_order_id) {
@@ -1092,10 +1092,10 @@ class Booking extends CI_Controller {
                 $i++;
             }
             $data['price_table'] = $html;
-            if(empty($assigned_vendor_id)){
+            if (empty($assigned_vendor_id)) {
                 $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, $assigned_vendor_id);
             } else {
-                
+
                 $vendor_data = array();
                 $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
                 $vendor_data[0]['city'] = $booking_city;
@@ -1159,10 +1159,17 @@ class Booking extends CI_Controller {
         if ($this->input->post('rating_star') != "Select") {
             $data['rating_stars'] = $this->input->post('rating_star');
             $data['rating_comments'] = $this->input->post('rating_comments');
+            $phone_no = $this->input->post('mobile_no');
+            $user_id = $this->input->post('user_id');
 
-            $this->booking_model->update_booking($booking_id, $data);
+            $update = $this->booking_model->update_booking($booking_id, $data);
 
-            $this->notify->insert_state_change($booking_id, "Rating: " . $data['rating_stars'], "Rating", $data['rating_comments'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            if ($update) {
+                //update state
+                $this->notify->insert_state_change($booking_id, "Rating: " . $data['rating_stars'], "Rating", $data['rating_comments'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                // send sms after rating
+                $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
+            }
         }
 
         redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
@@ -1953,8 +1960,8 @@ class Booking extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
             $this->booking_model->convert_booking_to_pending($booking_id, $data, $status);
-            $assigned_vendor_id = $this->input->post("assigned_vendor_id"); 
-            if(!empty($assigned_vendor_id)){
+            $assigned_vendor_id = $this->input->post("assigned_vendor_id");
+            if (!empty($assigned_vendor_id)) {
                 $service_center_data['internal_status'] = "Pending";
                 $service_center_data['current_status'] = "Pending";
                 $service_center_data['update_date'] = date("Y-m-d H:i:s");
@@ -1982,15 +1989,13 @@ class Booking extends CI_Controller {
 
             //Log this state change as well for this booking          
             $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-            if(!empty($assigned_vendor_id)){        
-                    
-                $this->miscelleneous->assign_upcountry_booking($booking_id, 
-                    $this->session->userdata('id'), $this->session->userdata('employee_id'));
-             
-            } 
+            if (!empty($assigned_vendor_id)) {
+
+                $this->miscelleneous->assign_upcountry_booking($booking_id, $this->session->userdata('id'), $this->session->userdata('employee_id'));
+            }
             //Creating Job Card to Booking ID
             $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-            
+
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $send['booking_id'] = $booking_id;
             $send['state'] = "OpenBooking";
@@ -2241,7 +2246,7 @@ class Booking extends CI_Controller {
     function cancel_missed_calls_lead() {
         $id = $this->input->post('id');
         $missed_call_leads = $this->partner_model->get_missed_calls_leads_by_id($id);
-        if(!empty($missed_call_leads)){
+        if (!empty($missed_call_leads)) {
             //Incrementing counter by 1 , from its LATEST value
             $data['counter'] = ($missed_call_leads[0]['counter'] + 1);
             $data['status'] = 'Cancelled';
@@ -2259,10 +2264,9 @@ class Booking extends CI_Controller {
             $this->session->set_flashdata('cancel_leads', 'Leads has been cancelled for phone ' . $missed_call_leads[0]['phone']);
             redirect(base_url() . "employee/booking/get_missed_calls_view");
         } else {
-            $this->session->set_flashdata('cancel_leads', 'Leads had already Cancelled ' );
+            $this->session->set_flashdata('cancel_leads', 'Leads had already Cancelled ');
             redirect(base_url() . "employee/booking/get_missed_calls_view");
         }
-        
     }
 
     /**
@@ -2472,9 +2476,45 @@ class Booking extends CI_Controller {
                 $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 //Logging success for file uppload
                 log_message('info', __METHOD__ . 'Support FILE is being uploaded sucessfully.');
+
         }
 
         return $support_file_name;
+    }
+    
+    /**
+     *  @desc : This function is used to send sms to user after rating
+     *  @param : string $phone_no
+     *  @param : string $booking_primary_contact_no
+     *  @param : string $rating
+     *  @param : string $booking_id
+     *  @return : void
+     */
+    public function send_rating_sms($phone_no, $rating,$user_id,$booking_id) {
+        if ($rating < '3') {
+            $sms['tag'] = "poor_rating_on_completion";
+            $sms['smsData']['rating_no'] = $rating;
+            $sms['phone_no'] = $phone_no;
+            $sms['booking_id'] = $booking_id;
+            $sms['type'] = "rating";
+            $sms['type_id'] = $user_id;
+        }else if($rating === '3'){
+            $sms['tag'] = "avg_rating_on_completion";
+            $sms['smsData']['rating_no'] = $rating;
+            $sms['phone_no'] = $phone_no;
+            $sms['booking_id'] = $booking_id;
+            $sms['type'] = "rating";
+            $sms['type_id'] = $user_id;
+        }else if ($rating > '3') {
+            $sms['tag'] = "good_rating_on_completion";
+            $sms['smsData']['rating_no'] = $rating;
+            $sms['phone_no'] = $phone_no;
+            $sms['booking_id'] = $booking_id;
+            $sms['type'] = "rating";
+            $sms['type_id'] = $user_id;
+        }
+        $this->notify->send_sms_msg91($sms);
+        log_message('info', __METHOD__ . ' SMS Sent for rating' . $phone_no);
     }
 
 }
