@@ -232,11 +232,16 @@ class service_centre_charges_model extends CI_Model {
      * 
      */
     
-    function get_service_category_from_service_id($service_id){
+    function get_service_category_from_service_id($service_id,$partner_id=""){
+        if($partner_id != ""){
+            $where = array('service_id'=>$service_id,'partner_id'=>$partner_id);
+        }else{
+            $where = array('service_id'=>$service_id);
+        }
         $this->db->distinct();
         $this->db->select('service_category');
         $this->db->from('service_centre_charges');
-        $this->db->where('service_id' , $service_id);
+        $this->db->where($where);
         $this->db->order_by('service_category');
         $query = $this->db->get();
         return $query->result_array();
