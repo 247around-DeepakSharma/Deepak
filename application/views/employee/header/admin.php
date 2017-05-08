@@ -291,6 +291,10 @@
                             <a href="<?php echo base_url() ?>employee/accounting/show_search_invoice_id_view"><i class="fa fa-fw fa-desktop "></i> <strong>Search Invoice Id</strong></a>
                         </li>
                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/show_purchase_brackets_credit_note_form"><i class="fa fa-fw fa-desktop "></i> <strong>Create Brackets Credit Note</strong></a>
+                        </li>
+                        <li class="divider"></li>
                         <li class="dropdown dropdown-submenu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Partner</strong></a>
                             <ul class="dropdown-menu">
@@ -364,7 +368,6 @@
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/get_pending_bookings/0"><i class="fa fa-fw fa-desktop "></i> <strong>Download SF Pending Summary</strong></a>
                         </li>
-                        <li class="divider"></li>
 <!--                        <li>
                             <a href="<?php echo base_url()?>employee/vendor/show_around_dashboard"><i class="fa fa-fw fa-desktop "></i> <strong>247around Dashboard</strong></a>
                         </li>-->

@@ -179,7 +179,7 @@ class pc_distance_model extends CI_Model {
         return $pc;
     }
 
-    function insert_distance($pincode1, $pincode2, $distance, $city, $state) {
+    function insert_distance($pincode1, $pincode2, $distance, $city, $state,$agend_id) {
         if ($pincode1 < $pincode2) {
             $dp1 = $pincode1;
             $dp2 = $pincode2;
@@ -189,7 +189,7 @@ class pc_distance_model extends CI_Model {
         }
         
         $d = array('pincode1' => $dp1, 'pincode2' => $dp2,
-                    'distance' => $distance, 'city' => $city, 'state' => $state);
+                    'distance' => $distance, 'city' => $city, 'state' => $state,'agent_id'=>$agend_id);
         
 //        print_r($d);
         

@@ -238,6 +238,10 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoiceDashboard/service_center_invoice"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Check</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/show_purchase_brackets_credit_note_form"><i class="fa fa-fw fa-desktop "></i> <strong>Create Brackets Credit Note</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
