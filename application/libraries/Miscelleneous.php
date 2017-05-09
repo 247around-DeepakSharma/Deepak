@@ -486,7 +486,7 @@ class Miscelleneous {
                             $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
                                     $is_price['customer_net_payable']);
                             if($price >0){
-                                $charges = "Rs. " . $price;
+                                $charges = "Rs. " . round($price,0);
                                log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
                                 
                             } else {
@@ -517,7 +517,7 @@ class Miscelleneous {
                                 $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
                                         $is_price['customer_net_payable']);
                                 if($price >0){
-                                    $charges = "Rs. " . $price;
+                                    $charges = "Rs. " . round($price,0);
                                    log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
 
                                 } else {
