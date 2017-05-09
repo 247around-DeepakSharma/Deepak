@@ -11,11 +11,15 @@
             <label class="col-md-3 control-label" for="Around Type">247Around is</label>
             <div class="col-md-9">
                 <label class="radio-inline">
-                    <input onchange="control_type_code(1)" checked="checked" data-val="true" data-val-required="247Around Type is required." id="around_type" name="around_type" type="radio" value="B">
+                    <input onchange="control_type_code(1)" <?php if (isset($invoice_details[0]['type_code'])) {
+                        if($invoice_details[0]['type_code'] == "B"){ echo "checked";}
+                        } ?> data-val="true" data-val-required="247Around Type is required." id="around_type" name="around_type" type="radio" value="B" required>
                     Buyer
                 </label>
                 <label class="radio-inline">
-                    <input onchange="control_type_code(1)" id="around_type" name="around_type" type="radio" value="A">
+                    <input onchange="control_type_code(1)" <?php if (isset($invoice_details[0]['type_code'])) {
+                        if($invoice_details[0]['type_code'] == "A"){ echo "checked";}
+                    } ?> id="around_type" name="around_type" type="radio" value="A">
                      Seller
                 </label>
               	
