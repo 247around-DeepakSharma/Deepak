@@ -3016,9 +3016,16 @@ class Invoice extends CI_Controller {
                     echo $invoice_id['invoice_id'];
                     break;
                 case 'B':
-
-                    $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, $entity_details[0]['sc_code']);
-                    echo $invoice_id['invoice_id'];
+                    
+                    if ($vendor_partner_type == "vendor") {
+                        $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, $entity_details[0]['sc_code']);
+                        echo $invoice_id['invoice_id'];
+                    } else {
+                        $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
+                        echo $invoice_id['invoice_id'];
+                    }
+                
+                    
                     break;
             }
         } else {
