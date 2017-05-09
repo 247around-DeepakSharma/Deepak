@@ -50,8 +50,8 @@ class User extends CI_Controller {
      */
     
     function finduser($offset = 0, $page = 0, $phone_number = ''){
-        $booking_id = $this->input->post('booking_id');
-        $order_id = $this->input->post('order_id');
+        $booking_id = trim($this->input->post('booking_id'));
+        $order_id = trim($this->input->post('order_id'));
         $userName = $this->input->post('userName');
         $partner_id = $this->input->post('partner');
         if ($this->input->post('phone_number')) {
