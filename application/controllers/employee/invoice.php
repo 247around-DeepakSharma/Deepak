@@ -2931,7 +2931,7 @@ class Invoice extends CI_Controller {
 
             if ($status) {
                 log_message('info', __METHOD__ . ' Invoice details inserted ' . $data['invoice_id']);
-                if ($sms_sent) {
+                if ($sms_sent && $data['vendor_partner'] === 'vendor') {
 
                     $sms['tag'] = "vendor_invoice_mailed";
                     $sms['smsData']['type'] = $data['type'];
