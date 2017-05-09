@@ -38,7 +38,7 @@
           <tr>
           	<th class='jumbotron'>ID</th>
                 <th width="200px;" class='jumbotron' style="text-align: center">Company Name</th>
-                <th class='jumbotron' style="text-align: center">Partner Code</th>
+                <th width="200px;" class='jumbotron' style="text-align: center">Public Name (Partner Code)</th>
                 <th width="500px;" class='jumbotron' style="text-align: center">Appliances/Brands</th>
           	<th class='jumbotron' style="text-align: center">PoC Name</th>
           	<th class='jumbotron' style="text-align: center">PoC Phone</th>
@@ -55,7 +55,7 @@
           <tr>
             <td><?=($key+1).'.';?></td>
             <td><a href="<?php echo base_url();?>employee/partner/editpartner/<?=$row['id'];?>"><?=$row['company_name'];?></a></td>
-            <td><?php echo $row['code'] ; ?></td>
+            <td><?php echo $row['public_name'] ; ?> (<b><?php echo $row['code'] ; ?></b>)</td>
                 <td>
                     <?php
                     if (!empty($service_brands[$key])) {

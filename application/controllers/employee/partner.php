@@ -792,7 +792,7 @@ class Partner extends CI_Controller {
                 $return_data['partner']['is_verified'] = '1';
                 
                 //Temporary value
-                $return_data['partner']['auth_token'] = substr(md5(rand(1,100)), 0, 16);
+                $return_data['partner']['auth_token'] = substr(md5($return_data['public_name'].rand(1,100)), 0, 16);
                 
                 //Agreement End Date - Checking (If Not Present don't insert)
                 if(!empty($this->input->post('agreement_end_date'))){
@@ -1080,9 +1080,9 @@ class Partner extends CI_Controller {
         $return_data['invoice_email_cc']=$this->input->post('invoice_email_cc');
         $return_data['pan']=$this->input->post('pan');
         $return_data['registration_no']=$this->input->post('registration_no');
-        $return_data['tin']=$this->input->post('tin_no');
+        $return_data['tin']=$this->input->post('tin');
         $return_data['cst_no']=$this->input->post('cst_no');
-        $return_data['service_tax']=$this->input->post('service_tax_no');
+        $return_data['service_tax']=$this->input->post('service_tax');
         if($this->input->post('is_reporting_mail') == 'on'){
             $return_data['is_reporting_mail']= '1';
         }else{
@@ -2772,7 +2772,7 @@ class Partner extends CI_Controller {
             }
         } else {
             if ($status == 0) {
-                echo "<script>alert('Sorry, There is an issue in Approving Upcountry Charges. Please contact 247around.');</script>";
+                echo "<script>alert('Thanks, Booking Has Been Already Approved.');</script>";
             } else {
                 $userSession = array('error' => 'Booking Not Found');
                 $this->session->set_userdata($userSession);
