@@ -2763,7 +2763,7 @@ class Invoice extends CI_Controller {
 
             if ($status) {
                 log_message('info', __METHOD__ . ' Invoice details inserted ' . $data['invoice_id']);
-                if ($sms_sent) {
+                if ($sms_sent && $data['vendor_partner'] === 'vendor') {
 
                     $sms['tag'] = "vendor_invoice_mailed";
                     $sms['smsData']['type'] = $data['type'];
@@ -3674,7 +3674,7 @@ class Invoice extends CI_Controller {
 
 
         //send email
-        $to = 'sachinj@247around.com';
+         $to = $vendor_details[0]['owner_email'].",".ANUJ_EMAIL_ID;
         $from = 'billing@247around.com';
 
         $message = "Dear Partner,<br/><br/>";
