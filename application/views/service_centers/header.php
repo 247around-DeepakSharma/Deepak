@@ -22,13 +22,32 @@
             min-height: 80px;
             }
             #datepicker{cursor:pointer;}
+            .card,.long-card {
+                box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+                transition: 0.3s;
+                border-radius: 5px;
+            }.long-card{
+                min-height: 230px;
+            }
+
+            .card:hover {
+                box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+            }
+
+            img {
+                border-radius: 5px 5px 0 0;
+            }
+
+            .container {
+                padding: 2px 16px;
+            }
         </style>
     </head>
     <body>
         <nav class="navbar navbar-custom">
             <!-- Modal -->
             <div id="contactusmodal" class="modal fade" role="dialog">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-lg">
                     <!-- Modal content-->
                     <div class="modal-content">
                         <div class="modal-header">
@@ -36,31 +55,134 @@
                             <h4 class="modal-title">247around Call Completion Contacts:</h4>
                         </div>
                         <div class="modal-body">
-                            <ul>
-                                <li>Mr. Devendra – Back Office Closure Champion – Delhi Office – 8130572244 (English and Hindi) - booking@247around.com</li>
-                                <li>Mrs. Ranju - Back Office Closure – Delhi Office – 8130572244 (Bengali and Hindi) - booking@247around.com</li>
-                            </ul>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="container">
+                                                  <h4><b>Mr. Devendra</b></h4> 
+                                                  <p>Back Office Closure Champion</p>
+                                                  <p>Delhi Office</p>
+                                                  <p>8130572244 <span> <strong>|</strong> English and Hindi</span></p>
+                                                  <p>booking@247around.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="container">
+                                                  <h4><b>Mrs. Ranju</b></h4> 
+                                                  <p>Back Office Closure</p>
+                                                  <p>Delhi Office</p>
+                                                  <p>8130572244 <span> <strong>|</strong> Bengali and Hindi</span></p>
+                                                  <p>booking@247around.com</p>
+                                                </div>
+                                            </div>
+                                    
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h4 class="modal-title">247around Regional Contacts:</h4>
                         </div>
                         <div class="modal-body">
-                            <ul>
-                                <li>Escalation South India – Mr. K Suresh – Regional Service Head South India – Based in Chennai Office – 9840492171 (English, Tamil, Malayalam, Telugu and Kannada) - suresh@247around.com</li>
-                                <li>Escalation West India – Mr. Rajendra Oza – Regional Service Head West India – Based in Mumbai Office – 9223274602 (English, Hindi and Marathi) – oza@247around.com</li>
-                                <li>Escalation East India – Mr. Nilanjan Das – Regional Service Head East India – Based in Kolkata Office – 9051159966 (English, Hindi and Bengali) – nilanjan@247around.com</li>
-                                <li>Escalation North India – Mr. Nitin Malhotra – Director & CEO – Based in Delhi Office – 9810872244 (English, Hindi and Punjabi) – nits@247around.com</li>
-                            </ul>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="long-card">
+                                                <div class="container">
+                                                  <h4><b>Mr. K Suresh</b></h4> 
+                                                  <p>Escalation South India</p>
+                                                  <p>Regional Service Head South India</p>
+                                                  <p>Chennai Office <span>9840492171</span></p>
+                                                  <p style="width:250px;word-wrap:break-word;">English, Tamil, Malayalam, Telugu and Kannada</p>
+                                                  <p>suresh@247around.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="long-card">
+                                                <div class="container">
+                                                  <h4><b>Mr. Rajendra Oza</b></h4> 
+                                                  <p>Escalation West India</p>
+                                                  <p>Regional Service Head West India</p>
+                                                  <p>Mumbai Office <span>9223274602</span></p>
+                                                  <p>English, Hindi and Marathi</p>
+                                                  <p>oza@247around.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="long-card">
+                                                <div class="container">
+                                                  <h4><b>Mr. Nilanjan Das</b></h4> 
+                                                  <p>Escalation East India</p>
+                                                  <p>Regional Service Head East India</p>
+                                                  <p>Kolkata Office <span>8130572244</span></p>
+                                                  <p> English, Hindi and Bengali</p>
+                                                  <p>nilanjan@247around.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="clearfix"></div>
+                                        <div class="col-md-4">
+                                            <div class="long-card">
+                                                <div class="container">
+                                                  <h4><b>Mr. Nitin Malhotra</b></h4> 
+                                                  <p>Escalation North India</p>
+                                                  <p>Director & CEO</p>
+                                                  <p>Delhi Office 9810872244</p>
+                                                  <p>English, Hindi and Punjabi</p>
+                                                  <p>nits@247around.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h4 class="modal-title">247around TV Bracket Ordering:</h4>
                         </div>
                         <div class="modal-body">
-                            <ul>
-                                <li>Ms. Vijaya – Delhi Office – 0120-4540185 (English and Hindi) – vijaya@247around.com, booking@247around.com</li>
-                            </ul>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card" style="width:40%;">
+                                        <div class="container">
+                                            <h4><b>Ms. Vijaya</b></h4> 
+                                            <p>Back Office Closure Champion</p>
+                                            <p>Delhi Office</p>
+                                            <p>0120-4540185 <span> <strong>|</strong> English and Hindi</span></p>
+                                            <p>vijaya@247around.com,booking@247around.com</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">247around Invoices Related:</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card" style="width:40%;">
+                                        <div class="container">
+                                            <h4><b>Mr. Adil Akhtar</b></h4> 
+                                            <p>Back Office Closure Champion</p>
+                                            <p>Delhi Office</p>
+                                            <p>9990009102 <span> <strong>|</strong> English and Hindi</span></p>
+                                            <p>adila@247around.com</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
