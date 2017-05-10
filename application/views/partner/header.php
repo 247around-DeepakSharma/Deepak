@@ -162,9 +162,12 @@
                                 </div> 
                             </form>
                         </li>
-
-                        <li>
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('partner_name'); ?> <b class="caret"></b></a>
+                        
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php echo $this->session->userdata('partner_name'); ?><span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="<?php echo base_url(); ?>employee/partner/show_partner_edit_details_form">Edit Details</a></li>
+                            </ul>
                         </li>
                         <li><a href="<?php echo base_url() ?>employee/partner/logout"><i class="fa fa-fw fa-power-off"></i></a></li>
                     </ul>
