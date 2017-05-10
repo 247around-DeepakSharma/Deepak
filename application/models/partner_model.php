@@ -746,7 +746,8 @@ class Partner_model extends CI_Model {
      */
     function edit_partner($partner, $id) {
         $this->db->where('id', $id);
-        $this->db->update('partners', $partner);
+        $result = $this->db->update('partners', $partner);
+        return $result;
     }
 
     /**
