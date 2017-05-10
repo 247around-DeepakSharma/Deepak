@@ -1873,10 +1873,10 @@ class Invoice extends CI_Controller {
             $invoice[0]['price_inword'] = convert_number_to_words($invoice[0]['total']);
 
             //Creating excel report
-            $output_file_excel = $this->create_vendor_brackets_invoice($invoice[0]);
+            $output_file = $this->create_vendor_brackets_invoice($invoice[0]);
 
 
-            if (isset($output_file_excel)) {
+            if (isset($output_file)) {
 
                 // Sending SMS  to Vendor , adding value in vednor_partner_invoice table when invoice type is FINAL
                 if ($invoice_type == 'final') {
@@ -1899,8 +1899,10 @@ class Invoice extends CI_Controller {
                     //Upload Excel files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "invoices-excel/" . $invoice[0]['invoice_number'] . '.xlsx';
+                    $directory_pdf = "invoices-excel/" . $invoice[0]['invoice_number'] . '.pdf';
 
                     $this->s3->putObjectFile(TMP_FOLDER . $invoice[0]['invoice_number'] . '.xlsx', $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER . $invoice[0]['invoice_number'] . '.pdf', $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
                     //Save this invoice info in table
                     $invoice_details = array(
@@ -1910,7 +1912,7 @@ class Invoice extends CI_Controller {
                         'vendor_partner' => 'vendor',
                         'vendor_partner_id' => $invoice[0]['vendor_id'],
                         'invoice_file_excel' => $invoice[0]['invoice_number'] . '.xlsx',
-                        'invoice_file_pdf' => '',
+                        'invoice_file_pdf' => $invoice[0]['invoice_number'] . '.pdf',
                         'from_date' => date("Y-m-d", strtotime($from_date)),
                         'to_date' => date('Y-m-d', strtotime('-1 day', strtotime($to_date))),
                         'num_bookings' => $invoice[0]['total_brackets'],
@@ -1950,7 +1952,7 @@ class Invoice extends CI_Controller {
 
                 //Logging success
                 log_message('info', __FUNCTION__ . ' Brackets Report invoice has been generated .' . print_r($invoice, TRUE));
-                return $output_file_excel;
+                return $output_file;
             } else {
                 //Logging failure
                 log_message('info', __FUNCTION__ . ' Error in generating Brackets Report invoice for Vendor ID. ' . $vendor_id);
@@ -1972,7 +1974,9 @@ class Invoice extends CI_Controller {
         $output_file_dir = TMP_FOLDER;
         $output_file = $data['invoice_number'];
         $output_file_name = $output_file . ".xlsx";
+        $output_pdf_file_name = $output_file.".pdf";
         $output_file_excel = $output_file_dir . $output_file_name;
+        $output_file_pdf = $output_file_dir . $output_pdf_file_name;
         $template = 'Bracket_Invoice.xlsx';
         //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -2002,13 +2006,26 @@ class Invoice extends CI_Controller {
         }
         $response = $R->render('excel', $output_file_excel);
         system(" chmod 777 " . $output_file_excel, $res1);
+        
+        //convert excel to pdf
+        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+        $tmp_path = TMP_FOLDER;
+        $tmp_output_file = TMP_FOLDER . 'output_' . __FUNCTION__ . '.txt';
+        $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                $output_file_excel . ' 2> ' . $tmp_output_file;
+        $output = '';
+        $result_var = '';
+        exec($cmd, $output, $result_var); 
+        
         if ($response == NULL) {
             log_message('info', __FUNCTION__ . " Excel file created " . $output_file_excel);
-            return $output_file_excel;
+            return $output_file_pdf;
         } else {
             log_message('info', __FUNCTION__ . " Excel file not created ");
             return FALSE;
         }
+        
     }
 
     /**
