@@ -2361,7 +2361,7 @@ class Booking extends CI_Controller {
     function process_update_not_pay_to_sf_booking() {
         log_message('info', __FUNCTION__);
 
-        $booking_id = $this->input->post('booking_id');
+        $booking_id = trim($this->input->post('booking_id'));
         if (!empty($booking_id)) {
             foreach ($booking_id as $value) {
                 if (!empty($value)) {
