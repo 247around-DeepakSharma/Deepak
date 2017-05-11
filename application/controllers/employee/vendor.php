@@ -349,7 +349,7 @@ class vendor extends CI_Controller {
                 
                 //if vendor exists, details are edited
                 $vendor_data = $this->get_vendor_form_data();
-                
+
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
                 
                  //Getting Logged Employee Full Name
@@ -609,19 +609,35 @@ class vendor extends CI_Controller {
                 $vendor_data['owner_email'] = $this->input->post('owner_email');
                 $vendor_data['owner_phone_1'] = $this->input->post('owner_phone_1');
                 $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
-                $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
-                if(!empty($this->input->post('pan_no')))
-                    $vendor_data['pan_no'] = $this->input->post('pan_no');
+                
                 $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
-                if(!empty($this->input->post('cst_no')))
-                    $vendor_data['cst_no'] = $this->input->post('cst_no');
                 $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
-                if(!empty($this->input->post('tin_no')))
-                    $vendor_data['tin_no'] = $this->input->post('tin_no');
                 $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
-                if(!empty($this->input->post('service_tax_no')))
-                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
                 $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
+                
+                if(!empty($vendor_data['is_pan_doc']) && !empty($this->input->post('pan_no')) ){
+                   $vendor_data['pan_no'] = $this->input->post('pan_no');
+                   $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
+                }else{
+                    $vendor_data['pan_no'] = "";
+                    $vendor_data['name_on_pan']= "";
+                }
+                if(!empty($vendor_data['is_cst_doc']) && !empty($this->input->post('cst_no'))){
+                    $vendor_data['cst_no'] = $this->input->post('cst_no');
+                }else{
+                     $vendor_data['cst_no'] = "";
+                }
+                if(!empty($vendor_data['is_tin_doc']) &&  !empty($this->input->post('tin_no'))){
+                    $vendor_data['tin_no'] = $this->input->post('tin_no');
+                }else{
+                    $vendor_data['tin_no'] = "";
+                }
+                if(!empty($vendor_data['is_st_doc']) && !empty($this->input->post('service_tax_no'))){
+                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
+                }else{
+                    $vendor_data['service_tax_no'] = "";
+                }
+             
                 $vendor_data['bank_name'] = $this->input->post('bank_name');
                 $vendor_data['account_type'] = $this->input->post('account_type');
                 $vendor_data['bank_account'] = $this->input->post('bank_account');
