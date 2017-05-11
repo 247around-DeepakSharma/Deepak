@@ -1,7 +1,8 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Earned Upcountry Booking Details</h1>
+        <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> <?php if(isset($data[0]['sf_upcountry_rate'])){ ?>Earned Upcountry Booking Details <?php } 
+        else { echo "Offered Upcountry Details"; } ?></h1>
     </div>
     <div class="panel-body">
         <div class="table-responsive">
@@ -22,7 +23,8 @@
                             <?php echo $row['booking']; ?>
                         </td>
                         <td>
-                            <?php echo $row['sf_upcountry_rate'] . " PER KM"; ?>
+                            <?php if(isset($row['sf_upcountry_rate'])){ echo $row['sf_upcountry_rate'] . " PER KM"; } 
+                              else if(isset ($row['partner_upcountry_rate'])){ echo $row['partner_upcountry_rate']. " PER KM";} ?>
                         </td>
                         <td>
                             <?php echo $row['upcountry_distance'] . " KM"; ?>
