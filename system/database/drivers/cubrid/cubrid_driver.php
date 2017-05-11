@@ -602,6 +602,11 @@ class CI_DB_cubrid_driver extends CI_DB {
 	{
 		return "INSERT INTO ".$table." (\"".implode('", "', $keys)."\") VALUES ".implode(', ', $values);
 	}
+        
+        function _insert_ignore_duplicate_batch($table, $keys, $values){
+            
+            return "INSERT IGNORE INTO ".$table." (".implode(', ', $keys).") VALUES ".implode(', ', $values);
+        }
 
 	// --------------------------------------------------------------------
 
