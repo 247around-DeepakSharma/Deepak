@@ -2988,5 +2988,18 @@ class Partner extends CI_Controller {
             redirect(base_url() . 'employee/partner/show_partner_edit_details_form');
         }
     }
+    /**
+     * @desc Get upcountry details for partner booking
+     * @param String $booking_id
+     * @param int $is_customer_paid
+     */
+    function booking_upcountry_details($booking_id, $is_customer_paid) {
+        if ($is_customer_paid > 0) {
+            $is_customer_paid = 1;
+        }
+        $data['data'] = $this->upcountry_model->upcountry_booking_list("", $booking_id, false, $is_customer_paid);
+
+        $this->load->view('service_centers/upcountry_booking_details', $data);
+    }
    
 }

@@ -28,7 +28,10 @@
                             <tbody>
                                 <?php foreach($bookings as $key =>$row){?>
                                 <tr>
-                                    <td>
+                                    <td><?php if($row['is_upcountry']== 1 && $row['upcountry_paid_by_customer']== 0){ ?>
+                                         <i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row['booking_id'];?>', '<?php echo $row['amount_due'];?>')"
+                                       class="fa fa-road" aria-hidden="true"></i>
+                                   <?php } ?>
                                         <?php echo $count; ?>
                                     </td>
                                     <td>
@@ -82,4 +85,27 @@
         </div>
     </div>
 </div>
+<div id="myModal1" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content" id="modal-content1">
+            
+        </div>
+    </div>
+</div>
 <div class="custom_pagination" style="margin-left: 16px;" > <?php if(isset($links)) echo $links; ?></div>
+<script>
+function open_upcountry_model(booking_id, amount_due){
+      
+       $.ajax({
+      type: 'POST',
+      url: '<?php echo base_url(); ?>employee/partner/booking_upcountry_details/'+ booking_id+"/"+amount_due,
+      success: function (data) {
+         // console.log(data);
+       $("#modal-content1").html(data);   
+       $('#myModal1').modal('toggle');
+    
+      }
+    });
+    }
+</script>
