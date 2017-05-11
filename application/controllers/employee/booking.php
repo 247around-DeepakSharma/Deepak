@@ -1166,7 +1166,7 @@ class Booking extends CI_Controller {
 
             if ($update) {
                 //update state
-                $this->notify->insert_state_change($booking_id, "Rating: " . $data['rating_stars'], "Rating", $data['rating_comments'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                $this->notify->insert_state_change($booking_id, "Rating", $status, "Rating: " . $data['rating_stars'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
                 // send sms after rating
                 $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
             }
