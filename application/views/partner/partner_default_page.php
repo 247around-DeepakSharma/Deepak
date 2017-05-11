@@ -13,6 +13,19 @@
         }
 
     });
+    function open_upcountry_model(booking_id, amount_due){
+      
+       $.ajax({
+      type: 'POST',
+      url: '<?php echo base_url(); ?>employee/partner/booking_upcountry_details/'+ booking_id+"/"+amount_due,
+      success: function (data) {
+         // console.log(data);
+       $("#modal-content1").html(data);   
+       $('#myModal1').modal('toggle');
+    
+      }
+    });
+    }
 </script>
 <style type="text/css">
     .ui-tabs .ui-tabs-nav {
@@ -87,7 +100,14 @@
         </div>
     </div>
 </div>
-
+<div id="myModal1" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content" id="modal-content1">
+            
+        </div>
+    </div>
+</div>
 <!-- Modal -->
 <div id="myModal" class="modal fade" role="dialog">
     <div class="modal-dialog">

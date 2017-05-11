@@ -11,7 +11,7 @@ class Blogs_model extends CI_Model {
 	
 	$this->db = $this->load->database('default', TRUE, TRUE);
 
-	$this->db_wp = $this->load->database('wordpress', TRUE, TRUE);
+	//$this->db_wp = $this->load->database('wordpress', TRUE, TRUE);
     }
 
     /*
@@ -296,5 +296,14 @@ class Blogs_model extends CI_Model {
 	    }
 	}
     }
+    
+    function get_blogs_details($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get("blogs");
+        return $query->result_array();
+    }
+    
+    //function 
 
 }
