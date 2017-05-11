@@ -1242,18 +1242,21 @@ EOD;
         $query_booking = [];
         $calls_placed = [];
         $calls_received = [];
+        $rating = [];
         foreach($data['data'] as $key => $value){
             array_push($agent_name,$value['employee_id']);
             array_push($query_cancel,$value['followup_to_cancel']);
             array_push($query_booking,$value['followup_to_pending']);
             array_push($calls_placed,$value['calls_placed']);
             array_push($calls_received,$value['calls_recevied']);
+            array_push($rating,$value['rating']);
         }    
         $data_report['agent_name'] = implode(",", $agent_name);
         $data_report['query_cancel'] = implode(",", $query_cancel);
         $data_report['query_booking'] = implode(",", $query_booking);
         $data_report['calls_placed'] = implode(",", $calls_placed);
         $data_report['calls_received'] = implode(",", $calls_received);
+        $data_report['rating'] = implode(",", $rating);
         echo json_encode($data_report);
     }
 

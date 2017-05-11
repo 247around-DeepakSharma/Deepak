@@ -597,6 +597,7 @@ class Upcountry_model extends CI_Model {
         $this->db->select('service_center_id, booking_primary_contact_no,user_id');
         $this->db->from('booking_details');
         $this->db->where('booking_id',$booking_id);
+       $this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
         $this->db->join('sub_service_center_details','sub_service_center_details.id = booking_details.sub_vendor_id');
         $query = $this->db->get();
         return $query->result_array();

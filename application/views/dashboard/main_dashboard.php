@@ -643,6 +643,7 @@
                 var calls_placed = JSON.parse("[" + data.calls_placed + "]");
                 var query_booking = JSON.parse("[" + data.query_booking + "]");
                 var calls_received = JSON.parse("[" + data.calls_received + "]");
+                var rating = JSON.parse("[" + data.rating + "]");
                 chart1 = new Highcharts.Chart({
                     chart: {
                         renderTo: 'chart_container2',
@@ -697,6 +698,9 @@
                         }, {
                             name: 'Incoming Calls',
                             data: calls_received
+                        }, {
+                            name: 'Ratings',
+                            data: rating
                         }]
                 });
             }

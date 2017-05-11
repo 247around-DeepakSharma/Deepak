@@ -346,7 +346,7 @@ class Accounting extends CI_Controller {
      * @return : view
      */
     function search_invoice_id() {
-        $invoice_id = $this->input->post('invoice_id');
+        $invoice_id = trim($this->input->post('invoice_id'));
         $request_data = array('invoice_id' => $invoice_id);
         $data['invoiceid_data'] = $this->invoices_model->getInvoicingData($request_data);
         if (!empty($data['invoiceid_data'])) {
@@ -432,7 +432,7 @@ class Accounting extends CI_Controller {
      * @return : view
      */
     function search_challan_id() {
-        $cin_no = $this->input->post('cin_no');
+        $cin_no = trim($this->input->post('cin_no'));
         $where = array('cin_no' => $cin_no);
         $data['challan_details'] = $this->accounting_model->get_challan_details($where);
         //print_r($data);exit();
