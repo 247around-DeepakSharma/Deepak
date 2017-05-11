@@ -1601,31 +1601,28 @@ class Reporting_utils extends CI_Model {
         foreach ($employee_id as $value) {
             
             $cancel_query = "SELECT count(booking_id) AS query_cancel FROM booking_state_change
-                             JOIN employee on booking_state_change.agent_id=employee.id 
                              WHERE booking_state_change.old_state = 'FollowUP' 
                              AND booking_state_change.new_state='Cancelled' 
-                             AND employee.id= '" . $value['id'] . "' $where1";
+                             AND partner_id = '"._247AROUND."' AND agent_id= '" . $value['id'] . "' $where1";
             //getting booking query data
             $booking_query = "SELECT count(booking_id) AS query_booking FROM booking_state_change
-                              JOIN employee on booking_state_change.agent_id=employee.id 
                               WHERE booking_state_change.old_state = 'FollowUP' 
                               AND booking_state_change.new_state='Pending' 
-                              AND employee.id= '" . $value['id'] . "' $where1";
+                              AND partner_id = '"._247AROUND."' AND agent_id= '" . $value['id'] . "' $where1";
             
             //getting outgoing calls data
             $calls_placed = "SELECT count(agent_id) AS calls_placed FROM agent_outbound_call_log
-                             JOIN employee on agent_outbound_call_log.agent_id=employee.id 
-                             WHERE employee.id= '" . $value['id'] . "'  $where2";
-            //getting incomming calls data
+                             WHERE agent_outbound_call_log.agent_id= '" . $value['id'] . "'  $where2";
+            //getting received incomming calls data
             $calls_recevied = "SELECT COUNT(DialWhomNumber) AS incomming , full_name 
                                FROM passthru_misscall_log JOIN employee ON passthru_misscall_log.DialWhomNumber 
                                LIKE concat('%' , employee.phone ) 
-                               WHERE employee.id='" . $value['id'] . "' $where3";
+                               WHERE callType = 'completed' AND employee.id='" . $value['id'] . "' $where3";
             
             //getting agent rating data
             $rating_query = "SELECT count(old_state) AS rating FROM booking_state_change 
                               WHERE old_state='Rating' AND new_state LIKE '%Rating:%' 
-                              AND agent_id = '" . $value['id'] . "' $where1";
+                              AND partner_id = '"._247AROUND."' AND agent_id = '" . $value['id'] . "' $where1";
 
 
             $cancel_query_data = $this->db->query($cancel_query);
