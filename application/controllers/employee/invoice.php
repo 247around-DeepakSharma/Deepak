@@ -2113,7 +2113,7 @@ class Invoice extends CI_Controller {
         
         if ($response == NULL) {
             log_message('info', __FUNCTION__ . " Excel file created " . $output_file_excel);
-            return $output_file_pdf;
+            return $output_file;
         } else {
             log_message('info', __FUNCTION__ . " Excel file not created ");
             return FALSE;
@@ -2210,14 +2210,18 @@ class Invoice extends CI_Controller {
         $from_date = $custom_date[0];
         // $to_date = $custom_date[1];
         // Call generate_brackets_invoices method to generates Brackets Invoice
-        $output_file_excel = $this->generate_brackets_invoices($details);
+        $output_file = $this->generate_brackets_invoices($details);
         //Sending invoice copy to vendors in mail if invocie is being genetared
-        if ($output_file_excel) {
+        if ($output_file) {
+            
+            $output_file_excel = TMP_FOLDER.$output_file."xlsx";
+            $output_file_pdf = TMP_FOLDER.$output_file.".pdf";
+            
             log_message('info', __FUNCTION__ . " Excel file return " . $output_file_excel);
             // Not sending mail when vendor_id is all + draft
             if ($vendor_all_flag != 1 && $invoice_type == 'draft') {
                 //Sending mail to Anuj along with invoice copy as attachment
-                $send_mail = $this->send_brackets_invoice_draft_mail($vendor_id, $output_file_excel, $from_date);
+                $send_mail = $this->send_brackets_invoice_draft_mail($vendor_id, $output_file_pdf, $from_date);
                 if ($send_mail) {
                     //Loggin Success
                     log_message('info', __FUNCTION__ . ' DRAFT INVOICE - Brackets invoice has been sent for the month of ' . $from_date);
@@ -2232,7 +2236,7 @@ class Invoice extends CI_Controller {
             if ($invoice_type == 'final') {
 
                 // Sending mail to all vendors POC + OWNER
-                $send_mail = $this->send_brackets_invoice_mail($vendor_id, $output_file_excel, $from_date);
+                $send_mail = $this->send_brackets_invoice_mail($vendor_id, $output_file_pdf, $from_date);
                 if ($send_mail) {
                     //Loggin Success
                     log_message('info', __FUNCTION__ . ' Brackets invoice has been sent to the following Vendor ID ' . $vendor_id . ' for the month of ' . $from_date);
@@ -2242,6 +2246,7 @@ class Invoice extends CI_Controller {
                 }
             }
             exec("rm -rf " . escapeshellarg($output_file_excel));
+            exec("rm -rf " . escapeshellarg($output_file_pdf));
             return true;
         } else {
 
