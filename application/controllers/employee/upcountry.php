@@ -313,7 +313,7 @@ class Upcountry extends CI_Controller {
             if($insert_id){
                 echo "success";
             }else{
-                echo "error dddsd";
+                echo "error";
             }
         } else {
             echo "error";
