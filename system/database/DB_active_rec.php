@@ -1091,6 +1091,64 @@ class CI_DB_active_record extends CI_DB_driver {
 
 		return TRUE;
 	}
+        
+        /**
+	 * Insert_Batch
+	 *
+	 * Compiles batch insert strings and runs the queries
+	 *
+	 * @param	string	the table to retrieve the results from
+	 * @param	array	an associative array of insert values
+	 * @return	object
+	 */
+	public function insert_Ignore_Duplicate_batch($table = '', $set = NULL)
+	{
+		if ( ! is_null($set))
+		{
+			$this->set_insert_batch($set);
+		}
+
+		if (count($this->ar_set) == 0)
+		{
+			if ($this->db_debug)
+			{
+				//No valid data array.  Folds in cases where keys and values did not match up
+				return $this->display_error('db_must_use_set');
+			}
+			return FALSE;
+		}
+
+		if ($table == '')
+		{
+			if ( ! isset($this->ar_from[0]))
+			{
+				if ($this->db_debug)
+				{
+					return $this->display_error('db_must_set_table');
+				}
+				return FALSE;
+			}
+
+			$table = $this->ar_from[0];
+		}
+
+		// Batch this baby
+		for ($i = 0, $total = count($this->ar_set); $i < $total; $i = $i + 100)
+		{
+
+			$sql = $this->_insert_ignore_duplicate_batch($this->_protect_identifiers($table, TRUE, NULL, FALSE), $this->ar_keys, array_slice($this->ar_set, $i, 100));
+
+			//echo $sql;
+
+			$this->query($sql);
+		}
+
+		$this->_reset_write();
+
+
+		return TRUE;
+	}
+
 
 	// --------------------------------------------------------------------
 
