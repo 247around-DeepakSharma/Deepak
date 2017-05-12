@@ -61,32 +61,60 @@ class Upcountry extends CI_Controller {
         $pincode = $this->input->post('pincode');
         $charges = $this->input->post('charges');
         $data = array();
+        $flag = 1;
         foreach ($state as $key => $value) {
-            $data[$key]['state'] = $value;
-            $data[$key]['district'] = $district[$key];
-            $data[$key]['pincode'] = $pincode[$key];
-            $data[$key]['upcountry_rate'] = $charges[$key];
-            $data[$key]['service_center_id'] = $service_center_id;
-            $data[$key]['create_date'] = date("Y-m-d H:i:s");
+            $flag = 1;
+            $where = array("pincode" => $pincode[$key], 'service_center_id' => $service_center_id);
+            $exist_hq_office = $this->upcountry_model->get_sub_service_center_details($where);
+            if (!empty($exist_hq_office)) {
+                if ($district[$key] != $exist_hq_office[0]['district']) {
+                    $flag = 0;
+                    $userSession = array('error' => 'District ' . $exist_hq_office[0]['district'] .
+                        " Already Added in the Pincode " . $pincode[$key] . " Please check District & Try Again");
+                    $this->session->set_userdata($userSession);
+                    log_message('info', __FUNCTION__ . 'District ' . $exist_hq_office[0]['district'] .
+                            " Already Added in the Pincode " . $pincode[$key] . " Please check District & Try Again" . print_r($data, true));
+                    break;
+                } else if ($district[$key] == $exist_hq_office[0]['district']) {
+                    $flag = 0;
+                    $userSession = array('error' => 'Same District ' . $exist_hq_office[0]['district'] .
+                        " Same Pincode " . $pincode[$key] . " Already Added. Please check & Try Again");
+                    $this->session->set_userdata($userSession);
+                    log_message('info', __FUNCTION__ . 'District ' . $exist_hq_office[0]['district'] .
+                            " Already Added in the Pincode " . $pincode[$key] . " Please check District & Try Again" . print_r($data, true));
+                   break;
+                }
+            }
+            if ($flag == 1) {
+                $data[$key]['state'] = $value;
+                $data[$key]['district'] = $district[$key];
+                $data[$key]['pincode'] = $pincode[$key];
+                $data[$key]['upcountry_rate'] = $charges[$key];
+                $data[$key]['service_center_id'] = $service_center_id;
+                $data[$key]['create_date'] = date("Y-m-d H:i:s");
+            }
         }
-
-        if (!empty($data)) {
-            $response = $this->upcountry_model->insert_batch_sub_sc_details($data);
-            $this->vendor_model->edit_vendor(array('is_upcountry' => '1'), $service_center_id);
-            if ($response) {
-                $userSession = array('success' => 'Upcountry Charges Added');
-                $this->session->set_userdata($userSession);
-                log_message('info', __FUNCTION__ . " Added Upcountry Charges for SC id " . $service_center_id);
+        if (!empty($flag)) {
+            if (!empty($data)) {
+                $response = $this->upcountry_model->insert_batch_sub_sc_details($data);
+                $this->vendor_model->edit_vendor(array('is_upcountry' => '1'), $service_center_id);
+                if ($response) {
+                    $userSession = array('success' => 'Upcountry Charges Added');
+                    $this->session->set_userdata($userSession);
+                    log_message('info', __FUNCTION__ . " Added Upcountry Charges for SC id " . $service_center_id);
+                } else {
+                    $userSession = array('error' => 'Upcountry Charges Insertion Failed');
+                    $this->session->set_userdata($userSession);
+                    log_message('info', __FUNCTION__ . " Upcountry Charges Not Added " . print_r($data, true));
+                }
+                redirect(base_url() . "employee/vendor/viewvendor");
             } else {
                 $userSession = array('error' => 'Upcountry Charges Insertion Failed');
                 $this->session->set_userdata($userSession);
-                log_message('info', __FUNCTION__ . " Upcountry Charges Not Added " . print_r($data));
+                log_message('info', __FUNCTION__ . " Upcountry Charges Not Added  service center id" . print_r($service_center_id));
+                redirect(base_url() . "employee/vendor/viewvendor");
             }
-            redirect(base_url() . "employee/vendor/viewvendor");
         } else {
-            $userSession = array('error' => 'Upcountry Charges Insertion Failed');
-            $this->session->set_userdata($userSession);
-            log_message('info', __FUNCTION__ . " Upcountry Charges Not Added  service center id" . print_r($service_center_id));
             redirect(base_url() . "employee/vendor/viewvendor");
         }
     }
