@@ -324,10 +324,16 @@ class Accounting extends CI_Controller {
         $to_date = $this->input->post('to_date');
         $new_to_date = date('Y/m/d', strtotime($to_date . "+1 days"));
         $partner_vendor = $this->input->post('partner_vendor');
-        $data['report_data'] = $this->accounting_model->get_payment_report_data($payment_type, $from_date, $new_to_date, $partner_vendor);
-        $data['partner_vendor'] = $partner_vendor;
-        $data['payment_type'] = $payment_type;
-        echo $this->load->view('employee/paymnet_history_table_view.php', $data);
+        $report_type = $this->input->post('report_type');
+        $data['report_data'] = $this->accounting_model->get_payment_report_data($payment_type, $from_date, $new_to_date, $partner_vendor,$report_type);
+        if($data['report_data']){
+            $data['partner_vendor'] = $partner_vendor;
+            $data['payment_type'] = $payment_type;
+            $data['report_type'] = $report_type;
+            echo $this->load->view('employee/paymnet_history_table_view.php', $data);
+        }else{
+            echo "error";
+        }
     }
 
     /**

@@ -1,34 +1,34 @@
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
-<script src="<?php echo base_url()?>js/report.js"></script>
+<script src="<?php echo base_url() ?>js/report.js"></script>
 <style type="text/css">
-   div.pager {
-   text-align: center;
-   margin: 1em 0;
-   }
-   div.pager span {
-   display: inline-block;
-   width: 1.8em;
-   height: 1.8em;
-   line-height: 1.8;
-   text-align: center;
-   cursor: pointer;
-   background: #bce8f1;
-   color: #fff;
-   margin-right: 0.5em;
-   }
-   div.pager span.active {
-   background: #c00;
-   }
-   table,th,td { border:1px solid black;}
-   th:hover{
-   cursor:pointer;
-   background:#AAA;
-   }
+    div.pager {
+        text-align: center;
+        margin: 1em 0;
+    }
+    div.pager span {
+        display: inline-block;
+        width: 1.8em;
+        height: 1.8em;
+        line-height: 1.8;
+        text-align: center;
+        cursor: pointer;
+        background: #bce8f1;
+        color: #fff;
+        margin-right: 0.5em;
+    }
+    div.pager span.active {
+        background: #c00;
+    }
+    table,th,td { border:1px solid black;}
+    th:hover{
+        cursor:pointer;
+        background:#AAA;
+    }
 </style>
 <div id="page-wrapper" >
     <div class="container-fluid">
         <div class="payment_history_report" style="border: 1px solid #e6e6e6; margin-top: 20px; margin-bottom: 20px;padding: 10px;">
-            <h3><strong>Sales/Purchase Payment Report</strong></h3>
+            <h3><strong>Sale/Purchase Invoice Summary Report</strong></h3>
             <hr>
             <section class="fetch_payment_history" style="padding-left:20px;">
                 <div class="row">
@@ -54,6 +54,13 @@
                                     <option value="stand">Stand</option>
                                 </select>
                             </div>
+                            <div class="form-group" style="margin-right: 10px;">
+                                <label for="report_type">Report Type</label>
+                                <select class="form-control" id="report_type">
+                                    <option value="draft">Draft</option>
+                                    <option value="final">Final</option>
+                                </select>
+                            </div>
                             <button class="btn btn-success" id="get_payment_history">Fetch</button>
                         </div>
                     </div>
@@ -61,8 +68,10 @@
             </section>
             <div class="text-center" id="loader" style="display: none;" ><img src= '<?php echo base_url(); ?>images/loadring.gif' /></div>
             <hr>
+            <div class="permission-error text-danger text-center" style="display:none;"><strong>Operation not permitted</strong> </div>
+            <div class="data-error text-danger text-center" style="display:none;"><strong>No Data Found</strong> </div>
             <section class="payment_preview">
-                
+
             </section>
             <hr>
             <section class="download_report" style="display: none;">
@@ -88,59 +97,78 @@
             minDate: '2015/01/01',
             maxDate: '2030/12/31',
             showDropdowns: true,
-            dateLimit : 60
+            dateLimit: 60
         });
     });
-    
-    $(document).ready(function(){
-        $('#get_payment_history').click(function(){
-           var type = $('#type').val();
-           var partner_vendor = $('#partner_vendor').val();
-           var daterange = $('#daterange').val().split('-');
-           var from_date = daterange[0];
-           var to_date = daterange[1];
-           $('#loader').show();
-           $.ajax({
-               method:'POST',
-               url: '<?php echo base_url();?>employee/accounting/show_accounting_report',
-               data: {type:type,from_date:from_date,to_date:to_date,partner_vendor:partner_vendor},
-               success:function(response){
-                   //console.log(response);
-                   $('#loader').hide();
-                   $('.payment_preview').show();
-                   $('.payment_preview').html(response);
-                   $('.download_report').show();
-                   table_pagination();
-                   
-               }
-           });
+
+    $(document).ready(function () {
+        $('#get_payment_history').click(function () {
+            var type = $('#type').val();
+            var partner_vendor = $('#partner_vendor').val();
+            var report_type = $('#report_type').val();
+            var daterange = $('#daterange').val().split('-');
+            var from_date = daterange[0];
+            var to_date = daterange[1]; 
+            if ((type === 'tds' && partner_vendor === 'partner') || (type === 'tds' && partner_vendor === 'stand')) {
+                $('.permission-error').show();
+                $('.download_report').hide();
+                $('.payment_preview').hide();
+                $('.data-error').hide();
+            } else {
+                $('#loader').show();
+                $.ajax({
+                    method: 'POST',
+                    url: '<?php echo base_url(); ?>employee/accounting/show_accounting_report',
+                    data: {type: type, from_date: from_date, to_date: to_date, partner_vendor: partner_vendor,report_type:report_type},
+                    success: function (response) {
+                        //console.log(response);
+                        if (response === "error") {
+                            $('#loader').hide();
+                            $('.permission-error').hide();
+                            $('.payment_preview').hide();
+                            $('.download_report').hide();
+                            $('.data-error').show();
+                        } else {
+                            $('#loader').hide();
+                            $('.data-error').hide();
+                            $('.permission-error').hide();
+                            $('.payment_preview').show();
+                            $('.payment_preview').html(response);
+                            $('.download_report').show();
+                            table_pagination();
+                        }
+
+
+                    }
+                });
+            }
         });
     });
-    
-    $('#download_report').click(function(e){
+
+    $('#download_report').click(function (e) {
         var type = $('#type').val();
         var partner_vendor = $('#partner_vendor').val();
         var time = moment().format('D-MMM-YYYY');
-        if(type === 'sales' && partner_vendor === 'partner'){
-            filename = 'partner_sales_report_'+time;
-        }else if (type === 'sales' && partner_vendor === 'vendor'){
-            filename = 'vendor_sales_report_'+time;
-        }else if (type === 'sales' && partner_vendor === 'stand'){
-            filename = 'stand_sales_report_'+time;
-        }else if (type === 'purchase' && partner_vendor === 'partner'){
-            filename = 'partner_purchase_report_'+time;
-        }else if (type === 'purchase' && partner_vendor === 'vendor'){
-            filename = 'vendor_purchase_report_'+time;
-        }else if (type === 'purchase' && partner_vendor === 'stand'){
-            filename = 'stand_purchase_report_'+time;
-        }else if (type === 'tds' && partner_vendor === 'partner'){
-            filename = 'partner_tds_report_'+time;
-        }else if (type === 'tds' && partner_vendor === 'vendor'){
-            filename = 'vendor_tds_report_'+time;
-        }else if (type === 'tds' && partner_vendor === 'stand'){
-            filename = 'stand_tds_report_'+time;
+        if (type === 'sales' && partner_vendor === 'partner') {
+            filename = 'partner_sales_report_' + time;
+        } else if (type === 'sales' && partner_vendor === 'vendor') {
+            filename = 'vendor_sales_report_' + time;
+        } else if (type === 'sales' && partner_vendor === 'stand') {
+            filename = 'stand_sales_report_' + time;
+        } else if (type === 'purchase' && partner_vendor === 'partner') {
+            filename = 'partner_purchase_report_' + time;
+        } else if (type === 'purchase' && partner_vendor === 'vendor') {
+            filename = 'vendor_purchase_report_' + time;
+        } else if (type === 'purchase' && partner_vendor === 'stand') {
+            filename = 'stand_purchase_report_' + time;
+        } else if (type === 'tds' && partner_vendor === 'partner') {
+            filename = 'partner_tds_report_' + time;
+        } else if (type === 'tds' && partner_vendor === 'vendor') {
+            filename = 'vendor_tds_report_' + time;
+        } else if (type === 'tds' && partner_vendor === 'stand') {
+            filename = 'stand_tds_report_' + time;
         }
-        
+
         e.preventDefault();
 
         //getting data from table
@@ -150,8 +178,8 @@
 
         var a = document.createElement('a');
         a.href = data_type + ', ' + table_html;
-        a.download = filename + '.xls';
+        a.download = filename + '.xlsx';
         a.click();
     });
-    
+
 </script>
