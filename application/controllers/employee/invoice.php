@@ -466,7 +466,7 @@ class Invoice extends CI_Controller {
     /**
      * @desc: generate details partner Detailed invoices
      */
-    function create_partner_invoices_detailed($partner_id, $f_date, $t_date, $invoice_type, $invoice_id) {
+    function create_partner_invoices_detailed($partner_id, $f_date, $t_date, $invoice_type, $invoice_id,$agent_id) {
         log_message('info', __METHOD__ . "=> " . $invoice_type . " Partner Id " . $partner_id);
         $data1 = $this->invoices_model->getpartner_invoices($partner_id, $f_date, $t_date);
         $data = $data1['main_invoice'];
@@ -687,6 +687,8 @@ class Invoice extends CI_Controller {
                     'due_date' => date("Y-m-d", strtotime($t_date . "+1 month")),
                     //Amount needs to be collected from Vendor
                     'amount_collected_paid' => ($excel_data['total_charges'] + $excel_data['total_upcountry_price'] - $tds),
+                    //add agent_id
+                    'agent_id' => $agent_id
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
@@ -1038,7 +1040,9 @@ class Invoice extends CI_Controller {
                     //SMS has been sent or not
                     'sms_sent' => 1,
                     //Add 1 month to end date to calculate due date
-                    'due_date' => date("Y-m-d", strtotime($to_date . "+1 month"))
+                    'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
+                    //add agent_id
+                    'agent_id' => $details['agent_id']
                 );
 
                 $this->invoices_model->action_partner_invoice($invoice_details);
@@ -1433,7 +1437,9 @@ class Invoice extends CI_Controller {
                     'courier_charges' => $total_courier_charges,
                     'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
-                    'due_date' => date("Y-m-d", strtotime($to_date . "+1 month"))
+                    'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
+                    //add agent id
+                    'agent_id' => $details['agent_id']
                 );
 
                 // insert invoice details into vendor partner invoices table
@@ -1505,6 +1511,7 @@ class Invoice extends CI_Controller {
         $details['vendor_partner_id'] = $this->input->post('partner_vendor_id');
         $details['date_range'] = $this->input->post('daterange');
         $details['vendor_invoice_type'] = $this->input->post('vendor_invoice_type');
+        $details['agent_id'] = $this->session->userdata('id');
 
         $status = $this->generate_vendor_partner_invoices($details);
         if ($status) {
@@ -1537,6 +1544,7 @@ class Invoice extends CI_Controller {
         $details['vendor_partner_id'] = $vendor_partner_id;
         $details['date_range'] = $from_date_range . "-" . $to_date_range;
         $details['vendor_invoice_type'] = $vendor_invoice_type;
+        $details['agent_id'] = _247AROUND_DEFAULT_AGENT;
 
         $this->generate_vendor_partner_invoices($details);
     }
@@ -1560,7 +1568,7 @@ class Invoice extends CI_Controller {
             log_message('info', "Invoice generate - partner id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
                     print_r($details['date_range'], true) . ", Invoice status" . print_r($details['invoice_type'], true));
 
-            return $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type']);
+            return $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type'],$details['agent_id']);
         }
 
         log_message('info', __FUNCTION__ . " Exit......");
@@ -1582,7 +1590,8 @@ class Invoice extends CI_Controller {
             $details['invoice_id'] = $invoice_id;
             $details['vendor_partner_id'] = $invoice_details[0]['vendor_partner_id'];
             $details['date_range'] = str_replace("-", "/", $invoice_details[0]['from_date']) . "-" . str_replace("-", "/", date('Y-m-d', strtotime($invoice_details[0]['to_date'])));
-
+            $details['agent_id'] = $this->session->userdata('id');
+            
             if ($invoice_details[0]['vendor_partner'] == 'vendor' && $invoice_details[0]['type'] != "Stand") {
                 $exist_invoice_type = "";
                 if ($invoice_details[0]['type'] == "FOC") {
@@ -1641,7 +1650,7 @@ class Invoice extends CI_Controller {
      * @param type $date_range
      * @param type $invoice_type
      */
-    function generate_partner_invoices($partner_id, $date_range, $invoice_type) {
+    function generate_partner_invoices($partner_id, $date_range, $invoice_type,$agent_id) {
         log_message('info', __FUNCTION__ . '=> Entering... Partner Id' . $partner_id . " date range " . $date_range . " invoice type " . $invoice_type);
         $custom_date = explode("-", $date_range);
         $from_date = $custom_date[0];
@@ -1653,14 +1662,14 @@ class Invoice extends CI_Controller {
                 log_message('info', __FUNCTION__ . '=> Partner Id ' . $value['partner_id']);
                 $invoice_id = $this->create_partner_invoice($value['partner_id'], $from_date, $to_date, $invoice_type);
                 if ($invoice_id) {
-                    $this->create_partner_invoices_detailed($value['partner_id'], $from_date, $to_date, $invoice_type, $invoice_id);
+                    $this->create_partner_invoices_detailed($value['partner_id'], $from_date, $to_date, $invoice_type, $invoice_id,$agent_id);
                 }
             }
         } else {
             log_message('info', __FUNCTION__ . '=> Partner Id ' . $partner_id);
             $invoice_id = $this->create_partner_invoice($partner_id, $from_date, $to_date, $invoice_type);
             if ($invoice_id) {
-                return $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoice_id);
+                return $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoice_id,$agent_id);
             } else {
                 return False;
             }
@@ -1933,7 +1942,8 @@ class Invoice extends CI_Controller {
                         'mail_sent' => 1,
                         'sms_sent' => 1,
                         //Add 1 month to end date to calculate due date
-                        'due_date' => date("Y-m-d", strtotime($to_date . "+1 month"))
+                        'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
+                        'agent_id' => $details['agent_id']
                     );
                     $this->invoices_model->action_partner_invoice($invoice_details);
                     log_message('info', __FUNCTION__ . " Reset Invoice Id " . $invoice[0]['invoice_number']);
@@ -3501,7 +3511,8 @@ class Invoice extends CI_Controller {
                         'sms_sent' => 1,
                         'courier_charges' => $courier_charges,
                         //Add 1 month to end date to calculate due date
-                        'due_date' => date("Y-m-d", strtotime($order_id_data[0]['shipment_date'] . "+1 month"))
+                        'due_date' => date("Y-m-d", strtotime($order_id_data[0]['shipment_date'] . "+1 month")),
+                        'agent_id' => $this->session->userdata('id')
                     );
 
                     $invoice_update_msg = $this->invoices_model->action_partner_invoice($invoice_details);
