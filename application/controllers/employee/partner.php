@@ -2104,19 +2104,16 @@ class Partner extends CI_Controller {
             'approved_defective_parts_by_partner'=> '1', 'remarks_defective_part_by_partner'=> DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         if ($response) {
-            $where = "spare_parts_details.booking_id = '" . $booking_id . "' AND status NOT IN ('".DEFECTIVE_PARTS_RECEIVED."', 'Completed','Cancelled') ";
-            $spare_parts = $this->partner_model->get_spare_parts_booking($where);
-            if(!empty($spare_parts)){
+
+            log_message('info', __FUNCTION__ . " Received Defective Spare Parts ".$booking_id
+                    ." Partner Id". $this->session->userdata('partner_id'));
+            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts");
+
+            $sc_data['current_status'] = "InProcess";
+            $sc_data['internal_status'] = _247AROUND_COMPLETED;
+            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+
             
-                log_message('info', __FUNCTION__ . " Received Defective Spare Parts ".$booking_id
-                        ." Partner Id". $this->session->userdata('partner_id'));
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts");
-
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
-            }
             $userSession = array('success' => ' Received Defective Spare Parts');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
