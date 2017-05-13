@@ -44,7 +44,8 @@
                             <td><?php echo $value['VAT Rate']; ?></td>
                         </tr>
                         <?php $sn++;
-                    } ?>
+                    }
+                    ?>
         <?php } ?>
             </tbody>
         </table>
@@ -82,8 +83,9 @@
                             <td><?php echo $value['ServiceTax']; ?></td>
                             <td><?php echo $value['TotalAmountCollected']; ?></td>
                         </tr>
-                <?php $sn++;
-            } ?>
+                        <?php $sn++;
+                    }
+                    ?>
         <?php } ?>
             </tbody>
         </table>
@@ -106,11 +108,11 @@
                 </tr>
             </thead>
             <tbody>
-        <?php if (isset($report_data)) { ?> 
-            <?php
-            $sn = 1;
-            foreach ($report_data as $key => $value) {
-                ?>
+                <?php if (isset($report_data)) { ?> 
+                    <?php
+                    $sn = 1;
+                    foreach ($report_data as $key => $value) {
+                        ?>
                         <tr>
                             <td><?php echo $sn; ?></td>
                             <td><?php echo $value['InvoiceNo']; ?></td>
@@ -125,8 +127,9 @@
                             <td><?php echo $value['VATRate']; ?></td>
                             <td><?php echo $value['Item']; ?></td>
                         </tr>
-                <?php $sn++;
-            } ?>
+                        <?php $sn++;
+                    }
+                    ?>
         <?php } ?>
             </tbody>
         </table>
@@ -159,11 +162,11 @@
                 </tr>
             </thead>
             <tbody>
-        <?php if (isset($report_data)) { ?> 
-            <?php
-            $sn = 1;
-            foreach ($report_data as $key => $value) {
-                ?>
+                <?php if (isset($report_data)) { ?> 
+                    <?php
+                    $sn = 1;
+                    foreach ($report_data as $key => $value) {
+                        ?>
                         <tr>
                             <td><?php echo $sn; ?></td>
                             <td><?php echo $value['InvoiceNo']; ?></td>
@@ -186,7 +189,8 @@
                             <td><?php echo $value['VATRate']; ?></td>
                         </tr>
                 <?php $sn++;
-            } ?>
+            }
+            ?>
         <?php } ?>
             </tbody>
         </table>
@@ -205,7 +209,7 @@
                 </tr>
             </thead>
             <tbody>
-        <?php if (isset($report_data)) { ?> 
+                <?php if (isset($report_data)) { ?> 
             <?php
             $sn = 1;
             foreach ($report_data as $key => $value) {
@@ -221,7 +225,8 @@
                             <td><?php echo $value['VAT']; ?></td>
                         </tr>
                 <?php $sn++;
-            } ?>
+            }
+            ?>
         <?php } ?>
             </tbody>
         </table>
@@ -229,59 +234,96 @@
 
 <?php } else if ($payment_type == 'tds') { ?> 
     <?php if ($partner_vendor == 'vendor') { ?>
-        <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
-            <thead>
-                <tr>
-                    <th>S.No.</th>
-                    <th>Company Name</th>
-                    <th>Type</th>
-                    <th>Invoice ID</th>
-                    <th>Invoice Date</th>
-                    <th>Type</th>
-                    <th>Type Code</th>
-                    <th>Name on PAN</th>
-                    <th>PAN</th>
-                    <th>Owner Name</th>
-                    <th>Service Charges</th>
-                    <th>Total Additional Service Charge</th>
-                    <th>Service Tax</th>
-                    <th>Total Amount</th>
-                    <th>Net Amount</th>
-                    <th>TDS Amount</th>
-                    <th>TDS Rate</th>
-                    <th>Amount Paid</th>
-                </tr>
-            </thead>
-            <tbody>
-        <?php if (isset($report_data)) { ?> 
-            <?php
-            $sn = 1;
-            foreach ($report_data as $key => $value) {
+        <?php if ($report_type == 'draft') { ?>
+            <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
+                <thead>
+                    <tr>
+                        <th>S.No.</th>
+                        <th>Company Name</th>
+                        <th>Type</th>
+                        <th>Invoice ID</th>
+                        <th>Invoice Date</th>
+                        <th>Type</th>
+                        <th>Type Code</th>
+                        <th>Name on PAN</th>
+                        <th>PAN</th>
+                        <th>Owner Name</th>
+                        <th>Service Charges</th>
+                        <th>Total Additional Service Charge</th>
+                        <th>Service Tax</th>
+                        <th>Total Amount</th>
+                        <th>Net Amount</th>
+                        <th>TDS Amount</th>
+                        <th>TDS Rate</th>
+                        <th>Amount Paid</th>
+                    </tr>
+                </thead>
+                <tbody>
+            <?php if (isset($report_data)) { ?> 
+                <?php
+                $sn = 1;
+                foreach ($report_data as $key => $value) {
+                    ?>
+                            <tr>
+                                <td><?php echo $sn; ?></td>
+                                <td><?php echo $value['company_name']; ?></td>
+                                <td><?php echo $value['company_type']; ?></td>
+                                <td><?php echo $value['invoice_id']; ?></td>
+                                <td><?php echo $value['invoice_date']; ?></td>
+                                <td><?php echo $value['type']; ?></td>
+                                <td><?php echo $value['type_code']; ?></td>
+                                <td><?php echo $value['name_on_pan']; ?></td>
+                                <td><?php echo $value['pan_no']; ?></td>
+                                <td><?php echo $value['owner_name']; ?></td>
+                                <td><?php echo $value['total_service_charge']; ?></td>
+                                <td><?php echo $value['total_additional_service_charge']; ?></td>
+                                <td><?php echo $value['service_tax']; ?></td>
+                                <td><?php echo $value['total_amount_collected']; ?></td>
+                                <td><?php echo $value['net_amount']; ?></td>
+                                <td><?php echo $value['tds_amount']; ?></td>
+                                <td><?php echo $value['tds_rate']; ?></td>
+                                <td><?php echo $value['amount_collected_paid']; ?></td>
+                            </tr>
+                    <?php $sn++;
+                }
                 ?>
-                        <tr>
-                            <td><?php echo $sn; ?></td>
-                            <td><?php echo $value['company_name']; ?></td>
-                            <td><?php echo $value['company_type']; ?></td>
-                            <td><?php echo $value['invoice_id']; ?></td>
-                            <td><?php echo $value['invoice_date']; ?></td>
-                            <td><?php echo $value['type']; ?></td>
-                            <td><?php echo $value['type_code']; ?></td>
-                            <td><?php echo $value['name_on_pan']; ?></td>
-                            <td><?php echo $value['pan_no']; ?></td>
-                            <td><?php echo $value['owner_name']; ?></td>
-                            <td><?php echo $value['total_service_charge']; ?></td>
-                            <td><?php echo $value['total_additional_service_charge']; ?></td>
-                            <td><?php echo $value['service_tax']; ?></td>
-                            <td><?php echo $value['total_amount_collected']; ?></td>
-                            <td><?php echo $value['net_amount']; ?></td>
-                            <td><?php echo $value['tds_amount']; ?></td>
-                            <td><?php echo $value['tds_rate']; ?></td>
-                            <td><?php echo $value['amount_collected_paid']; ?></td>
-                        </tr>
-                <?php $sn++;
-            } ?>
-        <?php } ?>
-            </tbody>
-        </table>
-    <?php } ?>
+            <?php } ?>
+                </tbody>
+            </table>
+        <?php } else if ($report_type == 'final') { ?> 
+            <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
+                <thead>
+                    <tr>
+                        <th>S.No.</th>
+                        <th>Company Name</th>
+                        <th>Type</th>
+                        <th>Name on PAN</th>
+                        <th>PAN</th>
+                        <th>TDS Amount</th>
+                        <th>TDS Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+            <?php if (isset($report_data)) { ?> 
+                <?php
+                $sn = 1;
+                foreach ($report_data as $key => $value) {
+                    ?>
+                            <tr>
+                                <td><?php echo $sn; ?></td>
+                                <td><?php echo $value['company_name']; ?></td>
+                                <td><?php echo $value['company_type']; ?></td>
+                                <td><?php echo $value['name_on_pan']; ?></td>
+                                <td><?php echo $value['pan_no']; ?></td>
+                                <td><?php echo $value['tds_amount']; ?></td>
+                                <td><?php echo $value['tds_rate']; ?></td>
+                            </tr>
+                    <?php $sn++;
+                }
+                ?>
+            <?php } ?>
+                </tbody>
+            </table>
+        <?php }
+    } ?>
 <?php } ?>
