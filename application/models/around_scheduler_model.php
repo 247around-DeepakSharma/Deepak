@@ -160,5 +160,32 @@ class Around_scheduler_model extends CI_Model {
         log_message ('info', __METHOD__ . "=> Count  All Query ". count($result));
         return $result;
     }
+    
+    
+    /**
+     * @desc: This function is used get the user phone number to send promotional sms
+     * @param:void()
+     * @retun:void()
+     */
+    function get_user_phone_number(){
+        $where = "current_status = 'Completed'";
+        
+        $sql = "SELECT DISTINCT booking_primary_contact_no as phn_number, current_status,user_id
+                FROM booking_details JOIN partners 
+                ON booking_details.partner_id = partners.id
+                WHERE booking_primary_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
+                AND partners.is_sms_allowed = '1'
+                AND $where AND DAY(closed_date) = DAY(CURDATE()) 
+                UNION 
+                SELECT DISTINCT booking_alternate_contact_no as phn_number,current_status,user_id
+                FROM booking_details JOIN partners 
+                ON booking_details.partner_id = partners.id
+                WHERE booking_alternate_contact_no REGEXP '^[7-9]{1}[0-9]{9}$'
+                AND partners.is_sms_allowed = '1'
+                AND $where AND DAY(closed_date) = DAY(CURDATE())";
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
         
 }
