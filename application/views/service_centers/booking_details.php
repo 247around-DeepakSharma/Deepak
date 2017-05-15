@@ -360,7 +360,7 @@
             <?php $key = 1;
             foreach ($booking_state_change_data as $value) { ?>
                             <tr>
-                                <td><?php echo ($key + 1) . '.'; ?></td>
+                                <td><?php echo ($key++) . '.'; ?></td>
                                 <td><?php echo $value['old_state']; ?></td>
                                 <td><?php echo $value['new_state']; ?></td>
                                 <td><?php echo $value['remarks']; ?></td>
@@ -402,7 +402,7 @@
     <?php $key = 1;
     foreach ($sms_sent_details as $value) { ?>
                             <tr>
-                                <td><?php echo ($key + 1) . '.'; ?></td>
+                                <td><?php echo ($key++) . '.'; ?></td>
                                 <td><?php echo $value['phone']; ?></td>
                                 <td><?php echo $value['sms_tag']; ?></td>
                                 <td style="font-size: 90%;"><?php echo $value['content']; ?></td>
