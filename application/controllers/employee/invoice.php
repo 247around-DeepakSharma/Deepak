@@ -3150,8 +3150,8 @@ class Invoice extends CI_Controller {
                 $sc = $this->vendor_model->viewvendor($service_center_id)[0];
 
                 $sc_details['debit_acc_no'] = '102405500277';
-                $sc_details['bank_account'] = $sc['bank_account'];
-                $sc_details['beneficiary_name'] = $sc['beneficiary_name'];
+                $sc_details['bank_account'] = trim($sc['bank_account']);
+                $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
 
                 $sc_details['final_amount'] = abs(round($amount, 0));
                 if ($amount > 0) {
@@ -3160,14 +3160,14 @@ class Invoice extends CI_Controller {
                     $sc_details['amount_type'] = "DR";
                 }
 
-                if (stristr($sc['ifsc_code'], 'ICIC') !== FALSE) {
+                if (trim($sc_details['bank_name']) === ICICI_BANK_NAME) {
                     $sc_details['payment_mode'] = "I";
                 } else {
                     $sc_details['payment_mode'] = "N";
                 }
 
                 $sc_details['payment_date'] = date("d-M-Y");
-                $sc_details['ifsc_code'] = $sc['ifsc_code'];
+                $sc_details['ifsc_code'] = trim($sc['ifsc_code']);
                 $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
 
                 array_push($payment_data, $sc_details);
