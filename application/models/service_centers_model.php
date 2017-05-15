@@ -229,9 +229,14 @@ class Service_centers_model extends CI_Model {
      * @desc: this method update service center action table
      */
     function update_service_centers_action_table($booking_id, $data) {
+       if(!empty($booking_id) || $booking_id != '0'){
         $this->db->where('booking_id', $booking_id);
-        $this->db->update('service_center_booking_action', $data);
+        $result = $this->db->update('service_center_booking_action', $data);
         log_message('info', __FUNCTION__ . '=> Update sc table: ' .$this->db->last_query());
+        return $result;
+        } else {
+            return FALSE;
+        }
     }
 
     function delete_booking_id($booking_id) {

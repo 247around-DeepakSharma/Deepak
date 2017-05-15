@@ -24,7 +24,7 @@ class Partner_model extends CI_Model {
       $this->db->select('partners.id, bookings_sources.source, bookings_sources.code, '
               . 'public_name, price_mapping_id, bookings_sources.partner_type, '
               . 'is_upcountry, upcountry_mid_distance_threshold, upcountry_rate, '
-              . ' upcountry_rate1, upcountry_min_distance_threshold,upcountry_max_distance_threshold');
+              . ' upcountry_rate1, upcountry_min_distance_threshold,upcountry_max_distance_threshold, upcountry_approval');
       $this->db->from("partners");
       $this->db->where(array("partners.auth_token" => $auth_token, "partners.is_active" => '1'));
       $this->db->join("bookings_sources", "bookings_sources.partner_id = partners.id");
@@ -241,9 +241,12 @@ class Partner_model extends CI_Model {
       */
      function getPending_booking($partner_id ,$booking_id = ''){
         $where = "";
-        $where .= " AND booking_details.partner_id = '" . $partner_id . "'";
+        $where .= "  booking_details.partner_id = '" . $partner_id . "'";
         if(!empty($booking_id)){
-            $where .= " AND `booking_details`.booking_id = '".$booking_id."'";
+            $where .= " AND `booking_details`.booking_id = '".$booking_id."' "
+                    . " AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled' OR 'FollowUp') ";
+        } else {
+            $where .= " AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') ";
         }
         //do not show bookings for future as of now
         //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
@@ -258,8 +261,7 @@ class Partner_model extends CI_Model {
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
 
             WHERE
-            `booking_details`.booking_id NOT LIKE 'Q-%' $where AND
-            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') 
+            $where
             AND booking_details.upcountry_partner_approved ='1'"
         );
           

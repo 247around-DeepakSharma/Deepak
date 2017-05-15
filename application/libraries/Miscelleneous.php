@@ -371,60 +371,64 @@ class Miscelleneous {
      * And create a job card
      * @param String $booking_id
      */
-    function check_unit_in_sc($booking_id){
-       log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
-       $data = $this->My_CI->booking_model->getbooking_history($booking_id);
-       if(!empty($data)){
-           if(!is_null($data[0]['assigned_vendor_id'])){
-               log_message('info', __FUNCTION__ . " Booking Assigned");
-               $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id'=> $booking_id));
-               if(!empty($unit_details)){
-                    log_message('info', __FUNCTION__ . " Booking Unit details exist");
-                    foreach ($unit_details as $value) {
-                        $sc_data = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id", 
-                                array('unit_details_id'=>$value['id'], 'booking_id'=>$booking_id));
-                        if(empty($sc_data)){
-                            $sc_data['current_status'] = "Pending";
-                            $sc_data['update_date'] = date('Y-m-d H:i:s');
-                            $sc_data['internal_status'] = "Pending";
-                            $sc_data['service_center_id'] = $data[0]['assigned_vendor_id'];
-                            $sc_data['booking_id'] = $booking_id;
-                            $sc_data['unit_details_id'] = $value['id'];
-                            $sc_id = $this->My_CI->vendor_model->insert_service_center_action($sc_data);
-                            if (!$sc_id) {
-                                log_message('info', __METHOD__ . "=> Data is not inserted into service center "
-                                        . "action table booking_id: " . $booking_id . ", data: " . print_r($sc_data, true));
+    function check_unit_in_sc($booking_id) {
+        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        if (!empty($booking_id)) {
+            $data = $this->My_CI->booking_model->getbooking_history($booking_id);
+            if (!empty($data)) {
+                log_message('info', __FUNCTION__ . " Booking Id DATA Found " . print_r($booking_id, true));
+                if (!is_null($data[0]['assigned_vendor_id'])) {
+                    log_message('info', __FUNCTION__ . " Booking Assigned");
+                    $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
+                    if (!empty($unit_details)) {
+                        log_message('info', __FUNCTION__ . " Booking Unit details exist");
+                        foreach ($unit_details as $value) {
+                            $sc_data = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id", array('unit_details_id' => $value['id'], 'booking_id' => $booking_id));
+                            if (empty($sc_data)) {
+                                $sc_data['current_status'] = "Pending";
+                                $sc_data['update_date'] = date('Y-m-d H:i:s');
+                                $sc_data['internal_status'] = "Pending";
+                                $sc_data['service_center_id'] = $data[0]['assigned_vendor_id'];
+                                $sc_data['booking_id'] = $booking_id;
+                                $sc_data['unit_details_id'] = $value['id'];
+                                $sc_id = $this->My_CI->vendor_model->insert_service_center_action($sc_data);
+                                if (!$sc_id) {
+                                    log_message('info', __METHOD__ . "=> Data is not inserted into service center "
+                                            . "action table booking_id: " . $booking_id . ", data: " . print_r($sc_data, true));
+                                }
+                            } else {
+                                log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true) . " Unit exist in sc table " . $value['id']);
                             }
-                        } else{
-                            log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true). " Unit exist in sc table ". $value['id']);
-                        } 
-                   }
-                    $sc_data1 = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id", 
-                                array('booking_id'=>$booking_id));
-                   if(!empty($sc_data1)){
-                       foreach ($sc_data1 as $value1) {
-                           $unit_details = $this->My_CI->booking_model->get_unit_details(array('id'=> $value1['unit_details_id'], 'booking_id'=>$booking_id));
-                           if(empty($unit_details)){
-                               log_message('info', __FUNCTION__ . " Booking Unit details not exist  unit_id" . $value1['unit_details_id']);
-                               $this->My_CI->service_centers_model->delete_sc_unit_details(array('unit_details_id' => $value1['unit_details_id'], 'booking_id' => $booking_id));
-                           }
-                       }
-                   }
-               } else {
-                   log_message('info', __FUNCTION__ . " Booking Unit details not exist  Booking Id  " . print_r($booking_id, true));
-               }
-           } else {
-               log_message('info', __FUNCTION__ . " Booking Not Assign-  Booking Id  " . print_r($booking_id, true));
-           }
-           //Prepare job card
-            $this->My_CI->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-            log_message('info', "Async Process to create Job card: " . $booking_id);
-       } else {
-           log_message('info', __FUNCTION__ . " Booking Id Not Exist  " . print_r($booking_id, true));
-       }
-    }    
-    
-    
+                        }
+                        $sc_data1 = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id", array('booking_id' => $booking_id));
+                        if (!empty($sc_data1)) {
+                            foreach ($sc_data1 as $value1) {
+                                $unit_details = $this->My_CI->booking_model->get_unit_details(array('id' => $value1['unit_details_id'], 'booking_id' => $booking_id));
+                                if (empty($unit_details)) {
+                                    log_message('info', __FUNCTION__ . " Booking Unit details not exist  unit_id" . $value1['unit_details_id']);
+                                    $this->My_CI->service_centers_model->delete_sc_unit_details(array('unit_details_id' => $value1['unit_details_id'], 'booking_id' => $booking_id));
+                                }
+                            }
+                        }
+                    } else {
+                        log_message('info', __FUNCTION__ . " Booking Unit details not exist  Booking Id  " . print_r($booking_id, true));
+                    }
+                } else {
+                    //Since booking has been converted to query, delete this entry from
+                    //service center booking action table as well.
+                    log_message('info', __FUNCTION__ . " Request to delete booking from service center action table Booking ID" . $data['booking_id']);
+                    $this->My_CI->service_centers_model->delete_booking_id($booking_id);
+                    log_message('info', __FUNCTION__ . " Booking Not Assign-  Booking Id  " . print_r($booking_id, true));
+                }
+                //Prepare job card
+                $this->My_CI->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                log_message('info', "Async Process to create Job card: " . $booking_id);
+            } else {
+                log_message('info', __FUNCTION__ . " Booking Id Not Exist  " . print_r($booking_id, true));
+            }
+        }
+    }
+
     function send_sms_create_job_card($query) {
         if ($query[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG || $query[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) {
             $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $query[0]['booking_id']));
@@ -481,6 +485,7 @@ class Miscelleneous {
                 switch ($data['message']) {
                     case NOT_UPCOUNTRY_BOOKING:
                     case UPCOUNTRY_BOOKING:
+                    
                         if ($is_price['is_upcountry'] == 0) {
                             log_message('info', __FUNCTION__ . ' Upcountry Not Provide');
                             $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
@@ -496,7 +501,7 @@ class Miscelleneous {
                         } else {
                             log_message('info', __FUNCTION__ . ' UPCOUNTRY_BOOKING ');
                             if($is_price['customer_net_payable'] >0){
-                                $charges = "Rs. " . $is_price['customer_net_payable'];
+                                $charges = "Rs. " . round($is_price['customer_net_payable'],0);
                             } else {
                                 $charges = "FREE";
                             }
@@ -561,10 +566,10 @@ class Miscelleneous {
                     //break;
                 }
             
-             $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $appliance_category, $charges);
+             $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $partner_data[0]['public_name'], $charges);
              return true;
              } else {
-            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $appliance_category, "");
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $partner_data[0]['public_name'], "");
             return true;
         }
     }
@@ -577,11 +582,12 @@ class Miscelleneous {
      * @param String $user_id
      * @param String $booking_id
      * @param String $file_type
-     * @param String $category
+     * @param String $partner
      * @param String $price
      * @return int
      */
-    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $file_type, $category,$price) {
+    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $file_type, $partner,$price) {
+        log_message('info', __FUNCTION__ );
         switch ($file_type) {
             case "shipped":
                 $sms['tag'] = "sd_shipped_missed_call_initial";
@@ -595,8 +601,10 @@ class Miscelleneous {
                 if(!empty($price)){
                     $sms['smsData']['message'] = $price;
                 }else{
-                    $sms['smsData']['message'] = $this->My_CI->notify->get_product_free_not($appliance, $category);
+                    $sms['tag'] = "missed_call_initial_prod_desc_not_found";
+                    
                 }
+                $sms['smsData']['partner'] = $partner;
                 break;
 
             case "delivered":
@@ -613,8 +621,9 @@ class Miscelleneous {
                     $sms['smsData']['message'] = $price;
                    
                 }else{
-                    $sms['smsData']['message'] = $this->My_CI->notify->get_product_free_not($appliance, $category);
+                    $sms['tag'] = "missed_call_initial_prod_desc_not_found";
                 }
+                $sms['smsData']['partner'] = $partner;
                 break;
 
             default:
