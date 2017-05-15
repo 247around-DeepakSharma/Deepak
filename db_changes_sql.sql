@@ -2158,3 +2158,12 @@ VALUES (NULL, 'poor_rating_on_completion', 'Hmm! You Rated Us %d. We Would Come 
 
 ALTER TABLE `vendor_partner_invoices` ADD `agent_id` INT( 11 ) NOT NULL DEFAULT '1' COMMENT 'Agent ID' AFTER `remarks` ;
 
+-- sachin 15-05-2017
+
+ALTER TABLE `partners` ADD `is_sms_allowed` VARCHAR(1) NOT NULL DEFAULT '1' COMMENT '1 = \'sms allowed\', 0 = \'sms not allowed\'' AFTER `is_verified`;
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'completed_booking_promotional_sms_1', 'We are delighted to have served you in the past. Avail Rs.%s discount on your next appliance repair. Book on 9555000247 | goo.gl/m0iAcS | www.247around.com', 'Sms sent when booking status is completed and month is even for promotional sms', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'completed_booking_promotional_sms_2', 'We are delighted to have served you in past & added Rs.%s balance. Use it in your next appliance repair. Book on 9555000247 | goo.gl/m0iAcS | www.247around.com', 'Sms sent when booking status is completed and month is odd for promotional sms', '1', CURRENT_TIMESTAMP)
