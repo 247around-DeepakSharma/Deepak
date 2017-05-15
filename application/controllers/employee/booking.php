@@ -200,7 +200,7 @@ class Booking extends CI_Controller {
                             'capacity' => $appliances_details['capacity'],
                             'brand' => $appliances_details['brand'],
                             'product_description' => trim($appliances_details['description']));
-                        $insert_data_id = $this->booking_model->insert_appliance_details($insert_data);
+                        $this->booking_model->insert_appliance_details($insert_data);
                     }
                 }
 
@@ -536,11 +536,6 @@ class Booking extends CI_Controller {
 
                     $data['old_state'] = _247AROUND_PENDING;
                     $data['new_state'] = _247AROUND_FOLLOWUP;
-
-                    //Since booking has been converted to query, delete this entry from
-                    //service center booking action table as well.
-                    log_message('info', __FUNCTION__ . " Request to delete booking from service center action table Booking ID" . $data['booking_id']);
-                    $this->service_centers_model->delete_booking_id($booking_id);
 
                     //Reset the assigned vendor ID for this booking
                     $this->booking_model->update_booking($booking_id, array("assigned_vendor_id" => NULL));
