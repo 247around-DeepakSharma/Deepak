@@ -165,7 +165,7 @@
                                         <option value="FOC" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "FOC"){ echo "selected";}
                                             } ?>>FOC</option>
-                                         <option value=">Buyback" <?php if (isset($invoice_details[0]['type'])) {
+                                         <option value="Buyback" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "Buyback"){ echo "selected";}
                                             } ?>>Buyback</option>
                                         <option value="Stand" <?php if (isset($invoice_details[0]['type'])) {
