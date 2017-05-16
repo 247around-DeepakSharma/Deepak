@@ -317,6 +317,8 @@ define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 
 
+define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

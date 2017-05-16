@@ -435,15 +435,19 @@
 
  function open_upcountry_model(sc_id, booking_id, amount_due){
       
-       $.ajax({
-      type: 'POST',
-      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
-      success: function (data) {
-       $("#open_model").html(data);   
-       $('#myModal1').modal('toggle');
-    
+      if(sc_id){
+           $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
+            success: function (data) {
+             $("#open_model").html(data);   
+             $('#myModal1').modal('toggle');
+
+            }
+          });
+      }else{
+        alert("Waitng for upcountry approval");
       }
-    });
     }
 </script>
 <style type="text/css">

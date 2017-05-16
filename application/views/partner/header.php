@@ -25,21 +25,13 @@
                 min-height: 80px;
             }
             #datepicker{cursor:pointer;}
-            .modal-content{
-                background-color: #fafafa!important;
-            }
-            .modal-header{
-                border-bottom: 1px solid rgba(109, 103, 103, 0.13);
-            }
             .card,.long-card {
+                width: 33%;
                 box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
                 transition: 0.3s;
                 border-radius: 5px;
-                background-color: #fff;
-            }.long-card{
-                min-height: 230px;
+                display: inline-block;
             }
-
             .card:hover {
                 box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
             }
@@ -62,133 +54,109 @@
         ?>
         <div id="contactussfmodal" class="modal fade" role="dialog">
             <div class="modal-dialog modal-lg">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">First Escalation Point</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="card">
-                                                <div class="container">
-                                                  <h4><b>Mr. Vikas Singh</b></h4> 
-                                                  <p>9910043586</p>
-                                                  <p>escalations@247around.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+
+                <!-- Modal content-->
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">247around Point of Contacts:</h4>
+                    </div>
+
+                    <div class="modal-header">
+                        <h4 class="modal-title"> First Escalation Point</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="container">
+                                <h4><b>Mr. Vikas Singh</b></h4> 
+                                <p>9910043586</p>
+                                <p>escalations@247around.com</p>
                             </div>
-                        </div>
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Second Escalation Point</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="long-card">
-                                                <div class="container">
-                                                  <h4><b>Mr. K Suresh</b></h4> 
-                                                  <p>Escalation South India</p>
-                                                  <p>Regional Service Head South India</p>
-                                                  <p>Chennai Office <span>9840492171</span></p>
-                                                  <p style="width:250px;word-wrap:break-word;">English, Tamil, Malayalam, Telugu and Kannada</p>
-                                                  <p>suresh@247around.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="long-card">
-                                                <div class="container">
-                                                  <h4><b>Mr. Rajendra Oza</b></h4> 
-                                                  <p>Escalation West India</p>
-                                                  <p>Regional Service Head West India</p>
-                                                  <p>Mumbai Office <span>9223274602</span></p>
-                                                  <p>English, Hindi and Marathi</p>
-                                                  <p>oza@247around.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="long-card">
-                                                <div class="container">
-                                                  <h4><b>Mr. Nilanjan Das</b></h4> 
-                                                  <p>Escalation East India</p>
-                                                  <p>Regional Service Head East India</p>
-                                                  <p>Kolkata Office <span>8130572244</span></p>
-                                                  <p> English, Hindi and Bengali</p>
-                                                  <p>nilanjan@247around.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="clearfix"></div>
-                                        <div class="col-md-4">
-                                            <div class="long-card" style="margin-top:10px;">
-                                                <div class="container">
-                                                  <h4><b>Mr. Nitin Malhotra</b></h4> 
-                                                  <p>Escalation North India</p>
-                                                  <p>Director & CEO</p>
-                                                  <p>Delhi Office 9810872244</p>
-                                                  <p>English, Hindi and Punjabi</p>
-                                                  <p>nits@247around.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Technical – CRM Related</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card" style="width:40%;">
-                                        <div class="container">
-                                            <h4><b>Anuj Aggarwal</b></h4> 
-                                            <p>Director & CTO</p>
-                                            <p>8826423424</p>
-                                            <p>anuj@247around.com</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">247around Invoices Related</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card" style="width:40%;">
-                                        <div class="container">
-                                            <h4><b>Mr. Adil Akhtar</b></h4> 
-                                            <p>Back Office Closure Champion</p>
-                                            <p>Delhi Office</p>
-                                            <p>9990009102 <span> <strong>|</strong> English and Hindi</span></p>
-                                            <p>adila@247around.com</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
                     </div>
+                    <div class="modal-header">
+                        <h4 class="modal-title"> Second Escalation Point</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="long-card">
+                            <div class="container">
+                                <h4><b>Mr. K Suresh</b></h4> 
+                                <p>Escalation South India</p>
+                                <p>Regional Service Head South India</p>
+                                <p>Chennai Office <span>9840492171</span></p>
+                                <p>English, Tamil, Malayalam,</p><p>Telugu and Kannada</p>
+                                <p>suresh@247around.com</p>
+                            </div>
+                        </div>
+
+                        <div class="long-card">
+                            <div class="container">
+                                <h4><b>Mr. Rajendra Oza</b></h4> 
+                                <p>Escalation West India</p>
+                                <p>Regional Service Head West India</p>
+                                <p>Mumbai Office <span>9223274602</span></p>
+                                <p>English, Hindi and Marathi</p>
+                                <p>oza@247around.com</p>
+                            </div>
+                        </div>
+                        <div class="long-card">
+                            <div class="container">
+                                <h4><b>Mr. Nilanjan Das</b></h4> 
+                                <p>Escalation East India</p>
+                                <p>Regional Service Head East India</p>
+                                <p>Kolkata Office <span>8130572244</span></p>
+                                <p> English, Hindi and Bengali</p>
+                                <p>nilanjan@247around.com</p>
+                            </div>
+                        </div>
+                        <div class="long-card" style="margin-top:10px;">
+                            <div class="container">
+                                <h4><b>Mr. Nitin Malhotra</b></h4> 
+                                <p>Escalation North India</p>
+                                <p>Director & CEO</p>
+                                <p>Delhi Office 9810872244</p>
+                                <p>English, Hindi and Punjabi</p>
+                                <p>nits@247around.com</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-header">
+                        <h4 class="modal-title">Technical – CRM Related</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="container">
+                                <h4><b>Anuj Aggarwal</b></h4> 
+                                <p>Director & CTO</p>
+                                <p>8826423424</p>
+                                <p>anuj@247around.com</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">247around Invoices Related</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="container">
+                                <h4><b>Mr. Adil Akhtar</b></h4> 
+                                <p>Back Office Closure Champion</p>
+                                <p>Delhi Office</p>
+                                <p>9990009102 <span> <strong>|</strong> English and Hindi</span></p>
+                                <p>adila@247around.com</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
                 </div>
-        </div>
+
+            </div>
+        </div>    
 
         <nav class="navbar navbar-custom">
             <div class="container-fluid">
@@ -242,7 +210,7 @@
 
 
                         <!--                        <li>
-                                             <a href="<?php //echo base_url(); ?>partner/invoices_details">Invoice</a>
+                                             <a href="<?php //echo base_url();  ?>partner/invoices_details">Invoice</a>
                                                 </li>-->
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Add Booking</a>
@@ -272,7 +240,7 @@
                                 </div> 
                             </form>
                         </li>
-                        
+
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php echo $this->session->userdata('partner_name'); ?><span class="caret"></span></a>
                             <ul class="dropdown-menu">
@@ -322,12 +290,12 @@
 
 
     }
-    function checkStringLength(){
-         var searched_text = $("#searched_text").val();
-         if (searched_text.length < 9) {
-             alert("Enter Atleast 8 Character For Booking ID");
+    function checkStringLength() {
+        var searched_text = $("#searched_text").val();
+        if (searched_text.length < 9) {
+            alert("Enter Atleast 8 Character For Booking ID");
             return false;
         }
-        
+
     }
 </script>
