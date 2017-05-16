@@ -2135,3 +2135,35 @@ UPDATE `workbook2` SET `service_id` = 42 WHERE `service_name` = "Microwave";
 
 ALTER TABLE `booking_unit_details` ADD `sub_order_id` VARCHAR(256) NULL DEFAULT NULL AFTER `partner_id`;
 
+-- sachin 25-04-2017
+
+ALTER TABLE `booking_details` ADD `support_file` VARCHAR(256) NULL AFTER `upcountry_price`;
+
+-- sachin 01-05-2017
+
+ALTER TABLE `service_centres` CHANGE `create_date` `create_date` TIMESTAMP NOT NULL;
+ALTER TABLE `service_centres` ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `active`;
+
+
+-- sachin 06-05-2017
+
+ALTER TABLE `distance_between_pincode` ADD `agent_id` int(11) NULL AFTER `calculated_using_do`;
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'poor_rating_on_completion', 'Hmm! You Rated Us %d. We Would Come Back With Better Experience. Book MultiBrand Appliance Installation Repair on www.247around.com or Call us at 9555000247', 'send this sms for poor rating on completed booking', '1', CURRENT_TIMESTAMP),
+(NULL, 'avg_rating_on_completion', 'Hmm! You Rated Us %d. We Would Come Back With Better Experience. Book MultiBrand Appliance Installation Repair on www.247around.com or Call us at 9555000247', 'send this sms on average rating on completed booking', '1', CURRENT_TIMESTAMP),
+(NULL, 'good_rating_on_completion', 'Wow! You Rated Us %d.Appreciate Your Feedback.For MultiBrand Appliance Installation/Repair Across India, call 9555000247 or book on www.247around.com', 'send this sms on good rating on completed booking', '1', CURRENT_TIMESTAMP);
+
+-- sachin 12-05-2107
+
+ALTER TABLE `vendor_partner_invoices` ADD `agent_id` INT( 11 ) NOT NULL DEFAULT '1' COMMENT 'Agent ID' AFTER `remarks` ;
+
+-- sachin 15-05-2017
+
+ALTER TABLE `partners` ADD `is_sms_allowed` VARCHAR(1) NOT NULL DEFAULT '1' COMMENT '1 = \'sms allowed\', 0 = \'sms not allowed\'' AFTER `is_verified`;
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'completed_booking_promotional_sms_1', 'We are delighted to have served you in the past. Avail Rs.%s discount on your next appliance repair. Book on 9555000247 | goo.gl/m0iAcS | www.247around.com', 'Sms sent when booking status is completed and month is even for promotional sms', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'completed_booking_promotional_sms_2', 'We are delighted to have served you in past & added Rs.%s balance. Use it in your next appliance repair. Book on 9555000247 | goo.gl/m0iAcS | www.247around.com', 'Sms sent when booking status is completed and month is odd for promotional sms', '1', CURRENT_TIMESTAMP)

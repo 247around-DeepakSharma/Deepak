@@ -273,7 +273,8 @@ define("BOOKING_RESCHEDULED_WITHOUT_REASON_ID", 12);
 define("PENALTY_FAKE_COMPLETED_CUSTOMER_WANT_INSTALLATION_ID", 10);
 //Penalty - Fake Complete - Customer DOES NOT Want Installation
 define("PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT", 11);
-
+//RM Email ID
+define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,nilanjan@247around.com");
 
 define('SUCCESS_CODE', 247);
 define('SUCCESS_MSG', 'Success');
@@ -317,6 +318,8 @@ define('ERR_INVALID_PARTNER_NAME_MSG', 'Invalid Partner Name');
 define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 
+
+define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
 
 
 /* End of file constants.php */

@@ -391,20 +391,20 @@
           
         }
         
-        if (order_id === "" && serial_number === ""  ) {
-             document.getElementById('order_id').style.borderColor = "red";
-             document.getElementById('serial_number').style.borderColor = "red";
-            document.getElementById('error_order_id').innerHTML = "Please enter Order ID";
-            document.getElementById('error_serial_number').innerHTML = "Please enter Serial Number";
-               
-            return false;
-        } else {
-    
-            document.getElementById('order_id').style.borderColor = "green";
-            document.getElementById('serial_number').style.borderColor = "green";
-            document.getElementById('error_order_id').innerHTML = "";
-            document.getElementById('error_serial_number').innerHTML = "";
-        }
+//        if (order_id === "" && serial_number === ""  ) {
+//             document.getElementById('order_id').style.borderColor = "red";
+//             document.getElementById('serial_number').style.borderColor = "red";
+//            document.getElementById('error_order_id').innerHTML = "Please enter Order ID";
+//            document.getElementById('error_serial_number').innerHTML = "Please enter Serial Number";
+//               
+//            return false;
+//        } else {
+//    
+//            document.getElementById('order_id').style.borderColor = "green";
+//            document.getElementById('serial_number').style.borderColor = "green";
+//            document.getElementById('error_order_id').innerHTML = "";
+//            document.getElementById('error_serial_number').innerHTML = "";
+//        }
 
         if(booking_address === ""){
              display_message("booking_address","error_address","red","Please Enter Booking Address");

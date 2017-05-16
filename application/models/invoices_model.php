@@ -675,7 +675,7 @@ class invoices_model extends CI_Model {
      */
     function get_invoices_details($where) {
 
-        $sql = "SELECT *  FROM `vendor_partner_invoices` WHERE $where ORDER BY `invoice_id` DESC";
+        $sql = "SELECT *  FROM `vendor_partner_invoices` WHERE $where ORDER BY `id` DESC";
         $query = $this->db->query($sql);
         if ($query->num_rows > 0) {
             return $query->result_array();

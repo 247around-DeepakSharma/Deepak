@@ -27,6 +27,7 @@ class Partner extends CI_Controller {
         $this->load->library('miscelleneous');
         $this->load->library('booking_utilities');
         $this->load->library('user_agent');
+        $this->load->library('table');
 
         $this->load->helper(array('form', 'url'));
     }
@@ -774,7 +775,7 @@ class Partner extends CI_Controller {
                 $return_data['partner']['is_verified'] = '1';
                 
                 //Temporary value
-                $return_data['partner']['auth_token'] = substr(md5(rand(1,100)), 0, 16);
+                $return_data['partner']['auth_token'] = substr(md5($return_data['public_name'].rand(1,100)), 0, 16);
                 
                 //Agreement End Date - Checking (If Not Present don't insert)
                 if(!empty($this->input->post('agreement_end_date'))){
@@ -1044,9 +1045,9 @@ class Partner extends CI_Controller {
         $return_data['invoice_email_cc']=$this->input->post('invoice_email_cc');
         $return_data['pan']=$this->input->post('pan');
         $return_data['registration_no']=$this->input->post('registration_no');
-        $return_data['tin']=$this->input->post('tin_no');
+        $return_data['tin']=$this->input->post('tin');
         $return_data['cst_no']=$this->input->post('cst_no');
-        $return_data['service_tax']=$this->input->post('service_tax_no');
+        $return_data['service_tax']=$this->input->post('service_tax');
         if($this->input->post('is_reporting_mail') == 'on'){
             $return_data['is_reporting_mail']= '1';
         }else{
@@ -1198,10 +1199,10 @@ class Partner extends CI_Controller {
     
      function finduser($offset = 0, $page = 0, $phone_number = '') {
         $this->checkUserSession();
-        $booking_id = $this->input->post('booking_id');
-        $order_id = $this->input->post('order_id');
-        $serial_no = $this->input->post('serial_number');
-        $partner_id = $this->session->userdata('partner_id');
+        $booking_id = trim($this->input->post('booking_id'));
+        $order_id = trim($this->input->post('order_id'));
+        $serial_no = trim($this->input->post('serial_number'));
+        $partner_id = trim($this->session->userdata('partner_id'));
         if ($this->input->post('phone_number')) {
             $phone_number = $this->input->post('phone_number');
         }
@@ -2103,19 +2104,16 @@ class Partner extends CI_Controller {
             'approved_defective_parts_by_partner'=> '1', 'remarks_defective_part_by_partner'=> DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         if ($response) {
-            $where = "spare_parts_details.booking_id = '" . $booking_id . "' AND status NOT IN ('".DEFECTIVE_PARTS_RECEIVED."', 'Completed','Cancelled') ";
-            $spare_parts = $this->partner_model->get_spare_parts_booking($where);
-            if(!empty($spare_parts)){
+
+            log_message('info', __FUNCTION__ . " Received Defective Spare Parts ".$booking_id
+                    ." Partner Id". $this->session->userdata('partner_id'));
+            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts");
+
+            $sc_data['current_status'] = "InProcess";
+            $sc_data['internal_status'] = _247AROUND_COMPLETED;
+            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+
             
-                log_message('info', __FUNCTION__ . " Received Defective Spare Parts ".$booking_id
-                        ." Partner Id". $this->session->userdata('partner_id'));
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts");
-
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
-            }
             $userSession = array('success' => ' Received Defective Spare Parts');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
@@ -2736,7 +2734,7 @@ class Partner extends CI_Controller {
             }
         } else {
             if ($status == 0) {
-                echo "<script>alert('Sorry, There is an issue in Approving Upcountry Charges. Please contact 247around.');</script>";
+                echo "<script>alert('Thanks, Booking Has Been Already Approved.');</script>";
             } else {
                 $userSession = array('error' => 'Booking Not Found');
                 $this->session->set_userdata($userSession);
@@ -2898,6 +2896,107 @@ class Partner extends CI_Controller {
             $this->session->set_flashdata('failed','Please Select Partner Name');
             redirect(base_url() . "employee/partner/upload_partner_brand_logo");
         }
+    }
+    
+    
+    /**
+     * @desc: This method is used to edit the partner details from partner CRM
+     * @param: void
+     * @return:void
+     */
+    function show_partner_edit_details_form(){
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $data['partner_details'] = $this->partner_model->getpartner($partner_id);
+        $this->load->view('partner/header');
+        $this->load->view('partner/edit_partner_details', $data);
+    }
+    
+    /**
+     * @desc: This method is used to process the edit form of the partner details from partner CRM
+     * @param: void
+     * @return:void
+     */
+    function process_partner_edit_details() {
+        
+        $this->checkUserSession();
+        
+        //store POST data into array
+        $partner_data = array();
+        $partner_id = $this->input->post('id');
+        $partner_data['company_name'] = $this->input->post('company_name');
+        $partner_data['public_name'] = $this->input->post('public_name');
+        $partner_data['address'] = $this->input->post('address');
+        $partner_data['landmark'] = $this->input->post('landmark');
+        $partner_data['pincode'] = $this->input->post('pincode');
+        $partner_data['district'] = $this->input->post('district');
+        $partner_data['state'] = $this->input->post('state');
+        $partner_data['primary_contact_name'] = $this->input->post('primary_contact_name');
+        $partner_data['primary_contact_email'] = $this->input->post('primary_contact_email');
+        $partner_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
+        $partner_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
+        $partner_data['owner_name'] = $this->input->post('owner_name');
+        $partner_data['owner_email'] = $this->input->post('owner_email');
+        $partner_data['owner_phone_1'] = $this->input->post('owner_phone_1');
+        $partner_data['owner_phone_2'] = $this->input->post('owner_phone_2');
+        $partner_data['owner_alternate_email'] = $this->input->post('owner_alternate_email');
+        $partner_data['pan'] = $this->input->post('pan');
+        $partner_data['tin'] = $this->input->post('tin');
+        $partner_data['registration_no'] = $this->input->post('registration_no');
+        $partner_data['cst_no'] = $this->input->post('cst_no');
+        
+        if(!empty($partner_data) && !empty($partner_id)){
+            $update_id = $this->partner_model->edit_partner($partner_data, $partner_id);
+            if($update_id){
+                log_message('info', __FUNCTION__ . 'Partner Details has been updated successfully'.$partner_id." ". print_r($partner_data,true));
+                
+                // send mail
+                $html = "";
+                foreach ($partner_data as $key => $value) {
+                    $html .= '<b>'.$key .'</b>'. " = ". $value.'<br>';
+                }
+                
+                $to = ANUJ_EMAIL_ID;
+                $subject = $partner_data['public_name']. "  : Partner Details Has been Updated";
+                $message = "Following details has been updated by partner: " . $this->session->userdata('partner_name');
+                $message .= "<br>" .$html;
+                $sendmail = $this->notify->sendEmail('booking@247around.com', $to, " ", " ", $subject, $message, "");
+                
+                if($sendmail){
+                    log_message('info', __FUNCTION__ . 'Mail Send successfully');
+                }else{
+                    log_message('info', __FUNCTION__ . 'Error in Sending Mail');
+                }
+                
+                //redirect to details page
+                $success_msg = "Details has been updated successfully";
+                $this->session->set_flashdata('success_msg', $success_msg);
+                redirect(base_url() . 'employee/partner/show_partner_edit_details_form');
+            }else{
+                log_message('info', __FUNCTION__ . 'Error in updating partner details'.$partner_id." ".  print_r($partner_data,true));
+                $error_msg = "Error!!! Please Try Again";
+                $this->session->set_flashdata('error_msg', $error_msg);
+                redirect(base_url() . 'employee/partner/show_partner_edit_details_form');
+            }
+        }else{
+            log_message('info', __FUNCTION__ . 'Error in updating partner details'.$partner_id." ".  print_r($partner_data,true));
+            $error_msg = "Error!!! Please Try Again";
+            $this->session->set_flashdata('error_msg', $error_msg);
+            redirect(base_url() . 'employee/partner/show_partner_edit_details_form');
+        }
+    }
+    /**
+     * @desc Get upcountry details for partner booking
+     * @param String $booking_id
+     * @param int $is_customer_paid
+     */
+    function booking_upcountry_details($booking_id, $is_customer_paid) {
+        if ($is_customer_paid > 0) {
+            $is_customer_paid = 1;
+        }
+        $data['data'] = $this->upcountry_model->upcountry_booking_list("", $booking_id, false, $is_customer_paid);
+
+        $this->load->view('service_centers/upcountry_booking_details', $data);
     }
    
 }

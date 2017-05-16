@@ -324,10 +324,16 @@ class Accounting extends CI_Controller {
         $to_date = $this->input->post('to_date');
         $new_to_date = date('Y/m/d', strtotime($to_date . "+1 days"));
         $partner_vendor = $this->input->post('partner_vendor');
-        $data['report_data'] = $this->accounting_model->get_payment_report_data($payment_type, $from_date, $new_to_date, $partner_vendor);
-        $data['partner_vendor'] = $partner_vendor;
-        $data['payment_type'] = $payment_type;
-        echo $this->load->view('employee/paymnet_history_table_view.php', $data);
+        $report_type = $this->input->post('report_type');
+        $data['report_data'] = $this->accounting_model->get_payment_report_data($payment_type, $from_date, $new_to_date, $partner_vendor,$report_type);
+        if($data['report_data']){
+            $data['partner_vendor'] = $partner_vendor;
+            $data['payment_type'] = $payment_type;
+            $data['report_type'] = $report_type;
+            echo $this->load->view('employee/paymnet_history_table_view.php', $data);
+        }else{
+            echo "error";
+        }
     }
 
     /**
@@ -346,7 +352,7 @@ class Accounting extends CI_Controller {
      * @return : view
      */
     function search_invoice_id() {
-        $invoice_id = $this->input->post('invoice_id');
+        $invoice_id = trim($this->input->post('invoice_id'));
         $request_data = array('invoice_id' => $invoice_id);
         $data['invoiceid_data'] = $this->invoices_model->getInvoicingData($request_data);
         if (!empty($data['invoiceid_data'])) {
@@ -390,7 +396,7 @@ class Accounting extends CI_Controller {
                             $non_updated_invoices .= $value.',';
                             log_message('info', __METHOD__ . " : Error in updating Invoice ID corresponding to challan ID = $challan_id_value");
                         }
-                        echo $this->db->last_query();
+                        
                     }
                 }
             }
@@ -432,7 +438,7 @@ class Accounting extends CI_Controller {
      * @return : view
      */
     function search_challan_id() {
-        $cin_no = $this->input->post('cin_no');
+        $cin_no = trim($this->input->post('cin_no'));
         $where = array('cin_no' => $cin_no);
         $data['challan_details'] = $this->accounting_model->get_challan_details($where);
         //print_r($data);exit();

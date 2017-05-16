@@ -341,11 +341,15 @@ class vendor extends CI_Controller {
                 $_POST['is_verified'] = '0';
             }
             
+            
+            //Getting RM Official Email details to send Welcome Mails to them as well
+            $rm_official_email = $this->employee_model->getemployeefromid($rm)[0]['official_email'];
+                
             if (!empty($this->input->post('id'))) {
                 
                 //if vendor exists, details are edited
                 $vendor_data = $this->get_vendor_form_data();
-                
+
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
                 
                  //Getting Logged Employee Full Name
@@ -364,7 +368,7 @@ class vendor extends CI_Controller {
                         $html .= " ".$value.'</li>';
                     }
                     $html .="</ul>";
-                    $to = ANUJ_EMAIL_ID;
+                    $to = ANUJ_EMAIL_ID.','.$rm_official_email;
                     
                     //Cleaning Email Variables
                         $this->email->clear(TRUE);
@@ -428,6 +432,7 @@ class vendor extends CI_Controller {
                 $new_vendor_mail = $owner_email.','.$primary_contact_email;
                 //Making Array to add Vendor
                 $vendor_data = $this->get_vendor_form_data();
+                $vendor_data['create_date'] = date('Y-m-d H:i:s');
                 
                 $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
 
@@ -436,8 +441,6 @@ class vendor extends CI_Controller {
                 
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
-                //Getting RM Official Email details to send Welcome Mails to them as well
-                $rm_official_email = $this->employee_model->getemployeefromid($rm)[0]['official_email'];
                 
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
@@ -606,19 +609,35 @@ class vendor extends CI_Controller {
                 $vendor_data['owner_email'] = $this->input->post('owner_email');
                 $vendor_data['owner_phone_1'] = $this->input->post('owner_phone_1');
                 $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
-                $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
-                if(!empty($this->input->post('pan_no')))
-                    $vendor_data['pan_no'] = $this->input->post('pan_no');
+                
                 $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
-                if(!empty($this->input->post('cst_no')))
-                    $vendor_data['cst_no'] = $this->input->post('cst_no');
                 $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
-                if(!empty($this->input->post('tin_no')))
-                    $vendor_data['tin_no'] = $this->input->post('tin_no');
                 $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
-                if(!empty($this->input->post('service_tax_no')))
-                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
                 $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
+                
+                if(!empty($vendor_data['is_pan_doc']) && !empty($this->input->post('pan_no')) ){
+                   $vendor_data['pan_no'] = $this->input->post('pan_no');
+                   $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
+                }else{
+                    $vendor_data['pan_no'] = "";
+                    $vendor_data['name_on_pan']= "";
+                }
+                if(!empty($vendor_data['is_cst_doc']) && !empty($this->input->post('cst_no'))){
+                    $vendor_data['cst_no'] = $this->input->post('cst_no');
+                }else{
+                     $vendor_data['cst_no'] = "";
+                }
+                if(!empty($vendor_data['is_tin_doc']) &&  !empty($this->input->post('tin_no'))){
+                    $vendor_data['tin_no'] = $this->input->post('tin_no');
+                }else{
+                    $vendor_data['tin_no'] = "";
+                }
+                if(!empty($vendor_data['is_st_doc']) && !empty($this->input->post('service_tax_no'))){
+                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
+                }else{
+                    $vendor_data['service_tax_no'] = "";
+                }
+             
                 $vendor_data['bank_name'] = $this->input->post('bank_name');
                 $vendor_data['account_type'] = $this->input->post('account_type');
                 $vendor_data['bank_account'] = $this->input->post('bank_account');
@@ -3926,7 +3945,7 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function process_reassign_partner_form(){
-        $booking_id = $this->input->post('booking_id');
+        $booking_id = trim($this->input->post('booking_id'));
         $partner = $this->input->post('partner');
         if(sizeof($booking_id) === sizeof($partner)){
             foreach($booking_id as $key=>$value){

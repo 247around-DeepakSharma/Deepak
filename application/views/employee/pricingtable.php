@@ -1,11 +1,11 @@
 <?php if(isset($source)){ ?>
 
-<script type="text/javascript">
+<!--<script type="text/javascript">
   $(function() {
     get_pricing_details();
   });
 
-</script>
+</script>-->
 <script src="<?php echo base_url()?>js/report.js"></script>
 <div id="page-wrapper">
    <div class="container-fluid">
@@ -28,7 +28,7 @@
                                
                     </select>
                 </li>
-                <li class="col-md-2">
+<!--                <li class="col-md-2">
                         <select onchange="get_pricing_details()" class="form-control"  id="city" name="city" >
                            <option  disabled>Select city</option>
                            <option value="" selected>All City</option>
@@ -37,7 +37,7 @@
                           <?php } ?>
                                 
                         </select>
-                </li>
+                </li>-->
                 <li class="col-md-2" >
                     <select  onchange="get_pricing_details()" class="form-control"  id="service" name="service" >
                         <option  disabled>Select Service</option>
@@ -126,23 +126,20 @@
  <table class="table table-bordered  table-hover table-striped data"  >
             <thead>
                 <tr>
-                    <th>Source</th>
-                    <th>City</th>
                     <th>Service</th>
                     <th>Category</th>
                     <th>Capacity</th>
                     <th>Appliance</th>
                     <th>Type</th>
-                    <th>Tax Code</th>
                     <th>Active</th>
                     <th>Check box</th>
-                    <th>Vendor Service Charge</th>
+                    <th>Vendor Basic Charge</th>
                     <th>Vendor Tax</th>'
-                    <th>Around Service Charge</th>
+                    <th>Around Basic Charge</th>
                     <th>Around Tax</th>
                     <th>Customer Total</th>
-                    <th>Partner Payment</th>
-                    <th>Customer Charges</th>
+                    <th>Partner Net Payable</th>
+                    <th>Customer Net Payable</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -150,40 +147,37 @@
             <tbody>
             <?php $i = 1; foreach($price as $pricing_details){ ?>
             <tr>
-            <td><?php echo $pricing_details['partner_code']?></td>
-            <td><?php echo $pricing_details['city']?></td>
             <td><?php echo $pricing_details['services']?></td>
             <td><?php echo $pricing_details['category']?></td>
             <td><?php echo $pricing_details['capacity']?></td>
             <td><?php echo $pricing_details['service_category']?></td>
              <td><?php echo $pricing_details['product_or_services']?></td>
-            <td><?php echo $pricing_details['tax_code']?></td>
             <td><p  id="<?php echo "active_p".$i?>" class="displaytrue"><?php echo $pricing_details['active']?></p>
              <input  type="text" name="acitve" value="<?php echo $pricing_details['active']?>" class="form-control displayfalse" id="active_input<?php echo $i; ?>"></input>
             </td>
             <td><p id="checkbox_p<?php echo $i; ?>" class="displaytrue"><?php echo $pricing_details['check_box']?></p>
             <input  type="text" name="check_box" value="<?php echo $pricing_details['check_box']?>" class="form-control displayfalse" id="checkbox_input<?php echo $i; ?>"></input>
             </td>
-            <td><p id="vendor_svc_charge_p<?php echo $i; ?>" class="displaytrue" ><?php echo round($pricing_details['vendor_svc_charge'], 2);?></p>
-             <input  type="text" name="vendor_svc_charge" value="<?php echo round($pricing_details['vendor_svc_charge'], 2)?>" class="form-control displayfalse" id="vendor_svc_charge_input<?php echo $i; ?>"></input>
+            <td><p id="vendor_basic_charges_p<?php echo $i; ?>" class="displaytrue" ><?php echo round($pricing_details['vendor_basic_charges'], 2);?></p>
+             <input  type="text" name="vendor_basic_charges" value="<?php echo round($pricing_details['vendor_basic_charges'], 2)?>" class="form-control displayfalse" id="vendor_basic_charges_input<?php echo $i; ?>"></input>
 
             </td>
-            <td><p id="vendor_tax_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['vendor_tax'], 2);?></p>
-            <input   type="text" name="vendor_tax" value="<?php echo round($pricing_details['vendor_tax'],2)?>" class="form-control displayfalse" id="vendor_tax_input<?php echo $i; ?>"></input>
+            <td><p id="vendor_tax_basic_charges_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['vendor_tax_basic_charges'], 2);?></p>
+            <input   type="text" name="vendor_tax_basic_charges" value="<?php echo round($pricing_details['vendor_tax_basic_charges'],2)?>" class="form-control displayfalse" id="vendor_tax_basic_charges_input<?php echo $i; ?>"></input>
             </td>
-            <td><p id="around_svc_charge_p<?php echo $i; ?>" class="displaytrue"> <?php echo round($pricing_details['around_svc_charge'] , 2) ?></p>
-            <input  type="text" name="around_svc_charge" value="<?php echo round($pricing_details['around_svc_charge'],2)?>" class=" displayfalse form-control" id="around_svc_charge_input<?php echo $i; ?>"></input>
+            <td><p id="around_basic_charges_p<?php echo $i; ?>" class="displaytrue"> <?php echo round($pricing_details['around_basic_charges'] , 2) ?></p>
+            <input  type="text" name="around_basic_charges" value="<?php echo round($pricing_details['around_basic_charges'],2)?>" class=" displayfalse form-control" id="around_basic_charges_input<?php echo $i; ?>"></input>
             </td>
-            <td><p id="around_tax_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['around_tax'],2)?></p>
-            <input type="text" name="around_tax" value="<?php echo round($pricing_details['around_tax'],2)?>" class="form-control displayfalse" id="around_tax_input<?php echo $i; ?>"></input>
+            <td><p id="around_tax_basic_charges_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['around_tax_basic_charges'],2)?></p>
+            <input type="text" name="around_tax_basic_charges" value="<?php echo round($pricing_details['around_tax_basic_charges'],2)?>" class="form-control displayfalse" id="around_tax_basic_charges_input<?php echo $i; ?>"></input>
             </td>
             <td><p id="customer_total_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['customer_total'], 2)?></p>
               <input  type="text" name="customer_total" value="<?php echo round($pricing_details['customer_total'],2)?>" class="form-control displayfalse" id="customer_total_input<?php echo $i; ?>"></input>
               </td>
-            <td><p id="partner_payment_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['partner_payment'],2)?></p>
-             <input type="text" name="partner_payment" value="<?php echo round($pricing_details['partner_payment'],2)?>" class="form-control displayfalse" id="partner_payment_input<?php echo $i; ?>"></input></td>
-            <td><p id="customer_charges_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['customer_charges'],2)?></p>
-             <input type="text" name="customer_charges" value="<?php echo round($pricing_details['customer_charges'],2)?>" class="form-control displayfalse" id="customer_charges_input<?php echo $i; ?>"></input></td>
+            <td><p id="partner_net_payable_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['partner_net_payable'],2)?></p>
+             <input type="text" name="partner_net_payable" value="<?php echo round($pricing_details['partner_net_payable'],2)?>" class="form-control displayfalse" id="partner_net_payable_input<?php echo $i; ?>"></input></td>
+            <td><p id="customer_net_payable_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['customer_net_payable'],2)?></p>
+             <input type="text" name="customer_net_payable" value="<?php echo round($pricing_details['customer_net_payable'],2)?>" class="form-control displayfalse" id="customer_net_payable_input<?php echo $i; ?>"></input></td>
             <td><button class="btn btn-success btn-md displaytrue " onclick="displayPricetableInput(<?php echo $i; ?>)" id="edit<?php echo $i; ?>">Edit</button>
             <button class="btn btn-success btn-md displayfalse"  onclick ="editPriceTable(<?php echo $i; ?>, <?php echo $pricing_details['id'] ;?>)" id="submit<?php echo $i; ?>">Submit</button>
             <button  style="margin-top:10px;" class="btn btn-primary btn-md displayfalse" onclick="displayPricetableInput(<?php echo $i; ?>)" id="cancel<?php echo $i; ?>">Cancel</button>

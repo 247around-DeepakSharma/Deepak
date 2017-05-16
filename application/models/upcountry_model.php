@@ -76,7 +76,7 @@ class Upcountry_model extends CI_Model {
                         
                         if($is_distance1){
                             $distance1 = (round($is_distance1['distance']['value'] / 1000, 2));
-                            $this->insert_distance($booking_pincode, $res_sb[0]['pincode'], $distance1);
+                            $this->insert_distance($booking_pincode, $res_sb[0]['pincode'], $distance1,_247AROUND_DEFAULT_AGENT);
                              log_message('info', __FUNCTION__ ." Insert distance & pincode " . $booking_pincode.
                                      $res_sb[0]['pincode']. $distance1);
                             $distance = $distance1 * 2;
@@ -111,6 +111,7 @@ class Upcountry_model extends CI_Model {
                             ." booking_pincode ". $booking_pincode);
                     $same_pincode_vendor['vendor_id'] = $value['vendor_id'];
                     $same_pincode_vendor['message'] = NOT_UPCOUNTRY_BOOKING;
+                    $same_pincode_vendor['upcountry_distance'] = 0;
                     break;
                 }
             } else {
@@ -118,6 +119,7 @@ class Upcountry_model extends CI_Model {
                             ." booking_pincode ". $booking_pincode);
                 $same_pincode_vendor['vendor_id'] = $value['vendor_id'];
                 $same_pincode_vendor['message'] = NOT_UPCOUNTRY_BOOKING;
+                $same_pincode_vendor['upcountry_distance'] = 0;
                 break;
             }
         }
@@ -172,6 +174,7 @@ class Upcountry_model extends CI_Model {
             log_message('info', __FUNCTION__ ." Not Upcountry Booking ". print_r($upcountry_vendor_details, true) );
             $up_data['vendor_id'] = $upcountry_vendor_details['vendor_id'];
             $up_data['message'] = NOT_UPCOUNTRY_BOOKING;
+            $up_data['upcountry_distance'] = 0;
 
             
         } else if ($upcountry_distance > ($min_threshold_distance)
@@ -553,7 +556,7 @@ class Upcountry_model extends CI_Model {
      * @param type $pincode2
      * @param type $distance
      */
-    function insert_distance($pincode1, $pincode2, $distance){       
+    function insert_distance($pincode1, $pincode2, $distance, $agent_id){       
         if ($pincode1 < $pincode2) {
             $dp1 = $pincode1;
             $dp2 = $pincode2;
@@ -561,8 +564,11 @@ class Upcountry_model extends CI_Model {
             $dp1 = $pincode2;
             $dp2 = $pincode1;
         }
-        $this->db->insert('distance_between_pincode', array('pincode1' => $dp1, 'pincode2' => $dp2,
-            'distance' => $distance));
+        
+        $data = array('pincode1' => $dp1, 'pincode2' => $dp2,'distance' => $distance,'agent_id'=> $agent_id);
+        
+        $this->db->insert('distance_between_pincode',$data );
+        return $this->db->insert_id();
     }
     /**
      * @desc: This method is used to know that partner provides upcountry for price tags of this booking
@@ -591,6 +597,7 @@ class Upcountry_model extends CI_Model {
         $this->db->select('service_center_id, booking_primary_contact_no,user_id');
         $this->db->from('booking_details');
         $this->db->where('booking_id',$booking_id);
+       $this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
         $this->db->join('sub_service_center_details','sub_service_center_details.id = booking_details.sub_vendor_id');
         $query = $this->db->get();
         return $query->result_array();

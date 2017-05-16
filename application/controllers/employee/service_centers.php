@@ -147,6 +147,8 @@ class Service_centers extends CI_Controller {
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $unit_where = array('booking_id'=>$booking_id, 'pay_to_sf' => '1');
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
+        $data['booking_state_change_data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
+        $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
         // This is commented because we are not showing in booking details
 //        $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list(
 //                $this->session->userdata('service_center_id'), $booking_id,true, 
@@ -272,7 +274,7 @@ class Service_centers extends CI_Controller {
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
         $return_status = true;
-        if (isset($pod)) {
+        if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
                 if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
                     if ($value == 1 && empty(trim($serial_number[$unit_id]))) {

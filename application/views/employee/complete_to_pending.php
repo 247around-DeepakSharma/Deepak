@@ -23,6 +23,7 @@
                   <label for="name" class="col-md-2">User</label>
                   <div class="col-md-6">
                     <input type="text" class="form-control"  name="name" value = "<?php echo $name; ?>"  disabled>
+                    <input type="hidden" class="form-control"  name="assigned_vendor_id" value = "<?php echo $assigned_vendor_id; ?>"  >
                     <?php echo form_error('name'); ?>
                   </div>
                 </div>

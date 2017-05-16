@@ -233,7 +233,13 @@ class Partner extends CI_Controller {
                                 isset($lead_details['service_appliance_data']['capacity'])?$lead_details['service_appliance_data']['capacity']:'';
                         
                         //get partner data to check the price
-                        $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
+                        $where_get_partner = array('bookings_sources.partner_id' => $booking['partner_id']);
+                        $select = "bookings_sources.partner_id,bookings_sources.price_mapping_id,bookings_sources.partner_type, bookings_sources.code, "
+                                . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
+                                . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
+                                . " upcountry_rate1, upcountry_rate, partners.is_upcountry, public_name";
+                        $partner_data = $this->partner_model->getpartner_details($select, $where_get_partner);
+                       
                         $partner_mapping_id = $partner_data[0]['price_mapping_id'];
                         if($partner_data[0]['partner_type'] == OEM){
                             //if partner type is OEM then sent appliance brand in argument

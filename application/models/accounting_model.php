@@ -67,7 +67,7 @@ class accounting_model extends CI_Model {
      * @param: string
      * @return : array
      */
-    function get_payment_report_data($payment_type, $from_date, $to_date, $partner_vendor) {
+    function get_payment_report_data($payment_type, $from_date, $to_date, $partner_vendor,$report_type="") {
         $return_data = [];
         switch ($payment_type) {
             case 'sales':
@@ -77,7 +77,12 @@ class accounting_model extends CI_Model {
                 $return_data = $this->get_purchase_payment_report($from_date, $to_date, $partner_vendor);
                 break;
             case 'tds' :
-                $return_data = $this->get_tds_payment_report($from_date, $to_date, $partner_vendor);
+                if($report_type === 'draft'){
+                    $return_data = $this->get_draft_tds_payment_report($from_date, $to_date, $partner_vendor);
+                }else if($report_type === 'final'){
+                    $return_data = $this->get_final_tds_payment_report($from_date, $to_date, $partner_vendor);
+                }
+                
                 break;
         }
 
@@ -171,8 +176,15 @@ class accounting_model extends CI_Model {
         $data = $query->result_array();
         return $data;
     }
-
-    function get_tds_payment_report($from_date, $to_date, $partner_vendor) {
+    
+    /**
+     * @desc: This Function is used to get the final tds PAYMENT REPORT
+     * @param: $from_date string
+     * @param: $to_date string
+     * @param: $partner_vendor string
+     * @return : array
+     */
+    function get_draft_tds_payment_report($from_date, $to_date, $partner_vendor) {
         if ($partner_vendor == 'partner') {
             $sql = "";
             return false;
@@ -181,7 +193,7 @@ class accounting_model extends CI_Model {
                     pan_no, owner_name, vendor_partner_invoices.total_service_charge, 
                     vendor_partner_invoices.total_additional_service_charge, vendor_partner_invoices.service_tax,
                     vendor_partner_invoices.total_amount_collected,(total_amount_collected - payment_history.tds_amount) as net_amount,
-                    payment_history.tds_amount, tax_rates.rate as tds_rate ,abs(vendor_partner_invoices.amount_collected_paid) as amount_collected_paid
+                    payment_history.tds_amount, tds_rate ,abs(vendor_partner_invoices.amount_collected_paid) as amount_collected_paid
                     FROM `payment_history`, vendor_partner_invoices, service_centres, tax_rates 
                     WHERE payment_history.create_date >= '$from_date' AND payment_history.create_date < '$to_date' 
                     AND payment_history.tds_amount > 0 AND vendor_partner_invoices.invoice_id = payment_history.invoice_id 
@@ -196,6 +208,36 @@ class accounting_model extends CI_Model {
         $data = $query->result_array();
         return $data;
     }
+    
+    /**
+     * @desc: This Function is used to get the draft tds PAYMENT REPORT
+     * @param: $from_date string
+     * @param: $to_date string
+     * @param: $partner_vendor string
+     * @return : array
+     */
+    function get_final_tds_payment_report($from_date, $to_date, $partner_vendor) {
+        if ($partner_vendor == 'partner') {
+            $sql = "";
+            return false;
+        } else if ($partner_vendor == 'vendor') {
+            $sql = "SELECT company_name,company_type,name_on_pan,pan_no,SUM(payment_history.tds_amount) as tds_amount,
+                    tds_rate FROM `payment_history`, vendor_partner_invoices, service_centres, tax_rates
+                    WHERE payment_history.create_date >= '$from_date' AND payment_history.create_date < '$to_date' 
+                    AND payment_history.tds_amount > 0 AND vendor_partner_invoices.invoice_id = payment_history.invoice_id 
+                    AND vendor_partner_invoices.vendor_partner = 'vendor' AND service_centres.id = vendor_partner_invoices.vendor_partner_id 
+                    AND tax_rates.state = service_centres.state AND tax_rates.tax_code = 'ST' GROUP BY service_centres.id";
+        } else if ($partner_vendor == 'stand') {
+            $sql = "";
+            return false;
+        }
+
+        $query = $this->db->query($sql);
+        $data = $query->result_array();
+        return $data;
+    }
+    
+    
 
     function insert_batch_payment_history($data) {
         $this->db->insert_batch('payment_history', $data);

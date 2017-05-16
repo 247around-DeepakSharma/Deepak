@@ -120,12 +120,12 @@ class service_centre_charges_model extends CI_Model {
         $this->db->select('service_centre_charges.*,services.services');
         
         if($data['source'] !=""){
-          $this->db->where('partner_code', $data['source']);
+          $this->db->where('partner_id', $data['source']);
         }
 
-        if($data['city'] != ""){
-          $this->db->where('city', $data['city']);
-        }
+//        if($data['city'] != ""){
+//          $this->db->where('city', $data['city']);
+//        }
 
         if($data['service_id'] != ""){
           $this->db->where('service_id', $data['service_id']);
@@ -232,11 +232,16 @@ class service_centre_charges_model extends CI_Model {
      * 
      */
     
-    function get_service_category_from_service_id($service_id){
+    function get_service_category_from_service_id($service_id,$partner_id=""){
+        if($partner_id != ""){
+            $where = array('service_id'=>$service_id,'partner_id'=>$partner_id);
+        }else{
+            $where = array('service_id'=>$service_id);
+        }
         $this->db->distinct();
         $this->db->select('service_category');
         $this->db->from('service_centre_charges');
-        $this->db->where('service_id' , $service_id);
+        $this->db->where($where);
         $this->db->order_by('service_category');
         $query = $this->db->get();
         return $query->result_array();

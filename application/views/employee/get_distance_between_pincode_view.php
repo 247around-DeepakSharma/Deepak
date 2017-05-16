@@ -56,6 +56,24 @@
                 <div class="text-center" id="loader" style="display: none;" ><img src= '<?php echo base_url(); ?>images/loadring.gif' /></div>
                 <hr>
                 <section class="view_distance"></section>
+                <section id="add_distance" style="display:none">
+                    <table class="table table-bordered table-hover table-responsive" id="add_distance_table">
+                        <tr>
+                            <th>Pincode 1</th>
+                            <th>Pincode 2</th>
+                            <th>Distance</th>
+                            <th>Update</th>
+                        </tr>
+                        <tr>
+                            <td><span class='add_pincode1'></span></td>
+                            <td><span class='add_pincode2'></span></td>
+                            <td contenteditable="true" id="add_newDistance"><span class="add_newDistance"></span></td>
+                            <td>
+                                <button class="btnAdd btn btn-primary">Add Distance</button>
+                            </td>
+                        </tr>
+                    </table>
+                </section>
             </div>
         </div>
     </div>
@@ -79,13 +97,17 @@
                         data: {pincode1: pincode1, pincode2: pincode2},
                         url: '<?php echo base_url(); ?>employee/upcountry/get_distance_between_pincodes',
                         success: function (response) {
-                            if(response === 'error'){
+                            if (response === 'error') {
                                 $('#show_error_msg').html('No Data Found For These Pincode');
                                 $('.error').show().delay(5000).fadeOut();
-                            }else{
+                                $('.view_distance').hide();
+                                $('.add_pincode1').html(pincode1);
+                                $('.add_pincode2').html(pincode2);
+                                $('#add_distance').show();
+                            } else {
                                 $('.view_distance').html(response);
                             }
-                            
+
                         }
                     });
                 } else {
@@ -108,22 +130,58 @@
                         if (response === 'success') {
                             $('#show_success_msg').html('Distance has been updated successfully');
                             $('.success').show().delay(5000).fadeOut();
-                        } else if(response === 'error') {
+                            $('.view_distance').hide();
+                        } else if (response === 'error') {
                             $('#show_error_msg').html('Error in updating distance');
                             $('.error').show().delay(5000).fadeOut();
                         }
                     }
                 });
             } else {
-                if(distance === prev_distance){
+                if (distance === prev_distance) {
                     alert("Please Enter New Distance To Update");
-                }else{
+                } else {
                     alert("Please Enter Valid Distance");
                 }
-                
+
                 return false;
             }
         }
+
+        $(document).ready(function () {
+
+            $("#add_distance_table").on('click', '.btnAdd', function () {
+                
+                var currentRow = $(this).closest("tr");
+
+                var pincode1 = currentRow.find(".add_pincode1").html(); 
+                var pincode2 = currentRow.find(".add_pincode2").html();
+                var distance = $("#add_newDistance").text();
+                var pattern = /^[0-9]+(\.[0-9]{1,2})?$/;
+                if (distance.length > 0 && distance.match(pattern) && distance !== '0' && pincode1.length === 6 && pincode2.length === 6) {
+                $.ajax({
+                    method: 'POST',
+                    data: {pincode1: pincode1, pincode2: pincode2, new_distance: distance},
+                    url: '<?php echo base_url(); ?>employee/upcountry/add_new_pincode_distance',
+                    success: function (response) {
+                        if (response === 'success') {
+                            $('#show_success_msg').html('Pincode has been Inserted successfully');
+                            $('.success').show().delay(5000).fadeOut();
+                            $('#add_distance_table').hide();
+                        } else if (response === 'error') {
+                            $('#show_error_msg').html('Error in Inserting distance');
+                            $('.error').show().delay(5000).fadeOut();
+                        }
+                    }
+                });
+            } else {
+                alert("Please fill the correct value");
+
+                return false;
+            }
+                
+            });
+        });
     </script>
 <?php } ?>
 

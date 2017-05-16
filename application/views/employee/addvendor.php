@@ -1120,7 +1120,7 @@
                         <div class="col-md-6">
                             <div class="col-md-9"></div>
                             <div class="col-md-2">
-                                <input type="Submit" value="<?php
+                                <input id="submit_btn" type="Submit" value="<?php
                                     if (isset($query[0]['id'])) {
                                         echo "Update Vendor";
                                     } else {
@@ -1435,15 +1435,17 @@
     });
     
     $(document).ready(function () {
-        var charReg = /^\s*[a-zA-Z0-9,\s]+\s*$/;
+        var charReg = /^[0-9a-zA-Z,.()+\/\s-]*$/;
         $('.blockspacialchar').keyup(function () {
             var inputVal = $(this).val();
 
             if (!charReg.test(inputVal)) {
                 alert("Spacial Characters are not allowed");
-                $(this).css({'border-color' : 'red'})
+                $(this).css({'border-color' : 'red'});
+                $('#submit_btn').attr('disabled','disabled');
             }else{
-                $(this).css({'border-color' : '#ccc'})
+                $(this).css({'border-color' : '#ccc'});
+                $('#submit_btn').removeAttr('disabled');
             }
 
         });
@@ -1456,22 +1458,12 @@
 
             if (!regxp.test(inputVal)) {
                 alert("Please Enter Valid Phone Number");
-                $(this).css({'border-color' : 'red'})
+                $(this).css({'border-color' : 'red'});
             }else{
-                $(this).css({'border-color' : '#ccc'})
+                $(this).css({'border-color' : '#ccc'});
             }
 
         });
     });
     
-//    $('#ifsc_code').blur(function(){
-//        var regexp = /^(\s*|[a-zA-Z]{4}0[a-zA0-9]{6})$/i;
-//        var ifsc_code = $(this).val();
-//        if (!regexp.test(ifsc_code)) {
-//                alert("Please enter a valid 11 character IFSC Code");
-//                $(this).css({'border-color' : 'red'})
-//            }else{
-//                $(this).css({'border-color' : '#ccc'})
-//            }
-//    });
 </script>
