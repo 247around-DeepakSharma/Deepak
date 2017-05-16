@@ -37,7 +37,7 @@
                             <div class="col-md-4" >
                                 <div class="form-group col-md-12 <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
                                     <label for="booking_primary_contact_no">Name *</label>
-                                    <input type="hidden" name="assigned_vendor_id" id="service_center_id" value="" />
+                                    <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="" />
                                     <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
                                     <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
                                     <input type="hidden" name="partner_code" id="partner_code" value="<?php echo $partner_code;?>" />
@@ -74,7 +74,7 @@
                                     <select type="text" class="form-control"  id="service_name" name="service_id"   required onchange="return get_brands(), get_category(), get_capacity()">
                                         <option selected disabled>Select Appliance</option>
                                         <?php foreach ($appliances as $values) { ?>
-                                        <option <?php if(count($appliances) ==1){echo "selected";} ?> data-id="<?php echo $values->id;?>" value=<?= $values->id; ?>>
+                                        <option <?php if(count($appliances) ==1){echo "selected";} ?> data-id="<?php echo $values->services;?>" value=<?= $values->id; ?>>
                                             <?php echo $values->services; }    ?>
                                         </option>
                                     </select>
@@ -82,6 +82,7 @@
                                     <span id="error_pincode" style="color: red;"></span>
                                 </div>
                             </div>
+                            <input type="hidden" name="appliance_name" id="appliance_name" value=""/>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
                                     <label for="appliance_brand">Brand *   <span style="color:grey;display:none" id="brand_loading">Loading ...</span> <span id="error_brand" style="color: red;"></label>
@@ -151,6 +152,19 @@
                                     </select>
                                     <!--   -->
                                     <?php echo form_error('booking_date'); ?>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-md-12">
+                                 <label for="Product Type">Product Type *</label>
+                                <div class="form-group col-md-12  <?php if( form_error('product_type') ) { echo 'has-error';} ?>">
+                                   
+                                     <label class="radio-inline">
+                                        <input type="radio" name="product_type" value="Delivered" checked>Delivered
+                                      </label>
+                                      <label class="radio-inline">
+                                          <input type="radio" name="product_type" value="Shipped">Shipped
+                                      </label>
+                                    <?php echo form_error('product_type'); ?>
                                 </div>
                             </div>
 
@@ -449,6 +463,7 @@
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
 <script type="text/javascript">
+    
     $("#booking_city").select2({
          tags: true
     });
@@ -459,12 +474,13 @@
     $("#appliance_category_1").select2();
     $("#partner_source").select2();
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd'});
-    
+    get_city();
     get_brands();
+    
     
     //This funciton is used to get Distinct Brands for selected service for Logged Partner
     function get_brands(){
-        service_id =  $("#service_name").find(':selected').attr('data-id');
+        service_id =  $("#service_name").val();
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
         partner_type = $("#partner_type").val();
         
@@ -493,7 +509,7 @@
     //This function is used to get Category for partner id , service , brands specified
     
     function get_category(){
-        service_id =  $("#service_name").find(':selected').attr('data-id');
+        service_id =  $("#service_name").val();
         brand =  $("#appliance_brand_1").val();
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
         partner_type = $("#partner_type").val();
@@ -523,7 +539,7 @@
     
     //This function is used to get Capacity and Model
     function get_capacity(){
-        service_id =  $("#service_name").find(':selected').attr('data-id');
+        service_id =  $("#service_name").val();
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
         partner_price_mapping_id = $("#partner_price_mapping_id").val();
@@ -558,7 +574,7 @@
     
     //This function is used to get Model for corresponding previous data's
     function get_models(){
-        service_id =  $("#service_name").find(':selected').attr('data-id');
+        service_id =  $("#service_name").val();
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
         capacity = $("#appliance_capacity_1").val();
@@ -594,9 +610,11 @@
     function getPrice() {
         
         var postData = {};
+        appliance_name = $("#service_name").find(':selected').attr('data-id');
+        $("#appliance_name").val(appliance_name);
         $("#priceList").html('<div class="text-center"><img src= "<?php echo base_url(); ?>images/loadring.gif" /></div>').delay(1200).queue(function () {
        
-        postData['service_id'] = $("#service_name").find(':selected').attr('data-id');
+        postData['service_id'] = $("#service_name").val();
         postData['brand'] = $('#appliance_brand_1').val();
         postData['category'] = $("#appliance_category_1").val();
         capacity = $("#appliance_capacity_1").val();
@@ -611,6 +629,7 @@
         postData['city'] = $("#booking_city").val();
         postData['partner_price_mapping_id'] = $("#partner_price_mapping_id").val();
         postData['partner_type'] = $('#partner_type').val();
+        postData['assigned_vendor_id'] = "";
         
         if(postData['brand'] !== null 
                 && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
@@ -627,8 +646,8 @@
                 success: function (data) {
                     //console.log(data);
                      if(data === "ERROR"){
-                         // $("#total_price").text("Price is not defined" );
-                          alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
+                        
+                         // alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
 
                      } else { 
                           var data1 = jQuery.parseJSON(data);
@@ -697,6 +716,11 @@
 //    }
 //    
     $("#booking_pincode").keyup(function(event) {
+        get_city();
+        
+    });
+    
+    function get_city(){
         var pincode = $("#booking_pincode").val();
         if(pincode.length === 6){
             
@@ -705,14 +729,25 @@
                 beforeSend: function(){
                   
                     $('#city_loading').css("display", "-webkit-inline-box");
+                    $('#submitform').prop('disabled', true);
                 },
                 url: '<?php echo base_url(); ?>employee/partner/get_district_by_pincode/'+ pincode,          
                 success: function (data) {
-                 
-                    $('#booking_city').select2().html(data).change();
-                    $("#booking_city").select2({
-                       tags: true
-                    });
+                    
+                    if(data !== "ERROR"){
+                        $('#booking_city').select2().html(data).change();
+                        $("#booking_city").select2({
+                           tags: true
+                        });
+                       
+                         $('#submitform').prop('disabled', false);
+                        
+                    } else {
+                        alert("There is some problem in this Pincode Area. Please Contact to 247Around Team");
+                        $('#submitform').prop('disabled', true);
+                        
+                    }
+                   
                     
                 },
                 complete: function(){
@@ -720,8 +755,7 @@
                 }  
             }); 
         }
-        
-    });
+    }
     
     function set_upcountry(){
     var upcountry_data = $("#upcountry_data").val();

@@ -5,6 +5,7 @@ if (!defined('BASEPATH')){
 }
 
 class Partner extends CI_Controller {
+    Private $OLD_BOOKING_STATE = "";
 
     /**
      * load list modal and helpers
@@ -27,6 +28,7 @@ class Partner extends CI_Controller {
         $this->load->library('miscelleneous');
         $this->load->library('booking_utilities');
         $this->load->library('user_agent');
+        
         $this->load->library('table');
 
         $this->load->helper(array('form', 'url'));
@@ -350,7 +352,6 @@ class Partner extends CI_Controller {
             $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
             if ($authToken) {
                 $post = $this->get_booking_form_data();
-
                 $postData = json_encode($post, true);
                
                 $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
@@ -452,7 +453,8 @@ class Partner extends CI_Controller {
         $post['partner_price_mapping_id'] = $this->input->post('partner_price_mapping_id');
         $post['partner_code'] = $this->input->post('partner_code');
         $post['amount_due'] = $this->input->post('grand_total');
-        
+        $post['product_type'] = $this->input->post('product_type');
+        $post['appliance_name'] = $this->input->post('appliance_name');
         return $post;
         
     }
@@ -1665,8 +1667,10 @@ class Partner extends CI_Controller {
             $booking_details['order_id'] = $post['orderID'];
             $booking_details['service_id'] = $post['service_id'];
             $booking_details['booking_remarks'] = $post['remarks'];
+            $booking_details['current_status'] = _247AROUND_PENDING;
+            $booking_details['internal_status'] = _247AROUND_PENDING;
             $upcountry_data = json_decode($post['upcountry_data'], TRUE);
-
+            
             $unit_details['service_id'] = $appliance_details['service_id'] = $booking_details['service_id'];
             $unit_details['appliance_brand'] = $appliance_details['brand'] = $post['brand'];
             $unit_details['appliance_description'] = $appliance_details['description'] = $post['productType'];
@@ -1722,35 +1726,37 @@ class Partner extends CI_Controller {
                 switch ($upcountry_data['message']) {
                     case UPCOUNTRY_BOOKING:
                     case UPCOUNTRY_LIMIT_EXCEED:
+
+                        $booking_details['is_upcountry'] = 1;
                         
-                        if($post['assigned_vendor_id'] == $upcountry_data['vendor_id']){
-                            $booking_details['is_upcountry'] = 1;
-                        }
                         
                         break;
                     default :
-                        if($post['assigned_vendor_id'] == $upcountry_data['vendor_id']){
-                            $booking_details['is_upcountry'] = 0;
-                        }
+                        
+                        $booking_details['is_upcountry'] = 0;
+                        
                         break;
                 }
             }
             
             $this->booking_model->update_booking($booking_id, $booking_details);
             
-            $url = base_url() . "employee/partner/update_upcountry_details/".$booking_id."/". 
-                    $this->session->userdata('agent_id')."/".$this->session->userdata('partner_name');
-            $async_data = array();
+           
+            $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_id . "/1" ;
+            $async_data['booking'] = array();
             $this->asynchronous_lib->do_background_process($url, $async_data);
+                    
+            $this->insert_details_in_state_change($booking_id, _247AROUND_PENDING, $booking_details['booking_remarks']);    
+            if($this->OLD_BOOKING_STATE == _247AROUND_CANCELLED){
+                $sc_data['current_status'] = _247AROUND_PENDING;
+                $sc_data['internal_status'] = _247AROUND_PENDING;
 
-            $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, _247AROUND_PENDING, 
-                    $booking_details['booking_remarks'], 
-                    $this->session->userdata('agent_id'), 
-                    $this->session->userdata('partner_name'), 
-                    $this->session->userdata('partner_id'));
+                $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
+           } 
 
-            $userSession = array('success' => 'Boking Updated');
+            $userSession = array('success' => 'Booking Updated');
             $this->session->set_userdata($userSession);
+            
             redirect(base_url() . "partner/pending_booking"); 
 
         } else {
@@ -1817,6 +1823,7 @@ class Partner extends CI_Controller {
             
             if ($booking_state_change > 0) {
                 $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+                $this->OLD_BOOKING_STATE = $state_change['old_state'];
             } else { //count($booking_state_change)
                 $state_change['old_state'] = "Pending";
             }
@@ -2644,6 +2651,7 @@ class Partner extends CI_Controller {
         $partner_type = $this->input->post('partner_type');
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $result = array();
+       
         if($partner_type == OEM){
             $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, "",$brand);
         } else {
@@ -2651,7 +2659,17 @@ class Partner extends CI_Controller {
         }
         if(!empty($result)){
             $partner_details = $this->partner_model->get_all_partner($partner_id);
-            $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $partner_details, $assigned_vendor_id);
+            if (empty($assigned_vendor_id)) {
+                $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $partner_details, NULL);
+            } else {
+
+                $vendor_data = array();
+                $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
+                $vendor_data[0]['city'] = $city;
+
+                $data = $this->upcountry_model->action_upcountry_booking($city, $pincode, $vendor_data, $partner_details);
+            }
+            
             $html = "<table class='table priceList table-striped table-bordered'><thead><tr><th class='text-center'>Service Category</th>"
                     . "<th class='text-center'>Final Charges</th>"
                     . "<th class='text-center' id='selected_service'>Selected Services</th>"
@@ -2695,13 +2713,13 @@ class Partner extends CI_Controller {
      * @param String $pincode
      */
     function get_district_by_pincode($pincode){
-        $city = $this->vendor_model->getDistrict_from_india_pincode("", $pincode);
+        $city = $this->vendor_model->getDistrict("", $pincode);
         if(!empty($city)){
             foreach ($city as $district){
                  echo '<option selected>'.$district['district'].'</option>';
             }
         } else {
-            echo '<option disabled selected >Please Enter City</option>';
+            echo 'ERROR';
         }
     }
     /**

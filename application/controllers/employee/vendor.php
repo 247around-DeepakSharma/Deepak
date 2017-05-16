@@ -3622,6 +3622,7 @@ class vendor extends CI_Controller {
      * @param Integer $up_falg
      */
     function update_upcountry_and_unit_in_sc($booking_id, $up_falg){
+        log_message('info', "Booking iD " . $booking_id." Flag ". $up_falg);
         if($up_falg == 1){
             $this->miscelleneous->assign_upcountry_booking($booking_id, 
                     _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME);

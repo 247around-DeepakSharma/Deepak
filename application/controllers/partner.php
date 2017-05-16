@@ -1481,7 +1481,12 @@ class Partner extends CI_Controller {
             //All partners should have a valid partner code in the bookings_sources table
             
             $booking['source'] = $requestData['partner_code'];
-            $booking['booking_id'] = $booking['source'] . "-" . $booking['booking_id'];
+            if($requestData['product_type'] == "Delivered"){
+                $booking['booking_id'] = $booking['source'] . "-" . $booking['booking_id'];
+            } else {
+                $booking['booking_id'] = "Q-".$booking['source'] . "-" . $booking['booking_id'];
+            }
+            
             $unit_details['booking_id'] = $booking['booking_id'];
             
             $appliance_details['purchase_month'] = $unit_details['purchase_month'] = $requestData['purchase_month'];
@@ -1492,9 +1497,7 @@ class Partner extends CI_Controller {
             
             $booking['potential_value'] = '';
             $appliance_details['last_service_date'] = date('d-m-Y');
-            $booking['current_status'] = "Pending";
-            $booking['internal_status'] = "Scheduled";
-            $booking['type'] = "Booking";
+            
             $booking['booking_date'] = $requestData['booking_date'];
             $booking['initial_booking_date'] = $requestData['booking_date'];
             $booking['booking_timeslot'] = '';
@@ -1509,11 +1512,30 @@ class Partner extends CI_Controller {
             $booking['taluk'] = $distict_details['taluk'];
             $booking['amount_due'] = $requestData['amount_due'];
             $upcountry_data = json_decode($requestData['upcountry_data'], TRUE);
-            if(isset($upcountry_data['is_upcountry'])){
-                if(($upcountry_data['is_upcountry'] == 1)){
-                    $booking['is_upcountry'] = 1;
+            $booking['is_upcountry'] = 0;
+             if($requestData['product_type'] == "Shipped"){
+                $booking['current_status'] = _247AROUND_FOLLOWUP;
+                $booking['internal_status'] = _247AROUND_FOLLOWUP;
+                $booking['type'] = "Query";
+
+                if(isset($upcountry_data['is_upcountry'])){
+                    if(($upcountry_data['is_upcountry'] == 1)){
+                        $booking['is_upcountry'] = 1;
+                    }
                 }
-            }
+                 
+             } else {
+                $booking['current_status'] = "Pending";
+                $booking['internal_status'] = "Scheduled";
+                $booking['type'] = "Booking";
+
+                if(isset($upcountry_data['is_upcountry'])){
+                    if(($upcountry_data['is_upcountry'] == 1)){
+                        $booking['is_upcountry'] = 1;
+                    }
+                }
+             }
+            
 
             //check partner status from partner_booking_status_mapping table  
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
@@ -1524,6 +1546,7 @@ class Partner extends CI_Controller {
             $return_id = $this->booking_model->addbooking($booking);
             if(!empty($return_id)){
             $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
+            $customer_net_payable = 0;
             foreach ($requestData['requestType'] as $key => $sc) {
                 $explode = explode("_", $sc);
                     
@@ -1532,48 +1555,57 @@ class Partner extends CI_Controller {
                 $unit_details['partner_paid_basic_charges'] = $explode[2];
                 $unit_details['partner_net_payable'] = $explode[2];
                 $unit_details['booking_status'] = "Pending";
-            
+                $customer_net_payable += ($explode[1] - $explode[2]);
                 $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], $key);
                     
             }
+            $is_price['customer_net_payable'] = $customer_net_payable;
+            $is_price['is_upcountry'] = $booking['is_upcountry'];
+             
+            if($requestData['product_type'] == "Shipped"){
+                $partner_data[0] = $this->partner;
+                $this->miscelleneous->check_upcountry($booking, $requestData['appliance_name'], $is_price, $unit_details['appliance_category'], "shipped",  $partner_data);
                 
-            //-------Sending SMS on booking--------//
-            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-            $send['booking_id'] = $booking['booking_id'];
-            $send['state'] = "Newbooking";
-            $this->asynchronous_lib->do_background_process($url, $send);
-
-
-            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING , _247AROUND_NEW_BOOKING , 
+                $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , 
                     $booking['booking_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
-            
+            } else {
+                //-------Sending SMS on booking--------//
+                $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                $send['booking_id'] = $booking['booking_id'];
+                $send['state'] = "Newbooking";
+                $this->asynchronous_lib->do_background_process($url, $send);
+                
+                $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING , _247AROUND_NEW_BOOKING , 
+                    $booking['booking_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
+                
+                //Assigned vendor Id
+                if (isset($upcountry_data['message'])) {
+                    switch ($upcountry_data['message']) {
+                        case UPCOUNTRY_BOOKING:
+                        case UPCOUNTRY_LIMIT_EXCEED:
+                        case NOT_UPCOUNTRY_BOOKING:
+                        case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                            $assigned = $this->miscelleneous->assign_vendor_process($upcountry_data['vendor_id'],$booking['booking_id']);
+                            if($assigned){
+                               $url = base_url() . "employee/do_background_process/assign_booking";
+                               $this->notify->insert_state_change($booking['booking_id'], ASSIGNED_VENDOR , _247AROUND_PENDING , 
+                                   "Auto Assign vendor", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                               $async_data['booking_id'] = array($booking['booking_id']=> $upcountry_data['vendor_id']);
+                               $this->asynchronous_lib->do_background_process($url, $async_data);
+                            } 
+
+                            break;
+                        case SF_DOES_NOT_EXIST:
+                            break;
+                    }
+                }
+            }
+
             if (empty($booking['state'])) {
                     $to = NITS_ANUJ_EMAIL_ID;
                     $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
                     $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
 	    }
-            
-            //Assigned vendor Id
-            if (isset($upcountry_data['message'])) {
-                switch ($upcountry_data['message']) {
-                    case UPCOUNTRY_BOOKING:
-                    case UPCOUNTRY_LIMIT_EXCEED:
-                    case NOT_UPCOUNTRY_BOOKING:
-                    case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
-                        $assigned = $this->miscelleneous->assign_vendor_process($upcountry_data['vendor_id'],$booking['booking_id']);
-                        if($assigned){
-                           $url = base_url() . "employee/do_background_process/assign_booking";
-                           $this->notify->insert_state_change($booking['booking_id'], ASSIGNED_VENDOR , _247AROUND_PENDING , 
-                               "Auto Assign vendor", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
-                           $async_data['booking_id'] = array($booking['booking_id']=> $upcountry_data['vendor_id']);
-                           $this->asynchronous_lib->do_background_process($url, $async_data);
-                        } 
-
-                        break;
-                    case SF_DOES_NOT_EXIST:
-                        break;
-                }
-            }
            
             //Send response
             $this->jsonResponseString['response'] = array(
