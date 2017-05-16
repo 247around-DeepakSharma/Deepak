@@ -308,19 +308,20 @@ $(document).on('keyup', '.cal_amount', function (e) {
 
 function check_price_details(){
      f_amount = 0;
-    $('.cal_amount').each(function() {
+     $('.cal_amount').each(function() {
           var id_key = this.id.split('cal_amount_');
           var credit_debit =  $("#cre_amount_"+id_key[1]).val();
-          var amount = $("#cal_amount_"+ id_key[1]).val();
-          var pre_amount = $("#pre_amount_"+ id_key[1]).val();
+          var amount = Number($("#cal_amount_"+ id_key[1]).val());
+          var pre_amount = Number($("#pre_amount_"+ id_key[1]).val());
+          
           if(amount > pre_amount){
               alert("Can Not Enter Amount Greater Than Rs. " +pre_amount );
               $(':input[type="submit"]').prop('disabled', true);
               return false;
           } else {
-              alert(pre_amount);
               $(':input[type="submit"]').prop('disabled', false);
           }
+          
           if(amount > 0){
             if(credit_debit === "Debit"){
                 f_amount = Number(f_amount) - Number(amount);
@@ -331,11 +332,13 @@ function check_price_details(){
             }
           }
     });
+    
     if(f_amount > 0){
        $("#span_c_d").text("Credit"); 
     } else {
         $("#span_c_d").text("Debit"); 
     }
+    
     $("#in_amount").val(Math.abs(f_amount.toFixed(0)));
 }
 
