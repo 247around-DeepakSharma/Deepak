@@ -22,7 +22,8 @@
                                     <?php if($status == "Cancelled"){ ?>
                                     <th>Cancellation Reason</th>
                                     <?php } ?>
-                                    <th>View</th>
+                                   
+                                    <th>Open</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -38,7 +39,8 @@
                                         <?php echo $row['order_id']; ?>
                                     </td>
                                     <td>
-                                        <?php echo $row['booking_id']; ?>
+                                       <a  href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id']?>" target='_blank' title='View'> 
+                                           <?php echo $row['booking_id']; ?></a>
                                     </td>
                                     <td>
                                         <?php switch ($row['request_type']){
@@ -73,7 +75,7 @@
                                         <?php echo $row['cancellation_reason']; ?>
                                     </td>
                                     <?php } ?>
-                                    <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id']?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
+                                    <td><a class='btn btn-sm btn-info' href="<?php echo base_url();?>partner/update_booking/<?php echo $row['booking_id']?>" target='_blank' title='View'><i class='fa fa-envelope-o' aria-hidden='true'></i></a></td>
                                 </tr>
                                 <?php $count++; } ?>
                             </tbody>

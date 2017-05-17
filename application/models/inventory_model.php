@@ -288,7 +288,7 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_new_credit_note_brackets_data($order_id){
-        $sql = "SELECT sc.company_name ,sc.address,sc.tin_no,sc.service_tax_no,sc.state,sc.sc_code,sc.owner_email,sc.owner_phone_1,b.19_24_shipped,
+        $sql = "SELECT sc.id,sc.company_name ,sc.address,sc.tin_no,sc.service_tax_no,sc.state,sc.sc_code,sc.owner_email,sc.owner_phone_1,b.19_24_shipped,
                 b.26_32_shipped,b.36_42_shipped,b.43_shipped,b.total_shipped,b.order_received_from,b.shipment_date
                 FROM brackets as b 
                 JOIN service_centres as sc ON b.order_received_from = sc.id 

@@ -561,6 +561,11 @@ class CI_DB_mysqli_driver extends CI_DB {
 	{
 		return "INSERT INTO ".$table." (".implode(', ', $keys).") VALUES ".implode(', ', $values);
 	}
+        
+        function _insert_ignore_duplicate_batch($table, $keys, $values){
+            echo ".";
+            return "INSERT IGNORE INTO ".$table." (".implode(', ', $keys).") VALUES ".implode(', ', $values);
+        }
 
 	// --------------------------------------------------------------------
 

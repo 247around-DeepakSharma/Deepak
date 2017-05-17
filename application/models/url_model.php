@@ -151,6 +151,24 @@ class url_model extends CI_Model {
 
 	log_message('info', __METHOD__ . '=> Last query: ' . $this->db->last_query());
     }
+    
+    function getworkbook_details($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $data  = $this->db->get('workbook2');
+        return $data->result_array();
+        
+    }
+    
+    function truncate_url_ref_table(){
+       
+        $this->db->truncate('url_table_ref');
+    }
+    
+    function insert_url_ref_data_batch($data){
+       
+        $this->db->insert_ignore_duplicate_batch("url_table_ref", $data);
+    }
 
 //end model
 }
