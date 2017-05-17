@@ -146,8 +146,25 @@
                                 </div>
                             </div>
                             
-                             <input type="hidden" name="product_type" value="Delivered"  checked>
-
+                            <div class="col-md-4 col-md-12">
+                                 <label for="Product Type">Product Type *</label>
+                                <div class="form-group col-md-12  <?php if( form_error('product_type') ) { echo 'has-error';} ?>">
+                                   <?php if(empty($booking_history[0]['assigned_vendor_id'])){ ?>
+                                     <label class="radio-inline">
+                                        <input type="radio" name="product_type" value="Delivered" checked>Delivered
+                                      </label>
+                                      <label class="radio-inline">
+                                          <input type="radio" name="product_type" value="Shipped">Shipped
+                                      </label>
+                                   <?php } else  {?>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="product_type" value="Delivered" checked>Delivered
+                                      </label>
+                                   <?php } ?>
+                                    <?php echo form_error('product_type'); ?>
+                                </div>
+                            </div>
+                            
                             <!-- end col-md-6 -->
                         </div>
                     </div>

@@ -7,6 +7,7 @@ class Miscelleneous {
         $this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->library('email');
         $this->My_CI->load->library('partner_cb');
+        $this->My_CI->load->library('initialized_variable');
         $this->My_CI->load->library('asynchronous_lib');
         $this->My_CI->load->library('booking_utilities');
         $this->My_CI->load->library('notify');
@@ -475,8 +476,9 @@ class Miscelleneous {
      * @param String $partner_data
      * @return boolean
      */
-    function check_upcountry($booking, $appliance, $is_price, $appliance_category, $file_type, $partner_data) {
+    function check_upcountry($booking, $appliance, $is_price, $file_type) {
         log_message('info', __FUNCTION__ );
+        $partner_data = $this->My_CI->initialized_variable->get_partner_data();
         if (!empty($is_price)) {
             log_message('info', __FUNCTION__ . ' Price Exist');
             $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
@@ -569,7 +571,7 @@ class Miscelleneous {
              $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $partner_data[0]['public_name'], $charges);
              return true;
              } else {
-            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $partner_data[0]['public_name'], "");
+             $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $partner_data[0]['public_name'], "");
             return true;
         }
     }
@@ -636,6 +638,32 @@ class Miscelleneous {
 	$sms['type_id'] = $user_id;
 
 	$this->My_CI->notify->send_sms_msg91($sms);
+    }
+    
+   function allot_partner_id_for_brand($service_id, $state, $brand) {
+        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
+       
+        $partner_array = $this->My_CI->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
+        
+        if (!empty($partner_array)) {
+
+            foreach ($partner_array as $value) {
+                //Now getting details for each Partner 
+                $filtered_partner_state = $this->My_CI->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
+                if ($filtered_partner_state) {
+                    //Now assigning this case to Partner
+                   
+                    return $value['partner_id'];
+                } else {
+                    return false;
+                }
+            }
+        } else {
+            log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
+            //Now assigning this case to SS
+            return false;
+        }
+        return false;
     }
 
 

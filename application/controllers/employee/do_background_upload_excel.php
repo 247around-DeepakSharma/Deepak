@@ -406,14 +406,10 @@ class Do_background_upload_excel extends CI_Controller {
                 $appliance_details['last_service_date'] = date('d-m-Y');
                 //get partner data to check the price
                 
-                $where_get_partner = array('bookings_sources.partner_id' => $booking['partner_id']);
-                $select = "bookings_sources.partner_id,bookings_sources.price_mapping_id,bookings_sources.partner_type, bookings_sources.code, "
-                        . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
-                        . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
-                        . " upcountry_rate1, upcountry_rate, partners.is_upcountry, public_name";
-                $partner_data = $this->partner_model->getpartner_details($select, $where_get_partner);
-                $partner_mapping_id = $partner_data[0]['price_mapping_id'];
-                if($partner_data[0]['partner_type'] == OEM){
+                $this->initialized_variable->fetch_partner_data($booking['partner_id']);
+                
+                $partner_mapping_id = $this->initialized_variable->get_partner_data()[0]['price_mapping_id'];
+                if($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM){
                      //if partner type is OEM then sent appliance brand in argument
                     $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo', $unit_details['appliance_brand']);
                 } else {
@@ -432,8 +428,6 @@ class Do_background_upload_excel extends CI_Controller {
                     $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
                     $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
                 }
-
-
 
                 $booking['order_id'] = $value['Sub_Order_ID'];
 
@@ -462,7 +456,7 @@ class Do_background_upload_excel extends CI_Controller {
 
                 //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
                 //Check whether vendor is available or not
-                $is_sms = $this->miscelleneous->check_upcountry($booking, $value['appliance'], $is_price, $unit_details['appliance_category'], $file_type, $partner_data);
+                $is_sms = $this->miscelleneous->check_upcountry($booking, $value['appliance'], $is_price, $file_type);
                 if(!$is_sms){
                      $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
                 } else {
@@ -560,15 +554,11 @@ class Do_background_upload_excel extends CI_Controller {
                             $category = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : '';
                             $capacity = isset($value['service_appliance_data']['capacity'])?$value['service_appliance_data']['capacity'] :'';
                             $brand = isset($value['service_appliance_data']['brand']) ? $value['service_appliance_data']['brand'] : $value['Brand'];
-                            $where_get_partner = array('bookings_sources.partner_id' => $partner_booking['partner_id']);
-                            $select = "bookings_sources.partner_id,bookings_sources.price_mapping_id,bookings_sources.partner_type, bookings_sources.code, "
-                                    . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
-                                    . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
-                                    . " upcountry_rate1, upcountry_rate, partners.is_upcountry, public_name";
-                            $partner_data = $this->partner_model->getpartner_details($select, $where_get_partner);
-                            $partner_mapping_id = $partner_data[0]['price_mapping_id'];
                             
-                            if ($partner_data[0]['partner_type'] == OEM) {
+                            $this->initialized_variable->fetch_partner_data($partner_booking['partner_id']);
+                            $partner_mapping_id =  $this->initialized_variable->get_partner_data()[0]['price_mapping_id'];
+                            
+                            if ( $this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
                                 $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_mapping_id, 'Installation & Demo', $brand);
                             } else {
                                 $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_mapping_id, 'Installation & Demo', "");
@@ -581,7 +571,7 @@ class Do_background_upload_excel extends CI_Controller {
                                 $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
                             }
                             
-                            $is_sms = $this->miscelleneous->check_upcountry($partner_booking, $value['appliance'], $is_price, $category, $file_type, $partner_data);
+                            $is_sms = $this->miscelleneous->check_upcountry($partner_booking, $value['appliance'], $is_price, $file_type);
                             if($is_sms){
                                 $sms_count = 1;
                             } else {
