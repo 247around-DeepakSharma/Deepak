@@ -40,6 +40,7 @@ class Partner extends CI_Controller {
         $this->load->model('upcountry_model');
         $this->load->library("asynchronous_lib");
         $this->load->library('booking_utilities');
+        $this->load->library('initialized_variable');
         $this->load->helper(array('form', 'url'));
     }
 
@@ -198,17 +199,24 @@ class Partner extends CI_Controller {
 
                             $service_id = $this->booking_model->getServiceId($lead_details['Product']);
                         }
-                        
-                        
+
                         //Assigning Booking Source and Partner ID for Brand Requested
                         
                         // First we send Service id and Brand and get Partner_id from it
                         // Now we send state, partner_id and service_id 
-                        $data = $this->_allot_source_partner_id_for_pincode($service_id,$distict_details['state'],$requestData['brand']);
+                       
+                        $is_partner_id = $this->miscelleneous->allot_partner_id_for_brand($service_id,$distict_details['state'],$requestData['brand']);
                         
-                        $booking['partner_id'] = $data['partner_id'];
-                        $booking['source'] = $data['source'];
+                        if($is_partner_id){
+                            $this->partner['id'] = $is_partner_id;
+
+                        } 
                         
+                        $this->initialized_variable->fetch_partner_data($this->partner['id']);
+                       
+                        $booking['partner_id'] = $this->initialized_variable->get_partner_data()[0]['id'];
+                        $booking['source'] = $this->initialized_variable->get_partner_data()[0]['code'];
+
                         $unit_details['partner_id'] = $booking['partner_id'];
                         $booking['order_id'] = $requestData['orderID'];
                         $appliance_details['brand'] = $unit_details['appliance_brand'] = $requestData['brand'];
@@ -217,12 +225,7 @@ class Partner extends CI_Controller {
 
                         //Product description
                         $appliance_details['description'] = $unit_details['appliance_description'] = $requestData['productType'];
-                        //Insert cateogry for Geyser
-//                        if($service_id == '32'){
-//                            //Check for all optional parameters before setting them
-//                            $unit_details['appliance_category'] = $appliance_details['category'] =  'Geyser-PAID';
-//
-//                        } else {
+
                         //Check for all optional parameters before setting them
                         $appliance_details['category'] = $unit_details['appliance_category'] = 
                                 isset($lead_details['service_appliance_data']['category'])?$lead_details['service_appliance_data']['category']:'';
@@ -231,17 +234,9 @@ class Partner extends CI_Controller {
                         
                         $appliance_details['capacity'] = $unit_details['appliance_capacity'] =
                                 isset($lead_details['service_appliance_data']['capacity'])?$lead_details['service_appliance_data']['capacity']:'';
-                        
-                        //get partner data to check the price
-                        $where_get_partner = array('bookings_sources.partner_id' => $booking['partner_id']);
-                        $select = "bookings_sources.partner_id,bookings_sources.price_mapping_id,bookings_sources.partner_type, bookings_sources.code, "
-                                . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
-                                . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
-                                . " upcountry_rate1, upcountry_rate, partners.is_upcountry, public_name";
-                        $partner_data = $this->partner_model->getpartner_details($select, $where_get_partner);
                        
-                        $partner_mapping_id = $partner_data[0]['price_mapping_id'];
-                        if($partner_data[0]['partner_type'] == OEM){
+                        $partner_mapping_id = $this->initialized_variable->get_partner_data()[0]['price_mapping_id'];
+                        if($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM){
                             //if partner type is OEM then sent appliance brand in argument
                             $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',$unit_details['appliance_brand']);
                         } else {
@@ -263,8 +258,6 @@ class Partner extends CI_Controller {
                             $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
                             $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
                         }
-                        
-                        //$lead_details['SubCategory'] = (isset($requestData['subCategory']) ? $requestData['subCategory'] : "");
                         
                         $booking['booking_primary_contact_no'] = $requestData['mobile'];
                         $booking['booking_alternate_contact_no'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
@@ -302,7 +295,7 @@ class Partner extends CI_Controller {
                         $appliance_details['last_service_date'] = date('Y-m-d');
                         $booking['potential_value'] = '';
                         //Check vendor Availabilty for pincode and service id
-                        $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price, $unit_details['appliance_category'],"delivered", $partner_data);
+                        $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price,"delivered");
                         if($is_sms){
                             $booking['sms_count'] = 1;
                             $booking['internal_status'] = _247AROUND_FOLLOWUP; 
@@ -1563,8 +1556,8 @@ class Partner extends CI_Controller {
             $is_price['is_upcountry'] = $booking['is_upcountry'];
              
             if($requestData['product_type'] == "Shipped"){
-                $partner_data[0] = $this->partner;
-                $this->miscelleneous->check_upcountry($booking, $requestData['appliance_name'], $is_price, $unit_details['appliance_category'], "shipped",  $partner_data);
+                $this->initialized_variable->fetch_partner_data($this->partner['id']);
+                $this->miscelleneous->check_upcountry($booking, $requestData['appliance_name'], $is_price, "shipped");
                 
                 $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , 
                     $booking['booking_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
@@ -1709,42 +1702,6 @@ class Partner extends CI_Controller {
     }
 
     return $resultArr;
-    }
-    
-    /**
-     * @Desc: This function is used to _allot_source_partner_id_for_pincode
-     * @params: String Pincode, brnad, default partner id(SS)
-     * @return : Array
-     * 
-     */
-    private function _allot_source_partner_id_for_pincode($service_id, $state, $brand) {
-        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
-        $data = [];
-
-        $partner_array = $this->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
-        
-        if (!empty($partner_array)) {
-
-            foreach ($partner_array as $value) {
-                //Now getting details for each Partner 
-                $filtered_partner_state = $this->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
-                if ($filtered_partner_state) {
-                    //Now assigning this case to Partner
-                    $data['partner_id'] = $value['partner_id'];
-                    $data['source'] = $this->partner_model->get_source_code_for_partner($value['partner_id']);
-                } else {
-                    //Now assigning this case to SS
-                    $data['partner_id'] = SNAPDEAL_ID;
-                    $data['source'] = 'SS';
-                }
-            }
-        } else {
-            log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
-            //Now assigning this case to SS
-            $data['partner_id'] = SNAPDEAL_ID;
-            $data['source'] = 'SS';
-        }
-        return $data;
     }
     
     

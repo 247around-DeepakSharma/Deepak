@@ -13,6 +13,7 @@ class submitMultiUnitRequest extends CI_Controller {
     
     Private $partner = NULL;
     Private $ApiData = array();
+    Private $jsonRequestData = NULL;
 
     function __Construct() {
         parent::__Construct();
@@ -29,6 +30,7 @@ class submitMultiUnitRequest extends CI_Controller {
         $this->load->model('upcountry_model');
         $this->load->helper(array('form', 'url'));
         $this->load->library('asynchronous_lib');
+        $this->load->library('initialized_variable');
     }
     
     /**
@@ -61,7 +63,7 @@ class submitMultiUnitRequest extends CI_Controller {
 
             if ($this->partner !== FALSE) {
                 log_message('info', __METHOD__ . ":: Token validated (Partner ID: " . $this->partner['id'] . ")");
-
+                
                 //Token validated
                 $input_d = file_get_contents('php://input');
                 // store API data into ApiData
@@ -74,8 +76,9 @@ class submitMultiUnitRequest extends CI_Controller {
                     $this->jsonRequestData = $input_d;
                     $this->sendJsonResponse(array(ERR_INVALID_JSON_INPUT_CODE, ERR_INVALID_JSON_INPUT_MSG));
                 } else {
-
+                    
                     $this->jsonRequestData = $input_d;
+                    $this->initialized_variable->fetch_partner_data($this->partner['id']);
                     //Validate API Data
                     $is_valid = $this->validateSubmitRequestData();
                     if ($is_valid['result'] == TRUE) {
@@ -253,7 +256,7 @@ class submitMultiUnitRequest extends CI_Controller {
 	$booking_id_temp = str_pad($this->ApiData['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
 	$booking_id_temp .= (intval($this->booking_model->getBookingCountByUser($this->ApiData['user_id'])) + 1);
         $random_code=  mt_rand(100, 999);   //return 3 digit random code to make booking id unique
-	$booking_id = "Q-" . $this->partner['code'] . "-" . $booking_id_temp.$random_code;
+	$booking_id = "Q-" . $this->initialized_variable->get_partner_data()[0]['code'] . "-" . $booking_id_temp.$random_code;
 
 	$this->ApiData['booking_id'] = $booking_id;
     }
@@ -266,8 +269,10 @@ class submitMultiUnitRequest extends CI_Controller {
         $booking = array(
             "booking_id" => $this->ApiData['booking_id'],
             "partner_id" => $this->partner['id'],
-            "source"     => $this->partner['code'],
+            "source"     => $this->initialized_variable->get_partner_data()[0]['code'],
             "create_date" => date("Y-m-d H:i:s"),
+            "service_id" => $this->ApiData['service_id'],
+            "user_id"    => $this->ApiData['user_id'],
             "order_id"   => $this->ApiData['orderID'],
             "type"       => "Query",
             "quantity"   => $this->ApiData['units'],
@@ -336,12 +341,12 @@ class submitMultiUnitRequest extends CI_Controller {
                 $unit_details['appliance_capacity'] = $this->ApiData['appliance_description'][$key]['capacity'];
                 $unit_details['appliance_category'] = $this->ApiData['appliance_description'][$key]['category'];
                 // Check Partnre type is OEM. If OEM the we will use brand to get Price Details onther wise we are using Brand to get Price.
-                if ($this->partner['partner_type'] == OEM) {
+                if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
                     //if partner type is OEM then sent appliance brand in argument
-                    $prices = $this->partner_model->getPrices($this->ApiData['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $this->partner['price_mapping_id'], $value['requestType'], $unit_details['appliance_brand']);
+                    $prices = $this->partner_model->getPrices($this->ApiData['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $this->initialized_variable->get_partner_data()[0]['price_mapping_id'], $value['requestType'], $unit_details['appliance_brand']);
                 } else {
                     //if partner type is not OEM then dose not sent appliance brand in argument
-                    $prices = $this->partner_model->getPrices($this->ApiData['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $this->partner['price_mapping_id'], $value['requestType'], "");
+                    $prices = $this->partner_model->getPrices($this->ApiData['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $this->initialized_variable->get_partner_data()[0]['price_mapping_id'], $value['requestType'], "");
                 }
   
                 if (!empty($prices)) {
@@ -373,16 +378,17 @@ class submitMultiUnitRequest extends CI_Controller {
         }
         
         
-        $partner_data[0] = $this->partner;
+        
         $url = base_url() . "api-v2/submitMultiUnitRequest/Check_upcountry_send_sms";
-        $send['partner_data'] = $partner_data;
+        $this->ApiData['partner_id'] = $this->partner['id'];
         $send['is_price_send_upcountry_sms'] = $is_price_send_upcountry_sms;
-        $send['Apidata'] = $this->ApiData;
+        $send['Apidata'] = json_encode($this->ApiData, true);
         $send['is_upcountry'] = $is_upcountry;
         $send['appliance_category'] = $unit_details['appliance_category'];
         $send['amount_due'] = $amount_due;
         
         $this->asynchronous_lib->do_background_process($url, $send);
+        $send = array();
         return true;
     }
 
@@ -725,20 +731,21 @@ class submitMultiUnitRequest extends CI_Controller {
      * @desc Its called in asynchronous way to check upcountry and send sms.
      */
     function Check_upcountry_send_sms(){
-        $partner_data = $this->input->post("partner_data");
+        
         $is_price_send_upcountry_sms = $this->input->post("is_price_send_upcountry_sms");
-        $this->ApiData = $this->input->post("Apidata");
-        $appliance_category = $this->input->post('appliance_category');
+        $this->ApiData = json_decode($this->input->post("Apidata"), true);
+        $this->initialized_variable->fetch_partner_data( $this->ApiData['partner_id']);
+        //$appliance_category = $this->input->post('appliance_category');
         $is_upcountry = $this->input->post('is_upcountry');
         $amount_due = $this->input->post("amount_due");
          
         // If $is_price_send_upcountry_sms variable is false then we will send sms in a old way( means send sms without Price)
         if ($is_price_send_upcountry_sms == false) {
-            $is_sms = $this->miscelleneous->check_upcountry($this->ApiData, $this->ApiData['service_name'], array(), $appliance_category, "delivered", $partner_data);
+            $is_sms = $this->miscelleneous->check_upcountry($this->ApiData, $this->ApiData['service_name'], array(), "shipped");
         } else {
             $is_price['is_upcountry'] = $is_upcountry;
             $is_price['customer_net_payable'] = $amount_due;
-            $is_sms = $this->miscelleneous->check_upcountry($this->ApiData, $this->ApiData['service_name'], $is_price, $appliance_category, "delivered", $partner_data);
+            $is_sms = $this->miscelleneous->check_upcountry($this->ApiData, $this->ApiData['service_name'], $is_price, "shipped");
         }
 
         //Check vendor Availabilty for pincode and service id

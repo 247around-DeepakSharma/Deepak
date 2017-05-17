@@ -28,6 +28,7 @@ class Partner extends CI_Controller {
         $this->load->library('miscelleneous');
         $this->load->library('booking_utilities');
         $this->load->library('user_agent');
+        $this->load->library("initialized_variable");
         
         $this->load->library('table');
 
@@ -1631,8 +1632,7 @@ class Partner extends CI_Controller {
             $booking_details['order_id'] = $post['orderID'];
             $booking_details['service_id'] = $post['service_id'];
             $booking_details['booking_remarks'] = $post['remarks'];
-            $booking_details['current_status'] = _247AROUND_PENDING;
-            $booking_details['internal_status'] = _247AROUND_PENDING;
+           
             $upcountry_data = json_decode($post['upcountry_data'], TRUE);
             
             $unit_details['service_id'] = $appliance_details['service_id'] = $booking_details['service_id'];
@@ -1644,8 +1644,18 @@ class Partner extends CI_Controller {
             $unit_details['partner_serial_number'] = $appliance_details['serial_number'] = $post['serial_number'];
             $unit_details['purchase_month'] = $appliance_details['purchase_month'] = $post['purchase_month'];
             $unit_details['purchase_year'] = $appliance_details['purchase_year'] = $post['purchase_year'];
-            $unit_details['booking_id'] = $booking_id;
             $unit_details['partner_id'] = $post['partner_id'];
+            if($post['product_type'] == "Delivered"){
+                $booking_details['current_status'] = _247AROUND_PENDING;
+                $booking_details['internal_status'] = _247AROUND_PENDING;
+                $unit_details['booking_id'] = $booking_id;
+            } else {
+                $booking_details['current_status'] = _247AROUND_FOLLOWUP;
+                $booking_details['internal_status'] = _247AROUND_FOLLOWUP;
+                $unit_details['booking_id'] = "Q-".$booking_id; 
+                $booking_details['booking_id'] =  "Q-".$booking_id;
+                
+            }
 
             $user['user_id'] = $this->input->post('user_id');
             // Update users Table
@@ -1664,7 +1674,8 @@ class Partner extends CI_Controller {
                 log_message('info', 'Appliance is not update in Appliance details: ' . $booking_id . " Appliance data" . print_r($appliance_details, true) . "Appliamce id " . $unit_details['appliance_id']);
             }
             $updated_unit_id = array();
-            
+            $price_array = array();
+            $customer_net_payable = 0;
             foreach ($post['requestType'] as $key => $sc) {
                 $explode = explode("_", $sc);
                     
@@ -1674,7 +1685,8 @@ class Partner extends CI_Controller {
                 $unit_details['partner_net_payable'] = $explode[2];
                 $unit_details['ud_update_date'] = date('Y-m-d H:i:s');
                 $unit_details['booking_status'] = "Pending";
-            
+                $customer_net_payable += ($explode[1] - $explode[2]);
+                    
                 $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key);   
                 array_push($updated_unit_id, $result['unit_id']);
             }
@@ -1685,38 +1697,51 @@ class Partner extends CI_Controller {
             }
 
             $booking_details['amount_due'] = $post['amount_due'];
-            
             if (!empty($upcountry_data)) {
                 switch ($upcountry_data['message']) {
                     case UPCOUNTRY_BOOKING:
                     case UPCOUNTRY_LIMIT_EXCEED:
 
                         $booking_details['is_upcountry'] = 1;
-                        
-                        
+
+
                         break;
                     default :
-                        
+
                         $booking_details['is_upcountry'] = 0;
-                        
+
                         break;
                 }
             }
+            if($post['product_type'] == "Delivered"){
+       
+                $this->insert_details_in_state_change($booking_id, _247AROUND_PENDING, $booking_details['booking_remarks']);    
+                if($this->OLD_BOOKING_STATE == _247AROUND_CANCELLED){
+                    $sc_data['current_status'] = _247AROUND_PENDING;
+                    $sc_data['internal_status'] = _247AROUND_PENDING;
+
+                    $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
+               }
+                
+            } else {
+                // IN the Shipped Case
+                $price_array['is_upcountry'] = $booking_details['is_upcountry'];
+                $price_array['customer_net_payable'] = round($customer_net_payable, 0);
+                $this->initialized_variable->fetch_partner_data($post['partner_id']);
+                
+                $this->miscelleneous->check_upcountry($booking_details['booking_id'], $post['appliance_name'], $price_array, "shipped");
+                
+                $this->insert_details_in_state_change($booking_id, _247AROUND_FOLLOWUP, $booking_details['booking_remarks']);    
+                $booking_details['assigned_vendor_id'] = NULL;
+                
+            }
+            
             
             $this->booking_model->update_booking($booking_id, $booking_details);
-            
-           
-            $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_id . "/1" ;
+
+            $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_details['booking_id'] . "/1" ;
             $async_data['booking'] = array();
             $this->asynchronous_lib->do_background_process($url, $async_data);
-                    
-            $this->insert_details_in_state_change($booking_id, _247AROUND_PENDING, $booking_details['booking_remarks']);    
-            if($this->OLD_BOOKING_STATE == _247AROUND_CANCELLED){
-                $sc_data['current_status'] = _247AROUND_PENDING;
-                $sc_data['internal_status'] = _247AROUND_PENDING;
-
-                $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
-           } 
 
             $userSession = array('success' => 'Booking Updated');
             $this->session->set_userdata($userSession);
