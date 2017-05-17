@@ -166,8 +166,8 @@ class url_model extends CI_Model {
     }
     
     function insert_url_ref_data_batch($data){
-        //$this->db->ignore();
-        $this->db->insert_Ignore_Duplicate_batch("url_table_ref", $data);
+       
+        $this->db->insert_ignore_duplicate_batch("url_table_ref", $data);
     }
 
 //end model

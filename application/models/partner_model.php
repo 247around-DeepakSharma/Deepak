@@ -21,13 +21,10 @@ class Partner_model extends CI_Model {
 
     function validate_partner($auth_token) {
       //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
-      $this->db->select('partners.id, bookings_sources.source, bookings_sources.code, '
-              . 'public_name, price_mapping_id, bookings_sources.partner_type, '
-              . 'is_upcountry, upcountry_mid_distance_threshold, upcountry_rate, '
-              . ' upcountry_rate1, upcountry_min_distance_threshold,upcountry_max_distance_threshold, upcountry_approval');
+      $this->db->select('partners.id, public_name');
       $this->db->from("partners");
       $this->db->where(array("partners.auth_token" => $auth_token, "partners.is_active" => '1'));
-      $this->db->join("bookings_sources", "bookings_sources.partner_id = partners.id");
+      
       $query = $this->db->get();
 
       if (count($query->result_array()) > 0) {
@@ -981,6 +978,7 @@ class Partner_model extends CI_Model {
      * @return : Array
      */
     function get_active_partner_id_by_service_id_brand($brands, $service_id){
+        $this->db->distinct();
         $this->db->select('partner_appliance_details.partner_id');
         $this->db->where('partner_appliance_details.brand',$brands);
         $this->db->where('partner_appliance_details.service_id',$service_id);
