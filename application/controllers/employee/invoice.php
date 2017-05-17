@@ -3333,11 +3333,11 @@ class Invoice extends CI_Controller {
             //save courier charges file to s3
             if (($_FILES['courier_charges_file']['error'] != 4) && !empty($_FILES['courier_charges_file']['tmp_name'])) {
                 $tmpFile = $_FILES['courier_charges_file']['tmp_name'];
-                $courier_charges_file_name = $this->input->post('order_id') . 'courier_charges_file' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['courier_charges_file']['name'])[1];
+                $courier_charges_file_name = $this->input->post('order_id') . '_courier_charges_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['courier_charges_file']['name'])[1];
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "vendor-partner-docs/" . $courier_charges_file_name;
-                //$this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 //Logging success for file uppload
                 log_message('info', __METHOD__ . 'Courier charges file is being uploaded sucessfully.');
             }
@@ -3346,17 +3346,15 @@ class Invoice extends CI_Controller {
             $courier_charges = $this->input->post('courier_charges');
             $order_id_data = $this->inventory_model->get_new_credit_note_brackets_data($order_id);
 
-
             $result = array();
             $_19_24_shipped_brackets_data = array();
             $_26_32_shipped_brackets_data = array();
             $_36_42_shipped_brackets_data = array();
             $_43_shipped_brackets_data = array();
 
-
             //prepare data to make credit note file
             if (!empty($order_id_data[0]['19_24_shipped'])) {
-                $_19_24_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (19-24 Inch)';
+                $_19_24_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (19-24 Inch)';
                 $_19_24_shipped_brackets_data[0]['p_tax_rate'] = '';
                 $_19_24_shipped_brackets_data[0]['qty'] = $order_id_data[0]['19_24_shipped'];
                 $_19_24_shipped_brackets_data[0]['p_rate'] = '';
@@ -3369,7 +3367,7 @@ class Invoice extends CI_Controller {
             }
 
             if (!empty($order_id_data[0]['26_32_shipped'])) {
-                $_26_32_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (26-32 Inch)';
+                $_26_32_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (26-32 Inch)';
                 $_26_32_shipped_brackets_data[0]['p_tax_rate'] = '';
                 $_26_32_shipped_brackets_data[0]['qty'] = $order_id_data[0]['26_32_shipped'];
                 $_26_32_shipped_brackets_data[0]['p_rate'] = '';
@@ -3382,7 +3380,7 @@ class Invoice extends CI_Controller {
             }
 
             if (!empty($order_id_data[0]['36_42_shipped'])) {
-                $_36_42_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (36_42 Inch)';
+                $_36_42_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (36_42 Inch)';
                 $_36_42_shipped_brackets_data[0]['p_tax_rate'] = '';
                 $_36_42_shipped_brackets_data[0]['qty'] = $order_id_data[0]['36_42_shipped'];
                 $_36_42_shipped_brackets_data[0]['p_rate'] = '';
@@ -3395,7 +3393,7 @@ class Invoice extends CI_Controller {
             }
 
             if (!empty($order_id_data[0]['43_shipped'])) {
-                $_43_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (Greater Than 43 Inch)';
+                $_43_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (Greater Than 43 Inch)';
                 $_43_shipped_brackets_data[0]['p_tax_rate'] = '';
                 $_43_shipped_brackets_data[0]['qty'] = $order_id_data[0]['43_shipped'];
                 $_43_shipped_brackets_data[0]['p_rate'] = '';
@@ -3458,7 +3456,7 @@ class Invoice extends CI_Controller {
                 }
 
                 $meta['invoice_id'] = $invoice_id_tmp . "-" . $invoice_no;
-                log_message('info', __METHOD__ . ": Invoice Id geneterated "
+                log_message('info', __METHOD__ . ": Invoice Id generated "
                         . $meta['invoice_id']);
 
                 $total_charges = round($total_brackets_price + $courier_charges);
@@ -3507,12 +3505,11 @@ class Invoice extends CI_Controller {
                         'total_amount_collected' => $meta['grand_total_price'],
                         'rating' => 0,
                         'around_royalty' => 0,
-                        'amount_collected_paid' => '-' . $meta['grand_total_price'],
+                        'amount_collected_paid' => (0-$meta['grand_total_price']),
                         'invoice_date' => date('Y-m-d'),
                         'tds_amount' => 0.0,
                         'amount_paid' => 0.0,
                         'settle_amount' => 0,
-                        'amount_paid' => 0.0,
                         'mail_sent' => 1,
                         'sms_sent' => 1,
                         'courier_charges' => $courier_charges,
@@ -3551,7 +3548,6 @@ class Invoice extends CI_Controller {
                         }
                     } else {
                         log_message('info', __FUNCTION__ . ' Credit Note - Error in Inserting Brackets credit note data in the vendor_partner_invoice table for the month of ' . $meta['invoice_date'] . 'and data is ' . print_r($invoice_details));
-                        log_message('info', __FUNCTION__ . ' Error in generating credit note');
                         $error_msg = "Error in generating credit note!!! Please Try Again";
                         $this->session->set_flashdata('error_msg', $error_msg);
                         redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');
