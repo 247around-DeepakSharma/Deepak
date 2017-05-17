@@ -21,11 +21,11 @@ class GenerateSitemap extends CI_Controller {
     Private $workbookurl = array();
     Private $UrlTableData = array();
     Private $Appliance = array();
-    Private $UniqueUrl = array();
     Private $SitemapName = array();
     Private $SitemapDirectory = "/usr/share/nginx/html/247around-adminp-aws/sitemap/";
     Private $TargetSitemap = 50000;
     Private $MultiSitemapName = array();
+    Private $SitemapNumber = 0;
 
     function __Construct() {
         parent::__Construct();
@@ -34,68 +34,71 @@ class GenerateSitemap extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->model('blogs_model');
     }
-
+    /**
+     * @desc This is used to generate sitemap. 
+     */
     function index() {
         echo "index" . PHP_EOL;
+        echo "Table Truncate " . PHP_EOL;
+        $this->url_model->truncate_url_ref_table();
         //Select Appliance
         $this->Appliance = $this->booking_model->selectservice();
-        $this->setUsefulArrayDetails();
 
         foreach ($this->Appliance as $value) {
             $this->workbook = array();
-
+            $this->setUsefulArrayDetails($value->id);
             echo "Service Id" . $value->id . PHP_EOL;
-            $this->Brand = $this->booking_model->get_brand(array('service_id' => $value->id, 'seo' => 1));
-            echo "Get Brand" . PHP_EOL;
-
-            $this->workbook = $this->url_model->getworkbook_details('*', array('service_id' => $value->id, 'active' => 1));
-            echo "Get Workbook" . PHP_EOL;
 
             $this->setUrlKeyword();
             echo "EXIT URL Keyword";
             $this->setUrlSuffixPreffix($value->id);
-            echo "EXIST Appliance ID" . $value->id . PHP_EOL;
+            if (!empty($this->UrlTableData)) {
+                echo "Count Not Unique URL " . count($this->UrlTableData) . PHP_EOL;
+                //$this->UrlTableData = $this->unique_multidim_array($this->UrlTableData, "url");
+
+                echo "Count Unique URL " . count($this->UrlTableData) . PHP_EOL;
+
+                $this->createSitemap();
+
+                echo "Insert Batch count" . count($this->UrlTableData) . PHP_EOL;
+                $this->url_model->insert_url_ref_data_batch($this->UrlTableData);
+            }
+
+            $this->UrlTableData = array();
+
+            echo PHP_EOL . " EXIT Appliance ID" . $value->id . PHP_EOL;
         }
-        echo "Empty Array";
+        echo "Empty Array to release memory";
         $this->Pincode = array();
         $this->Region = array();
         $this->Area = array();
         $this->city = array();
-        $this->Brand = array(); 
+        $this->Brand = array();
         $this->workbook = array();
         echo "Exit Foreach" . PHP_EOL;
 
-        $this->UniqueUrl = array_unique(array_map(function ($k) {
-                    return $k['url'];
-                }, $this->UrlTableData));
 
-        echo "Count Unique URL " . count($this->UniqueUrl) . PHP_EOL;
-        $this->UrlTableData = json_encode($this->$this->UrlTableData);
-        $this->createSitemap();
         echo "Exit createSitemap";
         $this->createMainSitemap();
-        echo "Table Truncate " . PHP_EOL;
-        $this->url_model->truncate_url_ref_table();
-        $this->UrlTableData = json_decode($this->$this->UrlTableData);
-        echo "Insert Batch count" . count($this->UrlTableData) . PHP_EOL;
-        $this->url_model->insert_url_ref_data_batch($this->UrlTableData);
-        $this->UrlTableData = array();
     }
 
-    function setUsefulArrayDetails() {
+    function setUsefulArrayDetails($service_id) {
         echo "getUsefulArrayDetails" . PHP_EOL;
 
-        foreach ($this->Appliance as $value) {
 
-            $this->Pincode[$value->id] = $this->vendor_model->get_pincode_mapping_form_col("vendor_pincode_mapping.Pincode", array("Appliance_ID" => $value->id));
-            echo "Get Pincode" . PHP_EOL;
-            $this->Region[$value->id] = $this->vendor_model->get_pincode_mapping_form_col("vendor_pincode_mapping.Region", array("Appliance_ID" => $value->id));
-            echo "Get Region" . PHP_EOL;
-            $this->Area[$value->id] = $this->vendor_model->get_pincode_mapping_form_col("vendor_pincode_mapping.Area", array("Appliance_ID" => $value->id));
-            echo "Get Area" . PHP_EOL;
-            $this->city[$value->id] = $this->vendor_model->get_pincode_mapping_form_col("vendor_pincode_mapping.City", array("Appliance_ID" => $value->id));
-            echo "Get City" . PHP_EOL;
-        }
+        $this->Brand = $this->booking_model->get_brand(array('service_id' => $service_id, 'seo' => 1));
+        echo "Get Brand" . PHP_EOL;
+        $this->workbook = $this->url_model->getworkbook_details('*', array('service_id' => $service_id, 'active' => 1));
+        echo "Get Workbook" . PHP_EOL;
+        $this->Pincode[$service_id] = $this->vendor_model->get_pincode_mapping_form_col("vendor_pincode_mapping.Pincode", array("Appliance_ID" => $service_id));
+        echo "Get Pincode" . PHP_EOL;
+        $this->Region[$service_id] = $this->vendor_model->get_pincode_mapping_form_col("vendor_pincode_mapping.Region", array("Appliance_ID" => $service_id));
+        echo "Get Region" . PHP_EOL;
+        $this->Area[$service_id] = $this->vendor_model->get_pincode_mapping_form_col("vendor_pincode_mapping.Area", array("Appliance_ID" => $service_id));
+        echo "Get Area" . PHP_EOL;
+        $this->city[$service_id] = $this->vendor_model->get_pincode_mapping_form_col("vendor_pincode_mapping.City", array("Appliance_ID" => $service_id));
+        echo "Get City" . PHP_EOL;
+
         echo "EXIT setUsefulArrayDetails" . PHP_EOL;
     }
 
@@ -137,8 +140,10 @@ class GenerateSitemap extends CI_Controller {
                 }
             }
         }
-        unset($this->Pincode[$service_id]); unset($this->Region[$service_id]);
-        unset($this->Area[$service_id]); unset($this->city[$service_id]);
+        unset($this->Pincode[$service_id]);
+        unset($this->Region[$service_id]);
+        unset($this->Area[$service_id]);
+        unset($this->city[$service_id]);
         echo "EXIT setUrlSuffixPreffix" . PHP_EOL;
         return true;
     }
@@ -182,27 +187,35 @@ class GenerateSitemap extends CI_Controller {
             $array['place'] = "";
             $array['blog_id'] = $blog_id;
             $array['create_date'] = date('Y-m-d H:i:s');
-            array_push($this->UrlTableData, $array);
-            echo "Replace Suffix".$blogsKeyword . PHP_EOL;
+            if (!array_search($blogsKeyword, array_column($this->UrlTableData, 'url'))) {
+                array_push($this->UrlTableData, $array);
+                echo "Replace Suffix" . $blogsKeyword . PHP_EOL;
+            } else {
+                echo " Replacesuffix: URL EXIST " . $blogsKeyword.PHP_EOL;
+            }
         }
-         echo "EXIT replaceSuffix" . PHP_EOL;
+        echo "EXIT replaceSuffix" . PHP_EOL;
         return true;
     }
 
     function setCitySuffix($blogKeyword, $blog_id, $brand, $service_id) {
         echo "setCitySuffix" . PHP_EOL;
         foreach ($this->city[$service_id] as $value) {
-            
+
             $url = $this->getFinalUrl(trim($value['City']), $blogKeyword, '<city>');
             $array['url'] = $url;
             $array['brand'] = $brand;
             $array['place'] = trim($value['City']);
             $array['blog_id'] = $blog_id;
             $array['create_date'] = date('Y-m-d H:i:s');
-            array_push($this->UrlTableData, $array);
-            echo "City suffix ".$url . PHP_EOL;
+            if (!array_search($url, array_column($this->UrlTableData, 'url'))) {
+                array_push($this->UrlTableData, $array);
+                echo "City suffix " . $url . PHP_EOL;
+            } else {
+                echo "setCitySuffix URL EXIST " . $url.PHP_EOL;
+            }
         }
-        
+
         echo "EXIT setCitySuffix" . PHP_EOL;
         return true;
     }
@@ -216,10 +229,14 @@ class GenerateSitemap extends CI_Controller {
             $array['place'] = trim($value['Region']);
             $array['blog_id'] = $blog_id;
             $array['create_date'] = date('Y-m-d H:i:s');
-            array_push($this->UrlTableData, $array);
-            echo "Region suffix ".$url . PHP_EOL;
+            if (!array_search($url, array_column($this->UrlTableData, 'url'))) {
+                array_push($this->UrlTableData, $array);
+                echo "setRegionSuffix  " . $url . PHP_EOL;
+            } else {
+                echo "setRegionSuffix URL EXIST " . $url.PHP_EOL;
+            }
         }
-        
+
         return true;
     }
 
@@ -232,10 +249,14 @@ class GenerateSitemap extends CI_Controller {
             $array['place'] = trim($value['Area']);
             $array['blog_id'] = $blog_id;
             $array['create_date'] = date('Y-m-d H:i:s');
-            array_push($this->UrlTableData, $array);
-            echo "Area Suffix ".$url . PHP_EOL;
+            if (!array_search($url, array_column($this->UrlTableData, 'url'))) {
+                array_push($this->UrlTableData, $array);
+                echo "setAreaSuffix  " . $url . PHP_EOL;
+            } else {
+                echo "setAreaSuffix URL EXIST " . $url.PHP_EOL;
+            }
         }
-       
+
         echo "EXIT setAreaSuffix" . PHP_EOL;
         return true;
     }
@@ -249,16 +270,20 @@ class GenerateSitemap extends CI_Controller {
             $array['place'] = trim($value['Pincode']);
             $array['blog_id'] = $blog_id;
             $array['create_date'] = date('Y-m-d H:i:s');
-            array_push($this->UrlTableData, $array);
-            echo "Pincode Suffix ".$url . PHP_EOL;
+            if (!array_search($url, array_column($this->UrlTableData, 'url'))) {
+                array_push($this->UrlTableData, $array);
+                echo "setPincodeSuffix  " . $url . PHP_EOL;
+            } else {
+                echo "setPincodeSuffix URL EXIST " . $url.PHP_EOL;
+            }
         }
-        
+
         echo "EXIT setPincodeSuffix" . PHP_EOL;
         return true;
     }
 
     function getFinalUrl($suffix, $blogKeyword, $to_replace) {
-          echo "Entry getFinalUrl" . PHP_EOL;
+        echo "Entry getFinalUrl" . PHP_EOL;
 
         //these chars should not come in URL and sitemap.xml
         $chars_to_be_ignored = array('(', ')', ',', '/', '?', '&', '"');
@@ -276,14 +301,21 @@ class GenerateSitemap extends CI_Controller {
     }
 
     function is_suffix_exists($url) {
-        echo "is_suffix exist".PHP_EOL;
+        echo "is_suffix exist" . PHP_EOL;
         return ( (strpos($url, "<region>") !== false) || (strpos($url, "<area>") !== false) || (strpos($url, "<pincode>") !== false) || (strpos($url, "<city>") !== false));
     }
 
     function createSitemap() {
-        echo "update_sitemap" . PHP_EOL;
-        $target_sitemap = $this->TargetSitemap;
-        $per_sitemap = count($this->UniqueUrl) / $target_sitemap;
+        echo "update_sitemap " . PHP_EOL;
+        if (count($this->UrlTableData) < $this->TargetSitemap) {
+            $target_sitemap = count($this->UrlTableData);
+        } else {
+            $target_sitemap = $this->TargetSitemap;
+        }
+
+        echo "Target Sitemap " . $target_sitemap . PHP_EOL;
+
+        $per_sitemap = count($this->UrlTableData) / $target_sitemap;
         $per_sitemap1 = round($per_sitemap);
         if ($per_sitemap1 < $per_sitemap) {
             $count_sitemap = $per_sitemap1 + 1;
@@ -294,13 +326,13 @@ class GenerateSitemap extends CI_Controller {
         $j = 0;
         for ($i = 0; $i < $count_sitemap; $i++) {
             $res = 0;
-            if (file_exists($output_dir . "sitemap-" . $i . ".xml")) {
-                system(" chmod 777 " . $output_dir . "sitemap-" . $i . ".xml", $res);
-                unlink($output_dir . "sitemap-" . $i . ".xml");
+            if (file_exists($output_dir . "sitemap-" . ($i + $this->SitemapNumber) . ".xml")) {
+                system(" chmod 777 " . $output_dir . "sitemap-" . ($i + $this->SitemapNumber) . ".xml", $res);
+                unlink($output_dir . "sitemap-" . ($i + $this->SitemapNumber) . ".xml");
             }
-            echo $output_dir . "sitemap-" . $i . ".xml" . PHP_EOL;
-            $sitemap_name = fopen($output_dir . "sitemap-" . $i . ".xml", "a+") or die("Unable to open file!");
-            array_push($this->SitemapName, "sitemap-" . $i . ".xml");
+            echo $output_dir . "sitemap-" . ($i + $this->SitemapNumber) . ".xml" . PHP_EOL;
+            $sitemap_name = fopen($output_dir . "sitemap-" . ($i + $this->SitemapNumber) . ".xml", "a+") or die("Unable to open file!");
+            array_push($this->SitemapName, "sitemap-" . ($i + $this->SitemapNumber) . ".xml");
             $section1 = $this->sitemapSection();
             fwrite($sitemap_name, $section1 . PHP_EOL);
 
@@ -317,24 +349,28 @@ EOD1;
   <priority>0.64</priority>
 </url>
 EOD2;
-                fwrite($sitemap_name, $section2 . trim($this->UniqueUrl[$i]) . $section3 . PHP_EOL);
+                fwrite($sitemap_name, $section2 . trim($this->UrlTableData[$k]['url']) . $section3 . PHP_EOL);
             }
             $section2 = <<<EOD
 </urlset>
 EOD;
             fwrite($sitemap_name, $section2 . PHP_EOL);
-            echo "count I " . $k . PHP_EOL;
+            echo "count K " . $k . PHP_EOL;
             $j = $target_sitemap;
 
             $target_sitemap += $target_sitemap;
-            if (count($this->UniqueUrl) < $target_sitemap) {
-                $target_sitemap = count($this->UniqueUrl);
+            if (count($this->UrlTableData) < $target_sitemap) {
+                $target_sitemap = count($this->UrlTableData);
             }
+            echo " Below Target SiteMap " . $target_sitemap . PHP_EOL;
 
             fclose($sitemap_name);
         }
-       echo "EXIT createSitemap" . PHP_EOL;
-        $this->UniqueUrl = array();
+
+        $this->SitemapNumber = $i + 1;
+        echo " Next Sitemap No. " . $i + 1 . PHP_EOL;
+        echo "EXIT createSitemap" . PHP_EOL;
+
         return true;
     }
 
@@ -358,14 +394,19 @@ EOD;
             $this->MultiSiteMap();
             $this->CreateSitemapIndex(1);
         }
-        
+
         echo "EXIT createMainSitemap" . PHP_EOL;
         return true;
     }
 
     function MultiSiteMap() {
         echo "MultiSiteMap" . PHP_EOL;
-        $target_sitemap = $this->TargetSitemap;
+        if (count($this->SitemapName) < $this->TargetSitemap) {
+            $target_sitemap = count($this->SitemapName);
+        } else {
+            $target_sitemap = $this->TargetSitemap;
+        }
+
         $per_sitemap = count($this->SitemapName) / $target_sitemap;
         $per_sitemap1 = round($per_sitemap);
         if ($per_sitemap1 < $per_sitemap) {
@@ -465,8 +506,23 @@ EOD;
 	</sitemap>
 	
 EOD;
-       
+
         return $section;
     }
+
+//    function unique_multidim_array($array, $key) {
+//        $temp_array = array();
+//        $i = 0;
+//        $key_array = array();
+//
+//        foreach ($array as $val) {
+//            if (!in_array($val[$key], $key_array)) {
+//                $key_array[$i] = $val[$key];
+//                $temp_array[$i] = $val;
+//                $i++;
+//            }
+//        }
+//        return $temp_array;
+//    }
 
 }
