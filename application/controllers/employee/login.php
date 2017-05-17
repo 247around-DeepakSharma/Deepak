@@ -51,7 +51,7 @@ class Login extends CI_Controller {
             $login = $this->employeelogin->login($employee_id, md5($employee_password));
             if ($login) {
                 $this->session->unset_userdata('email');
-                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone']);
+                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email']);
                 
                 //Saving Login Details in Database
                 $data['browser'] = $this->agent->browser();
@@ -114,7 +114,7 @@ class Login extends CI_Controller {
      *  @param : employee_id- id of employee for whom session is created
      *  @return : void
      */
-    function setSession($employee_id, $id, $phone) {
+    function setSession($employee_id, $id, $phone,$official_email) {
         // Getting values for Groups of particular employee
         $groups = $this->employeelogin->get_employee_group_name($employee_id);
         if($groups){
@@ -126,7 +126,8 @@ class Login extends CI_Controller {
             'sess_expiration' => 30000,
             'loggedIn' => TRUE,
                 'userType' => 'employee',
-                'user_group'=> $groups
+                'user_group'=> $groups,
+            'official_email'=>$official_email
         );
         }
         else{

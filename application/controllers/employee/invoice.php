@@ -2933,7 +2933,7 @@ class Invoice extends CI_Controller {
                  $explode = explode($invoice_id_tmp, $value['invoice_id']);
                  array_push($int_invoice, $explode[1] + 1);
             }
-            asort($int_invoice);
+            rsort($int_invoice);
             $invoice_no = $int_invoice[0];
         }
         log_message('info', __FUNCTION__ . " Exit....");
@@ -3321,8 +3321,8 @@ class Invoice extends CI_Controller {
      */
     function process_purchase_bracket_credit_note() {
         //validate input post variable
-        $this->form_validation->set_rules('order_id', 'Order Id', 'required|xss_clean|callback_validate_order_id');
-        $this->form_validation->set_rules('courier_charges', 'Courier Charges', 'required|xss_clean');
+        $this->form_validation->set_rules('order_id', 'Order Id', 'required|trim|xss_clean|callback_validate_order_id');
+        $this->form_validation->set_rules('courier_charges', 'Courier Charges', 'required|trim|xss_clean');
         if (empty($_FILES['courier_charges_file']['name'])) {
             $this->form_validation->set_rules('courier_charges_file', 'File', 'required|xss_clean');
         }
@@ -3333,11 +3333,11 @@ class Invoice extends CI_Controller {
             //save courier charges file to s3
             if (($_FILES['courier_charges_file']['error'] != 4) && !empty($_FILES['courier_charges_file']['tmp_name'])) {
                 $tmpFile = $_FILES['courier_charges_file']['tmp_name'];
-                $courier_charges_file_name = $this->input->post('order_id') . 'courier_charges_file' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['courier_charges_file']['name'])[1];
+                $courier_charges_file_name = $this->input->post('order_id') . '_courier_charges_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['courier_charges_file']['name'])[1];
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "vendor-partner-docs/" . $courier_charges_file_name;
-                //$this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 //Logging success for file uppload
                 log_message('info', __METHOD__ . 'Courier charges file is being uploaded sucessfully.');
             }
@@ -3352,6 +3352,7 @@ class Invoice extends CI_Controller {
             $_26_32_shipped_brackets_data = array();
             $_36_42_shipped_brackets_data = array();
             $_43_shipped_brackets_data = array();
+            $courier_charges_data = array();
 
 
             //prepare data to make credit note file
@@ -3407,7 +3408,7 @@ class Invoice extends CI_Controller {
                 $result = array_merge($result, $_43_shipped_brackets_data);
             }
             
-            //if there is no data for brackets then did not process the credit note and rdirect to form
+            //if there is no data for brackets then did not process the credit note and redirect to form
             if (!empty($result)) {
                 $courier_charges_data[0]['description'] = 'Courier Charges';
                 $courier_charges_data[0]['p_tax_rate'] = '';
@@ -3429,37 +3430,12 @@ class Invoice extends CI_Controller {
                 $t_43_shipped_price = $order_id_data[0]['43_shipped'] * _247AROUND_BRACKETS_43_UNIT_PRICE;
                 $total_brackets_price = $t_19_24_shipped_price + $t_26_32_shipped_price + $t_36_42_shipped_price + $t_43_shipped_price;
 
-                if ((strcasecmp($order_id_data[0]['state'], "DELHI") == 0) ||
-                        (strcasecmp($order_id_data[0]['state'], "New Delhi") == 0)) {
-                    //If matched return 0;
-                    $invoice_version = "T";
-                    $meta['invoice_type'] = "TAX INVOICE";
-                } else {
-                    $invoice_version = "R";
-                    $meta['invoice_type'] = "RETAIL INVOICE";
-                }
-
-                $current_month = date('m');
-                // 3 means March Month
-                if ($current_month > 3) {
-                    $financial = date('Y') . "-" . (date('y') + 1);
-                } else {
-                    $financial = (date('Y') - 1) . "-" . date('y');
-                }
-
-                //Make sure it is unique
-                $invoice_id_tmp = $order_id_data[0]['sc_code'] . $invoice_version . "-" . $financial . "-" . date("M", strtotime($order_id_data[0]['shipment_date']));
-                $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-                $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
-                $invoice_no = 1;
-                if (!empty($invoice_no_temp)) {
-                    $explode = explode($invoice_id_tmp . "-", $invoice_no_temp[0]['invoice_id']);
-                    $invoice_no = $explode[1] + 1;
-                }
-
-                $meta['invoice_id'] = $invoice_id_tmp . "-" . $invoice_no;
-                log_message('info', __METHOD__ . ": Invoice Id geneterated "
-                        . $meta['invoice_id']);
+                $invoices = $this->create_invoice_id_to_insert($order_id_data, $order_id_data[0]['shipment_date'], $order_id_data[0]['sc_code']);
+                
+                $meta['invoice_type'] = $invoices['invoice_type'];
+                $meta['invoice_id'] = $invoices['invoice_id'];
+                
+                log_message('info', __METHOD__ . ": Invoice Id : ".$meta['invoice_id']." geneterated for order Id: ". $order_id);
 
                 $total_charges = round($total_brackets_price + $courier_charges);
 
@@ -3510,7 +3486,6 @@ class Invoice extends CI_Controller {
                         'amount_collected_paid' => '-' . $meta['grand_total_price'],
                         'invoice_date' => date('Y-m-d'),
                         'tds_amount' => 0.0,
-                        'amount_paid' => 0.0,
                         'settle_amount' => 0,
                         'amount_paid' => 0.0,
                         'mail_sent' => 1,
@@ -3531,27 +3506,26 @@ class Invoice extends CI_Controller {
                             $send_mail = $this->send_brackets_credit_note_mail_sms($order_id_data, $meta['invoice_id'], $meta['grand_total_price']);
 
                             if ($send_mail) {
-                                //Loggin Success
-                                log_message('info', __FUNCTION__ . ' Credit Note - Brackets credit note has been sent for the month of ' . $meta['invoice_date']);
+                                //Success
+                                log_message('info', __FUNCTION__ . ' Credit Note - Brackets credit note has been sent for Order ID :'.$order_id);
                                 $success_msg = "Credit Note Created Succesfully";
                                 $this->session->set_flashdata('success_msg', $success_msg);
                                 redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');
                             } else {
-                                //Loggin Error
-                                log_message('info', __FUNCTION__ . ' Credit Note - Error in sending Brackets credit note for the month of ' . $meta['invoice_date']);
+                                //Error
+                                log_message('info', __FUNCTION__ . ' Credit Note - Error in sending Brackets credit note for Order ID :'.$order_id);
                                 $error_msg = "Error in Sending Mail to sf";
                                 $this->session->set_flashdata('error_msg', $error_msg);
                                 redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');
                             }
                         } else {
-                            log_message('info', __FUNCTION__ . ' Credit Note - Error in Inserting Brackets credit note data in brackets table for the month of ' . $meta['invoice_date'] . 'and data is ' . print_r($invoice_details));
+                            log_message('info', __FUNCTION__ . ' Credit Note - Error in Inserting Brackets credit note data in brackets table for the Order ID :'.$order_id . 'and data is ' . print_r($invoice_details));
                             $error_msg = "Error in generating credit note!!! Please Try Again";
                             $this->session->set_flashdata('error_msg', $error_msg);
                             redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');
                         }
                     } else {
-                        log_message('info', __FUNCTION__ . ' Credit Note - Error in Inserting Brackets credit note data in the vendor_partner_invoice table for the month of ' . $meta['invoice_date'] . 'and data is ' . print_r($invoice_details));
-                        log_message('info', __FUNCTION__ . ' Error in generating credit note');
+                        log_message('info', __FUNCTION__ . ' Credit Note - Error in Inserting Brackets credit note data in the vendor_partner_invoice table for the Order ID :'.$order_id . 'and data is ' . print_r($invoice_details));
                         $error_msg = "Error in generating credit note!!! Please Try Again";
                         $this->session->set_flashdata('error_msg', $error_msg);
                         redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');
@@ -3671,15 +3645,15 @@ class Invoice extends CI_Controller {
         $foc_upload_pdf = $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
         if ($foc_upload_pdf) {
-            log_message('info', __METHOD__ . ": New Credit Note For brackets File uploaded to s3");
+            log_message('info', __METHOD__ . ": New Credit Note For brackets PDF File uploaded to s3");
         } else {
-            log_message('info', __METHOD__ . ": Error in Uploading New Credit Note For brackets File to s3" . $meta['invoice_id'] . "pdf");
+            log_message('info', __METHOD__ . ": Error in Uploading New Credit Note For brackets PDF File to s3" . $meta['invoice_id'] . "pdf");
         }
 
         if ($foc_upload) {
-            log_message('info', __METHOD__ . ": New Credit Note For brackets File uploaded to s3");
+            log_message('info', __METHOD__ . ": New Credit Note For brackets Excel File uploaded to s3");
         } else {
-            log_message('info', __METHOD__ . ": Error in Uploading New Credit Note For brackets File to s3 " . $meta['invoice_id'] . ".xlsx");
+            log_message('info', __METHOD__ . ": Error in Uploading New Credit Note For brackets Excel File to s3 " . $meta['invoice_id'] . ".xlsx");
         }
 
         if (file_exists($output_file_excel) && file_exists($output_file_pdf)) {
@@ -3713,7 +3687,9 @@ class Invoice extends CI_Controller {
 
 
         //send email
-        $to = $vendor_details[0]['owner_email'].",".ANUJ_EMAIL_ID;
+        $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_details[0]['id']); 
+        $to = $vendor_details[0]['owner_email'].",".$this->session->userdata('official_email').",".$get_rm_email[0]['official_email'];
+        $cc = ANUJ_EMAIL_ID;
         $from = 'billing@247around.com';
 
         $message = "Dear Partner,<br/><br/>";
@@ -3726,10 +3702,13 @@ class Invoice extends CI_Controller {
                         <br>Website: www.247around.com
                         <br>Playstore - 247around -
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
-
-        $output_file_excel = TMP_FOLDER . $invoice_id . ".pdf";
-        $send_mail = $this->notify->sendEmail($from, $to, '', '', 'Credit Note - Brackets Invoice - ' . $vendor_details[0]['company_name'], $message, $output_file_excel);
+        
+        $output_file_excel = TMP_FOLDER . $invoice_id . ".xlsx";
+        $output_file_pdf = TMP_FOLDER . $invoice_id . ".pdf";
+        $send_mail = $this->notify->sendEmail($from, $to, $cc, '', 'Credit Note - Brackets Invoice - ' . $vendor_details[0]['company_name'], $message, $output_file_pdf);
         if ($send_mail) {
+            exec("rm -rf " . escapeshellarg($output_file_excel));
+            exec("rm -rf " . escapeshellarg($output_file_pdf));
             return TRUE;
         } else {
             return FALSE;
