@@ -126,6 +126,9 @@
             <th>Customer Total</th>
             <th>Partner Payable Basic</th>
             <th>Customer Net Payable</th>
+            <th>Vendor Total</th>
+            <th>POD</th>
+            <th>Upcountry</th>
             <tbody>
                 <?php $i = 1;
                 foreach ($price_data as $key => $value) { ?>
@@ -137,6 +140,9 @@
                         <td><?php echo $value['customer_total'] ?></td>
                         <td><?php echo $value['partner_payable_basic'] ?></td>
                         <td><?php echo $value['customer_net_payable'] ?></td>
+                        <td><?php echo $value['vendor_total'] ?></td>
+                        <td><?php echo $value['pod'] ?></td>
+                        <td><?php echo $value['is_upcountry'] ?></td>
                     </tr>
             <?php $i++;
         } ?>
