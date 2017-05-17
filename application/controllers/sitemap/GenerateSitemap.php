@@ -22,7 +22,7 @@ class GenerateSitemap extends CI_Controller {
     Private $UrlTableData = array();
     Private $Appliance = array();
     Private $SitemapName = array();
-    Private $SitemapDirectory = "/usr/share/nginx/html/247around-adminp-aws/sitemap/";
+    Private $SitemapDirectory = FCPATH."sitemap/";
     Private $TargetSitemap = 50000;
     Private $MultiSitemapName = array();
     Private $SitemapNumber = 0;
@@ -38,6 +38,7 @@ class GenerateSitemap extends CI_Controller {
      * @desc This is used to generate sitemap. 
      */
     function index() {
+        
         echo "index" . PHP_EOL;
         echo "Table Truncate " . PHP_EOL;
         $this->url_model->truncate_url_ref_table();
