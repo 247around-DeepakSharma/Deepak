@@ -35,6 +35,9 @@
             .card:hover {
                 box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
             }
+            .long-card:first-child {
+                margin-top: 10px;
+            }
 
             img {
                 border-radius: 5px 5px 0 0;
@@ -42,6 +45,10 @@
 
             .container {
                 padding: 2px 16px;
+            }
+            .modal-title{
+                color: #333;
+                font-weight: 700;
             }
         </style>
     </head>
@@ -69,7 +76,7 @@
                     <div class="modal-body">
                         <div class="card">
                             <div class="container">
-                                <h4><b>Mr. Vikas Singh</b></h4> 
+                                <h5><b>Mr. Vikas Singh</b></h5> 
                                 <p>9910043586</p>
                                 <p>escalations@247around.com</p>
                             </div>
@@ -82,7 +89,7 @@
 
                         <div class="long-card">
                             <div class="container">
-                                <h4><b>Mr. K Suresh</b></h4> 
+                                <h5><b>Mr. K Suresh</b></h5> 
                                 <p>Escalation South India</p>
                                 <p>Regional Service Head South India</p>
                                 <p>Chennai Office <span>9840492171</span></p>
@@ -93,7 +100,7 @@
 
                         <div class="long-card">
                             <div class="container">
-                                <h4><b>Mr. Rajendra Oza</b></h4> 
+                                <h5><b>Mr. Rajendra Oza</b></h5> 
                                 <p>Escalation West India</p>
                                 <p>Regional Service Head West India</p>
                                 <p>Mumbai Office <span>9223274602</span></p>
@@ -103,7 +110,7 @@
                         </div>
                         <div class="long-card">
                             <div class="container">
-                                <h4><b>Mr. Nilanjan Das</b></h4> 
+                                <h5><b>Mr. Nilanjan Das</b></h5> 
                                 <p>Escalation East India</p>
                                 <p>Regional Service Head East India</p>
                                 <p>Kolkata Office <span>8130572244</span></p>
@@ -113,7 +120,7 @@
                         </div>
                         <div class="long-card" style="margin-top:10px;">
                             <div class="container">
-                                <h4><b>Mr. Nitin Malhotra</b></h4> 
+                                <h5><b>Mr. Nitin Malhotra</b></h5> 
                                 <p>Escalation North India</p>
                                 <p>Director & CEO</p>
                                 <p>Delhi Office 9810872244</p>
@@ -142,7 +149,7 @@
                     <div class="modal-body">
                         <div class="card">
                             <div class="container">
-                                <h4><b>Mr. Adil Akhtar</b></h4> 
+                                <h5><b>Mr. Adil Akhtar</b></h5> 
                                 <p>Back Office Closure Champion</p>
                                 <p>Delhi Office</p>
                                 <p>9990009102 <span> <strong>|</strong> English and Hindi</span></p>
