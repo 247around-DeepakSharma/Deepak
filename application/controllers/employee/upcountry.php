@@ -67,15 +67,7 @@ class Upcountry extends CI_Controller {
             $where = array("pincode" => $pincode[$key], 'service_center_id' => $service_center_id);
             $exist_hq_office = $this->upcountry_model->get_sub_service_center_details($where);
             if (!empty($exist_hq_office)) {
-                if ($district[$key] != $exist_hq_office[0]['district']) {
-                    $flag = 0;
-                    $userSession = array('error' => 'District ' . $exist_hq_office[0]['district'] .
-                        " Already Added in the Pincode " . $pincode[$key] . " Please check District & Try Again");
-                    $this->session->set_userdata($userSession);
-                    log_message('info', __FUNCTION__ . 'District ' . $exist_hq_office[0]['district'] .
-                            " Already Added in the Pincode " . $pincode[$key] . " Please check District & Try Again" . print_r($data, true));
-                    break;
-                } else if ($district[$key] == $exist_hq_office[0]['district']) {
+                if ($district[$key] == $exist_hq_office[0]['district']) {
                     $flag = 0;
                     $userSession = array('error' => 'Same District ' . $exist_hq_office[0]['district'] .
                         " Same Pincode " . $pincode[$key] . " Already Added. Please check & Try Again");
