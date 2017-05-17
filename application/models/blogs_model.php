@@ -11,7 +11,7 @@ class Blogs_model extends CI_Model {
 	
 	$this->db = $this->load->database('default', TRUE, TRUE);
 
-	//$this->db_wp = $this->load->database('wordpress', TRUE, TRUE);
+	$this->db_wp = $this->load->database('wordpress', TRUE, TRUE);
     }
 
     /*

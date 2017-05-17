@@ -71,6 +71,8 @@ define('_247AROUND_CANCELLED','Cancelled');
 define('_247AROUND_RESCHEDULED','Rescheduled');
 //constant to define Completed state
 define('_247AROUND_COMPLETED','Completed');
+//constant to define Completed Bookings with Ratings
+define('_247AROUND_RATING_COMPLETED','Completed With Rating');
 //constant to define Customer Not Available
 define('_247AROUND__Customer_Not_Available','Customer_Not_Available');
 //constant to define SCHEDULED
