@@ -244,7 +244,7 @@ class Partner_model extends CI_Model {
         $where .= "  booking_details.partner_id = '" . $partner_id . "'";
         if(!empty($booking_id)){
             $where .= " AND `booking_details`.booking_id = '".$booking_id."' "
-                    . " AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled' OR 'FollowUp') ";
+                    . " AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled' OR booking_details.current_status='FollowUp') ";
         } else {
             $where .= " AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') ";
         }
