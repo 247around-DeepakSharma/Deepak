@@ -1101,7 +1101,7 @@ class CI_DB_active_record extends CI_DB_driver {
 	 * @param	array	an associative array of insert values
 	 * @return	object
 	 */
-	public function insert_Ignore_Duplicate_batch($table = '', $set = NULL)
+	public function insert_ignore_duplicate_batch($table = '', $set = NULL)
 	{
 		if ( ! is_null($set))
 		{
