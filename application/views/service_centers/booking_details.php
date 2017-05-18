@@ -33,7 +33,7 @@
         </div>
         <div class="btn-group" role="group">
             <button type="button" id="following" class="btn btn-default" href="#tab5" data-toggle="tab">
-                <div class="hidden-xs">SMS Send History</div>
+                <div class="hidden-xs">SMS History</div>
             </button>
         </div>
 </div>
