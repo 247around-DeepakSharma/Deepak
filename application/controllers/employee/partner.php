@@ -695,6 +695,7 @@ class Partner extends CI_Controller {
                 
                 //Updating Partner Operation Region
                 //Processing Partner Operation Region
+                    $state_html = '';
                     if (!empty($partner_operation_state)) {
                         $all_flag = FALSE;
                         foreach ($partner_operation_state as $key => $value) {
@@ -708,6 +709,8 @@ class Partner extends CI_Controller {
                                         $data['state'] = $value['state'];
                                         $data['active'] = 1;
                                         $data_final[] = $data;
+                                        $state_html .= "<li> Operating Service <b>".$key.'</b> In State =>';
+                                        $state_html .= " ".$value['state'].'</li>';
                                     }
                                     break;
                                 }
@@ -716,6 +719,8 @@ class Partner extends CI_Controller {
                                 $data['state'] = $val;
                                 $data['active'] = 1;
                                 $data_final[] = $data;
+                                $state_html .= "<li>Operating Service <b>".$key.'</b> In State =>';
+                                $state_html .= " ".$val.'</li>';
                             }
                         }
                         
@@ -745,13 +750,15 @@ class Partner extends CI_Controller {
                 
                 //Sending Mail for Updated details
                 $html = "<p>Following Partner has been Updated :</p><ul>";
-                foreach($this->input->post() as $key=>$value){
+                foreach($edit_partner_data['partner'] as $key=>$value){
                     $html .= "<li><b>".$key.'</b> =>';
                     $html .= " ".$value.'</li>';
                 }
                 $html .="</ul>";
                 $to = ANUJ_EMAIL_ID;
-                $attachment = "";
+                
+                $html .= $state_html;
+
                 //Cleaning Email Variables
                         $this->email->clear(TRUE);
 
@@ -959,7 +966,7 @@ class Partner extends CI_Controller {
                     
                     //Sending Mail for Updated details
                     $html = "<p>Following Partner has been Added :</p><ul>";
-                    foreach($this->input->post() as $key=>$value){
+                    foreach($return_data['partner'] as $key=>$value){
                         $html .= "<li><b>".$key.'</b> =>';
                         $html .= " ".$value.'</li>';
                     }
