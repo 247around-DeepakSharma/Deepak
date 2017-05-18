@@ -2143,8 +2143,7 @@ class Booking extends CI_Controller {
 
         switch ($partner_id) {
             case '247001':
-            case '247002':
-            case '247003':
+            
                 return true;
             // break;
             default :
