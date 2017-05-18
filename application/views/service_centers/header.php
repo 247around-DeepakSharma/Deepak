@@ -33,6 +33,12 @@
             .card:hover {
                 box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
             }
+            .card h5{
+                font-size: 16px;
+            }
+            .long-card h5{
+                font-size: 16px;
+            }
 
             img {
                 border-radius: 5px 5px 0 0;
@@ -40,6 +46,10 @@
 
             .container {
                 padding: 2px 16px;
+            }
+            .modal-title{
+                color: #333;
+                font-weight: 700;
             }
         </style>
     </head>
@@ -54,6 +64,9 @@
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h4 class="modal-title">247around Call Completion Contacts:</h4>
                         </div>
+                        <div class="modal-header">
+                            <h4 class="modal-title"> Calls & CRM Issues:</h4>
+                        </div>
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col-md-12">
@@ -61,7 +74,7 @@
                                         <div class="col-md-6">
                                             <div class="card">
                                                 <div class="container">
-                                                  <h4><b>Mr. Devendra</b></h4> 
+                                                  <h5><b>Mr. Devendra</b></h5> 
                                                   <p>Back Office Closure Champion</p>
                                                   <p>Delhi Office</p>
                                                   <p>8130572244 <span> <strong>|</strong> English and Hindi</span></p>
@@ -72,7 +85,7 @@
                                         <div class="col-md-6">
                                             <div class="card">
                                                 <div class="container">
-                                                  <h4><b>Mrs. Ranju</b></h4> 
+                                                  <h5><b>Mrs. Ranju</b></h5> 
                                                   <p>Back Office Closure</p>
                                                   <p>Delhi Office</p>
                                                   <p>8130572244 <span> <strong>|</strong> Bengali and Hindi</span></p>
@@ -96,7 +109,7 @@
                                         <div class="col-md-4">
                                             <div class="long-card">
                                                 <div class="container">
-                                                  <h4><b>Mr. K Suresh</b></h4> 
+                                                  <h5><b>Mr. K Suresh</b></h5> 
                                                   <p>Escalation South India</p>
                                                   <p>Regional Service Head South India</p>
                                                   <p>Chennai Office <span>9840492171</span></p>
@@ -108,7 +121,7 @@
                                         <div class="col-md-4">
                                             <div class="long-card">
                                                 <div class="container">
-                                                  <h4><b>Mr. Rajendra Oza</b></h4> 
+                                                  <h5><b>Mr. Rajendra Oza</b></h5> 
                                                   <p>Escalation West India</p>
                                                   <p>Regional Service Head West India</p>
                                                   <p>Mumbai Office <span>9223274602</span></p>
@@ -120,7 +133,7 @@
                                         <div class="col-md-4">
                                             <div class="long-card">
                                                 <div class="container">
-                                                  <h4><b>Mr. Nilanjan Das</b></h4> 
+                                                  <h5><b>Mr. Nilanjan Das</b></h5> 
                                                   <p>Escalation East India</p>
                                                   <p>Regional Service Head East India</p>
                                                   <p>Kolkata Office <span>8130572244</span></p>
@@ -131,9 +144,9 @@
                                         </div>
                                         <div class="clearfix"></div>
                                         <div class="col-md-4">
-                                            <div class="long-card">
+                                            <div class="long-card" style="margin-top:20px;">
                                                 <div class="container">
-                                                  <h4><b>Mr. Nitin Malhotra</b></h4> 
+                                                  <h5><b>Mr. Nitin Malhotra</b></h5> 
                                                   <p>Escalation North India</p>
                                                   <p>Director & CEO</p>
                                                   <p>Delhi Office 9810872244</p>
@@ -155,7 +168,7 @@
                                 <div class="col-md-12">
                                     <div class="card" style="width:40%;">
                                         <div class="container">
-                                            <h4><b>Ms. Vijaya</b></h4> 
+                                            <h5><b>Ms. Vijaya</b></h5> 
                                             <p>Back Office Closure Champion</p>
                                             <p>Delhi Office</p>
                                             <p>0120-4540185 <span> <strong>|</strong> English and Hindi</span></p>
@@ -174,7 +187,7 @@
                                 <div class="col-md-12">
                                     <div class="card" style="width:40%;">
                                         <div class="container">
-                                            <h4><b>Mr. Adil Akhtar</b></h4> 
+                                            <h5><b>Mr. Adil Akhtar</b></h5> 
                                             <p>Back Office Closure Champion</p>
                                             <p>Delhi Office</p>
                                             <p>9990009102 <span> <strong>|</strong> English and Hindi</span></p>
@@ -184,7 +197,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-header">
+                        <div class="modal-header text-center" style="background-color:#E5E5FF;">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h4 class="modal-title">247around Call Center - 9555000247</h4>
                         </div>
