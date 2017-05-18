@@ -341,7 +341,7 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/accounting/accounting_report"><i class="fa fa-fw fa-desktop "></i> <strong>Payment Report</strong></a>
+                            <a href="<?php echo base_url() ?>employee/accounting/accounting_report"><i class="fa fa-fw fa-desktop "></i> <strong>Invoice Summary Report</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
