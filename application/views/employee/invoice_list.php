@@ -98,6 +98,8 @@
                                 } else if ($value['on_off'] == 0) {
                                     echo "background-color:#FFEC8B;color:black;";
                                 }
+                                }  if ($value['is_verified'] == 0) {
+                                    echo "background-color: #F9F952;";
                                 }
                                 ?>">
                                 <td><?php echo $count; if($value['is_stand']> 0) { ?>   <i class="fa fa-star" aria-hidden="true"></i> <?php } ?></td>
@@ -124,12 +126,12 @@
                                 <?php if (isset($service_center)) { ?>
                                 <td><?php echo $value['count_spare_part']; ?></td>
                                 
-                                <td ><input type="checkbox" class="<?php if (isset($value['on_off'])) {
+                                <td ><input type="checkbox" class="form-control <?php if (isset($value['on_off'])) {
                                         if ($value['active'] == 1 && $value['on_off'] == 1) {
                                             echo 'checkbox_amt';
                                         }
                                     }
-                                    ?>" name="<?php echo "amount_service_center[" . $value['id'] . "]"; ?>" value ="<?php echo $value['final_amount']; ?>" class="form-control" <?php if ($value['is_verified'] == 0) {
+                                    ?>" name="<?php echo "amount_service_center[" . $value['id'] . "]"; ?>" value ="<?php echo $value['final_amount']; ?>"  <?php if ($value['is_verified'] == 0) {
                                     echo "disabled";
                                     } ?>> </td>
                                 
