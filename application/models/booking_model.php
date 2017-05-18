@@ -228,7 +228,7 @@ class Booking_model extends CI_Model {
         }
         
         if($partner_id === true){
-            $where .= " AND partner_id IN ('"._247AROUND."', '"._247AROUND2."','"._247AROUND3."') ";
+            $where .= " AND partner_id IN ('"._247AROUND."') ";
             $where .=" AND request_type IN ('Repair','Repair - In Warranty','Repair - Out of Warranty')";
         }
 
@@ -270,7 +270,7 @@ class Booking_model extends CI_Model {
         }
         
         if($partner_id === true){
-            $where .= " AND partner_id IN ('"._247AROUND."', '"._247AROUND2."','"._247AROUND3."') ";
+            $where .= " AND partner_id IN ('"._247AROUND."') ";
             $where .=" AND request_type IN ('Repair','Repair - In Warranty','Repair - Out of Warranty')";
         }
 

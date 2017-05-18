@@ -715,9 +715,7 @@ class Service_centers extends CI_Controller {
                     // These all Partner id is 247around Id
                     switch ($value['partner_id']) {
                         case _247AROUND:
-                        case _247AROUND2:
-                        case _247AROUND3:
-                        case _247AROUND99:
+                        
                             $data['around_flag'] = 1;
 
                             break;

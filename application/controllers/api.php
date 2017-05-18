@@ -2027,7 +2027,7 @@ class Api extends CI_Controller {
         $i= 0;
         //Insert unit details corresponding to this booking ID
         foreach ($units as $unit) {
-        $b_unit['partner_id'] = "247002";
+        $b_unit['partner_id'] = "247001";
         $b_unit['appliance_brand'] = $unit['brand'];
         $b_unit['service_id'] = $service_id;
         $b_unit['booking_id'] = $booking_id;

@@ -128,6 +128,7 @@
                                     <select class="form-control"  id="partner_source" name="partner_source"  >
                                     <option value="">Please select seller channel</option>
                                     <option>Amazon</option>
+                                    <option>AndroidApp</option>
                                     <option>CallCenter</option>
                                     <option>Ebay</option>
                                     <option>Flipkart</option>
@@ -141,6 +142,7 @@
                                     <option>Snapdeal</option
                                     <option>Paytm-delivered-excel</option>
                                     <option>Paytm</option>
+                                    <option>Website</option>
                                     
                                     
                                 </select>
