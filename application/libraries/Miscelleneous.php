@@ -85,7 +85,7 @@ class Miscelleneous {
         
             
         } else {
-            $to = RM_EMAIL; 
+            $to = RM_EMAIL.", ". ADIL_EMAIL_ID; 
             $subject = "SF Not Exist in the Pincode ".$booking_pincode;
             $message = "Booking City: ". $booking_city." /n  Booking Pincode: ".$booking_pincode; 
             $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
@@ -559,10 +559,16 @@ class Miscelleneous {
                         break;
 
                     case SF_DOES_NOT_EXIST:
-                    case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                    
                         log_message('info', __FUNCTION__ . SF_DOES_NOT_EXIST );
+                        $to = RM_EMAIL.", ". ADIL_EMAIL_ID; 
+                        $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode']." For Appliance ". $appliance;
+                        $message = "Booking City: ". $booking['city']." /n  Booking Pincode: ".$booking['booking_pincode']; 
+                        $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
                         return FALSE;
                     //break;
+                        case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                            return FALSE;
                 }
             
              $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $partner_data[0]['public_name'], $charges);

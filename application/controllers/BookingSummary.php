@@ -1151,7 +1151,7 @@ EOD;
                         
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
                         
-                        $bcc = "anuj@247around.com, abhaya@247around.com";
+                        $bcc = "";
                         $cc = "";
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
                        

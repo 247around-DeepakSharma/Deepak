@@ -128,6 +128,7 @@
                                     <select class="form-control"  id="partner_source" name="partner_source"  >
                                     <option value="">Please select seller channel</option>
                                     <option>Amazon</option>
+                                    <option>AndroidApp</option>
                                     <option>CallCenter</option>
                                     <option>Ebay</option>
                                     <option>Flipkart</option>
@@ -141,6 +142,7 @@
                                     <option>Snapdeal</option
                                     <option>Paytm-delivered-excel</option>
                                     <option>Paytm</option>
+                                    <option>Website</option>
                                     
                                     
                                 </select>
@@ -344,7 +346,7 @@
                             <div class="form-group ">
                                 <label for="type" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
-                                    <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Query Remarks" ></textarea>
+                                    <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Query Remarks" required ></textarea>
                                 </div>
                             </div>
                   <div class="form-group ">

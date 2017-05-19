@@ -51,9 +51,9 @@ define('DEFAULT_TAX_RATE', 15);
 define('DEFAULT_PARTNER_AGENT', 978978);
 
 define('_247AROUND',247001);
-define('_247AROUND2',247002);
-define('_247AROUND3',247003);
-define('_247AROUND99',247999);
+//define('_247AROUND2',247002);
+//define('_247AROUND3',247003);
+//define('_247AROUND99',247999);
 define('_247AROUND_DEFAULT_AGENT',1);
 define('_247AROUND_DEFAULT_AGENT_NAME',"247Around");
 
@@ -270,6 +270,8 @@ define("BOOKING_RESCHEDULED_WITHOUT_REASON_ID", 12);
 define("PENALTY_FAKE_COMPLETED_CUSTOMER_WANT_INSTALLATION_ID", 10);
 //Penalty - Fake Complete - Customer DOES NOT Want Installation
 define("PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT", 11);
+//Engineer has not contacted with customer.
+define("ENGINEER_HAS_NOT_CONTACTED_WITH_CUSTOMER", 3);
 //RM Email ID
 define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,nilanjan@247around.com");
 
@@ -315,12 +317,13 @@ define('ERR_INVALID_INSTALLATION_TIMESLOT_MSG', 'Invalid Installation Timeslot')
 define('ERR_INVALID_PARTNER_NAME_MSG', 'Invalid Partner Name');
 define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
-
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
-
+//ADIL EMIL ID
+define("ADIL_EMAIL_ID", "adila@247around.com, abhaya@247around.com");
 //rating new state
 define('RATING_NEW_STATE','Completed_With_Rating');
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
