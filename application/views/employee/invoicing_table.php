@@ -49,7 +49,7 @@
       <tr <?php if($invoice['settle_amount'] == 1){ ?> style="background-color: #90EE90; " <?php } ?>>
          <td><?php echo $count;?></td>
          <td><?php echo $invoice['invoice_id']; ?></td>
-         <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_file_excel']; ?>"><?php echo $invoice['invoice_file_excel']; ?></a></td>
+         <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_file_main']; ?>"><?php echo $invoice['invoice_file_main']; ?></a></td>
          <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_detailed_excel']; ?>"><?php echo $invoice['invoice_detailed_excel']; ?></a></td>
         
          <td style="max-width: 56px; word-wrap:break-word;"><?php echo $invoice['type']; ?></td>

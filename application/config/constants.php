@@ -319,12 +319,10 @@ define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
-//PDF converter Auth Key
-define('PDF_CONVERTER_AUTH_KEY', 'ea0bda95bf21bd3');
 //ADIL EMIL ID
 define("ADIL_EMAIL_ID", "adila@247around.com, abhaya@247around.com");
 //rating new state
-define('RATING_NEW_STATE','Rating');
+define('RATING_NEW_STATE','Completed_With_Rating');
 
 
 /* End of file constants.php */

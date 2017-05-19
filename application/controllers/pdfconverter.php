@@ -125,7 +125,7 @@ class Pdfconverter extends CI_Controller {
      * @return void 
      */
     private function send_mail_on_failure($file_name){
-        $to = ANUJ_EMAIL_ID;
+        $to = DEVELOPER_EMAIL;
         $subject = "Error In Converting PDF File";
         $message = "Error in converting excel file to pdf.";
         $attachement = TMP_FOLDER.$file_name.'.xlsx';

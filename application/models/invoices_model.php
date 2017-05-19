@@ -211,6 +211,7 @@ class invoices_model extends CI_Model {
                 $result[0]['seller_code'] = $value['seller_code'];
                 $result[0]['invoice_email_cc'] = $value['invoice_email_cc'];
                 $result[0]['invoice_email_to'] = $value['invoice_email_to'];
+                $result[0]['is_verified'] = 1;
             }
 
             $result[0]['id'] = $value['id'];

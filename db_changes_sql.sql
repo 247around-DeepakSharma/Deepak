@@ -2167,7 +2167,14 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 VALUES (NULL, 'completed_booking_promotional_sms_2', 'We are delighted to have served you in past & added Rs.%s balance. Use it in your next appliance repair. Book on 9555000247 | goo.gl/m0iAcS | www.247around.com', 'Sms sent when booking status is completed and month is odd for promotional sms', '1', CURRENT_TIMESTAMP)
 
 
+
+-- sachin 19-05-2017
+
+ALTER TABLE vendor_partner_invoices CHANGE invoice_file_excel invoice_file_main varchar(255);
+ALTER TABLE vendor_partner_invoices CHANGE invoice_file_pdf invoice_file_excel varchar(255);
+
 --Abhay 18 May
 UPDATE `booking_details` SET partner_id = "247001", partner_source = "AndroidApp" WHERE partner_id = 247002
 UPDATE `booking_details` SET partner_id = "247001", partner_source = "CallCenter" WHERE partner_id = 247003
 UPDATE `booking_details` SET  partner_source = "Website" WHERE partner_id = 247001
+

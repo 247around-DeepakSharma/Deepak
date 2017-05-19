@@ -37,7 +37,7 @@
         <tr>
             <td><?php echo $sn; ?></td>
             <td><?php echo $value['invoice_id']; ?></td>
-            <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $value['invoice_file_excel']; ?>" target="_blank"><?php echo $value['invoice_file_excel']; ?></a></td>
+            <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $value['invoice_file_main']; ?>" target="_blank"><?php echo $value['invoice_file_main']; ?></a></td>
             <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $value['invoice_detailed_excel']; ?>" target="_blank"><?php echo $value['invoice_detailed_excel']; ?></a></td>
             <td><?php echo $value['type']; ?></td>
             <td><?php echo $value['num_bookings']; ?></td>
