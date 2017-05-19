@@ -110,18 +110,18 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="invoice_file_excel" class="col-md-4">Main Invoice Excel</label>
+                                <label for="invoice_file_main" class="col-md-4">Main Invoice Excel</label>
                                 <div class="col-md-6">
-                                    <input type="file" class="form-control"  name="invoice_file_excel" >
+                                    <input type="file" class="form-control"  name="invoice_file_main" >
                                 </div>
                                 <div class="col-md-2">
                                     <?php
-                                        if (isset($invoice_details[0]['invoice_file_excel'])) {
-                                            if (!is_null($invoice_details[0]['invoice_file_excel'])) {
+                                        if (isset($invoice_details[0]['invoice_file_main'])) {
+                                            if (!is_null($invoice_details[0]['invoice_file_main'])) {
                                         
-                                                if (isset($invoice_details[0]['invoice_file_excel']) && !empty($invoice_details[0]['invoice_file_excel'])) {
+                                                if (isset($invoice_details[0]['invoice_file_main']) && !empty($invoice_details[0]['invoice_file_main'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/" . $invoice_details[0]['invoice_file_excel']; ?>
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/" . $invoice_details[0]['invoice_file_main']; ?>
                                     <a href="<?php echo $src ?>" target="_blank">click Here</a>
                                     <?php }
                                         }

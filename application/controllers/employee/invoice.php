@@ -30,6 +30,7 @@ class Invoice extends CI_Controller {
         $this->load->model('penalty_model');
         $this->load->model("accounting_model");
         $this->load->library("notify");
+        $this->load->library("miscelleneous");
         $this->load->library('PHPReport');
         $this->load->library('form_validation');
         $this->load->library("session");
@@ -149,7 +150,7 @@ class Invoice extends CI_Controller {
 
         $data['partner'] = $this->partner_model->getpartner();
         $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
-
+        
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
     }
@@ -540,7 +541,7 @@ class Invoice extends CI_Controller {
             log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
             $files_name = $this->generate_pdf_with_data($excel_data, $data, $R);
-
+            
             $output_file_excel = "";
             $total_upcountry_booking = 0;
             $total_upcountry_distance = 0;
@@ -600,6 +601,20 @@ class Invoice extends CI_Controller {
             system(" chmod 777 " . $files_name . ".xlsx", $res1);
 
             log_message('info', __METHOD__ . "=> File created " . $files_name);
+            
+            //generate main invoice pdf
+            $excel_file_to_convert_in_pdf = TMP_FOLDER.$invoice_id.'.xlsx';
+            $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file_to_convert_in_pdf,$invoice_id);
+            log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result,TRUE));
+            $pdf_response = json_decode($json_result,TRUE);
+            if($pdf_response['response'] === 'Success'){
+                $output_pdf_file_name = $pdf_response['output_pdf_file'];
+                log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
+            }else if($pdf_response['response'] === 'Error'){
+                $output_pdf_file_name = $invoice_id.'.xlsx';
+                log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
+            }
+            
             //Send report via email
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');
@@ -631,8 +646,9 @@ class Invoice extends CI_Controller {
                 $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
 
             }
-            $this->email->attach(TMP_FOLDER .$invoice_id. ".pdf", 'attachment');
-            
+          
+            $pdf_attachement_url = 'https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$output_pdf_file_name;
+            $this->email->attach($pdf_attachement_url, 'attachment');
 
             $mail_ret = $this->email->send();
 
@@ -646,19 +662,20 @@ class Invoice extends CI_Controller {
 
             array_push($file_names, $files_name . ".xlsx");
             array_push($file_names, TMP_FOLDER . $invoice_id . ".xlsx");
-            array_push($file_names, TMP_FOLDER . $invoice_id . ".pdf");
+            //array_push($file_names, TMP_FOLDER . $invoice_id . ".pdf");
 
             if ($invoice_type == "final") {
                 log_message('info', __METHOD__ . "=> Final");
                 $bucket = BITBUCKET_DIRECTORY;
 
                 $directory_xls = "invoices-excel/" . $invoice_id . ".xlsx";
-                $directory_pdf = "invoices-excel/" . $invoice_id . ".pdf";
+                //$directory_pdf = "invoices-excel/" . $invoice_id . ".pdf";
                 $directory_detailed = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
 
                 $this->s3->putObjectFile(TMP_FOLDER . $invoice_id . "-detailed.xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
                 $this->s3->putObjectFile(TMP_FOLDER . $invoice_id . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                $this->s3->putObjectFile(TMP_FOLDER . $invoice_id . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                //$this->s3->putObjectFile(TMP_FOLDER . $invoice_id . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                
                 if ($output_file_excel != "") {
                     $directory_upcountry_xls = "invoices-excel/" . $invoice_id . "-upcountry-detailed.xlsx";
                     $this->s3->putObjectFile($output_file_excel, $bucket, $directory_upcountry_xls, S3::ACL_PUBLIC_READ);
@@ -671,7 +688,8 @@ class Invoice extends CI_Controller {
                     'type' => 'Cash',
                     'vendor_partner' => 'partner',
                     'vendor_partner_id' => $data[0]['partner_id'],
-                    'invoice_file_excel' => $invoice_id . '.pdf',
+                    'invoice_file_main' => $output_pdf_file_name,
+                    'invoice_file_excel' => $invoice_id . ".xlsx",
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
                     'to_date' => date("Y-m-d", strtotime($t_date)),
@@ -764,11 +782,24 @@ class Invoice extends CI_Controller {
         $R->render('excel', $output_file_excel);
 
         system(" chmod 777 " . $output_file_excel, $res1);
+        
         //convert excel to pdf
+//        $json_result = $this->miscelleneous->convert_excel_to_pdf($output_file_excel,$excel_data['invoice_id'] . "-detailed");
+//        log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . $json_result);
+//        $pdf_response = json_decode($json_result,true);
+//        if($pdf_response['response'] === 'Success'){
+//            log_message('info', __FUNCTION__ . 'PDF File Generated Successfully' . print_r($pdf_response,TRUE));
+//            $output_pdf_file_name = $pdf_response['output_pdf_file'];
+//        }else if($pdf_response['response'] === 'Error'){
+//            log_message('info', __FUNCTION__ . 'Error In Generating PDF');
+//            $output_pdf_file_name = '';
+//        }
+        
+        
         //$output_file_pdf = $output_file_dir . $output_file . ".pdf";
         //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
         // putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        $tmp_path = TMP_FOLDER;
+        //$tmp_path = TMP_FOLDER;
         //  $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
         //  $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
         //          '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
@@ -777,30 +808,30 @@ class Invoice extends CI_Controller {
         // $result_var = '';
         // exec($cmd, $output, $result_var);
         // Dump data in a file as a Json
-        $file = fopen(TMP_FOLDER . $output_file . ".txt", "w") or die("Unable to open file!");
-        $res = 0;
-        system(" chmod 777 " . TMP_FOLDER . $output_file . ".txt", $res);
-        $json_data['excel_data'] = $excel_data;
-        $json_data['invoice_data'] = $data;
-        $contents = " Patner Invoice Json Data:\n";
-        fwrite($file, $contents);
-        fwrite($file, print_r(json_encode($json_data), TRUE));
-        fclose($file);
-        log_message('info', __METHOD__ . ": Json File Created");
+//        $file = fopen(TMP_FOLDER . $output_file . ".txt", "w") or die("Unable to open file!");
+//        $res = 0;
+//        system(" chmod 777 " . TMP_FOLDER . $output_file . ".txt", $res);
+//        $json_data['excel_data'] = $excel_data;
+//        $json_data['invoice_data'] = $data;
+//        $contents = " Patner Invoice Json Data:\n";
+//        fwrite($file, $contents);
+//        fwrite($file, print_r(json_encode($json_data), TRUE));
+//        fclose($file);
+//        log_message('info', __METHOD__ . ": Json File Created");
 
-        $bucket = BITBUCKET_DIRECTORY;
-        $directory_xls = "invoices-json/" . $output_file . ".txt";
-        $json = $this->s3->putObjectFile(TMP_FOLDER . $output_file . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-        if ($json) {
-            log_message('info', __METHOD__ . ": Json File Uploded to S3");
-        } else {
-            log_message('info', __METHOD__ . ": Json File Not Uploded to S3");
-        }
+//        $bucket = BITBUCKET_DIRECTORY;
+//        $directory_xls = "invoices-json/" . $output_file . ".txt";
+//        $json = $this->s3->putObjectFile(TMP_FOLDER . $output_file . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+//        if ($json) {
+//            log_message('info', __METHOD__ . ": Json File Uploded to S3");
+//        } else {
+//            log_message('info', __METHOD__ . ": Json File Not Uploded to S3");
+//        }
 
 
         //Delete JSON files now
-        exec("rm -rf " . escapeshellarg(TMP_FOLDER . $output_file . ".txt"));
-
+        //exec("rm -rf " . escapeshellarg(TMP_FOLDER . $output_file . ".txt"));
+        
         return $output_file_dir . $output_file;
     }
 
@@ -1020,7 +1051,8 @@ class Invoice extends CI_Controller {
                     'type_code' => 'A',
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoices['booking'][0]['id'],
-                    'invoice_file_excel' => $invoice_id . '.pdf',
+                    'invoice_file_main' => $invoice_id . '.xlsx',
+                    'invoice_file_excel' => $invoice_id . '.xlsx',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     'invoice_date' => date("Y-m-d"),
                     'from_date' => date("Y-m-d", strtotime($from_date)),
@@ -1409,9 +1441,9 @@ class Invoice extends CI_Controller {
                     'type_code' => 'B',
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoices[0]['id'],
-                    'invoice_file_excel' => $invoice_id . '.pdf',
+                    'invoice_file_main' => $invoice_id . '.xlsx',
+                    'invoice_file_excel' => $invoice_id . '.xlsx',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
-                    //'invoice_file_pdf' => $output_file . '.pdf',
                     'invoice_date' => date("Y-m-d"),
                     'from_date' => date("Y-m-d", strtotime($from_date)),
                     'to_date' => date("Y-m-d", strtotime($to_date)),
@@ -1927,7 +1959,7 @@ class Invoice extends CI_Controller {
                         'vendor_partner' => 'vendor',
                         'vendor_partner_id' => $invoice[0]['vendor_id'],
                         'invoice_file_excel' => $invoice[0]['invoice_number'] . '.xlsx',
-                        'invoice_file_pdf' => $invoice[0]['invoice_number'] . '.pdf',
+                        'invoice_file_main' => $invoice[0]['invoice_number'] . '.xlsx',
                         'from_date' => date("Y-m-d", strtotime($from_date)),
                         'to_date' => date('Y-m-d', strtotime('-1 day', strtotime($to_date))),
                         'num_bookings' => $invoice[0]['total_brackets'],
@@ -2241,17 +2273,27 @@ class Invoice extends CI_Controller {
             log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
             system(" chmod 777 " . $output_file_excel, $res1);
             //convert excel to pdf
-            $output_file_pdf = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".pdf";
-
-            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-            $tmp_path = TMP_FOLDER;
-            $tmp_output_file = TMP_FOLDER . 'output_' . __FUNCTION__ . '.txt';
-            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-                    $output_file_excel . ' 2> ' . $tmp_output_file;
-            $output = '';
-            $result_var = '';
-            exec($cmd, $output, $result_var);
+            //$output_file_pdf = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".pdf";
+            
+//            $json_result = $this->miscelleneous->convert_excel_to_pdf($output_file_excel,$invoices['meta']['invoice_id']);
+//            log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . $json_result);
+//            $pdf_response = json_decode($json_result,true);
+//            if($pdf_response['response'] === 'Success'){
+//                $output_pdf_file_name = $pdf_response['output_pdf_file'];
+//                log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
+//            }else if($pdf_response['response'] === 'Error'){
+//                $output_pdf_file_name = '';
+//                log_message('info', __FUNCTION__ . ' Error In Generating PDF File');
+//            }
+//            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+//            $tmp_path = TMP_FOLDER;
+//            $tmp_output_file = TMP_FOLDER . 'output_' . __FUNCTION__ . '.txt';
+//            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+//                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+//                    $output_file_excel . ' 2> ' . $tmp_output_file;
+//            $output = '';
+//            $result_var = '';
+//            exec($cmd, $output, $result_var);
 
 //            $this->email->clear(TRUE);
 //            $this->email->from('billing@247around.com', '247around Team');
@@ -2764,18 +2806,18 @@ class Invoice extends CI_Controller {
                     break;
             }
 
-            if (!empty($_FILES["invoice_file_excel"]['tmp_name'])) {
-                $temp = explode(".", $_FILES["invoice_file_excel"]["name"]);
+            if (!empty($_FILES["invoice_file_main"]['tmp_name'])) {
+                $temp = explode(".", $_FILES["invoice_file_main"]["name"]);
                 $extension = end($temp);
                 // Uploading to S3
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory = "invoices-excel/" . $data['invoice_id'] . "." . $extension;
-                $is_s3 = $this->s3->putObjectFile($_FILES["invoice_file_excel"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                $is_s3 = $this->s3->putObjectFile($_FILES["invoice_file_main"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
                 echo $is_s3;
                 if ($is_s3) {
                     log_message('info', __FUNCTION__ . " Main Invoice upload");
-                    $data['invoice_file_excel'] = $data['invoice_id'] . "." . $extension;
-                    $main_invoice_file = $data['invoice_file_excel'];
+                    $data['invoice_file_main'] = $data['invoice_id'] . "." . $extension;
+                    $main_invoice_file = $data['invoice_file_main'];
                 } else {
                     log_message('info', __FUNCTION__ . " Main Invoice upload failed");
                 }
@@ -3469,7 +3511,7 @@ class Invoice extends CI_Controller {
                         'vendor_partner' => 'vendor',
                         'vendor_partner_id' => $order_id_data[0]['order_received_from'],
                         'invoice_file_excel' => $meta['invoice_id'] . '.xlsx',
-                        'invoice_file_pdf' => $meta['invoice_id'] . '.pdf',
+                        'invoice_file_main' => $meta['invoice_id'] . '.xlsx',
                         'from_date' => $order_id_data[0]['shipment_date'],
                         'to_date' => $order_id_data[0]['shipment_date'],
                         'num_bookings' => $total_brackets,
