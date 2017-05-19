@@ -321,6 +321,8 @@ define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
 
 //PDF converter Auth Key
 define('PDF_CONVERTER_AUTH_KEY', 'ea0bda95bf21bd3');
+//ADIL EMIL ID
+define("ADIL_EMAIL_ID", "adila@247around.com, abhaya@247around.com");
 
 
 /* End of file constants.php */

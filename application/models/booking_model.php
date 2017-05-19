@@ -1277,7 +1277,7 @@ class Booking_model extends CI_Model {
      *  @return : returns available service centers
      */
     function find_sc_by_pincode_and_appliance($appliance, $pincode) {
-        $query = $this->db->query("SELECT DISTINCT(`service_centres`.`id`),service_centres.name FROM (`vendor_pincode_mapping`)
+        $query = $this->db->query("SELECT DISTINCT(`service_centres`.`id`),'SF_EXIST' AS sf_status, service_centres.name FROM (`vendor_pincode_mapping`)
 	    JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
     		WHERE `Appliance_ID` = '$appliance' AND `vendor_pincode_mapping`.`Pincode` = '$pincode'
 	    AND `service_centres`.`active` = '1'
@@ -1288,21 +1288,12 @@ class Booking_model extends CI_Model {
        // $service_centres = array();
 
         if (count($service_centre_ids) > 0) {
-            //Service centres exist in this pincode for this appliance
-//            foreach ($service_centre_ids as $sc) {
-//                $this->db->select("id, name");
-//                $this->db->from("service_centres");
-//                $this->db->where(array("id" => $sc['id']));
-//                $query2 = $this->db->get();
-//                array_push($service_centres, $query2->result_array()[0]);
-//            }
+
             return $service_centre_ids;
         } else {
+            $sql =  " SELECT id, name, 'SF_NOT_EXIST' AS sf_status FROM service_centres where active = 1 ";
             //No service centre found, return all SCs as of now
-            $this->db->select("id, name");
-            $this->db->from("service_centres");
-            $this->db->where(array("active" => '1'));
-            $query2 = $this->db->get();
+            $query2 = $this->db->query($sql);
             return $query2->result_array();
         }
 

@@ -1,41 +1,3 @@
-<!-- 
-<script>
-        function get_non_working_days_for_vendor(i) {
-            var booking_date = $("#particular_booking_date" + i).val().split("-");
-            //converting booking date into javascript date format
-            var actual_booking_day = new Date(booking_date[2], booking_date[1] - 1, booking_date[0]);
-            var weekday = new Array(7);
-            weekday[0] = "Sunday";
-            weekday[1] = "Monday";
-            weekday[2] = "Tuesday";
-            weekday[3] = "Wednesday";
-            weekday[4] = "Thursday";
-            weekday[5] = "Friday";
-            weekday[6] = "Saturday";
-            //convert booking date to day
-            var booking_day = weekday[actual_booking_day.getDay()];
-            var service_center_id = $("#service_center" + i).val();
-            $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url(); ?>employee/booking/get_non_working_days_for_vendor/' + service_center_id,
-                success: function(data) {
-                    //alert(data);
-                    var temp = new Array();
-                    temp = data.split(","); //Convert day's string to array
-                    //To check each non working day with booking day for particular vendor
-                    for (j = 0; j < temp.length; j++) {
-                        if (booking_day == temp[j]) {
-                            alert("Vendor not available on-" + booking_date + "(" + (temp[j]) + ")");
-                            return false;
-                        }
-                    }
-                    //alert("Vendor Available!");
-                }
-            });
-        }
-
-    </script> -->
-
     <div id="page-wrapper">
         <div class="">
             <div class="row">
@@ -77,6 +39,7 @@
                                 <td>
                                     <?= $row['booking_pincode']; ?>
                                 </td>
+                            <input type="hidden" name="sf_status[<?= $row['booking_id']; ?>]" value="<?php echo $results[$count][0]['sf_status']; ?>" />
 
                                 <td style="width:200px;">
                                     <select type="text" class="js-example form-control" id="service_center<?php echo $count; ?>" name="service_center[<?= $row['booking_id']; ?>]" value="<?php echo set_value('service_center'); ?>">
