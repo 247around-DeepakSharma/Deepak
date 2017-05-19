@@ -348,7 +348,7 @@ class Penalty_model extends CI_Model {
 
                 FROM `penalty_on_booking` AS p, penalty_details, booking_details 
                 WHERE criteria_id IN (".BOOKING_IS_NOT_UPDATED_BY_SERVICE_CENTER_ID.", ".INCENTIVE_CUT_RESCHEDULED_WITHOUT_REASON_ID.",
-                    ".BOOKING_RESCHEDULED_WITHOUT_REASON_ID.", ".PENALTY_FAKE_COMPLETED_CUSTOMER_WANT_INSTALLATION_ID.", ".PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT.") 
+                    ".BOOKING_RESCHEDULED_WITHOUT_REASON_ID.", ".ENGINEER_HAS_NOT_CONTACTED_WITH_CUSTOMER.", " .PENALTY_FAKE_COMPLETED_CUSTOMER_WANT_INSTALLATION_ID.", ".PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT.") 
                 AND criteria_id = penalty_details.id 
                 AND  p.active = 1  
                 
