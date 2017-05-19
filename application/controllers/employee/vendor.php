@@ -42,6 +42,8 @@ class vendor extends CI_Controller {
         $this->load->library('user_agent');
         $this->load->dbutil();
         $this->load->helper('file');
+        
+
     }
 
     /**
@@ -4001,5 +4003,50 @@ class vendor extends CI_Controller {
             echo "Not Exist";
         }
     }
-   
+    
+    /**
+     * @desc This is used to check upcountry for those booking who have not marked upcountry
+     * This called from CRON
+     */
+    function re_check_upcountry_for_pending_booking() {
+        $this->load->library('table');
+        $data = $this->booking_model->date_sorted_booking(500, 0, "");
+        
+        $this->table->set_heading('Booking ID');
+
+        foreach ($data as $value) {
+            if (!empty($value->booking_id) && $value->is_upcountry == 0) {
+                $vendor_data = array();
+                $vendor_data[0]['vendor_id'] = $value->assigned_vendor_id;
+
+                if (!empty($value->district)) {
+                    $vendor_data[0]['city'] = $value->district;
+                } else {
+                    $vendor_data[0]['city'] = $this->vendor_model->get_distict_details_from_india_pincode($value->booking_pincode)['district'];
+                }
+                $partner_details = $this->partner_model->get_all_partner($value->partner_id);
+                $data = $this->upcountry_model->action_upcountry_booking($value->city, $value->booking_pincode, $vendor_data, $partner_details);
+                switch ($data['message']) {
+                    case UPCOUNTRY_BOOKING:
+                    case UPCOUNTRY_LIMIT_EXCEED:
+                        
+                        $this->table->add_row($value->booking_id);
+                        
+                        break;
+
+                }
+            }
+        }
+       
+        $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com,".RM_EMAIL;
+        
+        $cc = "abhaya@247around.com";
+        $message1 = "Booking ID should be upcountry but any case its not marked upcountry. Please chaeck and update booking <br/>";
+        $subject = "Upcountry Booking Need To Take Action ";
+        $message1 .= $this->table->generate();
+        
+        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
+        
+    }
+
 }
