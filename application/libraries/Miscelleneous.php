@@ -662,6 +662,36 @@ class Miscelleneous {
         }
         return false;
     }
+    
+    /* @desc: This function is used to convert the excel file into pdf
+     * @param: $excel_file string  excel file with path which need to be converted into PDF  
+     * @param: $bitbuket_dir string S3 directory in which PDF need to be upload
+     * @param: $id string booking_id/invoice_id/any_other_id for reference to file
+     * @return: $result JSON
+     */
+    public function convert_excel_to_pdf($excel_file,$id) {
+
+        $output_file_excel = $excel_file;
+        $target_url = PDF_CONVERTER_URL.'pdfconverter/excel_to_pdf_converter';
+
+        if (function_exists('curl_file_create')) {
+            $cFile = curl_file_create($output_file_excel);
+        } else { // 
+            $cFile = '@' . realpath($output_file_excel);
+        }
+        $post = array('bucket_dir' => BITBUCKET_DIRECTORY, 'id' => $id, 'file_contents' => $cFile,'auth_key'=>PDF_CONVERTER_AUTH_KEY);
+        $ch = curl_init();
+        
+        curl_setopt($ch, CURLOPT_URL, $target_url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+        
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return $result;
+    }
 
 
 }
