@@ -960,6 +960,7 @@ class vendor extends CI_Controller {
         $agent_id =  $this->input->post('agent_id');
         $agent_name =  $this->input->post('agent_name');
         $url = base_url() . "employee/do_background_process/assign_booking";
+        $sf_status = $this->input->post("sf_status");
         $count = 0;
        
         foreach ($service_center as $booking_id => $service_center_id) {
@@ -969,10 +970,14 @@ class vendor extends CI_Controller {
                    
                     $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_name);
                     if ($assigned) {
-                        // Insert log into booking state change
-                        $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
+                        //Insert log into booking state change
+                       $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
 
                         $count++;
+                               
+                        if($sf_status[$booking_id] == "SF_NOT_EXIST"){
+                            $this->send_mail_when_sf_not_exist($booking_id);
+                        }
                     } else {
                         log_message('info', __METHOD__ . "=> Not Assign for Sc "
                                 . $service_center_id);
@@ -990,6 +995,16 @@ class vendor extends CI_Controller {
         echo " Request to Assign Bookings: " . count($service_center) . ", Actual Assigned Bookings: " . $count;
 
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
+    }
+    /**
+     * @desc This is used to send mail when SF NOT exist in te booking pincode
+     * @param String $booking_id
+     */
+    function send_mail_when_sf_not_exist($booking_id){
+        $to = ADIL_EMAIL_ID; 
+        $subject = "Add Pincode in the Vendor Mapping Pincode File";
+        $message = "Hi Adil, <br/> Please Added booking Pincode and SF details in the Vendor Mapping Pincode File. Booking Id is ".$booking_id; 
+        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
     }
    
 
