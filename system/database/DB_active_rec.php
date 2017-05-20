@@ -1254,6 +1254,43 @@ class CI_DB_active_record extends CI_DB_driver {
 		$this->_reset_write();
 		return $this->query($sql);
 	}
+        
+        function insert_ignore($table = '', $set = NULL)
+	{
+		if ( ! is_null($set))
+		{
+			$this->set($set);
+		}
+
+		if (count($this->ar_set) == 0)
+		{
+			if ($this->db_debug)
+			{
+				return $this->display_error('db_must_use_set');
+			}
+			return FALSE;
+		}
+
+		if ($table == '')
+		{
+			if ( ! isset($this->ar_from[0]))
+			{
+				if ($this->db_debug)
+				{
+					return $this->display_error('db_must_set_table');
+				}
+				return FALSE;
+			}
+
+			$table = $this->ar_from[0];
+		}
+
+		$sql = $this->_insert_ignore($this->_protect_identifiers($table, TRUE, NULL, FALSE), array_keys($this->ar_set), array_values($this->ar_set));
+
+		$this->_reset_write();
+		return $this->query($sql);
+	}
+
 
 	// --------------------------------------------------------------------
 
