@@ -543,6 +543,11 @@ class CI_DB_mysqli_driver extends CI_DB {
 	{
 		return "INSERT INTO ".$table." (".implode(', ', $keys).") VALUES (".implode(', ', $values).")";
 	}
+        
+        function _insert_ignore($table, $keys, $values)
+	{
+		return "INSERT IGNORE INTO ".$table." (".implode(', ', $keys).") VALUES (".implode(', ', $values).")";
+	}
 
 	// --------------------------------------------------------------------
 

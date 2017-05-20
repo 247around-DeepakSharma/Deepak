@@ -737,5 +737,10 @@ class Upcountry_model extends CI_Model {
         }
     }
     
+    function insert_sf_hq_level_distance_details($data){
+        $this->db->insert_ignore('distance_between_pincode_sf_level',$data );
+        return $this->db->insert_id();
+    }
+    
     
 }

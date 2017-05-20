@@ -1092,8 +1092,12 @@ class vendor_model extends CI_Model {
      *  @param : Service ID(Appliance ID)
      *  @return : array of all data
      */
-     function get_distinct_vendor_service_details($vendor_id){
-         $query = $this->db->query("SELECT DISTINCT Appliance,Appliance_ID from vendor_pincode_mapping where Vendor_ID = ". $vendor_id. ' Order By Appliance');
+     function get_distinct_vendor_service_details($vendor_id, $pincode=""){
+         $where = "";
+         if(!empty($pincode)){
+             $where  = " AND Pincode = '".$pincode."' ";
+         }
+         $query = $this->db->query("SELECT DISTINCT Appliance,Appliance_ID from vendor_pincode_mapping where Vendor_ID = ". $vendor_id. " $where Order By Appliance");
          return $query->result_array();
     }
     
