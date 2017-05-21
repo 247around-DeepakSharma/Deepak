@@ -26,27 +26,64 @@ class Upcountry_model extends CI_Model {
      */
     function calculate_distance_between_pincode($postcode1, $city1,$postcode2, $city2){
         log_message('info', __FUNCTION__.' Calculate Pincdode1 '. $postcode1." Pincode 2". $postcode2 );
+        
         $city_1 = str_replace(' ', '%20', $city1);
         $city_2 = str_replace(' ', '%20', $city2);
-        $url = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=$city_1,$postcode1,India&destinations=$city_2,$postcode2,India&mode=driving&language=en-EN&sensor=false";
+        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$city_1,$postcode1,India&destinations=$city_2,$postcode2,India&mode=driving&language=en-EN&sensor=false&key=AIzaSyDYYGttub8nTWcXVZBG9iMuQwZfFaBNcbQ";
         $data = file_get_contents($url);
         $result = json_decode($data, true);
+        
         if(!empty($data)){
-            foreach($result['rows'] as $distance) {
+            if ((strstr($result['destination_addresses'][0], $postcode2) === FALSE) OR (strstr($result['origin_addresses'][0], $postcode1) === FALSE)) {
+                echo $result['origin_addresses'][0] . ", " . $result['destination_addresses'][0]. PHP_EOL;
+                echo 'Pincode mismatch: ' .  $postcode1 . ", Pincode 2: ". $postcode2 . PHP_EOL;
+                
+                log_message('info', __FUNCTION__.' Wrong Distance Returned pincode1 '. $postcode1. ",". $postcode2);
 
-                if($distance['elements'][0]['status'] == "OK"){
-                    log_message('info', __FUNCTION__.' Distance Found');
+                //Try again
+                $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$postcode1,India&destinations=$postcode2,India&mode=driving&language=en-EN&sensor=false&key=AIzaSyDYYGttub8nTWcXVZBG9iMuQwZfFaBNcbQ";
+                $data = file_get_contents($url);
+                $result = json_decode($data, true);
+                
+                if(!empty($data)){
+                    if ((strstr($result['destination_addresses'][0], $postcode2) === FALSE) OR (strstr($result['origin_addresses'][0], $postcode1) === FALSE)) {
+                        echo ' Distance Not Found After 2nd re-try as well: pincode1 '. $postcode1. ",". $postcode2;
+                        
+                        log_message('info', __FUNCTION__.' Distance Not Found After 2nd re-try as well: pincode1 '. $postcode1. ",". $postcode2);
+                        
+                        return FALSE;
+                    } else {
+                        foreach($result['rows'] as $distance) {
 
-                  return $distance['elements'][0];
+                            if($distance['elements'][0]['status'] == "OK"){
+                                log_message('info', __FUNCTION__.' Distance Found in 2nd pass');
 
-                } else {
-                    log_message('info', __FUNCTION__.' Distance Not Found pincode1 '. $postcode1. " ". $postcode2);
-                    
-                    return FALSE;
+                                return $distance['elements'][0];
+                            } else {
+                                log_message('info', __FUNCTION__.' Distance Not Found After re-try as well, Status not OK pincode1 '. $postcode1. ",". $postcode2);
+
+                                return FALSE;
+                            }
+                        }   
+                    }
+                }
+                
+            } else {
+                foreach($result['rows'] as $distance) {
+
+                    if($distance['elements'][0]['status'] == "OK"){
+                        log_message('info', __FUNCTION__.' Distance Found, verify pincodes returned.');
+
+                        return $distance['elements'][0];
+                    } else {
+                        log_message('info', __FUNCTION__.' Distance Not Found, Status not OK pincode1 '. $postcode1. ",". $postcode2);
+
+                        return FALSE;
+                    }
                 }
             }
         } else {
-            log_message('info', __FUNCTION__.' Distance Not Found pincode1 '. $postcode1. " ". $postcode2);
+            log_message('info', __FUNCTION__.' Distance Not Found pincode1 '. $postcode1. ",". $postcode2);
 
             return FALSE;
         }
@@ -738,7 +775,8 @@ class Upcountry_model extends CI_Model {
     }
     
     function insert_sf_hq_level_distance_details($data){
-        $this->db->insert_ignore('distance_between_pincode_sf_level',$data );
+        $this->db->insert_ignore('distance_between_pincode_sf_level', $data);
+        
         return $this->db->insert_id();
     }
     
