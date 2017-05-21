@@ -35,8 +35,8 @@ class Upcountry_model extends CI_Model {
         
         if(!empty($data)){
             if ((strstr($result['destination_addresses'][0], $postcode2) === FALSE) OR (strstr($result['origin_addresses'][0], $postcode1) === FALSE)) {
-                echo $result['origin_addresses'][0] . ", " . $result['destination_addresses'][0]. PHP_EOL;
-                echo 'Pincode mismatch: ' .  $postcode1 . ", Pincode 2: ". $postcode2 . PHP_EOL;
+                //echo $result['origin_addresses'][0] . ", " . $result['destination_addresses'][0]. PHP_EOL;
+//                echo 'Pincode mismatch: ' .  $postcode1 . ", Pincode 2: ". $postcode2 . PHP_EOL;
                 
                 log_message('info', __FUNCTION__.' Wrong Distance Returned pincode1 '. $postcode1. ",". $postcode2);
 
@@ -47,7 +47,7 @@ class Upcountry_model extends CI_Model {
                 
                 if(!empty($data)){
                     if ((strstr($result['destination_addresses'][0], $postcode2) === FALSE) OR (strstr($result['origin_addresses'][0], $postcode1) === FALSE)) {
-                        echo ' Distance Not Found After 2nd re-try as well: pincode1 '. $postcode1. ",". $postcode2;
+//                        echo ' Distance Not Found After 2nd re-try as well: pincode1 '. $postcode1. ",". $postcode2 . PHP_EOL;
                         
                         log_message('info', __FUNCTION__.' Distance Not Found After 2nd re-try as well: pincode1 '. $postcode1. ",". $postcode2);
                         
