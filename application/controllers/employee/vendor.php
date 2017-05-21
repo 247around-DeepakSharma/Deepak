@@ -999,14 +999,19 @@ class vendor extends CI_Controller {
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
     /**
-     * @desc This is used to send mail when SF NOT exist in te booking pincode
+     * @desc This is used to send mail when SF does not exist in the booking pincode
+     * as per vendor pincode mapping file.
+     * 
      * @param String $booking_id
      */
     function send_mail_when_sf_not_exist($booking_id){
-        $to = ADIL_EMAIL_ID; 
-        $subject = "Add Pincode in the Vendor Mapping Pincode File";
-        $message = "Hi Adil, <br/> Please Added booking Pincode and SF details in the Vendor Mapping Pincode File. Booking Id is ".$booking_id; 
-        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+        $to = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO; 
+        $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
+        
+        $subject = "Pincode Not Found In Vendor Pincode Mapping File";
+        $message = "Hi,<br/>Please add Pincode and SF details in the Vendor Pincode Mapping file and upload new file. Booking ID: " . $booking_id;
+        
+        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
     }
    
 
