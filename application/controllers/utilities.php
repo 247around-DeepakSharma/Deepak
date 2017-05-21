@@ -23,6 +23,7 @@ class Utilities extends CI_Controller {
 	$this->load->model('booking_model');
 	$this->load->model('partner_model');
 	$this->load->model('vendor_model');
+        $this->load->model('upcountry_model');
         $this->load->model('reporting_utils');
         $this->load->model('pc_distance_model');
         $this->load->model('upcountry_model');
@@ -48,7 +49,7 @@ class Utilities extends CI_Controller {
         echo $booking_id . $status['current_status'] . ":" . $status['internal_status'] . PHP_EOL;      
     }
     
-    function is_vendor_available ($booking_id) {
+    function is_vendor_available () {
         
     }
     
