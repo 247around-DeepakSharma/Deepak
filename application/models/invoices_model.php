@@ -164,16 +164,40 @@ class invoices_model extends CI_Model {
      * @param: String ( vendor or patner)
      * @return: Array()
      */
-    function getsummary_of_invoice($vendor_partner) {
+    function getsummary_of_invoice($vendor_partner, $vendor_type="") {
         $array = array();
 
         if ($vendor_partner == "vendor") {
-
-            $data = $this->vendor_model->getActiveVendor("", 0);
+            switch ($vendor_type){
+                case 'active':
+                    $data = $this->vendor_model->getActiveVendor("", 1);
+                    break;
+                case 'disabled':
+                    $data = $this->vendor_model->getActiveVendor("", 'disabled');
+                    break;
+                case 'all':
+                    $data = $this->vendor_model->getActiveVendor("", 0);
+                    break;
+                default:
+                    $data = $this->vendor_model->getActiveVendor("", 0);
+            }
+            
             $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
         } else if ($vendor_partner == "partner") {
-
-            $data = $this->partner_model->getpartner();
+            switch ($vendor_type){
+                case 'active':
+                    $data = $this->partner_model->getpartner();
+                    break;
+                case 'disabled':
+                    $data = $this->partner_model->get_all_partner("",0);
+                    break;
+                case 'all':
+                    $data = $this->partner_model->get_all_partner();
+                    break;
+                default:
+                    $data = $this->partner_model->getpartner();
+            }
+            
             $due_date_status = "";
         }
 

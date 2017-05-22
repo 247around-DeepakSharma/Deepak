@@ -1101,10 +1101,13 @@ class Partner_model extends CI_Model {
      * @desc: This is used to get active partner details and also get partner details by partner id
      *          Without looking for Active or Disabled
      */
-    function get_all_partner($partner_id = "") {
+    function get_all_partner($partner_id = "",$partner_type="") {
 	    if ($partner_id != "") {
 	        $this->db->where('id', $partner_id);
 	    }
+            if($partner_type === 0){
+                $this->db->where('is_active',0);
+            }
 	    $this->db->select('*');
 	    $query = $this->db->get('partners');
 
