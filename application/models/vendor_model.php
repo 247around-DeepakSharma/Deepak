@@ -714,8 +714,11 @@ class vendor_model extends CI_Model {
             $this->db->where('id', $service_center_id);
         }
         $this->db->order_by("name");
-        if ($active == 1)
+        if ($active == 1){
             $this->db->where('active', 1);
+        }else if($active === 'disabled'){
+            $this->db->where('active', 0);
+        }
         $sql = $this->db->get('service_centres');
         return $sql->result_array();
     }
