@@ -50,13 +50,17 @@ class Upload_booking_file extends CI_Controller {
             redirect(base_url() . "employee/login");
         }
     }
-
+    /**
+     * @desc This is used to load Upload form
+     */                
     function upload_booking_files() {
         log_message('info', __FUNCTION__);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view("employee/upload_booking_file");
     }
-
+    /**
+     * @desc This is used to process to upload form
+     */
     function index() {
         log_message('info', __FUNCTION__);
         $this->form_validation->set_rules('file_type', 'File Type', 'required|xss_clean');
@@ -81,6 +85,7 @@ class Upload_booking_file extends CI_Controller {
                 $count_booking_inserted = 0;
                     
                 if (!empty($data)) {
+                    // SEND MAIl
                     $subject = $file_type ." data validated. File is under process";
                     $message  = $this->file_name. " validation Pass. File is under process";
                     $this->send_mail_column($subject, $message, TRUE);
@@ -88,35 +93,39 @@ class Upload_booking_file extends CI_Controller {
                         log_message('info', __FUNCTION__ . " Data Found");
                         $this->FilesData = array();
                         $this->FilesData = $value;
+                       //Check whether order id exists or not
                         $partner_booking = $this->partner_model->get_order_id_for_partner($this->FilesData['partner_id'], $this->FilesData['order_id']);
-                        //Check whether order id exists or not
+                        
                         if (is_null($partner_booking)) {
+                            // GET State, Taluk, District
                             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['pincode']));
 
                             $this->FilesData['state'] = $distict_details['state'];
                             $this->FilesData['taluk'] = $distict_details['taluk'];
                             $this->FilesData['district'] = $distict_details['district'];
-
+                            //Get User ID
                             $this->get_user_id($value);
-
+                            // Set Appliance Brand
                             $this->FilesData['appliance_brand'] = isset($this->FilesData['appliance_data'][0]['brand']) ? $this->FilesData['appliance_data'][0]['brand'] : $this->FilesData['appliance_brand'];
                             $this->FilesData['appliance_brand'] = trim(str_replace("'", "", $this->FilesData['appliance_brand']));
                             if (!empty($this->FilesData['appliance_brand'])) {
-                                $data = $this->miscelleneous->allot_partner_id_for_brand($this->FilesData['service_id'], $this->FilesData['state'], $this->FilesData['appliance_brand']);
-                                if (!empty($data)) {
-                                    $this->FilesData['partner_id'] = $data['partner_id'];
-                                    $this->FilesData['source'] = $data['source'];
+                                //GET partner details. On the basis of service id, state, brand
+                                $p_data = $this->miscelleneous->allot_partner_id_for_brand($this->FilesData['service_id'], $this->FilesData['state'], $this->FilesData['appliance_brand']);
+                                if (!empty($p_data)) {
+                                    $this->FilesData['partner_id'] = $p_data['partner_id'];
+                                    $this->FilesData['source'] = $p_data['source'];
                                 }
                             }
-
+                            // Create Booking ID
                             $this->set_booking_id();
 
                             log_message('info', __FUNCTION__ . "=> File type: " .
                                     ", Order ID NOT found: " . $this->FilesData['order_id']);
                             $this->check_brand();
+                            // Insert Booking Details
                             $status = $this->insert_bookng_details();
                             if ($status) {
-
+                    
                                 $unit = $this->insert_appliance_booking_unitDetails($file_type);
                                 if ($unit) {
                                     if (isset($this->FilesData['sku'])) {
@@ -395,7 +404,10 @@ class Upload_booking_file extends CI_Controller {
             return false;
         }
     }
-
+    /**
+     * @desc If Appliance Brand is not exist then insert new brand
+     * @return boolean
+     */                            
     function check_brand() {
         if (!empty($this->FilesData['appliance_brand'])) {
             $where = array('service_id' => $this->FilesData['service_id'], 'brand_name' => trim($this->FilesData['appliance_brand']));

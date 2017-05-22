@@ -165,6 +165,10 @@
                         </li>
                         <li class="divider"></li>
                         <li >
+                            <a href="<?php echo base_url() ?>/employee/upload_booking_file/upload_booking_files"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Jeeves Booking</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
                             <a href="<?php echo base_url() ?>employee/service_centre_charges/show_partner_service_price"><i class="fa fa-fw fa-desktop "></i> <strong>Partner Price List</strong></a>
                         </li>
 

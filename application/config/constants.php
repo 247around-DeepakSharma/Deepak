@@ -325,9 +325,6 @@ define("ADIL_EMAIL_ID", "adila@247around.com, abhaya@247around.com");
 //rating new state
 define('RATING_NEW_STATE','Completed_With_Rating');
 
-//rating new state
-define('RATING_NEW_STATE','Completed_With_Rating');
-
 //Regional Managers Email ID
 define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,nilanjan@247around.com");
 
