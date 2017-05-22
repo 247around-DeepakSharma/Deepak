@@ -2335,5 +2335,28 @@ class Booking_model extends CI_Model {
         $query = $this->db->get('partner_brand_logo');
         return $query->result_array();
     }
+    
+    function get_sku_details($where){
+        $this->db->select('sku_details.*, services.services, bookings_sources.code');
+        $this->db->where($where);
+        $this->db->join("services","services.id = sku_details.service_id");
+        $this->db->join("bookings_sources", "bookings_sources.partner_id =  sku_details.partner_id");
+        $query = $this->db->get('sku_details');
+        
+        return $query->result_array();
+    }
+    
+    function insert_sku_transaction($data){
+        $this->db->insert('ecommerce_product_transactions', $data);
+
+        return $this->db->insert_id();
+    }
+    
+    function get_sku_transactions($where){
+        $this->db->select("*");
+        $this->db->where($where);
+        $query = $this->db->get("ecommerce_product_transactions");
+        return $query->result_array();
+    }
 
 }
