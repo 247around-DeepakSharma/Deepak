@@ -1217,6 +1217,7 @@ class Booking_model extends CI_Model {
     $this->db->join('users',' users.user_id = booking_details.user_id');
     $this->db->join('services', 'services.id = booking_details.service_id');
     $this->db->join('penalty_on_booking' , 'penalty_on_booking.booking_id = booking_details.booking_id', 'left');
+    $this->db->where('penalty_on_booking.active' ,'1');
     if($partner_id !=""){
         $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = booking_details.booking_id');
         $this->db->where('booking_details.partner_id', $partner_id);
