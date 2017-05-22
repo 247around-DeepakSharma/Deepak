@@ -478,10 +478,10 @@ class Around_scheduler extends CI_Controller {
      * @param:void()
      * @retun:void()
      */
-    function get_phone_number_to_send_sms() {
+    function get_phone_number_to_send_sms($case) {
         log_message('info', __METHOD__ . ": Entering....");
 
-        $phn_number_data = $this->around_scheduler_model->get_user_phone_number();
+        $phn_number_data = $this->around_scheduler_model->get_user_phone_number($case);
         //send filtered phone number data to this function to sent the messages to the user
         $this->send_promotional_sms_to_user($phn_number_data);
 
@@ -508,15 +508,46 @@ class Around_scheduler extends CI_Controller {
         // Inserting values in scheduler tasks log
         $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
     }
-
+    
+    
+    /**
+     * @desc: This function is used to get the corresponding SMS TAG for booking_status and phone_number 
+     * @param:$filtered_phn_number_data array()
+     * @retun:void()
+     */
     function get_sms_tag($booking_status) {
+        $smsTag_arr1 = array(1,3,5,7,9,11);
+        $smsTag_arr2 = array(2,4,6,8,12);
+        $cur_month = date('n');
         switch ($booking_status) {
             case 'Completed':
-                if (date("t") % 2 === 0) {
-                    $smsTag = "completed_booking_promotional_sms_1";
-                } else {
-                    $smsTag = "completed_booking_promotional_sms_2";
+                if (in_array($cur_month, $smsTag_arr1)){
+                    $smsTag = COMPLETED_PROMOTINAL_SMS_1;
+                } else if(in_array($cur_month, $smsTag_arr2)){
+                    $smsTag = COMPLETED_PROMOTINAL_SMS_2;
                 }
+                break;
+            case 'Cancelled':
+                if (in_array($cur_month, $smsTag_arr1)){
+                    $smsTag = CANCELLED_PROMOTINAL_SMS_1;
+                } else if(in_array($cur_month, $smsTag_arr2)){
+                    $smsTag = CANCELLED_PROMOTINAL_SMS_2;
+                }
+                break;
+            case 'Query':
+                if (in_array($cur_month, $smsTag_arr1)){
+                    $smsTag = CANCELLED_QUERY_PROMOTINAL_SMS_1;
+                } else if(in_array($cur_month, $smsTag_arr2)){
+                    $smsTag = CANCELLED_QUERY_PROMOTINAL_SMS_2;
+                }
+                break;
+            case 'no_status':
+                if (in_array($cur_month, $smsTag_arr1)){
+                    $smsTag = BOOKING_NOT_EXIST_PROMOTINAL_SMS_1;
+                } else if(in_array($cur_month, $smsTag_arr2)){
+                    $smsTag = BOOKING_NOT_EXIST_PROMOTINAL_SMS_2;
+                }
+                break;
         }
         
         return $smsTag;
@@ -540,6 +571,7 @@ class Around_scheduler extends CI_Controller {
         $sms['booking_id'] = $booking_id;
         $sms['type'] = $smsType;
         $sms['type_id'] = $smsTypeId;
+
         $this->notify->send_sms_msg91($sms);
     }
 

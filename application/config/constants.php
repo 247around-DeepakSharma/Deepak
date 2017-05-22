@@ -325,5 +325,15 @@ define("ADIL_EMAIL_ID", "adila@247around.com, abhaya@247around.com");
 define('RATING_NEW_STATE','Completed_With_Rating');
 
 
+//promotional sms constant
+define('COMPLETED_PROMOTINAL_SMS_1','completed_promotional_sms_1');
+define('COMPLETED_PROMOTINAL_SMS_2','completed_promotional_sms_2');
+define('CANCELLED_PROMOTINAL_SMS_1','cancelled_promotional_sms_1');
+define('CANCELLED_PROMOTINAL_SMS_2','cancelled_promotional_sms_2');
+define('CANCELLED_QUERY_PROMOTINAL_SMS_1','cancelled_query_promotional_sms_1');
+define('CANCELLED_QUERY_PROMOTINAL_SMS_2','cancelled_query_promotional_sms_2');
+define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_1','booking_not_exist_promotional_sms_1');
+define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_2','booking_not_exist_promotional_sms_2');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

@@ -1,6 +1,7 @@
 <?php
 
 class Around_scheduler_model extends CI_Model {
+    Private $BIG_MAINDATA = array(); 
     /**
      * @desc load both db
      */
@@ -167,8 +168,42 @@ class Around_scheduler_model extends CI_Model {
      * @param:void()
      * @retun:void()
      */
-    function get_user_phone_number(){
-        $where = "current_status = 'Completed'";
+    function get_user_phone_number($case){
+        
+        switch ($case){
+            case 'completed' :
+                $where = "current_status = '"._247AROUND_COMPLETED."'";
+                $data = $this->get_completed_cancelled_booking_user_phn_number($where);
+                break;
+            case 'cancelled' :
+                $where = "current_status = '"._247AROUND_CANCELLED."'";
+                $data = $this->get_completed_cancelled_booking_user_phn_number($where);
+                break;
+            case 'query':
+                $data = $this->get_cancelled_query_booking_user_phn_number();
+                break;
+            case 'not_exist':
+                $data = $this->get_user_booking_not_exist_phn_number();
+                break;
+            case 'all':
+                $data = $this->get_all_user_booking_phn_number();
+                break;
+        }
+        
+        if(!empty($data)){
+            return $data;
+        }else{
+            return FALSE;
+        }
+    }
+    
+    
+    /**
+     * @desc: This function is used get the user phone number for completed booking
+     * @param: $where array();
+     * @retun:array();
+     */
+    function get_completed_cancelled_booking_user_phn_number($where){
         
         $sql = "SELECT DISTINCT booking_primary_contact_no as phn_number, current_status,user_id
                 FROM booking_details JOIN partners 
@@ -187,5 +222,134 @@ class Around_scheduler_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
+    
+    /**
+     * @desc: This function is used get the user phone number for cancelled query
+     * @param: void();
+     * @retun:array();
+     */
+    function get_cancelled_query_booking_user_phn_number(){
+        $sql = "SELECT DISTINCT booking_primary_contact_no as phn_number, 'Query' as current_status,user_id
+                FROM booking_details JOIN partners 
+                ON booking_details.partner_id = partners.id
+                WHERE booking_primary_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
+                AND partners.is_sms_allowed = '1'
+                AND booking_details.type = 'Query' AND booking_details.current_status = '"._247AROUND_CANCELLED."' AND DAY(closed_date) = DAY(CURDATE()) 
+                UNION 
+                SELECT DISTINCT booking_alternate_contact_no as phn_number, 'Query' as current_status,user_id
+                FROM booking_details JOIN partners 
+                ON booking_details.partner_id = partners.id
+                WHERE booking_alternate_contact_no REGEXP '^[7-9]{1}[0-9]{9}$'
+                AND partners.is_sms_allowed = '1'
+                AND booking_details.type = 'Query' AND booking_details.current_status = '"._247AROUND_CANCELLED."' AND DAY(closed_date) = DAY(CURDATE())";
         
+        $query = $this->db->query($sql);
+        return $query->result_array();
+        
+    }
+    
+    /**
+     * @desc: This function is used get the user phone number which booking does not 
+     * exist in booking_details table
+     * @param: void();
+     * @retun:array();
+     */
+    function get_user_booking_not_exist_phn_number(){
+        $sql = "SELECT users.user_id, users.phone_number as phn_number,'no_status' as 'current_status'
+                FROM users LEFT JOIN booking_details ON users.user_id = booking_details.user_id 
+                WHERE booking_details.user_id IS NULL AND users.phone_number REGEXP '^[7-9]{1}[0-9]{9}$'
+                UNION
+                SELECT users.user_id, users.alternate_phone_number as phn_number,'no_status' as 'current_status'
+                FROM users LEFT JOIN booking_details ON users.user_id = booking_details.user_id 
+                WHERE booking_details.user_id IS NULL AND users.alternate_phone_number REGEXP '^[7-9]{1}[0-9]{9}$'";
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    
+    /**
+     * @desc: This function is used get the all user phone number for all cases
+     * @param: void();
+     * @retun:array();
+     */
+    function get_all_user_booking_phn_number(){
+        //get the data
+        $completed_cancelled = "current_status = '"._247AROUND_COMPLETED."' OR current_status = '"._247AROUND_CANCELLED."' " ;
+        $completed_cancelled_data = $this->get_completed_cancelled_booking_user_phn_number($completed_cancelled);
+        $cancelled_query_data = $this->get_cancelled_query_booking_user_phn_number();
+        $not_exist_booking_data = $this->get_user_booking_not_exist_phn_number();
+        
+        //merge data to form an array BIG_MAINDATA
+        $this->BIG_MAINDATA = array_merge($completed_cancelled_data,$cancelled_query_data);
+        
+        //get the unique phone number from BIG_MAINDATA
+        $unique_phn_number = array_unique(array_column($this->BIG_MAINDATA, 'phn_number'));
+        
+        $serach_phn_number = array();
+        $i = 0;
+        foreach ($unique_phn_number as $value) {
+            $serach_phn_number[$i] = $this->search_phn_number_index($value);
+            $i++;
+        }
+        $this->BIG_MAINDATA = array();
+        
+        //make a final data array to return
+        $final_unique_phn_number_data = array_merge($serach_phn_number,$not_exist_booking_data);
+        return $final_unique_phn_number_data;
+        
+    }
+    
+    
+    /**
+     * @desc: This function is used get the only unique number of all user and bookings
+     * @param: $value_to_search string
+     * @retun: array();
+     */
+    function search_phn_number_index($value_to_search) {
+
+        $temp_arr = array();
+        $return_arr = array();
+        $i = 0;
+        
+        //get the index of those number which exist more than 1 times
+        foreach ($this->BIG_MAINDATA as $key => $val) {
+            if ($val['phn_number'] === $value_to_search) {
+                $temp_arr[$i] = $key;
+                $i++;
+            }
+        }
+
+        $com = false;
+        $can = false;
+        $q_can = false;
+        foreach ($temp_arr as $val) {
+            if ($this->BIG_MAINDATA[$val]['current_status'] === 'Completed') {
+                $com = $val;
+            }
+            if ($this->BIG_MAINDATA[$val]['current_status'] === 'Cancelled') {
+                $can = $val;
+            }
+            if ($this->BIG_MAINDATA[$val]['current_status'] === 'Query') {
+                $q_can = $val;
+            }
+        }
+        
+        // return data based on the booking status
+        if ($com) {
+            $key = $com;
+        } else if ($can) {
+            $key = $can;
+        } else if ($q_can) {
+            $key = $q_can;
+        }
+
+        $return_arr['phn_number'] = $this->BIG_MAINDATA[$key]['phn_number'];
+        $return_arr['current_status'] = $this->BIG_MAINDATA[$key]['current_status'];
+        $return_arr['user_id'] = $this->BIG_MAINDATA[$key]['user_id'];
+        
+        return $return_arr;
+    }
+
 }
