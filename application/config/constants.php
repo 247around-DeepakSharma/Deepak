@@ -176,6 +176,8 @@ define('DEFECTIVE_PARTS_RECEIVED','Defective Part Received By Partner');
 define('DEFECTIVE_PARTS_REJECTED','Defective Part Rejected By Partner');
 //Snapdeal ID
 define('SNAPDEAL_ID',1);
+//Jeeves ID
+define("JEEEVES_ID", 247030);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com');
 //Define New CRM Contstant for SF
