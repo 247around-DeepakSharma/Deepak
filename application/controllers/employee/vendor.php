@@ -42,6 +42,8 @@ class vendor extends CI_Controller {
         $this->load->library('user_agent');
         $this->load->dbutil();
         $this->load->helper('file');
+        
+
     }
 
     /**
@@ -997,14 +999,19 @@ class vendor extends CI_Controller {
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
     /**
-     * @desc This is used to send mail when SF NOT exist in te booking pincode
+     * @desc This is used to send mail when SF does not exist in the booking pincode
+     * as per vendor pincode mapping file.
+     * 
      * @param String $booking_id
      */
     function send_mail_when_sf_not_exist($booking_id){
-        $to = ADIL_EMAIL_ID; 
-        $subject = "Add Pincode in the Vendor Mapping Pincode File";
-        $message = "Hi Adil, <br/> Please Added booking Pincode and SF details in the Vendor Mapping Pincode File. Booking Id is ".$booking_id; 
-        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+        $to = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO; 
+        $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
+        
+        $subject = "Pincode Not Found In Vendor Pincode Mapping File";
+        $message = "Hi,<br/>Please add Pincode and SF details in the Vendor Pincode Mapping file and upload new file. Booking ID: " . $booking_id;
+        
+        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
     }
    
 
@@ -4001,5 +4008,53 @@ class vendor extends CI_Controller {
             echo "Not Exist";
         }
     }
-   
+    
+    /**
+     * @desc This is used to check upcountry for those booking who have not marked upcountry
+     * This called from CRON
+     */
+    function re_check_upcountry_for_pending_booking() {
+        log_message("info", __METHOD__);
+        $this->load->library('table');
+        $data = $this->booking_model->date_sorted_booking(500, 0, "");
+        
+        $this->table->set_heading('Booking ID');
+        $flag = 0;       
+        foreach ($data as $value) {
+            if (!empty($value->booking_id) && $value->is_upcountry == 0) {
+                $vendor_data = array();
+                $vendor_data[0]['vendor_id'] = $value->assigned_vendor_id;
+
+                if (!empty($value->district)) {
+                    $vendor_data[0]['city'] = $value->district;
+                } else {
+                    $vendor_data[0]['city'] = $this->vendor_model->get_distict_details_from_india_pincode($value->booking_pincode)['district'];
+                }
+                $partner_details = $this->partner_model->get_all_partner($value->partner_id);
+                $data = $this->upcountry_model->action_upcountry_booking($value->city, $value->booking_pincode, $vendor_data, $partner_details);
+                switch ($data['message']) {
+                    case UPCOUNTRY_BOOKING:
+                    case UPCOUNTRY_LIMIT_EXCEED:
+                        $flag = 1;
+                        $this->table->add_row($value->booking_id);
+                        
+                        break;
+
+                }
+            }
+        }
+        if($flag == 1){
+            $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com,".RM_EMAIL;
+
+            $cc = "abhaya@247around.com";
+            $message1 = "Booking ID should be upcountry but any case its not marked upcountry. Please chaeck and update booking <br/>";
+            $subject = "Upcountry Booking Need To Take Action ";
+            $message1 .= $this->table->generate();
+
+            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
+        } else {
+            log_message("info", __METHOD__." There is no pending booking which need to update for upcountry");
+        }
+    }
+
 }

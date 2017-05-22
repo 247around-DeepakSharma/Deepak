@@ -176,6 +176,8 @@ define('DEFECTIVE_PARTS_RECEIVED','Defective Part Received By Partner');
 define('DEFECTIVE_PARTS_REJECTED','Defective Part Rejected By Partner');
 //Snapdeal ID
 define('SNAPDEAL_ID',1);
+//Jeeves ID
+define("JEEEVES_ID", 247030);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com');
 //Define New CRM Contstant for SF
@@ -212,7 +214,7 @@ define('PARTNER_UPDATED','Partner Updated');
 //Define NOT UPCOUNTRY BOOKING
 define('NOT_UPCOUNTRY_BOOKING','NOT UPCOUNTRY BOOKING');
 //Define SF NOT EXIST IN Pincode Table
-define('SF_DOES_NOT_EXIST','SF DOES NOT EXIST');
+define('SF_DOES_NOT_EXIST','SF DOES NOT EXIST IN VENDOR PINCODE MAPPING FILE');
 //Define UPCOUNTRY BOOKING
 define('UPCOUNTRY_BOOKING','UPCOUNTRY BOOKING');
 //Define UPCOUNTRY Disatnce Limit Exceed
@@ -272,8 +274,6 @@ define("PENALTY_FAKE_COMPLETED_CUSTOMER_WANT_INSTALLATION_ID", 10);
 define("PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT", 11);
 //Engineer has not contacted with customer.
 define("ENGINEER_HAS_NOT_CONTACTED_WITH_CUSTOMER", 3);
-//RM Email ID
-define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,nilanjan@247around.com");
 
 
 define('SUCCESS_CODE', 247);
@@ -319,10 +319,20 @@ define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
+
 //ADIL EMIL ID
 define("ADIL_EMAIL_ID", "adila@247around.com, abhaya@247around.com");
 //rating new state
 define('RATING_NEW_STATE','Completed_With_Rating');
+
+//Regional Managers Email ID
+define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,nilanjan@247around.com");
+
+//Email IDs when SF is not found in Vendor Pincode Mapping file
+define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
+define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com, abhaya@247around.com");
+
+
 
 
 //promotional sms constant
