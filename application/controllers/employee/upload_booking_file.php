@@ -885,7 +885,7 @@ class Upload_booking_file extends CI_Controller {
                     $data['type'] = "Query";
                     $data['source'] = "SF";
                     $data['booking_date'] = "";
-                    $data['partner_source'] = "Jeeves-delivered";
+                    $data['partner_source'] = "Jeeves-delivered-excel";
                     array_push($data1, $data);
                 } else {
                     $this->table->add_row($rowData['MobilePhone']);
