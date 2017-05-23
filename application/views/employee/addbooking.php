@@ -136,6 +136,7 @@
                                     <option>Offline</option>
                                     <option>Shopclues</option>
                                     <option>TataCliq</option>
+                                    <option>Jeeves-delivered-excel</option>
                                     <option>STS</option>
                                     <option>Snapdeal-delivered-excel</option>
                                     <option>Snapdeal-shipped-excel</option>
