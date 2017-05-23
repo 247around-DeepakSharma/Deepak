@@ -1506,6 +1506,7 @@ class Partner extends CI_Controller {
             $booking['amount_due'] = $requestData['amount_due'];
             $upcountry_data = json_decode($requestData['upcountry_data'], TRUE);
             $booking['is_upcountry'] = 0;
+            
              if($requestData['product_type'] == "Shipped"){
                 $booking['current_status'] = _247AROUND_FOLLOWUP;
                 $booking['internal_status'] = _247AROUND_FOLLOWUP;
@@ -1541,6 +1542,7 @@ class Partner extends CI_Controller {
             $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
             $customer_net_payable = 0;
             foreach ($requestData['requestType'] as $key => $sc) {
+                //$sc has service_centre_charges_id + customer_total + partner_offer separated by '_'
                 $explode = explode("_", $sc);
                     
                 $unit_details['id'] =  $explode[0];
@@ -1548,6 +1550,8 @@ class Partner extends CI_Controller {
                 $unit_details['partner_paid_basic_charges'] = $explode[2];
                 $unit_details['partner_net_payable'] = $explode[2];
                 $unit_details['booking_status'] = "Pending";
+                
+                //find customer net payable by subtracting partner offer
                 $customer_net_payable += ($explode[1] - $explode[2]);
                 $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], $key);
                     
@@ -1557,8 +1561,11 @@ class Partner extends CI_Controller {
              
             if($requestData['product_type'] == "Shipped"){
                 $this->initialized_variable->fetch_partner_data($this->partner['id']);
+                
+                //check upcountry details and send sms to customer as well
                 $this->miscelleneous->check_upcountry($booking, $requestData['appliance_name'], $is_price, "shipped");
                 
+                //insert in state change table
                 $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , 
                     $booking['booking_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
             } else {
@@ -1578,22 +1585,30 @@ class Partner extends CI_Controller {
                         case UPCOUNTRY_LIMIT_EXCEED:
                         case NOT_UPCOUNTRY_BOOKING:
                         case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                            //assign vendor
                             $assigned = $this->miscelleneous->assign_vendor_process($upcountry_data['vendor_id'],$booking['booking_id']);
+                            
                             if($assigned){
                                $url = base_url() . "employee/do_background_process/assign_booking";
                                $this->notify->insert_state_change($booking['booking_id'], ASSIGNED_VENDOR , _247AROUND_PENDING , 
                                    "Auto Assign vendor", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                               
+                               //check upcountry and send sms
                                $async_data['booking_id'] = array($booking['booking_id']=> $upcountry_data['vendor_id']);
                                $this->asynchronous_lib->do_background_process($url, $async_data);
                             } 
 
                             break;
+                            
                         case SF_DOES_NOT_EXIST:
+                            //SF does not exist in vendor pincode mapping table OR if two or more vendors are found which
+                            //do not provide upcountry services
                             break;
                     }
                 }
             }
 
+            //if state is not found
             if (empty($booking['state'])) {
                     $to = NITS_ANUJ_EMAIL_ID;
                     $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];

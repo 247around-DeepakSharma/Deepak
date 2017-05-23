@@ -43,21 +43,22 @@ class Upload_booking_file extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->library('table');
 
-
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
             redirect(base_url() . "employee/login");
         }
     }
+
     /**
      * @desc This is used to load Upload form
-     */                
+     */
     function upload_booking_files() {
         log_message('info', __FUNCTION__);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view("employee/upload_booking_file");
     }
+
     /**
      * @desc This is used to process to upload form
      */
@@ -83,19 +84,19 @@ class Upload_booking_file extends CI_Controller {
                 }
 
                 $count_booking_inserted = 0;
-                    
+
                 if (!empty($data)) {
                     // SEND MAIl
-                    $subject = $file_type ." data validated. File is under process";
-                    $message  = $this->file_name. " validation Pass. File is under process";
+                    $subject = $file_type . " data validated. File is under process";
+                    $message = $this->file_name . " validation Pass. File is under process";
                     $this->send_mail_column($subject, $message, TRUE);
                     foreach ($data as $value) {
                         log_message('info', __FUNCTION__ . " Data Found");
                         $this->FilesData = array();
                         $this->FilesData = $value;
-                       //Check whether order id exists or not
+                        //Check whether order id exists or not
                         $partner_booking = $this->partner_model->get_order_id_for_partner($this->FilesData['partner_id'], $this->FilesData['order_id']);
-                        
+
                         if (is_null($partner_booking)) {
                             // GET State, Taluk, District
                             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['pincode']));
@@ -125,7 +126,7 @@ class Upload_booking_file extends CI_Controller {
                             // Insert Booking Details
                             $status = $this->insert_bookng_details();
                             if ($status) {
-                    
+
                                 $unit = $this->insert_appliance_booking_unitDetails($file_type);
                                 if ($unit) {
                                     if (isset($this->FilesData['sku'])) {
@@ -149,7 +150,7 @@ class Upload_booking_file extends CI_Controller {
                             $int_status = $partner_booking['internal_status'];
                             switch ($file_type) {
                                 case 'delivered':
-                                    $this->order_id_exist_delivered_process($status, $partner_booking, $int_status, $file_type);
+                                    $this->order_id_exist_delivered_process($status, $partner_booking, $int_status);
                                     break;
                                 case 'shipped':
                                     $this->order_id_exist_shipped_process($partner_booking);
@@ -160,7 +161,7 @@ class Upload_booking_file extends CI_Controller {
                         }
                     }
                 }
-                $row_data = array();              
+                $row_data = array();
                 $row_data['error']['total_booking_inserted'] = $count_booking_inserted;
                 $row_data['error']['total_booking_came_today'] = $this->total_booking_came_today;
                 $row_data['error']['count_booking_updated'] = $this->count_booking_updated;
@@ -168,7 +169,7 @@ class Upload_booking_file extends CI_Controller {
 
                 if (isset($row_data['error'])) {
                     log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Errors found, sending mail now");
-                    $this->get_invalid_data($row_data['error'], $file_type, $this->file_name );
+                    $this->get_invalid_data($row_data['error'], $file_type, $this->file_name);
                 } else {
                     log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Wow, no errors found !!!");
                 }
@@ -212,7 +213,7 @@ class Upload_booking_file extends CI_Controller {
         log_message('info', __FUNCTION__ . ' => Updated Partner Lead: ' . $partner_booking['booking_id']);
     }
 
-    function order_id_exist_delivered_process($status, $partner_booking, $int_status, $file_type) {
+    function order_id_exist_delivered_process($status, $partner_booking, $int_status) {
         //If state is followup and booking date not empty, reset the date
         if ($status == "FollowUp" && $partner_booking['booking_date'] != '' &&
                 $int_status == 'Missed_call_not_confirmed') {
@@ -402,10 +403,11 @@ class Upload_booking_file extends CI_Controller {
             return false;
         }
     }
+
     /**
      * @desc If Appliance Brand is not exist then insert new brand
      * @return boolean
-     */                            
+     */
     function check_brand() {
         if (!empty($this->FilesData['appliance_brand'])) {
             $where = array('service_id' => $this->FilesData['service_id'], 'brand_name' => trim($this->FilesData['appliance_brand']));
