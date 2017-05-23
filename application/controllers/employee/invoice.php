@@ -630,6 +630,7 @@ class Invoice extends CI_Controller {
             $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file_to_convert_in_pdf,$invoice_id, "invoices-excel");
             log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result,TRUE));
             $pdf_response = json_decode($json_result,TRUE);
+            $output_pdf_file_name = "";
             if($pdf_response['response'] === 'Success'){
                 $output_pdf_file_name = $pdf_response['output_pdf_file'];
                 log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
