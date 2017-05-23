@@ -55,6 +55,29 @@ class Invoice extends CI_Controller {
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
     }
+    
+    public function invoice_listing_ajax($vendor_type = ""){
+        $vendor_partner = $this->input->post('vendor_partner');
+        if($vendor_partner === 'vendor'){
+            if($vendor_type != ""){
+                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",$vendor_type);
+            }else{
+                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
+            }
+            
+            $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
+        }else{
+            if($vendor_type != ""){
+                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner",$vendor_type);
+            }else{
+                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
+            }
+            
+            $data['partner'] = $this->partner_model->getpartner();
+        }
+        $data['is_ajax'] = TRUE;
+        echo $this->load->view('employee/invoice_list', $data);
+    }
 
     /**
      * @desc: This is used to get vendor, partner invoicing data by service center id or partner id
@@ -3042,7 +3065,7 @@ class Invoice extends CI_Controller {
                     $sc_details['amount_type'] = "DR";
                 }
 
-                if (trim($sc_details['bank_name']) === ICICI_BANK_NAME) {
+                if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
                     $sc_details['payment_mode'] = "I";
                 } else {
                     $sc_details['payment_mode'] = "N";

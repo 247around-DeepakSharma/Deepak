@@ -18,6 +18,10 @@
                                </div>';
                             }
                             ?>
+        
+        <?php if(isset($service_center)){ $vendor_partner = 'vendor';}else{ $vendor_partner = 'partner';}?>
+        <?php if(!isset($is_ajax)){ ?>
+            
         <a class="btn btn-lg btn-primary pull-right" style="margin-top:20px;" href="<?php echo base_url(); ?>employee/invoice/insert_update_invoice/<?php if (isset($service_center)) {
             echo 'vendor';
             } else {
@@ -32,36 +36,51 @@
                 </h1>
             </div>
         </div>
-        <div class="row" >
-            <div class="form-group">
-                <label for="state" class="col-sm-1">Select</label>
-                <div class="col-md-4">
-                    <?php if (isset($service_center)) { ?>
-                    <select class="form-control" name ="service_center" id="invoice_id" onChange="getInvoicingData('vendor')">
-                        <option disabled selected >Service Center</option>
-                        <?php
-                            foreach ($service_center as $vendor) {
-                                ?>
-                        <option value = "<?php echo $vendor['id'] ?>">
-                            <?php echo $vendor['name']; ?>
-                        </option>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="state" class="col-sm-2">Select</label>
+                <div class="form-group">
+                    <div class="col-md-8">
+                        <?php if (isset($service_center)) { ?>
+                        <select class="form-control" name ="service_center" id="invoice_id" onChange="getInvoicingData('vendor')">
+                            <option disabled selected >Service Center</option>
+                            <?php
+                                foreach ($service_center as $vendor) {
+                                    ?>
+                            <option value = "<?php echo $vendor['id'] ?>">
+                                <?php echo $vendor['name']; ?>
+                            </option>
+                            <?php } ?>
+                        </select>
+                        <?php } else { ?>
+                        <select class="form-control" name ="partner" id="invoice_id" onChange="getInvoicingData('partner')">
+                            <option disabled selected >Partner</option>
+                            <?php
+                                foreach ($partner as $partnerdetails) {
+                                    ?>
+                            <option value = "<?php echo $partnerdetails['id'] ?>">
+                                <?php echo $partnerdetails['public_name']; ?>
+                            </option>
+                            <?php } ?>
+                        </select>
                         <?php } ?>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <?php if(isset($service_center)){ $label = 'Select Service Center Type';}else{ $label = 'Select Partner Type' ;} ?>
+                <label for="sf_type" class="col-sm-5"><?php echo $label;?></label>
+                <div class="form-group col-sm-6">
+                    <select class="form-control" id="sf_type" onchange="getVendor()">
+                        <option value="active" selected>Active</option>
+                        <option value="disabled">Disabled</option>
+                        <option value="all">All</option>
                     </select>
-                    <?php } else { ?>
-                    <select class="form-control" name ="partner" id="invoice_id" onChange="getInvoicingData('partner')">
-                        <option disabled selected >Partner</option>
-                        <?php
-                            foreach ($partner as $partnerdetails) {
-                                ?>
-                        <option value = "<?php echo $partnerdetails['id'] ?>">
-                            <?php echo $partnerdetails['public_name']; ?>
-                        </option>
-                        <?php } ?>
-                    </select>
-                    <?php } ?>
                 </div>
             </div>
         </div>
+        <?php }?>
         <div class="col-md-12 col-md-offset-3"><img src="" id="loader_gif" /></div>
         <div class="row" style="margin-top: 20px;">
             <div class="col-md-12 ">
@@ -70,6 +89,7 @@
             <?php if (isset($invoicing_summary)) { ?>
             <div class="row" style="margin-top: 20px;" id="overall_summary">
                 <h2>Invoices Overall Summary</h2>
+                <form action="<?php echo base_url(); ?>employee/invoice/download_invoice_summary" method="POST" target="_blank">
                 <table class="table table-bordered  table-hover table-striped data"  >
                     <thead>
                         <tr>
@@ -86,7 +106,7 @@
                             <?php } ?>
                         </tr>
                     </thead>
-                    <form action="<?php echo base_url(); ?>employee/invoice/download_invoice_summary" method="POST" target="_blank">
+                    
                         <tbody>
                             <?php $foc = 0;
                                 $cash = 0; ?>
@@ -157,8 +177,9 @@
                                 <?php } ?>
                             </tr>
                         </tbody>
-                    </form>
+                   
                 </table>
+                 </form>
                 <?php } ?>
             </div>
         </div>
@@ -222,6 +243,7 @@ if(isset($_SESSION['file_error'])){
         $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loader.gif');
         var vendor_partner_id = $('#invoice_id').val();
         $('#overall_summary').css('display', 'none');
+        $("#invoicing_table").show();
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/invoice/getInvoicingData',
@@ -261,6 +283,25 @@ if(isset($_SESSION['file_error'])){
         $("#model_email_cc").val(email_cc);
     }
     $("#from_date").datepicker({dateFormat: 'yy-mm-dd'});
+    
+    
+    function getVendor(){
+        $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loadring.gif');
+        var vendor_type = $('#sf_type').val();
+        $("#invoicing_table").css('display', 'none');
+        $('#overall_summary').css('display', 'none');
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/invoice/invoice_listing_ajax/'+vendor_type,
+            data:{'vendor_partner': '<?php echo $vendor_partner; ?>'},
+            success: function (data) {
+                //console.log(data);
+                $('#loader_gif').attr('src', '');
+                $("#overall_summary").show();
+                $("#overall_summary").html(data);
+            }
+        });
+    }
     
 </script>
 
