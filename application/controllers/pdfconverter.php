@@ -19,7 +19,7 @@ class Pdfconverter extends CI_Controller {
      * @return json 
      */
     public function excel_to_pdf_converter() {
-        log_message("info", __METHOD__.print_r(_POST, TRUE));
+        log_message("info", __METHOD__.print_r($_POST, TRUE));
         if (isset($_POST['auth_key']) && $_POST['auth_key'] === PDF_CONVERTER_AUTH_KEY) {
             if (isset($_FILES['file_contents']['name'])) {
 
