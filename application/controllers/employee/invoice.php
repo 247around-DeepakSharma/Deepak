@@ -626,7 +626,7 @@ class Invoice extends CI_Controller {
             
             //generate main invoice pdf
             $excel_file_to_convert_in_pdf = TMP_FOLDER.$invoice_id.'.xlsx';
-            $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file_to_convert_in_pdf,$invoice_id);
+            $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file_to_convert_in_pdf,$invoice_id, "invoices-excel");
             log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result,TRUE));
             $pdf_response = json_decode($json_result,TRUE);
             if($pdf_response['response'] === 'Success'){

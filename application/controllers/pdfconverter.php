@@ -19,14 +19,16 @@ class Pdfconverter extends CI_Controller {
      * @return json 
      */
     public function excel_to_pdf_converter() {
+        log_message("info", __METHOD__.print_r(_POST, TRUE));
         if (isset($_POST['auth_key']) && $_POST['auth_key'] === PDF_CONVERTER_AUTH_KEY) {
             if (isset($_FILES['file_contents']['name'])) {
 
                 //get the post data and file data
                 $tmpFile = $_FILES['file_contents']['tmp_name'];
                 $excel_file_name = $_FILES['file_contents']['name'];
-                $bitbucket_directory = $_POST['bucket_dir'];
-                $id = $_POST['id'];
+                $bitbucket_directory =  $this->input->post('bucket_dir');
+                $id = $this->input->post('id');
+                $s3_folder_name = $this->input->post("s3_folder_name");
 
                 $tmp_path = TMP_FOLDER;
 
@@ -46,7 +48,7 @@ class Pdfconverter extends CI_Controller {
                 $result_var = '';
                 exec($cmd, $output, $result_var);
 
-                $return_data = $this->upload_pdf_to_s3($output_pdf_file, $output_pdf_file_name, $bitbucket_directory);
+                $return_data = $this->upload_pdf_to_s3($output_pdf_file, $output_pdf_file_name, $bitbucket_directory, $s3_folder_name);
 
                 if($return_data === 'success') {
                     
@@ -97,11 +99,11 @@ class Pdfconverter extends CI_Controller {
      * @param $bitbucket_directory string
      * @return string 
      */
-    private function upload_pdf_to_s3($output_pdf_file, $output_pdf_file_name, $bitbucket_directory) {
+    private function upload_pdf_to_s3($output_pdf_file, $output_pdf_file_name, $bitbucket_directory, $s3_folder_name) {
 
         if (file_exists($output_pdf_file) && (filesize($output_pdf_file)/1000) > 10) {
 
-            $directory_pdf = "invoices-excel/" . $output_pdf_file_name . '.pdf';
+            $directory_pdf = $s3_folder_name."/" . $output_pdf_file_name . '.pdf';
             $upload_pdf = $this->s3->putObjectFile(TMP_FOLDER . $output_pdf_file_name . '.pdf', $bitbucket_directory, $directory_pdf, S3::ACL_PUBLIC_READ);
 
             if ($upload_pdf) {
