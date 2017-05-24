@@ -902,9 +902,11 @@ class Upload_booking_file extends CI_Controller {
                     
                         $data['price_tags'] = "Installation & Demo";
                     } 
-                    if (stristr($rowData['ServiceChargeType'], "paid") || empty($rowData['ServiceChargeType']) ){
+                     if(empty($rowData['ServiceChargeType'])){
                         $data['query_remarks'] = "Paid";
-                    } 
+                    } else {
+                        $data['query_remarks'] = $rowData['ServiceChargeType'];
+                    }
                     $data['estimated_delivery_date'] = '';
                     $data['delivery_date'] = '';
                     $data['backup_estimated_delivery_date'] = '';
