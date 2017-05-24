@@ -94,6 +94,7 @@ class Upload_booking_file extends CI_Controller {
                         log_message('info', __FUNCTION__ . " Data Found");
                         $this->FilesData = array();
                         $this->FilesData = $value;
+                       
                         //Check whether order id exists or not
                         $partner_booking = $this->partner_model->get_order_id_for_partner($this->FilesData['partner_id'], $this->FilesData['order_id']);
 
@@ -161,7 +162,7 @@ class Upload_booking_file extends CI_Controller {
                             $int_status = $partner_booking['internal_status'];
                             switch ($file_type) {
                                 case 'delivered':
-                                    $this->order_id_exist_delivered_process($status, $partner_booking, $int_status);
+                                    $this->order_id_exist_delivered_process($status, $partner_booking, $int_status, $file_type);
                                     break;
                                 case 'shipped':
                                     $this->order_id_exist_shipped_process($partner_booking);
@@ -171,7 +172,7 @@ class Upload_booking_file extends CI_Controller {
                             $this->count_booking_not_updated++;
                         }
                     }
-                }
+                } 
                 $row_data = array();
                 $row_data['error']['total_booking_inserted'] = $count_booking_inserted;
                 $row_data['error']['total_booking_came_today'] = $this->total_booking_came_today;
@@ -224,7 +225,7 @@ class Upload_booking_file extends CI_Controller {
         log_message('info', __FUNCTION__ . ' => Updated Partner Lead: ' . $partner_booking['booking_id']);
     }
 
-    function order_id_exist_delivered_process($status, $partner_booking, $int_status) {
+    function order_id_exist_delivered_process($status, $partner_booking, $int_status, $file_type) {
         //If state is followup and booking date not empty, reset the date
         if ($status == "FollowUp" && $partner_booking['booking_date'] != '' &&
                 $int_status == 'Missed_call_not_confirmed') {
@@ -599,10 +600,11 @@ class Upload_booking_file extends CI_Controller {
                             $data1['shipped_date'] = "";
                             $data1['delivery_date'] = "";
                             $data1['query_remarks'] = "";
-                            $data['estimated_delivery_date'] = '';
-                            $data['backup_estimated_delivery_date'] = '';
-                            $data['backup_delivery_date'] = '';
+                            $data1['estimated_delivery_date'] = '';
+                            $data1['backup_estimated_delivery_date'] = '';
+                            $data1['backup_delivery_date'] = '';
                             array_push($Filedata, $data1);
+                            $data1 = array();
                             $i++;
                         } else {
                             array_push($sku_invalid, array($data[3]));
@@ -728,6 +730,7 @@ class Upload_booking_file extends CI_Controller {
                                             $data['request_type'] = "Installation & Demo";
                                             $data['price_tags'] = "Installation & Demo";
                                             array_push($FileData, $data);
+                                            $data = array(); 
                                             log_message('info', __FUNCTION__ . "=> Data Set..");
                                         } else {
                                             //array_push($pro_invalid_data, $rowData); 
@@ -851,6 +854,7 @@ class Upload_booking_file extends CI_Controller {
                     $data['query_remarks'] = '';
 
                     array_push($data1, $data);
+                    $data = array();
                 }
             }
         }
@@ -872,9 +876,10 @@ class Upload_booking_file extends CI_Controller {
 
                 $rowData = array_combine($headings_new[0], $rowData_array[0]);
 
-                $data['appliance_description'] = $rowData['Product_Name'] . ", " . $rowData['Model_Name'];
-                $ser_validate = $this->validate_product(trim($rowData['Product_Name']), trim($data['appliance_description']));
+                $appliance_description = $rowData['Product_Name'] . ", " . $rowData['Model_Name'];
+                $ser_validate = $this->validate_product(trim($rowData['Product_Name']), trim($appliance_description));
                 if ($ser_validate) {
+                    $data['appliance_description'] = $rowData['Product_Name'] . ", " . $rowData['Model_Name'];
                     $data['order_id'] = $rowData['CaseID'];
                     $data['name'] = $rowData['FirstName'];
                     $data['address'] = $rowData['Address'];
@@ -917,6 +922,7 @@ class Upload_booking_file extends CI_Controller {
                     $data['booking_date'] = "";
                     $data['partner_source'] = "Jeeves-delivered-excel";
                     array_push($data1, $data);
+                    $data = array();
                      
                 } else {
                     $this->table->add_row($rowData['MobilePhone']);
@@ -935,6 +941,7 @@ class Upload_booking_file extends CI_Controller {
 
             $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
         }
+        
         return $data1;
     }
 
