@@ -18,14 +18,22 @@ class Around_scheduler_model extends CI_Model {
      */
     function get_reminder_installation_sms_data_today() {
         //Filter using booking_date instead of EDD
-        $sql = "SELECT booking_details.*, `services`.services from booking_details, services 
-              WHERE partner_source IN ('Snapdeal-shipped-excel', 'Snapdeal-delivered-excel', 'STS', 'Paytm-delivered-excel' )
+        $sql = "SELECT `booking_details`.*, `services`.services, `partners`.public_name 
+              FROM booking_details, services, partners
+              WHERE partner_source IN (
+                'Snapdeal-shipped-excel', 
+                'Snapdeal-delivered-excel',
+                'STS', 
+                'Paytm-delivered-excel',
+                'Jeeves-delivered-excel'
+                )
 	      AND booking_date IN (
               DATE_FORMAT( CURDATE(),  '%d-%m-%Y' ),
               ''
               )
 	      AND current_status = 'FollowUp' AND internal_status != 'Missed_call_confirmed'
-              AND `booking_details`.service_id = `services`.id;";
+              AND `booking_details`.service_id = `services`.id 
+              AND `booking_details`.partner_id = `partners`.id ;";
         
 	$query = $this->db->query($sql);
         

@@ -56,7 +56,7 @@ class Around_scheduler extends CI_Controller {
                 $sms['smsData']['service'] = $value->services;
                 $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
                 $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
-
+                $sms['smsData']['public_name'] = $value->public_name;
 
                 $sms['booking_id'] = $value->booking_id;
                 $sms['type'] = "user";
