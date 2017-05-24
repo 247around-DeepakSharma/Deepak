@@ -898,15 +898,13 @@ class Upload_booking_file extends CI_Controller {
                     $data['booking_timeslot'] = "4PM-7PM";
                     $data['shipped_date'] = '';
                     $data['partner_serial_number'] = $rowData['SetSRLNo'];
-                    if (stristr($rowData['ComplaintType'], "installation")){
+                    $data['price_tags'] = '';
                     
+                    if (stristr($rowData['ComplaintType'], "installation")){
                         $data['price_tags'] = "Installation & Demo";
-                    } 
-                     if(empty($rowData['ServiceChargeType'])){
-                        $data['query_remarks'] = "Paid";
-                    } else {
-                        $data['query_remarks'] = $rowData['ServiceChargeType'];
                     }
+                    
+                    $data['query_remarks'] = $rowData['ServiceChargeType'];
                     $data['estimated_delivery_date'] = '';
                     $data['delivery_date'] = '';
                     $data['backup_estimated_delivery_date'] = '';
@@ -947,7 +945,7 @@ class Upload_booking_file extends CI_Controller {
      * @param boolean $validation
      */
     function send_mail_column($subject, $message, $validation) {
-        $to = "abhaya@247around.com";
+        $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
         $from = "booking@247around.com";
         $cc = "";
         $bcc = "";
