@@ -97,6 +97,7 @@ class Upload_booking_file extends CI_Controller {
                         //Check whether order id exists or not
                         $partner_booking = $this->partner_model->get_order_id_for_partner($this->FilesData['partner_id'], $this->FilesData['order_id']);
 
+                        //if order is not found
                         if (is_null($partner_booking)) {
                             // GET State, Taluk, District
                             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['pincode']));
@@ -112,21 +113,27 @@ class Upload_booking_file extends CI_Controller {
                             if (!empty($this->FilesData['appliance_brand'])) {
                                 //GET partner details. On the basis of service id, state, brand
                                 $p_data = $this->miscelleneous->allot_partner_id_for_brand($this->FilesData['service_id'], $this->FilesData['state'], $this->FilesData['appliance_brand']);
+                                
+                                //if $p_data is false, then partner id is same as for which file upload is done
+                                //else assign to new partner id
                                 if (!empty($p_data)) {
                                     $this->FilesData['partner_id'] = $p_data['partner_id'];
                                     $this->FilesData['source'] = $p_data['source'];
                                 }
                             }
+                            
                             // Create Booking ID
                             $this->set_booking_id();
 
                             log_message('info', __FUNCTION__ . "=> File type: " .
                                     ", Order ID NOT found: " . $this->FilesData['order_id']);
+                            
+                            //if brand does not exist, it gets automatically to brands table as well
                             $this->check_brand();
+                            
                             // Insert Booking Details
-                            $status = $this->insert_bookng_details();
+                            $status = $this->insert_booking_details();
                             if ($status) {
-
                                 $unit = $this->insert_appliance_booking_unitDetails($file_type);
                                 if ($unit) {
                                     if (isset($this->FilesData['sku'])) {
@@ -143,7 +150,11 @@ class Upload_booking_file extends CI_Controller {
                                 log_message('info', __FUNCTION__ . ' => ERROR: Booking is not inserted: ' .
                                         print_r($this->FilesData, true));
                             }
-                        } else if ($partner_id == SNAPDEAL_ID) {
+                        } 
+                        //If order id is found, then check whether partner is snapdeal or not
+                        //if it is snapdeal, then proceed further to find file type
+                        //if it is other partner, leave
+                        else if ($partner_id == SNAPDEAL_ID) {
                             log_message('info', __FUNCTION__ . "=> File type: " . $file_type .
                                     ", Order ID found: " . $value['order_id']);
                             $status = $partner_booking['current_status'];
@@ -297,13 +308,14 @@ class Upload_booking_file extends CI_Controller {
         
         $prices = array();
         if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
-            //if partner type is OEM then sent appliance brand in argument
+            //if partner type is OEM then send appliance brand in argument and get prices
             $prices = $this->partner_model->getPrices($unit_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $this->FilesData['price_tags'], $unit_details['appliance_brand']);
         } else {
-            //if partner type is not OEM then dose not sent appliance brand in argument
+            //if partner type is not OEM then dont send appliance brand in argument
             $prices = $this->partner_model->getPrices($unit_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,  $this->FilesData['price_tags'], "");
         }
 
+        //if price details are found in database
         if (!empty($prices)) {
             $unit_details['id'] = $prices[0]['id'];
             $unit_details['price_tags'] =  $this->FilesData['price_tags'];
@@ -316,12 +328,15 @@ class Upload_booking_file extends CI_Controller {
 
             $unit_id = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $this->FilesData['state'], 0);
         } else {
+            //if price details are not found
             $unit_id = $this->booking_model->addunitdetails($unit_details);
         }
 
+        //check whether this is an upcountry booking or not
         if ($unit_id) {
 
             $is_sms = $this->miscelleneous->check_upcountry($this->FilesData, $this->FilesData['services'], $is_price, $file_type);
+            //check whether sms is sent or not
             if (!$is_sms) {
                 $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
                 $booking['amount_due'] = $amount_due;
@@ -332,6 +347,7 @@ class Upload_booking_file extends CI_Controller {
 
             $this->booking_model->update_booking($this->FilesData['booking_id'], $booking);
         }
+        
         return $unit_id;
     }
 
@@ -355,7 +371,7 @@ class Upload_booking_file extends CI_Controller {
         return $this->booking_model->addappliance($appliance);
     }
 
-    function insert_bookng_details() {
+    function insert_booking_details() {
         log_message('info', "Entering: " . __METHOD__);
 
         $booking = array(
