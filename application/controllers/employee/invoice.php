@@ -624,69 +624,61 @@ class Invoice extends CI_Controller {
 
             log_message('info', __METHOD__ . "=> File created " . $files_name);
             
-            //generate main invoice pdf
-            $excel_file_to_convert_in_pdf = TMP_FOLDER.$invoice_id.'.xlsx';
+            $excel_file_to_convert_in_pdf = TMP_FOLDER.$invoice_id.'-draft.xlsx';
+            $output_pdf_file_name = $invoice_id.'-draft.xlsx';
+            if ($invoice_type == "final") {
+               //generate main invoice pdf
+               $excel_file_to_convert_in_pdf = TMP_FOLDER.$invoice_id.'.xlsx';
+               $output_pdf_file_name = $invoice_id.'.xlsx';
+            } 
             $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file_to_convert_in_pdf,$invoice_id, "invoices-excel");
             log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result,TRUE));
             $pdf_response = json_decode($json_result,TRUE);
-            $output_pdf_file_name = "";
+           
             if($pdf_response['response'] === 'Success'){
                 $output_pdf_file_name = $pdf_response['output_pdf_file'];
                 log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
             }else if($pdf_response['response'] === 'Error'){
-                $output_pdf_file_name = $invoice_id.'.xlsx';
+               
                 log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
             }
             
-            //Send report via email
-            $this->email->clear(TRUE);
-            $this->email->from('billing@247around.com', '247around Team');
-            $cc = "";
-            if ($invoice_type == "final") {
-                $to = $data[0]['invoice_email_to'];
-                $subject = "247around - " . $data[0]['company_name'] .
-                        " Invoice for period: " . $f_date . " to " . $t_date;
-
-                $cc = $data[0]['invoice_email_cc'];
-            } else {
-                $to = ANUJ_EMAIL_ID;
-                $cc = "";
-                $subject = "DRAFT Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
-                        " Invoice for period: " . $f_date . " to " . $t_date;
-            }
-
-            $this->email->to($to);
-            $this->email->cc($cc);
-            $this->email->subject($subject);
-            $this->email->attach($files_name . ".xlsx", 'attachment');
-//            if($output_file_excel !=""){
-//                $this->email->attach($output_file_excel, 'attachment');
-//            }
-            if ($invoice_type == "draft") {
-                $this->email->attach(TMP_FOLDER . $invoice_id . ".xlsx", 'attachment');
-            }
             
-          
-            $pdf_attachement_url = 'https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$output_pdf_file_name;
-            $this->email->attach($pdf_attachement_url, 'attachment');
-            
-
-            $mail_ret = $this->email->send();
-
-            if ($mail_ret) {
-                log_message('info', __METHOD__ . ": Mail sent successfully");
-                echo "Mail sent successfully..............." . PHP_EOL;
-            } else {
-                log_message('info', __METHOD__ . ": Mail could not be sent");
-                echo "Mail could not be sent..............." . PHP_EOL;
-            }
-
             array_push($file_names, $files_name . ".xlsx");
-            array_push($file_names, TMP_FOLDER . $invoice_id . ".xlsx");
+            array_push($file_names, $excel_file_to_convert_in_pdf);
             //array_push($file_names, TMP_FOLDER . $invoice_id . ".pdf");
 
             if ($invoice_type == "final") {
                 log_message('info', __METHOD__ . "=> Final");
+                
+                //Send report via email
+                $this->email->clear(TRUE);
+                $this->email->from('billing@247around.com', '247around Team');
+                $to = $data[0]['invoice_email_to'];
+                $subject = "247around - " . $data[0]['company_name'] .
+                        " Invoice for period: " . $f_date . " to " . $t_date;
+                
+                $cc = $data[0]['invoice_email_cc'];
+            
+                $this->email->to($to);
+                $this->email->cc($cc);
+                $this->email->subject($subject);
+                $this->email->attach($files_name . ".xlsx", 'attachment');
+
+                $pdf_attachement_url = 'https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$output_pdf_file_name;
+                $this->email->attach($pdf_attachement_url, 'attachment');
+
+
+                $mail_ret = $this->email->send();
+
+                if ($mail_ret) {
+                    log_message('info', __METHOD__ . ": Mail sent successfully");
+                    echo "Mail sent successfully..............." . PHP_EOL;
+                } else {
+                    log_message('info', __METHOD__ . ": Mail could not be sent");
+                    echo "Mail could not be sent..............." . PHP_EOL;
+                }
+
                 $bucket = BITBUCKET_DIRECTORY;
 
                 $directory_xls = "invoices-excel/" . $invoice_id . ".xlsx";
@@ -749,6 +741,24 @@ class Invoice extends CI_Controller {
                     foreach ($upcountry_invoice as $up_booking_details) {
                         $this->booking_model->update_booking($up_booking_details['booking_id'], array('upcountry_partner_invoice_id' => $invoice_id));
                     }
+                }
+            } else {
+                if (file_exists($files_name.".xlsx")) {
+                    $output_file_pdf = TMP_FOLDER.$invoice_id.'-draft.pdf';
+
+                    $cmd = "curl https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/" . $invoice_id.'-draft.pdf' . " -o " . $output_file_pdf;
+                    exec($cmd);
+                    system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER.$invoice_id.'-draft.xlsx'. ' ' . TMP_FOLDER.$invoice_id.'-draft.pdf'
+                           .' ' . $files_name.".xlsx");
+
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header("Content-Disposition: attachment; filename=\"$invoice_id.zip\"");
+                    readfile(TMP_FOLDER . $invoice_id . '.zip');
+                    $res1 = 0;
+                    system(" chmod 777 " .TMP_FOLDER . $invoice_id . '.zip ', $res1);
+                    exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '.zip'));
+                    exec("rm -rf " . escapeshellarg($output_file_pdf));
                 }
             }
 
@@ -1132,6 +1142,8 @@ class Invoice extends CI_Controller {
                     header('Content-Type: application/octet-stream');
                     header("Content-Disposition: attachment; filename=\"$invoice_id.zip\"");
                     readfile($output_file_dir . $invoice_id . '.zip');
+                    exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '.zip'));
+                    
                 }
             }
 
@@ -2282,8 +2294,11 @@ class Invoice extends CI_Controller {
                 ),
                     )
             );
-
-            $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".xlsx";
+            $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . "-draft.xlsx";
+            if($invoice_type == "final"){
+                $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".xlsx";
+            }
+            
             $res1 = 0;
             if (file_exists($output_file_excel)) {
 
