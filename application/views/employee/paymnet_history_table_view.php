@@ -34,14 +34,14 @@
                             <td><?php echo $value['InvoiceDate']; ?></td>
                             <td><?php echo $value['FromDate']; ?></td>
                             <td><?php echo $value['ToDate']; ?></td>
-                            <td><?php echo $value['TotalServiceCharge']; ?></td>
-                            <td><?php echo $value['ServiceTax']; ?></td>
-                            <td><?php echo $value['Parts']; ?></td>
-                            <td><?php echo $value['VAT']; ?></td>
-                            <td><?php echo $value['ConveyanceCharges']; ?></td>
-                            <td><?php echo $value['Courier']; ?></td>
-                            <td><?php echo $value['TotalAmountCollected']; ?></td>
-                            <td><?php echo $value['VAT Rate']; ?></td>
+                            <td><?php echo round($value['TotalServiceCharge'],0); ?></td>
+                            <td><?php echo round($value['ServiceTax'],0); ?></td>
+                            <td><?php echo round($value['Parts'],0); ?></td>
+                            <td><?php echo round($value['VAT'],0); ?></td>
+                            <td><?php echo round($value['ConveyanceCharges'],0); ?></td>
+                            <td><?php echo round($value['Courier'],0); ?></td>
+                            <td><?php echo round($value['TotalAmountCollected'],0); ?></td>
+                            <td><?php echo round($value['VAT Rate'],0); ?></td>
                         </tr>
                         <?php $sn++;
                     }
@@ -79,9 +79,9 @@
                             <td><?php echo $value['InvoiceDate']; ?></td>
                             <td><?php echo $value['FromDate']; ?></td>
                             <td><?php echo $value['ToDate']; ?></td>
-                            <td><?php echo $value['AroundRoyalty']; ?></td>
-                            <td><?php echo $value['ServiceTax']; ?></td>
-                            <td><?php echo $value['TotalAmountCollected']; ?></td>
+                            <td><?php echo round($value['AroundRoyalty'],0); ?></td>
+                            <td><?php echo round($value['ServiceTax'],0); ?></td>
+                            <td><?php echo round($value['TotalAmountCollected'],0); ?></td>
                         </tr>
                         <?php $sn++;
                     }
@@ -121,10 +121,10 @@
                             <td><?php echo $value['InvoiceDate']; ?></td>
                             <td><?php echo $value['FromDate']; ?></td>
                             <td><?php echo $value['ToDate']; ?></td>
-                            <td><?php echo $value['Parts']; ?></td>
-                            <td><?php echo $value['VAT']; ?></td>
-                            <td><?php echo $value['TotalAmount']; ?></td>
-                            <td><?php echo $value['VATRate']; ?></td>
+                            <td><?php echo round($value['Parts'],0); ?></td>
+                            <td><?php echo round($value['VAT'],0); ?></td>
+                            <td><?php echo round($value['TotalAmount'],0); ?></td>
+                            <td><?php echo round($value['VATRate'],0); ?></td>
                             <td><?php echo $value['Item']; ?></td>
                         </tr>
                         <?php $sn++;
@@ -177,16 +177,16 @@
                             <td><?php echo $value['InvoiceDate']; ?></td>
                             <td><?php echo $value['FromDate']; ?></td>
                             <td><?php echo $value['ToDate']; ?></td>
-                            <td><?php echo $value['ServiceCharges']; ?></td>
-                            <td><?php echo $value['ServiceTax']; ?></td>
-                            <td><?php echo $value['Parts']; ?></td>
-                            <td><?php echo $value['VAT']; ?></td>
-                            <td><?php echo $value['ConveyanceCharges']; ?></td>
-                            <td><?php echo $value['Courier']; ?></td>
-                            <td><?php echo $value['MiscDebit']; ?></td>
-                            <td><?php echo $value['MiscCredit']; ?></td>
-                            <td><?php echo $value['TotalAmount']; ?></td>
-                            <td><?php echo $value['VATRate']; ?></td>
+                            <td><?php echo round($value['ServiceCharges'],0); ?></td>
+                            <td><?php echo round($value['ServiceTax'],0); ?></td>
+                            <td><?php echo round($value['Parts'],0); ?></td>
+                            <td><?php echo round($value['VAT'],0); ?></td>
+                            <td><?php echo round($value['ConveyanceCharges'],0); ?></td>
+                            <td><?php echo round($value['Courier'],0); ?></td>
+                            <td><?php echo round($value['MiscDebit'],0); ?></td>
+                            <td><?php echo round($value['MiscCredit'],0); ?></td>
+                            <td><?php echo round($value['TotalAmount'],0); ?></td>
+                            <td><?php echo round($value['VATRate'],0); ?></td>
                         </tr>
                 <?php $sn++;
             }
@@ -221,8 +221,8 @@
                             <td><?php echo $value['ServiceTaxNo']; ?></td>
                             <td><?php echo $value['TINNo']; ?></td>
                             <td><?php echo $value['InvoiceDate']; ?></td>
-                            <td><?php echo $value['TotalAmount']; ?></td>
-                            <td><?php echo $value['VAT']; ?></td>
+                            <td><?php echo round($value['TotalAmount'],0); ?></td>
+                            <td><?php echo round($value['VAT'],0); ?></td>
                         </tr>
                 <?php $sn++;
             }
@@ -275,14 +275,14 @@
                                 <td><?php echo $value['name_on_pan']; ?></td>
                                 <td><?php echo $value['pan_no']; ?></td>
                                 <td><?php echo $value['owner_name']; ?></td>
-                                <td><?php echo $value['total_service_charge']; ?></td>
-                                <td><?php echo $value['total_additional_service_charge']; ?></td>
-                                <td><?php echo $value['service_tax']; ?></td>
-                                <td><?php echo $value['total_amount_collected']; ?></td>
-                                <td><?php echo $value['net_amount']; ?></td>
-                                <td><?php echo $value['tds_amount']; ?></td>
-                                <td><?php echo $value['tds_rate']; ?></td>
-                                <td><?php echo $value['amount_collected_paid']; ?></td>
+                                <td><?php echo round($value['total_service_charge'],0); ?></td>
+                                <td><?php echo round($value['total_additional_service_charge'],0); ?></td>
+                                <td><?php echo round($value['service_tax'],0); ?></td>
+                                <td><?php echo round($value['total_amount_collected'],0); ?></td>
+                                <td><?php echo round($value['net_amount'],0); ?></td>
+                                <td><?php echo round($value['tds_amount'],0); ?></td>
+                                <td><?php echo round($value['tds_rate'],0); ?></td>
+                                <td><?php echo round($value['amount_collected_paid'],0); ?></td>
                             </tr>
                     <?php $sn++;
                 }
@@ -315,8 +315,8 @@
                                 <td><?php echo $value['company_type']; ?></td>
                                 <td><?php echo $value['name_on_pan']; ?></td>
                                 <td><?php echo $value['pan_no']; ?></td>
-                                <td><?php echo $value['tds_amount']; ?></td>
-                                <td><?php echo $value['tds_rate']; ?></td>
+                                <td><?php echo round($value['tds_amount'],0); ?></td>
+                                <td><?php echo round($value['tds_rate'],0); ?></td>
                             </tr>
                     <?php $sn++;
                 }
