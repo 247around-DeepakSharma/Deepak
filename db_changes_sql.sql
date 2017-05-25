@@ -2172,9 +2172,12 @@ VALUES (NULL, 'completed_booking_promotional_sms_2', 'We are delighted to have s
 
 
 --Abhay 18 May
-UPDATE `booking_details` SET partner_id = "247001", partner_source = "AndroidApp" WHERE partner_id = 247002
-UPDATE `booking_details` SET partner_id = "247001", partner_source = "CallCenter" WHERE partner_id = 247003
-UPDATE `booking_details` SET  partner_source = "Website" WHERE partner_id = 247001
+UPDATE `booking_details` SET partner_id = "247001", partner_source = "AndroidApp" WHERE partner_id = 247002;
+UPDATE `booking_details` SET partner_id = "247001", partner_source = "CallCenter" WHERE partner_id = 247003;
+UPDATE `booking_details` SET partner_source = "Website" WHERE partner_id = 247001;
+
+UPDATE `booking_unit_details` SET partner_id = "247001" WHERE partner_id = 247002;
+UPDATE `booking_unit_details` SET partner_id = "247001" WHERE partner_id = 247003;
 
 -- sachin 19-05-2017
 
