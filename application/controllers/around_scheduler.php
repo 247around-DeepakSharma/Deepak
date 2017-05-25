@@ -445,7 +445,7 @@ class Around_scheduler extends CI_Controller {
             if ($this->email->send()) {
                 log_message('info', __METHOD__ . ": Mail sent successfully for PinCode Not Available To RM ");
             } else {
-                log_message('info', __METHOD__ . ": Mail could not be sent for RM: " . $p['public_name']);
+                log_message('info', __METHOD__ . ": Mail could not be sent to RM");
             }
         } else {
             $to = ANUJ_EMAIL_ID;
