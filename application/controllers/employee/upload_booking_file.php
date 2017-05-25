@@ -43,21 +43,22 @@ class Upload_booking_file extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->library('table');
 
-
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
             redirect(base_url() . "employee/login");
         }
     }
+
     /**
      * @desc This is used to load Upload form
-     */                
+     */
     function upload_booking_files() {
         log_message('info', __FUNCTION__);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view("employee/upload_booking_file");
     }
+
     /**
      * @desc This is used to process to upload form
      */
@@ -83,19 +84,21 @@ class Upload_booking_file extends CI_Controller {
                 }
 
                 $count_booking_inserted = 0;
-                    
+
                 if (!empty($data)) {
                     // SEND MAIl
-                    $subject = $file_type ." data validated. File is under process";
-                    $message  = $this->file_name. " validation Pass. File is under process";
+                    $subject = $file_type . " data validated. File is under process";
+                    $message = $this->file_name . " validation Pass. File is under process";
                     $this->send_mail_column($subject, $message, TRUE);
                     foreach ($data as $value) {
                         log_message('info', __FUNCTION__ . " Data Found");
                         $this->FilesData = array();
                         $this->FilesData = $value;
-                       //Check whether order id exists or not
+                       
+                        //Check whether order id exists or not
                         $partner_booking = $this->partner_model->get_order_id_for_partner($this->FilesData['partner_id'], $this->FilesData['order_id']);
-                        
+
+                        //if order is not found
                         if (is_null($partner_booking)) {
                             // GET State, Taluk, District
                             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['pincode']));
@@ -111,21 +114,27 @@ class Upload_booking_file extends CI_Controller {
                             if (!empty($this->FilesData['appliance_brand'])) {
                                 //GET partner details. On the basis of service id, state, brand
                                 $p_data = $this->miscelleneous->allot_partner_id_for_brand($this->FilesData['service_id'], $this->FilesData['state'], $this->FilesData['appliance_brand']);
+                                
+                                //if $p_data is false, then partner id is same as for which file upload is done
+                                //else assign to new partner id
                                 if (!empty($p_data)) {
                                     $this->FilesData['partner_id'] = $p_data['partner_id'];
                                     $this->FilesData['source'] = $p_data['source'];
                                 }
                             }
+                            
                             // Create Booking ID
                             $this->set_booking_id();
 
                             log_message('info', __FUNCTION__ . "=> File type: " .
                                     ", Order ID NOT found: " . $this->FilesData['order_id']);
+                            
+                            //if brand does not exist, it gets automatically to brands table as well
                             $this->check_brand();
+                            
                             // Insert Booking Details
-                            $status = $this->insert_bookng_details();
+                            $status = $this->insert_booking_details();
                             if ($status) {
-                    
                                 $unit = $this->insert_appliance_booking_unitDetails($file_type);
                                 if ($unit) {
                                     if (isset($this->FilesData['sku'])) {
@@ -142,7 +151,11 @@ class Upload_booking_file extends CI_Controller {
                                 log_message('info', __FUNCTION__ . ' => ERROR: Booking is not inserted: ' .
                                         print_r($this->FilesData, true));
                             }
-                        } else if ($partner_id == SNAPDEAL_ID) {
+                        } 
+                        //If order id is found, then check whether partner is snapdeal or not
+                        //if it is snapdeal, then proceed further to find file type
+                        //if it is other partner, leave
+                        else if ($partner_id == SNAPDEAL_ID) {
                             log_message('info', __FUNCTION__ . "=> File type: " . $file_type .
                                     ", Order ID found: " . $value['order_id']);
                             $status = $partner_booking['current_status'];
@@ -159,8 +172,8 @@ class Upload_booking_file extends CI_Controller {
                             $this->count_booking_not_updated++;
                         }
                     }
-                }
-                $row_data = array();              
+                } 
+                $row_data = array();
                 $row_data['error']['total_booking_inserted'] = $count_booking_inserted;
                 $row_data['error']['total_booking_came_today'] = $this->total_booking_came_today;
                 $row_data['error']['count_booking_updated'] = $this->count_booking_updated;
@@ -168,7 +181,7 @@ class Upload_booking_file extends CI_Controller {
 
                 if (isset($row_data['error'])) {
                     log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Errors found, sending mail now");
-                    $this->get_invalid_data($row_data['error'], $file_type, $this->file_name );
+                    $this->get_invalid_data($row_data['error'], $file_type, $this->file_name);
                 } else {
                     log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Wow, no errors found !!!");
                 }
@@ -245,7 +258,7 @@ class Upload_booking_file extends CI_Controller {
                 $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
             }
 
-            $is_sms = 1; #$this->miscelleneous->check_upcountry($partner_booking, $this->FilesData['appliance'], $is_price, $file_type);
+            $is_sms = $this->miscelleneous->check_upcountry($partner_booking, $this->FilesData['appliance'], $is_price, $file_type);
             if ($is_sms) {
                 $sms_count = 1;
             } else {
@@ -278,6 +291,7 @@ class Upload_booking_file extends CI_Controller {
             "partner_id" => $this->FilesData['partner_id'],
             "service_id" => $this->FilesData['service_id'],
             "appliance_id" => $appliance_id,
+            "partner_serial_number" => isset($this->FilesData['partner_serial_number']) ? $this->FilesData['partner_serial_number'] : NULL,
             "appliance_brand" => isset($this->FilesData['appliance_data'][0]['brand']) ? $this->FilesData['appliance_data'][0]['brand'] : $this->FilesData['appliance_brand'],
             "model_number" => $this->FilesData['model_number'],
             "booking_id" => $this->FilesData['booking_id'],
@@ -289,25 +303,23 @@ class Upload_booking_file extends CI_Controller {
         );
 
 
-        $where_get_partner = array('bookings_sources.partner_id' => $this->FilesData['partner_id']);
-        $select = "bookings_sources.partner_id,bookings_sources.price_mapping_id,bookings_sources.partner_type, bookings_sources.code, "
-                . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
-                . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
-                . " upcountry_rate1, upcountry_rate, partners.is_upcountry, public_name";
-        $partner_data = $this->partner_model->getpartner_details($select, $where_get_partner);
-        $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+        $this->initialized_variable->fetch_partner_data($this->FilesData['partner_id']);
+
+        $partner_mapping_id = $this->initialized_variable->get_partner_data()[0]['price_mapping_id'];
+        
         $prices = array();
-        if ($partner_data[0]['partner_type'] == OEM) {
-            //if partner type is OEM then sent appliance brand in argument
-            $prices = $this->partner_model->getPrices($unit_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, 'Installation & Demo', $unit_details['appliance_brand']);
+        if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
+            //if partner type is OEM then send appliance brand in argument and get prices
+            $prices = $this->partner_model->getPrices($unit_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $this->FilesData['price_tags'], $unit_details['appliance_brand']);
         } else {
-            //if partner type is not OEM then dose not sent appliance brand in argument
-            $prices = $this->partner_model->getPrices($unit_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, 'Installation & Demo', "");
+            //if partner type is not OEM then dont send appliance brand in argument
+            $prices = $this->partner_model->getPrices($unit_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,  $this->FilesData['price_tags'], "");
         }
 
+        //if price details are found in database
         if (!empty($prices)) {
             $unit_details['id'] = $prices[0]['id'];
-            $unit_details['price_tags'] = "Installation & Demo";
+            $unit_details['price_tags'] =  $this->FilesData['price_tags'];
             $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
             $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
             $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
@@ -317,12 +329,15 @@ class Upload_booking_file extends CI_Controller {
 
             $unit_id = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $this->FilesData['state'], 0);
         } else {
+            //if price details are not found
             $unit_id = $this->booking_model->addunitdetails($unit_details);
         }
 
+        //check whether this is an upcountry booking or not
         if ($unit_id) {
 
-            $is_sms = $this->miscelleneous->check_upcountry($this->FilesData, $this->FilesData['services'], $is_price, $file_type, $partner_data);
+            $is_sms = $this->miscelleneous->check_upcountry($this->FilesData, $this->FilesData['services'], $is_price, $file_type);
+            //check whether sms is sent or not
             if (!$is_sms) {
                 $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
                 $booking['amount_due'] = $amount_due;
@@ -333,6 +348,7 @@ class Upload_booking_file extends CI_Controller {
 
             $this->booking_model->update_booking($this->FilesData['booking_id'], $booking);
         }
+        
         return $unit_id;
     }
 
@@ -356,7 +372,7 @@ class Upload_booking_file extends CI_Controller {
         return $this->booking_model->addappliance($appliance);
     }
 
-    function insert_bookng_details() {
+    function insert_booking_details() {
         log_message('info', "Entering: " . __METHOD__);
 
         $booking = array(
@@ -377,7 +393,7 @@ class Upload_booking_file extends CI_Controller {
             "internal_status" => $this->FilesData['internal_status'],
             "partner_source" => $this->FilesData['partner_source'],
             "current_status" => _247AROUND_FOLLOWUP,
-            "query_remarks" => "",
+            "query_remarks" => isset($this->FilesData['query_remarks']) ? $this->FilesData['query_remarks'] : '',
             "booking_pincode" => $this->FilesData['pincode'],
             "delivery_date" => isset($this->FilesData['delivery_date']) ? $this->FilesData['delivery_date'] : '',
             "booking_address" => $this->FilesData['address'],
@@ -404,10 +420,11 @@ class Upload_booking_file extends CI_Controller {
             return false;
         }
     }
+
     /**
      * @desc If Appliance Brand is not exist then insert new brand
      * @return boolean
-     */                            
+     */
     function check_brand() {
         if (!empty($this->FilesData['appliance_brand'])) {
             $where = array('service_id' => $this->FilesData['service_id'], 'brand_name' => trim($this->FilesData['appliance_brand']));
@@ -534,7 +551,7 @@ class Upload_booking_file extends CI_Controller {
                 return $this->get_rowdata_for_paytm($highestRow, $highestColumn, $sheet, $headings_new, $partner_id);
             //break;
             case JEEEVES_ID:
-                return $this->get_rowdata_for_jeeves($highestRow, $highestColumn, $sheet, $headings_new, $file_type, $partner_id);
+                return $this->get_rowdata_for_jeeves($highestRow, $highestColumn, $sheet, $headings_new, $partner_id);
         }
     }
 
@@ -561,6 +578,7 @@ class Upload_booking_file extends CI_Controller {
                             $data1['partner_id'] = $partner_id;
                             $data1['appliance_data'] = $sku_validate;
                             $data1['request_type'] = $sku_validate[0]['service_category'];
+                            $data1['price_tags'] = $sku_validate[0]['service_category'];
                             $data1['reference_date'] = date('Y-m-d', strtotime($data[1]));
                             $data1['booking_date'] = date('d-m-Y', strtotime("+1 days", strtotime($data1['reference_date'])));
                             $data1['source'] = $sku_validate[0]['code'];
@@ -581,10 +599,12 @@ class Upload_booking_file extends CI_Controller {
                             $data1['partner_source'] = "Paytm";
                             $data1['shipped_date'] = "";
                             $data1['delivery_date'] = "";
-                            $data['estimated_delivery_date'] = '';
-                            $data['backup_estimated_delivery_date'] = '';
-                            $data['backup_delivery_date'] = '';
+                            $data1['query_remarks'] = "";
+                            $data1['estimated_delivery_date'] = '';
+                            $data1['backup_estimated_delivery_date'] = '';
+                            $data1['backup_delivery_date'] = '';
                             array_push($Filedata, $data1);
+                            $data1 = array();
                             $i++;
                         } else {
                             array_push($sku_invalid, array($data[3]));
@@ -666,7 +686,7 @@ class Upload_booking_file extends CI_Controller {
                                             $data['city'] = $rowData['CITY'];
                                             $data['email_id'] = (isset($rowData['Email_ID']) ? $rowData['Email_ID'] : "");
                                             $data['booking_primary_contact_no'] = $rowData['Phone'];
-                                            $data['email'] = $rowData['Email_ID'];
+                                            
                                             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData['Delivery_Date']);
                                             if ($file_type == "shipped") {
 
@@ -685,6 +705,7 @@ class Upload_booking_file extends CI_Controller {
                                                 $data['backup_delivery_date'] = '4AM-7PM';
                                                 $data['internal_status'] = _247AROUND_FOLLOWUP;
                                                 $data['booking_timeslot'] = '';
+                                                $data['query_remarks'] = '';
                                             } else {
 
 
@@ -707,7 +728,9 @@ class Upload_booking_file extends CI_Controller {
                                             $data['partner_id'] = $partner_id;
                                             $data['source'] = "SS";
                                             $data['request_type'] = "Installation & Demo";
+                                            $data['price_tags'] = "Installation & Demo";
                                             array_push($FileData, $data);
+                                            $data = array(); 
                                             log_message('info', __FUNCTION__ . "=> Data Set..");
                                         } else {
                                             //array_push($pro_invalid_data, $rowData); 
@@ -827,8 +850,11 @@ class Upload_booking_file extends CI_Controller {
                     $data['partner_source'] = "Paytm-delivered-excel";
                     $data['booking_date'] = date('d-m-Y', strtotime("+3 days", strtotime($data['shipped_date'])));
                     $data['request_type'] = 'Installation & Demo';
+                    $data['price_tags'] = 'Installation & Demo';
+                    $data['query_remarks'] = '';
 
                     array_push($data1, $data);
+                    $data = array();
                 }
             }
         }
@@ -838,7 +864,7 @@ class Upload_booking_file extends CI_Controller {
         return $data1;
     }
 
-    function get_rowdata_for_jeeves($highestRow, $highestColumn, $sheet, $headings_new, $file_type, $partner_id) {
+    function get_rowdata_for_jeeves($highestRow, $highestColumn, $sheet, $headings_new, $partner_id) {
         $data1 = array();
         $flag = 0;
         $this->table->set_heading('Phone Number');
@@ -850,9 +876,10 @@ class Upload_booking_file extends CI_Controller {
 
                 $rowData = array_combine($headings_new[0], $rowData_array[0]);
 
-                $data['appliance_description'] = $rowData['Product_Name'] . ", " . $rowData['Model_Name'];
-                $ser_validate = $this->validate_product(trim($rowData['Product_Name']), trim($data['appliance_description']));
+                $appliance_description = $rowData['Product_Name'] . ", " . $rowData['Model_Name'];
+                $ser_validate = $this->validate_product(trim($rowData['Product_Name']), trim($appliance_description));
                 if ($ser_validate) {
+                    $data['appliance_description'] = $rowData['Product_Name'] . ", " . $rowData['Model_Name'];
                     $data['order_id'] = $rowData['CaseID'];
                     $data['name'] = $rowData['FirstName'];
                     $data['address'] = $rowData['Address'];
@@ -875,6 +902,14 @@ class Upload_booking_file extends CI_Controller {
                     $data['request_type'] = 'Installation & Demo';
                     $data['booking_timeslot'] = "4PM-7PM";
                     $data['shipped_date'] = '';
+                    $data['partner_serial_number'] = $rowData['SetSRLNo'];
+                    $data['price_tags'] = '';
+                    
+                    if (stristr($rowData['ComplaintType'], "installation")){
+                        $data['price_tags'] = "Installation & Demo";
+                    }
+                    
+                    $data['query_remarks'] = $rowData['ServiceChargeType'];
                     $data['estimated_delivery_date'] = '';
                     $data['delivery_date'] = '';
                     $data['backup_estimated_delivery_date'] = '';
@@ -885,13 +920,16 @@ class Upload_booking_file extends CI_Controller {
                     $data['type'] = "Query";
                     $data['source'] = "SF";
                     $data['booking_date'] = "";
-                    $data['partner_source'] = "Jeeves-delivered";
+                    $data['partner_source'] = "Jeeves-delivered-excel";
                     array_push($data1, $data);
+                    $data = array();
+                     
                 } else {
                     $this->table->add_row($rowData['MobilePhone']);
                 }
             }
         }
+       
         if ($flag == 1) {
             //SEND MAIl
             $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
@@ -903,6 +941,7 @@ class Upload_booking_file extends CI_Controller {
 
             $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
         }
+        
         return $data1;
     }
 
@@ -913,7 +952,7 @@ class Upload_booking_file extends CI_Controller {
      * @param boolean $validation
      */
     function send_mail_column($subject, $message, $validation) {
-        $to = "abhaya@247around.com";
+        $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
         $from = "booking@247around.com";
         $cc = "";
         $bcc = "";

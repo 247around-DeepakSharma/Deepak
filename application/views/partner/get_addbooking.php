@@ -743,7 +743,7 @@
                          $('#submitform').prop('disabled', false);
                         
                     } else {
-                        alert("There is some problem in this Pincode Area. Please Contact to 247Around Team");
+                        alert("Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
                         $('#submitform').prop('disabled', true);
                         
                     }

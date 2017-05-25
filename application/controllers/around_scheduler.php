@@ -33,40 +33,30 @@ class Around_scheduler extends CI_Controller {
 
         //Get all queries where SMS needs to be sent
         $data1 = $this->around_scheduler_model->get_reminder_installation_sms_data_today();
+        $tag = "sd_edd_missed_call_reminder";
 
-        //Tag queries where Vendor is not available
-        $data2 = $this->booking_model->searchPincodeAvailable($data1, PINCODE_AVAILABLE);
-
-        //Send SMS to only customers where Vendor is Available
-        $sms['tag'] = "sd_edd_missed_call_reminder";
-
-        foreach ($data2 as $value) {
-            if ($value->sms_count < 3) {
-                $sms['phone_no'] = $value->booking_primary_contact_no;
-                $category = '';
-                if ($value->services == 'Geyser') {
-                    $where = array('booking_id' => $value->booking_id);
-                    $unit_details = $this->booking_model->get_unit_details($where);
-                    if (!empty($unit_details)) {
-                        $category = $unit_details[0]['appliance_category'];
-                    }
-                }
-
-                //Ordering of SMS data is important, check SMS template before changing it
-                $sms['smsData']['service'] = $value->services;
-                $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-                $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
-
-
-                $sms['booking_id'] = $value->booking_id;
-                $sms['type'] = "user";
-                $sms['type_id'] = $value->user_id;
-
-                $this->notify->send_sms_msg91($sms);
-                // This nis used to increase sms count
+        foreach ($data1 as  $value) {
+            $status = $this->sendTransactionalSmsMsg91($value->booking_primary_contact_no, $value->content);
+            log_message('info', __METHOD__ . print_r($status, 1));
+            if (ctype_alnum($status['content']) && strlen($status['content']) == 24) {
+                $this->notify->add_sms_sent_details($value->type_id, $value->type, $value->booking_primary_contact_no, 
+                         $value->content, $value->booking_id, $tag, $status['content']);
+                 
                 $this->booking_model->increase_escalation_reschedule($value->booking_id, "sms_count");
             } else {
-                log_message('info', __METHOD__ . '=> SMS not Sent because SMS Count greater or equal than 2');
+                $this->notify->add_sms_sent_details($value->type_id,  $value->type, $value->booking_primary_contact_no, 
+                         $value->content, $value->booking_id, $status['content']);
+                
+                log_message('info', "Message Not Sent - Booking id: " . $value->booking_id . ",
+        		please recheck tag: '" . $tag . "' & Phone Number - " . $value->booking_primary_contact_no);
+
+                $subject = 'SMS Sending Failed';
+                $message = "Please check SMS tag and phone number. Booking id is : " .
+                       $value->booking_id . " Tag is '" . $tag . "' & phone number is :" . $value->booking_primary_contact_no . " Result:"
+                        . " " . $status['content'];
+                $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
+
+                $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
             }
         }
         // Inserting values in scheduler tasks log

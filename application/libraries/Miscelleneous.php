@@ -682,8 +682,8 @@ class Miscelleneous {
      * @param: $id string booking_id/invoice_id/any_other_id for reference to file
      * @return: $result JSON
      */
-    public function convert_excel_to_pdf($excel_file,$id) {
-
+    public function convert_excel_to_pdf($excel_file,$id, $s3_folder_name) {
+        
         $output_file_excel = $excel_file;
         $target_url = PDF_CONVERTER_URL.'pdfconverter/excel_to_pdf_converter';
 
@@ -692,7 +692,9 @@ class Miscelleneous {
         } else { // 
             $cFile = '@' . realpath($output_file_excel);
         }
-        $post = array('bucket_dir' => BITBUCKET_DIRECTORY, 'id' => $id, 'file_contents' => $cFile,'auth_key'=>PDF_CONVERTER_AUTH_KEY);
+        $post = array('bucket_dir' => BITBUCKET_DIRECTORY, 'id' => $id, 
+            'file_contents' => $cFile,'auth_key'=>PDF_CONVERTER_AUTH_KEY,
+            's3_folder_name' => $s3_folder_name);
         $ch = curl_init();
         
         curl_setopt($ch, CURLOPT_URL, $target_url);

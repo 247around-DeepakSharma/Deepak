@@ -503,10 +503,10 @@
                         </td>
                         <td>
                                <?php
-                        echo "<a class='btn btn-sm col-md-4' style='background:#D81B60' "
-                            . "href=" . base_url() . "employee/vendor/get_escalate_booking_form/$row->booking_id/$row->current_status title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
                             // Case 0: When No Penalty has been Added for this Booking - Penalty can be Added in this case
-                        if ($row->penalty_active == '' ){                            
+                        if ($row->penalty_active == '' ){
+                            echo "<a class='btn btn-sm col-md-4' style='background:#D81B60' "
+                            . "href=" . base_url() . "employee/vendor/get_escalate_booking_form/$row->booking_id/$row->current_status title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
                             
                              echo "<a class='btn btn-sm  col-md-4' style='background:#FFEB3B;margin-left:10px;cursor:not-allowed;opacity:0.5;' "
                             . "href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>";
@@ -515,7 +515,9 @@
                             
                             // Case 1:Penalty to be Deducted - Penalty can be Removed Allowed in this case
                             if($row->penalty_active == 1){
-                               
+                                echo "<a style='background:#D81B60;cursor:not-allowed;opacity:0.5;' class='btn btn-sm  col-md-4' "
+                            . "href='javascript:void(0)' title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                             
                             ?>  
                             <!-- <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='return assign_id("<?php echo $row->booking_id?>","<?php echo $row->current_status?>")' data-toggle='modal' data-target='#penaltycancelmodal' href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a> -->
                             <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='get_penalty_details("<?php echo $row->booking_id?>","<?php echo $row->current_status?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
@@ -524,6 +526,9 @@
                             
                             //Case 2: Penalty has been Removed - No Action Permitted 
                             else if ($row->penalty_active == 0) {
+                                echo "<a class='btn btn-sm col-md-4' style='background:#F44336;cursor:not-allowed;opacity:0.5;'' "
+                            . "href='javascript:void(0)' title='Add Penalty Again'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                            
                              echo "<a  class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px;cursor:not-allowed;opacity:0.5;' "
                             . "href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>";
                                 
