@@ -283,7 +283,7 @@ function addBookingDialog() {
     }
 
 
-   if (source_code === "SA" || source_code === 'SC' || source_code === "SW") {
+   if (source_code === "S2") {
    } else {
 
        var order_id = $('#order_id').val();
