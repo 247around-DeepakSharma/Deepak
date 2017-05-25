@@ -121,10 +121,13 @@
                 </table>
 
             </div>
-             <form  action="<?php echo base_url()."partner/booking_form"; ?>" method="POST"> 
-                <input type="hidden" name="phone_number" value="<?php echo $data[0]['phone_number']; ?>">
-                <input type="submit" value="New Booking"  class=" btn btn-md btn-primary col-md-offset-4">
-            </form>
+            <?php if(!empty($data)){ ?> 
+                <form  action="<?php echo base_url()."partner/booking_form"; ?>" method="POST"> 
+                    <input type="hidden" name="phone_number" value="<?php echo $data[0]['phone_number']; ?>">
+                    <input type="submit" value="New Booking"  class=" btn btn-md btn-primary col-md-offset-4">
+                </form>
+            <?php }?>
+             
         </div>
         <div style="margin-left:35px;">
             <?php if (!empty($links)) { ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php
