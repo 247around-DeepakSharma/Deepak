@@ -2292,10 +2292,10 @@ class Booking extends CI_Controller {
             //Adding details in Booking State Change
             $this->notify->insert_state_change("", _247AROUND_CANCELLED, _247AROUND_FOLLOWUP, $data['cancellation_reason'] . " Phone: " . $missed_call_leads[0]['phone'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
-            $this->session->set_flashdata('cancel_leads', 'Leads has been cancelled for phone ' . $missed_call_leads[0]['phone']);
+            //$this->session->set_flashdata('cancel_leads', 'Leads has been cancelled for phone ' . $missed_call_leads[0]['phone']);
             redirect(base_url() . "employee/booking/get_missed_calls_view");
         } else {
-            $this->session->set_flashdata('cancel_leads', 'Leads had already Cancelled ');
+            //$this->session->set_flashdata('cancel_leads', 'Leads had already Cancelled ');
             redirect(base_url() . "employee/booking/get_missed_calls_view");
         }
     }

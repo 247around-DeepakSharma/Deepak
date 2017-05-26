@@ -321,7 +321,7 @@ define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
 
 //ADIL EMIL ID
-define("ADIL_EMAIL_ID", "adila@247around.com, abhaya@247around.com");
+define("ADIL_EMAIL_ID", "adila@247around.com");
 //rating new state
 define('RATING_NEW_STATE','Completed_With_Rating');
 
@@ -330,7 +330,7 @@ define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,
 
 //Email IDs when SF is not found in Vendor Pincode Mapping file
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
-define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com, abhaya@247around.com");
+define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com");
 
 
 
