@@ -2178,3 +2178,6 @@ UPDATE `booking_details` SET partner_id = "247001", partner_source = "AndroidApp
 UPDATE `booking_details` SET partner_id = "247001", partner_source = "CallCenter" WHERE partner_id = 247003
 UPDATE `booking_details` SET  partner_source = "Website" WHERE partner_id = 247001
 
+
+-- sachin 26 May
+ALTER TABLE `agent_daily_report_stats` ADD `rating` VARCHAR(11) NOT NULL AFTER `calls_recevied`;
