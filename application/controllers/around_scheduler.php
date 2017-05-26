@@ -20,6 +20,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('email');
         $this->load->library('notify');
         $this->load->library('PHPReport');
+        $this->load->library('table');
         $this->load->helper(array('form', 'url', 'file'));
         $this->load->dbutil();
     }
@@ -563,6 +564,39 @@ class Around_scheduler extends CI_Controller {
         $sms['type_id'] = $smsTypeId;
 
         $this->notify->send_sms_msg91($sms);
+    }
+    /**
+     * @desc This call from cron. AT 12:15, 15:15, 6:15 to send updated jeeves booking in the  Mail
+     */
+    function send_notification_mail_to_jeeves(){
+        $hour = 3;
+        if(date('H') < 13){
+            $hour = 12;
+        }
+
+        $data = $this->around_scheduler_model->get_status_changes_booking_with_in_hour($hour);
+        $template = array(
+        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+        );
+
+        $this->table->set_template($template);
+
+        $this->table->set_heading(array('Order ID', 'Booking ID', 'Current Status', 'Internal Status', 'Partner Status', 'Partner Internal Status'));
+        foreach($data as $value){
+            
+            $this->table->add_row($value['order_id'], $value['booking_id'], $value['current_status'], 
+                    $value['internal_status'], $value['partner_current_status'], $value['partner_internal_status']);
+
+        }
+
+        $to = NITS_ANUJ_EMAIL_ID;
+        $cc = "abhaya@247around.com";
+        
+        $subject = "Jeeves Booking Update Status";
+        $message = "Hi <br> Please Find Booking Status below, <br/>";
+        $message .= $this->table->generate();
+
+        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
     }
 
 }
