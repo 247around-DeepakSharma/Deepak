@@ -44,6 +44,7 @@
                                             <option value="ST" <?php if(isset($challan_data[0]['type']) && $challan_data[0]['type'] == 'ST' ){ ?>selected <?php }?>>Service Tax</option>
                                             <option value="VAT" <?php if(isset($challan_data[0]['type']) && $challan_data[0]['type'] == 'VAT' ){ ?>selected <?php }?>>VAT</option>
                                             <option value="TDS" <?php if(isset($challan_data[0]['type']) && $challan_data[0]['type'] == 'TDS' ){ ?>selected <?php }?>>TDS</option>
+                                            <option value="Other" <?php if(isset($challan_data[0]['type']) && $challan_data[0]['type'] == 'Other' ){ ?>selected <?php }?>>Other</option>
                                         </select>
                                         <span class="text-danger"><?php echo form_error('challan_type'); ?></span>
                                     </div>
