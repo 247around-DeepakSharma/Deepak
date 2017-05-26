@@ -18,7 +18,7 @@ class Around_scheduler_model extends CI_Model {
      */
     function get_reminder_installation_sms_data_today() {
         //Filter using booking_date instead of EDD
-        $sql = "SELECT DIstinct ss1.type_id,ss1.type,bd.booking_primary_contact_no,
+        $sql = "SELECT DISTINCT ss1.type_id,ss1.type,bd.booking_primary_contact_no,
                 ss1.booking_id, ss1.content FROM booking_details AS bd 
                 JOIN sms_sent_details AS ss1 ON (ss1.booking_id = bd.booking_id ) 
                 
@@ -34,7 +34,8 @@ class Around_scheduler_model extends CI_Model {
                 )
                 AND current_status = 'FollowUp' AND internal_status != 'Missed_call_confirmed'
                 AND sms_count < 3
-                AND ss1.sms_tag IN ('sd_delivered_missed_call_initial',  'sd_shipped_missed_call_initial')";
+                AND ss1.sms_tag IN ('sd_delivered_missed_call_initial',  'sd_shipped_missed_call_initial',
+                'missed_call_initial_prod_desc_not_found', 'partner_missed_call_for_installation')";
 
         $query = $this->db->query($sql);
         

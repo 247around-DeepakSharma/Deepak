@@ -261,7 +261,7 @@ define("PENALTY_ON_CANCELLED_BOOKING", TRUE);
 
 define ('SF_UNAVAILABLE_SMS_NOT_SENT', 'SMS Not Sent To Customer For Installation');
 //Upcountry Cap For Partner
-define ('UPCOUNTRY_DISTANCE_CAP', '100');
+define ('UPCOUNTRY_DISTANCE_CAP', '200');
 // Booking is not updated by service center
 define("BOOKING_IS_NOT_UPDATED_BY_SERVICE_CENTER_ID", 2);
 // Incentive Cut - Reschedule without reason
@@ -321,7 +321,7 @@ define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
 
 //ADIL EMIL ID
-define("ADIL_EMAIL_ID", "adila@247around.com, abhaya@247around.com");
+define("ADIL_EMAIL_ID", "adila@247around.com");
 //rating new state
 define('RATING_NEW_STATE','Completed_With_Rating');
 
@@ -330,7 +330,7 @@ define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,
 
 //Email IDs when SF is not found in Vendor Pincode Mapping file
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
-define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com, abhaya@247around.com");
+define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com");
 
 
 

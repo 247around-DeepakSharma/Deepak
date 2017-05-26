@@ -600,47 +600,24 @@ class Miscelleneous {
      */
     function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $file_type, $partner,$price) {
         log_message('info', __FUNCTION__ );
-        switch ($file_type) {
-            case "shipped":
-                $sms['tag'] = "sd_shipped_missed_call_initial";
+        
+        $sms['tag'] = "partner_missed_call_for_installation";
 
-                //ordering of smsData is important, it should be as per the %s in the SMS
-                $sms['smsData']['service'] = $appliance;
-                $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-                /* If price exist then send sms according to that otherwise
-                 *  send sms by checking function get_product_free_not
-                 */
-                if(!empty($price)){
-                    $sms['smsData']['message'] = $price;
-                }else{
-                    $sms['tag'] = "missed_call_initial_prod_desc_not_found";
-                    
-                }
-                $sms['smsData']['partner'] = $partner;
-                break;
+        //ordering of smsData is important, it should be as per the %s in the SMS
+        $sms['smsData']['service'] = $appliance;
+        $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
 
-            case "delivered":
-                $sms['tag'] = "sd_delivered_missed_call_initial";
-
-                //ordering of smsData is important, it should be as per the %s in the SMS
-                $sms['smsData']['service'] = $appliance;
-                $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-                /* If price exist then send sms according to that otherwise
-                 *  send sms by checking function get_product_free_not
-                 */
-                if(!empty($price)){
-                    
-                    $sms['smsData']['message'] = $price;
-                   
-                }else{
-                    $sms['tag'] = "missed_call_initial_prod_desc_not_found";
-                }
-                $sms['smsData']['partner'] = $partner;
-                break;
-
-            default:
-                return 0;
+        /* If price exist then send sms according to that otherwise
+         *  send sms by checking function get_product_free_not
+         */
+        if(!empty($price)){
+            $sms['smsData']['message'] = $price;
+        }else{
+            //Price does not go in this SMS template
+            $sms['tag'] = "missed_call_initial_prod_desc_not_found";
         }
+        
+        $sms['smsData']['partner'] = $partner;
 
 	$sms['phone_no'] = $phone_number;
 	$sms['booking_id'] = $booking_id;
