@@ -1,3 +1,9 @@
+<style>
+    #overall_summary .col-md-3 {
+        width: 25%;
+    }
+</style>
+
 <div id="page-wrapper">
     <div class="container-fluid">
         <?php if(validation_errors()){?>
@@ -88,6 +94,42 @@
             </div>
             <?php if (isset($invoicing_summary)) { ?>
             <div class="row" style="margin-top: 20px;" id="overall_summary">
+                <?php if(isset($service_center)){ ?>
+                    <div class="col-md-12">
+                        <div class="col-md-3">
+                            <div class="col-md-4">
+                                <div style="background-color: #eeff41;margin-top:10px;margin-bottom: 10px;border-radius: 10px;">&nbsp;&nbsp;</div>
+                            </div>
+                            <div class="col-md-8" style="margin-top:10px;margin-bottom: 10px;"> 
+                                <span>Account Details Not verified</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="col-md-4">
+                                <div style="background-color: #e57373;margin-top:10px;margin-bottom: 10px;border-radius: 10px;">&nbsp;&nbsp;</div>
+                            </div>
+                            <div class="col-md-8" style="margin-top:10px;margin-bottom: 10px;">
+                                <span >Vendor Temporary Off</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="col-md-4">
+                                <div style="background-color: #f44336;margin-top:10px;margin-bottom: 10px;border-radius: 10px;">&nbsp;&nbsp;</div>
+                            </div>
+                            <div class="col-md-8" style="margin-top:10px;margin-bottom: 10px;">
+                                <span >Vendor Not Active</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="col-md-4">
+                                <div style="background-color: #fff; border:1px solid #ccc;margin-top:10px;margin-bottom: 10px;border-radius: 10px;">&nbsp;&nbsp;</div>
+                            </div>
+                            <div class="col-md-8" style="margin-top:10px;margin-bottom: 10px;">
+                                <span >Verified</span>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
                 <h2>Invoices Overall Summary</h2>
                 <form action="<?php echo base_url(); ?>employee/invoice/download_invoice_summary" method="POST" target="_blank">
                 <table class="table table-bordered  table-hover table-striped data"  >
@@ -114,20 +156,20 @@
                                 foreach ($invoicing_summary as $key => $value) { ?>
                             <tr class="text-center" style = "<?php if (isset($value['on_off'])) {
                                 if ($value['active'] == 0) {
-                                    echo 'background-color:#FF8041;color:#fff;';
+                                    echo 'background-color:#f44336 ;color:#333;';
                                 } else if ($value['on_off'] == 0) {
-                                    echo "background-color:#FFEC8B;color:black;";
+                                    echo "background-color:#e57373;color:#333;";
                                 }
                                 }  if ($value['is_verified'] == 0) {
-                                    echo "background-color: #F9F952;";
+                                    echo "background-color: #eeff41;";
                                 }
                                 ?>">
                                 <td><?php echo $count; if($value['is_stand']> 0) { ?>   <i class="fa fa-star" aria-hidden="true"></i> <?php } ?></td>
                                 <td> <a style="<?php if (isset($value['on_off'])) {
                                     if ($value['active'] == 0) {
-                                        echo 'background-color:#FF8041;color:#fff;';
+                                        echo 'background-color:#f44336;color:#333;';
                                     } else if ($value['on_off'] == 0) {
-                                        echo "background-color:#FFEC8B;color:black;";
+                                        echo "background-color:#e57373;color:#333;";
                                     }
                                     }
                                     ?>" href="<?php echo base_url() ?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner'] ?>/<?php echo $value['id'] ?>" target='_blank'><?php echo $value['name'] ?></a></td>

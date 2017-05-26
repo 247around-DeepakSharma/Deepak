@@ -50,7 +50,7 @@ class Invoice extends CI_Controller {
      */
     public function index() {
         $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",'active');
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
