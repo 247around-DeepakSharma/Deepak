@@ -2010,7 +2010,6 @@ class Invoice extends CI_Controller {
                         'tds_amount' => 0.0,
                         'amount_paid' => 0.0,
                         'settle_amount' => 0,
-                        'amount_paid' => 0.0,
                         'mail_sent' => 1,
                         'sms_sent' => 1,
                         //Add 1 month to end date to calculate due date
@@ -2156,14 +2155,14 @@ class Invoice extends CI_Controller {
      * @parmas: Vendor id, bracket_invoicefile path
      * @return: boolean
      */
-    function send_brackets_invoice_draft_mail($vendor_id, $output_file_excel, $from_date) {
+    function send_brackets_invoice_draft_mail($vendor_id, $output_file, $from_date) {
 
         $invoice_month = date('F', strtotime($from_date));
 
         $vendor_details = $this->vendor_model->getVendorContact($vendor_id);
-
-        $to = ANUJ_EMAIL_ID;
-        $from = 'billing@247around.com';
+        
+        $output_file_excel = TMP_FOLDER.$output_file.".xlsx";
+        $output_file_pdf = TMP_FOLDER.$output_file.".pdf";
 
         $message = "Dear Partner,<br/><br/>";
         $message .= "Please find attached invoice for Brackets delivered in " . $invoice_month . ". ";
@@ -2175,8 +2174,24 @@ class Invoice extends CI_Controller {
                         <br>Website: www.247around.com
                         <br>Playstore - 247around -
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
+        
+        $this->email->clear(TRUE);
+        $this->email->from('billing@247around.com', '247around Team');
+        $to = ANUJ_EMAIL_ID;
+        $subject = 'DRAFT - Brackets Invoice - ' . $vendor_details[0]['name'];
+        
+        if(file_exists($output_file_excel)){
+            $this->email->attach($output_file_excel, 'attachment');
+        }
+        if(file_exists($output_file_pdf)){
+            $this->email->attach($output_file_pdf, 'attachment');
+        }
 
-        $send_mail = $this->notify->sendEmail($from, $to, '', '', 'DRAFT - Brackets Invoice - ' . $vendor_details[0]['name'], $message, $output_file_excel);
+        $this->email->to($to);
+        $this->email->subject($subject);
+        $this->email->message($message);
+
+        $send_mail = $this->email->send();
         if ($send_mail) {
             return TRUE;
         } else {
@@ -2203,14 +2218,14 @@ class Invoice extends CI_Controller {
         //Sending invoice copy to vendors in mail if invocie is being genetared
         if ($output_file) {
             
-            $output_file_excel = TMP_FOLDER.$output_file."xlsx";
+            $output_file_excel = TMP_FOLDER.$output_file.".xlsx";
             $output_file_pdf = TMP_FOLDER.$output_file.".pdf";
             
             log_message('info', __FUNCTION__ . " Excel file return " . $output_file_excel);
             // Not sending mail when vendor_id is all + draft
             if ($vendor_all_flag != 1 && $invoice_type == 'draft') {
                 //Sending mail to Anuj along with invoice copy as attachment
-                $send_mail = $this->send_brackets_invoice_draft_mail($vendor_id, $output_file_pdf, $from_date);
+                $send_mail = $this->send_brackets_invoice_draft_mail($vendor_id, $output_file, $from_date);
                 if ($send_mail) {
                     //Loggin Success
                     log_message('info', __FUNCTION__ . ' DRAFT INVOICE - Brackets invoice has been sent for the month of ' . $from_date);
