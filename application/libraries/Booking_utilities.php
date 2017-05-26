@@ -121,37 +121,28 @@ class Booking_utilities {
             $R->render('excel', $output_file_excel);
             $res1 = 0;
             system(" chmod 777 " . $output_file_excel, $res1);
-            //$output_file_pdf = $output_file_dir . $output_file . ".pdf";
-           
-
-            //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=278325305" . " -o " . $output_file_pdf;
-//            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-//            $tmp_path = libreoffice_pdf;
-//            $tmp_output_file = libreoffice_output_file;
-//            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-//                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-//                    $output_file_excel . ' 2> ' . $tmp_output_file;
-//
-//            $output = '';
-//            $result_var = '';
-//
-//            exec($cmd, $output, $result_var);
-//            $res2 = 0;
-//            system(" chmod 777 " . $output_file_pdf, $res2);
-//
-//            log_message('info', __FUNCTION__ . " Result Var Job card creation " . print_r($result_var, true));
-
-            //Upload Excel & PDF files to AWS
+            $output_file_pdf = $output_file . ".pdf";
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "jobcards-pdf/" . $output_file . ".xlsx";
-            $this->My_CI->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-            
-            //Update JOb Card Booking
-            $this->My_CI->booking_model->update_booking($booking_id,  array('booking_jobcard_filename' =>$output_file . ".xlsx"));
+            $json_result = $this->My_CI->miscelleneous->convert_excel_to_pdf($output_file_excel,$booking_id, "jobcards-pdf");
+            $pdf_response = json_decode($json_result,TRUE);
 
-            //$directory_pdf = "jobcards-pdf/" . $output_file . ".pdf";
-           // $this->My_CI->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
-            //exec("rm -rf " . escapeshellarg($output_file_pdf));
+            if($pdf_response['response'] === 'Success'){ 
+                //Update JOb Card Booking
+                $this->My_CI->booking_model->update_booking($booking_id,  array('booking_jobcard_filename'=>$output_file_pdf));
+                $directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
+                $this->My_CI->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+
+            } else {
+                
+                $directory_pdf = "jobcards-pdf/" . $output_file . ".xlsx";
+                $this->My_CI->s3->putObjectFile($output_file_excel, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                //Update JOb Card Booking
+                $this->My_CI->booking_model->update_booking($booking_id,  array('booking_jobcard_filename'=>$output_file .".xlsx"));
+
+                log_message('info', __FUNCTION__ . ' Error in Booking PDF not created '. $booking_id);
+            }
+        
+
             exec("rm -rf " . escapeshellarg($output_file_excel));
         }
 
