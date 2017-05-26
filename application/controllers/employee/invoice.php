@@ -50,9 +50,9 @@ class Invoice extends CI_Controller {
      */
     public function index() {
         $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",'active');
+
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
     }
     
@@ -3564,6 +3564,7 @@ class Invoice extends CI_Controller {
                         'invoice_date' => date('Y-m-d'),
                         'tds_amount' => 0.0,
                         'settle_amount' => 0,
+                        'amount_paid' => 0.0,
                         'mail_sent' => 1,
                         'sms_sent' => 1,
                         'courier_charges' => $courier_charges,
