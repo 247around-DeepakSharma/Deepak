@@ -605,7 +605,7 @@ class Upcountry_model extends CI_Model {
         $data = array('pincode1' => $dp1, 'pincode2' => $dp2,'distance' => $distance,
             'agent_id'=> $agent_id, "create_date" => date('Y-m-d H:i:s'));
         
-        $this->db->insert('distance_between_pincode',$data );
+        $this->db->insert_ignore('distance_between_pincode',$data );
         return $this->db->insert_id();
     }
     /**
