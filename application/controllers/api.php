@@ -1295,7 +1295,8 @@ class Api extends CI_Controller {
                             //Logging
                             log_message('info', __FUNCTION__ . ' New Entry for SAME PHONE has been added in partner_missed_calls table with no: ' . $num);
                             //Adding details in Booking State Change
-                            $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                            $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num,
+                                    _247AROUND_DEFAULT_AGENT,_247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
                         } else {
                             //Logging
                             log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
@@ -1313,7 +1314,9 @@ class Api extends CI_Controller {
                             //Logging
                             log_message('info', __FUNCTION__ . ' New Phone has been added in partner_missed_calls table with no: ' . $num);
                             //Adding details in Booking State Change
-                            $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                            $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, 
+                                    _247AROUND_DEFAULT_AGENT, 
+                                    _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
                         } else {
                             //Logging
                             log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
@@ -1380,9 +1383,13 @@ class Api extends CI_Controller {
                         } else {
                             log_message('info', __METHOD__ . '=> Booking confirmation '
                                     . 'through missed call succeeded for ' . $b['booking_id']);
-                            $u = array('booking_status' => '');
+                            $u = array('booking_status' => 'FollowUp');
                             //Update unit details
                             $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
+                             $this->notify->insert_state_change($b['booking_id'], $b['current_status'], _247AROUND_FOLLOWUP, 
+                                     "Booking Open After Customer Missed Call",_247AROUND_DEFAULT_AGENT, 
+                                     _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                    
                         }
                     }
                 }
