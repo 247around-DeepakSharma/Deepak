@@ -143,7 +143,7 @@ class Miscelleneous {
     }
     
     function assign_upcountry_booking($booking_id, $agent_id, $agent_name) {
-        log_message('info', __METHOD__ . " => Entering " . $booking_id);
+        log_message('info', __METHOD__ . " => Entering " . $booking_id.' agent_id: '.$agent_id.' agent_name: '.$agent_name);
         $query1 = $this->My_CI->booking_model->getbooking_history($booking_id, "1");
         $vendor_data = array();
         if (!empty($query1[0]['assigned_vendor_id'])) {
@@ -303,7 +303,7 @@ class Miscelleneous {
 
     function process_cancel_form($booking_id, $status,$cancellation_reason, $cancellation_text,
         $agent_id, $agent_name, $partner_id) {
-        log_message('info', __METHOD__ . " => Entering " . $booking_id);
+        log_message('info', __METHOD__ . " => Entering " . $booking_id,' status: '.$status.' cancellation_reason: '.$cancellation_reason.' agent_id: '.$agent_id.' agent_name: '.$agent_name.' partner_id: '.$partner_id);
         $data['internal_status'] = $data['cancellation_reason'] = $cancellation_reason;
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
 
@@ -471,7 +471,7 @@ class Miscelleneous {
      * @return boolean
      */
     function check_upcountry($booking, $appliance, $is_price, $file_type) {
-        log_message('info', __FUNCTION__ );
+        log_message('info', __FUNCTION__ .' booking_data: '.  print_r($booking,true).' appliance: '. print_r($appliance,true).' file_type: '.$file_type);
         $partner_data = $this->My_CI->initialized_variable->get_partner_data();
         if (!empty($is_price)) {
             log_message('info', __FUNCTION__ . ' Price Exist');
@@ -593,7 +593,7 @@ class Miscelleneous {
      * @return int
      */
     function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $file_type, $partner,$price) {
-        log_message('info', __FUNCTION__ );
+        log_message('info', __FUNCTION__.' phone_number: '.$phone_number.' user_id: '.$user_id.' booking_id: '. $booking_id.' partner: '.$partner.' appliance: '.$appliance.' price: '.$price);
         
         $sms['tag'] = "partner_missed_call_for_installation";
 
