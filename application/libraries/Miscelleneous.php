@@ -233,7 +233,8 @@ class Miscelleneous {
                             $to = NITS_ANUJ_EMAIL_ID;
                             $cc = "abhaya@247around.com";
                             $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
-                                    . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'];
+                                    . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'].
+                                    " Upcountry Pincode ".$data['upcountry_pincode']. " SF Name ".$query1[0]['vendor_name'];
                             $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
 
                             $return_status = FALSE;
