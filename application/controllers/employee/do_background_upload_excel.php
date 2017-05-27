@@ -407,14 +407,13 @@ class Do_background_upload_excel extends CI_Controller {
                 //get partner data to check the price
                 
                 $this->initialized_variable->fetch_partner_data($booking['partner_id']);
-                
-                $partner_mapping_id = $this->initialized_variable->get_partner_data()[0]['price_mapping_id'];
+               
                 if($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM){
                      //if partner type is OEM then sent appliance brand in argument
-                    $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo', $unit_details['appliance_brand']);
+                    $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'],  $booking['partner_id'],'Installation & Demo', $unit_details['appliance_brand']);
                 } else {
                      //if partner type is not OEM then dose not sent appliance brand in argument
-                    $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',"");
+                    $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'],  $booking['partner_id'],'Installation & Demo',"");
                 }
                 $booking['amount_due'] = '0';
                 $is_price = array();
@@ -556,12 +555,11 @@ class Do_background_upload_excel extends CI_Controller {
                             $brand = isset($value['service_appliance_data']['brand']) ? $value['service_appliance_data']['brand'] : $value['Brand'];
                             
                             $this->initialized_variable->fetch_partner_data($partner_booking['partner_id']);
-                            $partner_mapping_id =  $this->initialized_variable->get_partner_data()[0]['price_mapping_id'];
                             
                             if ( $this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
-                                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_mapping_id, 'Installation & Demo', $brand);
+                                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], 'Installation & Demo', $brand);
                             } else {
-                                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_mapping_id, 'Installation & Demo', "");
+                                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], 'Installation & Demo', "");
                             }
                             
                             $is_price = array();

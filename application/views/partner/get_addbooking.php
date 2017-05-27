@@ -41,7 +41,7 @@
                                     <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
                                     <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
                                     <input type="hidden" name="partner_code" id="partner_code" value="<?php echo $partner_code;?>" />
-                                    <input type="hidden" name="partner_price_mapping_id" id="partner_price_mapping_id" value="<?php echo $partner_price_mapping_id;?>" />
+                                    
                                     <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($user[0]['name'])){ echo $user[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php //if(isset($user[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name">
                                     <?php echo form_error('user_name'); ?>
                                 </div>
@@ -481,7 +481,7 @@
     //This funciton is used to get Distinct Brands for selected service for Logged Partner
     function get_brands(){
         service_id =  $("#service_name").val();
-        partner_price_mapping_id = $("#partner_price_mapping_id").val();
+        
         partner_type = $("#partner_type").val();
         
         
@@ -492,7 +492,7 @@
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_brands_from_service',
                         data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
-                    brand:'<?php echo set_value('appliance_brand');?>', partner_price_mapping_id:partner_price_mapping_id,
+                    brand:'<?php echo set_value('appliance_brand');?>', 
                         partner_type:partner_type},
                         success: function (data) {
                                
@@ -511,7 +511,7 @@
     function get_category(){
         service_id =  $("#service_name").val();
         brand =  $("#appliance_brand_1").val();
-        partner_price_mapping_id = $("#partner_price_mapping_id").val();
+        
         partner_type = $("#partner_type").val();
        
         $.ajax({
@@ -521,7 +521,7 @@
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_category_from_service',
                         data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
-                    brand: brand, partner_price_mapping_id:partner_price_mapping_id,
+                    brand: brand,
                         partner_type:partner_type},
                         success: function (data) {
                               
@@ -542,7 +542,7 @@
         service_id =  $("#service_name").val();
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
-        partner_price_mapping_id = $("#partner_price_mapping_id").val();
+        
         partner_type = $("#partner_type").val();
         
         $.ajax({
@@ -552,7 +552,7 @@
             },
             url: '<?php echo base_url(); ?>employee/partner/get_capacity_for_partner',
             data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
-        brand: brand,category:category, partner_price_mapping_id:partner_price_mapping_id,
+        brand: brand,category:category, 
                         partner_type:partner_type},
             
             success: function (data) {
@@ -578,7 +578,7 @@
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
         capacity = $("#appliance_capacity_1").val();
-        partner_price_mapping_id = $("#partner_price_mapping_id").val();
+        
         partner_type = $("#partner_type").val();
         if(capacity === null && capacity === ""){
             capacity = '';
@@ -588,7 +588,7 @@
                         type: 'POST',
                         url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner',
                         data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
-                        brand: brand,category:category,capacity:capacity,partner_price_mapping_id:partner_price_mapping_id,
+                        brand: brand,category:category,capacity:capacity,
                         partner_type:partner_type},
                        
                         success: function (data) {
@@ -627,7 +627,7 @@
         postData['service_category'] = "";
         postData['pincode'] = $("#booking_pincode").val();
         postData['city'] = $("#booking_city").val();
-        postData['partner_price_mapping_id'] = $("#partner_price_mapping_id").val();
+        
         postData['partner_type'] = $('#partner_type').val();
         postData['assigned_vendor_id'] = "";
         
@@ -676,7 +676,6 @@
 //        postData['brand'] = $('#appliance_brand_1').val();
 //        postData['category'] = $("#appliance_category_1").val();
 //        capacity = $("#appliance_capacity_1").val();
-//        postData['partner_price_mapping_id'] = '<?php //echo $partner_price_mapping_id;?>';
 //        postData['partner_type'] = '<?php //echo $partner_type;?>';
 //        $("#total_price").html("<br/>Rs.");
 //        if(capacity === null && capacity === ""){
