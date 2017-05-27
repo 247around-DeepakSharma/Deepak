@@ -114,7 +114,7 @@
                                         <select type="text" onchange= "getAppliance()" class="booking_source form-control"  id="source_code" name="source_code" required>
                                             <option selected="selected" disabled="disabled">Select Booking Source</option>
                                             <?php foreach ($sources as $key => $values) { ?>
-                                            <option  value=<?php echo $values['code']; ?>>
+                                            <option  data-id="<?php echo $values['partner_id']; ?>" value=<?php echo $values['code']; ?>>
                                                 <?php echo $values['source']; }    ?>
                                             </option>
                                             <?php echo form_error('source_code'); ?>

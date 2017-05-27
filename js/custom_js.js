@@ -54,7 +54,7 @@ function getCategoryForService(div_id) {
     var div_no = div_id.split('_');
 
     postData['service_id'] = $("#service_id").val();
-    postData['partner_code'] = $("#source_code option:selected").val();
+    postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
     postData['partner_type'] = $("#partner_type").val();
     postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
 
@@ -83,7 +83,7 @@ function getCapacityForCategory(category, div_id) {
     var div_no = div_id.split('_');
 
     postData['service_id'] = $("#service_id").val();
-    postData['partner_code'] = $("#source_code option:selected").val();
+    postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
     postData['category'] = category;
     postData['partner_type'] = $("#partner_type").val();
     postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
@@ -118,12 +118,13 @@ function getPricesForCategoryCapacity(div_id) {
         postData['service_id'] = $("#service_id").val();
         postData['brand'] = $('#appliance_brand_' + div_no[2]).val();
         postData['category'] = $("#appliance_category_" + div_no[2]).val();
-        postData['partner_code'] = $("#source_code option:selected").val();
+        
         postData['partner_type'] = $("#partner_type").val();
         postData['booking_city'] = $("#booking_city").val();
         postData['booking_pincode'] = $("#booking_pincode").val();
         postData['clone_number'] = div_no[2];
         postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
+        postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
         $('#submitform').attr('disabled', true);
 
         if ($("#appliance_capacity_" + div_no[2]).val() !== "") {

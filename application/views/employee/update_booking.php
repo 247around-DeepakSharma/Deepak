@@ -115,7 +115,7 @@
                                         <select onchange= "getAppliance('<?php echo $booking_history[0]['service_id'];?>')" class="booking_source form-control"  id="source_code" name="source_code" required>
                                             <option selected="selected" disabled="disabled">Select Booking Source</option>
                                             <?php foreach ($sources as $key => $values) { ?>
-                                            <option <?php if($values['code'] == $booking_history[0]['source']){ echo "selected"; } ?> value=<?php echo $values['code']; ?>>
+                                            <option data-id="<?php echo $values['partner_id']; ?>" <?php if($values['code'] == $booking_history[0]['source']){ echo "selected"; } ?> value=<?php echo $values['code']; ?>>
                                                 <?php echo $values['source']; }    ?>
                                             </option>
                                         </select>
@@ -794,24 +794,24 @@
     postData['service_id'] = $("#service_id").val();
     postData['brand'] = $('#appliance_brand_1').val();
     postData['category'] = $("#appliance_category_1").val();
-    postData['partner_code'] = $("#source_code option:selected").val();  
+     
     postData['partner_type'] =  $("#partner_type").val();
     postData['booking_city'] =  $("#booking_city").val();
     postData['booking_pincode'] =  $("#booking_pincode").val();
     postData['clone_number'] = 1;
-     postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
+    postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
     postData['capacity'] = $("#appliance_capacity_1").val();
+    postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
     $('#submitform').attr('disabled',true);
 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
-        //console.log(data);
-        var data1 = jQuery.parseJSON(data);
-        
-        $("#upcountry_data").val(data1.upcountry_data);
-        final_price();
-    
-        set_upcountry();
-        $('#submitform').attr('disabled',false);
+        console.log(data);
+//        var data1 = jQuery.parseJSON(data);
+//        
+//        $("#upcountry_data").val(data1.upcountry_data);
+//        final_price();
+//        $('#submitform').attr('disabled',false);
+//        set_upcountry();
        
     });
    
