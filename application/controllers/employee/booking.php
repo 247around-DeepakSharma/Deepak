@@ -500,7 +500,7 @@ class Booking extends CI_Controller {
         $data['booking_id'] = $booking_id;
         $data['query_to_booking'] = '0';
 
-        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
+        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id." Booking Type: ".$booking_type);
 
         switch ($booking_type) {
             case "Booking":
@@ -791,7 +791,7 @@ class Booking extends CI_Controller {
      *  @return : cancels the booking and load view
      */
     function process_cancel_form($booking_id, $status, $agent_id = false, $agent_name = false) {
-        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id . " Done By " . $this->session->userdata('employee_id'));
+        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id . " Done By " . $this->session->userdata('employee_id')." And Status:".$status);
 
         $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required|xss_clean');
         $this->form_validation->set_rules('partner_id', 'Partner Id', 'required|xss_clean');
@@ -2062,6 +2062,8 @@ class Booking extends CI_Controller {
      *  @return : redirect user controller
      */
     function open_cancelled_query($booking_id) {
+        log_message('info', __FUNCTION__ ."Booking_ID: " .$booking_id);
+        
         $status = array("current_status" => "FollowUp",
             "internal_status" => "FollowUp",
             "cancellation_reason" => NULL,
@@ -2176,6 +2178,8 @@ class Booking extends CI_Controller {
      * 
      */
     function update_vendor_inventory($booking_id) {
+        log_message('info', __FUNCTION__ ." Booking_ID: " .$booking_id);
+        
         //Managing Vendor Inventory
         $_19_24_current_count = 0;
         $_26_32_current_count = 0;
@@ -2523,26 +2527,18 @@ class Booking extends CI_Controller {
     public function send_rating_sms($phone_no, $rating,$user_id,$booking_id) {
         if ($rating < '3') {
             $sms['tag'] = "poor_rating_on_completion";
-            $sms['smsData']['rating_no'] = $rating;
-            $sms['phone_no'] = $phone_no;
-            $sms['booking_id'] = $booking_id;
-            $sms['type'] = "rating";
-            $sms['type_id'] = $user_id;
         }else if($rating === '3'){
             $sms['tag'] = "avg_rating_on_completion";
-            $sms['smsData']['rating_no'] = $rating;
-            $sms['phone_no'] = $phone_no;
-            $sms['booking_id'] = $booking_id;
-            $sms['type'] = "rating";
-            $sms['type_id'] = $user_id;
         }else if ($rating > '3') {
             $sms['tag'] = "good_rating_on_completion";
-            $sms['smsData']['rating_no'] = $rating;
-            $sms['phone_no'] = $phone_no;
-            $sms['booking_id'] = $booking_id;
-            $sms['type'] = "rating";
-            $sms['type_id'] = $user_id;
         }
+        
+        $sms['smsData']['rating_no'] = $rating;
+        $sms['phone_no'] = $phone_no;
+        $sms['booking_id'] = $booking_id;
+        $sms['type'] = "rating";
+        $sms['type_id'] = $user_id;
+        
         $this->notify->send_sms_msg91($sms);
         log_message('info', __METHOD__ . ' SMS Sent for rating' . $phone_no);
     }

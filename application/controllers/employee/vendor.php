@@ -762,7 +762,7 @@ class vendor extends CI_Controller {
      * @return : array(of details) to view
      */
     function editvendor($id) {
-        
+        log_message('info',__FUNCTION__.' id: '.$id);
         $query = $this->vendor_model->editvendor($id);
         if(!empty($query)){
         $results['services'] = $this->vendor_model->selectservice();
@@ -1042,6 +1042,7 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function process_reassign_vendor_form() {
+        log_message('info',__FUNCTION__);
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
         $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
         if ($this->form_validation->run()) {
@@ -1381,6 +1382,7 @@ class vendor extends CI_Controller {
      * @return : Takes to view
      */
     function process_vendor_escalation_form() {
+        log_message('info',__FUNCTION__);
         $escalation['booking_id'] = $this->input->post('booking_id');
         $escalation['vendor_id'] = $this->input->post('vendor_id');
         //Get SF to RM relation if present
@@ -2696,20 +2698,26 @@ class vendor extends CI_Controller {
                     $ops = $value;
                 }
             }
-            if ($searchOper == 'eq')
-                $searchString = $searchString;
-            if ($searchOper == 'bw' || $searchOper == 'bn')
+            if ($searchOper == 'eq'){
+                $searchString = $searchString;   
+            }
+            if ($searchOper == 'bw' || $searchOper == 'bn'){
                 $searchString .= '%';
-            if ($searchOper == 'ew' || $searchOper == 'en')
+            }   
+            if ($searchOper == 'ew' || $searchOper == 'en'){
                 $searchString = '%' . $searchString;
-            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni')
+            }
+            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni'){
                 $searchString = '%' . $searchString . '%';
+            }
+                
 
             $where = "$searchField $ops '$searchString' ";
         }
 
-        if (!$sidx)
+        if (!$sidx){
             $sidx = 1;
+        }
         $count = $this->db->count_all_results('sms_template');
          
         if ($count > 0) {
@@ -3032,6 +3040,7 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function temporary_on_off_vendor($id, $on_off) {
+        log_message('info',__FUNCTION__.' id: '.$id.' on_off: '.$on_off);
         $this->vendor_model->temporary_on_off_vendor($id,$on_off);
         
         //Check on off
@@ -3335,20 +3344,26 @@ class vendor extends CI_Controller {
                     $ops = $value;
                 }
             }
-            if ($searchOper == 'eq')
+            if ($searchOper == 'eq'){
                 $searchString = $searchString;
-            if ($searchOper == 'bw' || $searchOper == 'bn')
+            } 
+            if ($searchOper == 'bw' || $searchOper == 'bn'){
                 $searchString .= '%';
-            if ($searchOper == 'ew' || $searchOper == 'en')
-                $searchString = '%' . $searchString;
-            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni')
+            }
+            if ($searchOper == 'ew' || $searchOper == 'en'){
+                 $searchString = '%' . $searchString;
+            }
+            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni'){
                 $searchString = '%' . $searchString . '%';
+            }
+                
 
             $where = "$searchField $ops '$searchString' ";
         }
 
-        if (!$sidx)
+        if (!$sidx){
             $sidx = 1;
+        }
         $count = $this->db->count_all_results('tax_rates');
          
         if ($count > 0) {
@@ -3497,20 +3512,27 @@ class vendor extends CI_Controller {
                     $ops = $value;
                 }
             }
-            if ($searchOper == 'eq')
+            if ($searchOper == 'eq'){
                 $searchString = $searchString;
-            if ($searchOper == 'bw' || $searchOper == 'bn')
+            }   
+            if ($searchOper == 'bw' || $searchOper == 'bn'){
                 $searchString .= '%';
-            if ($searchOper == 'ew' || $searchOper == 'en')
+            }   
+            if ($searchOper == 'ew' || $searchOper == 'en'){
                 $searchString = '%' . $searchString;
-            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni')
+            }  
+            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni'){
                 $searchString = '%' . $searchString . '%';
+            }
+                
 
             $where = "$searchField $ops '$searchString' ";
         }
 
-        if (!$sidx)
+        if (!$sidx){
             $sidx = 1;
+        }
+            
         $count = $this->db->count_all_results('vendor_escalation_policy');
          
         if ($count > 0) {
@@ -3659,10 +3681,12 @@ class vendor extends CI_Controller {
      */
     function get_escalate_booking_form($booking_id,$status,$penalty_active="") {
         //get escalation reasons for 247around
-        if($status == 'Completed')
+        if($status == 'Completed'){
             $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'247around','active'=> '1','process_type'=>'report_complete'));
-        else if($status == 'Cancelled')
+        } else if($status == 'Cancelled'){
             $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'247around','active'=> '1','process_type'=>'report_cancel'));
+        }
+            
 
         $data['vendor_details'] = $this->vendor_model->getVendor($booking_id);
         $data['booking_id'] = $booking_id;
@@ -3682,6 +3706,7 @@ class vendor extends CI_Controller {
      * 
      */
     function process_get_vendor_escalation_form() {
+        log_message('info'.__FUNCTION__);
         $escalation['booking_id'] = $this->input->post('booking_id');
         $status = $this->input->post('status');
         if($this->input->post('penalty_active') == 0){
@@ -3917,6 +3942,7 @@ class vendor extends CI_Controller {
      * @return string
      */
     function update_sub_service_center_details(){
+        log_message('info',__FUNCTION__);
        if($this->input->post()){
            $data = array('district'=>$this->input->post('district'),
                          'pincode'=>$this->input->post('pincode'),
@@ -3937,6 +3963,7 @@ class vendor extends CI_Controller {
      * @return string
      */
     function delete_sub_service_center_details(){
+        log_message('info',__FUNCTION__);
        if($this->input->post()){
            $id = $this->input->post('id');
            $update_id = $this->upcountry_model->delete_sub_service_center_upcountry_details($id);
@@ -3967,6 +3994,7 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function process_reassign_partner_form(){
+        log_message('info',__FUNCTION__);
         $booking_id = trim($this->input->post('booking_id'));
         $partner = $this->input->post('partner');
         if(sizeof($booking_id) === sizeof($partner)){
