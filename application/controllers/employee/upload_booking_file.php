@@ -243,12 +243,10 @@ class Upload_booking_file extends CI_Controller {
 
             $this->initialized_variable->fetch_partner_data($this->FilesData['partner_id']);
 
-            $partner_mapping_id = $this->initialized_variable->get_partner_data()[0]['price_mapping_id'];
-
             if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
-                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_mapping_id, $this->FilesData['request_type'], $brand);
+                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $this->FilesData['partner_id'], $this->FilesData['request_type'], $brand);
             } else {
-                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_mapping_id, $this->FilesData['request_type'], "");
+                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $this->FilesData['partner_id'], $this->FilesData['request_type'], "");
             }
 
             $is_price = array();
@@ -304,16 +302,14 @@ class Upload_booking_file extends CI_Controller {
 
 
         $this->initialized_variable->fetch_partner_data($this->FilesData['partner_id']);
-
-        $partner_mapping_id = $this->initialized_variable->get_partner_data()[0]['price_mapping_id'];
         
         $prices = array();
         if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
             //if partner type is OEM then send appliance brand in argument and get prices
-            $prices = $this->partner_model->getPrices($unit_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $this->FilesData['price_tags'], $unit_details['appliance_brand']);
+            $prices = $this->partner_model->getPrices($unit_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $this->FilesData['partner_id'], $this->FilesData['price_tags'], $unit_details['appliance_brand']);
         } else {
             //if partner type is not OEM then dont send appliance brand in argument
-            $prices = $this->partner_model->getPrices($unit_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,  $this->FilesData['price_tags'], "");
+            $prices = $this->partner_model->getPrices($unit_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $this->FilesData['partner_id'],  $this->FilesData['price_tags'], "");
         }
 
         //if price details are found in database

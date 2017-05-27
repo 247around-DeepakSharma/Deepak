@@ -44,6 +44,7 @@ class Booking extends CI_Controller {
         $this->load->library('booking_utilities');
         $this->load->library('partner_sd_cb');
         $this->load->library('asynchronous_lib');
+        $this->load->library("initialized_variable");
 
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -707,7 +708,7 @@ class Booking extends CI_Controller {
         $source = $this->partner_model->get_all_partner_source("0", $data['booking_history'][0]['source']);
         $data['booking_history'][0]['source_name'] = $source[0]['source'];
 
-        $partner_id = $this->booking_model->get_price_mapping_partner_code($data['booking_history'][0]['source']);
+        $partner_id = $data['booking_history'][0]['partner_id'];
         $data['prices'] = array();
         //log_message('info', __FUNCTION__ . " data " . print_r($data, true));
         $upcountry_price = 0;
@@ -984,10 +985,9 @@ class Booking extends CI_Controller {
 
         $service_id = $this->input->post('service_id');
         $brand = $this->input->post('brand');
-        $partner = $this->input->post('partner_code');
         $partner_type = $this->input->post('partner_type');
-
-        $partner_id = $this->booking_model->get_price_mapping_partner_code($partner);
+            
+        $partner_id = $this->input->post('partner_type');
         if ($partner_type == OEM) {
             $result = $this->booking_model->getCategoryForService($service_id, $partner_id, $brand);
         } else {
@@ -1010,14 +1010,14 @@ class Booking extends CI_Controller {
         $service_id = $this->input->post('service_id');
         $category = $this->input->post('category');
         $brand = $this->input->post('brand');
-        $parter_code = $this->input->post('partner_code');
+        $partner_id = $this->input->post('partner_id');
         $partner_type = $this->input->post('partner_type');
 
-        $partner_price_mapping_id = $this->booking_model->get_price_mapping_partner_code($parter_code);
+        
         if ($partner_type == OEM) {
-            $result = $this->booking_model->getCapacityForCategory($service_id, $category, $brand, $partner_price_mapping_id);
+            $result = $this->booking_model->getCapacityForCategory($service_id, $category, $brand, $partner_id);
         } else {
-            $result = $this->booking_model->getCapacityForCategory($service_id, $category, "", $partner_price_mapping_id);
+            $result = $this->booking_model->getCapacityForCategory($service_id, $category, "", $partner_id);
         }
 
         foreach ($result as $capacity) {
@@ -1039,26 +1039,23 @@ class Booking extends CI_Controller {
         $booking_city = $this->input->post('booking_city');
         $booking_pincode = $this->input->post('booking_pincode');
         $brand = $this->input->post('brand');
-        $partner_code = $this->input->post('partner_code');
+        
         $partner_type = $this->input->post('partner_type');
         $clone_number = $this->input->post('clone_number');
+        $partner_id =  $this->input->post('partner_id');
+       
         $assigned_vendor_id = $this->input->post('assigned_vendor_id');
         if (empty($assigned_vendor_id)) {
             $assigned_vendor_id = FALSE;
         }
-
-        $where_get_partner = array('bookings_sources.code' => $partner_code);
-        $select = "bookings_sources.partner_id,bookings_sources.price_mapping_id, "
-                . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
-                . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
-                . " upcountry_rate1, upcountry_rate, partners.is_upcountry";
-        $partner_data = $this->partner_model->getpartner_details($select, $where_get_partner);
-        $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+        $this->initialized_variable->fetch_partner_data($partner_id);
+        
+        $partner_data = $this->initialized_variable->get_partner_data();
 
         if ($partner_type == OEM) {
-            $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_mapping_id, $brand);
+            $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand);
         } else {
-            $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_mapping_id, "");
+            $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, "");
         }
 
         $where = array('service_id' => $service_id, 'brand_name' => $brand);
@@ -1083,9 +1080,6 @@ class Booking extends CI_Controller {
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
                 $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
-//		if ($prices['service_category'] == 'Repair') {
-//		    $html .= "checked";
-//		}
 
                 $html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
                 $html .= "name='prices[$brand_id][$clone_number][]'";
@@ -1375,7 +1369,7 @@ class Booking extends CI_Controller {
             $booking = $this->booking_model->get_city_source();
             $booking['booking_history'] = $booking_history;
             $booking['unit_details'] = $this->booking_model->getunit_details($booking_id, $appliance_id);
-            $partner_id = $this->booking_model->get_price_mapping_partner_code($booking_history[0]['source']);
+            
             $booking['partner_type'] = "";
 
             foreach ($booking['sources'] as $value) {
@@ -1404,16 +1398,16 @@ class Booking extends CI_Controller {
                     $select = 'brand As brand_name';
 
                     $brand = $this->partner_model->get_partner_specific_details($where, $select, "brand");
-                    $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $partner_id, $value['brand']);
+                    $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $value['partner_id'], $value['brand']);
 
-                    $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], $value['brand'], $partner_id);
+                    $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], $value['brand'], $value['partner_id']);
 
-                    $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $partner_id, $value['brand']);
+                    $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], $value['brand']);
                 } else {
                     $brand = $this->booking_model->getBrandForService($booking_history[0]['service_id']);
-                    $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $partner_id, "");
-                    $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], "", $partner_id);
-                    $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $partner_id, "");
+                    $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $value['partner_id'], "");
+                    $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], "", $value['partner_id']);
+                    $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], "");
                 }
 
 
