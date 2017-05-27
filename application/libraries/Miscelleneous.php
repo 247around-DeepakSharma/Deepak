@@ -80,18 +80,11 @@ class Miscelleneous {
            
             return $this->My_CI->upcountry_model->action_upcountry_booking($booking_city,
                     $booking_pincode, $data1, $partner_data);
-           
-            
-        
-            
+  
         } else {
-            $to = RM_EMAIL.", ". SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
-            $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
-            
-            $subject = "SF Does Not Exist In Pincode: ".$booking_pincode;
-            $message = "Booking City: ". $booking_city." /n  Booking Pincode: ".$booking_pincode; 
-            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+           
             $msg['message'] = SF_DOES_NOT_EXIST;
+            $msg['vendor_not_found'] = 1;
             
             return $msg;
         }
@@ -287,7 +280,7 @@ class Miscelleneous {
                     $this->My_CI->booking_model->update_booking($booking_id, $booking);
 
                     $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com";
-                    $cc = "abhaya@247around.com";
+                    $cc = "";
                     $message1 = "Upcountry did not calculate for " . $booking_id;
                     $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Failed', $message1, "");
 
@@ -568,7 +561,7 @@ class Miscelleneous {
                         $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
                         
                         $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode']." For Appliance ". $appliance;
-                        $message = "Booking City: ". $booking['city']." /n  Booking Pincode: ".$booking['booking_pincode']; 
+                        $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
                         
                         $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
                         

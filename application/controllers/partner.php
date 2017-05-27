@@ -1603,6 +1603,14 @@ class Partner extends CI_Controller {
                         case SF_DOES_NOT_EXIST:
                             //SF does not exist in vendor pincode mapping table OR if two or more vendors are found which
                             //do not provide upcountry services
+                            if(isset($upcountry_data['vendor_not_found'])){
+                                $to = RM_EMAIL.", ". SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
+                                $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
+
+                                $subject = "SF Does Not Exist In Pincode: ".$booking['booking_pincode'];
+                                $message = "Booking ID ".$booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
+                                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                            }
                             break;
                     }
                 }

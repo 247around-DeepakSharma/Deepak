@@ -295,6 +295,14 @@ class Booking extends CI_Controller {
 
                             break;
                         case SF_DOES_NOT_EXIST:
+                            if(isset($upcountry_data['vendor_not_found'])){
+                                $to = RM_EMAIL.", ". SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
+                                $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
+
+                                $subject = "SF Does Not Exist In Pincode: ".$booking['booking_pincode'];
+                                $message = "Booking ID ".$booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
+                                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                            }
                             break;
                     }
                 } else if ($booking['is_send_sms'] == 2 || $booking_id != INSERT_NEW_BOOKING) {
