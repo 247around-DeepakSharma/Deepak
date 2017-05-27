@@ -1610,6 +1610,12 @@ class Partner extends CI_Controller {
                                 $subject = "SF Does Not Exist In Pincode: ".$booking['booking_pincode'];
                                 $message = "Booking ID ".$booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
                                 $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                                
+                                $this->vendor_model->insert_booking_details_sf_not_exist(array(
+                                    "booking_id" => $booking['booking_id'],
+                                    "city" => $booking['city'],
+                                    "pincode" => $booking['booking_pincode']
+                                ));
                             }
                             break;
                     }
