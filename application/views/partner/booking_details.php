@@ -65,103 +65,90 @@
             <div class="tab-pane fade in active" id="tab1">
                 <div class="row"><div class="col-md-12">
                         <div class="col-md-6">
-                            <table class="table  table-striped table-bordered" >
-                                <tr>
-                                    <th >Name: </th>
-                                    <td><?php echo $booking_history[0]['name']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Mobile: </th>
-                                    <td><?php
-                                        echo $booking_history[0]['booking_primary_contact_no'];
-                                        if (!empty($booking_history[0]['booking_alternate_contact_no'])) {
-                                            echo " / " . $booking_history[0]['booking_alternate_contact_no'];
-                                        }
-                                        ?></td>
-                                </tr>
-                                <tr>
-                                    <th >Booking ID: </th>
-                                    <td><?php echo $booking_history[0]['booking_id']; ?></td>
-                                </tr>
-
-                                <tr>
-                                    <th>Booking date: </th>
-                                    <td><?php echo $booking_history[0]['booking_date']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Timeslot: </th>
-                                    <td><?php echo $booking_history[0]['booking_timeslot']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Amount Due: </th>
-                                    <td><?php echo $booking_history[0]['amount_due']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Amount Paid: </th>
-                                    <td><?php echo $booking_history[0]['amount_paid']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Address: </th>
-                                    <td><?php echo $booking_history[0]['booking_address']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>City: </th>
-                                    <td><?php echo $booking_history[0]['city']; ?></td>
-                                </tr>
-                            </table>
+                           <table class="table  table-striped table-bordered" >
+                        <tr>
+                            <th >Name: </th>
+                            <td><?php echo $booking_history[0]['name']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Mobile: </th>
+                            <td><?php echo $booking_history[0]['booking_primary_contact_no']; 
+                                if(!empty( $booking_history[0]['booking_alternate_contact_no'])){ echo "/". $booking_history[0]['booking_alternate_contact_no'];} ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th >Booking ID: </th>
+                            <td><?php echo $booking_history[0]['booking_id']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Platform / Order ID: </th>
+                            <td><?php  echo $booking_history[0]['partner_source']." / "; 
+                                        if(!empty($booking_history[0]['order_id'])) { echo $booking_history[0]['order_id'];
+                                            $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($booking_history[0]['support_file']) && !empty($booking_history[0]['support_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history[0]['support_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                            <a href="<?php  echo $src?>" target="_blank"> <img src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
+                            <?php } ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Serial Number: </th>
+                            <td><?php if(isset($unit_details[0]['partner_serial_number'])) { echo $unit_details[0]['partner_serial_number'];} ?></td>
+                        </tr>
+                        <tr>
+                            <th>Call Type: </th>
+                            <td><?php echo $booking_history[0]['request_type']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking date: </th>
+                            <td><?php echo $booking_history[0]['booking_date']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Address: </th>
+                            <td><?php echo $booking_history[0]['booking_address'];?></td>
+                        </tr>
+                    </table>
                         </div>
                         <div class="col-md-6">
                             <table class="table  table-striped table-bordered">
-                                <tr>
-                                    <th>State: </th>
-                                    <td><?php echo $booking_history[0]['state']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Pincode: </th>
-                                    <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Remarks: </th>
-                                    <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
-                                </tr>
-
-                                <tr>
-                                    <th>Status: </th>
-                                    <td><?php echo $booking_history[0]['current_status']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Rescheduled Reason: </th>
-                                    <td><?php echo $booking_history[0]['reschedule_reason']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Cancellation Reason: </th>
-                                    <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Closed date: </th>
-                                    <td><?php echo $booking_history[0]['closed_date']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Closing Remarks: </th>
-                                    <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Rating: </th>
-                                    <td><?php
-                                        if (!empty($booking_history[0]['vendor_rating_stars'])) {
-                                            echo $booking_history[0]['vendor_rating_stars'] . "/5";
-                                        }
-                                        ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Rating Comment: </th>
-                                    <td><?php
-                                        if (!empty($booking_history[0]['vendor_rating_comments'])) {
-                                            echo $booking_history[0]['vendor_rating_comments'] . "/5";
-                                        }
-                                        ?></td>
-                                </tr>
-                            </table>
+                        <tr>
+                            <th>City: </th>
+                            <td><?php echo $booking_history[0]['city']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>State: </th>
+                            <td><?php echo $booking_history[0]['state']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Pincode: </th>
+                            <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Remarks: </th>
+                            <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Status: </th>
+                            <td><?php echo $booking_history[0]['current_status']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Cancellation Reason: </th>
+                            <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking closed date: </th>
+                            <td><?php echo $booking_history[0]['closed_date']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Rating Star </th>
+                            <td><?php if(!empty($booking_history[0]['rating_stars'])){echo $booking_history[0]['rating_stars'].'/5'; }?></td>
+                        </tr>
+                    </table>
                         </div>
                     </div></div>
             </div>
