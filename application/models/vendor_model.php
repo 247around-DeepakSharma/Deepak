@@ -1757,5 +1757,14 @@ class vendor_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    /**
+     * @desc This method is used to insert booking details when SF not exit.
+     * @param Array $data
+     * @return INT
+     */
+    function insert_booking_details_sf_not_exist($data){
+        $this->db->insert("sf_not_exist_booking_details", $data);
+        return $this->db->insert_id();
+    }
     
 }
