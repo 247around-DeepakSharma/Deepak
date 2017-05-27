@@ -1164,6 +1164,7 @@ class Partner extends CI_Controller {
      * @return : array(of details) to view
      */
     function editpartner($id) {
+        log_message('info',__FUNCTION__.' partner_id:'.$id);
         $query = $this->partner_model->viewpartner($id);
         $results['select_state'] = $this->vendor_model->getall_state();
         $results['services'] = $this->vendor_model->selectservice();
@@ -1310,7 +1311,7 @@ class Partner extends CI_Controller {
      */
     function get_cancel_form($status, $booking_id) {
         $this->checkUserSession();
-        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
+        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id.' Status: '.$status);
         $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
         if (!empty($data['user_and_booking_details'])) {
             $where = array('reason_of' => 'partner');
@@ -1333,7 +1334,7 @@ class Partner extends CI_Controller {
      */
     function process_cancel_form($booking_id, $status) {
         $this->checkUserSession();
-        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true). ' status: '.$status);
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
         $data['current_status'] = _247AROUND_CANCELLED;
         $data['internal_status'] = $data['cancellation_reason'] = $this->input->post('cancellation_reason');
@@ -1502,7 +1503,7 @@ class Partner extends CI_Controller {
      * @param String $booking_id
      */
     function process_escalation($booking_id){
-        
+        log_message('info',__FUNCTION__.' booking_id: '.$booking_id);
         $this->checkUserSession();
         $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'trim|required');
         
@@ -1813,7 +1814,7 @@ class Partner extends CI_Controller {
      * @param String $remarks
      */
     function insert_details_in_state_change($booking_id, $new_state, $remarks){
-           log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Booking ID: ". $booking_id);
+           log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Booking ID: ". $booking_id. ' new_state: '.$new_state.' remarks: '.$remarks);
            //Save state change
             $state_change['booking_id'] = $booking_id;
             $state_change['new_state'] =  $new_state;
@@ -1861,7 +1862,7 @@ class Partner extends CI_Controller {
      * @param String $booking_id
      */
     function process_update_spare_parts($booking_id, $id){
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id')." Spare id: ". $id);
         $this->checkUserSession();
         $this->form_validation->set_rules('shipped_parts_name', 'Parts Name', 'trim|required');
         $this->form_validation->set_rules('remarks_by_partner', 'Remarks', 'trim|required');
@@ -2138,7 +2139,7 @@ class Partner extends CI_Controller {
      * @param String $booking_id
      */
     function acknowledge_received_defective_parts($booking_id, $id) {
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id);
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id.' id: '.$id);
         $this->checkUserSession();
         //$partner_id = $this->session->userdata('partner_id');
       
@@ -2173,7 +2174,7 @@ class Partner extends CI_Controller {
      * @param Urlencoded $status (Rejection Reason)
      */
     function reject_defective_part($booking_id,$id,$status){
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id);
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id.' status: '.$status);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
 
@@ -2726,7 +2727,7 @@ class Partner extends CI_Controller {
      * @param Integer $status (0 & 1)
      */
     function upcountry_charges_approval($booking_id, $status) {
-        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id);
+        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id . ' status: '.$status);
 
         $data = $this->upcountry_model->get_upcountry_service_center_id_by_booking($booking_id);
         if (!empty($data)) {
@@ -2800,7 +2801,7 @@ class Partner extends CI_Controller {
      * @param String $status
      */        
     function reject_upcountry_charges($booking_id, $status){
-        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id);
+        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id.' status: '.$status);
         $data = $this->booking_model->getbooking_history($booking_id);
         if (is_null($data[0]['assigned_vendor_id']) && $data[0]['current_status'] != _247AROUND_CANCELLED) {
             $partner_current_status = "";
@@ -2970,7 +2971,7 @@ class Partner extends CI_Controller {
      * @return:void
      */
     function process_partner_edit_details() {
-        
+        log_message('info', __FUNCTION__.' partner_id: '. $this->session->userdata('partner_id'));
         $this->checkUserSession();
         
         //store POST data into array

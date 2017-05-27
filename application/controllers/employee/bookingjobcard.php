@@ -59,7 +59,6 @@ class bookingjobcard extends CI_Controller {
      */
 
     public function prepare_job_card_using_booking_id($booking_id) {
-        log_message('info', __FUNCTION__);
  
         log_message('info', $booking_id);
 
