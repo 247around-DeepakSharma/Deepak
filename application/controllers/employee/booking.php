@@ -303,6 +303,11 @@ class Booking extends CI_Controller {
                                 $subject = "SF Does Not Exist In Pincode: ".$booking['booking_pincode'];
                                 $message = "Booking ID ".$booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
                                 $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                                $this->vendor_model->insert_booking_details_sf_not_exist(array(
+                                    "booking_id" => $booking['booking_id'],
+                                    "city" => $booking['city'],
+                                    "pincode" => $booking['booking_pincode']
+                                ));
                             }
                             break;
                     }
@@ -986,7 +991,7 @@ class Booking extends CI_Controller {
         $brand = $this->input->post('brand');
         $partner_type = $this->input->post('partner_type');
             
-        $partner_id = $this->input->post('partner_type');
+        $partner_id = $this->input->post('partner_id');
         if ($partner_type == OEM) {
             $result = $this->booking_model->getCategoryForService($service_id, $partner_id, $brand);
         } else {
@@ -1789,15 +1794,16 @@ class Booking extends CI_Controller {
                         $data['booking_id'] = $booking_id;
                         $data['booking_status'] = "Completed";
                         $internal_status = "Completed";
-                        if (!empty($service_center_details)) {
-                            if ($service_center_details[0]['closed_date'] === NULL) {
-                                $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-                            } else {
-                                $data_service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
-                            }
-                        } else {
-                            $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-                        }
+                        $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+//                        if (!empty($service_center_details)) {
+//                            if ($service_center_details[0]['closed_date'] === NULL) {
+//                                $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+//                            } else {
+//                                $data_service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
+//                            }
+//                        } else {
+//                            $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+//                        }
                         log_message('info', __FUNCTION__ . " New unit selected, previous unit " . print_r($unit_id, true)
                                 . " Service charges id: "
                                 . print_r($service_charges_id, true)
@@ -1829,16 +1835,18 @@ class Booking extends CI_Controller {
                 if ($data['booking_status'] === _247AROUND_COMPLETED) {
                     $internal_status = _247AROUND_COMPLETED;
                 }
+                
+                $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
 
-                if (!empty($service_center_details)) {
-                    if ($service_center_details[0]['closed_date'] === NULL) {
-                        $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-                    } else {
-                        $service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
-                    }
-                } else {
-                    $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-                }
+//                if (!empty($service_center_details)) {
+//                    if ($service_center_details[0]['closed_date'] === NULL) {
+//                        $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+//                    } else {
+//                        $service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
+//                    }
+//                } else {
+//                    $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+//                }
 
                 $data['id'] = $unit_id;
 
@@ -1901,15 +1909,16 @@ class Booking extends CI_Controller {
         }
 
         $booking['closing_remarks'] = $service_center['closing_remarks'];
-        if (!empty($service_center_details)) {
-            if ($service_center_details[0]['closed_date'] === NULL) {
-                $booking['closed_date'] = date('Y-m-d H:i:s');
-            } else {
-                $booking['closed_date'] = $service_center_details[0]['closed_date'];
-            }
-        } else {
-            $booking['closed_date'] = date('Y-m-d H:i:s');
-        }
+        $booking['closed_date'] = date('Y-m-d H:i:s');
+//        if (!empty($service_center_details)) {
+//            if ($service_center_details[0]['closed_date'] === NULL) {
+//                $booking['closed_date'] = date('Y-m-d H:i:s');
+//            } else {
+//                $booking['closed_date'] = $service_center_details[0]['closed_date'];
+//            }
+//        } else {
+//            $booking['closed_date'] = date('Y-m-d H:i:s');
+//        }
         $booking['amount_paid'] = $total_amount_paid;
 
         //update booking_details table
