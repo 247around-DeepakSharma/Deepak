@@ -39,11 +39,11 @@
          <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_file_main']; ?>"><?php echo $invoice['invoice_file_main']; ?></a></td>
          <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-pdf/<?php echo $invoice['invoice_detailed_excel']; ?>"><?php echo $invoice['invoice_detailed_excel']; ?></a></td>
          <td><?php echo $invoice['num_bookings'];  $sum_no_of_booking += $invoice['num_bookings']; ?></td>
-         <td><?php echo $invoice['total_service_charge']; $sum_of_total_service_charges +=  $invoice['total_service_charge']; ?></td>
-         <td><?php echo $invoice['total_additional_service_charge']; $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
-         <td><?php echo $invoice['parts_cost']; $sum_total_parts_cost += $invoice['parts_cost']; ?></td>
-         <td><?php echo $invoice['total_amount_collected']; $total_amount_collected += $invoice['total_amount_collected'];?></td>
-<!--         <td><?php echo $invoice['around_royalty']; $around_royalty += $invoice['around_royalty']; ?></td>
+         <td><?php echo round($invoice['total_service_charge'],0); $sum_of_total_service_charges +=  $invoice['total_service_charge']; ?></td>
+         <td><?php echo round($invoice['total_additional_service_charge'],0); $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
+         <td><?php echo round($invoice['parts_cost'],0); $sum_total_parts_cost += $invoice['parts_cost']; ?></td>
+         <td><?php echo round($invoice['total_amount_collected'],0); $total_amount_collected += $invoice['total_amount_collected'];?></td>
+<!--         <td><?php echo round($invoice['around_royalty'],0); $around_royalty += $invoice['around_royalty']; ?></td>
          <td><?php// echo $invoice['amount_collected_paid']; $amount_collected_paid += $invoice['amount_collected_paid']; ?></td>-->
 <!--         <td><?php //echo date("jS F, Y", strtotime($invoice['create_date'])); ?></td>-->
          <?php  $count = $count+1;  ?>
@@ -95,7 +95,7 @@
                <td><?php echo $count;$count++;?></td>
                <td><?php echo $value['transaction_date']; ?></td>
                <td><?php echo $value['description']; ?></td>
-               <td><?php echo $value['credit_amount']; $credit_amount += intval($value['credit_amount']); ?></td>       
+               <td><?php echo round($value['credit_amount'],0); $credit_amount += intval($value['credit_amount']); ?></td>       
 <!--               <td><?php //echo $value['debit_amount'];  $debit_amount += intval($value['debit_amount']); ?></td>-->
                <td><?php echo $value['invoice_id']; ?></td>
                <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>   
@@ -105,9 +105,8 @@
              <td><b>Total</b></td>
              <td></td>
              <td></td>
-             <td><?php echo $credit_amount;?></td>
-             <td><?php echo $debit_amount;?></td>
-             <td></td>
+             <td><?php echo round($credit_amount,0);?></td>
+             <td><?php echo round($debit_amount,0);?></td>
              <td></td>
              </tr>
        </tbody>

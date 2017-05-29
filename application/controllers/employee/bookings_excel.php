@@ -397,7 +397,7 @@ class bookings_excel extends CI_Controller {
                 $sms['smsData']['message'] = "FREE";
             
             } else {
-                $sms['smsData']['message'] = "Rs. ".$amount_due;
+                $sms['smsData']['message'] = "Rs. ".  round($amount_due,0);
             }
             
         } else {
