@@ -248,7 +248,7 @@ class Partner_model extends CI_Model {
         //do not show bookings for future as of now
         //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
 
-          $query = $this->db->query("Select services.services,
+          $query = $this->db->query("Select Distinct services.services,
             users.name as customername, users.phone_number,
             booking_details.*, status
 

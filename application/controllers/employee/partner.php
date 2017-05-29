@@ -1771,6 +1771,8 @@ class Partner extends CI_Controller {
                 if($this->OLD_BOOKING_STATE == _247AROUND_CANCELLED){
                     $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['internal_status'] = _247AROUND_PENDING;
+                    $booking_details['cancellation_reason'] = NULL;
+                    $booking_details['closed_date'] = NULL;
 
                     $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
                }
@@ -1787,7 +1789,12 @@ class Partner extends CI_Controller {
                 $booking_details['assigned_vendor_id'] = NULL;
                 
             }
-            
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking_details['current_status'], $booking_details['internal_status'], 
+                    $this->session->userdata('partner_id'), $booking_id);
+            if (!empty($partner_status)) {
+                $booking_details['partner_current_status'] = $partner_status[0];
+                $booking_details['partner_internal_status'] = $partner_status[1];
+            }
             $this->booking_model->update_booking($booking_id, $booking_details);
             $up_flag = 1;     
             $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_details['booking_id'] . "/".$up_flag ;
