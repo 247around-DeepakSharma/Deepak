@@ -788,7 +788,7 @@ class Inventory extends CI_Controller {
      * @param type $booking_id
      */
     function update_spare_parts($id){
-        log_message('info', __FUNCTION__. "Entering... ");
+        log_message('info', __FUNCTION__. "Entering... And Booking_ID: " . $id);
         $this->checkUserSession();
         $where = "spare_parts_details.id = '".$id."' "
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled', 'Completed', 'Cancelled') ";
@@ -807,7 +807,7 @@ class Inventory extends CI_Controller {
      * @param type $booking_id
      */
     function process_update_booking($booking_id, $id){
-        log_message('info', __FUNCTION__. "Entering... ");
+        log_message('info', __FUNCTION__. "Entering... For Booking_id:" . $booking_id . " And Id: ". $id);
         $this->checkUserSession();
         if(!empty($booking_id) || !empty($id) || $id != 0){
         $data['model_number'] = $this->input->post('model_number');
@@ -925,7 +925,8 @@ class Inventory extends CI_Controller {
      * 
      */
     function uncancel_brackets_request($order_id) {
-
+        log_message('info', __FUNCTION__ . ' for order_id: '.$order_id );
+        
         $data = array('active' => 1, 'cancellation_reason' => '');
         $brackets_id = $this->inventory_model->uncancel_brackets($order_id, $data);
         if (!empty($brackets_id)) {

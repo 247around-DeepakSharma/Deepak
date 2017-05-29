@@ -50,9 +50,9 @@ class Invoice extends CI_Controller {
      */
     public function index() {
         $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",'active');
+
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
     }
     
@@ -125,7 +125,7 @@ class Invoice extends CI_Controller {
      * @return: void
      */
     function sendInvoiceMail($invoiceId, $vendor_partnerId, $start_date, $end_date, $vendor_partner) {
-        log_message('info', "Entering: " . __METHOD__);
+        log_message('info', "Entering: " . __METHOD__ . 'Invoice_id:'.$invoiceId.' vendor_partner_id:'.$vendor_partnerId.' vendor_partner:'.$vendor_partner.' start_date:'.$start_date.' end_date'.$end_date);
         $email = $this->input->post('email');
         // download invoice pdf file to local machine
         if ($vendor_partner == "vendor") {
@@ -458,6 +458,8 @@ class Invoice extends CI_Controller {
      * @return: void
      */
     function delete_banktransaction($transaction_id, $vendor_partner, $vendor_partner_id) {
+        log_message('info', __METHOD__ . 'for transaction_id: '.$transaction_id.' vendor_partner: '.$vendor_partner. ' vendor_partner_id: '.$vendor_partner_id);
+        
         $this->invoices_model->delete_banktransaction($transaction_id);
         redirect(base_url() . 'employee/invoice/invoice_summary/' . $vendor_partner . "/" . $vendor_partner_id);
     }
@@ -492,7 +494,7 @@ class Invoice extends CI_Controller {
      * @desc: generate details partner Detailed invoices
      */
     function create_partner_invoices_detailed($partner_id, $f_date, $t_date, $invoice_type, $invoice_id,$agent_id) {
-        log_message('info', __METHOD__ . "=> " . $invoice_type . " Partner Id " . $partner_id);
+        log_message('info', __METHOD__ . "=> " . $invoice_type . " Partner Id " . $partner_id. ' invoice_type: '. $invoice_type. ' agent_id: '.$agent_id);
         $data1 = $this->invoices_model->getpartner_invoices($partner_id, $f_date, $t_date);
         $data = $data1['main_invoice'];
         $upcountry_invoice = $data1['upcountry_invoice'];
@@ -874,7 +876,7 @@ class Invoice extends CI_Controller {
      * @return type
      */
     function generate_cash_details_invoices_for_vendors($invoices, $details) {
-        log_message('info', __FUNCTION__ . '=> Entering...');
+        log_message('info', __FUNCTION__ . '=> Entering... for invoices:'.  print_r($invoices,true).' and Details: '. print_r($details,true));
 
         $custom_date = explode("-", $details['date_range']);
         $from_date = $custom_date[0];
@@ -1170,7 +1172,7 @@ class Invoice extends CI_Controller {
      * @param $invoice_type String Invoice Type (draft/final)
      */
     function update_invoice_id_in_unit_details($invoices_data, $invoice_id, $invoice_type, $unit_column) {
-        log_message('info', __METHOD__ . ': Reset Invoice id ' . " invoice id " . $invoice_id);
+        log_message('info', __METHOD__ . ': Reset Invoice id ' . " invoice id " . $invoice_id.' and invoice_type: '.$invoice_type.' invoice_data: '.  print_r($invoices_data,true));
 
         if ($invoice_type == "final") {
             if ($invoices_data[0]['price_tags'] != "Upcountry Services") {
@@ -1193,7 +1195,7 @@ class Invoice extends CI_Controller {
      * @return: Array (booking id)
      */
     function generate_foc_details_invoices_for_vendors($invoices_data, $details, $is_regenerate) {
-        log_message('info', __FUNCTION__ . '=> Entering...');
+        log_message('info', __FUNCTION__ . '=> Entering... And invoice_data:'.  print_r($invoices_data,true).' is_regenrate:'.$is_regenerate);
         $custom_date = explode("-", $details['date_range']);
         $from_date = $custom_date[0];
         $to_date = $custom_date[1];
@@ -1608,7 +1610,7 @@ class Invoice extends CI_Controller {
      * @param type $vendor_invoice_type
      */
     function process_invoices_from_terminal($vendor_partner, $invoice_type, $vendor_partner_id, $from_date_range_tmp, $to_date_range_tmp, $vendor_invoice_type) {
-        log_message('info', __FUNCTION__ . " Entering......");
+        log_message('info', __FUNCTION__ . " Entering...... Invoice_type: ".$invoice_type.' vendor_partner_id: '.$vendor_partner_id.' vendor_partner: '.$vendor_partner.' Vendor_Invoice_type: '.$vendor_invoice_type);
         $from_date_range = str_replace("-", "/", $from_date_range_tmp);
         $to_date_range = str_replace("-", "/", $to_date_range_tmp);
         $details['vendor_partner'] = $vendor_partner;
@@ -1626,7 +1628,7 @@ class Invoice extends CI_Controller {
      * @param array $details
      */
     function generate_vendor_partner_invoices($details) {
-        log_message('info', __FUNCTION__ . " Entering......");
+        log_message('info', __FUNCTION__ . " Entering...... And Invoice_Details: ". print_r($details,true));
 
 
         if ($details['vendor_partner'] === "vendor") {
@@ -1652,6 +1654,8 @@ class Invoice extends CI_Controller {
      * @param String $invoice_type
      */
     function regenerate_invoice($invoice_id, $invoice_type) {
+        log_message('info',__FUNCTION__.'Invoice_id: ' . $invoice_id.' Invoice_type: '.$invoice_type);
+        
         $where = " `invoice_id` = '$invoice_id'";
         //Get Invocie details from Vendor Partner Invoice Table
         $invoice_details = $this->invoices_model->get_invoices_details($where);
@@ -1723,7 +1727,7 @@ class Invoice extends CI_Controller {
      * @param type $invoice_type
      */
     function generate_partner_invoices($partner_id, $date_range, $invoice_type,$agent_id) {
-        log_message('info', __FUNCTION__ . '=> Entering... Partner Id' . $partner_id . " date range " . $date_range . " invoice type " . $invoice_type);
+        log_message('info', __FUNCTION__ . '=> Entering... Partner Id' . $partner_id . " date range " . $date_range . " invoice type " . $invoice_type.' agent_id:'.$agent_id);
         $custom_date = explode("-", $date_range);
         $from_date = $custom_date[0];
         $to_date = $custom_date[1];
@@ -2010,7 +2014,6 @@ class Invoice extends CI_Controller {
                         'tds_amount' => 0.0,
                         'amount_paid' => 0.0,
                         'settle_amount' => 0,
-                        'amount_paid' => 0.0,
                         'mail_sent' => 1,
                         'sms_sent' => 1,
                         //Add 1 month to end date to calculate due date
@@ -2052,7 +2055,7 @@ class Invoice extends CI_Controller {
      * @return: Mix
      */
     function create_vendor_brackets_invoice($data) {
-        log_message('info', __FUNCTION__ . " Entering......... ");
+        log_message('info', __FUNCTION__ . " Entering......... ". print_r($data,true));
         $output_file_dir = TMP_FOLDER;
         $output_file = $data['invoice_number'];
         $output_file_name = $output_file . ".xlsx";
@@ -2156,14 +2159,14 @@ class Invoice extends CI_Controller {
      * @parmas: Vendor id, bracket_invoicefile path
      * @return: boolean
      */
-    function send_brackets_invoice_draft_mail($vendor_id, $output_file_excel, $from_date) {
+    function send_brackets_invoice_draft_mail($vendor_id, $output_file, $from_date) {
 
         $invoice_month = date('F', strtotime($from_date));
 
         $vendor_details = $this->vendor_model->getVendorContact($vendor_id);
-
-        $to = ANUJ_EMAIL_ID;
-        $from = 'billing@247around.com';
+        
+        $output_file_excel = TMP_FOLDER.$output_file.".xlsx";
+        $output_file_pdf = TMP_FOLDER.$output_file.".pdf";
 
         $message = "Dear Partner,<br/><br/>";
         $message .= "Please find attached invoice for Brackets delivered in " . $invoice_month . ". ";
@@ -2175,8 +2178,24 @@ class Invoice extends CI_Controller {
                         <br>Website: www.247around.com
                         <br>Playstore - 247around -
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
+        
+        $this->email->clear(TRUE);
+        $this->email->from('billing@247around.com', '247around Team');
+        $to = ANUJ_EMAIL_ID;
+        $subject = 'DRAFT - Brackets Invoice - ' . $vendor_details[0]['name'];
+        
+        if(file_exists($output_file_excel)){
+            $this->email->attach($output_file_excel, 'attachment');
+        }
+        if(file_exists($output_file_pdf)){
+            $this->email->attach($output_file_pdf, 'attachment');
+        }
 
-        $send_mail = $this->notify->sendEmail($from, $to, '', '', 'DRAFT - Brackets Invoice - ' . $vendor_details[0]['name'], $message, $output_file_excel);
+        $this->email->to($to);
+        $this->email->subject($subject);
+        $this->email->message($message);
+
+        $send_mail = $this->email->send();
         if ($send_mail) {
             return TRUE;
         } else {
@@ -2203,14 +2222,14 @@ class Invoice extends CI_Controller {
         //Sending invoice copy to vendors in mail if invocie is being genetared
         if ($output_file) {
             
-            $output_file_excel = TMP_FOLDER.$output_file."xlsx";
+            $output_file_excel = TMP_FOLDER.$output_file.".xlsx";
             $output_file_pdf = TMP_FOLDER.$output_file.".pdf";
             
             log_message('info', __FUNCTION__ . " Excel file return " . $output_file_excel);
             // Not sending mail when vendor_id is all + draft
             if ($vendor_all_flag != 1 && $invoice_type == 'draft') {
                 //Sending mail to Anuj along with invoice copy as attachment
-                $send_mail = $this->send_brackets_invoice_draft_mail($vendor_id, $output_file_pdf, $from_date);
+                $send_mail = $this->send_brackets_invoice_draft_mail($vendor_id, $output_file, $from_date);
                 if ($send_mail) {
                     //Loggin Success
                     log_message('info', __FUNCTION__ . ' DRAFT INVOICE - Brackets invoice has been sent for the month of ' . $from_date);
@@ -2253,7 +2272,7 @@ class Invoice extends CI_Controller {
      * @return string Invoice Id
      */
     function create_partner_invoice($partner_id, $from_date, $to_date, $invoice_type) {
-        log_message('info', __FUNCTION__ . ' Entering.......');
+        log_message('info', __FUNCTION__ . ' Entering....... Partner_id:'.$partner_id.' invoice_type:'.$invoice_type.' from_date: '.$from_date.' to_date: '.$to_date);
         $invoices = $this->invoices_model->generate_partner_invoice($partner_id, $from_date, $to_date);
         if (!empty($invoices)) {
 
@@ -2366,7 +2385,7 @@ class Invoice extends CI_Controller {
      * @param Array $details
      */
     function generate_vendor_foc_invoice($details, $is_regenerate) {
-        log_message('info', __FUNCTION__ . "Entering...");
+        log_message('info', __FUNCTION__ . "Entering...".  print_r($details,true). ' is_regenerate: '.$is_regenerate);
         $vendor_id = $details['vendor_partner_id'];
         $custom_date = explode("-", $details['date_range']);
         $from_date = $custom_date[0];
@@ -2548,7 +2567,7 @@ class Invoice extends CI_Controller {
      * @return string
      */
     function generate_vendor_cash_invoice($details, $is_regenerate) {
-        log_message('info', __FUNCTION__ . " Entering...." . print_r($details, true));
+        log_message('info', __FUNCTION__ . " Entering...." . print_r($details, true).' is_regenerate: '.$is_regenerate);
 
         $vendor_id = $details['vendor_partner_id'];
         $custom_date = explode("-", $details['date_range']);
@@ -2744,7 +2763,7 @@ class Invoice extends CI_Controller {
      * @param String $invoice_id
      */
     function insert_update_invoice($vendor_partner, $invoice_id = FALSE) {
-        log_message('info', __FUNCTION__ . " Entering...." . $invoice_id);
+        log_message('info', __FUNCTION__ . " Entering.... Invoice_id: " . $invoice_id. ' vendor_partner: '.$vendor_partner);
         if ($invoice_id) {
             $where = " `invoice_id` = '$invoice_id'";
             //Get Invocie details from Vendor Partner Invoice Table
@@ -3399,6 +3418,7 @@ class Invoice extends CI_Controller {
      * @return void 
      */
     function process_purchase_bracket_credit_note() {
+        log_message('info',__FUNCTION__);
         //validate input post variable
         $this->form_validation->set_rules('order_id', 'Order Id', 'required|trim|xss_clean|callback_validate_order_id');
         $this->form_validation->set_rules('courier_charges', 'Courier Charges', 'required|trim|xss_clean');
@@ -3564,6 +3584,7 @@ class Invoice extends CI_Controller {
                         'invoice_date' => date('Y-m-d'),
                         'tds_amount' => 0.0,
                         'settle_amount' => 0,
+                        'amount_paid' => 0.0,
                         'mail_sent' => 1,
                         'sms_sent' => 1,
                         'courier_charges' => $courier_charges,

@@ -321,7 +321,7 @@ class Partner extends CI_Controller {
             $partner_data = $this->partner_model->get_partner_code($partner_id);
             $partner_type = $partner_data[0]['partner_type']; 
             $data['partner_type'] = $partner_type;
-            $data['partner_price_mapping_id'] = $partner_data[0]['price_mapping_id']; 
+            
             $data['partner_code'] = $partner_data[0]['code']; 
             if($partner_type == OEM){
                 
@@ -451,7 +451,7 @@ class Partner extends CI_Controller {
         $post['alternate_phone_number'] = $this->input->post('alternate_phone_number');
         $post['booking_date'] = $booking_date;
         $post['partner_type'] = $this->input->post('partner_type');
-        $post['partner_price_mapping_id'] = $this->input->post('partner_price_mapping_id');
+        
         $post['partner_code'] = $this->input->post('partner_code');
         $post['amount_due'] = $this->input->post('grand_total');
         $post['product_type'] = $this->input->post('product_type');
@@ -1164,6 +1164,7 @@ class Partner extends CI_Controller {
      * @return : array(of details) to view
      */
     function editpartner($id) {
+        log_message('info',__FUNCTION__.' partner_id:'.$id);
         $query = $this->partner_model->viewpartner($id);
         $results['select_state'] = $this->vendor_model->getall_state();
         $results['services'] = $this->vendor_model->selectservice();
@@ -1310,7 +1311,7 @@ class Partner extends CI_Controller {
      */
     function get_cancel_form($status, $booking_id) {
         $this->checkUserSession();
-        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
+        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id.' Status: '.$status);
         $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
         if (!empty($data['user_and_booking_details'])) {
             $where = array('reason_of' => 'partner');
@@ -1333,7 +1334,7 @@ class Partner extends CI_Controller {
      */
     function process_cancel_form($booking_id, $status) {
         $this->checkUserSession();
-        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true). ' status: '.$status);
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
         $data['current_status'] = _247AROUND_CANCELLED;
         $data['internal_status'] = $data['cancellation_reason'] = $this->input->post('cancellation_reason');
@@ -1502,7 +1503,7 @@ class Partner extends CI_Controller {
      * @param String $booking_id
      */
     function process_escalation($booking_id){
-        
+        log_message('info',__FUNCTION__.' booking_id: '.$booking_id);
         $this->checkUserSession();
         $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'trim|required');
         
@@ -1575,7 +1576,7 @@ class Partner extends CI_Controller {
             $partner_data = $this->partner_model->get_partner_code($partner_id);
             $partner_type = $partner_data[0]['partner_type']; 
             $data['partner_type'] = $partner_type;
-            $data['partner_price_mapping_id'] = $partner_data[0]['price_mapping_id']; 
+            
             $data['partner_code'] = $partner_data[0]['code']; 
             if($partner_type == OEM){
                 
@@ -1813,7 +1814,7 @@ class Partner extends CI_Controller {
      * @param String $remarks
      */
     function insert_details_in_state_change($booking_id, $new_state, $remarks){
-           log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Booking ID: ". $booking_id);
+           log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Booking ID: ". $booking_id. ' new_state: '.$new_state.' remarks: '.$remarks);
            //Save state change
             $state_change['booking_id'] = $booking_id;
             $state_change['new_state'] =  $new_state;
@@ -1861,7 +1862,7 @@ class Partner extends CI_Controller {
      * @param String $booking_id
      */
     function process_update_spare_parts($booking_id, $id){
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id')." Spare id: ". $id);
         $this->checkUserSession();
         $this->form_validation->set_rules('shipped_parts_name', 'Parts Name', 'trim|required');
         $this->form_validation->set_rules('remarks_by_partner', 'Remarks', 'trim|required');
@@ -2138,7 +2139,7 @@ class Partner extends CI_Controller {
      * @param String $booking_id
      */
     function acknowledge_received_defective_parts($booking_id, $id) {
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id);
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id.' id: '.$id);
         $this->checkUserSession();
         //$partner_id = $this->session->userdata('partner_id');
       
@@ -2173,7 +2174,7 @@ class Partner extends CI_Controller {
      * @param Urlencoded $status (Rejection Reason)
      */
     function reject_defective_part($booking_id,$id,$status){
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id);
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id.' status: '.$status);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
 
@@ -2253,14 +2254,14 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         $brand = $this->input->post('brand');
         $partner_type = $this->input->post('partner_type');
-        $partner_price_mapping_id = $this->input->post('partner_price_mapping_id');
+        
         if($partner_type == OEM){
             //Getting Unique values of Category for Particular Partner ,service id and brand
             $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand);
 
             $data = $this->partner_model->get_partner_specific_details($where, "category", "category");
         } else {
-             $data = $this->booking_model->getCategoryForService($service_id, $partner_price_mapping_id, "");
+             $data = $this->booking_model->getCategoryForService($service_id, $partner_id, "");
         }
         
         $option = "";
@@ -2291,7 +2292,7 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         $appliance_capacity = $this->input->post('capacity');
         $partner_type = $this->input->post('partner_type');
-        $partner_price_mapping_id = $this->input->post('partner_price_mapping_id');
+        
         if($partner_type == OEM){
              //Getting Unique values of Category for Particular Partner ,service id and brand
             $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category);
@@ -2299,7 +2300,7 @@ class Partner extends CI_Controller {
             $data = $this->partner_model->get_partner_specific_details($where, $select, "capacity");
             
         } else {
-             $data = $this->booking_model->getCapacityForCategory($service_id, $category, "", $partner_price_mapping_id);
+             $data = $this->booking_model->getCapacityForCategory($service_id, $category, "", $partner_id);
         }
        
         $capacity = "";
@@ -2603,7 +2604,6 @@ class Partner extends CI_Controller {
 //        $price_tags = $this->input->post('price_tags');
 //        $capacity = $this->input->post('capacity');
 //       
-//        $partner_mapping_id = $this->input->post('partner_price_mapping_id');
 //        $partner_type = $this->input->post('partner_type');
 //
 //        $result = array();
@@ -2646,15 +2646,15 @@ class Partner extends CI_Controller {
         $pincode = $this->input->post('pincode');
         $service_category = $this->input->post('service_category');
         $partner_id = $this->session->userdata('partner_id');
-        $partner_mapping_id = $this->input->post('partner_price_mapping_id');
+        
         $partner_type = $this->input->post('partner_type');
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $result = array();
        
         if($partner_type == OEM){
-            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, "",$brand);
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "",$brand);
         } else {
-            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, "",""); 
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "",""); 
         }
         if(!empty($result)){
             $partner_details = $this->partner_model->get_all_partner($partner_id);
@@ -2727,7 +2727,7 @@ class Partner extends CI_Controller {
      * @param Integer $status (0 & 1)
      */
     function upcountry_charges_approval($booking_id, $status) {
-        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id);
+        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id . ' status: '.$status);
 
         $data = $this->upcountry_model->get_upcountry_service_center_id_by_booking($booking_id);
         if (!empty($data)) {
@@ -2801,7 +2801,7 @@ class Partner extends CI_Controller {
      * @param String $status
      */        
     function reject_upcountry_charges($booking_id, $status){
-        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id);
+        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id.' status: '.$status);
         $data = $this->booking_model->getbooking_history($booking_id);
         if (is_null($data[0]['assigned_vendor_id']) && $data[0]['current_status'] != _247AROUND_CANCELLED) {
             $partner_current_status = "";
@@ -2971,7 +2971,7 @@ class Partner extends CI_Controller {
      * @return:void
      */
     function process_partner_edit_details() {
-        
+        log_message('info', __FUNCTION__.' partner_id: '. $this->session->userdata('partner_id'));
         $this->checkUserSession();
         
         //store POST data into array

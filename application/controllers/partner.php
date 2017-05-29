@@ -235,13 +235,13 @@ class Partner extends CI_Controller {
                         $appliance_details['capacity'] = $unit_details['appliance_capacity'] =
                                 isset($lead_details['service_appliance_data']['capacity'])?$lead_details['service_appliance_data']['capacity']:'';
                        
-                        $partner_mapping_id = $this->initialized_variable->get_partner_data()[0]['price_mapping_id'];
+                        
                         if($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM){
                             //if partner type is OEM then sent appliance brand in argument
-                            $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',$unit_details['appliance_brand']);
+                            $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'],'Installation & Demo',$unit_details['appliance_brand']);
                         } else {
                             //if partner type is not OEM then dose not sent appliance brand in argument
-                            $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',"");
+                            $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'],'Installation & Demo',"");
                         }
                         $booking['amount_due'] = '0';
                         
@@ -1603,6 +1603,20 @@ class Partner extends CI_Controller {
                         case SF_DOES_NOT_EXIST:
                             //SF does not exist in vendor pincode mapping table OR if two or more vendors are found which
                             //do not provide upcountry services
+                            if(isset($upcountry_data['vendor_not_found'])){
+                                $to = RM_EMAIL.", ". SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
+                                $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
+
+                                $subject = "SF Does Not Exist In Pincode: ".$booking['booking_pincode'];
+                                $message = "Booking ID ".$booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
+                                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                                
+                                $this->vendor_model->insert_booking_details_sf_not_exist(array(
+                                    "booking_id" => $booking['booking_id'],
+                                    "city" => $booking['city'],
+                                    "pincode" => $booking['booking_pincode']
+                                ));
+                            }
                             break;
                     }
                 }

@@ -182,7 +182,7 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function process_complete_booking($booking_id) {
-        
+        log_message('info',__FUNCTION__.' booking_id: '.$booking_id);
         $this->checkUserSession();
         
         $this->form_validation->set_rules('customer_basic_charge', 'Basic Charge', 'required');
@@ -367,7 +367,7 @@ class Service_centers extends CI_Controller {
      * @param String $booking_id
      */
     function convert_booking_to_query($booking_id,$partner_id){
-        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
+        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id. ' Partner_id: '.$partner_id);
         $booking['booking_id'] = "Q-".$booking_id;
         $booking['current_status'] = "FollowUp";
         $booking['type'] = "Query";
@@ -575,6 +575,7 @@ class Service_centers extends CI_Controller {
      * @param String $remarks
      */
     function insert_details_in_state_change($booking_id, $new_state, $remarks){
+        log_message('info', __FUNCTION__ ." SF ID: ".  $this->session->userdata('service_center_id'). " Booking ID: ". $booking_id. ' new_state: '.$new_state.' remarks: '.$remarks);
            //Save state change
             $state_change['booking_id'] = $booking_id;
             $state_change['new_state'] =  $new_state;
@@ -972,7 +973,7 @@ class Service_centers extends CI_Controller {
      * @param String $booking_id
      */
     function acknowledge_delivered_spare_parts($booking_id, $service_center_id, $id){
-        log_message('info', __FUNCTION__. " Booking ID: ". $booking_id);
+        log_message('info', __FUNCTION__. " Booking ID: ". $booking_id.' service_center_id: '.$service_center_id.' id: '.$id);
       //  $this->checkUserSession();
         if (!empty($booking_id)) {
            
@@ -1309,6 +1310,7 @@ class Service_centers extends CI_Controller {
      * @param type $booking_id
      */
     function process_update_defective_parts($booking_id, $id){
+        log_message('info', __FUNCTION__.' sf_id: '.$this->session->userdata('service_center_id')." booking id ". $booking_id." ID ".$id);
         $this->checkUserSession();
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $this->form_validation->set_rules('defective_part_shipped', 'Parts Name', 'trim|required');

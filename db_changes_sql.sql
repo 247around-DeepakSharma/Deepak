@@ -2184,3 +2184,43 @@ UPDATE `booking_unit_details` SET partner_id = "247001" WHERE partner_id = 24700
 ALTER TABLE vendor_partner_invoices CHANGE invoice_file_excel invoice_file_main varchar(255);
 ALTER TABLE vendor_partner_invoices CHANGE invoice_file_pdf invoice_file_excel varchar(255);
 
+--Abhay 18 May
+UPDATE `booking_details` SET partner_id = "247001", partner_source = "AndroidApp" WHERE partner_id = 247002
+UPDATE `booking_details` SET partner_id = "247001", partner_source = "CallCenter" WHERE partner_id = 247003
+UPDATE `booking_details` SET  partner_source = "Website" WHERE partner_id = 247001
+
+
+-- sachin 26 May
+ALTER TABLE `agent_daily_report_stats` ADD `rating` VARCHAR(11) NOT NULL AFTER `calls_recevied`;
+
+--Abhay 27 May
+--
+-- Table structure for table `sf_not_exist_booking_details`
+--
+
+CREATE TABLE `sf_not_exist_booking_details` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(128) NOT NULL,
+  `pincode` int(50) NOT NULL,
+  `city` varchar(256) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `sf_not_exist_booking_details`
+--
+ALTER TABLE `sf_not_exist_booking_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `sf_not_exist_booking_details`
+--
+ALTER TABLE `sf_not_exist_booking_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
