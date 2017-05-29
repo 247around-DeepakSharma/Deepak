@@ -15,7 +15,7 @@ class Initialized_variable {
      */
     function fetch_partner_data($partner_id){
         $where_get_partner = array('bookings_sources.partner_id' => $partner_id);
-        $select = "partners.id, bookings_sources.partner_id,bookings_sources.price_mapping_id,bookings_sources.partner_type, bookings_sources.source, bookings_sources.code, "
+        $select = "partners.id, bookings_sources.partner_id,bookings_sources.partner_type, bookings_sources.source, bookings_sources.code, "
                                 . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
                                 . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
                                 . " upcountry_rate1, upcountry_rate, partners.is_upcountry, public_name";

@@ -1341,7 +1341,7 @@ class Booking_model extends CI_Model {
      *  @return : true
      */
     function get_price_mapping_partner_code($partner_code, $partner_id="") {
-    $this->db->select('price_mapping_id');
+    $this->db->select('partner_id');
     if($partner_code !=""){
         $this->db->where('code', $partner_code);
     } else {
@@ -1351,7 +1351,7 @@ class Booking_model extends CI_Model {
     $query = $this->db->get('bookings_sources');
     if ($query->num_rows() > 0) {
         $result = $query->result_array();
-        return $result[0]['price_mapping_id'];
+        return $result[0]['partner_id'];
     } else {
         return "";
     }

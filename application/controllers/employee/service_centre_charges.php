@@ -460,7 +460,7 @@ class service_centre_charges extends CI_Controller {
      *  @return : array()
      */
     function show_partner_price() {
-        $data['price_mapping_id'] = $this->input->post('price_mapping_id');
+        $data['partner_id'] = $this->input->post('partner_id');
         $data['service_id'] = $this->input->post('service_id');
         $data['service_category'] = $this->input->post('service_category');
         $partner['price_data'] = $this->service_centre_charges_model->get_partner_price_data($data);
@@ -475,8 +475,8 @@ class service_centre_charges extends CI_Controller {
      */
     function get_partner_data() {
         if (isset($_POST['partner'])) {
-            $price_mapping_id = $this->input->post('partner');
-            $services = $this->service_centre_charges_model->get_appliance_from_partner($price_mapping_id);
+            $partner_id = $this->input->post('partner_id');
+            $services = $this->service_centre_charges_model->get_appliance_from_partner($partner_id);
 
             $option = '<option selected disabled>Select Appliance</option>';
 
@@ -491,8 +491,8 @@ class service_centre_charges extends CI_Controller {
 
         if (isset($_POST['service_id'])) {
             $service_id = $this->input->post('service_id');
-            $price_mapping_id = $this->input->post('price_mapping_id');
-            $service_category = $this->service_centre_charges_model->get_service_category_from_service_id($service_id, $price_mapping_id);
+            $partner_id = $this->input->post('partner_id');
+            $service_category = $this->service_centre_charges_model->get_service_category_from_service_id($service_id, $partner_id);
 
             $option = '<option selected disabled>Select Service Category</option>';
 

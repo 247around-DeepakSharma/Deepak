@@ -18,7 +18,7 @@ class Api extends CI_Controller {
     private $debug;
     private $tokenArray;
     private $statusCode;
-    private $app_price_mapping_id = 10001;
+    private $app_price_mapping_id = 247001;
 
     function __Construct() {
         parent::__Construct();

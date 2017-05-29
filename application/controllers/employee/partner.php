@@ -1004,10 +1004,6 @@ class Partner extends CI_Controller {
                     $bookings_sources['code'] = $code;
                     $bookings_sources['partner_id'] = $partner_id;
                     
-                    //Getting last price_mapping_id from bookings_sources table
-                    $price_mapping_id = $this->partner_model->get_latest_price_mapping_id();
-                    // Adding 1 to latest price mapping id
-                    $bookings_sources['price_mapping_id'] = ($price_mapping_id->price_mapping_id + 1);
                     $partner_code = $this->partner_model->add_partner_code($bookings_sources);
                     if($partner_code){
                         log_message('info',' Parnter code has been added in Bookings_sources table '.print_r($bookings_sources,TRUE));

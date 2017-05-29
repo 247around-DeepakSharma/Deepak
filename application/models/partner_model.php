@@ -138,7 +138,7 @@ class Partner_model extends CI_Model {
     }
 
     function get_all_partner_source($flag="", $source= ""){
-      $this->db->select("bookings_sources.partner_id,source,code,price_mapping_id, partner_type");
+      $this->db->select("bookings_sources.partner_id,source,code, partner_type");
         $this->db->order_by('source','ASC');
         if($flag ==""){
         $this->db->where('partner_id !=', 'NULL');
@@ -853,9 +853,9 @@ class Partner_model extends CI_Model {
      * @return: Array
      * 
      */
-    function get_booking_sources_by_price_mapping_id($price_mapping_id){
+    function get_booking_sources_by_price_mapping_id($partner_id){
         $this->db->select('*');
-        $this->db->where('price_mapping_id', $price_mapping_id);
+        $this->db->where('partner_id', $partner_id);
         $query =  $this->db->get('bookings_sources');
         return $query->result_array();
     }
@@ -1088,7 +1088,7 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_latest_price_mapping_id(){
-        $this->db->select('price_mapping_id');
+        $this->db->select('partner_id');
         $this->db->order_by('create_date','desc');
         $query = $this->db->get('bookings_sources');
         return $query->first_row();
