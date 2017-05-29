@@ -609,7 +609,7 @@ class Notify {
                 if (ctype_alnum($status['content']) && strlen($status['content']) == 24) {
                     $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);
                 } else {
-                    $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $status['content']);
+                    $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);
                     log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
         		please recheck tag: '" . $sms['tag'] . "' & Phone Number - " . $sms['phone_no']);
 
