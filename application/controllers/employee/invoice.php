@@ -653,18 +653,21 @@ class Invoice extends CI_Controller {
             if ($invoice_type == "final") {
                 log_message('info', __METHOD__ . "=> Final");
                 
+                //get email template from database
+                $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_DETAILED_EMAIL_TAG);
+                $subject = vsprintf($email_template[4], array($data[0]['company_name'],$f_date,$t_date));
+                $message = $email_template[0];
+                $email_from = $email_template[2];
+                $to = $data[0]['invoice_email_to'];
+                $cc = $data[0]['invoice_email_cc'];
+                
                 //Send report via email
                 $this->email->clear(TRUE);
-                $this->email->from('billing@247around.com', '247around Team');
-                $to = $data[0]['invoice_email_to'];
-                $subject = "247around - " . $data[0]['company_name'] .
-                        " Invoice for period: " . $f_date . " to " . $t_date;
-                
-                $cc = $data[0]['invoice_email_cc'];
-            
+                $this->email->from($email_from,'247around Team');
                 $this->email->to($to);
                 $this->email->cc($cc);
                 $this->email->subject($subject);
+                $this->email->message($message);
                 $this->email->attach($files_name . ".xlsx", 'attachment');
 
                 $pdf_attachement_url = 'https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$output_pdf_file_name;
@@ -1007,21 +1010,22 @@ class Invoice extends CI_Controller {
                     $rem_email_id = ", " . $rm_details[0]['official_email'];
                 }
                 $to = $invoices['booking'][0]['owner_email'] . ", " . $invoices['booking'][0]['primary_contact_email'];
-                $subject = "247around - " . $invoices['booking'][0]['company_name'] .
-                        " - Cash Invoice for period: " . $start_date . " to " . $end_date;
                 $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id;
-
-
+                
+                //get email template from database
+                $email_template = $this->booking_model->get_booking_email_template(CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                $subject = vsprintf($email_template[4], array($invoices['booking'][0]['company_name'],$start_date,$end_date));
+                $message = $email_template[0];
+                $email_from = $email_template[2];
+                
                 $this->email->clear(TRUE);
-                $this->email->from('billing@247around.com', '247around Team');
+                $this->email->from($email_from, '247around Team');
                 $this->email->to($to);
                 $this->email->cc($cc);
                 //attach detailed invoice
                 $this->email->attach($output_file_excel, 'attachment');
                 //attach mail invoice
                 $this->email->attach($output_file_dir . $invoice_id . ".pdf", 'attachment');
-                $message = "Dear Partner," . "<br/><br/>Please find attached CASH invoice. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.";
-                $message .= "<br/><br/>Thanks,<br/>247around Team";
                 $this->email->message($message);
                 $this->email->subject($subject);
                 $mail_ret = $this->email->send();
@@ -1407,19 +1411,21 @@ class Invoice extends CI_Controller {
                 if (!empty($rm_details)) {
                     $rem_email_id = ", " . $rm_details[0]['official_email'];
                 }
-
-                $from = 'billing@247around.com';
+                
+                //get email template from database
+                $email_template = $this->booking_model->get_booking_email_template(FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                $subject = vsprintf($email_template[4], array($invoices[0]['company_name'],$start_date,$end_date));
+                $message = $email_template[0];
+                $email_from = $email_template[2];
                 $to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
-                $subject = "247around - " . $invoices[0]['company_name'] . " - FOC Invoice for period: " . $start_date . " to " . $end_date;
                 $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id;
-                $this->email->from($from);
+                
+                $this->email->from($email_from);
                 $this->email->to($to);
                 $this->email->cc($cc);
                 $this->email->subject($subject);
                 $this->email->attach($output_file_excel, 'attachment');
                 $this->email->attach($output_file_dir . $output_file . ".pdf", 'attachment');
-                $message = "Dear Partner," . "<br/><br/>Please find attached FOC invoice. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.";
-                $message .= "<br/><br/>Thanks,<br/>247around Team";
                 $this->email->message($message);
                 $mail_ret = $this->email->send();
 
@@ -2127,22 +2133,15 @@ class Invoice extends CI_Controller {
         if (!empty($rm_details)) {
             $cc = NITS_ANUJ_EMAIL_ID . ", " . $rm_details[0]['official_email'];
         }
-
+        
+        //get email template from database
+        $email_template = $this->booking_model->get_booking_email_template(BRACKETS_INVOICE_EMAIL_TAG);
+        $subject = vsprintf($email_template[4], array($vendor_data[0]['name']));
+        $message = vsprintf($email_template[0], array($invoice_month));
+        $email_from = $email_template[2];
         $to = $vendor_data[0]['primary_contact_email'] . ',' . $vendor_data[0]['owner_email'];
-        $from = 'billing@247around.com';
 
-        $message = "Dear Partner,<br/><br/>";
-        $message .= "Please find attached invoice for Brackets delivered in " . $invoice_month . ". ";
-        $message .= "Hope to have a long lasting working relationship with you.";
-        $message .= "<br><br>With Regards,
-                        <br>247around Team<br>
-                        <br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
-                        <br>Follow us on Facebook: www.facebook.com/247around
-                        <br>Website: www.247around.com
-                        <br>Playstore - 247around -
-                        <br>https://play.google.com/store/apps/details?id=com.handymanapp";
-
-        $send_mail = $this->notify->sendEmail($from, $to, $cc, '', 'Brackets Invoice - ' . $vendor_data[0]['name'], $message, $output_file_excel);
+        $send_mail = $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel);
 
         if ($send_mail) {
             log_message('info', __FUNCTION__ . "Bracket invoice sent...");
@@ -2166,23 +2165,16 @@ class Invoice extends CI_Controller {
         
         $output_file_excel = TMP_FOLDER.$output_file.".xlsx";
         $output_file_pdf = TMP_FOLDER.$output_file.".pdf";
-
-        $message = "Dear Partner,<br/><br/>";
-        $message .= "Please find attached invoice for Brackets delivered in " . $invoice_month . ". ";
-        $message .= "Hope to have a long lasting working relationship with you.";
-        $message .= "<br><br>With Regards,
-                        <br>247around Team<br>
-                        <br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
-                        <br>Follow us on Facebook: www.facebook.com/247around
-                        <br>Website: www.247around.com
-                        <br>Playstore - 247around -
-                        <br>https://play.google.com/store/apps/details?id=com.handymanapp";
+        
+        //get email template from database
+        $email_template = $this->booking_model->get_booking_email_template(DRAFT_BRACKETS_INVOICE_EMAIL_TAG);
+        $subject = vsprintf($email_template[4], array($vendor_details[0]['name']));
+        $message = vsprintf($email_template[0], array($invoice_month));
+        $email_from = $email_template[2];
+        $to = ANUJ_EMAIL_ID;
         
         $this->email->clear(TRUE);
-        $this->email->from('billing@247around.com', '247around Team');
-        $to = ANUJ_EMAIL_ID;
-        $subject = 'DRAFT - Brackets Invoice - ' . $vendor_details[0]['name'];
-        
+        $this->email->from($email_from, '247around Team');
         if(file_exists($output_file_excel)){
             $this->email->attach($output_file_excel, 'attachment');
         }
@@ -3290,18 +3282,22 @@ class Invoice extends CI_Controller {
 
             $status = $this->invoices_model->insert_new_invoice($setup_insert);
             if ($status) {
+                
+                //get email template from database
+                $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_DETAILED_EMAIL_TAG);
+                $subject = vsprintf($email_template[4], array($meta['company_name'],$meta['sd'],$meta['ed']));
+                $message = $email_template[0];
+                $email_from = $email_template[2];
+                
                 //Send report via email
                 $this->email->clear(TRUE);
-                $this->email->from('billing@247around.com', '247around Team');
+                $this->email->from($email_from, '247around Team');
                 $to = $email_to;
-                $subject = "PARTNER CRM SETUP INVOICE- 247around - " . $meta['company_name'] .
-                        " Invoice for period: " . $meta['sd'] . " to " . $meta['ed'];
                 $cc = $email_cc . ", " . NITS_ANUJ_EMAIL_ID;
-
                 $this->email->to($to);
                 $this->email->cc($cc);
-
                 $this->email->subject($subject);
+                $this->email->subject($message);
                 $this->email->attach(TMP_FOLDER . $meta['invoice_id'] . "-invoice-setup.pdf", 'attachment');
 
                 $mail_ret = $this->email->send();
@@ -3788,22 +3784,16 @@ class Invoice extends CI_Controller {
         $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_details[0]['id']); 
         $to = $vendor_details[0]['owner_email'].",".$this->session->userdata('official_email').",".$get_rm_email[0]['official_email'];
         $cc = ANUJ_EMAIL_ID;
-        $from = 'billing@247around.com';
-
-        $message = "Dear Partner,<br/><br/>";
-        $message .= "Please find attached invoice for Brackets delivered";
-        $message .= "Hope to have a long lasting working relationship with you.";
-        $message .= "<br><br>With Regards,
-                        <br>247around Team<br>
-                        <br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
-                        <br>Follow us on Facebook: www.facebook.com/247around
-                        <br>Website: www.247around.com
-                        <br>Playstore - 247around -
-                        <br>https://play.google.com/store/apps/details?id=com.handymanapp";
+        //get email template from database
+        $email_template = $this->booking_model->get_booking_email_template(BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG);
+        $subject = vsprintf($email_template[4], array($vendor_details[0]['company_name']));
+        $message = $email_template[0];
+        $email_from = $email_template[2];
         
         $output_file_excel = TMP_FOLDER . $invoice_id . ".xlsx";
         $output_file_pdf = TMP_FOLDER . $invoice_id . ".pdf";
-        $send_mail = $this->notify->sendEmail($from, $to, $cc, '', 'Credit Note - Brackets Invoice - ' . $vendor_details[0]['company_name'], $message, $output_file_pdf);
+        
+        $send_mail = $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_pdf);
         if ($send_mail) {
             exec("rm -rf " . escapeshellarg($output_file_excel));
             exec("rm -rf " . escapeshellarg($output_file_pdf));
