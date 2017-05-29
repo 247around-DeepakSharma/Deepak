@@ -1028,7 +1028,7 @@ class Upload_booking_file extends CI_Controller {
             if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner") 
                     || stristr($prod, "WINDOW AIR CONDITIONER") || 
                     stristr($prod, "SPLIT AIR CONDITIONER") || 
-                    stristr($prod, "AIR CONDITIONER")|| stristr($prod, "SPLIT AC") || stristr($prod, "AC")) {
+                    stristr($prod, "AIR CONDITIONER")|| stristr($prod, "SPLIT AC") || stristr($prod, "WINDOW AC")) {
                 $appliance = 'Air Conditioner';
             }
             if (stristr($prod, "Refrigerator")) {
