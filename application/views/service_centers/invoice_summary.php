@@ -87,9 +87,9 @@
                <td><?php echo $count;$count++;?></td>
                <td><?php echo $value['transaction_date']; ?></td>
                <td><?php echo $value['description']; ?></td>
-               <td><?php echo $value['credit_amount']; $credit_amount += intval($value['credit_amount']); ?></td>       
-               <td><?php echo $value['debit_amount'];  $debit_amount += intval($value['debit_amount']); ?></td>
-               <td><?php echo $value['tds_amount']; $tds_amount += intval($value['tds_amount']); ?></td>
+               <td><?php echo round($value['credit_amount'],0); $credit_amount += intval($value['credit_amount']); ?></td>       
+               <td><?php echo round($value['debit_amount'],0);  $debit_amount += intval($value['debit_amount']); ?></td>
+               <td><?php echo round($value['tds_amount'],0); $tds_amount += intval($value['tds_amount']); ?></td>
                <td><?php echo $value['invoice_id']; ?></td>
                <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>   
            <?php } ?>
@@ -98,9 +98,9 @@
              <td><b>Total</b></td>
              <td></td>
              <td></td>
-             <td><?php echo $credit_amount;?></td>
-             <td><?php echo $debit_amount;?></td>
-             <td><?php echo $tds_amount;?></td>
+             <td><?php echo round($credit_amount,0);?></td>
+             <td><?php echo round($debit_amount,0);?></td>
+             <td><?php echo round($tds_amount,0);?></td>
              <td></td>
               <td></td>
              </tr>
@@ -114,7 +114,7 @@
        
     $final_settlement = $pay_247 + $pay_sf + $debit_amount - $credit_amount;
     ?>
-    <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo round($final_settlement,0);} else { echo 0;} ?></h4></p>
-    <p ><h4 style="margin-bottom: 30px;">247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(round($final_settlement,0));} else {echo 0;} ?></h4></p>
+    <h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo round($final_settlement,0);} else { echo 0;} ?></h4>
+    <h4 style="margin-bottom: 30px;">247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(round($final_settlement,0));} else {echo 0;} ?></h4>
     </div>
 
