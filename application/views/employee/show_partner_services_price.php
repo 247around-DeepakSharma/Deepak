@@ -11,7 +11,7 @@
                                     <option selected disabled>Select Partner</option>
                                     <?php foreach ($partners as $key => $value) { ?>
 
-                                        <option value="<?php echo $value['price_mapping_id'] ?>"> <?php echo $value['source']; ?></option>
+                                        <option value="<?php echo $value['partner_id'] ?>"> <?php echo $value['source']; ?></option>
 
                                     <?php } ?>
                                 </select>
@@ -73,7 +73,7 @@
 
         $('#service_id').on('change', function () {
             var postdata = {};
-            postdata['price_mapping_id'] = $('#partners').val();
+            postdata['partner_id'] = $('#partners').val();
             postdata['service_id'] = $('#service_id').val();
             if (postdata) {
                 $.ajax({
@@ -91,7 +91,7 @@
 
         $('#service_category, #partners').on('change', function () {
             var postdata = {};
-            postdata['price_mapping_id'] = $('#partners').val();
+            postdata['partner_id'] = $('#partners').val();
             postdata['service_id'] = $('#service_id').val();
             postdata['service_category'] = $('#service_category').val();
 

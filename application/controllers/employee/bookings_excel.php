@@ -292,7 +292,7 @@ class bookings_excel extends CI_Controller {
                 
                 //get partner data to check the price
                 $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
-                $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+                $partner_mapping_id = $booking['partner_id'];
                 if($partner_data[0]['partner_type'] == OEM){
                     //if partner type is OEM then sent appliance brand in argument
                     $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo', $unit_details['appliance_brand']);

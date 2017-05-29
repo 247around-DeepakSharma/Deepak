@@ -616,8 +616,7 @@ class Upcountry_model extends CI_Model {
     function is_upcountry_booking($booking_id){
         $this->db->select('booking_id, is_upcountry');
         $this->db->from('booking_unit_details AS ud');
-        $this->db->join('bookings_sources AS bs','ud.partner_id = bs.partner_id');
-        $this->db->join('service_centre_charges AS sc','bs.price_mapping_id = sc.partner_id '
+        $this->db->join('service_centre_charges AS sc','ud.partner_id = sc.partner_id '
                 . ' AND ud.price_tags = sc.service_category '
                 . ' AND ud.`appliance_category` = sc.category '
                 . ' AND ud.`appliance_capacity` = sc.capacity');

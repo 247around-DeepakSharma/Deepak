@@ -194,7 +194,7 @@ class service_centre_charges_model extends CI_Model {
         
         $this->db->select('category , capacity , service_category , customer_total , partner_payable_basic , customer_net_payable,vendor_total,pod,is_upcountry');
         $this->db->from('service_centre_charges');
-        $this->db->where('partner_id', $data['price_mapping_id']);
+        $this->db->where('partner_id', $data['partner_id']);
         
         if ($data['service_id'] != NULL){
             $this->db->where('service_id', $data['service_id']);
@@ -214,12 +214,12 @@ class service_centre_charges_model extends CI_Model {
      * 
      */
     
-    function get_appliance_from_partner($price_mapping_id){
+    function get_appliance_from_partner($partner_id){
         $this->db->distinct();
         $this->db->select('services.id,services');
         $this->db->from('services');
         $this->db->join('service_centre_charges','services.id = service_centre_charges.service_id');
-        $this->db->where('service_centre_charges.partner_id ' , $price_mapping_id);
+        $this->db->where('service_centre_charges.partner_id ' , $partner_id);
         $this->db->order_by('services');
         $query = $this->db->get();
         return $query->result_array();
