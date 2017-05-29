@@ -1046,7 +1046,7 @@ class Invoice extends CI_Controller {
                 $sms['tag'] = "vendor_invoice_mailed";
                 $sms['smsData']['type'] = 'Cash';
                 $sms['smsData']['month'] = date('M Y', strtotime($start_date));
-                $sms['smsData']['amount'] = $invoices['meta']['total_amount_paid'];
+                $sms['smsData']['amount'] = round($invoices['meta']['total_amount_paid'],0);
                 $sms['phone_no'] = $invoices['booking'][0]['owner_phone_1'];
                 $sms['booking_id'] = "";
                 $sms['type'] = "vendor";
@@ -1978,7 +1978,7 @@ class Invoice extends CI_Controller {
                     $sms['tag'] = "vendor_invoice_mailed";
                     $sms['smsData']['type'] = 'Stand';
                     $sms['smsData']['month'] = date('M Y', strtotime($from_date));
-                    $sms['smsData']['amount'] = $invoice[0]['total'];
+                    $sms['smsData']['amount'] = round($invoice[0]['total'],0);
                     $sms['phone_no'] = $invoice[0]['owner_phone_1'];
                     $sms['booking_id'] = "";
                     $sms['type'] = "vendor";
@@ -2895,7 +2895,7 @@ class Invoice extends CI_Controller {
                     $sms['tag'] = "vendor_invoice_mailed";
                     $sms['smsData']['type'] = $data['type'];
                     $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
-                    $sms['smsData']['amount'] = $data['amount_collected_paid'];
+                    $sms['smsData']['amount'] = round($data['amount_collected_paid'],0);
                     $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
                     $sms['booking_id'] = "";
                     $sms['type'] = "vendor";
@@ -3771,7 +3771,7 @@ class Invoice extends CI_Controller {
         $sms['tag'] = "vendor_invoice_mailed";
         $sms['smsData']['type'] = 'stand';
         $sms['smsData']['month'] = date('M Y', strtotime($vendor_details[0]['shipment_date']));
-        $sms['smsData']['amount'] = $amount;
+        $sms['smsData']['amount'] = round($amount,0);
         $sms['phone_no'] = $vendor_details[0]['owner_phone_1'];
         $sms['booking_id'] = "";
         $sms['type'] = "vendor";
