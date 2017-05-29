@@ -570,8 +570,8 @@ class Around_scheduler extends CI_Controller {
      */
     function send_notification_mail_to_jeeves(){
         $hour = 3;
-        if(date('H') < 13){
-            $hour = 12;
+        if(date('H') < 12){
+            $hour = 18;
         }
 
         $data = $this->around_scheduler_model->get_status_changes_booking_with_in_hour($hour);
@@ -581,11 +581,11 @@ class Around_scheduler extends CI_Controller {
 
         $this->table->set_template($template);
 
-        $this->table->set_heading(array('Order ID', 'Booking ID', 'Current Status', 'Internal Status', 'Partner Status', 'Partner Internal Status'));
+        $this->table->set_heading(array('Order ID', 'Jeeves New Status', 'Rescheduled Booking Date', 'Remarks', 'Amount Collected'));
         foreach($data as $value){
             
-            $this->table->add_row($value['order_id'], $value['booking_id'], $value['current_status'], 
-                    $value['internal_status'], $value['partner_current_status'], $value['partner_internal_status']);
+            $this->table->add_row($value['order_id'], $value['partner_current_status'], 
+                    $value['booking_date'], $value['cancellation_reaoson'], $value['amount_paid']);
 
         }
 
@@ -593,7 +593,7 @@ class Around_scheduler extends CI_Controller {
         $cc = "abhaya@247around.com";
         
         $subject = "Jeeves Booking Update Status";
-        $message = "Hi <br> Please Find Booking Status below, <br/>";
+        $message = "Dear Partner,<br/> Attached is the status of the last ".$hour. " hour <br/><br/><br/>";
         $message .= $this->table->generate();
 
         $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");

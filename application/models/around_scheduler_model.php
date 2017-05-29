@@ -363,9 +363,9 @@ class Around_scheduler_model extends CI_Model {
     }
     
     function get_status_changes_booking_with_in_hour($hour){
-       // $sql = "SELECT booking_id FROM booking_details WHERE update_date >= DATE_ADD(NOW(), INTERVAL -$hour HOUR) AND partner_id = '".JEEEVES_ID ."' ";
-        $sql  = "SELECT DISTINCT bd.order_id, bd.booking_id, current_status, internal_status, partner_current_status,"
-                . " partner_internal_status FROM booking_details as bd, "
+       
+        $sql  = "SELECT DISTINCT bd.order_id, bd.partner_current_status, bd.booking_date, cancellation_reason, amount_paid"
+                . " FROM booking_details as bd, "
                 . " booking_state_change as bs WHERE "
                 . " replace('Q-','',bd.booking_id) =  replace('Q-','',bs.booking_id) "
                 . " AND update_date >= DATE_ADD(NOW(), INTERVAL -$hour HOUR) AND bd.partner_id = '". JEEEVES_ID."'"
