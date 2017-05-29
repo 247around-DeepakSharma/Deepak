@@ -2224,3 +2224,66 @@ ALTER TABLE `sf_not_exist_booking_details`
 --
 ALTER TABLE `sf_not_exist_booking_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- sachin 29 May
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'partner_invoice_detailed', '247around - %s. Invoice for period: %s to %s', 'Dear Partner, <br>
+
+Please find attached invoice for jobs completed <br>
+
+With Regards,
+<br>247around Team
+<br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
+<br>Follow us on Facebook: www.facebook.com/247around
+<br>Website: www.247around.com
+<br>Playstore - 247around -
+<br>https://play.google.com/store/apps/details?id=com.handymanapp', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'cash_details_invoices_for_vendors', '247around - %s - Cash Invoice for period: %s to %s', 'Dear Partner,<br/><br/>
+Please find attached CASH invoice. 
+Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.
+<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'foc_details_invoices_for_vendors', '247around - %s - FOC Invoice for period: %s to %s', 
+'Dear Partner,Please find attached FOC invoice.
+Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.
+<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'send_brackets_invoice_mail', 'Brackets Invoice - %s', 'Dear Partner,<br/><br/>
+Please find attached invoice for Brackets delivered in %s.
+Hope to have a long lasting working relationship with you.
+<br><br>With Regards,
+<br>247around Team<br>
+<br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
+<br>Follow us on Facebook: www.facebook.com/247around
+<br>Website: www.247around.com
+<br>Playstore - 247around -
+<br>https://play.google.com/store/apps/details?id=com.handymanapp', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'send_draft_brackets_invoice_mail', 'Draft-Brackets Invoice - %s', 'Dear Partner,<br/><br/>
+Please find attached invoice for Brackets delivered in %s.
+Hope to have a long lasting working relationship with you.
+<br><br>With Regards,
+<br>247around Team<br>
+<br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
+<br>Follow us on Facebook: www.facebook.com/247around
+<br>Website: www.247around.com
+<br>Playstore - 247around -
+<br>https://play.google.com/store/apps/details?id=com.handymanapp', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'crm_setup_invoice', 'PARTNER CRM SETUP INVOICE- 247around - %s Invoice for period: %s to %s', '', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'brackets_credit_note_invoice', 'Credit Note - Brackets Invoice - %s', 'Dear Partner,<br/><br/>
+Please find attached invoice for Brackets delivered.
+Hope to have a long lasting working relationship with you.
+<br><br>With Regards,
+<br>247around Team<br>
+<br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
+<br>Follow us on Facebook: www.facebook.com/247around
+<br>Website: www.247around.com
+<br>Playstore - 247around -
+<br>https://play.google.com/store/apps/details?id=com.handymanapp', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);

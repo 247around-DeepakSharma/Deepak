@@ -351,5 +351,14 @@ define('CANCELLED_QUERY_PROMOTINAL_SMS_2','cancelled_query_promotional_sms_2');
 define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_1','booking_not_exist_promotional_sms_1');
 define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_2','booking_not_exist_promotional_sms_2');
 
+//invoice email tag
+define('PARTNER_INVOICE_DETAILED_EMAIL_TAG','partner_invoice_detailed');
+define('CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG','cash_details_invoices_for_vendors');
+define('FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG','foc_details_invoices_for_vendors');
+define('BRACKETS_INVOICE_EMAIL_TAG','send_brackets_invoice_mail');
+define('DRAFT_BRACKETS_INVOICE_EMAIL_TAG','send_draft_brackets_invoice_mail');
+define('CRM_SETUP_INVOICE_EMAIL_TAG','crm_setup_invoice');
+define('BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG','brackets_credit_note_invoice');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
