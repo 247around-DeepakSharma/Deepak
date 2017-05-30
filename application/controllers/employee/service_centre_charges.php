@@ -405,20 +405,20 @@ class service_centre_charges extends CI_Controller {
      *  @param : source, city, service id, category, capacity, appliances
      *  @return : void
      */
-    function get_pricing_details() {
-        $partner_code = $this->input->post('source');
-        $data['city'] = $this->input->post('city');
-        $data['service_id'] = $this->input->post('service_id');
-        $data['category'] = $this->input->post('category');
-        $data['capacity'] = $this->input->post('capacity');
-        $data['appliances'] = $this->input->post('appliances');
-        $data['source'] = $this->booking_model->get_price_mapping_partner_code($partner_code);
-
-        $price['price'] = $this->service_centre_charges_model->get_pricing_details($data);
-        $table = $this->load->view('employee/pricingtable', $price);
-
-        print_r($table);
-    }
+//    function get_pricing_details() {
+//        $partner_code = $this->input->post('source');
+//        $data['city'] = $this->input->post('city');
+//        $data['service_id'] = $this->input->post('service_id');
+//        $data['category'] = $this->input->post('category');
+//        $data['capacity'] = $this->input->post('capacity');
+//        $data['appliances'] = $this->input->post('appliances');
+//        $data['source'] = $this->booking_model->get_price_mapping_partner_code($partner_code);
+//
+//        $price['price'] = $this->service_centre_charges_model->get_pricing_details($data);
+//        $table = $this->load->view('employee/pricingtable', $price);
+//
+//        print_r($table);
+//    }
 
     /**
      *  @desc  : Edit pricing table
