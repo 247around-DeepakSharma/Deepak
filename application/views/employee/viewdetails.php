@@ -382,7 +382,7 @@
                 
 
                 
-                <?php if(!empty($service_center)){?>
+                <?php if(!empty($booking_history[0]['vendor_name'])){?>
                 <div class="col-md-12">
                     <h3>Service Center Details:</h3>
                     <table class="table  table-striped table-bordered">
@@ -397,9 +397,9 @@
                         </thead
                         <tbody>
                         <tr>
-                            <td><?php if(isset($service_center[0]['service_centre_name'])){echo $service_center[0]['service_centre_name'];}?></td>
-                            <td><?php if(isset($service_center[0]['primary_contact_name'])){echo $service_center[0]['primary_contact_name'];}?></td>
-                            <td><?php if(isset($service_center[0]['primary_contact_phone_1'])){echo $service_center[0]['primary_contact_phone_1'];}?>
+                            <td><?php if(isset($booking_history[0]['vendor_name'])){echo $booking_history[0]['vendor_name'];}?></td>
+                            <td><?php if(isset($booking_history[0]['primary_contact_name'])){echo $booking_history[0]['primary_contact_name'];}?></td>
+                            <td><?php if(isset($booking_history[0]['primary_contact_phone_1'])){echo $booking_history[0]['primary_contact_phone_1'];}?>
                             </td>
                             <td> <?php if(!is_null($booking_history[0]['sub_vendor_id'])){ ?><?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?><?php } ?></td>
                             <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>

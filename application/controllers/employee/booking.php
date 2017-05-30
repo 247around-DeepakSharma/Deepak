@@ -1205,11 +1205,10 @@ class Booking extends CI_Controller {
      *  @return : booking details and load view
      */
     function viewdetails($booking_id) {
-        $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $unit_where = array('booking_id' => $booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
 
-        $data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
         foreach ($data['penalty'] as $key => $value) {
             if ($value['active'] == 0) {
@@ -1536,7 +1535,9 @@ class Booking extends CI_Controller {
                 $status['partner_internal_status'] = $partner_status[1];
             }
         }
-        $this->booking_model->change_booking_status($booking_id, $status);
+        $this->booking_model->update_booking($booking_id, $status);
+        $this->booking_model->update_booking_unit_details_by_any(array('booking_id'=> $booking_id), array('booking_status'=> _247AROUND_FOLLOWUP));
+        
         redirect(base_url() . 'employee/user/finduser/0/0/' . $phone, 'refresh');
     }
 
@@ -1703,6 +1704,7 @@ class Booking extends CI_Controller {
             $booking['internal_status'] = 'Rescheduled';
 
             $booking['update_date'] = date("Y-m-d H:i:s");
+            $booking['mail_to_vendor'] = 0;
             $send['booking_id'] = $booking_id;
             $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
 
@@ -1728,10 +1730,7 @@ class Booking extends CI_Controller {
             //param:-- booking id, new state, old state, employee id, employee name
 
             $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, $booking['reschedule_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-
-            log_message('info', __FUNCTION__ . " Set Mail flag to 0 : " . print_r($booking_id, true));
-            //Setting mail to vendor flag to 0, once booking is rescheduled
-            $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
+            
             log_message('info', __FUNCTION__ . " partner callback: " . print_r($booking_id, true));
             $this->partner_cb->partner_callback($booking_id);
 
@@ -2090,8 +2089,8 @@ class Booking extends CI_Controller {
                 $status['partner_internal_status'] = $partner_status[1];
             }
         }
-
-        $this->booking_model->change_booking_status($booking_id, $status);
+        $this->booking_model->update_booking($booking_id, $status);
+        $this->booking_model->update_booking_unit_details_by_any(array('booking_id'=> $booking_id), array('booking_status'=> _247AROUND_FOLLOWUP));    
 
         //Log this state change as well for this booking
         $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP, _247AROUND_CANCELLED, "Cancelled_Query to FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
