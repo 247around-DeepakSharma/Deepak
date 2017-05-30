@@ -806,12 +806,12 @@
 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
         console.log(data);
-//        var data1 = jQuery.parseJSON(data);
-//        
-//        $("#upcountry_data").val(data1.upcountry_data);
-//        final_price();
-//        $('#submitform').attr('disabled',false);
-//        set_upcountry();
+        var data1 = jQuery.parseJSON(data);
+        
+        $("#upcountry_data").val(data1.upcountry_data);
+        final_price();
+        $('#submitform').attr('disabled',false);
+        set_upcountry();
        
     });
    
