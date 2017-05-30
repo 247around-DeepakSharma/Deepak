@@ -796,7 +796,7 @@ class Api extends CI_Controller {
                 if (!in_array($phone_number, $developer_phone)) {
                     /*
                       $this->sendMail("New User Added", $name . " with phone number " . $phone_number
-                      . " and email " . $email . " joined Around !!!", false);
+                      . " and email " . $email . " joi`ned Around !!!", false);
                      */
 
                     $this->sendNewUserEmail($userResult);
@@ -1887,7 +1887,7 @@ class Api extends CI_Controller {
             $booking_id = str_pad($user_id, 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
 
             $booking_id .= (intval($this->apis->getBookingCountByUser($user_id)) + 1);
-            $booking_id = "S2-" . $booking_id;
+            $booking_id = "SB-" . $booking_id;
             $booking['booking_id'] = $booking_id;
             $booking['partner_id'] = "247001";
             $booking['partner_source'] = "AndroidApp";
@@ -1929,7 +1929,7 @@ class Api extends CI_Controller {
             }
 
             $booking['type'] = "Booking";
-            $booking['source'] = "S2";
+            $booking['source'] = "SB";
             $booking['current_status'] = 'Pending';
             $booking['internal_status'] = 'Scheduled';
 
