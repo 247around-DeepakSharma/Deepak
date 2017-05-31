@@ -168,12 +168,6 @@ class Upload_booking_file extends CI_Controller {
                                     $this->order_id_exist_shipped_process($partner_booking);
                                     break;
                             }
-                        } else if($partner_id == JEEEVES_ID) {
-                            // If order is found, then check whether partner is Jeeves or not
-                            // If it is Jeeves. And Also booking should be cancelled then we need to add open this booking
-                            if($partner_booking['current_status'] == _247AROUND_CANCELLED){
-                                $this->open_cancelled_booking($partner_booking);
-                            }
                         } else {
                             $this->count_booking_not_updated++;
                         }
@@ -1239,7 +1233,4 @@ class Upload_booking_file extends CI_Controller {
         return $user_name;
     }
     
-//    function open_cancelled_booking($partner_booking){
-//        
-//    }
 }
