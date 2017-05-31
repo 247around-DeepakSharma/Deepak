@@ -1100,7 +1100,7 @@ class Booking extends CI_Controller {
 
                 $vendor_data = array();
                 $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
-                $vendor_data[0]['city'] = $booking_city;
+                $vendor_data[0]['city'] = $this->vendor_model->get_distict_details_from_india_pincode($booking_pincode)['district'];
 
                 $upcountry_data = $this->upcountry_model->action_upcountry_booking($booking_city, $booking_pincode, $vendor_data, $partner_data);
             }
@@ -2002,6 +2002,9 @@ class Booking extends CI_Controller {
             }
             //Creating Job Card to Booking ID
             $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+            if (!empty($assigned_vendor_id)) {
+                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
+            }
 
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $send['booking_id'] = $booking_id;
