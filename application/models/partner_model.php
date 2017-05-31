@@ -1333,5 +1333,12 @@ class Partner_model extends CI_Model {
 
 	    return $query->result_array();
     }
+    
+    function partner_login_details($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('partner_login');
+        return $query->result_array();
+    }
 }
 
