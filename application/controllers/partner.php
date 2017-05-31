@@ -335,8 +335,10 @@ class Partner extends CI_Controller {
                         }else{
                             $this->booking_model->addunitdetails($unit_details);
                         }
-
-                        $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], DEFAULT_PARTNER_AGENT, $requestData['partnerName'], $booking['partner_id']);
+                        
+                        $p_login_details = $this->partner_model->partner_login_details(array('partner_id' => $this->partner['id'], "full_name" => 'STS'));
+            
+                        $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], $p_login_details[0]['id'], $requestData['partnerName'], $this->partner['id']);
                         
                         if (empty($booking['state'])) {
 			    $to = NITS_ANUJ_EMAIL_ID;

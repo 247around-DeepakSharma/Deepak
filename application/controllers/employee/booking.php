@@ -1909,6 +1909,7 @@ class Booking extends CI_Controller {
 
         $booking['closing_remarks'] = $service_center['closing_remarks'];
         $booking['closed_date'] = date('Y-m-d H:i:s');
+        $booking['update_date'] = date('Y-m-d H:i:s');
 //        if (!empty($service_center_details)) {
 //            if ($service_center_details[0]['closed_date'] === NULL) {
 //                $booking['closed_date'] = date('Y-m-d H:i:s');

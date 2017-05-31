@@ -2283,3 +2283,10 @@ Hope to have a long lasting working relationship with you.
 ALTER TABLE  `sf_not_exist_booking_details` ADD  `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ;
 ALTER TABLE  `sf_not_exist_booking_details` AUTO_INCREMENT =10000;
 
+
+-- Abhay 31 May ---
+INSERT INTO `partner_login` (`id`, `partner_id`, `full_name`, `email`, `user_name`, `password`, `clear_text`, `active`, `create_date`) VALUES
+(978990, 247030, 'STS', 'anuj@247around.com', 'jeeves-sts', '216f5a89fca6bc085d2a6a3c88e6615d', 'jeeves-sts', 1, '2016-10-31 10:23:42'),
+(978991, 3, 'STS', 'anuj@247around.com', 'paytm-sts', '0f2cda64eb7640e66611d97b4de09465', 'paytm-sts', 1, '2016-10-31 10:23:42');
+
+
