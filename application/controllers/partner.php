@@ -216,6 +216,7 @@ class Partner extends CI_Controller {
                        
                         $booking['partner_id'] = $this->initialized_variable->get_partner_data()[0]['id'];
                         $booking['source'] = $this->initialized_variable->get_partner_data()[0]['code'];
+                        $booking['create_date'] = date("Y-m-d H:i:s");
 
                         $unit_details['partner_id'] = $booking['partner_id'];
                         $booking['order_id'] = $requestData['orderID'];
@@ -1508,6 +1509,7 @@ class Partner extends CI_Controller {
             $booking['amount_due'] = $requestData['amount_due'];
             $upcountry_data = json_decode($requestData['upcountry_data'], TRUE);
             $booking['is_upcountry'] = 0;
+            $booking['create_date'] = date("Y-m-d H:i:s");
             
              if($requestData['product_type'] == "Shipped"){
                 $booking['current_status'] = _247AROUND_FOLLOWUP;
