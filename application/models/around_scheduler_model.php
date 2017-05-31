@@ -368,7 +368,7 @@ class Around_scheduler_model extends CI_Model {
                 . " FROM booking_details as bd, "
                 . " booking_state_change as bs WHERE "
                 . " replace('Q-','',bd.booking_id) =  replace('Q-','',bs.booking_id) "
-                . " AND update_date >= DATE_ADD(NOW(), INTERVAL -$hour HOUR) AND bd.partner_id = '". JEEEVES_ID."'"
+                . " AND bs.create_date >= DATE_ADD(NOW(), INTERVAL -$hour HOUR) AND bd.partner_id = '". JEEEVES_ID."'"
                 . " AND old_state IN ('"._247AROUND_COMPLETED."', '"._247AROUND_FOLLOWUP."', "
                 . " '"._247AROUND_PENDING."', '"._247AROUND_CANCELLED ."', '"._247AROUND_NEW_QUERY."', "
                 . " '"._247AROUND_NEW_BOOKING."', 'Rescheduled') "
