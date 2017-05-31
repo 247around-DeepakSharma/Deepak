@@ -1,8 +1,35 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row" ng-app="myApp" ng-controller="myCtrl" style="margin-top: 40px;" >
             <div class="col-md-12">
+                 <div class="col-md-6">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label for="date ragne">Select Date Range:</label>
+                        <input type="text" class="form-control" name="daterange"  />
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-default" ng-click="clickme()">Submit</button>
+                    </div>
+                </form>
+                <script type="text/javascript">
+                    $(function() {
+                        $('input[name="daterange"]').daterangepicker({
+                            locale: {
+                               format: 'YYYY/MM/DD'
+                            },
+                            startDate: '<?php echo date("Y/m/01", strtotime("-2 month")) ?>',
+                            endDate: '<?php echo date("Y/m/01", strtotime("-1 month")) ?>'
+                        });
+                    
+                        });
+                </script>
+            </div>
+            <br/><br/><br/><br/><br/>
                 <div class="col-md-4" >
                     <h4>Partner Completed Booking</h4>
                     <div class="table-responsive">
@@ -126,28 +153,52 @@
 <script>
     var app = angular.module('myApp', []);
     app.controller('myCtrl', function($scope, $http) {
-        $http.get("<?php echo base_url()."employee/invoiceDashboard/get_count_unit_details" ?>").then(function(response) {
-           $scope.myData = response.data;
+         $scope.clickme=function(){
+        get_data($scope, $http);
+
+        };
+    });
+    
+    function get_data($scope, $http){
+     var date_range =  $('input[name="daterange"]').val();
+       
+        var data = $.param({
+                date_range: date_range
+               
+        });
+        var config = {
+                headers : {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+                }
+         };
+        
+        $http.post("<?php echo base_url()."employee/invoiceDashboard/get_count_unit_details" ?>",data, config).success(function 
+        (response, status, headers, config) {
+           console.log(response);
+           $scope.myData = response;
            $scope.display_table = function(partner_id, source) {
                $scope.partner_name = source;
-               $http.get("<?php echo base_url()."employee/invoiceDashboard/get_count_services/" ?>" + partner_id).then(function(response) {
-                $scope.services = response.data;
+               $http.post("<?php echo base_url()."employee/invoiceDashboard/get_count_services/" ?>"+ partner_id,data, config).success(function 
+               (response1, status, headers, config) {
+                    $scope.services = response1;
                });
-                $http.get("<?php echo base_url()."employee/invoiceDashboard/get_main_invoice/" ?>" + partner_id).then(function(response) {
-                $scope.main_invoice = response.data;
+                $http.post("<?php echo base_url()."employee/invoiceDashboard/get_main_invoice/" ?>"+ partner_id,data, config).success(function 
+               (response2, status, headers, config) {
+                    $scope.main_invoice = response2;
                });
-               $http.get("<?php echo base_url()."employee/invoiceDashboard/check_duplicate_completed_booking/" ?>" + partner_id).then(function(response) {
-                $scope.duplicate_booking = response.data;
+               
+                $http.post("<?php echo base_url()."employee/invoiceDashboard/check_duplicate_completed_booking/" ?>"+ partner_id,data, config).success(function 
+               (response3, status, headers, config) {
+                    $scope.duplicate_booking = response3;
                });
-               $http.get("<?php echo base_url()."employee/invoiceDashboard/installation_not_added/" ?>" + partner_id).then(function(response) {
-                $scope.installation_not_added = response.data;
+                $http.post("<?php echo base_url()."employee/invoiceDashboard/installation_not_added/" ?>"+ partner_id,data, config).success(function 
+               (response4, status, headers, config) {
+                    $scope.installation_not_added = response4;
                });
-                
-            
-        }
+        };
            
-        });
-    });
+        });    
+    }
 </script>
 
 </body>
