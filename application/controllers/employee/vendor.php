@@ -4074,11 +4074,11 @@ class vendor extends CI_Controller {
             }
         }
         if($flag == 1){
-            $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com,".RM_EMAIL;
+            $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com, adila@247around.com,".RM_EMAIL;
 
             $cc = "abhaya@247around.com";
-            $message1 = "Booking ID should be upcountry but any case its not marked upcountry. Please chaeck and update booking <br/>";
-            $subject = "Upcountry Booking Need To Take Action ";
+            $message1 = "Booking should be upcountry but not marked properly. Please check and update booking.<br/>";
+            $subject = "Upcountry Booking Missed - Need To Take Action";
             $message1 .= $this->table->generate();
 
             $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");

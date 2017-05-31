@@ -2287,3 +2287,9 @@ Hope to have a long lasting working relationship with you.
 <br>Website: www.247around.com
 <br>Playstore - 247around -
 <br>https://play.google.com/store/apps/details?id=com.handymanapp', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+---- ANUJ 29 May ----
+
+ALTER TABLE  `sf_not_exist_booking_details` ADD  `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ;
+ALTER TABLE  `sf_not_exist_booking_details` AUTO_INCREMENT =10000;
+
