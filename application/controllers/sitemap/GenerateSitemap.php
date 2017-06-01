@@ -67,7 +67,7 @@ class GenerateSitemap extends CI_Controller {
 
             $this->UrlTableData = array();
 
-            echo PHP_EOL . " EXIT Appliance ID" . $value->id . PHP_EOL;
+        //    echo PHP_EOL . " EXIT Appliance ID" . $value->id . PHP_EOL;
         }
         echo "Empty Array to release memory";
         $this->Pincode = array();
@@ -84,7 +84,7 @@ class GenerateSitemap extends CI_Controller {
     }
 
     function setUsefulArrayDetails($service_id) {
-        echo "getUsefulArrayDetails" . PHP_EOL;
+        //echo "getUsefulArrayDetails" . PHP_EOL;
 
 
         $this->Brand = $this->booking_model->get_brand(array('service_id' => $service_id, 'seo' => 1));
@@ -297,12 +297,12 @@ class GenerateSitemap extends CI_Controller {
 
         $res_string = str_replace($to_replace2, str_replace(array(" ", "."), "-", $suffix2), strtolower($blogKeyword));
         $res_string1 = str_replace("<-in-'$to_replace'>", str_replace(" ", "-", "-in-" . $suffix), $res_string);
-        echo "EXIT getFinalUrl" . PHP_EOL;
+       // echo "EXIT getFinalUrl" . PHP_EOL;
         return ($res_string1);
     }
 
     function is_suffix_exists($url) {
-        echo "is_suffix exist" . PHP_EOL;
+       // echo "is_suffix exist" . PHP_EOL;
         return ( (strpos($url, "<region>") !== false) || (strpos($url, "<area>") !== false) || (strpos($url, "<pincode>") !== false) || (strpos($url, "<city>") !== false));
     }
 
@@ -325,12 +325,15 @@ class GenerateSitemap extends CI_Controller {
         }
         $output_dir = $this->SitemapDirectory;
         $j = 0;
+        $m = 0;
+        echo "count Sitemap ".$count_sitemap.PHP_EOL;
         for ($i = 0; $i < $count_sitemap; $i++) {
             $res = 0;
             if (file_exists($output_dir . "sitemap-" . ($i + $this->SitemapNumber) . ".xml")) {
                 system(" chmod 777 " . $output_dir . "sitemap-" . ($i + $this->SitemapNumber) . ".xml", $res);
                 unlink($output_dir . "sitemap-" . ($i + $this->SitemapNumber) . ".xml");
             }
+            $m = $i + $this->SitemapNumber;
             echo $output_dir . "sitemap-" . ($i + $this->SitemapNumber) . ".xml" . PHP_EOL;
             $sitemap_name = fopen($output_dir . "sitemap-" . ($i + $this->SitemapNumber) . ".xml", "a+") or die("Unable to open file!");
             array_push($this->SitemapName, "sitemap-" . ($i + $this->SitemapNumber) . ".xml");
@@ -338,7 +341,7 @@ class GenerateSitemap extends CI_Controller {
             fwrite($sitemap_name, $section1 . PHP_EOL);
 
             for ($k = $j; $k < $target_sitemap; $k++) {
-                echo ".";
+               // echo ".";
                 $section2 = <<<EOD1
 <url>
   <loc>http://247around.com/
@@ -356,7 +359,7 @@ EOD2;
 </urlset>
 EOD;
             fwrite($sitemap_name, $section2 . PHP_EOL);
-            echo "count K " . $k . PHP_EOL;
+            //echo "count K " . $k . PHP_EOL;
             $j = $target_sitemap;
 
             $target_sitemap += $target_sitemap;
@@ -367,9 +370,9 @@ EOD;
 
             fclose($sitemap_name);
         }
-
-        $this->SitemapNumber = $i + 1;
-        echo " Next Sitemap No. " . $i + 1 . PHP_EOL;
+        echo " number I ". $m;
+        $this->SitemapNumber = $m +1;
+        echo " Next Sitemap No. " . $m + 1 . PHP_EOL;
         echo "EXIT createSitemap" . PHP_EOL;
 
         return true;
