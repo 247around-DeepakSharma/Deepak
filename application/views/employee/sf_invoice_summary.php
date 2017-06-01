@@ -25,7 +25,7 @@
                         <input type="text" class="form-control" name="daterange"  />
                     </div>
                     <div class="form-group">
-                        <a href="#" type="submit" class="btn btn-default" onclick="load_data()">Submit</a>
+                        <a href="javascript:void(0)" type="submit" class="btn btn-default" onclick="load_data()">Submit</a>
                     </div>
                 </form>
                 <div id="load_data" style="margin-top:20px;"></div>
