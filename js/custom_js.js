@@ -284,7 +284,7 @@ function addBookingDialog() {
     }
 
 
-   if (source_code === "S2") {
+   if (source_code === "SB") {
    } else {
 
        var order_id = $('#order_id').val();
