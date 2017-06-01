@@ -162,15 +162,20 @@ class Partner_model extends CI_Model {
     /*
      * @desc: This is used to get active partner details and also get partner details by partner id
      */
-    function getpartner($partner_id = "") {
+    function getpartner($partner_id = "", $is_active = true) {
 	    if ($partner_id != "") {
 	        $this->db->where('id', $partner_id);
 	    }
 	    $this->db->select('*');
-	    $this->db->where('is_active', '1');
-            $partners_to_be_ignored = array('247001', '247002', '247003');
-            $this->db->where_not_in('id', $partners_to_be_ignored);
-            $this->db->order_by('public_name');
+   
+      $this->db->where_not_in('id', $partners_to_be_ignored);
+      $this->db->order_by('public_name');
+
+      if($is_active){
+          $this->db->where('is_active', '1');
+      }
+	    
+
 	    $query = $this->db->get('partners');
 
 	    return $query->result_array();
