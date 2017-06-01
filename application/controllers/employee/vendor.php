@@ -1025,8 +1025,7 @@ class vendor extends CI_Controller {
      */
     function get_reassign_vendor_form($booking_id) {
         if(!empty($booking_id)){
-            $service_centers = $this->booking_model->select_service_center();
-
+            $service_centers = $this->vendor_model->viewvendor("", 1, NULL);
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
             $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers));
@@ -1107,10 +1106,11 @@ class vendor extends CI_Controller {
 
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
+            $booking_id = $this->input->post('booking_id');
             $output = "Please select any service center.";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
-            redirect(base_url() . DEFAULT_SEARCH_PAGE);
+            redirect(base_url() . "employee/vendor/get_reassign_vendor_form/".$booking_id);
         }
     }
 

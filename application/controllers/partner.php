@@ -216,6 +216,7 @@ class Partner extends CI_Controller {
                        
                         $booking['partner_id'] = $this->initialized_variable->get_partner_data()[0]['id'];
                         $booking['source'] = $this->initialized_variable->get_partner_data()[0]['code'];
+                        $booking['create_date'] = date("Y-m-d H:i:s");
 
                         $unit_details['partner_id'] = $booking['partner_id'];
                         $booking['order_id'] = $requestData['orderID'];
@@ -335,8 +336,10 @@ class Partner extends CI_Controller {
                         }else{
                             $this->booking_model->addunitdetails($unit_details);
                         }
-
-                        $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], DEFAULT_PARTNER_AGENT, $requestData['partnerName'], $booking['partner_id']);
+                        
+                        $p_login_details = $this->partner_model->partner_login_details(array('partner_id' => $this->partner['id'], "full_name" => 'STS'));
+            
+                        $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], $p_login_details[0]['id'], $requestData['partnerName'], $this->partner['id']);
                         
                         if (empty($booking['state'])) {
 			    $to = NITS_ANUJ_EMAIL_ID;
@@ -1506,6 +1509,7 @@ class Partner extends CI_Controller {
             $booking['amount_due'] = $requestData['amount_due'];
             $upcountry_data = json_decode($requestData['upcountry_data'], TRUE);
             $booking['is_upcountry'] = 0;
+            $booking['create_date'] = date("Y-m-d H:i:s");
             
              if($requestData['product_type'] == "Shipped"){
                 $booking['current_status'] = _247AROUND_FOLLOWUP;

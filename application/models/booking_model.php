@@ -178,25 +178,6 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     *  @desc : Function to get service center details
-     *
-     * 	This method helps to get basic service center details like primary contact name, phone number.
-     *
-     * 	This function get those service center's details that are assigned to particular booking by matching
-     *      service center's id with assigned vendor id for a booking.
-     *
-     *  @param : void
-     *  @return : assigned vendor's basic details
-     */
-    function service_center_details() {
-        $query = $this->db->query("Select service_centres.primary_contact_name,
-    service_centres.primary_contact_phone_1 from service_centres,booking_details
-    where booking_details.assigned_vendor_id=service_centres.id ");
-
-        return $query->result();
-    }
-
-    /**
      * @desc : This funtion counts total number of bookings
      * @param : void
      * @return : total number bookings
@@ -382,28 +363,6 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     * @desc : This funtion is to get all booking details of particular booking.
-     *
-     * Finds all the booking details of particular booking of a particular user.
-     *
-     * @param : booking id
-     * @return : array of booking details
-     */
-    function getbooking($booking_id) {
-        $this->db->select('*');
-        $this->db->where('booking_id', $booking_id);
-        $query = $this->db->get('booking_details');
-        return $query->result_array();
-    }
-
-    function get_booking_status($booking_id) {
-        $this->db->select('current_status, internal_status');
-        $this->db->like('booking_id', end(explode("-", $booking_id)));
-        $query = $this->db->get('booking_details');
-        return $query->result_array()[0];
-    }
-
-    /**
      * @desc : This funtion is to count number of bookings for a particular user.
      *
      * Searches and counts bookings having same user id.
@@ -521,23 +480,6 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     *  @desc : function to get service center details assigned to a particular booking
-     *  @param : $booking_id
-     *  @return : array of service center details.
-     */
-    function selectservicecentre($booking_id) {
-        $query = $this->db->query("SELECT booking_details.assigned_vendor_id,
-            service_centres.name as service_centre_name, service_centres.primary_contact_name,
-            service_centres.primary_contact_email, service_centres.owner_email,
-            service_centres.primary_contact_phone_1
-            from service_centres,booking_details
-            where booking_details.booking_id='$booking_id'
-            and booking_details.assigned_vendor_id=service_centres.id");
-
-        return $query->result_array();
-    }
-
-    /**
      *  @desc : function to get brand's list available for a particular service
      *  @param : service_id
      *  @return : list of all brands for that service
@@ -620,21 +562,6 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     *  @desc : Function to get service centers
-     *
-     * Finds out the service centers that are in active state.
-     *
-     *  @param : void
-     *  @return : details of active service centers
-     */
-    function select_service_center() {
-        $query = $this->db->query("Select id, non_working_days, primary_contact_email, owner_email, name
-                            from service_centres
-                            where active=1");
-        return $query->result();
-    }
-
-    /**
      *  @desc : Function to get pending and reschedule bookings where vendor is not assigned
      *
      *  This function gives those bookings in which still no vendor is assigned to complete the booking,
@@ -664,33 +591,11 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     *  @desc : Function to set mail to vendor field as 1(mail sent)
-     *
-     *  @param : booking id
-     *  @return : void
-     */
-    function set_mail_to_vendor($booking_id) {
-        $this->db->query("UPDATE booking_details set mail_to_vendor= 1 where booking_id ='$booking_id'");
-        //echo $this->db->last_query();
-    }
-
-    /**
-     *  @desc : Function to set mail to vendor field as 0(not sent)
-     *  @param : booking id
-     *  @return : void
-     */
-    //TODO: can be removed
-    function set_mail_to_vendor_flag_to_zero($booking_id) {
-        $this->db->query("UPDATE booking_details set mail_to_vendor= 0 where booking_id
-                ='$booking_id'");
-    }
-
-    /**
      *  @desc : Function to update booking details
      *  @param : booking id and booking details to update
      *  @return : void
      */
-    //TODO: Merge with update_booking_details function
+    
     function update_booking($booking_id, $data) {
         if(!empty($booking_id) || $booking_id != '0'){
             $this->db->where(array("booking_id" => $booking_id));
@@ -878,82 +783,6 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     *  @desc : This function is to insert snapdeal leads details
-     *
-     *  @param : snapdeal leads details
-     *  @return : insert_id after insertion
-     */
-    //TODO: can be removed
-    function insert_sd_lead($details) {
-        $this->db->insert('snapdeal_leads', $details);
-
-        return $this->db->insert_id();
-    }
-
-    /**
-     *  @desc : This function is to get snapdeal leads details
-     *
-     *  @param : snapdeal_leads  id
-     *  @return : snapdeal leads details for particular id
-     */
-    //TODO: can be removed
-    function get_sd_lead($id) {
-        $this->db->select('*');
-        $this->db->where('id',$id);
-        $query = $this->db->get('snapdeal_leads');
-        $results = $query->result_array();
-
-        return $results[0];
-    }
-
-    /*
-     * @desc: Shows all unassigned bookings from Snapdeal
-     * @param: void
-     * @return: array of snapdeal leads details
-     */
-    //TODO: can be removed
-
-    function get_sd_unassigned_bookings() {
-        $this->db->select('*');
-        $this->db->where('Status_by_247around', 'NewLead');
-        $query= $this->db->get('snapdeal_leads');
-        return $query->result_array();
-    }
-
-    /**
-     *  @desc : This function is to get all snapdeal booking details
-     *
-     *  The deatils will be in sorted manner in descending order by create date.
-     *
-     *  @param : void
-     *  @return : array of snapdeal booking details
-     */
-    function get_all_sd_bookings() {
-        $this->db->select('*');
-        $this->db->order_by('create_date', 'DESC');
-        $query = $this->db->get('snapdeal_leads');
-        return $query->result_array();
-    }
-
-    /**
-     *  @desc : This function is to check snapdeal leads with their order id weather
-     *      they exists or not.
-     *
-     *  @param : array of sub order id's
-     *  @return : if exists returns true else false
-     */
-    function check_sd_lead_exists_by_order_id($sub_order_id) {
-	$this->db->where(array("Sub_Order_ID" => $sub_order_id));
-	$query = $this->db->get('snapdeal_leads');
-
-	if (count($query->result_array()) > 0) {
-	    return TRUE;
-	} else {
-	    return FALSE;
-	}
-    }
-
-    /**
      *  @desc : This function is to check whether order id exists for a specific
      * partner. Order id is unique for each partner and is tied to a unique
      * booking id.
@@ -972,37 +801,6 @@ class Booking_model extends CI_Model {
 	} else {
 	    return FALSE;
 	}
-    }
-
-    /**
-     *  @desc : This function is to check snapdeal leads with their booking id weather
-     *      they exists or not.
-     *
-     *  @param : array of booking id's
-     *  @return : if exists returns true else false
-     */
-    function check_sd_lead_exists_by_booking_id($booking_id) {
-        $this->db->where(array("CRM_Remarks_SR_No" => $booking_id));
-        $query = $this->db->get('snapdeal_leads');
-
-        if (count($query->result_array()) > 0) {
-            return TRUE;
-        } else {
-            return FALSE;
-        }
-    }
-
-    /**
-     *  @desc : This function is to get snapdeal leads with their order id
-     *
-     *  @param : array of Sub_Order_Id
-     *  @return : array of snapdeal leads
-     */
-    function get_sd_lead_by_order_id($sub_order_id) {
-        $this->db->where(array("Sub_Order_ID" => $sub_order_id));
-        $query = $this->db->get('snapdeal_leads');
-
-        return $query->result_array();
     }
 
     /**
@@ -1034,17 +832,6 @@ class Booking_model extends CI_Model {
         $sql = "SELECT * FROM vendor_mail_details WHERE booking_id = '$booking_id' order by create_date DESC LIMIT 1";
         $query = $this->db->query($sql);
         return $query->result_array();
-    }
-
-    /**
-     *  @desc : Count the no of mails sent for a particular booking
-     *  @param : booking_id
-     *  @return : number of mails sent to paticular booking
-     */
-    function count_no_of_email_sent($booking_id) {
-        $sql = "SELECT count(*) from vendor_mail_details where type like 'Reminder%' && booking_id='$booking_id'";
-        $result = $this->db->query($sql);
-        return $result;
     }
 
     /** get_queries
@@ -1297,64 +1084,6 @@ class Booking_model extends CI_Model {
             return $query2->result_array();
         }
 
-    }
-
-    /**
-     *  @desc : This function is used to change status in Booking Details Table
-     *  @param : String (Booking Id)
-     *  @return : true
-     */
-    //TODO: can be removed
-    function change_booking_status($booking_id, $status) {
-        
-       
-        $this->db->where("booking_id", $booking_id);
-        $this->db->update("booking_details", $status);
-
-        $booking_status = array('booking_status' => 'FollowUp');
-	$this->db->where("booking_id", $booking_id);
-	$this->db->update("booking_unit_details", $booking_status);
-
-	return true;
-    }
-
-    /**
-     * Get product Type means description about booking from both table snapdeal_leads and partner_leads.
-     * @param: bookinf id
-     * @return : string
-     */
-    //TODO: can be removed
-    function getdescription_about_booking($booking_id) {
-
-        $query = $this->db->query("SELECT Sub_Order_ID as order_id, Product_Type as description from snapdeal_leads where CRM_Remarks_SR_No = '$booking_id'
-
-                              UNION
-
-                              SELECT OrderID as order_id, ProductType from partner_leads as description where 247aroundBookingID = '$booking_id' ");
-
-        return $query->result_array();
-    }
-
-    /**
-     *  @desc : This function is used to get partner code to map pricing table
-     *  @param : String (partner code)
-     *  @return : true
-     */
-    function get_price_mapping_partner_code($partner_code, $partner_id="") {
-    $this->db->select('partner_id');
-    if($partner_code !=""){
-        $this->db->where('code', $partner_code);
-    } else {
-        $this->db->where('partner_id', $partner_id);
-    }
-
-    $query = $this->db->get('bookings_sources');
-    if ($query->num_rows() > 0) {
-        $result = $query->result_array();
-        return $result[0]['partner_id'];
-    } else {
-        return "";
-    }
     }
 
     /**
@@ -1926,24 +1655,6 @@ class Booking_model extends CI_Model {
         return $new_unit_id;
     }
 
-    /**
-     *  @desc : This function is to check booking details with their order id weather
-     *      they exists or not.
-     *
-     *  @param : array of order id
-     *  @return : if exists returns true else false
-     */
-    function check_booking_exists_by_order_id($order_id, $partner_src) {
-    $this->db->where(array("order_id" => $order_id, "partner_source" => $partner_src));
-    $query = $this->db->get('booking_details');
-
-        if (count($query->result_array()) > 0) {
-            return TRUE;
-        } else {
-            return FALSE;
-        }
-    }
-
     function get_brand($where){
         $this->db->select('*');
         $this->db->where($where);
@@ -2039,21 +1750,6 @@ class Booking_model extends CI_Model {
             return false;
         }
     }
-    /**
-     * @desc: Get booking updation reason
-     * parmas: old state, new state, reason_of
-     * return: Array
-     */
-    function get_booking_updation_reason($old_state,$new_state,$reason_of){
-        $this->db->select('*');
-        $this->db->where('old_state',$old_state);
-        $this->db->where('new_state',$new_state);
-        $this->db->where('reason_of',$reason_of);
-        $this->db->where('active',1);
-        $query = $this->db->get('booking_updation_reasons');
-
-        return $query->result_array();
-    }
 
     /**
      * @desc: This is used to get daily and monthly bookings completed and reports
@@ -2075,20 +1771,6 @@ class Booking_model extends CI_Model {
         return $data;
     }
     
-    /**
-     * @desc : This funtion is to get all booking details of particular booking based on booking_primary_contact_no.
-     *
-     * Finds all the booking details of particular booking of a particular user.
-     *
-     * @param : booking_primary_contact_no
-     * @return : array of booking details
-     */
-    function getbooking_by_phone($phone) {
-        $this->db->select('*');
-        $this->db->where('booking_primary_contact_no', $phone);
-        $query = $this->db->get('booking_details');
-        return $query->result_array();
-    }
     
     /**
      * @desc: This fuction is used to delete particular email template from 247around_email_template table
@@ -2147,81 +1829,6 @@ class Booking_model extends CI_Model {
         return $this->db->query($sql);
     }
     
-    function test(){
-        $sql = " SELECT DISTINCT vendor_pincode_mapping.`Pincode` FROM `vendor_pincode_mapping`, `service_centres` WHERE `Vendor_ID` = `service_centres`.`id` AND `service_centres`.`active` = 1 ";
-        $query = $this->db->query($sql);
-        $result = $query->result_array();
-
-        foreach ($result as $key => $value) {
-            //print_r($value);
-            $sql1 = " SELECT DISTINCT(services) FROM vendor_pincode_mapping, services, service_centres WHERE `vendor_pincode_mapping`.Pincode = '".$value['Pincode']."' AND Vendor_ID != '0' AND Appliance_ID = services.id AND `Vendor_ID` = `service_centres`.`id` AND `service_centres`.`active` = 1";
-             $query1 = $this->db->query($sql1);
-             $result1 = $query1->result_array();
-
-             $appliance = array();
-              foreach ($result1 as $key => $value1) {
-                $appliance[] = $value1['services'];
-              }
-              $str =  implode(", ", $appliance);
-              $this->db->where('Pincode', $value['Pincode']);
-              $this->db->update('vendor_pincode_mapping_test', array('Appliance'=>$str));
-            
-
-        }
-        echo "Completed";
-
-    }
-
-    /**
-     * @desc: This method  is used to find duplicate booking. If found then cancel booking and return internal status
-     * @param Array $requestData
-     * @param String $service_id
-     */
-    function cancel_duplicate_booking_for_sts($requestData, $service_id){
-        /*
-        log_message('info', __METHOD__);
-        $this->db->select('*');
-        $this->db->from("booking_details");
-        $this->db->join("booking_unit_details","booking_unit_details.booking_id = booking_details.booking_id");
-        $this->db->where('booking_primary_contact_no',$requestData['mobile']);
-        $this->db->where('booking_pincode',$requestData['pincode']);
-        $this->db->where('booking_details.service_id',$service_id);
-        $this->db->where('booking_details.partner_id', 1);
-        $this->db->where('current_status', "FollowUp");
-        $this->db->where('partner_source !=', "STS");
-        $this->db->where('booking_unit_details.appliance_description', $requestData['productType']);
-        $this->db->order_by("booking_details.id","desc");
-        $query = $this->db->get();
-        log_message('info', __METHOD__ . $this->db->last_query());
-        if($query->num_rows > 0){
-            $result = $query->result_array();
-            log_message('info', __METHOD__ . " Booking Id found: for cancel: ".$result[0]['booking_id']);
-            $data['internal_status'] = "Cancelled";
-            $data['cancellation_reason'] = "Duplicate Booking (STS)";
-            // Update booking details table
-            $this->update_booking($result[0]['booking_id'], $data);
-            // Update booking unit details
-            $this->update_booking_unit_details($result[0]['booking_id'], array('booking_status'=> 'Cancelled'));
-            
-            $data1['booking_id'] = $result[0]['booking_id'];
-            $data1['new_state'] = "Cancelled";
-            $data1['old_state'] = "FollowUp";
-            $data1['remarks'] = "Duplicate Booking (STS)";
-            $data1['agent_id'] = 1;
-            $data1['partner_id'] = _247AROUND;
-            // Insert data into booking state change table
-            $this->insert_booking_state_change($data1);
-            
-            return $result[0]['internal_state_change'];
-            
-        } else {
-            return FALSE;
-        }
-         * 
-         */
-        
-        return FALSE;
-    }
     
     /**
      * @Desc: This function is used to get SMS sent for particular booking id
@@ -2248,6 +1855,7 @@ class Booking_model extends CI_Model {
         $this->db->where(array('partner_id' => $partner_id,'247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
         $this->db->or_where('partner_id',_247AROUND);
         $this->db->where(array('247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
+        $this->db->order_by("id", "DESC ");
         $query = $this->db->get('partner_booking_status_mapping');
         return $query->result_array();
         

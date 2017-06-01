@@ -44,9 +44,9 @@ class Utilities extends CI_Controller {
      *   cat pc_not_available_jan.txt | xargs -I {} php index.php utilities get_current_status {} > pc_not_available_jan_status.txt
      */
     function get_current_status ($booking_id) {
-        $status = $this->booking_model->get_booking_status(trim($booking_id));
+        $status = $this->booking_model->getbooking_history(trim($booking_id));
         
-        echo $booking_id . $status['current_status'] . ":" . $status['internal_status'] . PHP_EOL;      
+        echo $booking_id . $status[0]['current_status'] . ":" . $status[0]['internal_status'] . PHP_EOL;      
     }
     
     function is_vendor_available () {

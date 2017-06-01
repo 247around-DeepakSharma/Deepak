@@ -302,13 +302,13 @@ class bookingjobcard extends CI_Controller {
 
     function send_reminder_mail_to_vendor($booking_id, $additional_note) {
 	log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
-	$getbooking = $this->booking_model->getbooking_history($booking_id);
+	$getbooking = $this->booking_model->getbooking_history($booking_id,"join");
 
-        if ($getbooking) {
-            $servicecentredetails = $this->booking_model->selectservicecentre($booking_id);
+        if (isset($getbooking[0]['vendor_name'])) {
+            
             //Get SF to RM relation if present
             $cc = "";
-            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($servicecentredetails[0]['assigned_vendor_id']);
+            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($getbooking[0]['assigned_vendor_id']);
             if(!empty($rm)){
                 foreach($rm as $key=>$value){
                         if($key == 0){
@@ -335,7 +335,7 @@ class bookingjobcard extends CI_Controller {
             }
 
             //New message for this email
-            $salutation = "Dear " . $servicecentredetails[0]['primary_contact_name'];
+            $salutation = "Dear " . $getbooking[0]['primary_contact_name'];
             $heading = "<br><br>" . $type;
             $heading .= "<br><br>Please revert back on the current status of this booking.";
 
@@ -350,8 +350,8 @@ class bookingjobcard extends CI_Controller {
             $message = $message . "<br><br>--------------------------------------------------<br><br>" .
                     $last_mail[0]['body'];
 
-            $to = $servicecentredetails[0]['primary_contact_email'];
-            $owner = $servicecentredetails[0]['owner_email'];
+            $to = $getbooking[0]['primary_contact_email'];
+            $owner = $getbooking[0]['owner_email'];
             $cc .= ($owner . ', '. NITS_ANUJ_EMAIL_ID);
             $from = "booking@247around.com";
             $bcc = "";

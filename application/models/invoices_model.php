@@ -975,6 +975,14 @@ class invoices_model extends CI_Model {
 
         $query1 = $this->db->query($sql1);
         $product = $query1->result_array();
+        
+        if(!empty($service) && !empty($product)){
+            $data = array_merge($service,$product);
+        } else if(!empty($service) && empty($product)){
+            $data  = $service;
+        } else if(empty($service) && !empty($product)){
+            $data  = $service;
+        }
 
         $result = array_merge($service, $product);
 
@@ -1203,11 +1211,20 @@ class invoices_model extends CI_Model {
             $query = $this->db->query($sql);
             $result[$i] = $query->result_array();
         }
-        $data = array_merge($result[0], $result[1]);
+        $data = array();
+        if(!empty($result[0]) && !empty($result[1])){
+            $data = array_merge($result[0], $result[1]);
+        } else if(!empty($result[0]) && empty($result[1])){
+            $data  = $result[0];
+        } else if(empty($result[0]) && !empty($result[1])){
+            $data  = $result[1];
+        }
+        
 
         $meta['total_misc_price'] = 0;
         // Calculate Upcountry booking details
         $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date, $to_date);
+       
         if (!empty($upcountry_data)) {
             $up_country = array();
 
@@ -1225,7 +1242,7 @@ class invoices_model extends CI_Model {
             $up_country[0]['state'] = $upcountry_data[0]['state'];
 
             if (!empty($data)) {
-                $data = array_merge($result, $up_country);
+                $data = array_merge($data, $up_country);
             } else {
                 $data = $up_country;
             }
@@ -1233,9 +1250,16 @@ class invoices_model extends CI_Model {
 
         if (count($data) > 0) {
             $meta['total_charge'] = 0;
-
+            $meta['total_installation_charge'] =0;
+            $meta['additional_charges'] = 0;
+            $meta['misc_charge'] = 0;
+           
             foreach ($data as $value) {
                 $meta['total_charge'] += ($value['installation_charge'] + $value['additional_charge'] + $value['misc_charge']);
+                $meta['additional_charges'] += $value['additional_charge'];
+                $meta['misc_charge'] += $value['misc_charge'];
+                $meta['total_installation_charge'] += $value['installation_charge'];
+               
             }
             $meta['total_charge'] = round($meta['total_charge']);
             $s_15charge = $this->booking_model->get_calculated_tax_charge($meta['total_charge'], 15);

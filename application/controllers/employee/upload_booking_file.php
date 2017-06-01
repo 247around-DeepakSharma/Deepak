@@ -1232,5 +1232,5 @@ class Upload_booking_file extends CI_Controller {
 
         return $user_name;
     }
-
+    
 }

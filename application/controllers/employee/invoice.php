@@ -171,7 +171,7 @@ class Invoice extends CI_Controller {
      */
     function invoice_partner_view() {
 
-        $data['partner'] = $this->partner_model->getpartner();
+        $data['partner'] = $this->partner_model->getpartner("", false);
         $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
         
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
@@ -1891,7 +1891,7 @@ class Invoice extends CI_Controller {
         if ($vendor_partner == 'vendor') {
             $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
         } else {
-            $data['partner'] = $this->partner_model->getpartner();
+            $data['partner'] = $this->partner_model->getpartner("", false);
         }
 
         $data['vendor_partner_id'] = $vendor_partner_id;
