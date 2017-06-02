@@ -31,8 +31,8 @@ class Apis extends CI_Model {
 
         $updateData = array('name' => $name, 'user_email' => $email, 'verify_code' => $salt,
             'install_source' => $install_source, 'account_email' => $account_email,
-            'existing_flags' => $existing_flags, 'app_version' => $app_version, "device_id" => $deviceId);
-        $this->db->where(array('phone_number' => $phone_number));
+            'existing_flags' => $existing_flags, 'app_version' => $app_version);
+        $this->db->where(array('phone_number' => $phone_number, 'device_id' => $deviceId));
 
         $this->db->update('users', $updateData);
 
@@ -75,14 +75,14 @@ class Apis extends CI_Model {
      * @description: Checks phone no & device ID combination in Users table
      * @output: print response
      */
-    public function checkUserPhoneNumber($phone_number) {
-        $this->db->where(array('phone_number' => $phone_number));
+    public function checkUserPhoneNumber($phone_number, $deviceId) {
+        $this->db->where(array('phone_number' => $phone_number, 'device_id' => $deviceId));
         $query = $this->db->get('users');
         return $query->result_array();
     }
 
-    public function checkUserPhoneNumberVeri($phone_number) {
-        $this->db->where(array('phone_number' => $phone_number, 'is_verified' => 1));
+    public function checkUserPhoneNumberVeri($phone_number, $deviceId) {
+        $this->db->where(array('phone_number' => $phone_number, 'device_id' => $deviceId, 'is_verified' => 1));
         $query = $this->db->get('users');
 
         $result = (bool) ($this->db->affected_rows() > 0);
@@ -189,9 +189,9 @@ class Apis extends CI_Model {
             $this->db->update('users', array('is_verified' => 1));
         }
 
-        $result1 = (bool) ($this->db->affected_rows() > 0);
+        $result = (bool) ($this->db->affected_rows() > 0);
 
-        log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result1);
+        log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
     }
 
     function getSocialLogin($email, $type, $device_id) {

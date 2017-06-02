@@ -670,7 +670,7 @@ class Api extends CI_Controller {
         log_message('info', "Existing Flags: " . $existing_flags);
 
         //checks phone no
-        $checkUserPhoneNumber = $this->apis->checkUserPhoneNumber($phone_number);
+        $checkUserPhoneNumber = $this->apis->checkUserPhoneNumber($phone_number, $this->deviceId);
 
         if ($checkUserPhoneNumber) {
             //if phone no is there, update the verification code
@@ -733,7 +733,7 @@ class Api extends CI_Controller {
 
                 if (!empty($checkExotelRequest)) {
                     //if there is an entry, check if the entry is verified or not
-                    $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number);
+                    $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number, $this->deviceId);
                     log_message('info', "if !empty() @ i = " . $i . " -> userResult: " . $userResult);
 
                     //if it is a verified entry, confirm to user that number verification is complete
@@ -746,7 +746,7 @@ class Api extends CI_Controller {
 
             log_message('info', "finally i = " . $i);
             if ($status == "True") {
-                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number);
+                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number, $this->deviceId);
                 log_message('info', "Status == true, one last time, userResult: " . $userResult);
 
                 $this->verifyResponse($phone_number, $userResult);
@@ -755,7 +755,7 @@ class Api extends CI_Controller {
             log_message('info', "checkExotelRequest() returned non-empty -> userResult: " . $userResult);
 
             for ($j = 0; $j < $loop_count; $j++) {
-                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number);
+                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number, $this->deviceId);
 
                 if ($userResult) {
                     log_message('info', "Verified phone number found @ j = " . $j);
