@@ -171,38 +171,41 @@ class InvoiceDashboard extends CI_Controller {
         $vendor_details = $this->vendor_model->getActiveVendor('', 0);
         $total_cash_charge = 0;
         $total_foc_charge = 0;
-        foreach ($vendor_details as $key => $value) {
+        foreach ($vendor_details as $value) {
             
             $cash = $this->invoices_model->get_vendor_cash_invoice($value['id'], 
                     $explode_date_range[0], $explode_date_range[1], FALSE);
            
             $foc = $this->invoices_model->get_vendor_foc_invoice($value['id'], $explode_date_range[0], $explode_date_range[1], FALSE);
-           
+            $style="<span>";
+            if($value['active'] == 0){
+                $style = "<span style='color:red'> ";
+            }
             if(!empty($cash) && !empty($foc)){
-                $this->table->add_row($value['name'], $cash['meta']['total_installation_charge'], 
+                $this->table->add_row($style.$value['name']."</span>", $cash['meta']['total_installation_charge'], 
                     $cash['meta']['additional_charges'], $cash['meta']['misc_charge'],
-                    $cash['meta']['total_charge'], $foc['meta']['sub_service_cost'], 
-                    $foc['meta']['sub_part'], $foc['meta']['total_misc_price'], $foc['meta']['grand_total_price']);
+                    "<strong>".$cash['meta']['total_charge']."</strong>", $foc['meta']['sub_service_cost'], 
+                    $foc['meta']['sub_part'], $foc['meta']['total_misc_price'], "<strong>".$foc['meta']['grand_total_price']."</strong>");
                 
                 $total_cash_charge += $cash['meta']['total_charge'];
                 $total_foc_charge += $foc['meta']['grand_total_price'];
                 
             } else if(!empty($cash) && empty($foc)){
-                $this->table->add_row($value['name'], $cash['meta']['total_installation_charge'], 
+                $this->table->add_row($style.$value['name']."</span>", $cash['meta']['total_installation_charge'], 
                     $cash['meta']['additional_charges'], $cash['meta']['misc_charge'],
-                    $cash['meta']['total_charge'], "", 
+                    "<strong>".$cash['meta']['total_charge']."</strong>", "", 
                     "", "", "");
                 
                 $total_cash_charge += $cash['meta']['total_charge'];
                 
             } else if(empty($cash) && !empty($foc)){
-                $this->table->add_row($value['name'], "", 
+                $this->table->add_row($style.$value['name']."</span>", "", 
                     "", "","", $foc['meta']['sub_service_cost'], 
-                    $foc['meta']['sub_part'], $foc['meta']['total_misc_price'], $foc['meta']['grand_total_price']);
+                    $foc['meta']['sub_part'], $foc['meta']['total_misc_price'], "<strong>".$foc['meta']['grand_total_price']."</strong>");
                 $total_foc_charge += $foc['meta']['grand_total_price'];
                 
             } else if(empty($cash) && empty($foc)){
-                 $this->table->add_row($value['name'], "", 
+                 $this->table->add_row($style.$value['name']."</span>", "", 
                     "", "","", "", "", "", "");
             }  
            
