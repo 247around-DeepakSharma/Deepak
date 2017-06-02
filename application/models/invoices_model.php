@@ -993,13 +993,16 @@ class invoices_model extends CI_Model {
 
             if (!empty($upcountry_data)) {
                 $up_country = array();
-
+            
                 $up_country[0]['s_total_service_charge'] = '';
                 $up_country[0]['p_tax_rate'] = '';
                 $up_country[0]['p_part_cost'] = '';
                 $up_country[0]['s_service_charge'] = '';
                 $up_country[0]['qty'] = round($upcountry_data[0]['total_distance'], 0) . " KM";
                 $up_country[0]['description'] = 'Upcountry Services';
+                if($upcountry_data[0]['total_distance'] == 0){
+                    $upcountry_data[0]['total_distance'] = 1;
+                }
                 $up_country[0]['p_rate'] = round(($upcountry_data[0]['total_upcountry_price'] / round($upcountry_data[0]['total_distance'], 0)), 2);
                 $up_country[0]['misc_price'] = $upcountry_data[0]['total_upcountry_price'];
 
