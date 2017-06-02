@@ -168,7 +168,6 @@ class Partner_model extends CI_Model {
 	    }
 	    $this->db->select('*');
    
-      $this->db->where_not_in('id', $partners_to_be_ignored);
       $this->db->order_by('public_name');
 
       if($is_active){
