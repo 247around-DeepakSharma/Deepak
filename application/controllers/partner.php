@@ -293,7 +293,7 @@ class Partner extends CI_Controller {
                         $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 
                         $appliance_details['last_service_date'] = date('Y-m-d');
-                        $booking['potential_value'] = '';
+                        //$booking['potential_value'] = '';
                         //Check vendor Availabilty for pincode and service id
                         $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price,"delivered");
                         if($is_sms){
@@ -1488,7 +1488,7 @@ class Partner extends CI_Controller {
             $booking['quantity'] = '1';
             $appliance_details['serial_number'] = $unit_details['partner_serial_number'] = $requestData['serial_number'];
             
-            $booking['potential_value'] = '';
+            //$booking['potential_value'] = '';
             $appliance_details['last_service_date'] = date('d-m-Y');
             
             $booking['booking_date'] = $requestData['booking_date'];
@@ -1530,7 +1530,79 @@ class Partner extends CI_Controller {
                 }
              }
             
-
+             /* check dealer exist or not in the database
+              * if dealer does not exist into the database then
+              * insert dealer details in dealer_details table and dealer_brand_mapping table 
+              */
+             $booking['dealer_id'] = $requestData['dealer_id'];
+             if(isset($requestData['dealer_name']) && !empty($requestData['dealer_name'])){
+                 $dealer_id = $requestData['dealer_id'];
+                 $dealer_name = $requestData['dealer_name'];
+                 $dealer_phone_number = $requestData['dealer_phone_number'];
+                 if(!empty($dealer_id)){
+                     $check_new_phone_number = $this->partner_model->get_dealer_details_by_any(array('id'=>$dealer_id,'dealer_phone_number_1'=>$dealer_phone_number));
+                     if(empty($check_new_phone_number)){
+                        $dealer_data['dealer_name']=$dealer_name;
+                        $dealer_data['dealer_phone_number_1'] = $dealer_phone_number;
+                        $dealer_data['city'] = $booking['city'];
+                        $dealer_data['create_date'] = date('y-m-d');
+                        
+                        
+                        //make dealer brand mapping data
+                        $mapping_data['partner_id'] = $booking['partner_id'];
+                        $mapping_data['service_id'] = $unit_details['service_id'];
+                        $mapping_data['brand'] = $unit_details['appliance_brand'];
+                        $mapping_data['city'] = $booking['city'];
+                        //insert dealer details
+                        $insert_dealer_details = $this->partner_model->insert_dealer_details($dealer_data);
+                        if(!empty($insert_dealer_details)){
+                            log_message('info' , __METHOD__."Dealer New phone Number inserted successfully". print_r($dealer_data,true));
+                            
+                            //do mapping for dealer and brand
+                            $mapping_data['dealer_id'] = $insert_dealer_details;
+                            $booking['dealer_id'] = $insert_dealer_details;
+                            $dealer_brand_mapping = $this->partner_model->insert_dealer_brand_mapping($mapping_data);
+                            if(!empty($dealer_brand_mapping)){
+                                log_message('info' , __METHOD__."Dealer Brand mapping has been done successfully". print_r($mapping_data,true));
+                            }else{
+                                log_message('info' , __METHOD__."Error in Dealer Brand mapping". print_r($mapping_data,true));
+                            }
+                        }else{
+                            log_message('info' , __METHOD__."Error in inserting dealer details". print_r($dealer_data,true));
+                        }
+                     }
+                 } else if(empty($dealer_id)){
+                     //make dealer details data
+                    $dealer_data['dealer_name']=$dealer_name;
+                    $dealer_data['dealer_phone_number_1'] = $dealer_phone_number;
+                    $dealer_data['city'] = $booking['city'];
+                    $dealer_data['create_date'] = date('y-m-d');
+                    
+                    //make dealer brand mapping data
+                    $mapping_data['partner_id'] = $booking['partner_id'];
+                    $mapping_data['service_id'] = $unit_details['service_id'];
+                    $mapping_data['brand'] = $unit_details['appliance_brand'];
+                    $mapping_data['city'] = $booking['city'];
+                    //insert dealer details
+                    $insert_dealer_details = $this->partner_model->insert_dealer_details($dealer_data);
+                    
+                    if(!empty($insert_dealer_details)){
+                        log_message('info' , __METHOD__."Dealer details added successfully". print_r($dealer_data,true));
+                        
+                        //do mapping for dealer and brand
+                        $mapping_data['dealer_id'] = $insert_dealer_details;
+                        $booking['dealer_id'] = $insert_dealer_details;
+                        $dealer_brand_mapping = $this->partner_model->insert_dealer_brand_mapping($mapping_data);
+                        if(!empty($dealer_brand_mapping)){
+                            log_message('info' , __METHOD__."Dealer Brand mapping has been done successfully". print_r($mapping_data,true));
+                        }else{
+                            log_message('info' , __METHOD__."Error in Dealer Brand mapping". print_r($mapping_data,true));
+                        }
+                    }else{
+                        log_message('info' , __METHOD__."Error in inserting dealer details". print_r($dealer_data,true));
+                    }
+                 }
+             }
             //check partner status from partner_booking_status_mapping table  
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
             if(!empty($partner_status)){

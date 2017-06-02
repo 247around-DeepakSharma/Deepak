@@ -2276,3 +2276,32 @@ Hope to have a long lasting working relationship with you.
 <br>Website: www.247around.com
 <br>Playstore - 247around -
 <br>https://play.google.com/store/apps/details?id=com.handymanapp', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+
+--sachin 31-may
+
+CREATE TABLE `dealer_details` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `dealer_name` VARCHAR(100) NOT NULL , 
+`dealer_phone_number_1` VARCHAR(50) NOT NULL , `owner_name` VARCHAR(100) NOT NULL , 
+`owner_phone_number_1` VARCHAR(50) NOT NULL , `city` VARCHAR(100) NOT NULL , 
+`update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , 
+`create_date` DATETIME NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+
+CREATE TABLE `dealer_brand_mapping` (
+  `id` int(11) NOT NULL,
+  `dealer_id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `service_id` varchar(5) NOT NULL,
+  `brand` varchar(25) NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `dealer_brand_mapping`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `dealer_brand_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+ALTER TABLE `booking_details` ADD `dealer_id` INT(11) NULL DEFAULT NULL AFTER `assigned_vendor_id`;

@@ -1330,5 +1330,37 @@ class Partner_model extends CI_Model {
 
 	    return $query->result_array();
     }
+    
+    
+    function get_dealer_details($search_term,$partner_id){
+        $sql = "SELECT dd.* from dealer_details as dd
+                JOIN dealer_brand_mapping as dbm ON dd.id = dbm.dealer_id
+                WHERE dbm.partner_id= '$partner_id' AND dd.dealer_name LIKE '%$search_term%'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_dealer_details_by_any($where,$like=""){
+        $this->db->select('*');
+        $this->db->where($where);
+        if($like !== ''){
+            $this->db->like('dealer_phone_number_1',$like);
+        }
+        $this->db->from('dealer_details');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    function insert_dealer_details($data){
+        $this->db->insert("dealer_details", $data);
+        $insert_id = $this->db->insert_id();
+        return  $insert_id;
+    }
+    
+    function insert_dealer_brand_mapping($data){
+        $this->db->insert("dealer_brand_mapping", $data);
+        $insert_id = $this->db->insert_id();
+        return  $insert_id;
+    }
 }
 
