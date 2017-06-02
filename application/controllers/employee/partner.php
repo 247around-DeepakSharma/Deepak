@@ -456,6 +456,9 @@ class Partner extends CI_Controller {
         $post['amount_due'] = $this->input->post('grand_total');
         $post['product_type'] = $this->input->post('product_type');
         $post['appliance_name'] = $this->input->post('appliance_name');
+        $post['dealer_name'] = $this->input->post('dealer_name');
+        $post['dealer_phone_number'] = $this->input->post('dealer_phone_number');
+        $post['dealer_id'] = $this->input->post('dealer_id');
         return $post;
         
     }
@@ -491,6 +494,8 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('booking_pincode', 'Booking Pincode', 'trim|required|exact_length[6]');
         $this->form_validation->set_rules('prices', 'Service Category', 'required');
         $this->form_validation->set_rules('grand_total', 'Grand Total', 'trim');
+        $this->form_validation->set_rules('dealer_name', 'Dealer Name', 'trim|xss_clean');
+        $this->form_validation->set_rules('dealer_phone_number', 'Dealer Phone Number', 'trim|xss_clean');
 
         if ($this->form_validation->run() == FALSE) {
             return FALSE;
@@ -1566,6 +1571,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
 
         $booking_history = $this->booking_model->getbooking_history($booking_id);
+        
         if(!empty($booking_history)){
             $data['booking_history'] = $booking_history;
             $partner_id = $this->session->userdata('partner_id');
@@ -1589,6 +1595,14 @@ class Partner extends CI_Controller {
                 array_push($price_tag, $unit['price_tags']);
             }
             $data['price_tags'] = implode(",", $price_tag);
+            
+            if(isset($booking_history[0]['dealer_id']) && !empty($booking_history[0]['dealer_id'])){
+                $dealer_data = $this->partner_model->get_dealer_details_by_any(array('id'=>$booking_history[0]['dealer_id']));
+                if(!empty($dealer_data)){
+                    $data['dealer_data'] = $dealer_data[0];
+                }
+            }
+            
             $this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
 
@@ -1598,7 +1612,7 @@ class Partner extends CI_Controller {
         
     }
     /**
-     * @desc: This method is used to upade booking by Partner Panel
+     * @desc: This method is used to update booking by Partner Panel
      * @param String $booking_id
      */
     function process_editbooking($booking_id) {
@@ -1672,6 +1686,80 @@ class Partner extends CI_Controller {
                 $booking_details['type'] = "Query";
                 $unit_details['booking_status'] = _247AROUND_FOLLOWUP;
             }
+            
+            /* check dealer exist or not in the database
+              * if dealer does not exist into the database then
+              * insert dealer details in dealer_details table and dealer_brand_mapping table 
+              */
+             $booking_details['dealer_id'] = $post['dealer_id'];
+             if(isset($post['dealer_name']) && !empty($post['dealer_name'])){
+                 $dealer_id = $post['dealer_id'];
+                 $dealer_name = $post['dealer_name'];
+                 $dealer_phone_number = $post['dealer_phone_number'];
+                 if(!empty($dealer_id)){
+                     $check_new_phone_number = $this->partner_model->get_dealer_details_by_any(array('id'=>$dealer_id,'dealer_phone_number_1'=>$dealer_phone_number));
+                     if(empty($check_new_phone_number)){
+                        $dealer_data['dealer_name']=$dealer_name;
+                        $dealer_data['dealer_phone_number_1'] = $dealer_phone_number;
+                        $dealer_data['city'] = $booking_details['city'];
+                        $dealer_data['create_date'] = date('y-m-d');
+                        
+                        
+                        //make dealer brand mapping data
+                        $mapping_data['partner_id'] = $booking_details['partner_id'];
+                        $mapping_data['service_id'] = $unit_details['service_id'];
+                        $mapping_data['brand'] = $unit_details['appliance_brand'];
+                        $mapping_data['city'] = $booking_details['city'];
+                        //insert dealer details
+                        $insert_dealer_details = $this->partner_model->insert_dealer_details($dealer_data);
+                        if(!empty($insert_dealer_details)){
+                            log_message('info' , __METHOD__."Dealer New phone Number inserted successfully". print_r($dealer_data,true));
+                            
+                            //do mapping for dealer and brand
+                            $mapping_data['dealer_id'] = $insert_dealer_details;
+                            $booking_details['dealer_id'] = $insert_dealer_details;
+                            $dealer_brand_mapping = $this->partner_model->insert_dealer_brand_mapping($mapping_data);
+                            if(!empty($dealer_brand_mapping)){
+                                log_message('info' , __METHOD__."Dealer Brand mapping has been done successfully". print_r($mapping_data,true));
+                            }else{
+                                log_message('info' , __METHOD__."Error in Dealer Brand mapping". print_r($mapping_data,true));
+                            }
+                        }else{
+                            log_message('info' , __METHOD__."Error in inserting dealer details". print_r($dealer_data,true));
+                        }
+                     }
+                 } else if(empty($dealer_id)){
+                     //make dealer details data
+                    $dealer_data['dealer_name']=$dealer_name;
+                    $dealer_data['dealer_phone_number_1'] = $dealer_phone_number;
+                    $dealer_data['city'] = $booking_details['city'];
+                    $dealer_data['create_date'] = date('y-m-d');
+                    
+                    //make dealer brand mapping data
+                    $mapping_data['partner_id'] = $booking_details['partner_id'];
+                    $mapping_data['service_id'] = $unit_details['service_id'];
+                    $mapping_data['brand'] = $unit_details['appliance_brand'];
+                    $mapping_data['city'] = $booking_details['city'];
+                    //insert dealer details
+                    $insert_dealer_details = $this->partner_model->insert_dealer_details($dealer_data);
+                    
+                    if(!empty($insert_dealer_details)){
+                        log_message('info' , __METHOD__."Dealer details added successfully". print_r($dealer_data,true));
+                        
+                        //do mapping for dealer and brand
+                        $mapping_data['dealer_id'] = $insert_dealer_details;
+                        $booking_details['dealer_id'] = $insert_dealer_details;
+                        $dealer_brand_mapping = $this->partner_model->insert_dealer_brand_mapping($mapping_data);
+                        if(!empty($dealer_brand_mapping)){
+                            log_message('info' , __METHOD__."Dealer Brand mapping has been done successfully". print_r($mapping_data,true));
+                        }else{
+                            log_message('info' , __METHOD__."Error in Dealer Brand mapping". print_r($mapping_data,true));
+                        }
+                    }else{
+                        log_message('info' , __METHOD__."Error in inserting dealer details". print_r($dealer_data,true));
+                    }
+                 }
+             }
 
             
             // Update users Table
@@ -3053,6 +3141,39 @@ class Partner extends CI_Controller {
         $data['data'] = $this->upcountry_model->upcountry_booking_list("", $booking_id, false, $is_customer_paid);
 
         $this->load->view('service_centers/upcountry_booking_details', $data);
+    }
+    
+    function get_dealer_name(){
+        $partner_id = $this->input->post('partner_id');
+        //$service_id = $this->input->post('service_id');
+        //$brand = $this->input->post('brand');
+        //$city = $this->input->post('city');
+        $search_term = $this->input->post('search_term');
+        $dealer_data = $this->partner_model->get_dealer_details($search_term,$partner_id);
+        $response = "<ul id='dealer_list'>";
+        if(!empty($dealer_data)){
+            
+            foreach($dealer_data as $value){
+                $response .= "<li onclick= selectDealer('".$value['dealer_name']."','".$value['id']."')>".$value['dealer_name']." (<b>".$value['dealer_phone_number_1']."</b>)"."</li>";
+            }
+        }
+        $response .= "</ul>";
+        echo $response;
+    }
+    
+    function get_dealer_phone_number(){
+        $dealer_id = $this->input->post('dealer_id');
+        $search_term = $this->input->post('search_term');
+        $dealer_phone_number_data = $this->partner_model->get_dealer_details_by_any(array('id'=>$dealer_id),$search_term);
+        $response = "<ul id='dealer_list'>";
+        if(!empty($dealer_phone_number_data)){
+            
+            foreach($dealer_phone_number_data as $value){
+                $response .= "<li onclick= selectDealerPhoneNumber('".$value['dealer_phone_number_1']."','".$value['id']."')>".$value['dealer_phone_number_1']."</li>";
+            }
+        }
+        $response .= "</ul>";
+        echo $response;
     }
    
 }
