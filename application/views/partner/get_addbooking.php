@@ -1,38 +1,4 @@
-<style type="text/css">
-    /* example styles for validation form demo */
-    .err {
-    color: red;
-    }
-    #booking_form .form-group label.error {
-    color: #FB3A3A;
-    display: inline-block;
-    margin: 4px 0 5px 125px;
-    padding: 0;
-    text-align: left;
-    width: 220px;
-    }
-    .col-md-3{
-        width: 25%;
-    }
-    
-    #dealer_list{
-        float:left;
-        width:88%;
-        max-height: 300px;
-        list-style:none;
-        margin-top:0px;
-        padding:0;
-        position: absolute;
-        z-index: 99999;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        overflow-y: auto;
-    }
-    #dealer_list li{padding: 10px; border-bottom: #bbb9b9 1px solid;}
-    #dealer_list li:hover{background:#e9ebee;cursor: pointer;}
-    
-</style>
+
 <div id="page-wrapper" >
     <div class="container-fluid" >
         <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/partner/process_addbooking"  method="POST" enctype="multipart/form-data">
@@ -169,7 +135,7 @@
                             
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
-                                    <label for="Partner source ">Seller Channel* <span id="error_seller" style="color: red;"></label>
+                                    <label for="Partner source ">Seller Channel <span id="error_seller" style="color: red;"></label>
                                      
                                     <select type="text" class="form-control"  id="partner_source" name="partner_source" >
                                         <option value="">Please select seller channel</option>
@@ -246,71 +212,48 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="col-md-3 ">
+                            <div class="col-md-4 ">
                                 <div class="form-group col-md-12    <?php if( form_error('order_id') ) { echo 'has-error';} ?>">
                                     <label for="order id">Order ID * <span id="error_order_id" style="color:red"></span></label>
                                     <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Order ID" id="order_id"  />
                                     
                                 </div>
                             </div>
-                            <div class="col-md-3 ">
+                            <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('serial_number') ) { echo 'has-error';} ?>">
                                     <label for="serial NUmber">Serial Number *  <span id="error_serial_number" style="color:red"></span></label>
                                     <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" >
                                     
                                 </div>
-                            </div>
-                            <div class="col-md-3 ">
-                                <div class="form-group col-md-12  <?php if( form_error('dealer_name') ) { echo 'has-error';} ?>">
-                                    <label for="dealer_name">Dealer Name *  <span id="error_dealer_name" style="color:red"></span></label>
-                                    <input  type="text" class="form-control"  name="dealer_name" id="dealer_name" value = "<?php echo set_value('dealer_name'); ?>" placeholder="Enter Dealer Name" autocomplete="off">
-                                    <input type="hidden" name="dealer_id" id="dealer_id" value="">
-                                    <input type="hidden" name="dealer_id" id="dealer_id" value="">
-                                    <div id="dealer_name_suggesstion_box"></div>
-                                </div>
                             </div> 
-                            <div class="col-md-3 ">
-                                <div class="form-group col-md-12  <?php if( form_error('dealer_phone_number') ) { echo 'has-error';} ?>">
-                                    <label for="dealer_phone_number">Dealer Phone Number  <span id="error_dealer_phone_number" style="color:red"></span></label>
-                                    <input  type="text" class="form-control"  name="dealer_phone_number" id="dealer_phone_number" value = "<?php echo set_value('dealer_phone_number'); ?>" placeholder="Enter Dealer Phone Number" autocomplete="off">
-                                    <div id="dealer_phone_suggesstion_box"></div>
-                                </div>
-                            </div> 
-                            <div class="col-md-6 ">
+                            <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('purchase_month') ) { echo 'has-error';} ?>">
                                     <label for="Date of Purchase">Date of Purchase</label>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <select  type="text" class=" form-control "   name="purchase_month" id="purchase_month_1" >
-                                                <?php $current_month = date("M"); for($i = 0; $i< 12; $i++){ ?>
-                                                <option  <?php if(set_value('purchase_month') == date('M', strtotime($i." month"))){ echo "selected";} 
-                                                  else if(date('M', strtotime($i." month")) == $current_month){ echo "selected";}
-                                                 ?> >
-                                                    <?php echo date('M', strtotime($i." month")); ?>
-                                                </option>
-                                                <?php }  ?>
-<!--                                                <option selected="selected" value="">Month</option>
-                                                <option <?php //if(set_value('purchase_month') == "Jan"){ echo "selected";} else if(date("M") == "Jan"){ echo "selected";} ?> >Jan</option>
-                                                <option <?php //if(set_value('purchase_month') == "Feb"){ echo "selected";} else if(date("M") == "Feb"){ echo "selected";} ?>>Feb</option>
-                                                <option <?php //if(set_value('purchase_month') == "Mar"){ echo "selected";} else if(date("M") == "Mar"){ echo "selected";} ?>>Mar</option>
-                                                <option <?php //if(set_value('purchase_month') == "Apr"){ echo "selected";} else if(date("M") == "Apr"){ echo "selected";} ?>>Apr</option>
-                                                <option <?php //if(set_value('purchase_month') == "May"){ echo "selected";} else if(date("M") == "May"){ echo "selected";} ?>>May</option>
-                                                <option <?php //if(set_value('purchase_month') == "Jun"){ echo "selected";} else if(date("M") == "Jun"){ echo "selected";} ?>>Jun</option>
-                                                <option <?php //if(set_value('purchase_month') == "July"){ echo "selected";} else if(date("M") == "July"){ echo "selected";} ?> >July</option>
-                                                <option <?php //if(set_value('purchase_month') == "Aug"){ echo "selected";} else if(date("M") == "Aug"){ echo "selected";} ?>>Aug</option>
-                                                <option <?php //if(set_value('purchase_month') == "Sept"){ echo "selected";} else if(date("M") == "Sept"){ echo "selected";} ?>>Sept</option>
-                                                <option <?php //if(set_value('purchase_month') == "Oct"){ echo "selected";} else if(date("M") == "Oct"){ echo "selected";} ?>>Oct</option>
-                                                <option <?php //if(set_value('purchase_month') == "Nov"){ echo "selected";} else if(date("M") == "Nov"){ echo "selected";} ?>>Nov</option>
-                                                <option <?php //if(set_value('purchase_month') == "Dec"){ echo "selected";} else if(date("M") == "Dec"){ echo "selected";}?>>Dec</option>-->
+                                                <option selected="selected" value="">Month</option>
+                                                <option <?php if(set_value('purchase_month') == "Jan"){ echo "selected";} else if(date("M") == "Jan"){ echo "selected";} ?> >Jan</option>
+                                                <option <?php if(set_value('purchase_month') == "Feb"){ echo "selected";} else if(date("M") == "Feb"){ echo "selected";} ?>>Feb</option>
+                                                <option <?php if(set_value('purchase_month') == "Mar"){ echo "selected";} else if(date("M") == "Mar"){ echo "selected";} ?>>Mar</option>
+                                                <option <?php if(set_value('purchase_month') == "Apr"){ echo "selected";} else if(date("M") == "Apr"){ echo "selected";} ?>>Apr</option>
+                                                <option <?php if(set_value('purchase_month') == "May"){ echo "selected";} else if(date("M") == "May"){ echo "selected";} ?>>May</option>
+                                                <option <?php if(set_value('purchase_month') == "Jun"){ echo "selected";} else if(date("M") == "Jun"){ echo "selected";} ?>>Jun</option>
+                                                <option <?php if(set_value('purchase_month') == "July"){ echo "selected";} else if(date("M") == "July"){ echo "selected";} ?> >July</option>
+                                                <option <?php if(set_value('purchase_month') == "Aug"){ echo "selected";} else if(date("M") == "Aug"){ echo "selected";} ?>>Aug</option>
+                                                <option <?php if(set_value('purchase_month') == "Sept"){ echo "selected";} else if(date("M") == "Sept"){ echo "selected";} ?>>Sept</option>
+                                                <option <?php if(set_value('purchase_month') == "Oct"){ echo "selected";} else if(date("M") == "Oct"){ echo "selected";} ?>>Oct</option>
+                                                <option <?php if(set_value('purchase_month') == "Nov"){ echo "selected";} else if(date("M") == "Nov"){ echo "selected";} ?>>Nov</option>
+                                                <option <?php if(set_value('purchase_month') == "Dec"){ echo "selected";} else if(date("M") == "Dec"){ echo "selected";}?>>Dec</option>
                                             </select>
                                             <p><?php echo form_error('purchase_month'); ?></p>
                                         </div> 
                                         <div class="col-md-6">
                                             <select  type="text" class="form-control "   name="purchase_year" id="purchase_year_1" >
-                                                
-                                                <?php $current_year = date('Y'); for($i = 0; $i> -26; $i--){ ?>
+                                                <option selected="selected" value="" >Year</option>
+                                                <?php for($i = 0; $i> -26; $i--){ ?>
                                                 <option  <?php if(set_value('purchase_year') == date("Y",strtotime($i." year"))){ echo "selected";} 
-                                                  if(date("Y",strtotime($i." year")) == $current_year){ echo "selected";}?> >
+                                                  ?> >
                                                     <?php echo date("Y",strtotime($i." year")); ?>
                                                 </option>
                                                 <?php }  ?>
@@ -319,7 +262,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                  <div class="form-group col-md-12  <?php if( form_error('query_remarks') ) { echo 'has-error';} ?>">
                                      <label for="landmark ">Remarks  <span id="error_remarks" style="color: red;"></label>
                                     <textarea class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php echo set_value('query_remarks'); ?></textarea>
@@ -395,7 +338,6 @@
         
         var appliance = $("#service_name").val();
         var brand = $("#appliance_brand_1").val();
-        var dealer_name = $("#dealer_name").val();
         
          if(mobile_number === ""){
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Mobile");
@@ -463,23 +405,6 @@
           
         }
         
-        if(order_id === '' && serial_number === '' && dealer_name === ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
-        }else if(order_id !== '' && serial_number !== '' && dealer_name !== ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
-        }else if(order_id === '' && serial_number !== '' && dealer_name !== ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
-        }else if(order_id !== '' && serial_number === '' && dealer_name !== ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
-        }else if(order_id !== '' && serial_number !== '' && dealer_name === ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
-        }
-        
 //        if (order_id === "" && serial_number === ""  ) {
 //             document.getElementById('order_id').style.borderColor = "red";
 //             document.getElementById('serial_number').style.borderColor = "red";
@@ -521,7 +446,20 @@
             document.getElementById(error_id).innerHTML = message;
     }
 </script>
-
+<style type="text/css">
+    /* example styles for validation form demo */
+    .err {
+    color: red;
+    }
+    #booking_form .form-group label.error {
+    color: #FB3A3A;
+    display: inline-block;
+    margin: 4px 0 5px 125px;
+    padding: 0;
+    text-align: left;
+    width: 220px;
+    }
+</style>
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
 <script type="text/javascript">
@@ -926,65 +864,4 @@
         }
   }
     
-</script>
-
-<script>
-    $(document).ready(function(){
-	$("#dealer_name").keyup(function(){
-                var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
-                //var service_id = $("#service_name").val();
-                // brand = $('#appliance_brand_1').val();
-                //var city = $("#booking_city").val();
-                var search_term = $(this).val();
-                
-                $.ajax({
-                    type: "POST",
-                    url: "<?php echo base_url();?>employee/partner/get_dealer_name",
-                    data:{partner_id:partner_id,search_term:search_term},
-                    beforeSend: function(){
-                            //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
-                    },
-                    success: function(data){
-                            $("#dealer_name_suggesstion_box").show();
-                            $("#dealer_name_suggesstion_box").html(data);
-                            $("#dealer_name").css("background","#FFF");
-                        }
-                    });
-	});
-    });
-    
-    function selectDealer(val,id) {
-    $("#dealer_name").val(val);
-    $("#dealer_id").val(id);
-    //$("#dealer_phone_number").val(phone_number);
-    $("#dealer_name_suggesstion_box").hide();
-    }
-    
-    
-    
-    $("#dealer_phone_number").keyup(function(){
-                var dealer_id = $('#dealer_id').val();
-                var search_term = $(this).val();
-                if(dealer_id !== ''){
-                    $.ajax({
-                    type: "POST",
-                    url: "<?php echo base_url();?>employee/partner/get_dealer_phone_number",
-                    data:{search_term:search_term,dealer_id:dealer_id},
-                    beforeSend: function(){
-                            //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
-                    },
-                    success: function(data){
-                            $("#dealer_phone_suggesstion_box").show();
-                            $("#dealer_phone_suggesstion_box").html(data);
-                            $("#dealer_phone_number").css("background","#FFF");
-                        }
-                    });
-                }
-	});
-        
-        function selectDealerPhoneNumber(val,id) {
-            $("#dealer_phone_number").val(val);
-            $("#dealer_id").val(id);
-            $("#dealer_phone_suggesstion_box").hide();
-         }
 </script>

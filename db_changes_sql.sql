@@ -2286,6 +2286,7 @@ Hope to have a long lasting working relationship with you.
 <br>Follow us on Facebook: www.facebook.com/247around
 <br>Website: www.247around.com
 <br>Playstore - 247around -
+
 <br>https://play.google.com/store/apps/details?id=com.handymanapp', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
 
 ---- ANUJ 29 May ----
@@ -2297,31 +2298,3 @@ ALTER TABLE  `sf_not_exist_booking_details` AUTO_INCREMENT =10000;
 INSERT INTO `partner_login` (`id`, `partner_id`, `full_name`, `email`, `user_name`, `password`, `clear_text`, `active`, `create_date`) VALUES
 (978990, 247030, 'STS', 'anuj@247around.com', 'jeeves-sts', '216f5a89fca6bc085d2a6a3c88e6615d', 'jeeves-sts', 1, '2016-10-31 10:23:42'),
 (978991, 3, 'STS', 'anuj@247around.com', 'paytm-sts', '0f2cda64eb7640e66611d97b4de09465', 'paytm-sts', 1, '2016-10-31 10:23:42');
-
---sachin 31-may
-
-CREATE TABLE `dealer_details` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `dealer_name` VARCHAR(100) NOT NULL , 
-`dealer_phone_number_1` VARCHAR(50) NOT NULL , `owner_name` VARCHAR(100) NOT NULL , 
-`owner_phone_number_1` VARCHAR(50) NOT NULL , `city` VARCHAR(100) NOT NULL , 
-`update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , 
-`create_date` DATETIME NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
-
-
-CREATE TABLE `dealer_brand_mapping` (
-  `id` int(11) NOT NULL,
-  `dealer_id` int(11) NOT NULL,
-  `partner_id` int(11) NOT NULL,
-  `service_id` varchar(5) NOT NULL,
-  `brand` varchar(25) NOT NULL,
-  `city` varchar(100) NOT NULL,
-  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-ALTER TABLE `dealer_brand_mapping`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `dealer_brand_mapping`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-
-ALTER TABLE `booking_details` ADD `dealer_id` INT(11) NULL DEFAULT NULL AFTER `assigned_vendor_id`;
