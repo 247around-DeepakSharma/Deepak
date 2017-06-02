@@ -558,16 +558,18 @@ class Miscelleneous {
                     case SF_DOES_NOT_EXIST:
                     
                         log_message('info', __FUNCTION__ . SF_DOES_NOT_EXIST );
-                        $to = RM_EMAIL.", ". SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
-                        $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
-                        
-                        $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode']." For Appliance ". $appliance;
-                        $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
-                        
-                        $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
-                        
+                        if(isset($data['vendor_not_found'])){
+                            $to = RM_EMAIL.", ". SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
+                            $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
+
+                            $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode']." For Appliance ". $appliance;
+                            $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
+
+                            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+   
+                        }
                         return FALSE;
-                    //break;
+                   // break;
                         case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                             return FALSE;
                 }
