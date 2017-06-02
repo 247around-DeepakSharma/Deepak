@@ -330,6 +330,9 @@
                        <li>
                             <a href="<?php echo base_url() ?>employee/invoiceDashboard/service_center_invoice"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Check</strong></a>
                         </li>
+                         <li>
+                            <a href="<?php echo base_url() ?>employee/invoiceDashboard/get_invoice_summary_for_sf"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Summary</strong></a>
+                        </li>
                             </ul>
                         </li>
                             <li class="divider"></li>

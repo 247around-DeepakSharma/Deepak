@@ -103,8 +103,10 @@ class submitMultiUnitRequest extends CI_Controller {
                             $this->insertAppliance_BookingUnitDetails();
                            
                             $remarks = (isset($this->ApiData['remarks']) ? $this->ApiData['remarks'] : "");
+                            $p_login_details = $this->partner_model->partner_login_details(array('partner_id' => $this->partner['id'], "full_name" => 'STS'));
                             //Insert Data in booking state change
-                            $this->notify->insert_state_change($this->ApiData['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY ,$remarks , DEFAULT_PARTNER_AGENT, $this->ApiData['partnerName'], $this->partner['id']);
+                            $this->notify->insert_state_change($this->ApiData['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY ,$remarks , $p_login_details[0]['id'], 
+                                    $this->ApiData['partnerName'], $this->partner['id']);
                             
                              // Send Mail if state not found
                             if (empty($this->ApiData['state'])) {

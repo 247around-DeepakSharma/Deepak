@@ -670,7 +670,7 @@ class Api extends CI_Controller {
         log_message('info', "Existing Flags: " . $existing_flags);
 
         //checks phone no
-        $checkUserPhoneNumber = $this->apis->checkUserPhoneNumber($phone_number, $this->deviceId);
+        $checkUserPhoneNumber = $this->apis->checkUserPhoneNumber($phone_number);
 
         if ($checkUserPhoneNumber) {
             //if phone no is there, update the verification code
@@ -733,7 +733,7 @@ class Api extends CI_Controller {
 
                 if (!empty($checkExotelRequest)) {
                     //if there is an entry, check if the entry is verified or not
-                    $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number, $this->deviceId);
+                    $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number);
                     log_message('info', "if !empty() @ i = " . $i . " -> userResult: " . $userResult);
 
                     //if it is a verified entry, confirm to user that number verification is complete
@@ -746,7 +746,7 @@ class Api extends CI_Controller {
 
             log_message('info', "finally i = " . $i);
             if ($status == "True") {
-                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number, $this->deviceId);
+                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number);
                 log_message('info', "Status == true, one last time, userResult: " . $userResult);
 
                 $this->verifyResponse($phone_number, $userResult);
@@ -755,7 +755,7 @@ class Api extends CI_Controller {
             log_message('info', "checkExotelRequest() returned non-empty -> userResult: " . $userResult);
 
             for ($j = 0; $j < $loop_count; $j++) {
-                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number, $this->deviceId);
+                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number);
 
                 if ($userResult) {
                     log_message('info', "Verified phone number found @ j = " . $j);
@@ -796,7 +796,7 @@ class Api extends CI_Controller {
                 if (!in_array($phone_number, $developer_phone)) {
                     /*
                       $this->sendMail("New User Added", $name . " with phone number " . $phone_number
-                      . " and email " . $email . " joined Around !!!", false);
+                      . " and email " . $email . " joi`ned Around !!!", false);
                      */
 
                     $this->sendNewUserEmail($userResult);
@@ -1886,7 +1886,7 @@ class Api extends CI_Controller {
             $booking_id = str_pad($user_id, 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
 
             $booking_id .= (intval($this->apis->getBookingCountByUser($user_id)) + 1);
-            $booking_id = "S2-" . $booking_id;
+            $booking_id = "SB-" . $booking_id;
             $booking['booking_id'] = $booking_id;
             $booking['partner_id'] = "247001";
             $booking['partner_source'] = "AndroidApp";
@@ -1928,7 +1928,7 @@ class Api extends CI_Controller {
             }
 
             $booking['type'] = "Booking";
-            $booking['source'] = "S2";
+            $booking['source'] = "SB";
             $booking['current_status'] = 'Pending';
             $booking['internal_status'] = 'Scheduled';
 

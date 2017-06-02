@@ -256,6 +256,7 @@ class bookings_excel extends CI_Controller {
 
 		$booking['current_status'] = "FollowUp";
 		$booking['internal_status'] = "Missed_call_not_confirmed";
+                $booking['create_date'] = date("Y-m-d H:i:s");
 
 		//Add this as a Query now
 		$booking['booking_id'] = '';

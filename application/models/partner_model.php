@@ -162,12 +162,15 @@ class Partner_model extends CI_Model {
     /*
      * @desc: This is used to get active partner details and also get partner details by partner id
      */
-    function getpartner($partner_id = "") {
+    function getpartner($partner_id = "", $is_active = true) {
 	    if ($partner_id != "") {
 	        $this->db->where('id', $partner_id);
 	    }
 	    $this->db->select('*');
-	    $this->db->where('is_active', '1');
+            if($is_active){
+                $this->db->where('is_active', '1');
+            }
+	    
 	    $query = $this->db->get('partners');
 
 	    return $query->result_array();
@@ -1331,7 +1334,12 @@ class Partner_model extends CI_Model {
 	    return $query->result_array();
     }
     
-    
+    /**
+     * @desc: This is used to get the dealer details on AJAX request
+     * @param String $search_term
+     * @param String $partner_id
+     * @return Array
+     */
     function get_dealer_details($search_term,$partner_id){
         $sql = "SELECT dd.* from dealer_details as dd
                 JOIN dealer_brand_mapping as dbm ON dd.id = dbm.dealer_id
@@ -1340,6 +1348,13 @@ class Partner_model extends CI_Model {
         return $query->result_array();
     }
     
+    
+    /**
+     * @desc: This is used to get the dealer details by any parameter
+     * @param Array $where
+     * @param String $like
+     * @return Array
+     */
     function get_dealer_details_by_any($where,$like=""){
         $this->db->select('*');
         $this->db->where($where);
@@ -1351,16 +1366,32 @@ class Partner_model extends CI_Model {
         return $query->result_array();
     }
     
+    /**
+     * @desc: This is used to insert the dealer details into database
+     * @param Array $data
+     * @return Array
+     */
     function insert_dealer_details($data){
         $this->db->insert("dealer_details", $data);
         $insert_id = $this->db->insert_id();
         return  $insert_id;
     }
     
+    /**
+     * @desc: This is used to do the dealer and brand mapping
+     * @param Array $data
+     * @return Array
+     */
     function insert_dealer_brand_mapping($data){
         $this->db->insert("dealer_brand_mapping", $data);
         $insert_id = $this->db->insert_id();
         return  $insert_id;
+    }
+    function partner_login_details($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('partner_login');
+        return $query->result_array();
     }
 }
 

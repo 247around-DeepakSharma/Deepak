@@ -413,7 +413,8 @@ class Booking extends CI_Controller {
             switch ($booking_id) {
 
                 case INSERT_NEW_BOOKING:
-
+                    $booking['create_date'] = date("Y-m-d H:i:s");
+                
                     $status = $this->booking_model->addbooking($booking);
                     if ($status) {
                         $booking['is_send_sms'] = $is_send_sms;
@@ -1099,7 +1100,7 @@ class Booking extends CI_Controller {
 
                 $vendor_data = array();
                 $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
-                $vendor_data[0]['city'] = $booking_city;
+                $vendor_data[0]['city'] = $this->vendor_model->get_distict_details_from_india_pincode($booking_pincode)['district'];
 
                 $upcountry_data = $this->upcountry_model->action_upcountry_booking($booking_city, $booking_pincode, $vendor_data, $partner_data);
             }
@@ -1909,6 +1910,7 @@ class Booking extends CI_Controller {
 
         $booking['closing_remarks'] = $service_center['closing_remarks'];
         $booking['closed_date'] = date('Y-m-d H:i:s');
+        $booking['update_date'] = date('Y-m-d H:i:s');
 //        if (!empty($service_center_details)) {
 //            if ($service_center_details[0]['closed_date'] === NULL) {
 //                $booking['closed_date'] = date('Y-m-d H:i:s');
@@ -2037,6 +2039,9 @@ class Booking extends CI_Controller {
             }
             //Creating Job Card to Booking ID
             $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+            if (!empty($assigned_vendor_id)) {
+                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
+            }
 
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $send['booking_id'] = $booking_id;

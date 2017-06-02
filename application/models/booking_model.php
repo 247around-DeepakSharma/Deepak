@@ -1855,6 +1855,7 @@ class Booking_model extends CI_Model {
         $this->db->where(array('partner_id' => $partner_id,'247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
         $this->db->or_where('partner_id',_247AROUND);
         $this->db->where(array('247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
+        $this->db->order_by("id", "DESC ");
         $query = $this->db->get('partner_booking_status_mapping');
         return $query->result_array();
         

@@ -232,7 +232,7 @@ class Do_background_process extends CI_Controller {
         $booking['amount_paid'] = $data[0]['amount_paid'];
         $booking['closing_remarks'] = $service_center['closing_remarks'];
         $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
-
+        $booking['update_date'] = date('Y-m-d H:i:s');
         //update booking_details table
         log_message('info', ": " . " update booking details data (" . $current_status . ")" . print_r($booking, TRUE));
 
