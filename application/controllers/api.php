@@ -689,7 +689,6 @@ class Api extends CI_Controller {
 
         //gets user by phone no & dev id and fetches 4 digit code as well
         $result = $this->apis->getUserByPhoneNumber($this->deviceId, $phone_number);
-        log_message('info', __METHOD__ . "=> Result: " . $result);
 
         $this->jsonResponseString['response'] = $result[0];
         $this->sendJsonResponse(array('000011', 'success'));
@@ -752,7 +751,7 @@ class Api extends CI_Controller {
                 $this->verifyResponse($phone_number, $userResult);
             }
         } else {
-            log_message('info', "checkExotelRequest() returned non-empty -> userResult: " . $userResult);
+            
 
             for ($j = 0; $j < $loop_count; $j++) {
                 $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number, $this->deviceId);
