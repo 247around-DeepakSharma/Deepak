@@ -657,6 +657,24 @@ class Partner extends CI_Controller {
                 {
                     //Setting Flag as 1
                     $edit_partner_data['partner']['is_upcountry'] = 1;
+                    $edit_partner_data['partner']['upcountry_rate'] = $this->input->post('upcountry_rate');
+                    $edit_partner_data['partner']['upcountry_min_distance_threshold'] = $this->input->post('upcountry_min_distance_threshold');
+                    $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $this->input->post('upcountry_max_distance_threshold');
+                    $edit_partner_data['partner']['upcountry_rate1'] = $this->input->post('upcountry_rate1');
+                    $edit_partner_data['partner']['upcountry_mid_distance_threshold'] = $this->input->post('upcountry_mid_distance_threshold');
+                    $edit_partner_data['partner']['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
+                    $upcountry_approval = $this->input->post('upcountry_approval');
+                    $edit_partner_data['partner']['upcountry_approval'] = (!empty($upcountry_approval))? 1:0;
+                    
+                } else {
+                    $edit_partner_data['partner']['is_upcountry'] = 0;
+                    $edit_partner_data['partner']['upcountry_rate'] = 0;
+                    $edit_partner_data['partner']['upcountry_min_distance_threshold'] = 0;
+                    $edit_partner_data['partner']['upcountry_max_distance_threshold'] = 0;
+                    $edit_partner_data['partner']['upcountry_rate1'] = 0;
+                    $edit_partner_data['partner']['upcountry_mid_distance_threshold'] = 0;
+                    $edit_partner_data['partner']['upcountry_approval_email'] = NULL;
+                    $edit_partner_data['partner']['upcountry_approval'] = 0;
                 }
                 
                 //Getting partner operation regions details from POST
@@ -803,6 +821,24 @@ class Partner extends CI_Controller {
                 {
                     //Setting Flag as 1
                     $return_data['partner']['is_upcountry'] = 1;
+                    $return_data['partner']['upcountry_rate'] = $this->input->post('upcountry_rate');
+                    $return_data['partner']['upcountry_min_distance_threshold'] = $this->input->post('upcountry_min_distance_threshold');
+                    $return_data['partner']['upcountry_max_distance_threshold'] = $this->input->post('upcountry_max_distance_threshold');
+                    $return_data['partner']['upcountry_rate1'] = $this->input->post('upcountry_rate1');
+                    $return_data['partner']['upcountry_mid_distance_threshold'] = $this->input->post('upcountry_mid_distance_threshold');
+                    $return_data['partner']['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
+                    $upcountry_approval = $this->input->post('upcountry_approval');
+                    $return_data['partner']['upcountry_approval'] = (!empty($upcountry_approval))? 1:0;
+                    
+                } else {
+                    $return_data['partner']['is_upcountry'] = 0;
+                    $return_data['partner']['upcountry_rate'] = 0;
+                    $return_data['partner']['upcountry_min_distance_threshold'] = 0;
+                    $return_data['partner']['upcountry_max_distance_threshold'] = 0;
+                    $return_data['partner']['upcountry_rate1'] = 0;
+                    $return_data['partner']['upcountry_mid_distance_threshold'] = 0;
+                    $return_data['partner']['upcountry_approval_email'] = NULL;
+                    $return_data['partner']['upcountry_approval'] = 0;
                 }
                 
                 //Getting partner operation regions details from POST
