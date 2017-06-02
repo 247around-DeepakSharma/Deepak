@@ -683,7 +683,7 @@ if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
                                 } ?>">
                                 <label for="cst_no" class="col-md-3">CST</label>
                                 <div class="col-md-4" style="width:25%">
-                                    <input type="text" class="form-control blockspacialchar"  name="cst_no" id="cst_no" value = "<?php if (isset($query[0]['registration_no'])) {
+                                    <input type="text" class="form-control blockspacialchar"  name="cst_no" id="cst_no" value = "<?php if (isset($query[0]['cst_no'])) {
                                         echo $query[0]['cst_no'];
                                     } ?>" placeholder="CST No">
                                 </div>
