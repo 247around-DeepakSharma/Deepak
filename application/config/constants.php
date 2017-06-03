@@ -247,6 +247,8 @@ define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
 define('PARTNERS_MISSED_CALLED_NUMBER','01130017601');
 //Define snapdeal new missed call number
 define('SNAPDEAL_MISSED_CALLED_NUMBER','01139595247');
+//Define Android App new missed call number
+define('ANDROID_APP_MISSED_CALLED_NUMBER','01139585684');
 
 //Define new missed call number for AC installation
 define('AC_SERVICE_MISSED_CALLED_NUMBER','01139595450');

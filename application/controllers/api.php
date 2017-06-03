@@ -670,7 +670,7 @@ class Api extends CI_Controller {
         log_message('info', "Existing Flags: " . $existing_flags);
 
         //checks phone no
-        $checkUserPhoneNumber = $this->apis->checkUserPhoneNumber($phone_number);
+        $checkUserPhoneNumber = $this->apis->checkUserPhoneNumber($phone_number, $this->deviceId);
 
         if ($checkUserPhoneNumber) {
             //if phone no is there, update the verification code
@@ -689,7 +689,6 @@ class Api extends CI_Controller {
 
         //gets user by phone no & dev id and fetches 4 digit code as well
         $result = $this->apis->getUserByPhoneNumber($this->deviceId, $phone_number);
-        log_message('info', __METHOD__ . "=> Result: " . $result);
 
         $this->jsonResponseString['response'] = $result[0];
         $this->sendJsonResponse(array('000011', 'success'));
@@ -733,7 +732,7 @@ class Api extends CI_Controller {
 
                 if (!empty($checkExotelRequest)) {
                     //if there is an entry, check if the entry is verified or not
-                    $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number);
+                    $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number, $this->deviceId);
                     log_message('info', "if !empty() @ i = " . $i . " -> userResult: " . $userResult);
 
                     //if it is a verified entry, confirm to user that number verification is complete
@@ -746,16 +745,16 @@ class Api extends CI_Controller {
 
             log_message('info', "finally i = " . $i);
             if ($status == "True") {
-                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number);
+                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number, $this->deviceId);
                 log_message('info', "Status == true, one last time, userResult: " . $userResult);
 
                 $this->verifyResponse($phone_number, $userResult);
             }
         } else {
-            log_message('info', "checkExotelRequest() returned non-empty -> userResult: " . $userResult);
+            
 
             for ($j = 0; $j < $loop_count; $j++) {
-                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number);
+                $userResult = $this->apis->checkUserPhoneNumberVeri($phone_number, $this->deviceId);
 
                 if ($userResult) {
                     log_message('info', "Verified phone number found @ j = " . $j);
@@ -4097,6 +4096,64 @@ class Api extends CI_Controller {
         log_message('info', "Booking message: " . $message);
 
         $this->sendBookingMailToUser($user_email, $subject, $message, "", FALSE);
+    }
+    
+    /**
+     * @input: void
+     *
+     * @description: This function gets called through the Exotel Missed call App Passthru Applet.
+     * That applet makes a call to the URL:
+     *      https://aroundhomzapp.com/pass_through_android_app
+     * Through the $route['pass-through-android-app'] = 'api/pass_through_android_app'; mechanism defined in routes.php,
+     * call reaches to this function below which fetches information passed while making a call to
+     * this URL and stores all details in the boloaaka.passthru_misscall_log table (function
+     * apis->insertPassthruCall($callDetails)).
+     * This table is checked again and again in processUserVerificationCode() to see if valid entry
+     * is there or not. Once the entry is found, it is parsed and appropriate code is returned.
+     *
+     * After saving call details, it marks the calling no as Verified in DB only if call was made
+     * to app verification no 30017601 and set 200 OK in header.
+     *
+     * @output: None
+     */
+    public function pass_through_android_app() {
+        //log_message('info', "Entering: " . __METHOD__);
+        
+    $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
+        $this->apis->logTable($activity);
+
+        //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
+        $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
+        $callDetails['from_number'] = (isset($_GET['From'])) ? $_GET['From'] : null;
+        $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
+        $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
+        $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
+        $callDetails['StartTime'] = (isset($_GET['StartTime'])) ? $_GET['StartTime'] : null;
+        $callDetails['EndTime'] = (isset($_GET['EndTime'])) ? $_GET['EndTime'] : null;
+        $callDetails['CallType'] = (isset($_GET['CallType'])) ? $_GET['CallType'] : null;
+        $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
+        $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
+        $callDetails['create_date'] = null;
+
+        //var_dump($apiDetails);
+        //insert in database
+        $this->apis->insertPassthruCall($callDetails);
+
+        //fetches only the 10 digits of the mobile no without the country code
+        $num = substr($callDetails['from_number'], '-10');
+        //var_dump($num);
+
+    //User could give missed call on 01139585684 to verify the App
+
+    if ($callDetails['To'] == ANDROID_APP_MISSED_CALLED_NUMBER) {
+        //verify user phone no first
+        $this->apis->verifyUserNumber($num);
+            
+        //Adding details in Log File
+        log_message('info', __FUNCTION__ . ' Missed call given by customer from 247AROUND App - Number: ' . $num);
+    }
+
+        $this->output->set_header("HTTP/1.1 200 OK");
     }
     
 }

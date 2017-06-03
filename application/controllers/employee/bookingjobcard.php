@@ -270,9 +270,8 @@ class bookingjobcard extends CI_Controller {
 
 	    if ($is_mail) {
 		$data['success'] = "Mail sent to Service Center successfully.";
-               // $this->session->set_flashdata('result', 'Mail sent to Service Center successfully');
-                //Setting flag to 1, once mail is sent.
-                $this->booking_model->set_mail_to_vendor($booking_id);
+               
+                
             } else {
                 log_message('info', __FUNCTION__ . " => Error: Mail could not be sent");
                 

@@ -182,26 +182,26 @@ class InvoiceDashboard extends CI_Controller {
                 $style = "<span style='color:red'> ";
             }
             if(!empty($cash) && !empty($foc)){
-                $this->table->add_row($style.$value['name']."</span>", $cash['meta']['total_installation_charge'], 
-                    $cash['meta']['additional_charges'], $cash['meta']['misc_charge'],
-                    "<strong>".$cash['meta']['total_charge']."</strong>", $foc['meta']['sub_service_cost'], 
-                    $foc['meta']['sub_part'], $foc['meta']['total_misc_price'], "<strong>".$foc['meta']['grand_total_price']."</strong>");
+                $this->table->add_row($style.$value['name']."</span>", round($cash['meta']['total_installation_charge'],0), 
+                    round($cash['meta']['additional_charges'],0), round($cash['meta']['misc_charge'],0),
+                    "<strong>".round($cash['meta']['total_charge'],0)."</strong>", round($foc['meta']['sub_service_cost'],0), 
+                    round($foc['meta']['sub_part'],0), round($foc['meta']['total_misc_price'],0), "<strong>".round($foc['meta']['grand_total_price'],0)."</strong>");
                 
                 $total_cash_charge += $cash['meta']['total_charge'];
                 $total_foc_charge += $foc['meta']['grand_total_price'];
                 
             } else if(!empty($cash) && empty($foc)){
-                $this->table->add_row($style.$value['name']."</span>", $cash['meta']['total_installation_charge'], 
-                    $cash['meta']['additional_charges'], $cash['meta']['misc_charge'],
-                    "<strong>".$cash['meta']['total_charge']."</strong>", "", 
+                $this->table->add_row($style.$value['name']."</span>", round($cash['meta']['total_installation_charge'],0), 
+                    round($cash['meta']['additional_charges'],0), round($cash['meta']['misc_charge'],0),
+                    "<strong>".round($cash['meta']['total_charge'],0)."</strong>", "", 
                     "", "", "");
                 
                 $total_cash_charge += $cash['meta']['total_charge'];
                 
             } else if(empty($cash) && !empty($foc)){
                 $this->table->add_row($style.$value['name']."</span>", "", 
-                    "", "","", $foc['meta']['sub_service_cost'], 
-                    $foc['meta']['sub_part'], $foc['meta']['total_misc_price'], "<strong>".$foc['meta']['grand_total_price']."</strong>");
+                    "", "","", round($foc['meta']['sub_service_cost'],0), 
+                    round($foc['meta']['sub_part'],0), round($foc['meta']['total_misc_price'],0), "<strong>".round($foc['meta']['grand_total_price'],0)."</strong>");
                 $total_foc_charge += $foc['meta']['grand_total_price'];
                 
             } else if(empty($cash) && empty($foc)){
@@ -211,7 +211,7 @@ class InvoiceDashboard extends CI_Controller {
            
         }
         
-        $this->table->add_row("Total", "", "", "","<strong>".$total_cash_charge."<strong>", "", "", "","<strong>". $total_foc_charge."</strong>");
+        $this->table->add_row("Total", "", "", "","<strong>".round($total_cash_charge,0)."<strong>", "", "", "","<strong>". round($total_foc_charge,0)."</strong>");
          
         $t_data['table_data'] = $this->table->generate();
        
