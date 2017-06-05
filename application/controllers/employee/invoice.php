@@ -3850,7 +3850,7 @@ class Invoice extends CI_Controller {
         $sms['phone_no'] = $vendor_details[0]['owner_phone_1'];
         $sms['booking_id'] = "";
         $sms['type'] = "vendor";
-        $sms['type_id'] = $vendor_details[0]['order_received_from'];
+        $sms['type_id'] = $vendor_details[0]['order_given_to'];
         $this->notify->send_sms_msg91($sms);
         log_message('info', __METHOD__ . ' SMS Sent ' . $invoice_id);
 
