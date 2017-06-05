@@ -401,7 +401,7 @@
                         </thead
                         <tbody>
                         <tr>
-                            <td><?php if(isset($booking_history[0]['vendor_name'])){echo $booking_history[0]['vendor_name'];}?></td>
+                            <td><?php if(isset($booking_history[0]['vendor_name'])){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $booking_history[0]['assigned_vendor_id']?>" target="_blank"><?php echo $booking_history[0]['vendor_name']?></a> <?php }?></td>
                             <td><?php if(isset($booking_history[0]['primary_contact_name'])){echo $booking_history[0]['primary_contact_name'];}?></td>
                             <td><?php if(isset($booking_history[0]['primary_contact_phone_1'])){echo $booking_history[0]['primary_contact_phone_1'];}?>
                             </td>
