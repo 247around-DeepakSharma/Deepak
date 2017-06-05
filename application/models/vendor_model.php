@@ -1767,4 +1767,13 @@ class vendor_model extends CI_Model {
         return $this->db->insert_id();
     }
     
+    function  get_upload_pincode_file_details(){
+        $sql = "SELECT e.full_name as agent_name,p.file_name,DATE(p.create_date) AS upload_date
+                FROM pincode_mapping_s3_upload_details AS p 
+                JOIN employee AS e ON p.agent_id = e.id
+                ORDER BY upload_date DESC LIMIT 0,5";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
 }
