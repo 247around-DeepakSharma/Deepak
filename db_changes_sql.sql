@@ -2316,3 +2316,7 @@ ALTER TABLE `dealer_brand_mapping`
 
 
 ALTER TABLE `booking_details` ADD `dealer_id` INT(11) NULL DEFAULT NULL AFTER `assigned_vendor_id`;
+
+-- sachin 5 jun 2017
+
+ALTER TABLE  `pincode_mapping_s3_upload_details` ADD  `agent_id`  int(11) DEFAULT NULL AFTER  `file_name` ;
