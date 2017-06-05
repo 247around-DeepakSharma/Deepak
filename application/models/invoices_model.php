@@ -447,7 +447,7 @@ class invoices_model extends CI_Model {
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
 
         $sql1 = "SELECT booking_unit_details.id AS unit_id,`booking_details`.service_id, `booking_details`.booking_id, "
-                . " `booking_details`.reference_date,invoice_email_to,invoice_email_cc,  "
+                . " `booking_details`.reference_date,invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source,"
                 . " `booking_details`.city, `booking_unit_details`.ud_closed_date as closed_date, "
                 . "  price_tags, `partners`.company_name,partners.seller_code, "

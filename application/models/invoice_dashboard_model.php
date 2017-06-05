@@ -169,11 +169,11 @@ class Invoice_dashboard_model extends CI_Model {
     
     function get_customer_paid_less_than_due($from_date, $to_date_tmp){
          $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
-        $sql = "SELECT `booking_id`,customer_net_payable,(`customer_paid_basic_charges` + `customer_paid_extra_charges` + `vendor_parts`) as amount "
-                . " from booking_unit_details "
-                . " WHERE  ud_closed_date >= '$from_date' AND ud_closed_date < '$to_date' "
-                . " AND booking_status = 'Completed' AND booking_status = 'Completed' 
-                    AND customer_net_payable > (`customer_paid_basic_charges` + `customer_paid_extra_charges` + `vendor_parts`)";
+        $sql = "SELECT `booking_id amount_due, amount_paid"
+                . " from booking_details "
+                . " WHERE  closed_date >= '$from_date' AND closed_date < '$to_date' "
+                . " AND current_status = 'Completed'  
+                    AND amount_due > amount_paid";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -200,7 +200,96 @@ class Invoice_dashboard_model extends CI_Model {
             WHERE ud_closed_date >=  '$from_date'
             AND ud_closed_date <  '$to_date'
             AND booking_status =  'Completed'
-            AND customer_total > 0 AND (vendor_to_around + around_to_vendor) = 0";
+            AND price_tags != 'Wall Mount Stand (NEW)'
+            AND customer_total > 0 AND (vendor_to_around + around_to_vendor) = 0 ";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_customer_paid_basic_charge_less_than_customer_net_payable($from_date, $to_date_tmp){
+         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        $sql = "SELECT booking_unit_details.`booking_id`,customer_net_payable,`customer_paid_basic_charges`, price_tags, closing_remarks, amount_paid "
+                . " from booking_unit_details, booking_details "
+                . " WHERE  ud_closed_date >= '$from_date' AND ud_closed_date < '$to_date' "
+                . " AND booking_status = 'Completed'  
+                    AND customer_paid_basic_charges < customer_net_payable 
+                    AND customer_net_payable > 0
+                    AND booking_unit_details.booking_id = booking_details.booking_id
+                    ";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_upcountry_paid_less_than_expected($from_date, $to_date_tmp){
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        $sql = "SELECT booking_id, round((upcountry_distance * partner_upcountry_rate),0)  as up_due, "
+                . " customer_paid_upcountry_charges, closing_remarks"
+                . " from booking_details "
+                . " WHERE  closed_date >= '$from_date' AND closed_date < '$to_date' "
+                . " AND current_status = 'Completed'  
+                    AND upcountry_paid_by_customer = 1 
+                    AND (round((upcountry_distance * partner_upcountry_rate),0) - round((upcountry_distance * partner_upcountry_rate),0) % 10) > 
+                   (round(customer_paid_upcountry_charges,0) - round(customer_paid_upcountry_charges,0) % 10)";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_stand_not_added($from_date, $to_date_tmp){
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        $sql = "SELECT u1.booking_id, u1.appliance_capacity, u1.appliance_brand
+                FROM booking_unit_details AS u1
+                WHERE u1.appliance_brand
+                IN (
+                 'Sony',  'Panasonic',  'LG',  'Samsung'
+                )
+                AND u1.booking_status =  'Completed'
+                AND u1.price_tags =  'Installation & Demo'
+                AND u1.ud_closed_date >=  '".$from_date."'
+                AND u1.ud_closed_date > '".$to_date."'
+                AND u1.service_id =  '46'
+                AND u1.partner_id
+                IN (
+                 '1',  '3'
+                )
+                AND NOT 
+                EXISTS (
+
+                SELECT 1 
+                FROM booking_unit_details AS u2
+                WHERE u1.booking_id = u2.booking_id
+                AND u2.price_tags IN  ('Wall Mount Stand', 'Wall Mount Stand (NEW)')
+                )
+                ORDER BY  `u1`.`create_date` DESC ";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_installation_not_added($from_date, $to_date_tmp){
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        $sql = "SELECT u1.booking_id, u1.appliance_capacity, u1.appliance_brand
+                FROM booking_unit_details AS u1
+                WHERE u1.appliance_brand
+                IN (
+                 'Sony',  'Panasonic',  'LG',  'Samsung'
+                )
+                AND u1.booking_status =  'Completed'
+                AND u1.price_tags =  'Wall Mount Stand'
+                AND u1.ud_closed_date >=  '".$from_date."'
+                AND u1.ud_closed_date > '".$to_date."'
+                AND u1.service_id =  '46'
+                AND u1.partner_id
+                IN (
+                 '1',  '3'
+                )
+                AND NOT 
+                EXISTS (
+
+                SELECT 1 
+                FROM booking_unit_details AS u2
+                WHERE u1.booking_id = u2.booking_id
+                AND u2.price_tags =  'Installation & Demo'
+                )
+                ORDER BY  `u1`.`create_date` DESC ";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
