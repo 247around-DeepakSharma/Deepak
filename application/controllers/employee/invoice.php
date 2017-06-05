@@ -3749,7 +3749,7 @@ class Invoice extends CI_Controller {
                 if (empty($check_order_id_exist[0]['purchase_invoice_id'])) {
                     return true;
                 } else {
-                    $this->form_validation->set_message('validate_order_id', 'Credit Note for this order id is already exist');
+                    $this->form_validation->set_message('validate_order_id', 'Credit Note for this Order ID already exists');
                     return false;
                 }
             } else {
