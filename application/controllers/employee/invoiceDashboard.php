@@ -145,12 +145,39 @@ class InvoiceDashboard extends CI_Controller {
         print_r(json_encode($data, TRUE));
     }
     
+    function get_customer_paid_basic_charge_less_than_cnp(){
+        $date_range = $this->input->post("date_range");
+        $explode_date_range = explode("-", $date_range);
+        $data = $this->invoice_dashboard_model->get_customer_paid_basic_charge_less_than_customer_net_payable($explode_date_range[0],$explode_date_range[1]);
+        print_r(json_encode($data, TRUE));
+    }
+    
     function around_to_vendor_to_around(){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
         $data = $this->invoice_dashboard_model->around_to_vendor_to_around($explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
+    
+    function upcountry_booking_check(){
+        $date_range = $this->input->post("date_range");
+        $explode_date_range = explode("-", $date_range);
+        $data = $this->invoice_dashboard_model->get_upcountry_paid_less_than_expected($explode_date_range[0],$explode_date_range[1]);
+        print_r(json_encode($data, TRUE));
+    }
+    function stand_not_added(){
+        $date_range = $this->input->post("date_range");
+        $explode_date_range = explode("-", $date_range);
+        $data = $this->invoice_dashboard_model->get_stand_not_added($explode_date_range[0],$explode_date_range[1]);
+        print_r(json_encode($data, TRUE));
+    }
+    function installation_not_added_sf(){
+        $date_range = $this->input->post("date_range");
+        $explode_date_range = explode("-", $date_range);
+        $data = $this->invoice_dashboard_model->get_installation_not_added($explode_date_range[0],$explode_date_range[1]);
+        print_r(json_encode($data, TRUE));
+    }
+    
     /**
      * @desc This is used to load all sf invoice summary Data
      */
