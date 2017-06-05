@@ -91,7 +91,9 @@ class Login extends CI_Controller {
 
         if($this->session->userdata('user_group') === 'admin'){
             redirect(base_url() . 'employee/dashboard');
-        }else{
+        } else if($this->session->userdata('user_group') === 'closure'){
+            redirect(base_url()."employee/invoiceDashboard/service_center_invoice");
+        } else{
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
         }
         //$this->load->view('employee/header',$result);
