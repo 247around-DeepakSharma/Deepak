@@ -192,16 +192,19 @@
                             <th>Partner Offer</th>
                             <th>247Around Offer</th>
                             <th>Upcountry Charges</th>
+                           
                             <th>Partner Offer Upcountry Charges</th>
                             <th>Total Charges</th>
                             <?php } else { ?>
                             <th>Charges</th>
                             <th>Partner Offer</th>
                             <th>247Around Offer</th>
+                            <th>Upcountry Charges</th>
                             <th>Paid Service Charges</th>
                             <th>Paid Additional Charges</th>
                             <th>Paid Parts Cost</th>
-                            <th>Upcountry Charges</th>
+                            <th>Paid Upcountry Charges</th>
+                            
                             <th>Total Amount Paid</th>
                            
                             <?php } ?>
@@ -239,6 +242,7 @@
                                  <td><?php  print_r($unit_detail['customer_total']); ?></td>
                                 <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                 <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
+                                <td><?php if($key == 0){ if($booking_history[0]['is_upcountry'] == 1){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } } ?></td>
                                 <td><?php  print_r($unit_detail['customer_paid_basic_charges']); ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
