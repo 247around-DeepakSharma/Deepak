@@ -3658,7 +3658,7 @@ class Invoice extends CI_Controller {
                         'type' => 'Stand',
                         'type_code' => 'B',
                         'vendor_partner' => 'vendor',
-                        'vendor_partner_id' => $order_id_data[0]['order_received_from'],
+                        'vendor_partner_id' => $order_id_data[0]['order_given_to'],
                         'invoice_file_excel' => $meta['invoice_id'] . '.xlsx',
                         'invoice_file_main' => $output_file_main,
                         'from_date' => $order_id_data[0]['shipment_date'],
@@ -3769,7 +3769,7 @@ class Invoice extends CI_Controller {
      * @return boolean 
      */
     function generate_new_credit_note_brackets($booking, $meta) {
-        $template = 'Vendor_Settlement_Template-FoC-v5.xlsx';
+        $template = 'bracket_credit_note.xlsx';
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
 
