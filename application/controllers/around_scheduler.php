@@ -598,5 +598,27 @@ class Around_scheduler extends CI_Controller {
 
         $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
     }
+    
+    /**
+     * @desc: This function is used to send SMS to those users who don't give ratings but booking is completed
+     * @param:$from String(optional)
+     * @param:$to String(optional)
+     * @retun:void()
+     */
+    public function send_sms_for_rating_on_booking_completed($from="",$to=""){
+        
+        $data = $this->around_scheduler_model->get_data_for_bookings_without_rating($from,$to);
+        
+        if(!empty($data)){
+            foreach ($data as $value) {
 
+                //send sms according to booking status
+                $smsTag = MISSED_CALL_RATING_SMS;
+                $smsData['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
+                $smsData['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
+                $this->prepare_sms_data_to_send($smsTag, $value['phn_number'], $smsData, "", "User", $value['user_id']);
+            }
+        }
+    }
+    
 }
