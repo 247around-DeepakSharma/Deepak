@@ -4157,4 +4157,38 @@ class Api extends CI_Controller {
         $this->output->set_header("HTTP/1.1 200 OK");
     }
     
+    /**
+     * @desc: This function gets called through the Exotel App  and insert the call details 
+     * of those users who gave call after sending rating sms 
+     * @retun:void()
+     */
+    public function pass_through_rating_missed_call(){
+        $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
+        $this->apis->logTable($activity);
+
+        //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
+        $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
+        $callDetails['from_number'] = (isset($_GET['From'])) ? $_GET['From'] : null;
+        $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
+        $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
+        $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
+        $callDetails['StartTime'] = (isset($_GET['StartTime'])) ? $_GET['StartTime'] : null;
+        $callDetails['EndTime'] = (isset($_GET['EndTime'])) ? $_GET['EndTime'] : null;
+        $callDetails['CallType'] = (isset($_GET['CallType'])) ? $_GET['CallType'] : null;
+        $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
+        $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
+        $callDetails['create_date'] = null;
+
+        //var_dump($apiDetails);
+        //insert in database
+        $insert_id = $this->apis->insertRatingPassthruCall($callDetails);
+        if($insert_id){
+            log_message('info', __METHOD__.'Call Details Added');
+        }else{
+            log_message('info', __METHOD__.'Error In Adding Call Details');
+        }
+        
+        $this->output->set_header("HTTP/1.1 200 OK");
+    }
+    
 }

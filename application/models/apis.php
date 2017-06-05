@@ -1836,5 +1836,10 @@ class Apis extends CI_Model {
             //log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
         }
     }
+    
+    function insertRatingPassthruCall($callDetails){
+        $this->db->insert('rating_passthru_misscall_log', $callDetails);
+        return $this->db->insert_id();
+    }
 
 }

@@ -362,5 +362,10 @@ define('DRAFT_BRACKETS_INVOICE_EMAIL_TAG','send_draft_brackets_invoice_mail');
 define('CRM_SETUP_INVOICE_EMAIL_TAG','crm_setup_invoice');
 define('BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG','brackets_credit_note_invoice');
 
+//miss call rating sms
+define('MISSED_CALL_RATING_SMS','missed_call_rating_sms');
+define('GOOD_MISSED_CALL_RATING_NUMBER','01139588220');
+define('POOR_MISSED_CALL_RATING_NUMBER','01139588224');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

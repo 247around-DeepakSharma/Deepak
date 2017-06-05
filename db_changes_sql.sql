@@ -2330,3 +2330,28 @@ ALTER TABLE `booking_details` ADD `dealer_id` INT(11) NULL DEFAULT NULL AFTER `a
 -- sachin 5 jun 2017
 
 ALTER TABLE  `pincode_mapping_s3_upload_details` ADD  `agent_id`  int(11) DEFAULT NULL AFTER  `file_name` ;
+
+CREATE TABLE `rating_passthru_misscall_log` (
+  `s.no` int(11) NOT NULL,
+  `callSid` varchar(255) DEFAULT NULL,
+  `from_number` varchar(255) DEFAULT NULL,
+  `To` varchar(255) DEFAULT NULL,
+  `Direction` varchar(255) DEFAULT NULL,
+  `DialCallDuration` varchar(255) DEFAULT NULL,
+  `StartTime` varchar(255) DEFAULT NULL,
+  `EndTime` varchar(255) DEFAULT NULL,
+  `CallType` varchar(255) DEFAULT NULL,
+  `DialWhomNumber` varchar(255) DEFAULT NULL,
+  `digits` varchar(255) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `rating_passthru_misscall_log`
+  ADD PRIMARY KEY (`s.no`),
+  ADD KEY `from_number` (`from_number`(10)),
+  ADD KEY `To` (`To`(11));
+
+ALTER TABLE `rating_passthru_misscall_log`
+  MODIFY `s.no` int(11) NOT NULL AUTO_INCREMENT;
+
