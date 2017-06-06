@@ -227,7 +227,7 @@ class Accounting extends CI_Controller {
 
             //getting invoice id for each challan id from the submitted form
             foreach ($challan_id as $challan_id_key => $challan_id_value) {
-                $invoice_id_array = explode(',', $invoice_id[$challan_id_key]);
+                $invoice_id_array = explode(PHP_EOL, $invoice_id[$challan_id_key]);
 
                 //prepare invoice id data to insert into table if invoice id exist in the vendor_partner_invoices table
                 $invoice_data = $this->prepare_invoice_data_to_mapped_challan_id($challan_id_value, $invoice_id_array, $existing_invoice_id_arr);
@@ -384,7 +384,7 @@ class Accounting extends CI_Controller {
             
             //getting invoice id corresponding to challan id
             foreach ($challan_id as $challan_id_key => $challan_id_value) {
-                $invoice_id_array = explode(',', $invoice_id[$challan_id_key]);
+                $invoice_id_array = explode(PHP_EOL, $invoice_id[$challan_id_key]);
                 
                 //update invoice id with corresponding challan id
                 foreach ($invoice_id_array as $value) {
@@ -446,6 +446,22 @@ class Accounting extends CI_Controller {
             echo $this->load->view('employee/challanid_details_data_table', $data);
         } else {
             echo "<div class='text-danger text-center'> <b>No Data Found <b></div>";
+        }
+    }
+    
+    
+    /**
+     * @desc: This Function is used to show invoices mapped with challan id
+     * @param: $challan_id string
+     * @return : void()
+     */
+    function get_tagged_incoice_challan_data($challan_id){
+        $data['tagged_invoice_data'] = $this->accounting_model->get_tagged_invoice_challan_data($challan_id);
+        if(!empty($data['tagged_invoice_data'])){
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->load->view('employee/show_tagged_invoices_challan_data',$data);
+        }else{
+            "No Invoices tagged with this data";
         }
     }
 

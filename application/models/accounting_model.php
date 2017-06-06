@@ -261,7 +261,7 @@ class accounting_model extends CI_Model {
         }
     }
     
-        /**
+    /**
      * @desc: This Function is used search the challan id
      * @param: array $where
      * @return : array
@@ -270,6 +270,20 @@ class accounting_model extends CI_Model {
         $this->db->select('*');
         $this->db->where($where);
         $query = $this->db->get('challan_details');
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This Function is used get invoices mapped with challan id
+     * @param: $challan_id string
+     * @return : void()
+     */
+    function get_tagged_invoice_challan_data($challan_id){
+        $this->db->select('invoice_id,challan_tender_date');
+        $this->db->from('challan_details');
+        $this->db->join('invoice_challan_id_mapping','challan_details.id=invoice_challan_id_mapping.challan_id');
+        $this->db->where('invoice_challan_id_mapping.challan_id',$challan_id);
+        $query = $this->db->get();
         return $query->result_array();
     }
 

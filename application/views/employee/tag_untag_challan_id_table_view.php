@@ -20,13 +20,16 @@
                         <th> Payment Date</th>
                         <th> Amount</th>
                         <th>Edit</th>
+                        <th> View Tagged Invoices</th>
                         <th> Insert Invoice Id</th>
+                        
                     </tr>
                     <tr>
                         <th></th>
                         <th></th>
                         <th>From</th>
                         <th>To</th>
+                        <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -49,6 +52,7 @@
                                 <div class="btn btn-primary">Edit</div>
                             </a>
                         </td>
+                        <td><a target="_blank" href="<?php echo base_url(); ?>employee/accounting/get_tagged_incoice_challan_data/<?php echo $value['id']; ?>"><div class="btn btn-info">View</div></a></td>
                         <td>
                             <div class="input-group" style="width: 100%">
                                 <textarea class="form-control" id="invoiceId_<?php echo $sn; ?>" name="invoice_id[]" disabled></textarea>
@@ -59,6 +63,7 @@
         <?php $sn++;
     } ?>   
                 <tr> 
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
