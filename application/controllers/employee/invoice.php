@@ -1282,7 +1282,7 @@ class Invoice extends CI_Controller {
 
             $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
 
-            $tds_array = $this->check_tds_sc($invoices[0], $total_inst_charge + $total_st_charge);
+            $tds_array = $this->check_tds_sc($invoices[0], $total_inst_charge );
             $tds = $tds_array['tds'];
             $tds_tax_rate = $tds_array['tds_rate'];
             $tds_per_rate = $tds_array['tds_per_rate'];
@@ -2916,7 +2916,7 @@ class Invoice extends CI_Controller {
                     if ($data['type'] == 'FOC') {
 
                         if ($vendor_partner == "vendor") {
-                            $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
+                            $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge']);
                         } else {
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;

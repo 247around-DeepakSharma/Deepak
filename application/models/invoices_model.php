@@ -1085,11 +1085,11 @@ class invoices_model extends CI_Model {
             $meta['sub_part'] = $meta['total_part_cost'] + $meta['part_cost_vat'];
 
             if (empty($result[0]['pan_no'])) {
-                $meta['tds'] = $meta['sub_service_cost'] * .20;
+                $meta['tds'] = $meta['total_service_cost'] * .20;
                 $meta['tds_tax_rate'] = "20%";
             } else if (empty($result[0]['contract_file'])) {
 
-                $meta['tds'] = $meta['sub_service_cost'] * .05;
+                $meta['tds'] = $meta['total_service_cost'] * .05;
                 $meta['tds_tax_rate'] = "5%";
             } else {
                 switch ($result[0]['company_type']) {
@@ -1097,25 +1097,25 @@ class invoices_model extends CI_Model {
                     if (!empty($result[0]['pan_no'])) {
                         $_4th_char = substr($result[0]['pan_no'], 3, 1);
                         if (strcasecmp($_4th_char, "F") == 0) {
-                           $meta['tds'] = ($meta['sub_service_cost']) * .02;
+                           $meta['tds'] = ($meta['total_service_cost']) * .02;
                            $meta['tds_tax_rate'] =  "2%";
                         } else {
-                            $meta['tds'] =  ($meta['sub_service_cost']) * .01;
+                            $meta['tds'] =  ($meta['total_service_cost']) * .01;
                             $meta['tds_tax_rate'] = "1%";
                         }
                     } else {
-                        $meta['tds'] =  ($meta['sub_service_cost']) * .01;
+                        $meta['tds'] =  ($meta['total_service_cost']) * .01;
                         $meta['tds_tax_rate'] = "1%";
                     }
                     break;
                     case "Individual":
-                        $meta['tds'] = $meta['sub_service_cost'] * .01;
+                        $meta['tds'] = $meta['total_service_cost'] * .01;
                         $meta['tds_tax_rate'] = "1%";
                         break;
 
                     case "Partnership Firm":
                     case "Company (Pvt Ltd)":
-                        $meta['tds'] = $meta['sub_service_cost'] * .02;
+                        $meta['tds'] = $meta['total_service_cost'] * .02;
                         $meta['tds_tax_rate'] = "2%";
                         break;
                 }
