@@ -616,7 +616,7 @@ class Around_scheduler extends CI_Controller {
                 $smsTag = MISSED_CALL_RATING_SMS;
                 $smsData['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
                 $smsData['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
-                $this->prepare_sms_data_to_send($smsTag, $value['phn_number'], $smsData, "", "User", $value['user_id']);
+                $this->prepare_sms_data_to_send($smsTag, $value['phn_number'], $smsData, $value['booking_id'], "User", $value['user_id']);
             }
         }
     }
