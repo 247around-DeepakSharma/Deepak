@@ -329,7 +329,7 @@ class Penalty_model extends CI_Model {
         }
         if (PENALTY_ON_COMPLETED_BOOKING != FALSE && PENALTY_ON_CANCELLED_BOOKING != FALSE) {
             
-            $sql = " SELECT COUNT( $distinct p.booking_id) as penalty_times, p.booking_id,criteria_id,
+            $sql = " SELECT COUNT( $distinct p.booking_id) as penalty_times, p.booking_id,criteria_id,criteria,
 
                 CASE WHEN ((count(p.booking_id) *  p.penalty_amount) > cap_amount) THEN (cap_amount)
 
@@ -370,7 +370,7 @@ class Penalty_model extends CI_Model {
 
         if (PENALTY_ON_COMPLETED_BOOKING != FALSE && PENALTY_ON_CANCELLED_BOOKING != FALSE) {
             
-            $sql = " SELECT COUNT( $distinct p.booking_id) as penalty_times, p.booking_id,criteria_id,
+            $sql = " SELECT COUNT( $distinct p.booking_id) as penalty_times, p.booking_id,criteria_id,criteria,
 
                 CASE WHEN ((count(p.booking_id) *  p.penalty_amount) > cap_amount) THEN (cap_amount)
 
