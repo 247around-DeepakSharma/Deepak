@@ -1163,7 +1163,7 @@ class Booking extends CI_Controller {
             $data['rating_comments'] = $this->input->post('rating_comments');
             $phone_no = $this->input->post('mobile_no');
             $user_id = $this->input->post('user_id');
-            $remarks = RATING_NEW_STATE.':'.$data['rating_stars'].'. '.$data['rating_comments'];
+            $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
             
             $update = $this->booking_model->update_booking($booking_id, $data);
 
