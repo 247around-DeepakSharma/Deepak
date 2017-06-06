@@ -216,7 +216,7 @@ class Service_centers extends CI_Controller {
                  // variable $unit_id  is existing id in booking unit details table of given booking id 
                  $data = array();
                  $data['unit_details_id'] = $unit_id;
-                 $data['service_center_id'] = $this->session->userdata('service_center_id');
+                 
                  $data['service_charge'] = $value;
                  $data['additional_service_charge'] = $additional_charge[$unit_id];
                  $data['parts_cost'] = $parts_cost[$unit_id];
@@ -344,8 +344,7 @@ class Service_centers extends CI_Controller {
                     
                     break;
                 default :
-                    $data['service_center_id'] = $this->session->userdata('service_center_id');
-                   
+                    
                     $data['current_status'] = "InProcess";
                     $data['internal_status'] = "Cancelled";
                     $data['service_center_remarks'] = $cancellation_text;
@@ -885,7 +884,7 @@ class Service_centers extends CI_Controller {
 
             $data['date_of_request'] = $data['create_date'] = date('Y-m-d H:i:s');
             $data['remarks_by_sc'] = $this->input->post('reason_text');
-            $data['service_center_id'] = $this->session->userdata('service_center_id');
+            
             $data['booking_id'] = $booking_id;
             $data['status'] = SPARE_PARTS_REQUESTED;
             //$where = array('booking_id' => $booking_id, 'service_center_id' => $data['service_center_id']);
