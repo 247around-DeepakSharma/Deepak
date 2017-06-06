@@ -1647,7 +1647,10 @@ class Booking_model extends CI_Model {
         log_message('info', ": " . " insert new item in booking unit details returned id " . print_r($new_unit_id, TRUE));
 
         $data['id'] = $new_unit_id;
-        $data['ud_closed_date'] = date("Y-m-d H:i:s");
+        if(!isset($data['ud_closed_date'])){
+            $data['ud_closed_date'] = date("Y-m-d H:i:s");
+        }
+        
         log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
 
         $this->update_unit_details($data);
