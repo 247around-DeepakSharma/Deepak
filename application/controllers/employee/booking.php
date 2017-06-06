@@ -1742,12 +1742,15 @@ class Booking extends CI_Controller {
     }
 
     /**
-     * @desc: This is used to complete booking by admin. It gets booking id and status as parameter. if status is 0 then redirect pending booking other wise redirect completed booking page
+     * @desc: This is used to complete booking by admin. It gets booking id and status as parameter. 
+     * if status is 0 then redirect pending booking other wise redirect completed booking page
+     * status 1 means booking already completed and status 0 means booking current status is Pending
      * @param: String Array, string
      * @return :void
      */
     function process_complete_booking($booking_id, $status = "") {
         log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " Status: " . $status . " Done By " . $this->session->userdata('employee_id'));
+       
         // customer paid basic charge is comming in array
         // Array ( [100] =>  500 , [102] =>  300 )
         $customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -1794,16 +1797,21 @@ class Booking extends CI_Controller {
                         $data['booking_id'] = $booking_id;
                         $data['booking_status'] = "Completed";
                         $internal_status = "Completed";
-                        $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-//                        if (!empty($service_center_details)) {
-//                            if ($service_center_details[0]['closed_date'] === NULL) {
-//                                $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-//                            } else {
-//                                $data_service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
-//                            }
-//                        } else {
-//                            $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-//                        }
+                        if ($status == 1) {
+                            if (!empty($service_center_details)) {
+                                if ($service_center_details[0]['closed_date'] === NULL) {
+                                    $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+                                } else {
+                                    $data_service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
+                                }
+                            } else {
+                                $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+                            }
+                        } else {
+                            $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+                        }
+                        
+
                         log_message('info', __FUNCTION__ . " New unit selected, previous unit " . print_r($unit_id, true)
                                 . " Service charges id: "
                                 . print_r($service_charges_id, true)
@@ -1835,18 +1843,19 @@ class Booking extends CI_Controller {
                 if ($data['booking_status'] === _247AROUND_COMPLETED) {
                     $internal_status = _247AROUND_COMPLETED;
                 }
-                
-                $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-
-//                if (!empty($service_center_details)) {
-//                    if ($service_center_details[0]['closed_date'] === NULL) {
-//                        $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-//                    } else {
-//                        $service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
-//                    }
-//                } else {
-//                    $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-//                }
+                if ($status == 1) {
+                    if (!empty($service_center_details)) {
+                        if ($service_center_details[0]['closed_date'] === NULL) {
+                            $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+                        } else {
+                            $service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
+                        }
+                    } else {
+                        $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+                    }
+                } else {
+                    $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+                }
 
                 $data['id'] = $unit_id;
 
@@ -1909,17 +1918,22 @@ class Booking extends CI_Controller {
         }
 
         $booking['closing_remarks'] = $service_center['closing_remarks'];
-        $booking['closed_date'] = date('Y-m-d H:i:s');
+        
         $booking['update_date'] = date('Y-m-d H:i:s');
-//        if (!empty($service_center_details)) {
-//            if ($service_center_details[0]['closed_date'] === NULL) {
-//                $booking['closed_date'] = date('Y-m-d H:i:s');
-//            } else {
-//                $booking['closed_date'] = $service_center_details[0]['closed_date'];
-//            }
-//        } else {
-//            $booking['closed_date'] = date('Y-m-d H:i:s');
-//        }
+        if ($status == 1) {
+            if (!empty($service_center_details)) {
+                if ($service_center_details[0]['closed_date'] === NULL) {
+                    $booking['closed_date'] = date('Y-m-d H:i:s');
+                } else {
+                    $booking['closed_date'] = $service_center_details[0]['closed_date'];
+                }
+            } else {
+                $booking['closed_date'] = date('Y-m-d H:i:s');
+            }
+        } else {
+            $booking['closed_date'] = date('Y-m-d H:i:s');
+        }
+
         $booking['amount_paid'] = $total_amount_paid;
 
         //update booking_details table
@@ -1928,19 +1942,17 @@ class Booking extends CI_Controller {
         $this->booking_model->update_booking($booking_id, $booking);
         //Update Spare parts details table
         $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => $internal_status));
-
-        //Log this state change as well for this booking
-        //param:-- booking id, new state, old state, employee id, employee name
-        $this->notify->insert_state_change($booking_id, $internal_status, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-
-        $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-        $send['booking_id'] = $booking_id;
-        $send['state'] = $internal_status;
-        $this->asynchronous_lib->do_background_process($url, $send);
-
-        $this->partner_cb->partner_callback($booking_id);
-
+        
         if ($status == "0") {
+            //Log this state change as well for this booking
+            //param:-- booking id, new state, old state, employee id, employee name
+            $this->notify->insert_state_change($booking_id, $internal_status, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+            $send['booking_id'] = $booking_id;
+            $send['state'] = $internal_status;
+            $this->asynchronous_lib->do_background_process($url, $send);
+
+            $this->partner_cb->partner_callback($booking_id);
             redirect(base_url() . 'employee/booking/view');
         } else {
             redirect(base_url() . 'employee/booking/viewclosedbooking/' . $internal_status);
