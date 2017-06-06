@@ -1621,7 +1621,7 @@ class Reporting_utils extends CI_Model {
             
             //getting agent rating data
             $rating_query = "SELECT count(old_state) AS rating FROM booking_state_change 
-                              WHERE old_state='Rating' AND new_state LIKE '%Rating:%' 
+                              WHERE old_state='"._247AROUND_COMPLETED."' AND new_state = '".RATING_NEW_STATE."' 
                               AND partner_id = '"._247AROUND."' AND agent_id = '" . $value['id'] . "' $where1";
 
 
