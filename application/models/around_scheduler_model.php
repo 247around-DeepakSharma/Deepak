@@ -391,17 +391,17 @@ class Around_scheduler_model extends CI_Model {
         if($from !== "" && $to !== ""){
             $from = date('Y-m-d', strtotime('-1 day', strtotime($from)));
             $to = date('Y-m-d', strtotime('+1 day', strtotime($to)));
-            $where = "AND closed_date >= '$from' AND closed_date < '$to'";
+            $where = "AND closed_date > '$from' AND closed_date < '$to'";
         }
-        $sql = "SELECT DISTINCT booking_primary_contact_no as phn_number,user_id
+        $sql = "SELECT DISTINCT booking_primary_contact_no as phn_number,user_id,booking_id
                 FROM booking_details 
                 WHERE booking_primary_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
-                AND rating_stars IS NULL $where
+                AND rating_stars IS NULL AND current_status= '"._247AROUND_COMPLETED."' $where
                 UNION
-                SELECT DISTINCT booking_alternate_contact_no as phn_number,user_id
+                SELECT DISTINCT booking_alternate_contact_no as phn_number,user_id,booking_id
                 FROM booking_details 
                 WHERE booking_alternate_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
-                AND rating_stars IS NULL $where";
+                AND rating_stars IS NULL AND current_status= '"._247AROUND_COMPLETED."' $where";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
