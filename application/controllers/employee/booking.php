@@ -1768,6 +1768,10 @@ class Booking extends CI_Controller {
         $pincode = $this->input->post('booking_pincode');
         $state = $this->vendor_model->get_state_from_pincode($pincode);
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
+        $b_unit_details = array();
+        if($status == 1){
+            $b_unit_details = $this->booking_model->get_unit_details(array('booking_id'=>$booking_id));
+        }
         $k = 0;
         foreach ($customer_basic_charge as $unit_id => $value) {
             // variable $unit_id  is existing id in booking unit details table of given booking id
@@ -1798,15 +1802,12 @@ class Booking extends CI_Controller {
                         $data['booking_status'] = "Completed";
                         $internal_status = "Completed";
                         if ($status == 1) {
-                            if (!empty($service_center_details)) {
-                                if ($service_center_details[0]['closed_date'] === NULL) {
-                                    $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-                                } else {
-                                    $data_service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
-                                }
+                            if(!empty($b_unit_details)){
+                                $data_service_center['closed_date'] = $data['ud_closed_date'] = $b_unit_details[0]['ud_closed_date'];
                             } else {
                                 $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
                             }
+                           
                         } else {
                             $data_service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
                         }
@@ -1844,12 +1845,8 @@ class Booking extends CI_Controller {
                     $internal_status = _247AROUND_COMPLETED;
                 }
                 if ($status == 1) {
-                    if (!empty($service_center_details)) {
-                        if ($service_center_details[0]['closed_date'] === NULL) {
-                            $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-                        } else {
-                            $service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
-                        }
+                    if(!empty($b_unit_details)){
+                         $service_center['closed_date'] = $data['ud_closed_date'] = $b_unit_details[0]['ud_closed_date'];
                     } else {
                         $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
                     }
@@ -1921,12 +1918,8 @@ class Booking extends CI_Controller {
         
         $booking['update_date'] = date('Y-m-d H:i:s');
         if ($status == 1) {
-            if (!empty($service_center_details)) {
-                if ($service_center_details[0]['closed_date'] === NULL) {
-                    $booking['closed_date'] = date('Y-m-d H:i:s');
-                } else {
-                    $booking['closed_date'] = $service_center_details[0]['closed_date'];
-                }
+            if(!empty($b_unit_details)){
+               $booking['closed_date'] = $b_unit_details[0]['ud_closed_date'];
             } else {
                 $booking['closed_date'] = date('Y-m-d H:i:s');
             }
@@ -1943,7 +1936,7 @@ class Booking extends CI_Controller {
         //Update Spare parts details table
         $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => $internal_status));
         
-        if ($status == "0") {
+        if ($status == 0) {
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
             $this->notify->insert_state_change($booking_id, $internal_status, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
