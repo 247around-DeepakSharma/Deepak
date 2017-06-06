@@ -122,7 +122,7 @@ $route['partner/upcountry_charges_approval/(:any)/(:any)'] = 'employee/partner/u
 $route['partner/reject_upcountry_charges/(:any)/(:any)'] = 'employee/partner/reject_upcountry_charges/$1/$2';
 $route['partner/download_partner_summary/(:any)'] = 'BookingSummary/send_leads_summary_mail_to_partners/$1';
 
-
+$route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
 //$route['api/(:any)'] = 'partner/$2';
 
 /* End of file routes.php */

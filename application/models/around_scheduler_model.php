@@ -378,5 +378,32 @@ class Around_scheduler_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
+    /**
+     * @desc: This function is used get phone number for those user which booking 
+     * is completed but rating is not taken yet 
+     * @param: $from string
+     * @param $to string
+     * @retun:array();
+     */
+    function get_data_for_bookings_without_rating($from,$to){
+        $where = "";
+        if($from !== "" && $to !== ""){
+            $from = date('Y-m-d', strtotime('-1 day', strtotime($from)));
+            $to = date('Y-m-d', strtotime('+1 day', strtotime($to)));
+            $where = "AND closed_date >= '$from' AND closed_date < '$to'";
+        }
+        $sql = "SELECT DISTINCT booking_primary_contact_no as phn_number,user_id
+                FROM booking_details 
+                WHERE booking_primary_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
+                AND rating_stars IS NULL $where
+                UNION
+                SELECT DISTINCT booking_alternate_contact_no as phn_number,user_id
+                FROM booking_details 
+                WHERE booking_alternate_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
+                AND rating_stars IS NULL $where";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 
 }
