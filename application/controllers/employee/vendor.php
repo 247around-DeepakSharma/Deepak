@@ -3703,8 +3703,8 @@ class vendor extends CI_Controller {
      * 
      */
     function process_get_vendor_escalation_form() {
-        log_message('info'.__FUNCTION__);
-        $escalation['booking_id'] = $this->input->post('booking_id');
+        log_message('info',__FUNCTION__);
+        $escalation['booking_id'] = trim($this->input->post('booking_id'));
         $status = $this->input->post('status');
         if($this->input->post('penalty_active') == 0){
             $penalty_active=$this->input->post('penalty_active');

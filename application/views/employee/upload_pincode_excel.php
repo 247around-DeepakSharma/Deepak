@@ -58,7 +58,6 @@
                                     <div class="col-md-12 col-md-offset-2">
                                         <center>
                                             <input type= "submit"  class="btn btn-danger btn-md" value ="Upload" >
-                                           <!--  <input type="hidden" value="https://s3.amazonaws.com/bookings-collateral/vendor-pincodes/<?php echo $pincode_mapping_file[0]['file_name']; ?>" id="fileUrl"></input> -->
 
                                             <a href="<?php if(!empty($pincode_mapping_file_list)){echo base_url()?>employee/vendor/download_pincode_latest_file/<?php echo $pincode_mapping_file_list[0]['file_name'];}else{echo "javascript:void()"; } ?>" class="btn btn-primary btn-md">Download latest File</a> 
                                             <a href="<?php echo base_url()?>employee/vendor/download_unique_pincode_excel" class="btn btn-primary btn-md">Get Unique Pincode</a> 
