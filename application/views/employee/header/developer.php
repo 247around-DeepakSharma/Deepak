@@ -165,11 +165,11 @@
                         </li>
                         <li class="divider"></li>
                         <li >
-                            <a href="<?php echo base_url() ?>employee/service_centre_charges/show_partner_service_price"><i class="fa fa-fw fa-desktop "></i> <strong>Partner Price List</strong></a>
+                            <a href="<?php echo base_url() ?>/employee/upload_booking_file/upload_booking_files"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Jeeves Booking</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li >
-                            <a href="<?php echo base_url() ?>/employee/upload_booking_file/upload_booking_files"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Jeeves Booking</strong></a>
+                            <a href="<?php echo base_url() ?>employee/service_centre_charges/show_partner_service_price"><i class="fa fa-fw fa-desktop "></i> <strong>Partner Price List</strong></a>
                         </li>
 
                     </ul>
@@ -330,6 +330,10 @@
                        <li>
                             <a href="<?php echo base_url() ?>employee/invoiceDashboard/service_center_invoice"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Check</strong></a>
                         </li>
+                         <li class="divider"></li>
+                         <li>
+                            <a href="<?php echo base_url() ?>employee/invoiceDashboard/get_invoice_summary_for_sf"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Summary</strong></a>
+                        </li>
                             </ul>
                         </li>
                             <li class="divider"></li>
@@ -448,7 +452,7 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/user/show_employee_list"><i class="fa fa-fw fa-desktop "></i> <strong>Show Employee List</strong></a>
+                            <a href="<?php echo base_url() ?>employee/user/show_employee_list"><i class="fa fa-fw fa-desktop "></i> <strong>Employee List</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>

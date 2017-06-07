@@ -101,9 +101,10 @@ class accounting_model extends CI_Model {
                     V.service_tax AS 'ServiceTax', parts_cost as ' Parts',vat as 'VAT' ,`upcountry_price` as 'ConveyanceCharges',
                     courier_charges as 'Courier', total_amount_collected AS 'TotalAmountCollected', IFNULL(`rate`,0) as 'VAT Rate'
                     FROM  vendor_partner_invoices AS V
-                    JOIN partners AS P on V.vendor_partner_id=P.id
+                    JOIN partners AS P on V.vendor_partner_id=P.id AND V.vendor_partner = 'partner'
                     JOIN tax_rates as tr  on tax_code='VAT' AND product_type='wall_bracket' AND P.state=tr.state
                     WHERE V.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)
+                    AND V.type_code = 'A'
                     AND V.`invoice_date`>='$from_date'  AND V.`invoice_date` <'$to_date'";
         } else if ($partner_vendor == 'vendor') {
             $sql = "Select V.invoice_id AS 'InvoiceNo',SC.company_name as 'CompanyName',state as 'State',
@@ -114,7 +115,7 @@ class accounting_model extends CI_Model {
                     JOIN service_centres AS SC on V.vendor_partner_id=SC.id
                     WHERE V.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)
                     AND V.vendor_partner =  'vendor' AND V.invoice_date >= '$from_date' AND V.invoice_date <= '$to_date'
-                    AND type_code = 'A' AND type = 'Cash'";
+                    AND type_code = 'A' AND type !=  'Stand' ";
         } else if ($partner_vendor == 'stand') {
             $sql = "SELECT `invoice_id` as 'InvoiceNo', name as 'CompanyName', sc.state as State, IFNULL(tin_no,'') as 'TINNo', 
                     invoice_date as 'InvoiceDate', vpi.`from_date` as 'FromDate', vpi.`to_date` as 'ToDate', 
@@ -146,8 +147,8 @@ class accounting_model extends CI_Model {
                     `credit_penalty_amount` AS 'MiscCredit', (abs(`amount_collected_paid`) + tds_amount ) as 'TotalAmount',
                     IFNULL(`rate`,0) as 'VATRate'
                     FROM `vendor_partner_invoices` as vpi, partners as p, tax_rates as tr
-                    WHERE `type_code` = 'B' AND vpi.`type` = 'FOC' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
-                    AND `vendor_partner` = 'vendor' AND `vendor_partner_id`=p.id AND tax_code='VAT' AND product_type='wall_bracket' 
+                    WHERE `type_code` = 'B' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
+                    AND `vendor_partner` = 'partner' AND `vendor_partner_id`=p.id AND tax_code='VAT' AND product_type='wall_bracket' 
                     AND p.state=tr.state AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
         } else if ($partner_vendor == 'vendor') {
             $sql = "SELECT `invoice_id` as 'InvoiceNo', name as 'CompanyName', sc.state as State, 
@@ -158,7 +159,7 @@ class accounting_model extends CI_Model {
                     `credit_penalty_amount` AS 'MiscCredit', (abs(`amount_collected_paid`) + tds_amount ) as 'TotalAmount',
                     IFNULL(`rate`,0) as 'VATRate'
                     FROM `vendor_partner_invoices` as vpi, service_centres as sc, tax_rates as tr
-                    WHERE `type_code` = 'B' AND `type` = 'FOC' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
+                    WHERE `type_code` = 'B' AND vpi.type !='Stand' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
                     AND `vendor_partner` = 'vendor' AND `vendor_partner_id`=sc.id AND tax_code='VAT' AND product_type='wall_bracket' 
                     AND sc.state=tr.state AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
         } else if ($partner_vendor == 'stand') {
