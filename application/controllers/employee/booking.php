@@ -2380,14 +2380,14 @@ class Booking extends CI_Controller {
     function process_update_not_pay_to_sf_booking() {
         log_message('info', __FUNCTION__);
 
-        $booking_id = trim($this->input->post('booking_id'));
+        $booking_id = ($this->input->post('booking_id'));
         if (!empty($booking_id)) {
             foreach ($booking_id as $value) {
                 if (!empty($value)) {
-                    $is_wall_mount_exist = $this->booking_model->get_unit_details(array('booking_id' => $value, 'price_tags' => 'Installation & Demo'));
+                    $is_wall_mount_exist = $this->booking_model->get_unit_details(array('booking_id' => trim($value), 'price_tags' => 'Installation & Demo'));
                     if (!empty($is_wall_mount_exist)) {
-                        $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => $value, 'price_tags' => 'Installation & Demo'), array('pay_to_sf' => '0'));
-                        log_message('info', __FUNCTION__ . ' Pay To SF update in booking_unit_details for Booking ID = ' . $value);
+                        $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => trim($value), 'price_tags' => 'Installation & Demo'), array('pay_to_sf' => '0'));
+                        log_message('info', __FUNCTION__ . ' Pay To SF update in booking_unit_details for Booking ID = ' . trim($value));
                     }
                 }
             }

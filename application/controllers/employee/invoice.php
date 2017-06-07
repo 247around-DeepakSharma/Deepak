@@ -3647,7 +3647,7 @@ class Invoice extends CI_Controller {
 
                     if($pdf_response['response'] === 'Success'){
                         $output_file_main = $pdf_response['output_pdf_file'];
-                        log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
+                        log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_file_main);
                     }else if($pdf_response['response'] === 'Error'){       
                         log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
                     }
