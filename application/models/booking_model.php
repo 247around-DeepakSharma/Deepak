@@ -1969,5 +1969,46 @@ class Booking_model extends CI_Model {
         $query = $this->db->get("ecommerce_product_transactions");
         return $query->result_array();
     }
+    
+    
+     /**
+     * @desc: This function is used to insert rating if only one booking is 
+     * exist for the given missed call number and rating column is null and current status is completed
+     * @param $missed_call_number string 
+     * @retun:void()
+     */
+    function get_missed_call_rating_booking_count($missed_call_number){
+        $this->db->select('booking_id,count(booking_id) as count');
+        $this->db->where('current_status',_247AROUND_COMPLETED);
+        $this->db->where('rating_stars is NULL', NULL, TRUE);
+        $this->db->where('booking_primary_contact_no',$missed_call_number);
+        $this->db->or_where('booking_alternate_contact_no',$missed_call_number);
+        $query = $this->db->get('booking_details');
+        return $query->result_array();
+    }
+    
+    
+    /**
+     *  @desc : This function is used to show those numbers who gave missed call after sending rating sms
+     *  @param : void
+     *  @return : array()
+     */
+    function get_missed_call_rating_not_taken_booking_data(){
+        $sql = "SELECT DISTINCT u.name,rp.from_number,
+                CASE rp.To
+                WHEN '".GOOD_MISSED_CALL_RATING_NUMBER."' THEN 'good_rating'
+                WHEN '".POOR_MISSED_CALL_RATING_NUMBER."' THEN 'bad_rating'
+                ELSE NULL
+                END as 'rating' 
+                FROM booking_details as bd 
+                JOIN rating_passthru_misscall_log as rp ON bd.booking_primary_contact_no = rp.from_number 
+                JOIN users as u ON bd.user_id = u.user_id 
+                WHERE bd.current_status = 'completed' 
+                AND bd.rating_stars IS null 
+                AND bd.closed_date < rp.create_date";
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 
 }

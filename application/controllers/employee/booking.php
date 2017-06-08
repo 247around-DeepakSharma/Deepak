@@ -2527,5 +2527,17 @@ class Booking extends CI_Controller {
         $this->notify->send_sms_msg91($sms);
         log_message('info', __METHOD__ . ' SMS Sent for rating' . $phone_no);
     }
+    
+    
+    /**
+     *  @desc : This function is used to show those numbers who gave missed call after sending rating sms
+     *  @param : void
+     *  @return : void
+     */
+    public function show_missed_call_rating_data(){
+        $data['missed_call_rating_data'] = $this->booking_model->get_missed_call_rating_not_taken_booking_data();
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/show_missed_call_rating_data', $data);
+    }
 
 }

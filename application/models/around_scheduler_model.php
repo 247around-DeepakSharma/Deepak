@@ -380,7 +380,7 @@ class Around_scheduler_model extends CI_Model {
     }
     
     /**
-     * @desc: This function is used get phone number for those user which booking 
+     * @desc: This function is used get phone number for those user whom booking 
      * is completed but rating is not taken yet 
      * @param: $from string
      * @param $to string
@@ -402,6 +402,26 @@ class Around_scheduler_model extends CI_Model {
                 FROM booking_details 
                 WHERE booking_alternate_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
                 AND rating_stars IS NULL AND current_status= '"._247AROUND_COMPLETED."' $where";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    
+    /**
+     * @desc: This function is used to send SMS to those users who did bot give missed call
+     * after sending completed rating sms and rating is also null
+     * @param:void
+     * @retun:array()
+     */
+    function get_missed_call_data_without_rating(){
+        $date = date('Y-m-d', strtotime('-3 day'));
+        $sql = "SELECT bd.booking_primary_contact_no as phn_number,bd.booking_id,bd.user_id
+                FROM booking_details as bd 
+                WHERE bd.current_status = 'completed' 
+                AND bd.rating_stars IS Null 
+                AND bd.closed_date LIKE '%$date%' 
+                AND bd.booking_primary_contact_no NOT IN (SELECT rp.from_number FROM rating_passthru_misscall_log as rp
+                WHERE rp.create_date >= bd.closed_date)";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
