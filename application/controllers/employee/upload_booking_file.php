@@ -823,7 +823,7 @@ class Upload_booking_file extends CI_Controller {
                     $data['services'] = $ser_validate['services'];
                     $data['partner_id'] = $partner_id;
 
-                    $user_name = $this->is_user_name_empty($rowData['Customer_Name'], $rowData['customer_email'], $rowData['Customer_Contact_No']);
+                    $user_name = $this->is_user_name_empty(trim($rowData['Customer_Name']), $rowData['customer_email'], $rowData['Customer_Contact_No']);
                     $data['name'] = $user_name;
                     $data['booking_primary_contact_no'] = $rowData['Customer_Contact_No'];
                     $data['email_id'] = $rowData['customer_email'];
