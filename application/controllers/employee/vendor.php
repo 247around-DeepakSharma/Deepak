@@ -3872,6 +3872,7 @@ class vendor extends CI_Controller {
         $penalty_remove_reason = $this->input->post('penalty_remove_reason');
         $penalty_remove_agent_id = $this->session->userdata('id');
         $penalty_remove_date = date("Y-m-d H:i:s");
+        $flag = FALSE;
         foreach($id as $key=>$value){
             
             $data = array('active' => 0,
@@ -3913,14 +3914,19 @@ class vendor extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Error in getting Email Template for remove_penalty_on_booking');
             }
 
-            //Session success
-            $this->session->set_userdata('success', 'Penalty removed - Booking id : ' . $booking_id[$key]);
+            $flag = TRUE;
             }   else {
             //Logging
                 log_message('info', __FUNCTION__ . ' Penalty already Removed for Booking ID :' . $booking_id[$key]);
-                $this->session->set_userdata('error', 'Penalty already Removed for Booking ID : ' . $booking_id[$key]);
+                $flag = TRUE;
             }
         }
+     if($flag){
+         //Session success
+        $this->session->set_userdata('success', 'Penalty removed Successfully');
+     }else{
+         $this->session->set_userdata('success', 'Error In Remopving Penalty!!! Please Try Again');
+     }
     redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
     }
     
