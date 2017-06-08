@@ -134,6 +134,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/vendor/get_reassign_partner_form"><i class="fa fa-fw fa-desktop"></i> <strong>Reassign Partner</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/show_missed_call_rating_data"><i class="fa fa-fw fa-desktop"></i> <strong>Missed Call Rating</strong></a>
+                        </li>
        
                     </ul>
                     <!-- /.dropdown-tasks -->

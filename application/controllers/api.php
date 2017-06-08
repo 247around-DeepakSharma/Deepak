@@ -4167,7 +4167,7 @@ class Api extends CI_Controller {
 
         //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
         $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
-        $callDetails['from_number'] = (isset($_GET['From'])) ? $_GET['From'] : null;
+        $callDetails['from_number'] = (isset($_GET['From'])) ? ltrim($_GET['From'],'0') : null;
         $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
         $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
         $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
@@ -4178,16 +4178,63 @@ class Api extends CI_Controller {
         $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
         $callDetails['create_date'] = null;
 
-        //var_dump($apiDetails);
+        
         //insert in database
         $insert_id = $this->apis->insertRatingPassthruCall($callDetails);
         if($insert_id){
             log_message('info', __METHOD__.'Call Details Added');
+            //insert rating if missed call on good number
+            if($callDetails['To'] === GOOD_MISSED_CALL_RATING_NUMBER){
+                $this->do_process_for_missed_call_rating($callDetails['from_number']);
+            }        
+            
         }else{
             log_message('info', __METHOD__.'Error In Adding Call Details');
         }
         
+        
+        
         $this->output->set_header("HTTP/1.1 200 OK");
     }
     
+    /**
+     * @desc: This function is used to insert rating if only one booking is 
+     * exist for the given missed call number and rating column is null and current status is completed
+     * @param $from_number string 
+     * @retun:void()
+     */
+     private function do_process_for_missed_call_rating($from_number) {
+
+        $check_booking_count = $this->booking_model->get_missed_call_rating_booking_count($from_number);
+        //insert rating if booking is not empty and have only 1 booking
+        //otherwise log this and show on view
+        if ($check_booking_count[0]['count'] === '1') {
+            //insert rating in booking_details
+            $insert_id = $this->booking_model->update_booking($check_booking_count[0]['booking_id'], array('rating_stars' => MISSED_CALL_DEFAULT_RATING));
+            
+            if (!empty($insert_id)) {
+                log_message('info', __FUNCTION__ . 'booking_details updated successfully for missed call rating. booking_id: ' . $check_booking_count[0]['booking_id']);
+                $remarks = 'Rating:' . MISSED_CALL_DEFAULT_RATING . '.good service.';
+                $data = array('booking_id' => $check_booking_count[0]['booking_id'],
+                    'old_state' => _247AROUND_COMPLETED,
+                    'new_state' => RATING_NEW_STATE,
+                    'reamrks' => $remarks,
+                    'agent_id' => _247AROUND_DEFAULT_AGENT,
+                    'partner_id' => _247AROUND);
+                
+                $booking_state_change_insert_id = $this->booking_model->insert_booking_state_change($data);
+                
+                if ($booking_state_change_insert_id) {
+                    log_message('info', __FUNCTION__ . 'Inserted successfully in state change for missed call rating. booking_id: ' . $check_booking_count[0]['booking_id']);
+                } else {
+                    log_message('info', __FUNCTION__ . 'Error In inserting rating data for missed call rating. booking_id: ' . $check_booking_count[0]['booking_id']);
+                }
+            } else {
+                log_message('info', __FUNCTION__ . 'Error In updating rating data for missed call rating. booking_id: ' . $check_booking_count[0]['booking_id']);
+            }
+        } else {
+            log_message('info', __METHOD__ . 'customer gave missed call on good number and more than one bookings found for this number:' . $from_number);
+        }
+    }
+
 }

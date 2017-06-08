@@ -621,4 +621,24 @@ class Around_scheduler extends CI_Controller {
         }
     }
     
+    /**
+     * @desc: This function is used to send SMS to those users who did bot give missed call
+     * after sending completed rating sms and rating is also null
+     * @param:void
+     * @retun:void()
+     */
+    public function send_missed_call_rating_sms_again(){
+        $data = $this->around_scheduler_model->get_missed_call_data_without_rating();
+        if(!empty($data)){
+            foreach ($data as $value) {
+
+                //send sms according to booking status
+                $smsTag = MISSED_CALL_RATING_SMS;
+                $smsData['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
+                $smsData['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
+                $this->prepare_sms_data_to_send($smsTag, $value['phn_number'], $smsData, $value['booking_id'], "User", $value['user_id']);
+            }
+        }
+    }
+    
 }
