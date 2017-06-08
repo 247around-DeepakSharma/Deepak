@@ -175,7 +175,7 @@
                         <span class="icon-bar" style="border: 1px solid #fff;"></span>
                         <span class="icon-bar" style="border: 1px solid #fff;"></span>
                     </button>
-                    <a class="navbar-brand" href="<?php echo base_url() ?>partner/home-inactive">
+                    <a class="navbar-brand" href="<?php echo base_url() ?>partner/invoice">
                         <img alt="Brand" src="<?php echo base_url() ?>images/logo.jpg">
                     </a>
                 </div>
@@ -184,7 +184,7 @@
                     <ul class="nav navbar-nav">
 
                         <li>
-                            <a href="<?php echo base_url();   ?>partner/home-inactive">Invoice</a>
+                            <a href="<?php echo base_url();   ?>partner/invoice">Invoice</a>
                         </li>
 
                         <li>

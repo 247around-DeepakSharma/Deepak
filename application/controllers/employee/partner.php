@@ -65,7 +65,7 @@ class Partner extends CI_Controller {
                 //get partner details now
                 $partner_details = $this->partner_model->getpartner($partner['partner_id']);
                 if(!empty($partner_details)){
-                    $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
+                    $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id'],"active");
                     log_message('info', 'Partner loggedIn  partner id' .
                             $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
@@ -95,7 +95,7 @@ class Partner extends CI_Controller {
             }else if($partner['active'] === '0'){
                 $partner_details = $this->partner_model->get_all_partner($partner['partner_id']);
                 if(!empty($partner_details)){
-                    $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
+                    $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id'],"inactive");
                     log_message('info', 'Partner loggedIn  partner id' .
                             $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
@@ -116,7 +116,7 @@ class Partner extends CI_Controller {
                         log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
                     }
 
-                    redirect(base_url() . "partner/home-inactive");
+                    redirect(base_url() . "partner/invoice");
                 }else{
                     $userSession = array('error' => 'Sorry, your Login has been De-Activated');
                     $this->session->set_userdata($userSession);
@@ -272,7 +272,7 @@ class Partner extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setSession($partner_id, $partner_name, $agent_id) {
+    function setSession($partner_id, $partner_name, $agent_id,$status) {
     $userSession = array(
         'session_id' => md5(uniqid(mt_rand(), true)),
         'partner_id' => $partner_id,
@@ -280,7 +280,8 @@ class Partner extends CI_Controller {
         'agent_id' => $agent_id,
         'sess_expiration' => 600000,
         'loggedIn' => TRUE,
-        'userType' => 'partner'
+        'userType' => 'partner',
+        'status' => $status
     );
 
         $this->session->set_userdata($userSession);
@@ -292,7 +293,7 @@ class Partner extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') &&  !empty($this->session->userdata('partner_id'))) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') &&  !empty($this->session->userdata('partner_id')) && ($this->session->userdata('status') == 'active')) {
             return TRUE;
         } else {
             $this->session->sess_destroy();
@@ -3130,7 +3131,7 @@ class Partner extends CI_Controller {
       * 
       */
      function inactive_partner_default_page(){
-        $this->checkUserSession();
+         
         $partner_id = $this->session->userdata('partner_id');
         $data['vendor_partner'] = "partner";
         $data['vendor_partner_id'] = $partner_id;
