@@ -158,7 +158,7 @@ class bookings_excel extends CI_Controller {
 
 	    if (empty($output)) {
 		//User doesn't exist
-                $user_name = $this->is_user_name_empty($rowData[0]['CustomerName'],$rowData[0]['customer_email'],$rowData[0]['CustomerContactNo']);
+                $user_name = $this->is_user_name_empty(trim($rowData[0]['CustomerName']),$rowData[0]['customer_email'],$rowData[0]['CustomerContactNo']);
 		$user['name'] = $user_name;
 		$user['phone_number'] = $rowData[0]['CustomerContactNo'];
 		$user['user_email'] = $rowData[0]['customer_email'];
