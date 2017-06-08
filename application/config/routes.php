@@ -123,7 +123,7 @@ $route['partner/reject_upcountry_charges/(:any)/(:any)'] = 'employee/partner/rej
 $route['partner/download_partner_summary/(:any)'] = 'BookingSummary/send_leads_summary_mail_to_partners/$1';
 
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
-$route['partner/home-inactive'] = 'employee/partner/inactive_partner_default_page';
+$route['partner/invoice'] = 'employee/partner/inactive_partner_default_page';
 //$route['api/(:any)'] = 'partner/$2';
 
 /* End of file routes.php */
