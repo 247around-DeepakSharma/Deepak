@@ -61,35 +61,67 @@ class Partner extends CI_Controller {
         $data['password'] = md5($this->input->post('password'));
         $partner = $this->partner_model->partner_login($data);
         if ($partner) {
-            //get partner details now
-            $partner_details = $this->partner_model->getpartner($partner['partner_id']);
-            if(!empty($partner_details)){
-                $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
-                log_message('info', 'Partner loggedIn  partner id' .
-                        $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
+            if($partner['active'] === '1'){
+                //get partner details now
+                $partner_details = $this->partner_model->getpartner($partner['partner_id']);
+                if(!empty($partner_details)){
+                    $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
+                    log_message('info', 'Partner loggedIn  partner id' .
+                            $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
-                //Saving Login Details in Database
-                $login_data['browser'] = $this->agent->browser();
-                $login_data['agent_string'] = $this->agent->agent_string();
-                $login_data['ip'] = $this->session->all_userdata()['ip_address'];
-                $login_data['action'] = _247AROUND_LOGIN;
-                $login_data['entity_type'] = $this->session->all_userdata()['userType'];
-                $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
-                $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
+                    //Saving Login Details in Database
+                    $login_data['browser'] = $this->agent->browser();
+                    $login_data['agent_string'] = $this->agent->agent_string();
+                    $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+                    $login_data['action'] = _247AROUND_LOGIN;
+                    $login_data['entity_type'] = $this->session->all_userdata()['userType'];
+                    $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
+                    $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
 
-                $login_id = $this->employee_model->add_login_logout_details($login_data);
-                //Adding Log Details
-                if ($login_id) {
-                    log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['agent_id']);
-                } else {
-                    log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
+                    $login_id = $this->employee_model->add_login_logout_details($login_data);
+                    //Adding Log Details
+                    if ($login_id) {
+                        log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['agent_id']);
+                    } else {
+                        log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
+                    }
+
+                    redirect(base_url() . "partner/home");
+                }else{
+                    $userSession = array('error' => 'Sorry, your Login has been De-Activated');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "partner/login");
                 }
+            }else if($partner['active'] === '0'){
+                $partner_details = $this->partner_model->get_all_partner($partner['partner_id']);
+                if(!empty($partner_details)){
+                    $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
+                    log_message('info', 'Partner loggedIn  partner id' .
+                            $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
-                redirect(base_url() . "partner/home");
-            }else{
-                $userSession = array('error' => 'Sorry, your Login has been De-Activated');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "partner/login");
+                    //Saving Login Details in Database
+                    $login_data['browser'] = $this->agent->browser();
+                    $login_data['agent_string'] = $this->agent->agent_string();
+                    $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+                    $login_data['action'] = _247AROUND_LOGIN;
+                    $login_data['entity_type'] = $this->session->all_userdata()['userType'];
+                    $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
+                    $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
+
+                    $login_id = $this->employee_model->add_login_logout_details($login_data);
+                    //Adding Log Details
+                    if ($login_id) {
+                        log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['agent_id']);
+                    } else {
+                        log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
+                    }
+
+                    redirect(base_url() . "partner/home-inactive");
+                }else{
+                    $userSession = array('error' => 'Sorry, your Login has been De-Activated');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "partner/login");
+                }
             }
         } else {
 
@@ -3211,5 +3243,25 @@ class Partner extends CI_Controller {
         $response .= "</ul>";
         echo $response;
     }
+    
+    /**
+      * @Desc: This function is used to show Partner Login Page for inactive partner
+      * @params: void
+      * @return: view
+      * 
+      */
+     function inactive_partner_default_page(){
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $data['vendor_partner'] = "partner";
+        $data['vendor_partner_id'] = $partner_id;
+        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
+
+        $data2['partner_vendor'] = "partner";
+        $data2['partner_vendor_id'] = $partner_id;
+        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
+        $this->load->view('partner/inactive_partner_header');
+        $this->load->view('partner/invoice_summary', $invoice);
+     }
    
 }

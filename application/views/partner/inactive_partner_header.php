@@ -175,62 +175,16 @@
                         <span class="icon-bar" style="border: 1px solid #fff;"></span>
                         <span class="icon-bar" style="border: 1px solid #fff;"></span>
                     </button>
-                    <a class="navbar-brand" href="<?php echo base_url() ?>partner/home">
+                    <a class="navbar-brand" href="<?php echo base_url() ?>partner/home-inactive">
                         <img alt="Brand" src="<?php echo base_url() ?>images/logo.jpg">
                     </a>
                 </div>
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">
+
                         <li>
-                            <a href="<?php echo base_url(); ?>partner/get_user_form">Advanced Search</a>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Bookings <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                         <!-- <li><a href="<?php echo base_url(); ?>partner/pending_queries">Pending Queries</a></li>
-                                <li role="separator" class="divider"></li> -->
-                                <li><a href="<?php echo base_url(); ?>partner/home">Pending Bookings</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url(); ?>partner/closed_booking/Completed">Completed Bookings</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url(); ?>partner/closed_booking/Cancelled">Cancelled Bookings</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url(); ?>partner/download_partner_summary/<?php echo $this->session->userdata('partner_id'); ?>">Download Summary Report</a></li>
-                            </ul>
-                        </li>
-
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Spare Bookings <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-
-
-                                <li><a href="<?php echo base_url(); ?>partner/get_spare_parts_booking">Pending Spares On <?php echo $partner_name ?></a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url(); ?>partner/get_shipped_parts_list">Shipped Spares by <?php echo $partner_name ?></a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url(); ?>partner/get_waiting_defective_parts">Shipped Spares by SF</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url(); ?>partner/get_approved_defective_parts_booking">Received Spares by <?php echo $partner_name ?></a></li>
-                            </ul>
-                        </li>
-
-
-                        <!--                        <li>
-                                             <a href="<?php //echo base_url();  ?>partner/invoices_details">Invoice</a>
-                                                </li>-->
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Add Booking</a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li>
-                                    <form method="POST" class="navbar-form navbar-left" action ="<?php echo base_url(); ?>partner/search" role="add booking">
-                                        <div class="form-group">
-                                            <input type="text" id="phone_number" class="form-control" name="searched_text" placeholder="Phone Number">
-                                        </div>
-                                        <input type="submit" value="Add Booking" onclick="return submit_button()" class="btn btn-default btn-block submitBtn" />
-                                    </form>
-                                </li>
-                            </ul>
+                            <a href="<?php echo base_url();   ?>partner/home-inactive">Invoice</a>
                         </li>
 
                         <li>
@@ -239,20 +193,20 @@
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
 
-                        <li>
+<!--                        <li>
                             <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>partner/search" onsubmit="return checkStringLength()">
                                 <div class="form-group">
                                     <input style="width:125%" type="text" class="form-control pull-right" id="searched_text" placeholder="Search Booking ID or Mobile" 
                                            name="searched_text" >
                                 </div> 
                             </form>
-                        </li>
+                        </li>-->
 
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php echo $this->session->userdata('partner_name'); ?><span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="<?php echo base_url(); ?>employee/partner/show_partner_edit_details_form">Edit Details</a></li>
-                            </ul>
+<!--                            <ul class="dropdown-menu">
+                                <li><a href="<?php //echo base_url(); ?>employee/partner/show_partner_edit_details_form">Edit Details</a></li>
+                            </ul>-->
                         </li>
                         <li><a href="<?php echo base_url() ?>employee/partner/logout"><i class="fa fa-fw fa-power-off"></i></a></li>
                     </ul>
@@ -268,41 +222,4 @@
 
     </body>
 </html>
-<style type="text/css">
-    .submitBtn{
-        margin-top:5px;
-        background:#2C9D9C;
-        color:#fff;
-    }
 
-    .submitBtn:hover{
-        background:#DADADA;
-    }
-</style>
-<script type="text/javascript">
-    function submit_button() {
-        var phone = $("#phone_number").val();
-
-        if (phone.length !== 10) {
-            return false;
-
-        }
-        intRegex = /^[7-9]{1}[0-9]{9}$/;
-        if (intRegex.test(phone))
-        {
-            return true;
-        } else {
-            return false;
-        }
-
-
-    }
-    function checkStringLength() {
-        var searched_text = $("#searched_text").val();
-        if (searched_text.length < 9) {
-            alert("Enter Atleast 8 Character For Booking ID");
-            return false;
-        }
-
-    }
-</script>
