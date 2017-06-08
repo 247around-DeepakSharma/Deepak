@@ -197,7 +197,7 @@
                                             <h5><b>Mr. Adil Akhtar</b></h5> 
                                             <p>Back Office Closure Champion</p>
                                             <p>Delhi Office</p>
-                                            <p>9990009102 <span> <strong>|</strong> English and Hindi</span></p>
+                                            <p>9716960840 <span> <strong>|</strong> English and Hindi</span></p>
                                             <p>adila@247around.com</p>
                                         </div>
                                     </div>
