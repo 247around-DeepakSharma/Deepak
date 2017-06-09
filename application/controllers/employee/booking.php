@@ -2528,12 +2528,19 @@ class Booking extends CI_Controller {
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
             $directory_xls = "misc-images/" . $support_file_name;
-            $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-            //Logging success for file uppload
-            log_message('info', __METHOD__ . 'Support FILE is being uploaded sucessfully.');
+            $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            if($upload_file_status){
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Support FILE has been uploaded sucessfully for booking_id: '.$booking_id);
+                return $support_file_name;
+            }else{
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Error In uploading support file for booking_id: '.$booking_id);
+                return False;
+            }
         }
 
-        return $support_file_name;
+        
     }
     
     /**
