@@ -2355,3 +2355,13 @@ ALTER TABLE `rating_passthru_misscall_log`
 ALTER TABLE `rating_passthru_misscall_log`
   MODIFY `s.no` int(11) NOT NULL AUTO_INCREMENT;
 
+
+
+-- sachin 8 jun 2017
+
+UPDATE `sms_template` SET `template` = 'Your %s request is completed by 247around. 
+If you are HAPPY with the service,give miss call @ %s. If not, give miss call @ %s' WHERE `sms_template`.`id` = 3;
+
+UPDATE `sms_template` SET `template` = 'Your %s request is completed by 247around. 
+If you are HAPPY with the service,give miss call @ %s. If not, give miss call @ %s' WHERE `sms_template`.`id` = 14;
+

@@ -2487,18 +2487,26 @@ class Booking extends CI_Controller {
 
         if (($_FILES['support_file']['error'] != 4) && !empty($_FILES['support_file']['tmp_name'])) {
 
-                $tmpFile = $_FILES['support_file']['tmp_name'];
-                $support_file_name =  $booking_id . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['support_file']['name'])[1];
-                //Upload files to AWS
-                $bucket = BITBUCKET_DIRECTORY;
-                $directory_xls = "misc-images/" . $support_file_name;
-                $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $tmpFile = $_FILES['support_file']['tmp_name'];
+            $support_file_name = $booking_id . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['support_file']['name'])[1];
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "misc-images/" . $support_file_name;
+            $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            if($upload_file_status){
                 //Logging success for file uppload
-                log_message('info', __METHOD__ . 'Support FILE is being uploaded sucessfully.');
+                log_message('info', __METHOD__ . 'Support FILE has been uploaded sucessfully for booking_id: '.$booking_id);
+                return $support_file_name;
+            }else{
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Error In uploading support file for booking_id: '.$booking_id);
+                return False;
+            }
 
         }
 
-        return $support_file_name;
+        
     }
     
     /**
@@ -2526,6 +2534,18 @@ class Booking extends CI_Controller {
         
         $this->notify->send_sms_msg91($sms);
         log_message('info', __METHOD__ . ' SMS Sent for rating' . $phone_no);
+    }
+    
+    
+    /**
+     *  @desc : This function is used to show those numbers who gave missed call after sending rating sms
+     *  @param : void
+     *  @return : void
+     */
+    public function show_missed_call_rating_data(){
+        $data['missed_call_rating_data'] = $this->booking_model->get_missed_call_rating_not_taken_booking_data();
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/show_missed_call_rating_data', $data);
     }
 
 }

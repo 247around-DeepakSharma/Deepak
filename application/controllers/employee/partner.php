@@ -62,9 +62,10 @@ class Partner extends CI_Controller {
         $partner = $this->partner_model->partner_login($data);
         if ($partner) {
             //get partner details now
-            $partner_details = $this->partner_model->getpartner($partner['partner_id']);
-            if(!empty($partner_details)){
-                $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
+            $partner_details = $this->partner_model->getpartner($partner['partner_id'],FALSE);
+            if($partner_details){
+                $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id'],
+                        $partner_details[0]['is_active']);
                 log_message('info', 'Partner loggedIn  partner id' .
                         $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
@@ -79,13 +80,17 @@ class Partner extends CI_Controller {
 
                 $login_id = $this->employee_model->add_login_logout_details($login_data);
                 //Adding Log Details
-                if ($login_id) {
-                    log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['agent_id']);
+                if (!empty($login_id) && $partner_details[0]['is_active'] == 1) {
+                    log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . 
+                            $login_data['agent_id']);
+                    redirect(base_url() . "partner/home");
+                } else  if (!empty($login_id) && $partner_details[0]['is_active'] == 0) { 
+                    redirect(base_url() . "partner/invoice");
                 } else {
                     log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
                 }
 
-                redirect(base_url() . "partner/home");
+                
             }else{
                 $userSession = array('error' => 'Sorry, your Login has been De-Activated');
                 $this->session->set_userdata($userSession);
@@ -240,7 +245,7 @@ class Partner extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setSession($partner_id, $partner_name, $agent_id) {
+    function setSession($partner_id, $partner_name, $agent_id,$status) {
     $userSession = array(
         'session_id' => md5(uniqid(mt_rand(), true)),
         'partner_id' => $partner_id,
@@ -248,7 +253,8 @@ class Partner extends CI_Controller {
         'agent_id' => $agent_id,
         'sess_expiration' => 600000,
         'loggedIn' => TRUE,
-        'userType' => 'partner'
+        'userType' => 'partner',
+        'status' => $status
     );
 
         $this->session->set_userdata($userSession);
@@ -260,7 +266,7 @@ class Partner extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') &&  !empty($this->session->userdata('partner_id'))) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') &&  !empty($this->session->userdata('partner_id')) && ($this->session->userdata('status') == 1)) {
             return TRUE;
         } else {
             $this->session->sess_destroy();
@@ -3090,5 +3096,25 @@ class Partner extends CI_Controller {
 
         $this->load->view('service_centers/upcountry_booking_details', $data);
     }
+    
+    /**
+      * @Desc: This function is used to show Partner Login Page for inactive partner
+      * @params: void
+      * @return: view
+      * 
+      */
+     function inactive_partner_default_page(){
+         
+        $partner_id = $this->session->userdata('partner_id');
+        $data['vendor_partner'] = "partner";
+        $data['vendor_partner_id'] = $partner_id;
+        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
+
+        $data2['partner_vendor'] = "partner";
+        $data2['partner_vendor_id'] = $partner_id;
+        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
+        $this->load->view('partner/inactive_partner_header');
+        $this->load->view('partner/invoice_summary', $invoice);
+     }
    
 }

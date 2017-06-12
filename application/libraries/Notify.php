@@ -345,6 +345,8 @@ class Notify {
 		    }
 
 		    $sms['smsData']['service'] = $query1[0]['services'];
+                    $sms['smsData']['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
+                    $sms['smsData']['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];

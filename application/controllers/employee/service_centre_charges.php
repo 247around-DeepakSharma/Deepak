@@ -477,7 +477,7 @@ class service_centre_charges extends CI_Controller {
      */
     function get_partner_data() {
         if (isset($_POST['partner'])) {
-            $partner_id = $this->input->post('partner_id');
+            $partner_id = $this->input->post('partner');
             $services = $this->service_centre_charges_model->get_appliance_from_partner($partner_id);
 
             $option = '<option selected disabled>Select Appliance</option>';

@@ -1503,41 +1503,39 @@ class vendor extends CI_Controller {
 
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
-            $this->notify->sendTransactionalSmsAcl($contact[0]['primary_contact_phone_1'], $smsBody);
+            $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
             //For saving SMS to the database on sucess
 
             $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
-                    $smsBody, $booking_id, "Escalation");
+                    $smsBody, $booking_id, "Escalation", $status['content']);
             
 
-            $this->notify->sendTransactionalSmsAcl($contact[0]['owner_phone_1'], $smsBody);
+            $status1 = $this->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
             //For saving SMS to the database on sucess
 
             $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
-                    $smsBody, $booking_id,"Escalation");
+                    $smsBody, $booking_id,"Escalation", $status1['content']);
             
         } else if ($escalation_policy[0]['sms_to_owner'] == 0 && $escalation_policy[0]['sms_to_poc'] == 1) {
 
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
-            $this->notify->sendTransactionalSmsAcl($contact[0]['primary_contact_phone_1'], $smsBody);
+            $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
             //For saving SMS to the database on sucess
             
             $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
-                    $smsBody, $booking_id, "Escalation");
+                    $smsBody, $booking_id, "Escalation", $status['content']);
             
         } else if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 0) {
 
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
-            $this->notify->sendTransactionalSmsAcl($contact[0]['owner_phone_1'], $smsBody);
+            $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
             //For saving SMS to the database on sucess
             
             $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
-                    $smsBody, $booking_id, "Escalation");
-        
-            
-    }
+                    $smsBody, $booking_id, "Escalation", $status['content']); 
+        }
     }
 
     /**
@@ -3874,6 +3872,7 @@ class vendor extends CI_Controller {
         $penalty_remove_reason = $this->input->post('penalty_remove_reason');
         $penalty_remove_agent_id = $this->session->userdata('id');
         $penalty_remove_date = date("Y-m-d H:i:s");
+        $flag = FALSE;
         foreach($id as $key=>$value){
             
             $data = array('active' => 0,
@@ -3915,14 +3914,19 @@ class vendor extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Error in getting Email Template for remove_penalty_on_booking');
             }
 
-            //Session success
-            $this->session->set_userdata('success', 'Penalty removed - Booking id : ' . $booking_id[$key]);
+            $flag = TRUE;
             }   else {
             //Logging
                 log_message('info', __FUNCTION__ . ' Penalty already Removed for Booking ID :' . $booking_id[$key]);
-                $this->session->set_userdata('error', 'Penalty already Removed for Booking ID : ' . $booking_id[$key]);
+                $flag = TRUE;
             }
         }
+     if($flag){
+         //Session success
+        $this->session->set_userdata('success', 'Penalty removed Successfully');
+     }else{
+         $this->session->set_userdata('success', 'Error In Remopving Penalty!!! Please Try Again');
+     }
     redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
     }
     
