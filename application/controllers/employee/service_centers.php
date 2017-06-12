@@ -887,6 +887,7 @@ class Service_centers extends CI_Controller {
             
             $data['booking_id'] = $booking_id;
             $data['status'] = SPARE_PARTS_REQUESTED;
+            $data['service_center_id'] = $this->session->userdata('service_center_id');
             //$where = array('booking_id' => $booking_id, 'service_center_id' => $data['service_center_id']);
             $status_spare = $this->service_centers_model->insert_data_into_spare_parts($data);
             if ($status_spare) {
