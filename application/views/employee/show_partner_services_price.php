@@ -50,11 +50,12 @@
         $('#partners').on('change', function () {
             var partner = $(this).val();
             if (partner) {
-
+                var postData = {};
+                postData['partner'] = partner;
                 $.ajax({
                     type: 'POST',
                     url: '<?php echo base_url() ?>employee/service_centre_charges/get_partner_data',
-                    data: 'partner=' + partner,
+                    data: postData,
                     success: function (html) {
                         $('#service_id').val('val', "");
                         $('#service_id').val('Select Appliance').change();
