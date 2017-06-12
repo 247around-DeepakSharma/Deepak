@@ -221,10 +221,10 @@ class Partner_model extends CI_Model {
      * @return : Array(Pending booking)
      */
     function partner_login($data){
-       $this->db->select('id, partner_id,active');
+       $this->db->select('id, partner_id');
        $this->db->where('user_name',$data['user_name']);
        $this->db->where('password',$data['password']);
-       //$this->db->where('active',1);
+       $this->db->where('active',1);
        $query = $this->db->get('partner_login');
 
         if ($query->num_rows() > 0) {
