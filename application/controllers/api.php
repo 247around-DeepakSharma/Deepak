@@ -4219,7 +4219,7 @@ class Api extends CI_Controller {
                 $data = array('booking_id' => $check_booking_count[0]['booking_id'],
                     'old_state' => _247AROUND_COMPLETED,
                     'new_state' => RATING_NEW_STATE,
-                    'reamrks' => $remarks,
+                    'remarks' => $remarks,
                     'agent_id' => _247AROUND_DEFAULT_AGENT,
                     'partner_id' => _247AROUND);
                 
