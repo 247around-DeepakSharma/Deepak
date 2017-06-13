@@ -2082,19 +2082,13 @@ class Partner extends CI_Controller {
      */
     function allow_log_in_to_partner($partner_id){
         //Getting partner details
-        $partner_details = $this->partner_model->get_partner_login_details($partner_id);
-        $data['user_name'] = strtolower($partner_details[0]['user_name']);
-        $data['password'] = $partner_details[0]['password'];
-        
-         //Loggin to SF Panel with username and password
-         
-        $partner = $this->partner_model->partner_login($data);
+        $partner_login = $this->partner_model->get_partner_login_details($partner_id);
 
-        if ($partner) {
+        if (!empty($partner_login)) {
             //get partner details now
-            $partner_details = $this->partner_model->getpartner($partner['partner_id']);
+            $partner_details = $this->partner_model->getpartner($partner_id);
 
-            $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
+            $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner_login[0]['id'], $partner_details[0]['is_active']);
             log_message('info', 'Partner loggedIn  partner id' .
                     $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
