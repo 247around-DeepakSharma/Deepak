@@ -1038,9 +1038,14 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="is_bank_details_verified" class="col-md-3">Verified/Not Verified </label>
-                                    <div class="col-md-3">
-                                        <input type="checkbox" value="1" name="is_verified" id="is_bank_details_verified" <?php if(isset($query[0]['is_verified']) && $query[0]['is_verified'] == '1') { ?>checked<?php } ?> <?php if($this->session->userdata('user_group')!= 'admin'){ ?>disabled <?php }?> style="zoom:1.5;">
+                                        <?php if($this->session->userdata('user_group')=== 'admin'){ ?>
+                                        <label for="is_bank_details_verified" class="col-md-3">Verified/Not Verified </label>
+                                        <div class="col-md-3">
+                                        <input type="checkbox" value="1" name="is_verified" id="is_bank_details_verified" <?php if(isset($query[0]['is_verified']) && $query[0]['is_verified'] == '1') { ?>checked<?php } ?> style="zoom:1.5;">
+                                        <?php }else { ?>
+                                        <input type="hidden" name="is_verified" value="<?php echo $query[0]['is_verified']; ?>">
+                                        <?php } ?>
+                                        
                                     </div>
                                 </div>
                             </div>
