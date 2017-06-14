@@ -1317,13 +1317,13 @@ class Invoice extends CI_Controller {
 
             // stores charges
             $excel_data = array(
-                't_ic' => $total_inst_charge,
-                't_st' => $total_st_charge,
-                't_stand' => $total_stand_charge,
-                't_vat' => $total_vat_charge,
-                't_total' => $t_total,
+                't_ic' => round($total_inst_charge,0),
+                't_st' => round($total_st_charge,0),
+                't_stand' => round($total_stand_charge,0),
+                't_vat' => round($total_vat_charge,0),
+                't_total' => round($t_total,0),
                 't_rating' => $invoices[0]['avg_rating'],
-                'tds' => round($tds, 2),
+                'tds' => round($tds, 0),
                 'tds_tax_rate' => $tds_tax_rate,
                 't_vp_w_tds' => round($t_total - $tds, 0) // vendor payment with TDS
             );
@@ -1341,8 +1341,8 @@ class Invoice extends CI_Controller {
             $cr_penalty_amount = (array_sum(array_column($credit_penalty, 'p_amount')));
             $excel_data['total_penalty_amount'] = -$penalty_amount;
             $excel_data['cr_total_penalty_amount'] = $cr_penalty_amount;
-            $excel_data['total_upcountry_price'] = round($total_upcountry_price, 2);
-            $excel_data['total_courier_charges'] = round($total_courier_charges, 2);
+            $excel_data['total_upcountry_price'] = round($total_upcountry_price, 0);
+            $excel_data['total_courier_charges'] = round($total_courier_charges, 0);
             $t_vp_w_tds = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price'] + $excel_data['cr_total_penalty_amount'] + $excel_data['total_courier_charges'] - $penalty_amount;
             if ($t_vp_w_tds >= 0) {
                 $excel_data['t_vp_w_tds'] = $t_vp_w_tds;
@@ -1363,7 +1363,7 @@ class Invoice extends CI_Controller {
 
             $excel_data['msg'] = 'Thanks 247around Partner for your support, we completed ' . $count .
                     ' bookings with you from ' . $start_date . ' to ' . $end_date .
-                    '. Total transaction value for the bookings was Rs. ' . round($excel_data['t_total'], 0) .
+                    '. Total transaction value for the bookings was Rs. ' . round($excel_data['t_vp_w_tds'], 0) .
                     '. Your rating for completed bookings is ' . round($excel_data['t_rating'], 0) .
                     '. We look forward to your continued support in future. As next step, 247around will pay you remaining amount as per our agreement.';
 
@@ -1488,7 +1488,7 @@ class Invoice extends CI_Controller {
                 $sms['tag'] = "vendor_invoice_mailed";
                 $sms['smsData']['type'] = 'FOC';
                 $sms['smsData']['month'] = date('M Y', strtotime($start_date));
-                $sms['smsData']['amount'] = round($excel_data['t_total'], 0);
+                $sms['smsData']['amount'] = round($excel_data['t_vp_w_tds'], 0);
                 $sms['phone_no'] = $invoices[0]['owner_phone_1'];
                 $sms['booking_id'] = "";
                 $sms['type'] = "vendor";
@@ -1537,7 +1537,7 @@ class Invoice extends CI_Controller {
                     'service_tax' => $total_st_charge,
                     'parts_cost' => $total_stand_charge,
                     'vat' => $total_vat_charge,
-                    'total_amount_collected' => $t_total,
+                    'total_amount_collected' => ($t_vp_w_tds +$tds),
                     'tds_amount' => $excel_data['tds'],
                     'rating' => $excel_data['t_rating'],
                     'around_royalty' => 0,
