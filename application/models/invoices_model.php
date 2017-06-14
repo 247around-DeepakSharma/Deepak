@@ -307,24 +307,24 @@ class invoices_model extends CI_Model {
 
                      /* get sum of vat charges if product_or_services is product else sum of vat is zero  */
 
-                     (case when (`booking_unit_details`.product_or_services = 'Product' AND (service_centres.tin_no IS NOT NULL OR service_centres.cst_no IS NOT NULL )  )  THEN ( vendor_st_or_vat_basic_charges) ELSE 0 END) as vendor_vat,
+                     (case when (`booking_unit_details`.product_or_services = 'Product' AND (service_centres.tin_no IS NOT NULL OR service_centres.cst_no IS NOT NULL )  )  THEN ( round(vendor_st_or_vat_basic_charges,0)) ELSE 0 END) as vendor_vat,
                     
                      /* get sum of st charges if product_or_services is Service else sum of vat is zero  */
 
-                     (case when (`booking_unit_details`.product_or_services = 'Service'  AND `service_tax_no` IS NOT NULL )  THEN (vendor_st_or_vat_basic_charges) ELSE 0 END) as vendor_st,
+                     (case when (`booking_unit_details`.product_or_services = 'Service'  AND `service_tax_no` IS NOT NULL )  THEN (round(vendor_st_or_vat_basic_charges,0)) ELSE 0 END) as vendor_st,
                     
                      /* get installation charge if product_or_services is Service else installation_charge is zero
                       * installation charge is the sum of around_comm_basic_charge and vendor_basic_charge
                       */
  
-                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (vendor_basic_charges) ELSE 0 END) as vendor_installation_charge,
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (round(vendor_basic_charges,0)) ELSE 0 END) as vendor_installation_charge,
                      
                       /* get stand charge if product_or_services is Product else stand charge is zero
                       * Stand charge is the sum of around_comm_basic_charge and vendor_basic_charge
                       */
 
 
-                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (vendor_basic_charges) ELSE 0 END) as vendor_stand,
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (round(vendor_basic_charges,0)) ELSE 0 END) as vendor_stand,
 
 		        (SELECT ROUND(AVG(case when rating_stars > 0  then rating_stars else null
                                 end),1) $condition ) AS avg_rating
@@ -884,7 +884,7 @@ class invoices_model extends CI_Model {
         if($is_regenerate == 0){
             $is_invoice_null = " AND vendor_foc_invoice_id IS NULL ";
         }
-        $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, sum(`courier_charges_by_sf`) AS misc_price,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
+        $sql = "SELECT DISTINCT round((`vendor_basic_charges`),0) AS s_service_charge, sum(`courier_charges_by_sf`) AS misc_price,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
                CASE 
                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
@@ -904,7 +904,7 @@ class invoices_model extends CI_Model {
                 
                 END AS description, 
                 COUNT( ud.`appliance_capacity` ) AS qty, 
-                (vendor_basic_charges * COUNT( ud.`appliance_capacity` )) AS  s_total_service_charge,
+                round((vendor_basic_charges * COUNT( ud.`appliance_capacity` )),0) AS  s_total_service_charge,
                 sc.state, sc.service_tax_no, sc.company_name,sc.address as vendor_address, sc_code,
                 (case when (sc.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, 
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
@@ -932,7 +932,7 @@ class invoices_model extends CI_Model {
         $service = $query->result_array();
 
         //FOR Parts
-        $sql1 = "SELECT DISTINCT (`vendor_basic_charges`) AS p_rate, '' AS misc_price, '' AS s_service_charge, '' AS s_total_service_charge,
+        $sql1 = "SELECT DISTINCT round((`vendor_basic_charges`),0) AS p_rate, '' AS misc_price, '' AS s_service_charge, '' AS s_total_service_charge,
                CASE 
                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
@@ -952,7 +952,7 @@ class invoices_model extends CI_Model {
                 
                 END AS description, 
                 COUNT( ud.`appliance_capacity` ) AS qty, 
-                (vendor_basic_charges * COUNT( ud.`appliance_capacity` )) AS  p_part_cost,
+                round((vendor_basic_charges * COUNT( ud.`appliance_capacity` )),0) AS  p_part_cost,
                 (case when (sc.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, 
                 sc.state, ud.tax_rate as p_tax_rate,sc.company_name,sc.address as vendor_address,sc_code,
                 sc.primary_contact_email, sc.owner_email,service_tax_no, sc.pan_no, contract_file, company_type,
@@ -1049,9 +1049,9 @@ class invoices_model extends CI_Model {
             $meta['total_service_cost'] = 0;
 
             foreach ($result as $value) {
-                $meta['total_part_cost'] += $value['p_part_cost'];
-                $meta['total_service_cost'] += $value['s_total_service_charge'];
-                $meta['total_misc_price'] += $value['misc_price'];
+                $meta['total_part_cost'] += round($value['p_part_cost'],0);
+                $meta['total_service_cost'] += round($value['s_total_service_charge'],0);
+                $meta['total_misc_price'] += round($value['misc_price'],0);
             }
 
             if (is_null($result[0]['tin'])) {
@@ -1059,7 +1059,7 @@ class invoices_model extends CI_Model {
                 $meta['part_cost_vat'] = 0.00;
             } else {
                 if (!empty($product)) {
-                    $meta['part_cost_vat'] = ($meta['total_part_cost'] * $product[0]['p_tax_rate']) / 100;
+                    $meta['part_cost_vat'] = round((($meta['total_part_cost'] * $product[0]['p_tax_rate']) / 100),0);
                 } else {
                     $meta['part_cost_vat'] = 0.00;
                 }
@@ -1076,22 +1076,22 @@ class invoices_model extends CI_Model {
 
             $meta['sc_code'] = $result[0]['sc_code'];
             $meta['service_tax_no'] = $result[0]['service_tax_no'];
-            $meta['sub_service_cost'] = $meta['total_service_cost'] + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] * 2;
+            $meta['sub_service_cost'] = round(($meta['total_service_cost'] + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] * 2),0);
             $meta['vendor_name'] = $result[0]['company_name'];
             $meta['owner_email'] = $result[0]['owner_email'];
             $meta['vendor_address'] = $result[0]['vendor_address'];
             $meta['primary_contact_email'] = $result[0]['primary_contact_email'];
             $meta['owner_email'] = $result[0]['owner_email'];
-            $meta['vat_tax'] = $result[0]['p_tax_rate'];
+            $meta['vat_tax'] = round($result[0]['p_tax_rate'],0);
             $meta['tin'] = $result[0]['tin'];
-            $meta['sub_part'] = $meta['total_part_cost'] + $meta['part_cost_vat'];
+            $meta['sub_part'] = round(($meta['total_part_cost'] + $meta['part_cost_vat']),0);
 
             if (empty($result[0]['pan_no'])) {
-                $meta['tds'] = $meta['total_service_cost'] * .20;
+                $meta['tds'] = round(($meta['total_service_cost'] * .20),0);
                 $meta['tds_tax_rate'] = "20%";
             } else if (empty($result[0]['contract_file'])) {
 
-                $meta['tds'] = $meta['total_service_cost'] * .05;
+                $meta['tds'] = round(($meta['total_service_cost'] * .05),0);
                 $meta['tds_tax_rate'] = "5%";
             } else {
                 switch ($result[0]['company_type']) {
@@ -1099,25 +1099,25 @@ class invoices_model extends CI_Model {
                     if (!empty($result[0]['pan_no'])) {
                         $_4th_char = substr($result[0]['pan_no'], 3, 1);
                         if (strcasecmp($_4th_char, "F") == 0) {
-                           $meta['tds'] = ($meta['total_service_cost']) * .02;
+                           $meta['tds'] = round((($meta['total_service_cost']) * .02),0);
                            $meta['tds_tax_rate'] =  "2%";
                         } else {
-                            $meta['tds'] =  ($meta['total_service_cost']) * .01;
+                            $meta['tds'] =  round((($meta['total_service_cost']) * .01),0);
                             $meta['tds_tax_rate'] = "1%";
                         }
                     } else {
-                        $meta['tds'] =  ($meta['total_service_cost']) * .01;
+                        $meta['tds'] =  round((($meta['total_service_cost']) * .01),0);
                         $meta['tds_tax_rate'] = "1%";
                     }
                     break;
                     case "Individual":
-                        $meta['tds'] = $meta['total_service_cost'] * .01;
+                        $meta['tds'] = round(($meta['total_service_cost'] * .01),0);
                         $meta['tds_tax_rate'] = "1%";
                         break;
 
                     case "Partnership Firm":
                     case "Company (Pvt Ltd)":
-                        $meta['tds'] = $meta['total_service_cost'] * .02;
+                        $meta['tds'] = round(($meta['total_service_cost'] * .02),0);
                         $meta['tds_tax_rate'] = "2%";
                         break;
                 }
