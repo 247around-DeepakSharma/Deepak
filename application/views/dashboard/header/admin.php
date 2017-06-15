@@ -42,7 +42,7 @@
         <script src="<?php echo base_url() ?>assest/DateJS/build/date.js"></script>
     </head>
 
-    <body class="nav-sm">
+    <body class="nav-md">
         <div class="container body">
             <div class="main_container">
                 <div class="col-md-3 left_col">
@@ -69,17 +69,28 @@
 
                         <!-- sidebar menu -->
                         <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+              <div class="menu_section">
+                <ul class="nav side-menu">
+                   <li><a href="<?php echo base_url(); ?>employee/dashboard" target="_blank"><i class="fa fa-home"></i>Dashboard</a>
+                  <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM</a>
+                  </li>
+                  <li><a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload files</a></li>
+                    </ul>
+                  </li>
+<!--                        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                             <div class="menu_section">
                                 <h3>General</h3>
                                 <ul class="nav side-menu">
                                     <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM <span class="fa fa-chevron-down"></span></a>
-<!--                                        <ul class="nav child_menu" style="display: none">
+                                        <ul class="nav child_menu" style="display: none">
                                             <li><a href="<?php echo base_url(); ?>employee/dashboard">Dashboard</a></li>
                                             <li><a href="<?php echo base_url(); ?>employee/user" target="_blank">CRM</a></li>
                                             <li><a href="index3.html">Dashboard3</a></li>
-                                        </ul>-->
+                                        </ul>
                                     </li>
-                  <!--                  <li><a><i class="fa fa-edit"></i> Forms <span class="fa fa-chevron-down"></span></a>
+                                   <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process" target="_blank"><i class="fa fa-edit"></i> Buyback <span class="fa fa-chevron-down"></span></a>
                                       <ul class="nav child_menu">
                                         <li><a href="form.html">General Form</a></li>
                                         <li><a href="form_advanced.html">Advanced Components</a></li>
@@ -88,8 +99,8 @@
                                         <li><a href="form_upload.html">Form Upload</a></li>
                                         <li><a href="form_buttons.html">Form Buttons</a></li>
                                       </ul>
-                                    </li>
-                                    <li><a><i class="fa fa-desktop"></i> UI Elements <span class="fa fa-chevron-down"></span></a>
+                                    </li>-->
+                                 <!--    <li><a><i class="fa fa-desktop"></i> UI Elements <span class="fa fa-chevron-down"></span></a>
                                       <ul class="nav child_menu">
                                         <li><a href="general_elements.html">General Elements</a></li>
                                         <li><a href="media_gallery.html">Media Gallery</a></li>
