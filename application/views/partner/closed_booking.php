@@ -21,9 +21,10 @@
                                     <th>Closed Booking</th>
                                     <?php if($status == "Cancelled"){ ?>
                                     <th>Cancellation Reason</th>
+                                    <th>Open</th>
                                     <?php } ?>
                                    
-                                    <th>Open</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -74,8 +75,11 @@
                                     <td>
                                         <?php echo $row['cancellation_reason']; ?>
                                     </td>
+                                    <td>
+                                        <a class='btn btn-sm btn-info' href="<?php echo base_url();?>partner/update_booking/<?php echo $row['booking_id']?>" target='_blank' title='View'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>
+                                    </td>
                                     <?php } ?>
-                                    <td><a class='btn btn-sm btn-info' href="<?php echo base_url();?>partner/update_booking/<?php echo $row['booking_id']?>" target='_blank' title='View'><i class='fa fa-envelope-o' aria-hidden='true'></i></a></td>
+                                    
                                 </tr>
                                 <?php $count++; } ?>
                             </tbody>
