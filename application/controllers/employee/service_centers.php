@@ -581,7 +581,7 @@ class Service_centers extends CI_Controller {
            
             $booking_state_change = $this->booking_model->get_booking_state_change($state_change['booking_id']);
             
-            if ($booking_state_change > 0) {
+            if (count($booking_state_change) > 0) {
                 $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
             } else { //count($booking_state_change)
                 $state_change['old_state'] = "Pending";

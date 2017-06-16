@@ -246,4 +246,11 @@ class service_centre_charges_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    function get_bb_charges($where, $select){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("bb_charges");
+        return $query->result_array();
+    }
 }

@@ -2,6 +2,7 @@
 
 class Initialized_variable {
     Private $PartnerData = array();
+    Private $BuybackOderDetails = array();
 
     public function __construct() {
 	$this->My_CI = & get_instance();
@@ -27,5 +28,13 @@ class Initialized_variable {
      */
     function get_partner_data(){
         return $this->PartnerData;
+    }
+    
+    function set_post_buyback_order_details($order_details){
+        $this->BuybackOderDetails = $order_details;
+    }
+    
+    function get_post_buyback_order_details(){
+        return $this->BuybackOderDetails;
     }
 }
