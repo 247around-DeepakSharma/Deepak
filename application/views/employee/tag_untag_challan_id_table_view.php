@@ -19,6 +19,7 @@
                         <th colspan="2"> Challan Period</th>
                         <th> Payment Date</th>
                         <th> Amount</th>
+                        <th> Challan Type</th>
                         <th>Edit</th>
                         <th> View Tagged Invoices</th>
                         <th> Insert Invoice Id</th>
@@ -29,6 +30,7 @@
                         <th></th>
                         <th>From</th>
                         <th>To</th>
+                        <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -47,6 +49,10 @@
                         <td><?php echo $value['to_date'] ?></td>
                         <td><?php echo $value['challan_tender_date'] ?></td>
                         <td><?php echo round($value['amount']) ?></td>
+                        <td><?php if($value['type'] === 'ST'){echo "Service Tax";}
+                        else if($value['type'] === 'VAT'){echo "VAT";}
+                        else if($value['type'] === 'TDS'){echo "TDS";}
+                        else if($value['type'] === 'Other'){echo "Other";}?></td>
                         <td>
                             <a target="_blank" href="<?php echo base_url(); ?>employee/accounting/get_challan_edit_form/<?php echo $value['id']; ?>">
                                 <div class="btn btn-primary">Edit</div>
@@ -63,6 +69,7 @@
         <?php $sn++;
     } ?>   
                 <tr> 
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
