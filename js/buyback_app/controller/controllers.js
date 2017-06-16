@@ -1,37 +1,41 @@
-//buyback file upload app controller/
-app.controller("fileUploadController", function ($scope, $http) {
-    $scope.uploadFile = function () {
+//order details file upload
+uploadfile.controller('uploadOrderDetailsFile', ['$scope', 'fileUpload', function($scope, fileUpload){
+    
+    $scope.uploadFile = function(){
+        var file = $scope.myFile;
         $scope.ShowSpinnerStatus = true;
-        $scope.SuccessResponseState = false;
-        $scope.ErrorResponseState = false;
-        var form_data = new FormData();
-        angular.forEach($scope.files, function (file) {
-            form_data.append('file', file);
-        });
-        $http.post(upload_url, form_data,
-                {
-                    transformRequest: angular.identity,
-                    headers: {'Content-Type': undefined, 'Process-Data': false}
-                }).success(function (response) {
-            var obj = angular.fromJson(response);
-            //console.log(obj);
-            if (obj['code'] < 0) {
-                //console.log(res);
-                $scope.ShowSpinnerStatus = false;
-                $scope.ErrorResponseMsg = obj['msg'];
-                notifyMe(obj['msg']);
-                $scope.ErrorResponseState = true;
-            } else if (obj['code'] > 0) {
-                $scope.ShowSpinnerStatus = false;
-                $scope.SuccessResponseMsg = obj['msg'];
-                $scope.SuccessResponseState = true;
-                notifyMe(obj['msg']);
-                
-            }
-        });
-    }
-});
+        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/upload_file";
+        fileUpload.uploadFileToUrl($scope,file, uploadUrl);
+    };
+    
+}]);
 
+//price charges details file upload
+uploadfile.controller('uploadPriceChargesFile', ['$scope', 'fileUpload', function($scope, fileUpload){
+    
+    $scope.uploadFile = function(){
+        var file = $scope.myFile;
+        $scope.ShowSpinnerStatus = true;
+        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/upload_file";
+        fileUpload.uploadFileToUrl($scope,file, uploadUrl);
+    };
+    
+}]);
+
+//shop address details file upload
+uploadfile.controller('uploadShopAddressFile', ['$scope', 'fileUpload', function($scope, fileUpload){
+    
+    $scope.uploadFile = function(){
+        var file = $scope.myFile;
+        $scope.ShowSpinnerStatus = true;
+        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/upload_file";
+        fileUpload.uploadFileToUrl($scope,file, uploadUrl);
+    };
+    
+}]);
+
+
+//desktop notification msg
 function notifyMe(msg) {
     // Let's check if the browser supports notifications
     if (!("Notification" in window)) {
@@ -70,7 +74,4 @@ function notifyMe(msg) {
             }
         });
     }
-
-    // At last, if the user already denied any notification, and you
-    // want to be respectful there is no need to bother them any more.
 }

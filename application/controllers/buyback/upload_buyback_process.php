@@ -30,4 +30,13 @@ class Upload_buyback_process extends CI_Controller {
         $this->load->view('dashboard/dashboard_footer');
     }
     
+    function upload_file(){
+        if($_FILES['file']['name'] && $_FILES['file']['size'] > 0){
+            echo json_encode(array("code"=>"247","msg"=>"success"));
+        }else{
+            echo json_encode(array("code"=>"-247","msg"=>"error"));
+        }
+        
+    }
+    
 }
