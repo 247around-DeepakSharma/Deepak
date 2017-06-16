@@ -28,8 +28,10 @@ class Upload_buyback_process extends CI_Controller {
     }
     
     function index(){
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/buyback/upload_order_details');
+        
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/order_details_file_upload');
+        $this->load->view('dashboard/dashboard_footer');
     }
     
     function process_upload_order() {
@@ -137,5 +139,15 @@ class Upload_buyback_process extends CI_Controller {
             }
         }
     }
+    
+    function upload_file(){
+        if($_FILES['file']['name'] && $_FILES['file']['size'] > 0){
+            echo json_encode(array("code"=>"247","msg"=>"success"));
+        }else{
+            echo json_encode(array("code"=>"-247","msg"=>"error"));
+        }
+        
+    }
+    
 
 }
