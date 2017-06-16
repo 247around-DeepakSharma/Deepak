@@ -88,27 +88,23 @@
                     </a>
                     <ul class="dropdown-menu ">
                         <li>
-                            <a href="<?php echo base_url() ?>employee/booking/view"><i class="fa fa-fw fa-desktop"></i> <strong> View Pending Booking</strong></a>
+                            <a href="<?php echo base_url() ?>employee/booking/view"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Booking</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/inventory/get_spare_parts"><i class="fa fa-fw fa-desktop"></i> <strong> View Spare Parts Booking</strong></a>
+                            <a href="<?php echo base_url() ?>employee/inventory/get_spare_parts"><i class="fa fa-fw fa-desktop"></i> <strong> Spare Parts Booking</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>View Completed Booking</strong></a>
+                            <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>Completed Booking</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong>View Cancelled Booking</strong></a>
+                            <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong>Cancelled Booking</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/booking/get_pending_booking_by_partner_id"><i class="fa fa-fw fa-desktop"></i> <strong>View 247around Pending Booking</strong></a>
-                        </li>
-                        <li class="divider"></li>
-                        <li >
-                            <a href="<?php echo base_url() ?>employee/booking/get_missed_calls_view"><i class="fa fa-fw fa-desktop"></i> <strong>View Partner Leads</strong></a>
+                            <a href="<?php echo base_url() ?>employee/booking/get_pending_booking_by_partner_id"><i class="fa fa-fw fa-desktop"></i> <strong>Repair Bookings</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li >
@@ -119,6 +115,15 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                         </li>
+                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/auto_assigned_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Auto Assigned Booking</strong></a>
+                        </li>         
+                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/upcountry/get_waiting_for_approval_upcountry_charges"><i class="fa fa-fw fa-desktop"></i> <strong>Waiting to Approve Upcountry Booking</strong></a>
+                        </li>
+                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/upcountry/get_upcountry_failed_details"><i class="fa fa-fw fa-desktop"></i> <strong>Upcountry Failed Booking</strong></a>
                         </li>
@@ -126,7 +131,7 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/vendor/get_reassign_partner_form"><i class="fa fa-fw fa-desktop"></i> <strong>Reassign Partner</strong></a>
                         </li>
-                      
+                  
                     </ul>
                     <!-- /.dropdown-tasks -->
                 </li>
