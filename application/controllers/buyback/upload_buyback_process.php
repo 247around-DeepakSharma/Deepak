@@ -54,8 +54,8 @@ class Upload_buyback_process extends CI_Controller {
                 $this->table->set_heading(array('Order ID'));
 
                 try {
-                    $notify['notification'] = "Please Wait. File is under process.";
-                    $this->load->view('notification', $notify);
+//                    $notify['notification'] = "Please Wait. File is under process.";
+//                    $this->load->view('notification', $notify, FALSE);
                     
                     $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
                     $objPHPExcel = $objReader->load($inputFileName);
@@ -115,8 +115,8 @@ class Upload_buyback_process extends CI_Controller {
                        
                     }
                     
-                    $notify['notification'] = "File completely processed. ";
-                    $this->load->view('notification', $notify);
+//                    $notify['notification'] = "File completely processed. ";
+//                    $this->load->view('notification', $notify, FALSE);
                     
                     if($is_mail_flag){
                         $to = NITS_ANUJ_EMAIL_ID.",".ADIL_EMAIL_ID;
@@ -138,15 +138,6 @@ class Upload_buyback_process extends CI_Controller {
                 echo json_decode("Error", "File format is not correct. Only XLS or XLSX files are allowed.");
             }
         }
-    }
-    
-    function upload_file(){
-        if($_FILES['file']['name'] && $_FILES['file']['size'] > 0){
-            echo json_encode(array("code"=>"247","msg"=>"success"));
-        }else{
-            echo json_encode(array("code"=>"-247","msg"=>"error"));
-        }
-        
     }
     
 

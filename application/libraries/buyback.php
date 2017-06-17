@@ -70,15 +70,15 @@ class Buyback {
                         _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
                 return TRUE;
             } else {
-                $notify['notification'] = "Order ID ".$this->POST_DATA['partner_order_id'].
-                        " is not inserted. Please check this order.";
-                $this->load->view('notification', $notify);
+//                $notify['notification'] = "Order ID ".$this->POST_DATA['partner_order_id'].
+//                        " is not inserted. Please check this order.";
+//                $this->load->view('notification', $notify, FALSE);
                 return FALSE;
             }
         } else {
-            $notify['notification'] = "Order ID ".$this->POST_DATA['partner_order_id'].
-                        " is not inserted. Please check this order.";
-            $this->load->view('notification', $notify);
+//            $notify['notification'] = "Order ID ".$this->POST_DATA['partner_order_id'].
+//                        " is not inserted. Please check this order.";
+//            $this->load->view('notification', $notify, FALSE);
             return FALSE;
         }
     }
@@ -160,9 +160,7 @@ class Buyback {
                         _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
                 return true;
             } else {
-                $notify['notification'] = "Order ID ".$this->POST_DATA['partner_order_id'].
-                        " is not uopdated. Please check this order.";
-                $this->load->view('notification', $notify);
+
                 return false;
             }
         } else {
