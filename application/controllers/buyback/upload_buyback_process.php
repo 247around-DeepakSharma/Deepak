@@ -54,8 +54,8 @@ class Upload_buyback_process extends CI_Controller {
                 $this->table->set_heading(array('Order ID'));
 
                 try {
-                    $notify['notification'] = "Please Wait. File is under process.";
-                    $this->load->view('notification', $notify);
+//                    $notify['notification'] = "Please Wait. File is under process.";
+//                    $this->load->view('notification', $notify, FALSE);
                     
                     $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
                     $objPHPExcel = $objReader->load($inputFileName);
@@ -115,8 +115,8 @@ class Upload_buyback_process extends CI_Controller {
                        
                     }
                     
-                    $notify['notification'] = "File completely processed. ";
-                    $this->load->view('notification', $notify);
+//                    $notify['notification'] = "File completely processed. ";
+//                    $this->load->view('notification', $notify, FALSE);
                     
                     if($is_mail_flag){
                         $to = NITS_ANUJ_EMAIL_ID.",".ADIL_EMAIL_ID;

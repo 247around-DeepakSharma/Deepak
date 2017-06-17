@@ -4,7 +4,7 @@ uploadfile.controller('uploadOrderDetailsFile', ['$scope', 'fileUpload', functio
     $scope.uploadFile = function(){
         var file = $scope.myFile;
         $scope.ShowSpinnerStatus = true;
-        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/upload_file";
+        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/process_upload_order";
         fileUpload.uploadFileToUrl($scope,file, uploadUrl);
     };
     
