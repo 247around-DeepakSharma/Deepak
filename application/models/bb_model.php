@@ -69,6 +69,17 @@ class Bb_model extends CI_Model {
     }
     
     
+    /**
+     * @desc This function is used to insert charges list excel data
+     * @para, $charges_data array
+     * @return boolean
+     */
+    function insert_charges_data_in_batch($charges_data){
+        $this->db->truncate("bb_charges");
+        return $this->db->insert_batch("bb_charges", $charges_data);
+    }
+    
+    
     
     
 }

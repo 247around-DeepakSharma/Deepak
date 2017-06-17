@@ -69,17 +69,17 @@
             <div class="clearfix"></div>
             <div class="row">
                 <div class="col-md-12 col-sm-12 col-xs-12">
-                    <div class="x_panel" style="height: auto;">
+                    <div class="x_panel">
                         <div class="x_title">
                             <h2>Order Details file</h2>
                             <ul class="nav navbar-right panel_toolbox">
-                                <li><a class="collapse-link"><i class="fa fa-chevron-down"></i></a>
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                                 </li>
                                 </li>
                             </ul>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="x_content" style="display:none;">
+                        <div class="x_content">
                             <br />
                             <div id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
                                 <div ng-controller="uploadOrderDetailsFile">
@@ -122,17 +122,17 @@
             <div class="clearfix"></div>
             <div class="row">
                 <div class="col-md-12 col-sm-12 col-xs-12">
-                    <div class="x_panel" style="height: auto;">
+                    <div class="x_panel">
                         <div class="x_title">
                             <h2>Price charges file</h2>
                             <ul class="nav navbar-right panel_toolbox">
-                                <li><a class="collapse-link"><i class="fa fa-chevron-down"></i></a>
+                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                                 </li>
                                 </li>
                             </ul>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="x_content" style="display:none;">
+                        <div class="x_content">
                             <br />
                             <div id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
 
@@ -149,8 +149,8 @@
                                                 <div class="rect3" style="background-color:#f4c20d"></div>
                                                 <div class="rect4" style="background-color:#3cba54"></div>
                                             </div>
-                                            <div ng-if="successMsg" class="alert alert-success">{{msg}}</div>
-                                            <div ng-if="errorMsg" class="alert alert-danger">{{msg}}</div>
+                                            <div ng-if="successMsg" class="alert alert-success alert-dismissable">{{msg}}</div>
+                                            <div ng-if="errorMsg" class="alert alert-danger alert-dismissable">{{msg}}</div>
                                         </div>
                                     </div>
                                     <div class="ln_solid"></div>
@@ -168,7 +168,7 @@
             </div>
         </div>
 
-        <div class="shop_address_file">
+<!--        <div class="shop_address_file">
             <div class="page-title">
                 <div class="title_left">
                     <h3>Upload Shop Address File</h3>
@@ -221,7 +221,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
 
 
     </div>

@@ -362,5 +362,8 @@ define('GOOD_MISSED_CALL_RATING_NUMBER','01139588220');
 define('POOR_MISSED_CALL_RATING_NUMBER','01139588224');
 define('MISSED_CALL_DEFAULT_RATING', '5');
 
+//Buyback constant
+define('_247AROUND_BB_PRICE_LIST','BB-Price-List');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

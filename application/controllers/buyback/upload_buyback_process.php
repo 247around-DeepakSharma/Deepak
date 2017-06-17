@@ -4,6 +4,11 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
+use Box\Spout\Reader\ReaderFactory;
+use Box\Spout\Common\Type;
+
+ini_set('max_execution_time', 36000); //3600 seconds = 60 minutes
+require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php';
 class Upload_buyback_process extends CI_Controller {
 
     /**
@@ -18,6 +23,10 @@ class Upload_buyback_process extends CI_Controller {
         $this->load->library('buyback');
         $this->load->library("initialized_variable");
         $this->load->library('table');
+        $this->load->library('partner_utilities');
+        $this->load->library('s3');
+        
+        $this->load->model("partner_model");
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
@@ -140,15 +149,6 @@ class Upload_buyback_process extends CI_Controller {
         }
     }
     
-    function upload_file(){
-        if($_FILES['file']['name'] && $_FILES['file']['size'] > 0){
-            echo json_encode(array("code"=>"247","msg"=>"success"));
-        }else{
-            echo json_encode(array("code"=>"-247","msg"=>"error"));
-        }
-        
-    }
-    
     function get_order_details(){
         
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
@@ -156,5 +156,123 @@ class Upload_buyback_process extends CI_Controller {
         $this->load->view('dashboard/dashboard_footer');
     }
     
+    
+    /**
+     * @desc This function is used to upload the charges list excel
+     * @para, void
+     * @return json
+     */
+    function proces_upload_bb_price_charges() {
+        $return = $this->partner_utilities->validate_file($_FILES);
+        if ($return == "true") {
+
+            //Making process for file upload
+            $pathinfo = pathinfo($_FILES["file"]["name"]);
+            if ($pathinfo['extension'] == 'xlsx') {
+                $inputFileExtn = 'Excel2007';
+            } else {
+                $inputFileExtn = 'Excel5';
+            }
+            $tmpFile = $_FILES['file']['tmp_name'];
+            $charges_file = "Buyback-Charges-List-" . date('Y-m-d-H-i-s') . '.xlsx';
+            move_uploaded_file($tmpFile, TMP_FOLDER . $charges_file);
+
+            //Processing File
+            $is_insert = $this->process_bb_chargs_file(TMP_FOLDER . $charges_file,$inputFileExtn);
+            if ($is_insert) {
+
+                //Adding Details in File_Uploads table as well
+                $data['file_name'] = $charges_file;
+                $data['file_type'] = _247AROUND_BB_PRICE_LIST;
+                $data['agent_id'] = $this->session->userdata('id');
+                $insert_id = $this->partner_model->add_file_upload_details($data);
+                if($insert_id){ 
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $charges_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $charges_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                }
+                
+                //delete file from the system
+                exec("rm -rf " . escapeshellarg(TMP_FOLDER . $charges_file));
+                
+                //Return success Message
+                $msg = "File Uploaded Successfully.";
+                $response = array("code" => '247', "msg" => $msg);
+                echo json_encode($response);
+            } else {
+                $msg = "Error!!! Please Try Again...";
+                $response = array("code" => '-247', "msg" => $msg);
+                echo json_encode($response);
+            }
+        } else {
+            $msg = $return['error'];
+            $response = array("code" => '-247', "msg" => $msg);
+            echo json_encode($response);
+        }
+    }
+    
+    /**
+     * @desc This function is used to process the charges list excel and insert into the table
+     * @para, $charges_file string
+     * @return $flag boolean
+     */
+    private function process_bb_chargs_file($charges_file) {
+        $reader = ReaderFactory::create(Type::XLSX);
+        $reader->open($charges_file);
+        $charges_data = array();
+        $count = 1;
+        $flag = False;
+        foreach ($reader->getSheetIterator() as $sheet) {
+            foreach ($sheet->getRowIterator() as $row) {
+                if ($count > 1) {
+                    $data = $this->set_charges_rows_data($row);
+                    array_push($charges_data, $data);
+                }
+                $count++;
+            }
+            $count = 1;
+            $return = $this->bb_model->insert_charges_data_in_batch($charges_data);
+            if($return){
+                $flag = True;
+            }else{
+                $flag = False;
+            }
+        }
+        
+        return $flag;
+    }
+    
+    
+    /**
+     * @desc This function is used to make final data from charges list excel to insert into the table
+     * @para, $row array
+     * @return $tmp array
+     */
+    private function set_charges_rows_data($row) {
+        $tmp['partner_id'] = isset($row[0]) ? $row[0] : '';
+        $tmp['cp_id'] = isset($row[2]) ? $row[2] : '';
+        $tmp['service_id'] = isset($row[4]) ? $row[4] : '';
+        $tmp['category'] = isset($row[5]) ? $row[5] : '';
+        $tmp['brand'] = isset($row[6]) ? $row[6] : '';
+        $tmp['physical_condition'] = isset($row[7]) ? $row[7] : '';
+        $tmp['working_condition'] = isset($row[8]) ? $row[8] : '';
+        $tmp['city'] = isset($row[9]) ? $row[9] : '';
+        $tmp['order_key'] = isset($row[10]) ? $row[10] : '';
+        $tmp['partner_basic'] = isset($row[11]) ? $row[11] : '';
+        $tmp['partner_tax'] = isset($row[12]) ? $row[12] : '';
+        $tmp['partner_total'] = isset($row[13]) ? $row[13] : '';
+        $tmp['cp_basic'] = isset($row[14]) ? $row[14] : '';
+        $tmp['cp_tax'] = isset($row[15]) ? $row[15] : '';
+        $tmp['cp_total'] = isset($row[16]) ? $row[16] : '';
+        $tmp['around_basic'] = isset($row[17]) ? $row[17] : '';
+        $tmp['around_tax'] = isset($row[18]) ? $row[18] : '';
+        $tmp['around_total'] = isset($row[19]) ? $row[19] : '';
+        $tmp['visible_to_partner'] = isset($row[20]) ? $row[20] : '';
+        $tmp['visible_to_cp'] = isset($row[21]) ? $row[21] : '';
+        $tmp['create_date'] = date("Y-m-d h:i:sa");
+        
+        return $tmp;
+    }
 
 }

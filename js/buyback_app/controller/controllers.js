@@ -16,23 +16,23 @@ uploadfile.controller('uploadPriceChargesFile', ['$scope', 'fileUpload', functio
     $scope.uploadFile = function(){
         var file = $scope.myFile;
         $scope.ShowSpinnerStatus = true;
-        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/upload_file";
+        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/proces_upload_bb_price_charges";
         fileUpload.uploadFileToUrl($scope,file, uploadUrl);
     };
     
 }]);
 
 //shop address details file upload
-uploadfile.controller('uploadShopAddressFile', ['$scope', 'fileUpload', function($scope, fileUpload){
-    
-    $scope.uploadFile = function(){
-        var file = $scope.myFile;
-        $scope.ShowSpinnerStatus = true;
-        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/upload_file";
-        fileUpload.uploadFileToUrl($scope,file, uploadUrl);
-    };
-    
-}]);
+//uploadfile.controller('uploadShopAddressFile', ['$scope', 'fileUpload', function($scope, fileUpload){
+//    
+//    $scope.uploadFile = function(){
+//        var file = $scope.myFile;
+//        $scope.ShowSpinnerStatus = true;
+//        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/upload_file";
+//        fileUpload.uploadFileToUrl($scope,file, uploadUrl);
+//    };
+//    
+//}]);
 
 
 //desktop notification msg
