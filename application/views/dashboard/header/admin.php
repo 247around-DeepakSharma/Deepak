@@ -77,6 +77,7 @@
                                     <li><a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
                                         <ul class="nav child_menu">
                                             <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload files</a></li>
+                                            <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process/get_order_details">Order Details</a></li>
                                         </ul>
                                     </li>
                                     <!--                        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">

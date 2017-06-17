@@ -149,5 +149,12 @@ class Upload_buyback_process extends CI_Controller {
         
     }
     
+    function get_order_details(){
+        
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/get_order_details');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
 
 }
