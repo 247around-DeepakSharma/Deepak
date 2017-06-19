@@ -149,7 +149,7 @@
                                                 <div class="rect3" style="background-color:#f4c20d"></div>
                                                 <div class="rect4" style="background-color:#3cba54"></div>
                                             </div>
-                                            <div ng-show="successMsg" class="alert alert-success alert-dismissable">{{msg}}</div>
+                                            <div ng-if="successMsg" class="alert alert-success alert-dismissable">{{msg}}</div>
                                             <div ng-if="errorMsg" class="alert alert-danger alert-dismissable">{{msg}}</div>
                                         </div>
                                     </div>
