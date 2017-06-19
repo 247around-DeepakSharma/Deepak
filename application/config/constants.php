@@ -282,6 +282,7 @@ define("PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT", 11);
 //Engineer has not contacted with customer.
 define("ENGINEER_HAS_NOT_CONTACTED_WITH_CUSTOMER", 3);
 
+
 define('SUCCESS_CODE', 247);
 define('SUCCESS_MSG', 'Success');
 define('ERR_BOOKING_NOT_INSERTED', -24700);
@@ -343,6 +344,7 @@ define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com");
 
 
 
+
 //promotional sms constant
 define('COMPLETED_PROMOTINAL_SMS_1','completed_promotional_sms_1');
 define('COMPLETED_PROMOTINAL_SMS_2','completed_promotional_sms_2');
@@ -367,6 +369,9 @@ define('MISSED_CALL_RATING_SMS','missed_call_rating_sms');
 define('GOOD_MISSED_CALL_RATING_NUMBER','01139588220');
 define('POOR_MISSED_CALL_RATING_NUMBER','01139588224');
 define('MISSED_CALL_DEFAULT_RATING', '5');
+
+//Buyback constant
+define('_247AROUND_BB_PRICE_LIST','BB-Price-List');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

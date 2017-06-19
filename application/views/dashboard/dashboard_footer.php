@@ -1,5 +1,5 @@
 <!-- footer content -->
-        <footer>
+<footer style="margin-left: 0px;">
           <div class="pull-right">
              <a href="#">247AROUND</a>
           </div>
@@ -33,9 +33,15 @@
     <script src="<?php echo base_url()?>assest/flot-spline/js/jquery.flot.spline.min.js"></script>
     <script src="<?php echo base_url()?>assest/flot.curvedlines/curvedLines.js"></script>
     
+    <script src="<?php echo base_url()?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="<?php echo base_url()?>assest/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+
+    <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    
     <!-- Custom Theme Scripts -->
     <script src="<?php echo base_url()?>js/base_url.js"></script>
-    <script src="<?php echo base_url()?>js/dashboard_custom.js"></script>
+    <script src="<?php echo base_url()?>js/dashboard_custom.min.js"></script>
 	
   </body>
 </html>
