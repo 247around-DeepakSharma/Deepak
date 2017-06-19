@@ -529,7 +529,6 @@
             document.getElementById(error_id).innerHTML = message;
     }
 </script>
-
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
 <script type="text/javascript">

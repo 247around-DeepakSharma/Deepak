@@ -16,9 +16,9 @@ function handleShutdown() {
         //$msg = $buffer;
         $CI = get_instance();
         $CI->email->clear(TRUE);
-        $CI->email->from('booking@247around.com', '247around Team');
+        $CI->email->from(SYS_HEALTH_EMAIL, SYS_HEALTH_NAME);
         $CI->email->to(DEVELOPER_EMAIL);
-        $CI->email->subject('fatel error');
+        $CI->email->subject('FATAL ERROR');
         $msg = "<b>Error Message:</b>";
         $msg .= $error['message'];
         $msg .= "<br><br><br>";

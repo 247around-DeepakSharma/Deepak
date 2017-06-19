@@ -61,7 +61,7 @@ class invoices_model extends CI_Model {
      */
     function getInvoicingData($data) {
         $this->db->where($data);
-        $this->db->order_by('create_date');
+        $this->db->order_by('from_date');
         $query = $this->db->get('vendor_partner_invoices');
 
         return $query->result_array();
@@ -203,12 +203,14 @@ class invoices_model extends CI_Model {
 
         foreach ($data as $value) {
 
+
             $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid, "
                     . " CASE WHEN (SELECT count(id) FROM vendor_partner_invoices "
                     . " WHERE type_code ='A' AND type = 'Stand' AND `settle_amount` = 0 AND vendor_partner_id = $value[id] "
                     . " AND vendor_partner = '$vendor_partner' $due_date_status ) "
                     . " THEN(1) ELSE 0 END as is_stand FROM  `vendor_partner_invoices` "
                     . " WHERE vendor_partner_id = $value[id] AND vendor_partner = '$vendor_partner' $due_date_status";
+
 
             $data = $this->db->query($sql);
             $result = $data->result_array();
@@ -1342,5 +1344,4 @@ class invoices_model extends CI_Model {
         $query = $this->db->get('payment_history');
         return $query->result_array();
     }
-    
 }

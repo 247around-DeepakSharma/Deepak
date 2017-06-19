@@ -241,7 +241,6 @@ class User extends CI_Controller {
 
         $data['user'] = $this->user_model->search_user($phone_number);
         $data['state'] = $this->vendor_model->getall_state();
-        $data['pincode'] = $this->vendor_model->getPincode_from_india_pincode();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         
         $this->load->view('employee/edituser', $data);

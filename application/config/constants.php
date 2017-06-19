@@ -71,6 +71,8 @@ define('_247AROUND_CANCELLED','Cancelled');
 define('_247AROUND_RESCHEDULED','Rescheduled');
 //constant to define Completed state
 define('_247AROUND_COMPLETED','Completed');
+//constant to define Completed Bookings with Ratings
+define('_247AROUND_RATING_COMPLETED','Completed With Rating');
 //constant to define Customer Not Available
 define('_247AROUND__Customer_Not_Available','Customer_Not_Available');
 //constant to define SCHEDULED
@@ -180,6 +182,9 @@ define('SNAPDEAL_ID',1);
 define("JEEEVES_ID", 247030);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com');
+//Define Email ID to send system health emails
+define('SYS_HEALTH_NAME','247around Health Monitor');
+define('SYS_HEALTH_EMAIL','health@247around.com');
 //Define New CRM Contstant for SF
 define('NEW_SF_CRM',"New SF CRM");
 //Define Ols CRM Contstant for SF
@@ -319,11 +324,14 @@ define('ERR_INVALID_INSTALLATION_TIMESLOT_MSG', 'Invalid Installation Timeslot')
 define('ERR_INVALID_PARTNER_NAME_MSG', 'Invalid Partner Name');
 define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
+
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
 
+
 //ADIL EMIL ID
 define("ADIL_EMAIL_ID", "adila@247around.com");
+
 //rating new state
 define('RATING_NEW_STATE','Completed_With_Rating');
 

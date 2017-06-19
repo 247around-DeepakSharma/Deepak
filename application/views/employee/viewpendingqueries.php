@@ -69,7 +69,6 @@ function outbound_call(phone_number){
                    </div>';
                 }
                 ?>
-                <div id="queries_data">
                 <table class="table table-bordered table-hover table-striped">
 
                     <thead>
@@ -183,7 +182,7 @@ function outbound_call(phone_number){
 
                 </table>
                  <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
-                </div></div>
+            </div>
         </div>
     </div>
 </div>

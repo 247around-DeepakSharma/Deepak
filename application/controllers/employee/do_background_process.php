@@ -238,15 +238,9 @@ class Do_background_process extends CI_Controller {
 
         if ($current_status == _247AROUND_CANCELLED) {
             $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
-
-            $booking['internal_status'] =  $booking['cancellation_reason'];
-
-        } else {
-
-            //Save this booking id in booking_invoices_mapping table as well now
-            $this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $data[0]['booking_id']));
+            $booking['internal_status'] = $booking['cancellation_reason'];
         }
-           
+
         //check partner status from partner_booking_status_mapping table  
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {

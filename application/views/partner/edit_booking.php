@@ -521,7 +521,6 @@
             document.getElementById(error_id).innerHTML = message;
     }
 </script>
-
 <?php $this->session->unset_userdata('success'); ?>
 <script type="text/javascript">
     $("#booking_city").select2({

@@ -3047,7 +3047,7 @@ class Partner extends CI_Controller {
                 
                 $tmpFile = $_FILES['partner_brand_logo']['tmp_name'][$key];
                 $ext= explode('.', $_FILES["partner_brand_logo"]["name"][$key]);
-                $file_name = $partner_name.preg_replace("/[^a-zA-Z]+/", "", $ext[0]).rand(10,100).".".end($ext);
+                $file_name = $partner_name.preg_replace("/[^a-zA-Z]+/", "", $_FILES["partner_brand_logo"]["name"][$key]).rand(10,100).".".end($ext);
                 if(!file_exists(FCPATH.'images/'.$file_name))
                 {
                     move_uploaded_file($tmpFile,FCPATH.'images/'.$file_name);

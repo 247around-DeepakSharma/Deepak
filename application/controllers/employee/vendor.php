@@ -3988,6 +3988,7 @@ class vendor extends CI_Controller {
 
         $this->load->view('employee/reassignvendor', array('partners' => $partners,'type'=>'partner'));
     }
+
     
     /**
      * @desc: This function reassigns partner for a particular booking.
@@ -4024,8 +4025,9 @@ class vendor extends CI_Controller {
         }
         
     }
+
     /**
-     * if pincode wxist in the india pincode table the echo success other wise Not Exist
+     * if pincode exist in the india pincode table the echo success other wise Not Exist
      * @param String $pincode
      */
     function check_pincode_exist_in_india_pincode($pincode = ""){
