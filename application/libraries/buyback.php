@@ -36,7 +36,7 @@ class Buyback {
      * @return boolean
      */
     function new_bb_order() {
-        $array = array('city' => $this->POST_DATA['city'], 'active' => 1);
+        $array = array('shop_address_city' => $this->POST_DATA['city'], 'active' => 1);
         //Get CP id from shop address table.
         $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details($array, '*');
         $bb_charges = array();
@@ -100,8 +100,8 @@ class Buyback {
             'create_date' => date('Y-m-d H:i:s'),
             'assigned_cp_id' => (!empty($cp_id) ? $cp_id : NULL),
             'delivery_date' => (!empty($this->POST_DATA['delivery_date']) ? $this->POST_DATA['delivery_date'] : NULL),
-            'partner_tracking_id' => (isset($this->POST_DATA['partner_tracking_id']) ? $this->POST_DATA['partner_tracking_id'] : NULL),
-            'service_id' => (!empty($service_id) ? $service_id : NULL)
+            'partner_tracking_id' => (isset($this->POST_DATA['partner_tracking_id']) ? $this->POST_DATA['partner_tracking_id'] : NULL)
+            
         );
 
         return $this->My_CI->bb_model->insert_bb_order_details($bb_order_details);
@@ -116,14 +116,15 @@ class Buyback {
             'partner_id' => $this->POST_DATA['partner_id'],
             'partner_order_id' => $this->POST_DATA['partner_order_id'],
             'category' => (!empty($bb_charges) ? $bb_charges[0]['category'] : NULL),
+            'brand' => (!empty($bb_charges) ? $bb_charges[0]['brand'] : NULL),
             'physical_condition' => (!empty($bb_charges) ? $bb_charges[0]['physical_condition'] : NULL),
             'working_condition' => (!empty($bb_charges) ? $bb_charges[0]['working_condition'] : NULL),
             'order_status' => $this->POST_DATA['current_status'],
             'partner_basic_charge' => $this->POST_DATA['partner_basic_charge'],
-            'cp_basic_charge' => (!empty($bb_charges) ? $bb_charges[0]['cp_basic_charge'] : 0),
-            'cp_tax_charge' => (!empty($bb_charges) ? $bb_charges[0]['cp_tax_charge'] : 0),
-            'around_commision_basic_charge' => (!empty($bb_charges) ? $bb_charges[0]['around_commision_basic_charge'] : 0),
-            'around_commision_tax' => (!empty($bb_charges) ? $bb_charges[0]['around_commision_tax_charge'] : 0),
+            'cp_basic_charge' => (!empty($bb_charges) ? $bb_charges[0]['cp_basic'] : 0),
+            'cp_tax_charge' => (!empty($bb_charges) ? $bb_charges[0]['cp_tax'] : 0),
+            'around_commision_basic_charge' => (!empty($bb_charges) ? $bb_charges[0]['around_basic'] : 0),
+            'around_commision_tax' => (!empty($bb_charges) ? $bb_charges[0]['around_tax'] : 0),
             'partner_sweetner_charges' => $this->POST_DATA['partner_sweetner_charges'],
             'create_date' => date('Y-m-d'),
             'order_key' => $this->POST_DATA['order_key'],
