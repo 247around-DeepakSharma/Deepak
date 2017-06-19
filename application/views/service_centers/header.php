@@ -235,6 +235,7 @@
                         <!--                   <li>
                             <a href="<?php echo base_url(); ?>service_center/get_search_form">Search</a>
                             </li>-->
+                        <?php if($this->session->userdata('is_sf') === '1'){ ?>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Bookings <span class="caret"></span></a>
                             <ul class="dropdown-menu">
@@ -284,6 +285,15 @@
                         <?php if($this->session->userdata('service_center_id') == '10'){ ?>
                         <li>
                             <a href="<?php echo base_url() ;?>employee/service_centers/show_brackets_list">Brackets</a>
+                        </li>
+                        <?php } ?>
+                        <?php } ?>
+                        <?php if($this->session->userdata('is_cp') === '1'){ ?>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Buyback <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="<?php echo base_url();?>service_centers/bb_oder_details">Buyback Order Details</a></li>
+                            </ul>
                         </li>
                         <?php } ?>
                         <li>

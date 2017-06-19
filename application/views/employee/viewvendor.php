@@ -178,7 +178,7 @@
             $.ajax({
                 url:'<?php echo base_url()."employee/vendor/allow_log_in_to_vendor/" ?>'+vendor_id,
                 success: function (data) {
-                    window.open("<?php echo base_url().'service_center/pending_booking'?>",'_blank');
+                    window.open("<?php echo base_url()?>"+"/"+data,'_blank');
                 }
             });
             

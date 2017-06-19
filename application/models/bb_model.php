@@ -3,7 +3,7 @@
 class Bb_model extends CI_Model {
 
     var $column_order = array('bb_unit_details.partner_order_id', 'services', 'city',
-        'order_date', 'delivery_date', 'current_status'); //set column field database for datatable orderable
+        'order_date', 'delivery_date', 'current_status','partner_basic_charge'); //set column field database for datatable orderable
     var $column_search = array('bb_unit_details.partner_order_id', 'services', 'city',
         'order_date', 'delivery_date', 'current_status'); //set column field database for datatable searchable 
     var $order = array('bb_order_details.id' => 'asc'); // default order 
