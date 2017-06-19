@@ -1761,5 +1761,15 @@ class Reporting_utils extends CI_Model {
 
         return $query->result_array();
     }
+    
+    function get_uploaded_file_history($file_type){
+        $sql = "SELECT e.full_name as agent_name,p.file_name,DATE(p.create_date) AS upload_date
+                FROM file_uploads AS p 
+                JOIN employee AS e ON p.agent_id = e.id 
+                WHERE file_type= '$file_type'
+                ORDER BY file_name DESC LIMIT 0,5";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 
 }

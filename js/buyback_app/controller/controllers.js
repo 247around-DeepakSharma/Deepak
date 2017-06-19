@@ -22,6 +22,14 @@ uploadfile.controller('uploadPriceChargesFile', ['$scope', 'fileUpload', functio
     
 }]);
 
+
+uploadfile.controller('uploadFileHistory', function($scope, $http) {
+    var get_url = baseUrl + "/buyback/upload_buyback_process/upload_file_history/BB-Price-List";
+    $http.get(get_url)
+    .then(function (response) { 
+        $scope.uploadFileHistory = response.data;});
+});
+
 //shop address details file upload
 //uploadfile.controller('uploadShopAddressFile', ['$scope', 'fileUpload', function($scope, fileUpload){
 //    
