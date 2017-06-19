@@ -580,8 +580,9 @@ class Notify {
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 
                 $data['content'] = curl_exec($ch);
-		log_message('info', __METHOD__. "Transactional SMS91 Log: ".$data['content']);
-		curl_close($ch);
+				log_message('info', __METHOD__. "Transactional SMS91 Log: ".$data['content']);
+				curl_close($ch);
+                
 		break;
         }
         
@@ -604,11 +605,11 @@ class Notify {
             $smsBody = vsprintf($template, $sms['smsData']);
             if ($smsBody) {
                 $status = $this->sendTransactionalSmsMsg91($sms['phone_no'], $smsBody);
+
                 log_message('info', __METHOD__ . print_r($status, 1));
 
                 //sometimes we get a 24 char random value, other times we get 'success'
                 if ((ctype_alnum($status['content']) && strlen($status['content']) == 24) || ($status['content'] == 'success')){
-
                     $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);
                 } else {
                     $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);

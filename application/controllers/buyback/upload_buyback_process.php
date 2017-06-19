@@ -7,7 +7,7 @@ if (!defined('BASEPATH')) {
 use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
 
-ini_set('max_execution_time', 36000); //3600 seconds = 60 minutes
+ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
 require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php';
 class Upload_buyback_process extends CI_Controller {
 
@@ -148,16 +148,7 @@ class Upload_buyback_process extends CI_Controller {
                 echo json_decode("Error", "File format is not correct. Only XLS or XLSX files are allowed.");
             }
         }
-    }
-    
-    function get_order_details(){
-        
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        $this->load->view('buyback/get_order_details');
-        $this->load->view('dashboard/dashboard_footer');
-    }
-    
-    
+    }    
     /**
      * @desc This function is used to upload the charges list excel
      * @para, void

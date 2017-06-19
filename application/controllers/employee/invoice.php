@@ -260,6 +260,7 @@ class Invoice extends CI_Controller {
             $amount_collected = array();
             $tds = array();
 
+
             $bank_payment_history = $this->invoices_model->get_payment_history(array('bank_transaction_id' => $id));
             foreach ($bank_payment_history as $value) {
                 if ($value == "Debit") {
@@ -291,7 +292,7 @@ class Invoice extends CI_Controller {
         $account_statement['transaction_mode'] = $this->input->post('transaction_mode');
         $invoice_id_array = $this->input->post('invoice_id');
         $credit_debit_array = $this->input->post('credit_debit');
-
+        
         $tds_amount_array = $this->input->post('tds_amount');
         $credit_debit_amount = $this->input->post('credit_debit_amount');
         $transaction_date = $this->input->post('tdate');
@@ -368,9 +369,9 @@ class Invoice extends CI_Controller {
             $account_statement['credit_debit'] = 'Debit';
         }
 
-        $account_statement['agent_id'] = $this->session->userdata('id');
-        $account_statement['tds_amount'] = $tds;
-
+        $account_statement['agent_id'] =  $this->session->userdata('id');   
+        $account_statement['tds_amount'] = $tds;            
+                    
         if (empty($bank_txn_id)) {
             $bank_txn_id = $this->invoices_model->bankAccountTransaction($account_statement);
         } else {
@@ -378,7 +379,7 @@ class Invoice extends CI_Controller {
         }
 
         foreach ($payment_history as $key => $value) {
-            $payment_history[$key]['bank_transaction_id	'] = $bank_txn_id;
+            $payment_history[$key]['bank_transaction_id'] = $bank_txn_id;
         }
         $this->accounting_model->insert_batch_payment_history($payment_history);
 
@@ -402,6 +403,7 @@ class Invoice extends CI_Controller {
         $sms['booking_id'] = "";
         $sms['type'] = $account_statement['partner_vendor'];
         $sms['type_id'] = $account_statement['partner_vendor_id'];
+
 
         $this->notify->send_sms_msg91($sms);
     }
@@ -3223,6 +3225,7 @@ class Invoice extends CI_Controller {
                     $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
                     echo $invoice_id['invoice_id'];
                     break;
+
                 case 'B':
                     
                     if ($vendor_partner_type == "vendor") {
@@ -3240,7 +3243,6 @@ class Invoice extends CI_Controller {
             echo "DATA NOT FOUND";
         }
     }
-
     /**
      * @desc: This is used to Insert CRM SETUP invoice
      */
@@ -3521,7 +3523,6 @@ class Invoice extends CI_Controller {
             $courier_charges = $this->input->post('courier_charges');
             $order_id_data = $this->inventory_model->get_new_credit_note_brackets_data($order_id);
 
-
             $result = array();
             $_19_24_shipped_brackets_data = array();
             $_26_32_shipped_brackets_data = array();
@@ -3529,10 +3530,9 @@ class Invoice extends CI_Controller {
             $_43_shipped_brackets_data = array();
             $courier_charges_data = array();
 
-
             //prepare data to make credit note file
             if (!empty($order_id_data[0]['19_24_shipped'])) {
-                $_19_24_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (19-24 Inch)';
+                $_19_24_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (19-24 Inch)';
                 $_19_24_shipped_brackets_data[0]['p_tax_rate'] = '';
                 $_19_24_shipped_brackets_data[0]['qty'] = $order_id_data[0]['19_24_shipped'];
                 $_19_24_shipped_brackets_data[0]['p_rate'] = '';
@@ -3545,7 +3545,7 @@ class Invoice extends CI_Controller {
             }
 
             if (!empty($order_id_data[0]['26_32_shipped'])) {
-                $_26_32_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (26-32 Inch)';
+                $_26_32_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (26-32 Inch)';
                 $_26_32_shipped_brackets_data[0]['p_tax_rate'] = '';
                 $_26_32_shipped_brackets_data[0]['qty'] = $order_id_data[0]['26_32_shipped'];
                 $_26_32_shipped_brackets_data[0]['p_rate'] = '';
@@ -3558,7 +3558,7 @@ class Invoice extends CI_Controller {
             }
 
             if (!empty($order_id_data[0]['36_42_shipped'])) {
-                $_36_42_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (36_42 Inch)';
+                $_36_42_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (36_42 Inch)';
                 $_36_42_shipped_brackets_data[0]['p_tax_rate'] = '';
                 $_36_42_shipped_brackets_data[0]['qty'] = $order_id_data[0]['36_42_shipped'];
                 $_36_42_shipped_brackets_data[0]['p_rate'] = '';
@@ -3571,7 +3571,7 @@ class Invoice extends CI_Controller {
             }
 
             if (!empty($order_id_data[0]['43_shipped'])) {
-                $_43_shipped_brackets_data[0]['description'] = 'Bracket  Charges Refund (Greater Than 43 Inch)';
+                $_43_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (Greater Than 43 Inch)';
                 $_43_shipped_brackets_data[0]['p_tax_rate'] = '';
                 $_43_shipped_brackets_data[0]['qty'] = $order_id_data[0]['43_shipped'];
                 $_43_shipped_brackets_data[0]['p_rate'] = '';
@@ -3673,7 +3673,7 @@ class Invoice extends CI_Controller {
                         'total_amount_collected' => $meta['grand_total_price'],
                         'rating' => 0,
                         'around_royalty' => 0,
-                        'amount_collected_paid' => '-' . $meta['grand_total_price'],
+                        'amount_collected_paid' => (0-$meta['grand_total_price']),
                         'invoice_date' => date('Y-m-d'),
                         'tds_amount' => 0.0,
                         'settle_amount' => 0,
@@ -3716,6 +3716,7 @@ class Invoice extends CI_Controller {
                         }
                     } else {
                         log_message('info', __FUNCTION__ . ' Credit Note - Error in Inserting Brackets credit note data in the vendor_partner_invoice table for the Order ID :'.$order_id . 'and data is ' . print_r($invoice_details));
+                        
                         $error_msg = "Error in generating credit note!!! Please Try Again";
                         $this->session->set_flashdata('error_msg', $error_msg);
                         redirect(base_url() . 'employee/invoice/show_purchase_brackets_credit_note_form');

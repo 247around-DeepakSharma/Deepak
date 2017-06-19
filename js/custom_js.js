@@ -348,7 +348,6 @@ function addBookingDialog() {
         return false;
     }
 
-    
     for (var k = 1; k <= numItems; k++) {
         cloned_price(regex1, priceIndexClone, k);
 

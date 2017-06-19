@@ -223,6 +223,7 @@ class service_centre_charges extends CI_Controller {
      *  @param : input file and type(price for service price and tax for tax rate)
      *  @return : void
      */
+
     function upload_excel($inputFileName, $type, $flag) {
         $reader = ReaderFactory::create(Type::XLSX);
         $reader->open($inputFileName);
@@ -332,6 +333,7 @@ class service_centre_charges extends CI_Controller {
      *  @return : array
      */
     function set_price_rows_data($row) {
+
         $data['partner_id'] = isset($row[1]) ? $row[1] : '';
         $data['state'] = isset($row[2]) ? $row[2] : '';
         $data['brand'] = isset($row[3]) ? $row[3] : '';

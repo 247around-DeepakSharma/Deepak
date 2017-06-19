@@ -246,7 +246,7 @@ class Around_scheduler extends CI_Controller {
             //Log this state change as well for this booking
             $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around', _247AROUND);
 
-            echo 'Cancelled ................' . PHP_EOL;
+            echo $booking_id . ' Cancelled ................' . PHP_EOL;
         } else {
             echo $booking_id . ' Query State Changed to => ' . $status[0]['current_status'] . PHP_EOL;
         }
@@ -395,7 +395,7 @@ class Around_scheduler extends CI_Controller {
         $message = system('elinks -dump "https://push3.maccesssmspush.com/servlet/com.aclwireless.pushconnectivity.listeners.ConfigurationListener?action=prepaid&userid=blackmalt&pass=blackmalt67&appid=blackmalt&subappid=blackmalt"');
 
         $to = ANUJ_EMAIL_ID;
-        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+        $this->notify->sendEmail(SYS_HEALTH_EMAIL, $to, "", "", $subject, $message, "");
     }
 
     /**
@@ -446,7 +446,7 @@ class Around_scheduler extends CI_Controller {
             if ($this->email->send()) {
                 log_message('info', __METHOD__ . ": Mail sent successfully for PinCode Not Available To RM ");
             } else {
-                log_message('info', __METHOD__ . ": Mail could not be sent for RM: " . $p['public_name']);
+                log_message('info', __METHOD__ . ": Mail could not be sent to RM");
             }
         } else {
             $to = ANUJ_EMAIL_ID;

@@ -1720,7 +1720,7 @@ class Reporting_utils extends CI_Model {
         $query = $this->db->get();
         return  $query->result_array();
     }
-    
+
     /**
      * @Desc: This function is used to get all latest file uploaded in s3 with agent name
      * @params:void
@@ -1739,8 +1739,7 @@ class Reporting_utils extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
-    
-    
+
     /**
      * @Desc: This function is used to get the latest file name uploaded in s3 for downloading
      * @params:array

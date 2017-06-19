@@ -167,10 +167,14 @@ class Partner_model extends CI_Model {
 	        $this->db->where('id', $partner_id);
 	    }
 	    $this->db->select('*');
-            if($is_active){
-                $this->db->where('is_active', '1');
-            }
+   
+      $this->db->order_by('public_name');
+
+      if($is_active){
+          $this->db->where('is_active', '1');
+      }
 	    
+
 	    $query = $this->db->get('partners');
 
 	    return $query->result_array();
