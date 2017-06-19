@@ -127,7 +127,7 @@
                              
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
-                                    <label for="Partner source ">Seller Channel  <span id="error_seller" style="color: red;"></label>
+                                    <label for="Partner source ">Seller Channel*  <span id="error_seller" style="color: red;"></label>
                                      
                                     <select type="text" class="form-control"  id="partner_source" name="partner_source" >
                                         <option value="">Please select seller channel</option>
@@ -248,11 +248,10 @@
                                         </div> 
                                         <div class="col-md-6">
                                             <select  type="text" class="form-control "   name="purchase_year" id="purchase_year_1" >
-                                                <option selected="selected" value="" >Year</option>
-                                                <?php for($i = 0; $i> -26; $i--){ ?>
+                                                 <?php $current_year = date('Y'); for($i = 0; $i> -26; $i--){ ?>
                                                 <option  <?php if(set_value('purchase_year') == date("Y",strtotime($i." year"))){ echo "selected";} 
-                                                else if($unit_details[0]['purchase_year'] ==date("Y",strtotime($i." year"))){ echo "selected";} 
-                                                  ?> >
+                                                  else if(date("Y",strtotime($i." year")) == $current_year){ echo "selected";}
+                                                  else if(date("Y",strtotime($i." year")) == $unit_details[0]['purchase_year']){ echo "selected";}?> >
                                                     <?php echo date("Y",strtotime($i." year")); ?>
                                                 </option>
                                                 <?php }  ?>

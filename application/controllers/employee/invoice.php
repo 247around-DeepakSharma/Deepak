@@ -313,7 +313,7 @@ class Invoice extends CI_Controller {
                 $credit_debit = $credit_debit_array[$key];
                 $p_history['invoice_id'] = $invoice_id;
                 $p_history['credit_debit'] = $credit_debit;
-                $p_history['credit_debit_amount'] = round($credit_debit_amount[$key],0);
+                $p_history['credit_debit_amount'] = round($credit_debit_amount[$key], 0);
                 $p_history['agent_id'] = $this->session->userdata('id');
                 $p_history['tds_amount'] = $tds_amount_array[$key];
                 $p_history['create_date'] = date("Y-m-d H:i:s");
@@ -377,9 +377,9 @@ class Invoice extends CI_Controller {
         } else {
             $this->invoices_model->update_bank_transactions(array('id' => $bank_txn_id), $account_statement);
         }
-        
-        foreach($payment_history as $key => $value){
-            $payment_history[$key]['bank_transaction_id '] = $bank_txn_id;
+
+        foreach ($payment_history as $key => $value) {
+            $payment_history[$key]['bank_transaction_id'] = $bank_txn_id;
         }
         $this->accounting_model->insert_batch_payment_history($payment_history);
 
@@ -390,6 +390,7 @@ class Invoice extends CI_Controller {
         }
 
           redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
+        
     }
 
     function send_payment_sms_to_vendor($account_statement) {

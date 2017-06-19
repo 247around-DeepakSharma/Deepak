@@ -6,11 +6,10 @@ class Penalty_model extends CI_Model {
      * @desc load both db
      */
     function __construct() {
-        parent::__Construct();
+	parent::__Construct();
 
-        $this->db = $this->load->database('default', TRUE, TRUE);
+	$this->db = $this->load->database('default', TRUE, TRUE);
     }
-
     /**
      * @desc: This is
      */
@@ -125,7 +124,6 @@ class Penalty_model extends CI_Model {
 //      }
 //  }
     }
-
     /**
      *
      * @param Array $value
@@ -154,7 +152,6 @@ class Penalty_model extends CI_Model {
             return FALSE;
         }
     }
-
     /**
      *
      * @param String $booking_id
@@ -175,7 +172,6 @@ class Penalty_model extends CI_Model {
             return false;
         }
     }
-
     /**
      *
      * @param Array $where
@@ -192,7 +188,6 @@ class Penalty_model extends CI_Model {
             return FALSE;
         }
     }
-
     /**
      *
      * @param Array $data

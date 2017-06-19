@@ -135,7 +135,7 @@
                             
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
-                                    <label for="Partner source ">Seller Channel <span id="error_seller" style="color: red;"></label>
+                                    <label for="Partner source ">Seller Channel* <span id="error_seller" style="color: red;"></label>
                                      
                                     <select type="text" class="form-control"  id="partner_source" name="partner_source" >
                                         <option value="">Please select seller channel</option>
@@ -250,10 +250,10 @@
                                         </div> 
                                         <div class="col-md-6">
                                             <select  type="text" class="form-control "   name="purchase_year" id="purchase_year_1" >
-                                                <option selected="selected" value="" >Year</option>
-                                                <?php for($i = 0; $i> -26; $i--){ ?>
+                                                
+                                                <?php $current_year = date('Y'); for($i = 0; $i> -26; $i--){ ?>
                                                 <option  <?php if(set_value('purchase_year') == date("Y",strtotime($i." year"))){ echo "selected";} 
-                                                  ?> >
+                                                  if(date("Y",strtotime($i." year")) == $current_year){ echo "selected";}?> >
                                                     <?php echo date("Y",strtotime($i." year")); ?>
                                                 </option>
                                                 <?php }  ?>
@@ -313,10 +313,12 @@
                     </div>
                 </div>
             </div>
+            <input type="hidden" id="not_visible" name="not_visible" value="0"/>
             <div class="row">
                 <div class="form-group  col-md-12" >
                     <center>
                         <input type="submit" id="submitform" class="btn btn-primary " onclick="return check_validation()" value="Submit Booking">
+                        <span id="error_not_visible" style="color: red"></span>
                     </center>
                 </div>
             </div>
@@ -338,6 +340,8 @@
         
         var appliance = $("#service_name").val();
         var brand = $("#appliance_brand_1").val();
+        
+        var not_visible = $("#not_visible").val();
         
          if(mobile_number === ""){
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Mobile");
@@ -388,6 +392,11 @@
         } else {
            display_message("partner_source","error_seller","green","");
             
+        }
+        
+        if(not_visible === 0){
+             display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+             return false;
         }
         
         service_category =0;
@@ -735,15 +744,16 @@
                     
                     if(data !== "ERROR"){
                         $('#booking_city').select2().html(data).change();
-                        $("#booking_city").select2({
-                           tags: true
-                        });
+//                        $("#booking_city").select2({
+//                           tags: true
+//                        });
                        
                          $('#submitform').prop('disabled', false);
-                        
+                        $("#not_visible").val('1');
                     } else {
                         alert("Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
                         $('#submitform').prop('disabled', true);
+                        $("#not_visible").val('0');
                         
                     }
                    
@@ -839,6 +849,23 @@
         final_price();
         $('#submitform').attr('disabled', true);
     }
+    
+    var not_visible = $("#not_visible").val();
+       
+    if(Number(not_visible) === 0){
+      
+
+     display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+      $('#submitform').attr('disabled', true);
+         return false;
+    } else {
+      display_message("not_visible","error_not_visible","","");
+      $('#submitform').attr('disabled', true);
+         
+   }        
+    
+    
+   
    }        
     function final_price(){
         var price = 0;
@@ -862,6 +889,7 @@
             var final_price = Number(price);
             $("#grand_total").val(final_price.toFixed(2));
         }
+        
   }
     
 </script>

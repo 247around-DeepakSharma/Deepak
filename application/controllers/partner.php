@@ -294,7 +294,7 @@ class Partner extends CI_Controller {
                         $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 
                         $appliance_details['last_service_date'] = date('Y-m-d');
-                        $booking['potential_value'] = '';
+                        //$booking['potential_value'] = '';
                         //Check vendor Availabilty for pincode and service id
                         $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price,"delivered");
                         if($is_sms){
@@ -1491,7 +1491,7 @@ class Partner extends CI_Controller {
             $booking['quantity'] = '1';
             $appliance_details['serial_number'] = $unit_details['partner_serial_number'] = $requestData['serial_number'];
             
-            $booking['potential_value'] = '';
+            //$booking['potential_value'] = '';
             $appliance_details['last_service_date'] = date('d-m-Y');
             
             $booking['booking_date'] = $requestData['booking_date'];

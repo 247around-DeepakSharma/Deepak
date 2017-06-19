@@ -1216,7 +1216,7 @@ class Booking extends CI_Controller {
             if ($value['active'] == 0) {
                 $where = array('id' => $value['penalty_remove_agent_id']);
                 $data1 = $this->employee_model->get_employee_by_group($where);
-                $data['penalty'][$key]['agent_name'] = $data1[0]['full_name'];
+                $data['penalty'][$key]['agent_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
             } else if ($value['active'] == 1) {
                 $where = array('id' => $value['agent_id']);
                 $data1 = $this->employee_model->get_employee_by_group($where);
@@ -1352,7 +1352,6 @@ class Booking extends CI_Controller {
         $data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
 
         $data['p_av'] = $p_av;
-
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/viewpendingqueries', $data);
     }
@@ -2478,7 +2477,7 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function is used to upload the support file for order id to s3 and save into database
-     *  @param : string 
+     *  @param : string $booking_primary_contact_no
      *  @return : boolean/string
      */
     function upload_orderId_support_file($booking_id) {
