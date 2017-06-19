@@ -149,7 +149,7 @@
                                                 <div class="rect3" style="background-color:#f4c20d"></div>
                                                 <div class="rect4" style="background-color:#3cba54"></div>
                                             </div>
-                                            <div ng-if="successMsg" class="alert alert-success alert-dismissable">{{msg}}</div>
+                                            <div ng-show="successMsg" class="alert alert-success alert-dismissable">{{msg}}</div>
                                             <div ng-if="errorMsg" class="alert alert-danger alert-dismissable">{{msg}}</div>
                                         </div>
                                     </div>
@@ -159,6 +159,26 @@
                                             <button ng-click="uploadFile()" class="btn btn-success">Upload</button>
                                         </div>
                                     </div>
+                                </div>
+                                
+                                <div ng-controller="uploadFileHistory" style="margin-top:30px;">
+                                    <h2>File History</h2>
+                                    <table class="table table-bordered table-hover table-responsive">
+                                        <thead>
+                                            <th>S.No.</th>
+                                            <th>Download</th>
+                                            <th>Uploaded By</th>
+                                            <th>Uploaded Date</th>    
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in uploadFileHistory">
+                                                <td>{{$index + 1}}</td>
+                                                <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/{{x.file_name}}'><div class="btn btn-success btn-sm">Download</div></a></td>
+                                                <td>{{ x.agent_name }}</td>
+                                                <td>{{ x.upload_date }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
 
                             </div>

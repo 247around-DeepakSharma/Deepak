@@ -27,6 +27,7 @@ class Upload_buyback_process extends CI_Controller {
         $this->load->library('s3');
         
         $this->load->model("partner_model");
+        $this->load->model('reporting_utils');
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
@@ -273,6 +274,11 @@ class Upload_buyback_process extends CI_Controller {
         $tmp['create_date'] = date("Y-m-d h:i:sa");
         
         return $tmp;
+    }
+    
+    public function upload_file_history($file_type){
+        $data = $this->reporting_utils->get_uploaded_file_history($file_type);
+        print_r(json_encode($data, TRUE));
     }
 
 }
