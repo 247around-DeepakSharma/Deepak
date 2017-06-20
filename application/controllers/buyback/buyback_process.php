@@ -36,9 +36,9 @@ class Buyback_process extends CI_Controller {
      * @desc Used to get data as requested and also search 
      */
     function get_bb_order_details() {
-        // log_message("info", print_r(json_encode($_POST, TRUE), TRUE));
-//        $string = '{"draw":"3","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"pu","regex":"false"},"status":"0"}';
-//        $_POST = json_decode($string, true);
+//        // log_message("info", print_r(json_encode($_POST, TRUE), TRUE));
+//         $string = '{"draw":"1","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"7","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"8","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"status":"3"}';
+//         $_POST = json_decode($string, true);
         $length = $this->input->post('length');
         $start = $this->input->post('start');
         $search = $this->input->post('search');
@@ -56,7 +56,9 @@ class Buyback_process extends CI_Controller {
             $row = array();
             $row[] = $no;
             $row[] = $order_list->partner_order_id;
-            $row[] = $order_list->services;
+            if(isset($order_list->services)){
+                $row[] = $order_list->services;
+            }
             $row[] = $order_list->city;
             $row[] = $order_list->order_date;
             $row[] = $order_list->delivery_date;

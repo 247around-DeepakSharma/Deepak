@@ -25,6 +25,7 @@ class Upload_buyback_process extends CI_Controller {
         $this->load->library('table');
         $this->load->library('partner_utilities');
         $this->load->library('s3');
+        $this->load->library('notify');
         
         $this->load->model("partner_model");
         $this->load->model('reporting_utils');
@@ -81,65 +82,85 @@ class Upload_buyback_process extends CI_Controller {
                         $heading = str_replace(array("/", "(", ")", " ", "."), "", $heading);
                         array_push($headings_new, str_replace(array(" "), "_", $heading));
                     }
-                    $is_mail_flag = false;
+                    $message = "";
+                    $error = false;
                     for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
                         //  Read a row of data into an array
                         $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
-                        $rowData1 = array_combine($headings_new[0], $rowData[0]);
-                       
-                        $rowData1['partner_id'] = 247024;
-                        $rowData1['partner_name'] = "Amazon";
-                        $rowData1['partner_charge'] = $rowData1['DISCOUNT_VALUE'];
-                        $dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['ORDER_DAY']);             
-                        $rowData1['order_date'] = $dateObj1->format('Y-m-d');
-                        $rowData1['order_key'] = $rowData1['UseditemInfo'];
-                        $rowData1['current_status'] = $rowData1['ORDERSTATUS'];
-                        $rowData1['partner_sweetner_charges'] = $rowData1['Sweetnervalue'];
-                        $rowData1['partner_order_id'] = $rowData1['ORDER_ID'];
-                        $rowData1['partner_basic_charge'] = $rowData1['DISCOUNT_VALUE'];
-                        $rowData1['delivery_date'] = "";
-                        if(!empty($rowData1['OLD_ITEM_DEL_DATE'])){
-                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['OLD_ITEM_DEL_DATE']);    
-                            $rowData1['delivery_date'] = $dateObj2->format('Y-m-d');
-                        }
+                        $rowData11 = array_combine($headings_new[0], $rowData[0]);
+                        $rowData1 = array_change_key_case($rowData11);
+                        if (isset($rowData1['usediteminfo'])) {
+                            //Change index in lower case
+                            $this->initialized_variable->set_post_buyback_order_details(array());
+                            $rowData1['partner_id'] = 247024;
+                            $rowData1['partner_name'] = "Amazon";
+                            $rowData1['partner_charge'] = $rowData1['discount_value'];
+                            $dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['order_day']);
+                            $rowData1['order_date'] = $dateObj1->format('Y-m-d');
+                            $rowData1['order_key'] = $rowData1['usediteminfo'];
+                            $rowData1['current_status'] = $rowData1['orderstatus'];
+                            $rowData1['partner_sweetner_charges'] = $rowData1['sweetnervalue'];
+                            $rowData1['partner_order_id'] = $rowData1['order_id'];
+                            $rowData1['partner_basic_charge'] = $rowData1['discount_value'];
+                            $rowData1['delivery_date'] = "";
+                            if($rowData1['city'] == '0'){
+                                $rowData1['city'] = "";
+                            } 
+                            if (!empty($rowData1['old_item_del_date'])) {
+                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['old_item_del_date']);
+                                $rowData1['delivery_date'] = $dateObj2->format('Y-m-d');
+                            }
 
-                        unset($rowData1['ORDER_ID']);
-                        unset($rowData1['DISCOUNT_VALUE']);
-                        unset($rowData1['ORDER_DAY']);
-                        unset($rowData1['UseditemInfo']);
-                        unset($rowData1['ORDERSTATUS']);
-                        unset($rowData1['Sweetnervalue']);
-                        unset($rowData1['OLD_ITEM_DEL_DATE']);
-                        //Change index in lower case
-                        $rowData2 = array_change_key_case($rowData1);
-                        //set file data into global variable
-                        $this->initialized_variable->set_post_buyback_order_details($rowData2);
-                        //unset row data
-                        unset($rowData2);
-                        //Insert/Update BB order details
-                        $status = $this->buyback->check_action_order_details();
-                        if($status){} else{
-                            $is_mail_flag = true;
-                            $this->table->add_row($rowData1['order_id']);
+                            unset($rowData1['order_id']);
+                            unset($rowData1['discount_value']);
+                            unset($rowData1['order_day']);
+                            unset($rowData1['usediteminfo']);
+                            unset($rowData1['orderstatus']);
+                            unset($rowData1['sweetnervalue']);
+                            unset($rowData1['old_item_del_date']);
+
+                            //set file data into global variable
+                            $this->initialized_variable->set_post_buyback_order_details($rowData1);
+
+                            //Insert/Update BB order details
+                            $status = $this->buyback->check_action_order_details();
+                            $this->initialized_variable->set_post_buyback_order_details(array());
+                            if ($status) {
+                                
+                            } else {
+
+                                $this->table->add_row($rowData1['partner_order_id']);
+                            }
+                        } else {
+                            $message = " Used Item Info Column is not exit. Please check and upload again. <br/><br/>";
+                            $error = true;
+                            break;
                         }
-                       
+                    }
+                    $total_lead = $i;
+                   
+                    $to = NITS_ANUJ_EMAIL_ID.",".ADIL_EMAIL_ID;
+                    $cc = "abhaya@247around.com";
+                    
+
+                    $subject = "Buyback Order is uploaded by ".$this->session->userdata('employee_id');
+                    $message  .= "Total lead ".$total_lead."<br/>";
+                    $message .= "Total Delivered(Inserted/Updated) ".($this->initialized_variable->delivered_count() -1)."<br/>";
+                    $message .= "Total Inserted".($this->initialized_variable->total_inserted() -1)."<br/>";
+                    $message .= "Total Updated".($this->initialized_variable->total_updated() -1)."<br/>";
+                    $message .= "Please check below Order, these are neither inserted and nor uddated <br/><br/><br/>";
+                    $message .= $this->table->generate();
+
+                    $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                    if($error){
+                        $response = array("code" => -247, "msg" => "Used Item Info Filed is not exist.");
+                        echo json_encode($response);
+                        
+                    } else {
+                        $response = array("code" => 247, "msg" => "File sucessfully processed.");
+                        echo json_encode($response);
                     }
                     
-//                    $notify['notification'] = "File completely processed. ";
-//                    $this->load->view('notification', $notify, FALSE);
-                    
-                    if($is_mail_flag){
-                        $to = NITS_ANUJ_EMAIL_ID.",".ADIL_EMAIL_ID;
-                        $cc = "abhaya@247around.com";
-
-                        $subject = "Buyback Order Not inseted/Updated Issues.";
-                        $message = "Please check below Order <br/><br/><br/>";
-                        $message .= $this->table->generate();
-
-                        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
-                    }
-                    $response = array("code" => 247, "msg" => "File sucessfully processed.");
-                    echo json_encode($response);
                     
                 } catch (Exception $e) {
                     die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
