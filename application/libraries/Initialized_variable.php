@@ -3,6 +3,9 @@
 class Initialized_variable {
     Private $PartnerData = array();
     Private $BuybackOderDetails = array();
+    Private $t_delivered = -1;
+    Private $t_inserted = -1;
+    Private $t_updated = -1;
 
     public function __construct() {
 	$this->My_CI = & get_instance();
@@ -29,12 +32,39 @@ class Initialized_variable {
     function get_partner_data(){
         return $this->PartnerData;
     }
-    
+    /**
+     * @desc Set buyback post data
+     * @param Array $order_details
+     */
     function set_post_buyback_order_details($order_details){
         $this->BuybackOderDetails = $order_details;
     }
-    
+    /**
+     * @desc get buyback post data
+     * @return Array
+     */
     function get_post_buyback_order_details(){
         return $this->BuybackOderDetails;
+    }
+    /**
+     * @desc tottal order updated or inserted for delivered
+     * @return int
+     */
+    function delivered_count(){
+        return $this->t_delivered++;
+    }
+    /**
+     * @desc return total order inserted in buyback
+     * @return Int
+     */
+    function total_inserted(){
+        return $this->t_inserted++;
+    }
+    /**
+     * @desc return totla order updated for buyback
+     * @return Int
+     */
+    function total_updated(){
+        return $this->t_updated++;
     }
 }

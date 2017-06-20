@@ -3,7 +3,7 @@
 class Buyback {
 
     Private $POST_DATA = array();
-
+   
     public function __construct() {
         $this->My_CI = & get_instance();
         $this->My_CI->load->helper(array('form', 'url'));
@@ -37,12 +37,12 @@ class Buyback {
      */
     function new_bb_order() {
         $array = array('shop_address_city' => $this->POST_DATA['city'], 'active' => 1);
+       
         //Get CP id from shop address table.
         $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details($array, '*');
         $bb_charges = array();
-        $service_id = FALSE;
         $cp_id = FALSE;
-       
+      
         if (!empty($cp_shop_ddress)) {
             //Get Charges list
             $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges(array(
@@ -51,15 +51,13 @@ class Buyback {
                 'order_key' => $this->POST_DATA['order_key'],
                 'cp_id' => $cp_shop_ddress[0]['cp_id']
                     ), '*');
-
-            if (!empty($bb_charges)) {
-                $service_id = $bb_charges[0]['service_id'];
+            if(!empty($bb_charges)){
+                $cp_id = $bb_charges[0]['cp_id'];
             }
-
-            $cp_id = $cp_shop_ddress[0]['cp_id'];
-        }        
+        }    
+        
         // Insert bb order details
-        $is_insert = $this->insert_bb_order_details($cp_id, $service_id);
+        $is_insert = $this->insert_bb_order_details($cp_id);
         if ($is_insert) {
             // Insert bb unit details
             $is_unit = $this->insert_bb_unit_details($bb_charges);
@@ -68,27 +66,27 @@ class Buyback {
                 $this->insert_bb_state_change($this->POST_DATA['partner_order_id'],
                         $this->POST_DATA['current_status'], $this->POST_DATA['order_key'],
                         _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
+                if($this->POST_DATA['current_status'] == 'Delivered'){
+                    $this->My_CI->initialized_variable->delivered_count();
+                }
+                
+                $this->My_CI->initialized_variable->total_inserted();
                 return TRUE;
             } else {
-//                $notify['notification'] = "Order ID ".$this->POST_DATA['partner_order_id'].
-//                        " is not inserted. Please check this order.";
-//                $this->load->view('notification', $notify, FALSE);
+
                 return FALSE;
             }
         } else {
-//            $notify['notification'] = "Order ID ".$this->POST_DATA['partner_order_id'].
-//                        " is not inserted. Please check this order.";
-//            $this->load->view('notification', $notify, FALSE);
+            
             return FALSE;
         }
     }
     /**
      * @desc Insert bb order details
      * @param int $cp_id
-     * @param Int $service_id
      * @return Array
      */
-    function insert_bb_order_details($cp_id, $service_id) {
+    function insert_bb_order_details($cp_id) {
         
         $bb_order_details = array(
             'partner_id' => $this->POST_DATA['partner_id'],
@@ -100,7 +98,7 @@ class Buyback {
             'create_date' => date('Y-m-d H:i:s'),
             'assigned_cp_id' => (!empty($cp_id) ? $cp_id : NULL),
             'delivery_date' => (!empty($this->POST_DATA['delivery_date']) ? $this->POST_DATA['delivery_date'] : NULL),
-            'partner_tracking_id' => (isset($this->POST_DATA['partner_tracking_id']) ? $this->POST_DATA['partner_tracking_id'] : NULL)
+            'partner_tracking_id' => (isset($this->POST_DATA['tracking_id']) ? $this->POST_DATA['tracking_id'] : NULL)
             
         );
 
@@ -151,7 +149,7 @@ class Buyback {
             );
             $where_bb_order = array('partner_id' => $this->POST_DATA['partner_id'], 'partner_order_id' => $this->POST_DATA['partner_id']);
             $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
-                if($is_status){
+            if($is_status){
                     $bb_unit_details = array(
                     'order_status' => $this->POST_DATA['current_status']
                 );
@@ -159,6 +157,10 @@ class Buyback {
                 $this->insert_bb_state_change($this->POST_DATA['partner_order_id'],
                         $this->POST_DATA['current_status'], NULL,
                         _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
+                if($this->POST_DATA['current_status'] == 'Delivered'){
+                    $this->My_CI->initialized_variable->delivered_count();
+                }
+                $this->My_CI->initialized_variable->total_updated();
                 return true;
             } else {
 
