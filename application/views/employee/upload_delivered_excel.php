@@ -26,7 +26,7 @@
                <b> Upload Delivered Products for paytm Excel</b>
             </h1>
             
-            <form class="form-horizontal" action="<?php echo base_url()?>buyback/upload_buyback_process/process_upload_order" method="POST" enctype="multipart/form-data">
+            <form class="form-horizontal" action="<?php echo base_url()?>employee/bookings_excel/upload_booking_for_paytm" method="POST" enctype="multipart/form-data">
                 <div class="form-group  <?php if( form_error('excel') ) { echo 'has-error';} ?>">
                   <label for="excel" class="col-md-1">Delivered Products For Paytm</label>
                   <div class="col-md-4">
