@@ -67,8 +67,10 @@ class Service_centers extends CI_Controller {
             //get sc details now
             $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
             if (!empty($sc_details)) {
-                $this->setSession($sc_details[0]['id'], $sc_details[0]['company_name'], $agent['id'], $sc_details[0]['is_update'], $sc_details[0]['is_upcountry']);
-
+                $this->setSession($sc_details[0]['id'], $sc_details[0]['company_name'], 
+                        $agent['id'], $sc_details[0]['is_update'], 
+                        $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], 
+                        $sc_details[0]['is_cp']);
                 //Saving Login Details in Database
                 $login_data['browser'] = $this->agent->browser();
                 $login_data['agent_string'] = $this->agent->agent_string();
@@ -86,7 +88,11 @@ class Service_centers extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['agent_id']);
                 }
 
-                redirect(base_url() . "service_center/pending_booking");
+                if($this->session->userdata('is_sf') === '1'){
+                    redirect(base_url() . "service_center/pending_booking");
+                }else if($this->session->userdata('is_cp') === '1'){
+                    redirect(base_url() . "service_centers/bb_oder_details");
+                }
             } else {
                 $userSession = array('error' => 'Please enter correct user name and password');
                 $this->session->set_userdata($userSession);
@@ -404,7 +410,7 @@ class Service_centers extends CI_Controller {
      * @param: is update
      * @return: void
      */
-    function setSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry) {
+    function setSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
@@ -414,7 +420,9 @@ class Service_centers extends CI_Controller {
             'is_update' => $update,
 	    'sess_expiration' => 30000,
 	    'loggedIn' => TRUE,
-	    'userType' => 'service_center'
+	    'userType' => 'service_center',
+            'is_sf' => $sf,
+            'is_cp' => $cp
 	);
 
         $this->session->set_userdata($userSession);
@@ -426,7 +434,8 @@ class Service_centers extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id'))) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
+                && !empty($this->session->userdata('service_center_id'))) {
             return TRUE;
         } else {
             log_message('info', __FUNCTION__. " Session Expire for Service Center");
@@ -1573,6 +1582,71 @@ class Service_centers extends CI_Controller {
         $rm_details = $this->employee_model->getemployeefromid($rm_id);
         $rm_poc_email = $rm_details[0]['official_email'];
         return $rm_poc_email;
+    }
+    
+    
+    /**
+     * @desc Used to show buyback order data as requested
+     * @param void
+     * @return json $output 
+     */
+    public function view_delivered_bb_order_details(){
+        $this->checkUserSession();
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/bb_order_details');
+    }
+    
+    /**
+     * @desc Used to get buyback order data as requested and also search 
+     * @param void
+     * @return json $output 
+     */
+    function get_delivered_bb_order_details() {
+        $length = $this->input->post('length');
+        $start = $this->input->post('start');
+        $search = $this->input->post('search');
+        $search_value = $search['value'];
+        $order = $this->input->post('order');
+        $draw = $this->input->post('draw');
+        $status = $this->input->post('status');
+        $list = $this->service_centers_model->get_bb_order_list($length, $start, $search_value, $order, $status);
+
+        $data = array();
+        $no = $start;
+        foreach ($list as $order_list) {
+
+            $no++;
+            $row = array();
+            $row[] = $no;
+            $row[] = $order_list->partner_order_id;
+            $row[] = $order_list->services;
+            $row[] = $order_list->city;
+            $row[] = $order_list->order_date;
+            $row[] = $order_list->delivery_date;
+            if($order_list->current_status === 'Delivered'){
+                $row[] = "<span class='label label-success'>$order_list->current_status</span>";
+            }else if($order_list->current_status === 'In-Transit'){
+                $row[] = "<span class='label label-primary'>$order_list->current_status</span>";
+            }else if($order_list->current_status === 'Attempted'){
+                $row[] = "<span class='label label-warning'>$order_list->current_status</span>";
+            }else if($order_list->current_status === 'New Item In-transit'){
+                $row[] = "<span class='label label-info'>$order_list->current_status</span>";
+            }
+            $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+
+            $data[] = $row;
+        }
+
+
+        $output = array(
+            "draw" => $draw,
+            "recordsTotal" => $this->service_centers_model->count_all($status),
+            "recordsFiltered" => $this->service_centers_model->count_filtered($search_value, $order, $status),
+            "data" => $data,
+        );
+
+        //output to json format
+        echo json_encode($output);
     }
     
 }

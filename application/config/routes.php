@@ -126,5 +126,7 @@ $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call
 $route['partner/invoice'] = 'employee/partner/inactive_partner_default_page';
 //$route['api/(:any)'] = 'partner/$2';
 
+$route['service_centers/bb_oder_details'] = 'employee/service_centers/view_delivered_bb_order_details';
+
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

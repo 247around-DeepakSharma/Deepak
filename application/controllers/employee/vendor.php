@@ -3189,7 +3189,9 @@ class vendor extends CI_Controller {
             'is_upcountry' => $sc_details[0]['is_upcountry'],
 	    'sess_expiration' => 30000,
 	    'loggedIn' => TRUE,
-	    'userType' => 'service_center'
+	    'userType' => 'service_center',
+            'is_sf' =>$sc_details[0]['is_sf'],
+            'is_cp' => $sc_details[0]['is_cp']
 	);
 
         $this->session->set_userdata($userSession);
@@ -3209,6 +3211,12 @@ class vendor extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $sc_details[0]['name']);
             } else {
                 log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $sc_details[0]['name']);
+            }
+            
+            if ($this->session->userdata('is_sf') === '1') {
+               echo "service_center/pending_booking";
+            } else if ($this->session->userdata('is_cp') === '1') {
+                echo "service_centers/bb_oder_details";
             }
         }   
     }

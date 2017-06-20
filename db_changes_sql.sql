@@ -2353,3 +2353,8 @@ If you are HAPPY with the service,give miss call @ %s. If not, give miss call @ 
 
 UPDATE `sms_template` SET `template` = 'Your %s request is completed by 247around. 
 If you are HAPPY with the service,give miss call @ %s. If not, give miss call @ %s' WHERE `sms_template`.`id` = 14;
+
+
+-- BUYBACK -- sachin 19 june 2017
+ALTER TABLE `service_centres` ADD `is_sf` TINYINT(1) NOT NULL DEFAULT '1' AFTER `active`, 
+ADD `is_cp` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_sf`;
