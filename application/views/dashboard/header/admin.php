@@ -33,6 +33,8 @@
         <script src="https://code.highcharts.com/modules/drilldown.js"></script>
         <script src="https://code.highcharts.com/modules/exporting.js"></script>
         <script src="https://highcharts.github.io/export-csv/export-csv.js"></script>
+       
+
 
         <!-- bootstrap-daterangepicker -->
         <script src="<?php echo base_url() ?>js/moment.min.js"></script>
@@ -207,11 +209,13 @@
                 <div class="top_nav">
                     <div class="nav_menu">
                         <nav>
+                            
                             <!--                            <div class="nav toggle">
                                                             <a id="menu_toggle"><i class="fa fa-bars"></i></a>
                                                         </div>-->
 
                             <ul class="nav navbar-nav navbar-right">
+                                
                                 <li class="">
                                     <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                         <?php echo $this->session->userdata('employee_id') ?>
@@ -229,8 +233,30 @@
                                         <li><a href="<?php echo base_url() ?>employee/login/logout"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                                     </ul>
                                 </li>
+                                <li><a href="javascript:void(0)">Credit Amount(Rs. <span class="numbers-with-commas">0</span> )</a></li>
                             </ul>
                         </nav>
                     </div>
                 </div>
                 <!-- /top navigation -->
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.3/waypoints.min.js"></script> 
+<script src="<?php echo base_url(); ?>js/jquery.counterup.min.js"></script> 
+                <script>
+jQuery(document).ready(function( $ ) {
+    $.ajax({
+        type: 'POST',
+        url: '<?php echo base_url(); ?>buyback/buyback_process/get_credit_amount',
+       
+        success: function (data) {
+            console.log(data);
+          $('.numbers-with-commas').text(data);
+          $('.numbers-with-commas').counterUp({
+            delay: 10, // the delay time in ms
+            time: 1000 // the speed time in ms
+           });
+       }
+     });
+
+});
+</script>

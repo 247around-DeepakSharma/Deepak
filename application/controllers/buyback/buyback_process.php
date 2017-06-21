@@ -176,5 +176,9 @@ class Buyback_process extends CI_Controller {
             echo "Invalid Request";
         }
     }
+        
+    function get_credit_amount(){
+        echo "20000";
+    }
 
 }
