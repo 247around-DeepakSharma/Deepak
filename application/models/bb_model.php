@@ -7,8 +7,11 @@ class Bb_model extends CI_Model {
     var $column_search = array('bb_unit_details.partner_order_id', 'services', 'city',
         'order_date', 'delivery_date', 'current_status'); //set column field database for datatable searchable 
     var $order = array('bb_order_details.id' => 'asc'); // default order 
-    var $status = array('0' => array('Delivered', 'In-Transit', 'New Item In-transit', 'Attempted'),
-        '1' => array('Rejected', 'Cancelled', 'Lost', 'Unknown'));
+    var $status = array('0' => array('Delivered'),
+        '1' => array('Rejected', 'Cancelled', 'Lost', 'Unknown'),
+        '2' => array('In-Transit', 'New Item In-transit', 'Attempted'),
+        '3' => ''
+        );
 
     /**
      * @desc load both db
@@ -82,26 +85,36 @@ class Bb_model extends CI_Model {
      * @param type $status_flag
      */
     private function _get_bb_order_list_query($search_value, $order, $status_flag) {
-        $this->db->select('bb_unit_details.partner_order_id, services,city, order_date, '
-                . 'delivery_date, current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge');
-        $this->db->from('bb_order_details');
+         $this->db->from('bb_order_details');
 
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
                 . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
-        $this->db->join('services', 'services.id = bb_unit_details.service_id');
-        $this->db->where_in('current_status', $this->status[$status_flag]);
+        if($status_flag  == 3){
+              $this->db->select('bb_unit_details.partner_order_id, city,order_date, '
+                . 'delivery_date, current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge');
+              $this->db->where('assigned_cp_id IS NULL', NULL, FALSE);
+              
+        } else {
+            $this->db->select('bb_unit_details.partner_order_id, services,city, order_date, '
+                . 'delivery_date, current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge');
+            $this->db->where('assigned_cp_id IS NOT NULL', NULL, FALSE);
+            $this->db->where_in('current_status', $this->status[$status_flag]);
+            $this->db->join('services', 'services.id = bb_unit_details.service_id');
+        }
 
-        $i = 0;
-
-        foreach ($this->column_search as $item) { // loop column 
+        foreach ($this->column_search as $key => $item) { // loop column 
             if (!empty($search_value)) { // if datatable send POST for search
-                if ($i === 0) { // first loop
+                if ($key === 0) { // first loop
                     $this->db->like($item, $search_value);
                 } else {
-                    $this->db->or_like($item, $search_value);
+                    if($status_flag == 3 && $key ==1){
+                        //Unassigned booking need not to search services
+                    } else {
+                        $this->db->or_like($item, $search_value);
+                    }
                 }
             }
-            $i++;
+           
         }
 
         if (!empty($order)) { // here order processing
@@ -126,7 +139,6 @@ class Bb_model extends CI_Model {
             $this->db->limit($length, $start);
         }
         $query = $this->db->get();
-
         return $query->result();
     }
     /**

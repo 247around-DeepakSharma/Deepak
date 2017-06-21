@@ -41,18 +41,21 @@
 
                         <div class="" role="tabpanel" data-example-id="togglable-tabs">
                             <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-                                <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Delivered/Transit</a>
+                                <li role="presentation" class="active"><a href="#tab_content1" role="tab" id="intransit-tab" data-toggle="tab" aria-expanded="false">In-Transit</a>
                                 </li>
-                                <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Cancelled/Rejected</a>
+                                <li role="presentation" class=""><a href="#tab_content2" id="delivered-tab" role="tab" data-toggle="tab" aria-expanded="true">Delivered</a>
                                 </li>
-                                <!--                                <li role="presentation" class=""><a href="#tab_content3" role="tab" id="profile-tab2" data-toggle="tab" aria-expanded="false">Cancelled/Rejected</a>
-                                                                </li>-->
+                                <li role="presentation" class=""><a href="#tab_content3" role="tab" id="cancelled-tab" data-toggle="tab" aria-expanded="false">Cancelled/Rejected</a>
+                                </li>
+                                
+                                <li role="presentation" class=""><a href="#tab_content4" role="tab" id="unassigned-tab" data-toggle="tab" aria-expanded="false">Un-Assigned Order</a>
+                                </li>
                             </ul>
                             <div id="myTabContent" class="tab-content">
-                                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
+                                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="delivered-tab">
                                     <div class="x_content">
 
-                                        <table id="datatable" class="table table-striped table-bordered">
+                                        <table id="datatable1" class="table table-striped table-bordered">
                                             <thead>
                                                 <tr>
                                                     <th>No.</th>
@@ -75,7 +78,7 @@
                                         </table>
                                     </div>
                                 </div>
-                                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="cancelled-tab">
                                     <table id="datatable2" class="table table-striped table-bordered" style="width: 100%;">
                                         <thead>
                                             <tr>
@@ -98,10 +101,47 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <!--                                <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
-                                                                    <p>xxFood truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo
-                                                                        booth letterpress, commodo enim craft beer mlkshk </p>
-                                                                </div>-->
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="intransit-tab">
+                                    <table id="datatable3" class="table table-striped table-bordered" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>No.</th>
+                                                <th>Order ID</th>
+                                                <th>Service Name</th>
+
+                                                <th>City</th>
+                                                <th>Order Date</th>
+                                                <th>Delivery date</th>
+                                                <th>Status</th>
+                                                <th>Exchange Value</th>
+                                                <th>SF Charge</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        
+                                    </table>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="unassigned-tab">
+                                    <table id="datatable4" class="table table-striped table-bordered" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>No.</th>
+                                                <th>Order ID</th>
+                                                
+
+                                                <th>City</th>
+                                                <th>Order Date</th>
+                                                <th>Delivery date</th>
+                                                <th>Status</th>
+                                                <th>Exchange Value</th>
+                                                
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        
+                                    </table>
+                                </div>
                             </div>
                         </div>
 
@@ -117,11 +157,34 @@
 
         var table;
         var table1;
+        var table2;
+        var table3;
 
         $(document).ready(function () {
+            
+            //datatables
+            table1 = $('#datatable1').DataTable({
+                "processing": true, //Feature control the processing indicator.
+                "serverSide": true, //Feature control DataTables' server-side processing mode.
+                "order": [], //Initial no order.
+                "pageLength": 50,
+                // Load data for the table's content from an Ajax source
+                "ajax": {
+                    "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
+                    "type": "POST",
+                    "data": {"status": 2}
+                },
+                //Set column definition initialisation properties.
+                "columnDefs": [
+                    {
+                        "targets": [0], //first column / numbering column
+                        "orderable": false, //set not orderable
+                    },
+                ],
+            });
 
             //datatables
-            table = $('#datatable').DataTable({
+            table2 = $('#datatable2').DataTable({
                 "processing": true, //Feature control the processing indicator.
                 "serverSide": true, //Feature control DataTables' server-side processing mode.
                 "order": [], //Initial no order.
@@ -142,7 +205,7 @@
             });
 
             //datatables
-            table1 = $('#datatable2').DataTable({
+            table3 = $('#datatable3').DataTable({
                 "processing": true, //Feature control the processing indicator.
                 "serverSide": true, //Feature control DataTables' server-side processing mode.
                 "order": [], //Initial no order.
@@ -161,6 +224,29 @@
                     },
                 ],
             });
+
+        
+        //datatables
+            table4 = $('#datatable4').DataTable({
+                "processing": true, //Feature control the processing indicator.
+                "serverSide": true, //Feature control DataTables' server-side processing mode.
+                "order": [], //Initial no order.
+                "pageLength": 50,
+                // Load data for the table's content from an Ajax source
+                "ajax": {
+                    "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
+                    "type": "POST",
+                    "data": {"status": 3}
+                },
+                //Set column definition initialisation properties.
+                "columnDefs": [
+                    {
+                        "targets": [0], //first column / numbering column
+                        "orderable": false, //set not orderable
+                    },
+                ],
+            });
+
 
         });
 
