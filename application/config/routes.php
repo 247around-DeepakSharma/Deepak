@@ -127,6 +127,8 @@ $route['partner/invoice'] = 'employee/partner/inactive_partner_default_page';
 //$route['api/(:any)'] = 'partner/$2';
 
 $route['service_centers/bb_oder_details'] = 'employee/service_centers/view_delivered_bb_order_details';
+$route['service_center/update_order_details/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_bb_order_details/$1/$2/$3';
+$route['process_update_bb_order_details'] = 'employee/service_centers/process_update_bb_order_details';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

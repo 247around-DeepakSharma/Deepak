@@ -13,7 +13,30 @@
 </style>
 
 <div class="bb_order_details" style="margin: 20px 20px 10px 10px;">
+    
+      
     <h2>Order Details</h2>
+    
+    <?php
+                if ($this->session->userdata('success')) {
+                    echo '<div class="alert alert-success alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
+
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('success') . '</strong>
+               </div>';
+                }
+                if ($this->session->userdata('error')) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
+
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('error') . '</strong>
+               </div>';
+                }
+                ?>
     <hr>
     <div class="" role="tabpanel" data-example-id="togglable-tabs">
         <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
@@ -34,11 +57,13 @@
                                 <th>Service Name</th>
 
                                 <th>City</th>
-                                <th>Order Date</th>
+                                <th>Physical Condition</th>
+                                <th>Workign Condition</th>
                                 <th>Delivery date</th>
-                                <th>Status</th>
                                 <th>SF Charge</th>
-
+                                <th>Status</th>
+                                <th>Delivered</th>
+                                <th>Not Delivered</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -57,10 +82,13 @@
                             <th>Service Name</th>
 
                             <th>City</th>
-                            <th>Order Date</th>
+                            <th>Physical Condition</th>
+                                <th>Workign Condition</th>
                             <th>Delivery date</th>
-                            <th>Status</th>
                             <th>SF Charge</th>
+                            <th>Status</th>
+<!--                            <th>Delivered</th>
+                            <th>Not Delivered</th>-->
 
                         </tr>
                     </thead>
@@ -95,7 +123,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,7], //first column / numbering column
+                    "targets": [0,7,8,9,10], //first column / numbering column
                     "orderable": false, //set not orderable
                 },
             ],
@@ -116,7 +144,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,7], //first column / numbering column
+                    "targets": [0,7,8], //first column / numbering column
                     "orderable": false, //set not orderable
                 },
             ],
@@ -126,3 +154,7 @@
 
 
 </script>
+<?php 
+$this->session->unset_userdata('success');
+$this->session->unset_userdata('error');
+?>

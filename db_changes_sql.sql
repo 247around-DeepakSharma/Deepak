@@ -2358,3 +2358,35 @@ If you are HAPPY with the service,give miss call @ %s. If not, give miss call @ 
 -- BUYBACK -- sachin 19 june 2017
 ALTER TABLE `service_centres` ADD `is_sf` TINYINT(1) NOT NULL DEFAULT '1' AFTER `active`, 
 ADD `is_cp` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_sf`;
+
+
+--Buyback -- sachin 21 june 2017
+CREATE TABLE `247around`.`bb_cp_order_action` 
+( `id` INT(11) NOT NULL AUTO_INCREMENT , 
+`partner_order_id` VARCHAR(256) NOT NULL , 
+`cp_id` INT(11) NOT NULL , 
+`category` VARCHAR(128) NOT NULL ,
+ `brand` VARCHAR(128) NOT NULL , 
+`physical_condition` VARCHAR(256) NOT NULL , 
+`working_condition` VARCHAR(256) NOT NULL , 
+`status` VARCHAR(128) NOT NULL,
+`remarks` VARCHAR(256) NOT NULL AFTER ,
+`current_status` VARCHAR(128) NOT NULL , 
+`internal_status` VARCHAR(128) NOT NULL , 
+`create_date` DATETIME NOT NULL , 
+`update_date` TIMESTAMP NOT NULL , 
+`closed_date` DATETIME NOT NULL  , 
+PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE bb_cp_order_action MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10000
+
+
+CREATE TABLE `247around`.`bb_order_image_mapping` 
+( `id` INT(11) NOT NULL AUTO_INCREMENT , 
+`partner_order_id` VARCHAR(256) NOT NULL , 
+`cp_id` INT(11) NOT NULL , 
+`image_name` VARCHAR(256) NOT NULL ,
+ `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+ PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE bb_order_image_mapping MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10000
