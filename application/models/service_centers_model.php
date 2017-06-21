@@ -513,8 +513,9 @@ class Service_centers_model extends CI_Model {
      * @param type $status_flag
      */
     private function _get_bb_order_list_query($search_value, $order, $status_flag) {
-        $this->db->select('bb_unit_details.partner_order_id, services,city, order_date, '
-                . 'delivery_date, current_status, cp_basic_charge,cp_tax_charge');
+        $this->db->select('bb_order_details.id,bb_unit_details.partner_order_id, services,city, order_date, '
+                . 'delivery_date, current_status, cp_basic_charge,cp_tax_charge,bb_unit_details.physical_condition,'
+                . 'bb_unit_details.working_condition,bb_unit_details.service_id,bb_order_details.city');
         $this->db->from('bb_order_details');
 
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
@@ -585,6 +586,45 @@ class Service_centers_model extends CI_Model {
         $this->db->where('assigned_cp_id',$this->session->userdata('service_center_id'));
         return $this->db->count_all_results();
     }
-
-
+    
+    
+    /**
+     * @desc Used to check buyback order key 
+     * @param $where array
+     * @param $select array
+     * @param $is_distinct default false
+     * @return array
+     */
+    function check_order_key_exist($where, $select,$is_distinct=False){
+        if($is_distinct){
+            $this->db->distinct();
+        }
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("bb_unit_details");
+        return $query->result_array();
+    }
+    
+    
+    /**
+     * @desc Used to insert  the  buyback images mapped with order id
+     * @param $data array
+     * @return $inser_id string
+     */
+    function insert_bb_order_image($data){
+        $insert_id = $this->db->insert('bb_order_image_mapping',$data);
+        return $insert_id;
+    }
+    
+    
+    /**
+     * @desc Used to insert  the  buyback updated data
+     * @param $data array
+     * @return $inser_id string
+     */
+    function insert_bb_order_status($data){
+        $insert_id = $this->db->insert('bb_cp_order_action',$data);
+        return $insert_id;
+    }
+    
 }

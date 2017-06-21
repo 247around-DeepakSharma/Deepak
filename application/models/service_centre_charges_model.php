@@ -247,10 +247,22 @@ class service_centre_charges_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_bb_charges($where, $select){
+    
+    /**
+     * @desc Used to get the  buyback charges
+     * @param $where array
+     * @param $select array
+     * @param $is_distinct default false
+     * @return array
+     */
+    function get_bb_charges($where, $select,$is_distinct=False){
+        if($is_distinct){
+            $this->db->distinct();
+        }
         $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get("bb_charges");
+       
         return $query->result_array();
     }
 }
