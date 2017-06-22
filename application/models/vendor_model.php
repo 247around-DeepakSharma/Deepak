@@ -709,7 +709,7 @@ class vendor_model extends CI_Model {
      * @return : Array
      */
     function getActiveVendor($service_center_id = "", $active = 1) {
-        $this->db->select("service_centres.name, service_centres.id,on_off,active, is_verified ");
+        $this->db->select("service_centres.name, service_centres.id,on_off,active, is_verified, is_cp ");
         if ($service_center_id != "") {
             $this->db->where('id', $service_center_id);
         }
