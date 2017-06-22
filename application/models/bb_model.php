@@ -250,6 +250,7 @@ class Bb_model extends CI_Model {
      */
     public function count_all_review_order() {
         $this->db->from('bb_cp_order_action');
+        $this->db->where('current_status','In_process');
         return $this->db->count_all_results();
     }
     
@@ -284,6 +285,37 @@ class Bb_model extends CI_Model {
         }
 
         return TRUE;
+    }
+    
+    function get_bb_order_history($order_id){
+        $sql = "SELECT bb_sc.old_state, bb_sc.new_state,bb_sc.remarks,e.full_name as agent_name,
+                cp.name as cp_name, p.public_name as partner_name 
+                FROM bb_state_change as bb_sc 
+                LEFT JOIN employee as e ON bb_sc.agent_id = e.id 
+                LEFT JOIN service_centres as cp ON bb_sc.service_center_id = cp.id 
+                LEFT JOIN partners as p ON bb_sc.partner_id = p.id 
+                WHERE bb_sc.order_id = '$order_id'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_bb_order_appliance_details($partner_order_id){
+        $sql = "SELECT bb_unit.* , s.services as service_name
+                FROM bb_unit_details as bb_unit 
+                JOIN services as s ON bb_unit.service_id = s.id 
+                WHERE bb_unit.partner_order_id = '$partner_order_id'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_bb_order_detailed_data($order_id){
+        $sql = "SELECT bb_od.*,cp.name as cp_name, p.public_name as partner_name
+                FROM bb_order_details as bb_od 
+                LEFT JOIN service_centres as cp ON bb_od.assigned_cp_id = cp.id 
+                LEFT JOIN partners as p ON bb_od.partner_id = p.id 
+                WHERE bb_od.partner_order_id = '$order_id'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
     }
     
     
