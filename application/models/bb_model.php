@@ -175,6 +175,141 @@ class Bb_model extends CI_Model {
     }
     
     
+    /**
+     * @desc 
+     * @param type $search_value
+     * @param type $order
+     * @param type $status_flag
+     */
+    private function _get_bb__review_order_list_query($search_value, $order) {
+         $this->db->from('bb_cp_order_action as cp_action');
+
+        $this->db->join('service_centres as cp', 'cp_action.cp_id = cp.id');
+        $this->db->select('cp_action.id,cp_action.partner_order_id,cp_action.cp_id,cp_action.category,cp_action.brand,cp_action.physical_condition,
+            cp_action.working_condition,cp_action.status,cp_action.remarks,cp_action.current_status, cp.name');
+        $this->db->where('current_status','In_process');
+        foreach ($this->cp_action_column_search as $key => $item) { // loop column 
+            if (!empty($search_value)) { // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $this->db->like($item, $search_value);
+                } else {
+                   $this->db->or_like($item, $search_value);
+                }
+            }
+           
+        }
+
+        if (!empty($order)) { // here order processing
+            $this->db->order_by($this->cp_action_column_order[$order[0]['column'] - 1], $order[0]['dir']);
+        } else if (isset($this->cp_action_column_default_order)) {
+            $order = $this->cp_action_column_default_order;
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+    }
+    /**
+     * 
+     * @param type $length
+     * @param type $start
+     * @param type $search_value
+     * @param type $order
+     * @param type $status_flag
+     * @return Object
+     */
+    function get_bb_review_order_list($length, $start, $search_value, $order) {
+        $this->_get_bb__review_order_list_query($search_value, $order);
+        if ($length != -1) {
+            $this->db->limit($length, $start);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+    /**
+     * @desc This is used to get order data as requested
+     * @param String $search_value
+     * @param String $order
+     * @param Int $status_flag
+     * @return Number of rows
+     */
+    function count_filtered_review_order($search_value, $order) {
+        $this->_get_bb__review_order_list_query($search_value, $order);
+        $query = $this->db->get();
+
+        return $query->num_rows();
+    }
+    /**
+     * @desc Used to return count of data as requested status
+     * @param Int $status_flag
+     * @return Count
+     */
+    public function count_all_review_order() {
+        $this->db->from('bb_cp_order_action');
+        $this->db->where('current_status','In_process');
+        return $this->db->count_all_results();
+    }
+    
+    /**
+     * @desc Used to get the  buyback image link
+     * @param $where array
+     * @param $select array
+     * @param $is_distinct default false
+     * @return array
+     */
+    function get_bb_order_images($where, $select,$is_distinct=False){
+        if($is_distinct){
+            $this->db->distinct();
+        }
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("bb_order_image_mapping");
+       
+        return $query->result_array();
+    }
+    
+    
+    /**
+     * @desc Used to approve buyback order in bulk
+     * @param $data array
+     * @return boolean
+     */
+    function approved_bb_orders($data){
+        foreach ($data as $value) {
+            $this->db->where('id', $value);
+            $this->db->update('bb_cp_order_action', array('current_status' => 'Completed'));
+        }
+
+        return TRUE;
+    }
+    
+    function get_bb_order_history($order_id){
+        $sql = "SELECT bb_sc.old_state, bb_sc.new_state,bb_sc.remarks,e.full_name as agent_name,
+                cp.name as cp_name, p.public_name as partner_name 
+                FROM bb_state_change as bb_sc 
+                LEFT JOIN employee as e ON bb_sc.agent_id = e.id 
+                LEFT JOIN service_centres as cp ON bb_sc.service_center_id = cp.id 
+                LEFT JOIN partners as p ON bb_sc.partner_id = p.id 
+                WHERE bb_sc.order_id = '$order_id'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_bb_order_appliance_details($partner_order_id){
+        $sql = "SELECT bb_unit.* , s.services as service_name
+                FROM bb_unit_details as bb_unit 
+                JOIN services as s ON bb_unit.service_id = s.id 
+                WHERE bb_unit.partner_order_id = '$partner_order_id'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_bb_order_detailed_data($order_id){
+        $sql = "SELECT bb_od.*,cp.name as cp_name, p.public_name as partner_name
+                FROM bb_order_details as bb_od 
+                LEFT JOIN service_centres as cp ON bb_od.assigned_cp_id = cp.id 
+                LEFT JOIN partners as p ON bb_od.partner_id = p.id 
+                WHERE bb_od.partner_order_id = '$order_id'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
     
     
 }
