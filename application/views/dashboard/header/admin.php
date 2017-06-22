@@ -80,6 +80,7 @@
                                         <ul class="nav child_menu">
                                             <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload files</a></li>
                                              <li><a href="<?php echo base_url(); ?>buyback/buyback_process/view_bb_order_details">Order Details</a></li>
+                                             <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_review">Review Order</a></li>
                                         </ul>
                                     </li>
                                     <!--                        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">

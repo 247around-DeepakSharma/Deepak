@@ -1826,7 +1826,7 @@ class Service_centers extends CI_Controller {
                     $file_type = $_FILES['order_files']['type'][$i];
                     if(in_array($file_type, $allowed_types)){
                         $tmp_name = $_FILES['order_files']['tmp_name'][$i];
-                        $file_name = $_FILES['order_files']['name'][$i];
+                        $file_name = str_replace(' ', '_', $_FILES['order_files']['name'][$i]);;
                         $upload_order_file_new_name = $order_id."_".explode(".", $file_name)[0]."_".substr(md5(uniqid(rand(0, 9))), 0, 15).".".explode(".", $file_name)[1];
                         $bucket = BITBUCKET_DIRECTORY;
                         $directory_xls = "misc-images/" . $upload_order_file_new_name;
@@ -1855,8 +1855,8 @@ class Service_centers extends CI_Controller {
                             'status' => $order_condition,
                             'remarks' => $this->input->post('remarks'),
                             'brand' => $this->input->post('order_brand'),
-                            'current_status' => '',
-                            'internal_status' => '',
+                            'current_status' => 'In_process',
+                            'internal_status' => 'Not_decided',
                             'create_date'=> date('Y-m-d H:i:s'));
             
             $insert_id = $this->service_centers_model->insert_bb_order_status($data);
