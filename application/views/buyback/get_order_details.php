@@ -1,9 +1,4 @@
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
-<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
-<script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
-<script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
-<script src="<?php echo base_url(); ?>js/buyback_app/directives/directives.js"></script>
-<script src="<?php echo base_url(); ?>js/buyback_app/services/services.js"></script>
 
 <div class="right_col" role="main">
     <!--        <div class="page-title">
