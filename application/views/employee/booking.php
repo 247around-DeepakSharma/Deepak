@@ -132,6 +132,29 @@
 <div id="page-wrapper">
     <div class="">
         <div class="row">
+            <!--Cancel Modal-->
+            <div id="penaltycancelmodal" class="modal fade" role="dialog">
+              <div class="modal-dialog modal-lg" >
+                  <form name="cancellation_form" id="cancellation_form" class="form-horizontal" action="<?php echo base_url() ?>employee/vendor/process_remove_penalty" method="POST">
+
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title" style="text-align: center"><b>Penalty Removal Reason</b></h4>
+                      </div>
+                      <div class="modal-body">
+                          <span id="error_message" style="display:none;color: red;margin-bottom:10px;"><b>Please Select At Least 1 Booking</b></span>
+                          <div id="open_model"></div>
+                      </div>
+                      <div class="modal-footer">
+                         <input type="button" onclick="form_submit()" value="Submit" class="btn btn-info " form="modal-form" id="remove_penalty">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                      </div>
+                    </div>
+
+                  </form>
+              </div>
+            </div>
+            <!-- end cancel model -->
             <?php  if($this->uri->segment(3) == 'view' || $this->uri->segment(3) == 'view_all_pending_booking'){?>
             <div class="pagination">
                 <select id="dynamic_select">
@@ -155,6 +178,16 @@
                 </select>
             </div>
             <?php } ?>
+            <?php if ($this->session->userdata('success')) {
+                    echo '<div class="alert alert-success alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
+
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('success') . '</strong>
+               </div>';
+                }
+               ?> 
             <div class="col-md-3 pull-right" style="margin-top:20px;">
                  <input type="search" class="form-control pull-right"  id="search" placeholder="search">
             </div>
@@ -172,6 +205,7 @@
                        <strong>' . $success . '</strong>
                    </div>';
                 }
+                
                 ?>
                 <div class="col-md-12">
 
@@ -199,6 +233,7 @@
                     <th>Edit Booking</th>
                     <th>Re-assign</th>
                     <th>Escalate</th>
+                    <th>Remove Penalty</th>
 
 
                     </tr>
@@ -390,6 +425,10 @@
                             else if($b_days ==0){ if($b_timeslot > date("H")){ echo "disabled";} } } ?>  
                            class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                         </td>
+                        
+                        <td>
+                            <a class='btn btn-sm col-md-4' style='background:#FF9E80;margin-left:10px;padding-right: 17px;' onclick='get_penalty_details("<?php echo $row->booking_id; ?>","<?php echo $row->current_status; ?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
+                        </td>
                     
 
                 </tr>
@@ -452,6 +491,40 @@
         alert("Waitng for upcountry approval");
       }
     }
+    
+    
+    function get_penalty_details(booking_id,status){
+
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/get_penalty_details_data/' + booking_id+"/"+status,
+            success: function (data) {
+                if(data === 'penalty not found'){
+                    var html = "<div class='text-center text-danger'><strong>"+data+"</strong></div>"
+                    $("#open_model").html(html);   
+                    $('#penaltycancelmodal').modal('toggle');
+                    $('#remove_penalty').hide();
+                }else{
+                    $("#open_model").html(data);   
+                    $('#penaltycancelmodal').modal('toggle');
+                }
+            }
+          });
+    }
+    
+    function form_submit() {
+        
+        var checkbox_val = [];
+        $(':checkbox:checked').each(function(i){
+          checkbox_val[i] = $(this).val();
+        });
+        if(checkbox_val.length === 0){
+            $('#error_message').css('display','block');
+            return false;
+        }else{
+            $("#cancellation_form").submit();
+        }
+    }  
 </script>
 <style type="text/css">
     .sup {
@@ -483,3 +556,4 @@
     font-size: 12px;
 }
 </style>
+<?php $this->session->unset_userdata('success'); ?>
