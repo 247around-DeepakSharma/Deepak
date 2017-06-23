@@ -101,11 +101,11 @@
         });  
         if (allVals.length <= 0)
         {
-            alert("Please select At Least One Student");
+            alert("Please select At Least One Order");
         }
         else {
             //$("#loading").show(); 
-            WRN = "Are you sure you want to approve this student ?";
+            WRN = "Are you sure you want to approve this Order ?";
             var check = confirm(WRN);
             if (check === true) {
                 var join_selected_values = allVals.join(",");
