@@ -3935,7 +3935,11 @@ class vendor extends CI_Controller {
      }else{
          $this->session->set_userdata('success', 'Error In Remopving Penalty!!! Please Try Again');
      }
-    redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
+    if($status === 'Pending' || $status === 'Rescheduled'){
+        redirect(base_url() . 'employee/booking/view');
+    }else{
+        redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
+    }
     }
     
     function get_penalty_details_data($booking_id, $status){
