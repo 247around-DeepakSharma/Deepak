@@ -545,6 +545,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'trim|required');
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
         $this->form_validation->set_rules('reason_text', 'Reascheduled Reason', 'trim');
+        $this->form_validation->set_rules('sc_remarks', 'Reascheduled Remarks', 'trim');
 
         if ($this->form_validation->run() == FALSE ) {
              log_message('info', __FUNCTION__ . '=> Rescheduled Booking Validation failed ');
@@ -556,6 +557,7 @@ class Service_centers extends CI_Controller {
             $data['current_status'] = "InProcess";
             $data['internal_status'] = 'Reschedule';
             $reason = $this->input->post('reason');
+            $sc_remarks = $this->input->post('sc_remarks');
             if(!empty($reason)){
                 
                 $data['reschedule_reason'] = $this->input->post('reason');
@@ -563,7 +565,7 @@ class Service_centers extends CI_Controller {
                 
                 $data['reschedule_reason'] = $this->input->post('reason_text');
             }
-           
+            $data['reschedule_reason'] = $data['reschedule_reason']. " - ". $sc_remarks;
             $data['update_date'] = date("Y-m-d H:i:s");
             $this->vendor_model->update_service_center_action($booking_id, $data);
 
@@ -703,7 +705,7 @@ class Service_centers extends CI_Controller {
                 if ($date_diff->days < 1) {
                     $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
                     $data['days'] = 0;
-                } else if ($date_diff->days === 1) {
+                } else if ($date_diff->days < 3) {
                     $data['days'] = $date_diff->days;
                     $arr = array('status' => CUSTOMER_NOT_REACHABLE);
                     $data['internal_status'] = Array((object) $arr);
@@ -722,13 +724,13 @@ class Service_centers extends CI_Controller {
                         $data['spare_flag'] = 1;
                     }
                     // These all Partner id is 247around Id
-                    switch ($value['partner_id']) {
-                        case _247AROUND:
-                        
-                            $data['around_flag'] = 1;
-
-                            break;
-                    }
+//                    switch ($value['partner_id']) {
+//                        case _247AROUND:
+//                        
+//                            $data['around_flag'] = 1;
+//
+//                            break;
+//                    }
                 }
 
                 $this->load->view('service_centers/header');
@@ -751,6 +753,7 @@ class Service_centers extends CI_Controller {
        log_message('info', __FUNCTION__. " Service_center ID: ". $this->session->userdata('service_center_id')." Booking Id: ".  $this->input->post('booking_id'));
         // Check User Session
         $this->checkUserSession();
+        
         // Check form validation
         $f_status = $this->checkvalidation_for_update_by_service_center();
         if($f_status){
@@ -775,11 +778,19 @@ class Service_centers extends CI_Controller {
                  case CUSTOMER_NOT_REACHABLE:
                      log_message('info', __FUNCTION__. CUSTOMER_NOT_REACHABLE. $this->session->userdata('service_center_id'));
                         $day = $this->input->post('days');
-                        if($day ==1){
+                        $sc_remarks = $this->input->post('sc_remarks');
+                        if($day == 2){
                             $booking_id = $this->input->post('booking_id');
                             $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE;
-                            $_POST['cancellation_reason_text'] = CUSTOMER_NOT_REACHABLE;
+                            $_POST['cancellation_reason_text'] = $sc_remarks;
                             $this->process_cancel_booking($booking_id);
+                            
+                            $to = NITS_ANUJ_EMAIL_ID;
+                            $cc= "";
+                            $bcc = "";
+                            $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
+                            $message = "Auto Cancelled Booking ". $booking_id;
+                            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
 
                         } else {
                             $this->default_update(true, true);
@@ -810,17 +821,18 @@ class Service_centers extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $sc_data['internal_status'] =  $this->input->post('reason');
         $sc_data['current_status'] = 'InProcess';
+        $sc_data['service_center_remarks'] = $this->input->post('sc_remarks');
         // Update Service center Action table
         $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
         if($state_change){
             // Insert data into state change
-            $this->insert_details_in_state_change($booking_id, $sc_data['internal_status'], "" );
+            $this->insert_details_in_state_change($booking_id, $sc_data['internal_status'], $sc_data['service_center_remarks'] );
             // Send sms to customer while customer not reachable
             if($sc_data['internal_status'] == CUSTOMER_NOT_REACHABLE){
                 log_message('info', __FUNCTION__." Send Sms to customer => Customer not reachable");
                 $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                 $send['booking_id'] = $booking_id;
-                $send['state'] = CUSTOMER_NOT_REACHABLE;
+                $send['state'] = "Customer not reachable";
                 $this->asynchronous_lib->do_background_process($url, $send);
             }
         }

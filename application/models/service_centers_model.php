@@ -349,7 +349,7 @@ class Service_centers_model extends CI_Model {
      */
     function stored_internal_status(){
         return "'Engineer on route',"
-             . "'Customer not reachable'";
+             . "'".CUSTOMER_NOT_REACHABLE."'";
     }
     /**
      * @desc: This method is used to search booking by phone number or booking id

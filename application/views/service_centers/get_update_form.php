@@ -89,9 +89,9 @@
                                             </div>
                                         </div>
                                          <div class="form-group">
-                                            <label for="Invoice picture" class="col-md-4">Defective Part Picture</label>
+                                            <label for="Invoice picture" class="col-md-4">Defective Part Picture *</label>
                                             <div class="col-md-6">
-                                                <input type="file" class="form-control spare_parts" id="defective_parts_pic" name="defective_parts_pic">
+                                                <input type="file" class="form-control spare_parts" id="defective_parts_pic" name="defective_parts_pic" required="required">
                                             </div>
                                         </div>
                                     </div>
@@ -103,7 +103,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group" >
-                                            <label for="reschdeduled" class="col-md-4">Date of Purchase</label>
+                                            <label for="reschdeduled" class="col-md-4">Date of Purchase *</label>
                                             <div class="col-md-6">
                                                 <div class="input-group input-append date">
                                                     <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" required readonly='true' style="background-color:#fff;">
@@ -112,9 +112,9 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="Invoice picture" class="col-md-4">Serial Number Picture</label>
+                                            <label for="Invoice picture" class="col-md-4">Serial Number Picture *</label>
                                             <div class="col-md-6">
-                                                <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
+                                                <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" required="required">
                                             </div>
                                         </div>
                                          <div class="form-group">
@@ -184,8 +184,16 @@
                         </div>
                         
                     </div>
+                       
                   
             </div>
+                    <div class="form-group" id="hide_remarks">
+                        <label for="remarks" class="col-md-2">Remarks </label>
+                        <div class="col-md-4" style="width:24%">
+                            <textarea class="form-control remarks"  id="sc_remarks" name="sc_remarks" value = "" required placeholder="Enter Remarks" rows="5" ></textarea>
+                        </div>
+                        
+                    </div> 
                    
                     <div class="col-md-6 col-md-offset-2">
                         <input type="submit"  value="Update Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; "  class="btn btn-danger btn-large">
@@ -232,7 +240,7 @@
               var parts_name = $("#parts_name").val();
               var dop = $("#dop").val();
               if(parts_name === ""){
-                   alert("Please Enter parts number");
+                   alert("Please Enter parts name");
                   checkbox_value = 0;
                   return false;
               }
@@ -300,18 +308,24 @@
             $(".spare_parts").removeAttr("disabled");
             $(".rescheduled_form").attr("disabled", "true");
             $('#hide_rescheduled').hide();
+            $(".remarks").attr("disabled", "true");
+            $('#hide_remarks').hide();
           
         } else  if(id ==="rescheduled" || id === "product_not_delivered"){
             $(".spare_parts").attr("disabled", "true");
             $('#hide_spare').hide();
             $('#hide_rescheduled').show();
             $(".rescheduled_form").removeAttr("disabled");
+            $('#hide_remarks').show();
+            $(".remarks").removeAttr("disabled");
     
        }  else {
          $(".spare_parts").attr("disabled", "true");
          $(".rescheduled_form").attr("disabled", "true");
          $('#hide_spare').hide();
          $('#hide_rescheduled').hide();
+         $('#hide_remarks').show();
+         $(".remarks").removeAttr("disabled");
        }
     }
     
