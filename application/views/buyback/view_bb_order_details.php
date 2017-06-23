@@ -51,6 +51,36 @@
                                                             {{delivery_date}}
                                                         </td>
                                                     </tr>
+                                                    
+                                                     <tr>
+                                                         <td>
+                                                             <strong>Partner GC Id</strong>
+                                                        </td>
+                                                        <td>
+                                                            {{partner_gc_id}}
+                                                        </td>
+                                                        <td>
+                                                            <strong>Partner Tracking Id</strong>
+                                                        </td>
+                                                        <td>
+                                                            {{partner_tracking_id}}
+                                                        </td>
+                                                    </tr>
+                                                    
+                                                    <tr>
+                                                        <td>
+                                                            <strong>Partner Order Id</strong>
+                                                        </td>
+                                                        <td>
+                                                            <?php echo $partner_order_id;?>
+                                                        </td>
+                                                        <td>
+                                                            <strong>City</strong>
+                                                        </td>
+                                                        <td>
+                                                            {{city}}
+                                                        </td>
+                                                    </tr>
                                                    
                                                     <tr>
                                                         <td>
@@ -69,21 +99,6 @@
                                                     
                                                     <tr>
                                                          <td>
-                                                             <strong>Partner GC Id</strong>
-                                                        </td>
-                                                        <td>
-                                                            {{partner_gc_id}}
-                                                        </td>
-                                                        <td>
-                                                            <strong>Partner Tracking Id</strong>
-                                                        </td>
-                                                        <td>
-                                                            {{partner_tracking_id}}
-                                                        </td>
-                                                    </tr>
-                                                    
-                                                    <tr>
-                                                         <td>
                                                              <strong>Partner Name</strong>
                                                         </td>
                                                         <td>
@@ -96,15 +111,8 @@
                                                             {{cp_name}}
                                                         </td>
                                                     </tr>
+                                                   
                                                     
-                                                    <tr>
-                                                        <td>
-                                                            <strong>City</strong>
-                                                        </td>
-                                                        <td>
-                                                            {{city}}
-                                                        </td>
-                                                    </tr>
                                                 </thead>
                                             </table>
                                         </div>
@@ -149,11 +157,11 @@
                                                         <td>{{$index + 1}}</td>
                                                         <td>{{x.category}}</td>
                                                         <td>{{x.service_name}}</td>
-                                                        <td>{{ x.physical_condition }}</td>
-                                                        <td>{{ x.working_condition }}</td>
-                                                        <td>{{(x.partner_basic_charge) + (x.partner_tax_charge)}}</td>
-                                                        <td>{{x.cp_basic_charge + x.cp_tax_charge}}</td>
-                                                        <td>{{x.around_commision_basic_charge + x.around_commision_tax}}</td>
+                                                        <td>{{x.physical_condition }}</td>
+                                                        <td>{{x.working_condition }}</td>
+                                                        <td>{{x.partner_charge}}</td>
+                                                        <td>{{x.cp_tax}}</td>
+                                                        <td>{{x.around_charges}}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -189,7 +197,7 @@
                                                         <th>New State</th>
                                                         <th>Remarks</th>
                                                         <th>Agent Name</th>
-                                                        <th>Collection Partner Id</th>
+                                                        <th>Collection Partner Name</th>
                                                         <th>Partner Name</th>
                                                     </tr>
                                                 </thead>
@@ -197,11 +205,11 @@
                                                     <tr ng-repeat="x in orderHistoryDetails">
                                                         <td>{{$index + 1}}</td>
                                                         <td>{{x.old_state}}</td>
-                                                        <td>{{ x.new_state }}</td>
-                                                        <td>{{ x.remarks }}</td>
+                                                        <td>{{x.new_state }}</td>
+                                                        <td>{{x.remarks }}</td>
                                                         <td>{{x.agent_name}}</td>
-                                                        <td>{{ x.cp_name }}</td>
-                                                        <td>{{ x.partner_name }}</td>
+                                                        <td>{{x.cp_name }}</td>
+                                                        <td>{{x.partner_name }}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
