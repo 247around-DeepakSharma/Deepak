@@ -28,8 +28,11 @@ class Bb_model extends CI_Model {
      */
     function get_bb_order_details($where, $select) {
         $this->db->select($select);
+        $this->db->from('bb_order_details');
+        $this->db->join('service_centres', 'bb_order_details.assigned_cp_id = service_centres.id');
+        $this->db->join('partners', 'bb_order_details.partner_id = partners.id');
         $this->db->where($where);
-        $query = $this->db->get("bb_order_details");
+        $query = $this->db->get();
 
         return $query->result_array();
     }
@@ -281,36 +284,63 @@ class Bb_model extends CI_Model {
     }
     
     function get_bb_order_history($order_id){
-        $sql = "SELECT bb_sc.old_state, bb_sc.new_state,bb_sc.remarks,e.full_name as agent_name,
-                cp.name as cp_name, p.public_name as partner_name 
-                FROM bb_state_change as bb_sc 
-                LEFT JOIN employee as e ON bb_sc.agent_id = e.id 
-                LEFT JOIN service_centres as cp ON bb_sc.service_center_id = cp.id 
-                LEFT JOIN partners as p ON bb_sc.partner_id = p.id 
-                WHERE bb_sc.order_id = '$order_id'";
-        $query = $this->db->query($sql);
-        return $query->result_array();
+        $this->db->select('bb_state_change.*,name as cp_name,public_name as partner_name');
+        $this->db->where('bb_state_change.order_id',$order_id);
+        $this->db->join('service_centres', 'service_centres.id = bb_state_change.service_center_id','left');
+        $this->db->join('partners', 'partners.id = bb_state_change.partner_id','left');
+        $this->db->from('bb_state_change');
+        $this->db->order_by('bb_state_change.id');
+        $query = $this->db->get();
+        $data =  $query->result_array();
+        
+        foreach ($data as $key => $value){
+            if(!is_null($value['partner_id'])){
+                // If Partner Id is 247001
+                if($value['partner_id'] == _247AROUND){
+                    $sql = "SELECT full_name FROM employee WHERE "
+                            . " employee.id = '".$value['agent_id']."'";
+                   
+                    $query1 = $this->db->query($sql);
+                    $data1 = $query1->result_array();
+                   
+                    $data[$key]['agent_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
+                   
+                    
+                } else {
+                    // For Partner
+                    $this->db->select('full_name,public_name');
+                    $this->db->from('partner_login,partners');
+                    $this->db->where('partner_login.id', $value['agent_id']);
+                    $this->db->where('partners.id', $value['partner_id']);
+                    $query1 = $this->db->get();
+                    $data1 = $query1->result_array();
+                    $data[$key]['agent_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
+                }
+            } else if(!is_null($value['service_center_id'])){
+                // For Service center
+                $this->db->select("CONCAT('Agent Id: ',service_centers_login.id ) As full_name , CONCAT('SF Id: ',service_centres.id ) As source");
+                $this->db->from('service_centers_login');
+                $this->db->where('service_centers_login.id', $value['agent_id']);
+                $this->db->join('service_centres', 'service_centres.id = service_centers_login.service_center_id');
+                $query1 = $this->db->get();
+                $data1 = $query1->result_array();
+                $data[$key]['agent_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
+                
+            }
+            
+        }
+       
+        return $data;
     }
     
-    function get_bb_order_appliance_details($partner_order_id){
-        $sql = "SELECT bb_unit.* , s.services as service_name
-                FROM bb_unit_details as bb_unit 
-                JOIN services as s ON bb_unit.service_id = s.id 
-                WHERE bb_unit.partner_order_id = '$partner_order_id'";
-        $query = $this->db->query($sql);
+    function get_bb_order_appliance_details($where, $select){
+        $this->db->select($select);
+        $this->db->from('bb_unit_details as bb_unit ');
+        $this->db->join('services as s', 'bb_unit.service_id = s.id');
+        $this->db->where($where);
+        $query = $this->db->get();
         return $query->result_array();
     }
-    
-    function get_bb_order_detailed_data($order_id){
-        $sql = "SELECT bb_od.*,cp.name as cp_name, p.public_name as partner_name
-                FROM bb_order_details as bb_od 
-                LEFT JOIN service_centres as cp ON bb_od.assigned_cp_id = cp.id 
-                LEFT JOIN partners as p ON bb_od.partner_id = p.id 
-                WHERE bb_od.partner_order_id = '$order_id'";
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
-    
     
 }
 
