@@ -1,4 +1,4 @@
-
+<?php if(!empty($penalty_details)){ ?>
 <div class="panel panel-default">
     <div class="panel-heading">
         <h1 class="panel-title" >Penalty Removal Reason </h1>
@@ -17,7 +17,7 @@
                 </thead>
                 <tbody>
                 <tbody>
-                    <?php foreach ($penalty_details as $key => $row) { ?>
+                    <?php  foreach ($penalty_details as $key => $row) { ?>
                     <tr class="text-center">
                         <td>
                             <?php echo $row['booking_id']; ?>
@@ -41,4 +41,7 @@
         <input type="hidden" name="status" id="status" value="<?php echo $status; ?>">
 
     </div>
-</div>
+</div> 
+<?php } else{
+echo "penalty not found"; }
+?>

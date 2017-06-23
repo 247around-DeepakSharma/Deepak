@@ -203,7 +203,9 @@ class Buyback_process extends CI_Controller {
      */
     function get_bb_order_details_data($partner_order_id){
         if($partner_order_id){
-            $data = $this->bb_model->get_bb_order_detailed_data($partner_order_id);
+            $data = $this->bb_model->get_bb_order_details(
+                    array('bb_order_details.partner_order_id' =>$partner_order_id),
+                    'bb_order_details.*, name as cp_name, public_name as partner_name');
             print_r(json_encode($data));
         }
         
@@ -230,7 +232,13 @@ class Buyback_process extends CI_Controller {
      */
     function get_bb_order_appliance_details($partner_order_id){
         if($partner_order_id){
-            $data = $this->bb_model->get_bb_order_appliance_details($partner_order_id);
+            $select = 'bb_unit.category, bb_unit.physical_condition, 
+                bb_unit.working_condition,
+                round(bb_unit.partner_basic_charge + bb_unit.partner_tax_charge) as partner_charge,
+                round(bb_unit.cp_basic_charge + bb_unit.cp_tax_charge) as cp_tax, 
+                round(bb_unit.around_commision_basic_charge + bb_unit.around_commision_tax) as around_charges,
+                s.services as service_name';
+            $data = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id' => $partner_order_id), $select);
             print_r(json_encode($data));
         }
     }
