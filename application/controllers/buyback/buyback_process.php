@@ -36,9 +36,9 @@ class Buyback_process extends CI_Controller {
      * @desc Used to get data as requested and also search 
      */
     function get_bb_order_details() {
-//        // log_message("info", print_r(json_encode($_POST, TRUE), TRUE));
-//         $string = '{"draw":"1","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"7","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"8","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"status":"3"}';
-//         $_POST = json_decode($string, true);
+        //log_message("info", print_r(json_encode($_POST, TRUE), TRUE));
+       //  $string = '{"draw":"1","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"status":"2"}';
+       //  $_POST = json_decode($string, true);
         $length = $this->input->post('length');
         $start = $this->input->post('start');
         $search = $this->input->post('search');
@@ -52,20 +52,22 @@ class Buyback_process extends CI_Controller {
         $no = $start;
         foreach ($list as $order_list) {
 
-            $no++;
-            $row = array();
-            $row[] = $no;
-            $row[] = "<a class='btn btn-info btn-sm' target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".$order_list->partner_order_id."'>$order_list->partner_order_id</i></a>";
-            if(isset($order_list->services)){
-                $row[] = $order_list->services;
-            }
-            $row[] = $order_list->city;
-            $row[] = $order_list->order_date;
-            $row[] = $order_list->delivery_date;
-            $row[] = $order_list->current_status;
-            $row[] = $order_list->partner_basic_charge;
-            $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
-      
+           $no++;
+           switch ($status){
+                case '0':
+                    $row =  $this->in_tansit_table_data($order_list, $no);
+                    break;
+                case '1':
+                    $row = $this->delivered_table_data($order_list, $no);
+                    break;
+                 case '2':
+                    $row = $this->unassigned_table_data($order_list, $no);
+                    break;
+                case '3':
+                    $row = $this->others_table_data($order_list, $no);
+                    break;
+           }
+
             $data[] = $row;
         }
 
@@ -81,7 +83,72 @@ class Buyback_process extends CI_Controller {
         echo json_encode($output);
     }
     
+    function in_tansit_table_data($order_list, $no){
+        
+        $row = array();
+        $row[] = $no;
+        $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
+                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+
+        $row[] = $order_list->services;
+        $row[] = $order_list->city;
+        $row[] = $order_list->order_date;
+        $row[] = $order_list->current_status;
+        $row[] = $order_list->partner_basic_charge;
+        $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+        
+        return $row;
+    }
     
+    function delivered_table_data($order_list, $no){
+        $row = array();
+        $row[] = $no;
+        $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
+                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+
+        $row[] = $order_list->services;
+        $row[] = $order_list->city;
+        $row[] = $order_list->order_date;
+        $row[] = $order_list->delivery_date;
+        $row[] = $order_list->current_status;
+        $row[] = $order_list->partner_basic_charge;
+        $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+        
+        return $row;
+    }
+    
+    function unassigned_table_data($order_list, $no){
+        $row = array();
+        $row[] = $no;
+        $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
+                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+
+        $row[] = $order_list->city;
+        $row[] = $order_list->order_date;
+        $row[] = $order_list->current_status;
+        $row[] = $order_list->partner_basic_charge;
+
+        return $row;
+    }
+    
+    function others_table_data($order_list, $no){
+        $row = array();
+        $row[] = $no;
+        $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
+                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+
+        $row[] = $order_list->services;
+        $row[] = $order_list->city;
+        $row[] = $order_list->order_date;
+       
+        $row[] = $order_list->current_status;
+        $row[] = $order_list->partner_basic_charge;
+
+    }
+
+
+
+
     /**
      * @desc Used to show the view of buyback order detailed list for review
      * @param void

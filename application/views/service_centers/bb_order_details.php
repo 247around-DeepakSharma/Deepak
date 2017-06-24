@@ -40,9 +40,9 @@
     <hr>
     <div class="" role="tabpanel" data-example-id="togglable-tabs">
         <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Delivered</a>
+            <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Delivered( <span style="font-weight:bold" id="deliverd_record"></span> )</a>
             </li>
-            <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Pending</a>
+            <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Pending( <span style="font-weight:bold" id="pending_record"></span> )</a>
             </li>
         </ul>
         <div id="myTabContent" class="tab-content">
@@ -59,9 +59,10 @@
                                 <th>City</th>
                                 <th>Physical Condition</th>
                                 <th>Workign Condition</th>
-                                <th>Delivery date</th>
-                                <th>SF Charge</th>
+                               
+                                <th>Charges</th>
                                 <th>Status</th>
+                                 <th>Delivery date</th>
                                 <th>Delivered</th>
                                 <th>Not Delivered</th>
                             </tr>
@@ -83,12 +84,12 @@
 
                             <th>City</th>
                             <th>Physical Condition</th>
-                                <th>Workign Condition</th>
-                            <th>Delivery date</th>
+                            <th>Workign Condition</th>
+                            
                             <th>SF Charge</th>
                             <th>Status</th>
-<!--                            <th>Delivered</th>
-                            <th>Not Delivered</th>-->
+                            <th>Order date</th>
+                            
 
                         </tr>
                     </thead>
@@ -127,6 +128,10 @@
                     "orderable": false, //set not orderable
                 },
             ],
+            "fnInitComplete": function (oSettings, response) {
+
+                $("#deliverd_record").text(response.recordsTotal);
+            }
         });
 
         //datatables
@@ -148,6 +153,10 @@
                     "orderable": false, //set not orderable
                 },
             ],
+            "fnInitComplete": function (oSettings, response) {
+
+                $("#pending_record").text(response.recordsTotal);
+            }
         });
 
     });

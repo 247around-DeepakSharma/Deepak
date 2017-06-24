@@ -2361,7 +2361,7 @@ ADD `is_cp` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_sf`;
 
 
 --Buyback -- sachin 21 june 2017
-CREATE TABLE `247around`.`bb_cp_order_action` 
+CREATE TABLE `bb_cp_order_action` 
 ( `id` INT(11) NOT NULL AUTO_INCREMENT , 
 `partner_order_id` VARCHAR(256) NOT NULL , 
 `cp_id` INT(11) NOT NULL , 
@@ -2370,7 +2370,7 @@ CREATE TABLE `247around`.`bb_cp_order_action`
 `physical_condition` VARCHAR(256) NOT NULL , 
 `working_condition` VARCHAR(256) NOT NULL , 
 `status` VARCHAR(128) NOT NULL,
-`remarks` VARCHAR(256) NOT NULL AFTER ,
+`remarks` VARCHAR(256) NOT NULL,
 `current_status` VARCHAR(128) NOT NULL , 
 `internal_status` VARCHAR(128) NOT NULL , 
 `create_date` DATETIME NOT NULL , 
@@ -2381,7 +2381,7 @@ PRIMARY KEY (`id`)) ENGINE = InnoDB;
 ALTER TABLE bb_cp_order_action MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10000
 
 
-CREATE TABLE `247around`.`bb_order_image_mapping` 
+CREATE TABLE `bb_order_image_mapping` 
 ( `id` INT(11) NOT NULL AUTO_INCREMENT , 
 `partner_order_id` VARCHAR(256) NOT NULL , 
 `cp_id` INT(11) NOT NULL , 
@@ -2390,3 +2390,7 @@ CREATE TABLE `247around`.`bb_order_image_mapping`
  PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 ALTER TABLE bb_order_image_mapping MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10000
+
+
+---Abhay
+ALTER TABLE `bb_shop_address` ADD `alternate_conatct_number2` VARCHAR(28) NULL DEFAULT NULL AFTER `alternate_conatct_number`;

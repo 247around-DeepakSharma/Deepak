@@ -151,7 +151,8 @@ class Buyback {
             $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
             if($is_status){
                     $bb_unit_details = array(
-                    'order_status' => $this->POST_DATA['current_status']
+                    'order_status' => $this->POST_DATA['current_status'],
+                    'delivery_date' => $this->POST_DATA['delivery_date']
                 );
                 $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $bb_unit_details);
                 $this->insert_bb_state_change($this->POST_DATA['partner_order_id'],

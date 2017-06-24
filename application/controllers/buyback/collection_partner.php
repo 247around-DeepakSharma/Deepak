@@ -17,6 +17,7 @@ class Collection_partner extends CI_Controller {
 
         $this->load->helper(array('form', 'url'));
         $this->load->model('cp_model');
+        $this->load->model('vendor_model');
 
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -66,6 +67,9 @@ class Collection_partner extends CI_Controller {
             } else {
                  $row[] = "<button  class='btn btn-sm btn-success' onclick='activate_deactivate($cp_address->id,1)' >Activate</button>";
             }
+            $json_data = json_encode($cp_address);
+            $row[] = "<button type='button' class='btn btn-info btn-md open-AddBookDialog' data-id='$json_data' data-toggle='modal' data-target='#update_form'> "
+                    . "<span class='glyphicon glyphicon-edit' aria-hidden='true'></span></button>";
             
 
             $data[] = $row;
@@ -83,7 +87,7 @@ class Collection_partner extends CI_Controller {
     }
     
     function activate_deactivate_cp($shop_id, $is_active){
-        $status = $this->cp_model->update_cp_sho_address(array('id'=> $shop_id), array('active' => $is_active));
+        $status = $this->cp_model->update_cp_shop_address(array('id'=> $shop_id), array('active' => $is_active));
         if($status){
             echo "Success";
         } else {
@@ -91,4 +95,46 @@ class Collection_partner extends CI_Controller {
         }
     }
     
+    function update_cp_shop_address() {
+        $primary_id = $this->input->post('primary_id');
+        $data['contact_person'] = $this->input->post('contact_person');
+        $data['contact_email'] = $this->input->post('contact_email');
+        $data['primary_contact_number'] = $this->input->post('primary_contact_number');
+        $data['alternate_conatct_number'] = $this->input->post('alternate_conatct_number');
+        $data['alternate_conatct_number2'] = $this->input->post('alternate_conatct_number2');
+        $data['tin_number'] = $this->input->post('tin_number');
+        $data['shop_address_line1'] = $this->input->post('shop_address_line1');
+        $data['shop_address_line2'] = $this->input->post('shop_address_line2');
+        $data['shop_address_city'] = $this->input->post('shop_address_city');
+        $data['shop_address_pincode'] = $this->input->post('shop_address_pincode');
+        $data['shop_address_state'] = $this->input->post('shop_address_state');
+
+        $status = $this->cp_model->update_cp_shop_address(array('id' => $primary_id), $data);
+        if ($status) {
+            echo "Success";
+        } else {
+            echo "Error";
+        }
+    }
+    
+    function get_city_for_cp(){
+        $dis = $this->input->post('city');
+        $pincode = $this->input->post('pincode');
+        $data = $this->vendor_model->getDistrict_from_india_pincode("", $pincode);
+        echo "<option selected='selected' value='' disabled>Select City</option>";
+        $flag = false;
+        foreach ($data as $district) {
+            if (strtolower(trim($dis)) == strtolower(trim($district['district']))) {
+                echo "<option selected value='$district[district]'>$district[district]</option>";
+                $flag = true;
+            } else {
+                echo "<option value='$district[district]'>$district[district]</option>";
+            }
+        }
+        
+        if(!$flag && !empty($dis)){
+             echo "<option selected value='$dis' >$dis</option>";
+        }
+    }
+
 }

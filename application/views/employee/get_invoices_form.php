@@ -15,17 +15,21 @@ function partner_vendor1(vendor_partner_id){
      $('#loader_gif').css("display", "inline-block");
      $('#loader_gif').attr('src',  "<?php echo base_url(); ?>images/loader.gif");
      if(par_ven === "partner"){
-         document.getElementById("myRadio1").disabled = true;
+         //document.getElementById("myRadio1").disabled = true;
          document.getElementById("myRadio2").disabled = true;
          document.getElementById("myRadio3").disabled = true;
          document.getElementById("brackets").style.display = "none";
          document.getElementById("brackets").disabled = true;
+         document.getElementById("myRadio4").disabled = true;
+         document.getElementById("myRadio5").disabled = true;
      } else {
-        document.getElementById("myRadio1").disabled = false;
+      //  document.getElementById("myRadio1").disabled = false;
          document.getElementById("myRadio2").disabled = false;
          document.getElementById("myRadio3").disabled = false;
          document.getElementById("brackets").style.display = "block";
          document.getElementById("brackets").disabled = false;
+         document.getElementById("myRadio4").disabled = false;
+         document.getElementById("myRadio5").disabled = false;
      }
 
 
@@ -179,10 +183,11 @@ color: red;
                <div class="form-group ">
 		  <label for="name" class="col-md-2">Invoice Type<span class="red">*</span></label>
                   <div class="col-md-6" style="margin-left:-15px;">
-		     <span class="col-md-2"><input type="radio"  id="myRadio1" name="vendor_invoice_type" value = "all" checked >All </span>
+<!--		     <span class="col-md-2"><input type="radio"  id="myRadio1" name="vendor_invoice_type" value = "all" checked >All </span>-->
                       <span class="col-md-2"><input type="radio"  id="myRadio2" name="vendor_invoice_type" value = "foc" >FOC</span>
                       <span class="col-md-2"><input type="radio"  id="myRadio3" name="vendor_invoice_type" value = "cash" >CASH</span>
                       <span class="col-md-4" id="brackets"><input type="radio"  id="myRadio4" name="vendor_invoice_type" value = "brackets" >BRACKETS</span>
+                      <span class="col-md-2" ><input type="radio"  id="myRadio5" name="vendor_invoice_type" value = "buyback" >Buyback</span>
 
 
                 </div>

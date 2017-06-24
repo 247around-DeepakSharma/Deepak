@@ -1635,20 +1635,23 @@ class Service_centers extends CI_Controller {
             $row[] = $order_list->city;
             $row[] = $order_list->physical_condition;
             $row[] = $order_list->working_condition;
-            $row[] = $order_list->delivery_date;
+           
             $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
             if($order_list->current_status === 'Delivered'){
                 $row[] = "<span class='label label-success'>$order_list->current_status</span>";
-            }else if($order_list->current_status === 'In-Transit'){
-                $row[] = "<span class='label label-primary'>$order_list->current_status</span>";
-            }else if($order_list->current_status === 'Attempted'){
-                $row[] = "<span class='label label-warning'>$order_list->current_status</span>";
-            }else if($order_list->current_status === 'New Item In-transit'){
-                $row[] = "<span class='label label-info'>$order_list->current_status</span>";
-            }
+                }else if($order_list->current_status === 'In-Transit'){
+                    $row[] = "<span class='label label-primary'>$order_list->current_status</span>";
+                }else if($order_list->current_status === 'Attempted'){
+                    $row[] = "<span class='label label-warning'>$order_list->current_status</span>";
+                }else if($order_list->current_status === 'New Item In-transit'){
+                    $row[] = "<span class='label label-info'>$order_list->current_status</span>";
+                }
             if($status === '0'){
+                $row[] = $order_list->delivery_date;
                 $row[] = "<a class='btn btn-default' target='_blank' href='".base_url()."service_center/update_order_details/".$order_list->partner_order_id."/".$order_list->service_id."/".$order_list->city."'><i class='fa fa-edit'></i></a>";
-                $row[] = "<a class='btn btn-default' target='_blank' href='javascript:void(0)'><i class='fa fa-edit'></i></a>";
+                $row[] = "<a class='btn btn-default' target='_blank' href='javascript:void(0)'><i class='fa fa-remove'></i></a>";
+            } else {
+                $row[] = $order_list->order_date;
             }
             
             $data[] = $row;
