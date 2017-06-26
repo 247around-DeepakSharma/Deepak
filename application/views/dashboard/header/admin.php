@@ -58,7 +58,7 @@
                         <!-- menu profile quick info -->
                         <div class="profile clearfix">
                             <div class="profile_pic">
-              <!--                <img src="images/img.jpg" alt="..." class="img-circle profile_img">-->
+<!--                              <img src="images/img.jpg" alt="..." class="img-circle profile_img">-->
                             </div>
                             <div class="profile_info">
                                 <span>Welcome,</span>
@@ -80,6 +80,14 @@
                                         <ul class="nav child_menu">
                                             <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload files</a></li>
                                              <li><a href="<?php echo base_url(); ?>buyback/buyback_process/view_bb_order_details">Pending Order</a></li>
+                                             
+                                             <li><a>Disputed Order <span class="fa fa-chevron-down"></span></a>
+                                                <ul class="nav child_menu">
+                                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_auto_settel">Auto-Settle</a></li>
+                                                  <li><a href="media_gallery.html">30 Days Tat Breeche</a></li>
+                                                  <li><a href="typography.html">Vendor Rejected</a></li>
+                                                </ul>
+                                              </li>
                                              <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_review">Review Order</a></li>
                                              <li><a href="<?php echo base_url(); ?>buyback/collection_partner/get_cp_shop_address">Shop Address</a></li>
                                         </ul>
@@ -211,9 +219,9 @@
                     <div class="nav_menu">
                         <nav>
                             
-                            <!--                            <div class="nav toggle">
-                                                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
-                                                        </div>-->
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
 
                             <ul class="nav navbar-nav navbar-right">
                                 
