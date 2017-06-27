@@ -198,10 +198,10 @@ class Around_scheduler extends CI_Controller {
         foreach ($data as $value) {
             echo ".." . PHP_EOL;
             $this->booking_model->update_booking($value['booking_id'], array('current_status' => 'Cancelled',
-                'internal_status' => 'Cancelled', 'cancellation_reason' => "Customer Not Reachable"));
+                'internal_status' => 'Cancelled', 'cancellation_reason' => "Customer not reachable / Customer not picked phone"));
             $this->booking_model->update_booking_unit_details($value['booking_id'], array('booking_status' => 'Cancelled'));
 
-            $this->notify->insert_state_change($value['booking_id'], "Cancelled", "FollowUp", "Customer Not Reachable", "1", "247Around", _247AROUND);
+            $this->notify->insert_state_change($value['booking_id'], "Cancelled", "FollowUp", "Customer not reachable / Customer not picked phone", "1", "247Around", _247AROUND);
         }
         log_message('info', __METHOD__ . '=> Exit...');
     }

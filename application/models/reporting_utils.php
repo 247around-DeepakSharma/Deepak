@@ -341,18 +341,18 @@ class Reporting_utils extends CI_Model {
 
         //Count phone not reachable and to be followed up - Total
         $this->db->where_in('Status_by_247around', array('FollowUp'));
-        $this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
+        $this->db->where_in('Remarks_by_247around', array('Customer not reachable / Customer not picked phone'));
         $total_ph_unreach = $this->db->count_all_results('snapdeal_leads');
 
         //Count phone not reachable and to be followed up - Today
         $this->db->where_in('Status_by_247around', array('FollowUp'));
-        $this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
+        $this->db->where_in('Remarks_by_247around', array('Customer not reachable / Customer not picked phone'));
         $this->db->like('Referred_Date_and_Time', $today);
         $today_ph_unreach = $this->db->count_all_results('snapdeal_leads');
 
         //Count phone not reachable and to be followed up - Y'day
         $this->db->where_in('Status_by_247around', array('FollowUp'));
-        $this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
+        $this->db->where_in('Remarks_by_247around', array('Customer not reachable / Customer not picked phone'));
         $this->db->like('Referred_Date_and_Time', $yday);
         $yday_ph_unreach = $this->db->count_all_results('snapdeal_leads');
 
