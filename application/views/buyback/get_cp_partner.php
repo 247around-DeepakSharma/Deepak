@@ -29,7 +29,7 @@
                             <thead>
                                 <tr>
                                     <th>No.</th>
-                                    <th>Partner Name</th>
+                                    
                                     <th>CP Name</th>
                                     <th>Contact Person</th>
                                     <th>Mobile</th>
@@ -37,7 +37,7 @@
                                     <th>Shop Address1</th>
                                     <th>Shop Address2</th>
                                     <th>City</th>
-                                    <th>Pincode</th>
+                                  
                                     <th>Action</th>
                                     <th>Update</th>
 

@@ -53,7 +53,7 @@ class Collection_partner extends CI_Controller {
             $no++;
             $row = array();
             $row[] = $no;
-            $row[] = $cp_address->public_name;
+           
             $row[] = $cp_address->name;
             $row[] = $cp_address->contact_person;
             $row[] = $cp_address->primary_contact_number;
@@ -61,7 +61,7 @@ class Collection_partner extends CI_Controller {
             $row[] = $cp_address->shop_address_line1;
             $row[] = $cp_address->shop_address_line2;
             $row[] = $cp_address->shop_address_city;
-            $row[] = $cp_address->shop_address_pincode;
+
             if($cp_address->active == 1){
                  $row[] = "<button class='btn btn-sm btn-danger' onclick='activate_deactivate($cp_address->id,0)'  >De-Activate</button>";
             } else {

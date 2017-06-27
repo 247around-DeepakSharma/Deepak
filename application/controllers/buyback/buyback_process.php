@@ -309,5 +309,11 @@ class Buyback_process extends CI_Controller {
             print_r(json_encode($data));
         }
     }
+    
+    function disputed_auto_settel(){
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/get_disputed_details');
+        $this->load->view('dashboard/dashboard_footer');
+    }
 
 }
