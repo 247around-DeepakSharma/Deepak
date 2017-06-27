@@ -10,6 +10,7 @@ class Buyback {
         $this->My_CI->load->library("initialized_variable");
         $this->My_CI->load->model("service_centre_charges_model");
         $this->My_CI->load->model("bb_model");
+        $this->My_CI->load->model("booking_model");
 
     }
     /**
@@ -21,7 +22,8 @@ class Buyback {
         $this->POST_DATA = $this->My_CI->initialized_variable->get_post_buyback_order_details();
         //Check order exist in the database
         $where_bb_order = array('partner_id' => $this->POST_DATA['partner_id'], 'partner_order_id' => $this->POST_DATA['partner_order_id']);  
-        $is_exist_order = $this->My_CI->bb_model->get_bb_order_details($where_bb_order, 'id, current_status, internal_status');
+        $is_exist_order = $this->My_CI->bb_model->get_bb_order_details($where_bb_order, 'bb_order_details.id, bb_order_details.current_status, '
+                . 'bb_order_details.internal_status');
         if ($is_exist_order) {
             //Order already exiting
             return $this->update_bb_order($is_exist_order);
@@ -42,7 +44,7 @@ class Buyback {
         $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details($array, '*');
         $bb_charges = array();
         $cp_id = FALSE;
-      
+        $service_id = 0;
         if (!empty($cp_shop_ddress)) {
             //Get Charges list
             $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges(array(
@@ -53,14 +55,17 @@ class Buyback {
                     ), '*');
             if(!empty($bb_charges)){
                 $cp_id = $bb_charges[0]['cp_id'];
-            }
+                $service_id =  $bb_charges[0]['service_id'];
+            } 
         }    
-        
+        if(empty($service_id)){
+             $service_id = $this->get_service_id_by_appliance();
+        }
         // Insert bb order details
         $is_insert = $this->insert_bb_order_details($cp_id);
         if ($is_insert) {
             // Insert bb unit details
-            $is_unit = $this->insert_bb_unit_details($bb_charges);
+            $is_unit = $this->insert_bb_unit_details($bb_charges, $service_id);
             if ($is_unit) {
                 // Insert state change
                 $this->insert_bb_state_change($this->POST_DATA['partner_order_id'],
@@ -79,6 +84,37 @@ class Buyback {
         } else {
             
             return FALSE;
+        }
+    }
+    /**
+     * @desc This is called to get service id by appliance name
+     * @return int
+     */
+    function get_service_id_by_appliance(){
+        $appliance_name = "";
+        
+        if (stristr($this->POST_DATA['subcat'], "Laundry")) {
+            $appliance_name = 'Washing Machine';
+        }
+        if (stristr($this->POST_DATA['subcat'], "Air Conditioners")) {
+            $appliance_name = 'Air Conditioner';
+        }
+        if (stristr($this->POST_DATA['subcat'], "Refrigerators")) {
+            $appliance_name = 'Refrigerator';
+        }
+        if (stristr($this->POST_DATA['subcat'], "Tv")) {
+            $appliance_name = 'Television';
+        }
+        
+        if(!empty($appliance_name)){
+             $service_id = $this->My_CI->booking_model->getServiceId($appliance_name);
+             if($service_id){
+                 return $service_id;
+             } else {
+                 return 0;
+             }
+        } else {
+            return 0;
         }
     }
     /**
@@ -109,7 +145,8 @@ class Buyback {
      * @param Array $bb_charges
      * @return Array
      */
-    function insert_bb_unit_details($bb_charges) {
+    function insert_bb_unit_details($bb_charges, $service_id) {
+       
         $bb_unit_details = array(
             'partner_id' => $this->POST_DATA['partner_id'],
             'partner_order_id' => $this->POST_DATA['partner_order_id'],
@@ -126,7 +163,7 @@ class Buyback {
             'partner_sweetner_charges' => $this->POST_DATA['partner_sweetner_charges'],
             'create_date' => date('Y-m-d'),
             'order_key' => $this->POST_DATA['order_key'],
-            'service_id' => (!empty($bb_charges) ? $bb_charges[0]['service_id'] : 0),
+            'service_id' => (!empty($bb_charges) ? $bb_charges[0]['service_id'] : $service_id),
         );
 
 
@@ -151,7 +188,8 @@ class Buyback {
             $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
             if($is_status){
                     $bb_unit_details = array(
-                    'order_status' => $this->POST_DATA['current_status']
+                    'order_status' => $this->POST_DATA['current_status'],
+                    'delivery_date' => $this->POST_DATA['delivery_date']
                 );
                 $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $bb_unit_details);
                 $this->insert_bb_state_change($this->POST_DATA['partner_order_id'],

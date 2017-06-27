@@ -1,17 +1,41 @@
 <?php
 
 class Bb_model extends CI_Model {
-
-    var $column_order = array('bb_unit_details.partner_order_id', 'services', 'city',
-        'order_date', 'delivery_date', 'current_status'); //set column field database for datatable orderable
-    var $column_search = array('bb_unit_details.partner_order_id', 'services', 'city',
-        'order_date', 'delivery_date', 'current_status'); //set column field database for datatable searchable 
-    var $order = array('bb_order_details.id' => 'asc'); // default order 
-    var $status = array('0' => array('Delivered'),
-        '1' => array('Rejected', 'Cancelled', 'Lost', 'Unknown'),
-        '2' => array('In-Transit', 'New Item In-transit', 'Attempted'),
-        '3' => ''
-        );
+    //set column field database for datatable orderable
+    var $column_order = array(
+        '0' =>   array( NULL, NULL,'services', 'city','order_date', 'current_status'),
+        '1' =>   array( NULL, NULL,'services', 'city','order_date', 'delivery_date', 'current_status'),
+        '2' =>   array( NULL, NULL,'services', 'city','order_date', 'current_status'),
+        '3' =>   array( NULL, NULL,'services','city','order_date', 'current_status'),
+        '4' =>   array( NULL, NULL,'services','city','order_date', 'current_status')
+    );
+    
+    var $column_search = array(
+        '0' => array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status'),
+        '1' => array('bb_unit_details.partner_order_id','services', 'city','order_date','delivery_date','current_status'),
+        '2' => array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status'),
+        '3' => array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status'),
+        '4' => array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status')
+    );
+            
+    
+    var $order = array('bb_order_details.order_date' => 'desc'); // default order 
+    
+    var $status = array(
+        '0' => array('In-Transit', 'New Item In-transit', 'Attempted'),
+        '1' => array('Delivered'),
+        '2' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'),
+        '3' => array('Lost', 'Unknown'),
+        '4' => array('Cancelled', 'Rejected')
+        
+    );
+    
+    
+    var $cp_action_column_search = array('partner_order_id','category','brand','physical_condition','working_condition','status',
+                                    'current_status','name');
+     var $cp_action_column_order = array('partner_order_id','category','brand','physical_condition','working_condition','status',
+                                    'current_status','name');
+     var $cp_action_column_default_order = array('cp_action.id' => 'asc'); // default order 
 
     /**
      * @desc load both db
@@ -87,45 +111,36 @@ class Bb_model extends CI_Model {
      * @param type $order
      * @param type $status_flag
      */
-    private function _get_bb_order_list_query($search_value, $order, $status_flag) {
-         $this->db->from('bb_order_details');
-
+    private function _get_bb_order_list_query($search_value, $order, $status_flag, $where) {
+        $this->db->from('bb_order_details');
+        $this->db->select('bb_unit_details.partner_order_id, services,city, order_date, '
+                . 'delivery_date, current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge');
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
                 . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
-        if($status_flag  == 3){
-              $this->db->select('bb_unit_details.partner_order_id, city,order_date, '
-                . 'delivery_date, current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge');
-              $this->db->where('assigned_cp_id IS NULL', NULL, FALSE);
-              
-        } else {
-            $this->db->select('bb_unit_details.partner_order_id, services,city, order_date, '
-                . 'delivery_date, current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge');
-            $this->db->where('assigned_cp_id IS NOT NULL', NULL, FALSE);
-            $this->db->where_in('current_status', $this->status[$status_flag]);
-            $this->db->join('services', 'services.id = bb_unit_details.service_id');
-        }
+       
+        $this->db->join('services', 'services.id = bb_unit_details.service_id');
+        $this->db->where($where);
+        $this->db->where_in('current_status', $this->status[$status_flag]);
 
-        foreach ($this->column_search as $key => $item) { // loop column 
+        foreach ($this->column_search[$status_flag] as $key => $item) { // loop column 
             if (!empty($search_value)) { // if datatable send POST for search
                 if ($key === 0) { // first loop
                     $this->db->like($item, $search_value);
                 } else {
-                    if($status_flag == 3 && $key ==1){
-                        //Unassigned booking need not to search services
-                    } else {
-                        $this->db->or_like($item, $search_value);
-                    }
+                     $this->db->or_like($item, $search_value);
                 }
             }
            
         }
 
         if (!empty($order)) { // here order processing
-            $this->db->order_by($this->column_order[$order[0]['column'] - 1], $order[0]['dir']);
+            $this->db->order_by($this->column_order[$status_flag][$order[0]['column']], $order[0]['dir']);
         } else if (isset($this->order)) {
             $order = $this->order;
             $this->db->order_by(key($order), $order[key($order)]);
+            $this->db->order_by('bb_order_details.city', 'asc');
         }
+       
     }
     /**
      * 
@@ -136,12 +151,13 @@ class Bb_model extends CI_Model {
      * @param type $status_flag
      * @return Object
      */
-    function get_bb_order_list($length, $start, $search_value, $order, $status_flag) {
-        $this->_get_bb_order_list_query($search_value, $order, $status_flag);
+    function get_bb_order_list($length, $start, $search_value, $order, $status_flag, $where) {
+        $this->_get_bb_order_list_query($search_value, $order, $status_flag, $where);
         if ($length != -1) {
             $this->db->limit($length, $start);
         }
         $query = $this->db->get();
+       
         return $query->result();
     }
     /**
@@ -151,8 +167,8 @@ class Bb_model extends CI_Model {
      * @param Int $status_flag
      * @return Number of rows
      */
-    function count_filtered($search_value, $order, $status_flag) {
-        $this->_get_bb_order_list_query($search_value, $order, $status_flag);
+    function count_filtered($search_value, $order, $status_flag, $where) {
+        $this->_get_bb_order_list_query($search_value, $order, $status_flag, $where);
         $query = $this->db->get();
 
         return $query->num_rows();
@@ -162,10 +178,13 @@ class Bb_model extends CI_Model {
      * @param Int $status_flag
      * @return Count
      */
-    public function count_all($status_flag) {
+    public function count_all($status_flag, $where) {
         $this->db->from('bb_order_details');
+        $this->db->where($where);
         $this->db->where_in('current_status', $this->status[$status_flag]);
-        return $this->db->count_all_results();
+        $query = $this->db->count_all_results();
+       
+        return $query;
     }    
     /**
      * @desc This function is used to insert charges list excel data

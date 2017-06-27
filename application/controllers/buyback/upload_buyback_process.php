@@ -263,27 +263,27 @@ class Upload_buyback_process extends CI_Controller {
      * @return $tmp array
      */
     private function set_charges_rows_data($row) {
-        $tmp['partner_id'] = isset($row[0]) ? $row[0] : '';
-        $tmp['cp_id'] = isset($row[2]) ? $row[2] : '';
-        $tmp['service_id'] = isset($row[4]) ? $row[4] : '';
-        $tmp['category'] = isset($row[5]) ? $row[5] : '';
-        $tmp['brand'] = isset($row[6]) ? $row[6] : '';
-        $tmp['physical_condition'] = isset($row[7]) ? $row[7] : '';
+        $tmp['partner_id'] = $row[0];
+        $tmp['cp_id'] = $row[2];
+        $tmp['service_id'] = $row[4] ;
+        $tmp['category'] = $row[5];
+        $tmp['brand'] = isset($row[6]) ? $row[6] : NULL;
+        $tmp['physical_condition'] = isset($row[7]) ? $row[7] : NULL;
         $tmp['working_condition'] = isset($row[8]) ? $row[8] : '';
-        $tmp['city'] = isset($row[9]) ? $row[9] : '';
-        $tmp['order_key'] = isset($row[10]) ? $row[10] : '';
-        $tmp['partner_basic'] = isset($row[11]) ? $row[11] : '';
-        $tmp['partner_tax'] = isset($row[12]) ? $row[12] : '';
-        $tmp['partner_total'] = isset($row[13]) ? $row[13] : '';
-        $tmp['cp_basic'] = isset($row[14]) ? $row[14] : '';
-        $tmp['cp_tax'] = isset($row[15]) ? $row[15] : '';
-        $tmp['cp_total'] = isset($row[16]) ? $row[16] : '';
-        $tmp['around_basic'] = isset($row[17]) ? $row[17] : '';
-        $tmp['around_tax'] = isset($row[18]) ? $row[18] : '';
-        $tmp['around_total'] = isset($row[19]) ? $row[19] : '';
-        $tmp['visible_to_partner'] = isset($row[20]) ? $row[20] : '';
-        $tmp['visible_to_cp'] = isset($row[21]) ? $row[21] : '';
-        $tmp['create_date'] = date("Y-m-d h:i:sa");
+        $tmp['city'] = $row[9];
+        $tmp['order_key'] = $row[10];
+        $tmp['partner_basic'] = isset($row[11]) ? $row[11] : '0';
+        $tmp['partner_tax'] = isset($row[12]) ? $row[12] : '0';
+        $tmp['partner_total'] = isset($row[13]) ? $row[13] : '0';
+        $tmp['cp_basic'] = isset($row[14]) ? $row[14] : '0';
+        $tmp['cp_tax'] = isset($row[15]) ? $row[15] : '0';
+        $tmp['cp_total'] = isset($row[16]) ? $row[16] : '0';
+        $tmp['around_basic'] = isset($row[17]) ? $row[17] : '0';
+        $tmp['around_tax'] = isset($row[18]) ? $row[18] : '0';
+        $tmp['around_total'] = isset($row[19]) ? $row[19] : '0';
+        $tmp['visible_to_partner'] = isset($row[20]) ? $row[20] : '0';
+        $tmp['visible_to_cp'] = isset($row[21]) ? $row[21] : '0';
+        $tmp['create_date'] = date("Y-m-d H:i:s");
         
         return $tmp;
     }
