@@ -37,7 +37,7 @@ class Buyback_process extends CI_Controller {
      */
     function get_bb_order_details() {
         //log_message("info", print_r(json_encode($_POST, TRUE), TRUE));
-         //$string = '{"draw":"1","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"status":"5"}';
+       // $string = '{"draw":"1","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"status":"7"}';
        // $_POST = json_decode($string, true);
        
         $data = array();
@@ -68,6 +68,18 @@ class Buyback_process extends CI_Controller {
              case 6:
                 $data = $this->process_cancelled_claim_settled();
                 break;
+            
+            case 7:
+                $data = $this->process_30_days_tat_breech_not_claim();
+                break;
+            
+             case 8:
+                $data = $this->process_30_days_tat_breech_claim_submitted();
+                break;
+            
+             case 9:
+                $data = $this->process_30_days_tat_breech_claim_settled();
+                break;
         }
         
         $post = $data['post'];
@@ -84,9 +96,10 @@ class Buyback_process extends CI_Controller {
     
     function process_in_tansit(){
         $post = $this->get_bb_post_view_data();
-        $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL);
+        $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime("-30 days")));
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -108,6 +121,7 @@ class Buyback_process extends CI_Controller {
         $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL);
         $post['where_in'] = array('current_status' => array('Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'delivery_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','delivery_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -127,9 +141,10 @@ class Buyback_process extends CI_Controller {
     
     function process_unassigned(){
         $post = $this->get_bb_post_view_data();
-        $post['where'] = array('assigned_cp_id IS NULL' => NULL);
+        $post['where'] = array('assigned_cp_id IS NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime("-30 days")));
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -149,9 +164,10 @@ class Buyback_process extends CI_Controller {
     
     function process_lost_other(){
         $post = $this->get_bb_post_view_data();
-        $post['where'] = array();
+        $post['where'] = array('order_date >= ' => date('Y-m-d', strtotime("-30 days")));
         $post['where_in'] = array('current_status' => array('Lost', 'Unknown'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -175,6 +191,7 @@ class Buyback_process extends CI_Controller {
             'current_status' => array('Cancelled', 'Rejected'), 
             'internal_status' => array(TO_BE_CLAIMED));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
         $post['where'] = array();
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
@@ -200,6 +217,7 @@ class Buyback_process extends CI_Controller {
             'current_status' => array('Cancelled', 'Rejected'), 
             'internal_status' => array(CLAIM_SUBMITTED));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
         $post['where'] = array();
         $list = $this->bb_model->get_bb_order_list($post);
         
@@ -226,6 +244,7 @@ class Buyback_process extends CI_Controller {
             'current_status' => array('Cancelled', 'Rejected'), 
             'internal_status' => array(CLAIM_SETTLED_BY_AMAZON));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
         $post['where'] = array();
         $list = $this->bb_model->get_bb_order_list($post);
         
@@ -243,6 +262,81 @@ class Buyback_process extends CI_Controller {
             
                 );
 
+    }
+    
+    function process_30_days_tat_breech_not_claim(){
+        $post = $this->get_bb_post_view_data();
+       
+        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
+            'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+    }
+    
+    function process_30_days_tat_breech_claim_submitted(){
+        $post = $this->get_bb_post_view_data();
+       
+        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
+            'internal_status' => array(CLAIM_SUBMITTED));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['where'] = array();
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+    }
+    
+    function process_30_days_tat_breech_claim_settled(){
+         $post = $this->get_bb_post_view_data();
+       
+        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
+            'internal_status' => array(CLAIM_SETTLED_BY_AMAZON));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['where'] = array();
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
     }
     
     function get_bb_post_view_data(){
@@ -488,7 +582,13 @@ class Buyback_process extends CI_Controller {
     
     function disputed_auto_settel(){
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        $this->load->view('buyback/get_disputed_details');
+        $this->load->view('buyback/get_disputed_auto_settle');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    function disputed_30_days_breech(){
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/get_disputed_30_days_breech');
         $this->load->view('dashboard/dashboard_footer');
     }
 

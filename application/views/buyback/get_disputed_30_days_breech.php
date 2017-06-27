@@ -7,14 +7,14 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_title">
                         <h2>
-                            <i class="fa fa-bars"></i> Disputed Order Details <!--<small>Float left</small>-->
+                            <i class="fa fa-bars"></i> 30 Days Tat Breech <!--<small>Float left</small>-->
                         </h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
                         <div class="" role="tabpanel" data-example-id="togglable-tabs">
                             <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-                                <li role="presentation" class="active"><a href="#tab_content1" role="tab" id="auto-settle-tab" data-toggle="tab" aria-expanded="false">Auto Settle( <span style="font-weight: bold;" id="auto_record">0</span> )</a>
+                                <li role="presentation" class="active"><a href="#tab_content1" role="tab" id="auto-settle-tab" data-toggle="tab" aria-expanded="false">30 Days Tat Breech( <span style="font-weight: bold;" id="tat_record">0</span> )</a>
                                 </li>
                                 <li role="presentation" class=""><a href="#tab_content2" id="claim_submitted" role="tab" data-toggle="tab" aria-expanded="true">Claim Submitted ( <span style="font-weight: bold;" id="claimed_record">0</span> )</a>
                                 </li>
@@ -80,13 +80,13 @@
     </div>
 </div>
 <script type="text/javascript">
-    var auto_settle;
+    var tat_breech;
     var claim_submitted;
     var claim_settled;
     $(document).ready(function () {
         
         //datatables
-        auto_settle = $('#datatable1').DataTable({
+        tat_breech = $('#datatable1').DataTable({
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
@@ -95,7 +95,7 @@
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
                 "type": "POST",
-                "data": {"status": 4},
+                "data": {"status": 7},
                 
             },
             
@@ -108,7 +108,7 @@
             ],
            "fnInitComplete": function (oSettings, response) {
             
-            $("#auto_record").text(response.recordsTotal);
+            $("#tat_record").text(response.recordsTotal);
           }
             
         });
@@ -123,7 +123,7 @@
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
                 "type": "POST",
-                "data": {"status": 5},
+                "data": {"status": 8},
                 
             },
             
@@ -150,7 +150,7 @@
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
                 "type": "POST",
-                "data": {"status": 6},
+                "data": {"status": 9},
                 
             },
             

@@ -1,18 +1,7 @@
 <?php
 
 class Bb_model extends CI_Model {
-    //set column field database for datatable orderable
-    
-    var $column_search = array(
-        '0' => array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status'),
-        '1' => array('bb_unit_details.partner_order_id','services', 'city','order_date','delivery_date','current_status'),
-        '2' => array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status'),
-        '3' => array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status'),
-        '4' => array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status'),
-        '5' => array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status'),
-        '6' => array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status')
-    );
-            
+    //set column field database for datatable orderable       
     
     var $order = array('bb_order_details.order_date' => 'desc'); // default order 
 
@@ -111,15 +100,15 @@ class Bb_model extends CI_Model {
            
             $this->db->where_in($index, $value);
         }
-        
-        foreach ($this->column_search[$post['status']] as $key => $item) { // loop column 
-            if (!empty($post['search_value'])) { // if datatable send POST for search
+        if (!empty($post['search_value'])) {
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
                 if ($key === 0) { // first loop
                     $this->db->like($item, $post['search_value']);
                 } else {
                      $this->db->or_like($item, $post['search_value']);
                 }
-            }
+             }
            
         }
 
