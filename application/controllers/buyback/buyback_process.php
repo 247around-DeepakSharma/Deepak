@@ -37,56 +37,318 @@ class Buyback_process extends CI_Controller {
      */
     function get_bb_order_details() {
         //log_message("info", print_r(json_encode($_POST, TRUE), TRUE));
-       //  $string = '{"draw":"1","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"status":"3"}';
+       // $string = '{"draw":"1","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"status":"7"}';
        // $_POST = json_decode($string, true);
-        $length = $this->input->post('length');
-        $start = $this->input->post('start');
-        $search = $this->input->post('search');
-        $search_value = $search['value'];
-        $order = $this->input->post('order');
-        $draw = $this->input->post('draw');
-        $status = $this->input->post('status');
-        if($status == 2 || $status == 3 ){
-            $where = array('assigned_cp_id' => NULL);
-        } else {
-            $where = array('assigned_cp_id IS NOT NULL' => NULL);
-        }
-        $list = $this->bb_model->get_bb_order_list($length, $start, $search_value, 
-                $order, $status, $where);
-
+       
         $data = array();
-        $no = $start;
+        switch ($this->input->post('status')){
+            case 0:
+                $data = $this->process_in_tansit();
+                break;
+            
+            case 1:
+                $data = $this->process_delivered();
+                break;
+            
+            case 2:
+                $data = $this->process_unassigned();
+                break;
+            case 3:
+                $data = $this->process_lost_other();
+                break;
+            
+            case 4:
+                $data = $this->process_cancelled_not_claim();
+                break;
+            
+            case 5:
+                $data = $this->process_cancelled_claim_submitted();
+                break;
+            
+             case 6:
+                $data = $this->process_cancelled_claim_settled();
+                break;
+            
+            case 7:
+                $data = $this->process_30_days_tat_breech_not_claim();
+                break;
+            
+             case 8:
+                $data = $this->process_30_days_tat_breech_claim_submitted();
+                break;
+            
+             case 9:
+                $data = $this->process_30_days_tat_breech_claim_settled();
+                break;
+        }
+        
+        $post = $data['post'];
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->bb_model->count_all($post),
+            "recordsFiltered" =>  $this->bb_model->count_filtered($post),
+            "data" => $data['data'],
+        );
+        unset($post);
+        unset($data);
+        echo json_encode($output);
+    }
+    
+    function process_in_tansit(){
+        $post = $this->get_bb_post_view_data();
+        $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        $data = array();
+        $no = $post['start'];
         foreach ($list as $order_list) {
-
-           $no++;
-           switch ($status){
-                case '0':
-                    
-                    $row =  $this->in_tansit_table_data($order_list, $no);
-                    break;
-                case 1:
-                    $row = $this->delivered_table_data($order_list, $no);
-                    break;
-                case 2:
-                case 3:
-                case 4:
-                    $row = $this->unassigned_table_data($order_list, $no);
-                    break;
-           }
-
+            $no++;
+            $row =  $this->in_tansit_table_data($order_list, $no);
             $data[] = $row;
         }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+                );
 
+    }
+    
+    function process_delivered(){
+        $post = $this->get_bb_post_view_data();
+        $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL);
+        $post['where_in'] = array('current_status' => array('Delivered'));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'delivery_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','delivery_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->delivered_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
 
-        $output = array(
-            "draw" => $draw,
-            "recordsTotal" => $this->bb_model->count_all($status, $where),
-            "recordsFiltered" => $this->bb_model->count_filtered($search_value, $order, $status, $where),
-            "data" => $data,
-        );
+    }
+    
+    function process_unassigned(){
+        $post = $this->get_bb_post_view_data();
+        $post['where'] = array('assigned_cp_id IS NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
 
-        //output to json format
-        echo json_encode($output);
+    }
+    
+    function process_lost_other(){
+        $post = $this->get_bb_post_view_data();
+        $post['where'] = array('order_date >= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['where_in'] = array('current_status' => array('Lost', 'Unknown'));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+
+    }
+    
+    function process_cancelled_not_claim(){
+        $post = $this->get_bb_post_view_data();
+        $post['where_in'] = array(
+            'current_status' => array('Cancelled', 'Rejected'), 
+            'internal_status' => array(TO_BE_CLAIMED));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $post['where'] = array();
+        $list = $this->bb_model->get_bb_order_list($post);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+
+    }
+    
+    function process_cancelled_claim_submitted(){
+        $post = $this->get_bb_post_view_data();
+       
+        $post['where_in'] = array(
+            'current_status' => array('Cancelled', 'Rejected'), 
+            'internal_status' => array(CLAIM_SUBMITTED));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $post['where'] = array();
+        $list = $this->bb_model->get_bb_order_list($post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+
+    }
+    
+    function process_cancelled_claim_settled(){
+        $post = $this->get_bb_post_view_data();
+       
+        $post['where_in'] = array(
+            'current_status' => array('Cancelled', 'Rejected'), 
+            'internal_status' => array(CLAIM_SETTLED_BY_AMAZON));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $post['where'] = array();
+        $list = $this->bb_model->get_bb_order_list($post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+
+    }
+    
+    function process_30_days_tat_breech_not_claim(){
+        $post = $this->get_bb_post_view_data();
+       
+        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
+            'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+    }
+    
+    function process_30_days_tat_breech_claim_submitted(){
+        $post = $this->get_bb_post_view_data();
+       
+        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
+            'internal_status' => array(CLAIM_SUBMITTED));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['where'] = array();
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+    }
+    
+    function process_30_days_tat_breech_claim_settled(){
+         $post = $this->get_bb_post_view_data();
+       
+        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
+            'internal_status' => array(CLAIM_SETTLED_BY_AMAZON));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['where'] = array();
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+    }
+    
+    function get_bb_post_view_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        $post['status'] = $this->input->post('status');
+        
+        return $post;
     }
     
     function in_tansit_table_data($order_list, $no){
@@ -320,7 +582,13 @@ class Buyback_process extends CI_Controller {
     
     function disputed_auto_settel(){
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        $this->load->view('buyback/get_disputed_details');
+        $this->load->view('buyback/get_disputed_auto_settle');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    function disputed_30_days_breech(){
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/get_disputed_30_days_breech');
         $this->load->view('dashboard/dashboard_footer');
     }
 

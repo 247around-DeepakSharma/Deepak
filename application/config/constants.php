@@ -372,6 +372,10 @@ define('MISSED_CALL_DEFAULT_RATING', '5');
 
 //Buyback constant
 define('_247AROUND_BB_PRICE_LIST','BB-Price-List');
+//Buyback constant
+define('CLAIM_SUBMITTED','Claim Submitted');
+define('TO_BE_CLAIMED','To Be Claimed');
+define('CLAIM_SETTLED_BY_AMAZON','Claim Settled by Amazon');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
