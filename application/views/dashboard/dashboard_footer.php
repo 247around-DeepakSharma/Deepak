@@ -41,7 +41,7 @@
     
     <!-- Custom Theme Scripts -->
     <script src="<?php echo base_url()?>js/base_url.js"></script>
-    <script src="<?php echo base_url()?>js/dashboard_custom.min.js"></script>
+    <script src="<?php echo base_url()?>js/dashboard_custom.js"></script>
 	
   </body>
 </html>
