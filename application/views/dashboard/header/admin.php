@@ -79,7 +79,6 @@
                                     <li><a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
                                         <ul class="nav child_menu">
                                             <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload files</a></li>
-
                                              <li><a href="<?php echo base_url(); ?>buyback/buyback_process/view_bb_order_details">Pending Order</a></li>
                                              
                                              <li><a>Disputed Order <span class="fa fa-chevron-down"></span></a>
@@ -89,7 +88,6 @@
                                                   <li><a href="typography.html">Vendor Rejected</a></li>
                                                 </ul>
                                               </li>
-
                                              <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_review">Review Order</a></li>
                                              <li><a href="<?php echo base_url(); ?>buyback/collection_partner/get_cp_shop_address">Shop Address</a></li>
                                         </ul>
