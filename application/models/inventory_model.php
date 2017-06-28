@@ -202,16 +202,53 @@ class Inventory_model extends CI_Model {
                 . 'brackets.received_date,brackets.19_24_requested,brackets.26_32_requested,brackets.36_42_requested,brackets.43_requested,'
                 . 'brackets.total_requested,brackets.19_24_shipped,brackets.26_32_shipped,brackets.36_42_shipped,brackets.43_shipped,brackets.total_shipped,'
                 . 'brackets.19_24_received,brackets.26_32_received,brackets.36_42_received,brackets.43_received,brackets.total_received,brackets.is_shipped,brackets.is_received,'
-                . 'b.old_state,b.new_state,employee.employee_id as agent_name,bookings_sources.source as partner_name');
+                . 'b.old_state,b.new_state,b.partner_id,b.service_center_id,b.agent_id,bookings_sources.source as partner_name');
         $this->db->where('order_id',$order_id);
         $this->db->join('booking_state_change b','b.booking_id = brackets.order_id');
-        $this->db->join('employee', 'employee.id = b.agent_id');
-        $this->db->join('bookings_sources', 'bookings_sources.partner_id = b.partner_id');
+        $this->db->join('bookings_sources', 'bookings_sources.partner_id = b.partner_id','left');
         $this->db->group_by('b.new_state');
         $this->db->order_by('brackets.create_date','asc');
         $query = $this->db->get('brackets');
-        return $query->result_array();
+        $data =  $query->result_array();
         
+        foreach ($data as $key => $value){
+            if(!is_null($value['partner_id'])){
+                // If Partner Id is 247001
+                if($value['partner_id'] == _247AROUND){
+                    $sql = "SELECT full_name FROM employee WHERE "
+                            . " employee.id = '".$value['agent_id']."'";
+                   
+                    $query1 = $this->db->query($sql);
+                    $data1 = $query1->result_array();
+                   
+                    $data[$key]['agent_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
+                   
+                    
+                } else {
+                    // For Partner
+                    $this->db->select('full_name,public_name');
+                    $this->db->from('partner_login,partners');
+                    $this->db->where('partner_login.id', $value['agent_id']);
+                    $this->db->where('partners.id', $value['partner_id']);
+                    $query1 = $this->db->get();
+                    $data1 = $query1->result_array();
+                    $data[$key]['agent_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
+                }
+            } else if(!is_null($value['service_center_id'])){
+                // For Service center
+                $this->db->select('service_centres.name As full_name');
+                $this->db->from('service_centers_login');
+                $this->db->where('service_centers_login.id', $value['agent_id']);
+                $this->db->join('service_centres', 'service_centres.id = service_centers_login.service_center_id');
+                $query1 = $this->db->get();
+                $data1 = $query1->result_array();
+                $data[$key]['agent_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
+                
+            }
+            
+        }
+       
+        return $data;
     }
     
     /**
