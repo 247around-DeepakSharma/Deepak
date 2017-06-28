@@ -22,13 +22,7 @@ class Around_scheduler_model extends CI_Model {
                 ss1.booking_id, ss1.content FROM booking_details AS bd 
                 JOIN sms_sent_details AS ss1 ON (ss1.booking_id = bd.booking_id ) 
                 
-                WHERE partner_source IN (
-                    'Snapdeal-shipped-excel', 
-                    'Snapdeal-delivered-excel',
-                    'STS', 
-                    'Paytm-delivered-excel',
-                    'Jeeves-delivered-excel'
-                ) AND booking_date IN (
+                WHERE booking_date IN (
                 DATE_FORMAT( CURDATE(),  '%d-%m-%Y' ),
                 ''
                 )
