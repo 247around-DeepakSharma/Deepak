@@ -81,12 +81,29 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
+                                <div class="form-group col-md-12 <?php if( form_error('service_id') ) { echo 'has-error';} ?>">
+                                    <label for="Appliance">Appliance * <span id="error_appliance" style="color: red;"></span></label>
+                                    <select type="text" class="form-control"  id="service_name" name="service_id"   required onchange="return get_city(), get_brands(), get_category(), get_capacity()">
+                                        <option selected disabled>Select Appliance</option>
+                                        <?php foreach ($appliances as $values) { ?>
+                                        <option <?php if(count($appliances) ==1){echo "selected";} ?> data-id="<?php echo $values->services;?>" value=<?= $values->id; ?>>
+                                            <?php echo $values->services; }    ?>
+                                        </option>
+                                    </select>
+                                    <?php echo form_error('service_id'); ?>
+                                    <span id="error_pincode" style="color: red;"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_pincode') ) { echo 'has-error';} ?> ">
                                     <label for="booking_pincode">Pincode *   <span id="error_pincode" style="color: red;"></span></label>
                                     <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} else { echo set_value('booking_pincode');} ?>" placeholder="Enter Area Pin" required>
                                     <?php echo form_error('booking_pincode'); ?>
                                 </div>
                             </div>
+                            
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('city') ) { echo 'has-error';} ?>">
                                     <label for="city ">City * <span id="error_city" style="color: red;"></span><span style="color:grey;display:none" id="city_loading">Loading ...</span></label>
@@ -102,20 +119,7 @@
                                     <?php echo form_error('city'); ?>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12 <?php if( form_error('service_id') ) { echo 'has-error';} ?>">
-                                    <label for="Appliance">Appliance * <span id="error_appliance" style="color: red;"></span></label>
-                                    <select type="text" class="form-control"  id="service_name" name="service_id"   required onchange="return get_brands(), get_category(), get_capacity()">
-                                        <option selected disabled>Select Appliance</option>
-                                        <?php foreach ($appliances as $values) { ?>
-                                        <option <?php if(count($appliances) ==1){echo "selected";} ?> data-id="<?php echo $values->services;?>" value=<?= $values->id; ?>>
-                                            <?php echo $values->services; }    ?>
-                                        </option>
-                                    </select>
-                                    <?php echo form_error('service_id'); ?>
-                                    <span id="error_pincode" style="color: red;"></span>
-                                </div>
-                            </div>
+                            
                             <input type="hidden" name="appliance_name" id="appliance_name" value=""/>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
@@ -127,6 +131,8 @@
                                     <?php echo form_error('appliance_brand'); ?>
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-md-12">
                             <div class="col-md-4 col-md-12">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
                                     <label for="appliance_category">Category *<span style="color:grey;display:none" id="category_loading">Loading ...</span> <span id="error_category" style="color: red;"></label>
@@ -790,6 +796,7 @@
     
     function get_city(){
         var pincode = $("#booking_pincode").val();
+        var service_id =  $("#service_name").val();
         if(pincode.length === 6){
             
             $.ajax({
@@ -799,7 +806,7 @@
                     $('#city_loading').css("display", "-webkit-inline-box");
                     $('#submitform').prop('disabled', true);
                 },
-                url: '<?php echo base_url(); ?>employee/partner/get_district_by_pincode/'+ pincode,          
+                url: '<?php echo base_url(); ?>employee/partner/get_district_by_pincode/'+ pincode+"/"+service_id,          
                 success: function (data) {
                     console.log();
                     if(data !== "ERROR"){
