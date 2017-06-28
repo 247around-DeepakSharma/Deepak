@@ -1775,5 +1775,21 @@ class vendor_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    /**
+     * @desc This is used to select data from vendor  pincode mappping and service center table
+     * @param Array $where
+     * @param String $select
+     * @return Array
+     */
+    function get_vendor_mapping_data($where, $select){
+        $this->db->distinct();
+        $this->db->select($select);
+        $this->db->from('vendor_pincode_mapping');
+        $this->db->order_by('vendor_pincode_mapping.City');
+        $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
+        $this->db->where($where);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
     
 }
