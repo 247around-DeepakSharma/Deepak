@@ -128,7 +128,9 @@ $route['partner/invoice'] = 'employee/partner/inactive_partner_default_page';
 
 $route['service_centers/bb_oder_details'] = 'employee/service_centers/view_delivered_bb_order_details';
 $route['service_center/update_order_details/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_bb_order_details/$1/$2/$3';
-$route['process_update_bb_order_details'] = 'employee/service_centers/process_update_bb_order_details';
+$route['process_report_issue_bb_order_details'] = 'employee/service_centers/process_report_issue_bb_order_details';
+$route['service_center/update_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_received_bb_order/$1/$2/$3';
+$route['service_center/update_not_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_not_received_bb_order/$1/$2/$3';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

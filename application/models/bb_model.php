@@ -28,10 +28,9 @@ class Bb_model extends CI_Model {
         );
     
     
-    var $cp_action_column_search = array('partner_order_id','category','brand','physical_condition','working_condition','status',
-                                    'current_status','name');
-     var $cp_action_column_order = array('partner_order_id','category','brand','physical_condition','working_condition','status',
-                                    'current_status','name');
+    var $cp_action_column_search = array('partner_order_id','category','brand','physical_condition','working_condition','current_status','name');
+     var $cp_action_column_order = array('partner_order_id','category','brand','physical_condition','working_condition','current_status','name');
+                                    
      var $cp_action_column_default_order = array('cp_action.id' => 'asc'); // default order 
 
     /**
@@ -215,7 +214,7 @@ class Bb_model extends CI_Model {
 
         $this->db->join('service_centres as cp', 'cp_action.cp_id = cp.id');
         $this->db->select('cp_action.id,cp_action.partner_order_id,cp_action.cp_id,cp_action.category,cp_action.brand,cp_action.physical_condition,
-            cp_action.working_condition,cp_action.status,cp_action.remarks,cp_action.current_status, cp.name');
+            cp_action.working_condition,cp_action.remarks,cp_action.current_status, cp.name');
         $this->db->where('current_status','In_process');
         foreach ($this->cp_action_column_search as $key => $item) { // loop column 
             if (!empty($search_value)) { // if datatable send POST for search
@@ -303,7 +302,7 @@ class Bb_model extends CI_Model {
     function approved_bb_orders($data){
         foreach ($data as $value) {
             $this->db->where('id', $value);
-            $this->db->update('bb_cp_order_action', array('current_status' => 'Completed'));
+            $this->db->update('bb_cp_order_action', array('current_status' => _247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS));
         }
 
         return TRUE;

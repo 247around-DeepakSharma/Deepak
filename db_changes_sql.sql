@@ -2394,3 +2394,7 @@ ALTER TABLE bb_order_image_mapping MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, 
 
 ---Abhay
 ALTER TABLE `bb_shop_address` ADD `alternate_conatct_number2` VARCHAR(28) NULL DEFAULT NULL AFTER `alternate_conatct_number`;
+
+-- buyback -sachin 27-june-2017
+ALTER TABLE `bb_order_image_mapping` ADD `tag` VARCHAR(128) NULL AFTER `image_name`;
+ALTER TABLE `bb_cp_order_action` ADD `order_key` VARCHAR(256) NULL AFTER `internal_status`;
