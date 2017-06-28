@@ -2838,8 +2838,15 @@ class Partner extends CI_Controller {
      * @desc: This is called by Ajax to return City
      * @param String $pincode
      */
-    function get_district_by_pincode($pincode){
-        $city = $this->vendor_model->getDistrict("", $pincode);
+    function get_district_by_pincode($pincode, $service_id){
+        $select = 'vendor_pincode_mapping.City as district';
+        
+        $where = array(
+            'service_centres.active' => 1, 
+            'service_centres.on_off' => 1,
+            'vendor_pincode_mapping.Pincode' => $pincode,
+            'vendor_pincode_mapping.Appliance_ID' => $service_id);
+        $city = $this->vendor_model->get_vendor_mapping_data($where, $select);
         if(!empty($city)){
             foreach ($city as $district){
                  echo '<option selected>'.$district['district'].'</option>';

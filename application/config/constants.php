@@ -380,6 +380,9 @@ define('_247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS','Completed');
 define('_247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS','Claim Raised By CP');
 define('_247AROUND_BB_ORDER_COMPLETED_INTERNAL_STATUS','Auto Approve Specification Match');
 define('_247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS','Not Delivered');
+define('CLAIM_SUBMITTED','Claim Submitted');
+define('TO_BE_CLAIMED','To Be Claimed');
+define('CLAIM_SETTLED_BY_AMAZON','Claim Settled by Amazon');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

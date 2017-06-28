@@ -75,6 +75,22 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
+                                <div class="form-group col-md-12 <?php if( form_error('service_id') ) { echo 'has-error';} ?>">
+                                    <label for="Appliance">Appliance * <span id="error_appliance" style="color: red;"></span></label>
+                                    <select type="text" class="form-control"  id="service_name" name="service_id"   required onchange="return get_brands(), get_category(), get_capacity()" readonly >
+                                        <option selected disabled>Select Appliance</option>
+                                        <?php foreach ($appliances as $values) { ?>
+                                        <option <?php if(count($appliances) ==1){echo "selected";} ?>  data-id="<?php echo $values->services;?>" value=<?= $values->id; ?> <?php if($booking_history[0]['service_id'] == $values->id){ echo "selected";} ?>>
+                                            <?php echo $values->services; }    ?>
+                                        </option>
+                                    </select>
+                                    <?php echo form_error('service_id'); ?>
+                                    <span id="error_pincode" style="color: red;"></span>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="col-md-12">
+                            <div class="col-md-4">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_pincode') ) { echo 'has-error';} ?> ">
                                     <label for="booking_pincode">Pincode *   <span id="error_pincode" style="color: red;"></span></label>
                                     <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){ echo $booking_history[0]['booking_pincode']; } else { echo set_value('booking_pincode'); }  ?>" placeholder="Enter Area Pin" required readonly>
@@ -93,20 +109,7 @@
                                     <?php echo form_error('city'); ?>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12 <?php if( form_error('service_id') ) { echo 'has-error';} ?>">
-                                    <label for="Appliance">Appliance * <span id="error_appliance" style="color: red;"></span></label>
-                                    <select type="text" class="form-control"  id="service_name" name="service_id"   required onchange="return get_brands(), get_category(), get_capacity()">
-                                        <option selected disabled>Select Appliance</option>
-                                        <?php foreach ($appliances as $values) { ?>
-                                        <option <?php if(count($appliances) ==1){echo "selected";} ?>  data-id="<?php echo $values->services;?>" value=<?= $values->id; ?> <?php if($booking_history[0]['service_id'] == $values->id){ echo "selected";} ?>>
-                                            <?php echo $values->services; }    ?>
-                                        </option>
-                                    </select>
-                                    <?php echo form_error('service_id'); ?>
-                                    <span id="error_pincode" style="color: red;"></span>
-                                </div>
-                            </div>
+                            
                             <input type="hidden" name="appliance_name" id="appliance_name" value=""/>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
@@ -118,6 +121,8 @@
                                     <?php echo form_error('appliance_brand'); ?>
                                 </div>
                             </div>
+                         </div>
+                         <div class="col-md-12">
                             <div class="col-md-4 col-md-12">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
                                     <label for="appliance_category">Category * <span id="error_category" style="color: red;"> <span style="color:grey;display:none" id="category_loading">Loading ...</span></label>
@@ -527,7 +532,7 @@
          tags: true
     });
     $("#price_tag").select2();
-    $("#service_name").select2();
+   // $("#service_name").select2();
     $("#appliance_brand_1").select2();
     $("#appliance_capacity_1").select2();
     $("#appliance_category_1").select2();
@@ -671,6 +676,7 @@
     
         var postData = {};
         appliance_name = $("#service_name").find(':selected').attr('data-id');
+       
         $("#appliance_name").val(appliance_name);
        $("#priceList").html('<div class="text-center"><img src= "<?php echo base_url(); ?>images/loadring.gif" /></div>').delay(1200).queue(function () {
         postData['service_id'] = $("#service_name").val();
@@ -780,6 +786,7 @@
     
     $("#booking_pincode").keyup(function(event) {
         var pincode = $("#booking_pincode").val();
+        var service_id =  $("#service_name").val();
         if(pincode.length === 6){
             
             $.ajax({
@@ -789,7 +796,7 @@
                     $('#city_loading').css("display", "-webkit-inline-box");
                     $('#submitform').prop('disabled', true);
                 },
-                url: '<?php echo base_url(); ?>employee/partner/get_district_by_pincode/'+ pincode,          
+                url: '<?php echo base_url(); ?>employee/partner/get_district_by_pincode/'+ pincode+"/"+service_id,          
                 success: function (data) {
                  
                    if(data !== "ERROR"){
