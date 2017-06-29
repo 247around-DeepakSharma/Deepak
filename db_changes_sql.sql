@@ -2436,7 +2436,7 @@ ALTER TABLE `sc_gst_details`
 ALTER TABLE `sc_gst_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
-ALTER TABLE `partners` ADD `gst_number` VARCHAR(128) NULL DEFAULT NULL AFTER `pan`;
+ALTER TABLE `partners` ADD `gst_number` VARCHAR(20) NULL DEFAULT NULL AFTER `pan`;
 
 
 --
