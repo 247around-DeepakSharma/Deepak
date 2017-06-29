@@ -591,5 +591,21 @@ class Buyback_process extends CI_Controller {
         $this->load->view('buyback/get_disputed_30_days_breech');
         $this->load->view('dashboard/dashboard_footer');
     }
-
+    
+    function search_for_buyback(){
+        log_message("info",__METHOD__);
+        $post['search_value'] = $this->input->post('search');
+        $post['column_search'] = array('bb_unit_details.partner_order_id');
+        $post['where'] = array();
+        $post['where_in'] = array();
+        $post['column_order'] = array();
+        $post['length'] = -1;
+        
+        $list['list'] = $this->bb_model->get_bb_order_list($post);
+        
+        $this->load->view('buyback/bb_search_result', $list);
+    }
+        
+        
+        
 }
