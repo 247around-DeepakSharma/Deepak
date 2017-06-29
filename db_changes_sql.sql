@@ -2782,3 +2782,32 @@ ALTER TABLE `bb_unit_details`
 ALTER TABLE `bb_unit_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+
+-- buyback -sachin 27-june-2017
+ALTER TABLE `bb_order_image_mapping` ADD `tag` VARCHAR(128) NULL AFTER `image_name`;
+ALTER TABLE `bb_cp_order_action` ADD `order_key` VARCHAR(256) NULL AFTER `internal_status`;
+
+
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'gst_notification', 'Request for Details of GSTIN', 'Respected Sir/Madam,
+  
+Greetings from 247around!
+
+As you are aware, the introduction of Goods and Services Tax (“GST”) will be implemented on 1st July 2017.
+
+Government has already initiated the migration process for registration under GST and you would have received a GSTIN / Provisional GSTIN from GSTN portal.
+ 
+In this connection, we request you to provide your GSTIN / provisional GSTIN on the link mentioned herein below on or before 7th July 2017.
+
+URL: 
+
+Your GSTIN will be captured on our invoices and the GST returns for passing on the seamless credit to you under the GST regime.
+
+Kindly note provisional GSTIN of Blackmelon Advance Technology Co. Pvt. Ltd. for the state of Delhi is –  07AAFCB1281J1ZQ
+
+If already filled, please ignore
+
+Regards
+Team 247around', 'billing@247around.com', 'billing@247around.com', 'anuj@247around.com, nits@247around.com, adila@247around.com,oza@247around.com,nilanjan@247around.com,suresh@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+
