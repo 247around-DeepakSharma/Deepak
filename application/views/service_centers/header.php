@@ -287,6 +287,9 @@
                         </li>
                         <?php } ?>
                         <li>
+                            <a href="<?php echo base_url();?>service_center/gst_details"  >GST</a>
+                        </li>
+                        <li>
                             <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactusmodal"><i class="fa fa-phone"></i>&nbsp;Contact Us&nbsp;</a>
                         </li>
                         
