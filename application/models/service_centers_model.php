@@ -1,15 +1,6 @@
 <?php
 
 class Service_centers_model extends CI_Model {
-
-    var $column_order = array('bb_unit_details.partner_order_id', 'services', 'city',
-        'order_date', 'delivery_date', 'current_status'); //set column field database for datatable orderable
-    var $column_search = array('bb_unit_details.partner_order_id', 'services', 'city',
-        'order_date', 'delivery_date', 'current_status'); //set column field database for datatable searchable 
-    var $order = array('bb_order_details.order_date' => 'asc'); // default order 
-    var $status = array('0' => array('Delivered'),
-        '1' => array('In-Transit', 'New Item In-transit', 'Attempted'));
-    
     
     /**
      * @desc load both db

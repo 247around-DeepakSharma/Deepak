@@ -453,16 +453,19 @@ class Buyback_process extends CI_Controller {
             $row = array();
             $row[] = $no;
             $row[] = $order_list->partner_order_id;
+            $row[] = $order_list->name;
             $row[] = $order_list->category;
             $row[] = $order_list->brand;
             $row[] = $order_list->physical_condition;
             $row[] = $order_list->working_condition;
-            $row[] = $order_list->status;
+            if($order_list->internal_status === _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS){
+                $row[] = "<span class='label label-warning'>$order_list->internal_status</span>";
+            }else if($order_list->internal_status === _247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS){
+                $row[] = "<span class='label label-danger'>$order_list->internal_status</span>";
+            }
             $row[] = $order_list->remarks;
-            $row[] = $order_list->current_status;
-            $row[] = $order_list->name;
             $row[] = "<a class='btn btn-info btn-sm' target='_blank' href='".base_url()."buyback/buyback_process/get_bb_order_image_link/".$order_list->partner_order_id."/".$order_list->cp_id."'><i class='fa fa-camera'></i></a>";
-            $row[] = "<label><input type='checkbox' class='flat check_single_row' id='approved_data' data-id='".$order_list->id."'></label>";
+            $row[] = "<label><input type='checkbox' class='flat check_single_row' id='approved_data' data-id='".$order_list->id."' data-status='".$order_list->internal_status."'></label>";
             $data[] = $row;
         }
 
@@ -505,9 +508,9 @@ class Buyback_process extends CI_Controller {
             $order_ids = explode(',', $this->input->post('order_ids'));
             $update = $this->bb_model->approved_bb_orders($order_ids);
             if ($update) {
-                echo "Student Details Updated Successfully";
+                echo "Order Details Updated Successfully";
             } else {
-                echo "OOPS!!! Can't Update Student Details At this time, Please Try Again...";
+                echo "OOPS!!! Can't Update Order Details At this time, Please Try Again...";
             }
         } else {
             echo "Invalid Request";

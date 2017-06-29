@@ -372,7 +372,14 @@ define('MISSED_CALL_DEFAULT_RATING', '5');
 
 //Buyback constant
 define('_247AROUND_BB_PRICE_LIST','BB-Price-List');
-//Buyback constant
+define('_247AROUND_BB_ORDER_ID_IMAGE_TAG','order_id_image');
+define('_247AROUND_BB_DAMAGED_ORDER_IMAGE_TAG','damaged_order_image');
+define('_247AROUND_BB_DELIVERED','Delivered');
+define('_247AROUND_BB_IN_PROCESS','InProcess');
+define('_247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS','Completed');
+define('_247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS','Claimed Raised By CP');
+define('_247AROUND_BB_ORDER_COMPLETED_INTERNAL_STATUS','Auto Approve Spec. Match');
+define('_247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS','To Be Claimed Not Delivered');
 define('CLAIM_SUBMITTED','Claim Submitted');
 define('TO_BE_CLAIMED','To Be Claimed');
 define('CLAIM_SETTLED_BY_AMAZON','Claim Settled by Amazon');
