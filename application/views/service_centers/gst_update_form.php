@@ -28,7 +28,7 @@
                                 <div  class="form-group <?php if( form_error('pan_number') ) { echo 'has-error';} ?>">
                                     <label  for="company_name" class="col-md-4">Company Pan No.</label>
                                     <div class="col-md-8">
-                                        <input  type="text" class="form-control" style="text-transform:uppercase"  id="pan_number" name="pan_number" value = "<?php echo set_value("pan_number");?>" placeholder="Company Pan Number" required>
+                                        <input  type="text" class="form-control" style="text-transform:uppercase"  id="pan_number" name="pan_number" value = "<?php echo set_value("pan_number");?>" placeholder="Company Pan Number" >
                                         <?php echo form_error('pan_number'); ?>
                                     </div>
                                     
