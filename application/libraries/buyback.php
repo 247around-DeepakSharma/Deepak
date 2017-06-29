@@ -10,6 +10,7 @@ class Buyback {
         $this->My_CI->load->library("initialized_variable");
         $this->My_CI->load->model("service_centre_charges_model");
         $this->My_CI->load->model("bb_model");
+        $this->My_CI->load->model("cp_model");
         $this->My_CI->load->model("booking_model");
 
     }
@@ -67,6 +68,15 @@ class Buyback {
             // Insert bb unit details
             $is_unit = $this->insert_bb_unit_details($bb_charges, $service_id);
             if ($is_unit) {
+                if(!empty($cp_id)){
+                    $this->My_CI->cp_model->insert_bb_cp_order_action(array(
+                        "partner_order_id" => $this->POST_DATA['partner_id'],
+                        "cp_id" => $cp_id,
+                        "create_date" => date('Y-m-d H:i:s'),
+                        "current_status" => 'Pending',
+                        "internal_status" => $this->POST_DATA['current_status']
+                    ));
+                }
                 // Insert state change
                 $this->insert_bb_state_change($this->POST_DATA['partner_order_id'],
                         $this->POST_DATA['current_status'], $this->POST_DATA['order_key'],
