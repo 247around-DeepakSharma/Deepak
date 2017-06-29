@@ -19,13 +19,13 @@
                                     <tr>
                                         <th>No.</th>
                                         <th>Order ID</th>
+                                        <th>CP Name</th>
                                         <th>Category</th>
                                         <th>Brand</th>
                                         <th>Physical Condition</th>
                                         <th>Working condition</th>
+                                        <th>Internal Status</th>
                                         <th>Remarks</th>
-                                        <th>Current Status</th>
-                                        <th>CP Name</th>
                                         <th>View Image</th>
                                         <th>Approved <input type="checkbox" id="check_all_row_to_approve"></th>
 
@@ -71,7 +71,7 @@
                 //Set column definition initialisation properties.
                 "columnDefs": [
                     {
-                        "targets": [0,7,8,9,10], //first column / numbering column
+                        "targets": [0,8,9,10], //first column / numbering column
                         "orderable": false, //set not orderable
                     },
                 ],

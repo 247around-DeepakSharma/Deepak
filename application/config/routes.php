@@ -71,6 +71,11 @@ $route['service_center/process_update_defective_parts/(:any)'] = 'employee/servi
 $route['service_center/get_approved_defective_parts_booking'] = 'employee/service_centers/get_approved_defective_parts_booking';
 $route['service_center/get_approved_defective_parts_booking/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking/$1';
 $route['service_center/pending_booking_upcountry_price/(:any)'] = 'employee/service_centers/pending_booking_upcountry_price/$1';
+$route['service_center/bb_oder_details'] = 'employee/service_centers/view_delivered_bb_order_details';
+$route['service_center/update_order_details/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_bb_order_details/$1/$2/$3';
+$route['process_report_issue_bb_order_details'] = 'employee/service_centers/process_report_issue_bb_order_details';
+$route['service_center/update_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_received_bb_order/$1/$2/$3';
+$route['service_center/update_not_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_not_received_bb_order/$1/$2/$3';
 
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
@@ -125,12 +130,6 @@ $route['partner/download_partner_summary/(:any)'] = 'BookingSummary/send_leads_s
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
 $route['partner/invoice'] = 'employee/partner/inactive_partner_default_page';
 //$route['api/(:any)'] = 'partner/$2';
-
-$route['service_centers/bb_oder_details'] = 'employee/service_centers/view_delivered_bb_order_details';
-$route['service_center/update_order_details/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_bb_order_details/$1/$2/$3';
-$route['process_report_issue_bb_order_details'] = 'employee/service_centers/process_report_issue_bb_order_details';
-$route['service_center/update_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_received_bb_order/$1/$2/$3';
-$route['service_center/update_not_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_not_received_bb_order/$1/$2/$3';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

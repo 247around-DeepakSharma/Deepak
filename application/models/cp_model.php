@@ -96,7 +96,7 @@ class Cp_model extends CI_Model {
      * @param type $order
      * @param type $status_flag
      */
-    private function _get_bb_order_list_query($search_value, $order, $status_flag) {
+    private function _get_bb_cp_order_list_query($search_value, $order, $status_flag) {
         $this->db->select('bb_order_details.id,bb_unit_details.partner_order_id, services,city, order_date, '
                 . 'delivery_date, bb_order_details.current_status, cp_basic_charge,cp_tax_charge,bb_unit_details.physical_condition,'
                 . 'bb_unit_details.working_condition,bb_unit_details.service_id,bb_order_details.city');
@@ -154,8 +154,8 @@ class Cp_model extends CI_Model {
      * @param type $status_flag
      * @return Object
      */
-    function get_bb_order_list($length, $start, $search_value, $order, $status_flag) {
-        $this->_get_bb_order_list_query($search_value, $order, $status_flag);
+    function get_bb_cp_order_list($length, $start, $search_value, $order, $status_flag) {
+        $this->_get_bb_cp_order_list_query($search_value, $order, $status_flag);
         if ($length != -1) {
             $this->db->limit($length, $start);
         }
@@ -169,8 +169,8 @@ class Cp_model extends CI_Model {
      * @param Int $status_flag
      * @return Number of rows
      */
-    function count_filtered($search_value, $order, $status_flag) {
-        $this->_get_bb_order_list_query($search_value, $order, $status_flag);
+    function cp_order_list_count_filtered($search_value, $order, $status_flag) {
+        $this->_get_bb_cp_order_list_query($search_value, $order, $status_flag);
         $query = $this->db->get();
 
         return $query->num_rows();
@@ -180,7 +180,7 @@ class Cp_model extends CI_Model {
      * @param Int $status_flag
      * @return Count
      */
-    public function count_all($status_flag) {
+    public function cp_order_list_count_all($status_flag) {
         $this->db->from('bb_order_details');
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
                 . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');

@@ -438,7 +438,23 @@ class Service_centers extends CI_Controller {
      */
     function checkUserSession() {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
-                && !empty($this->session->userdata('service_center_id'))) {
+                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center");
+        }
+    }
+    
+    /**
+     * @desc: This funtion will check Session
+     * @param: void
+     * @return: true if details matches else session is distroyed.
+     */
+    function check_BB_UserSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
+                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_cp'))) {
             return TRUE;
         } else {
             log_message('info', __FUNCTION__. " Session Expire for Service Center");
@@ -1606,7 +1622,7 @@ class Service_centers extends CI_Controller {
      * @return json $output 
      */
     public function view_delivered_bb_order_details(){
-        $this->checkUserSession();
+        $this->check_BB_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/bb_order_details');
     }
@@ -1617,6 +1633,8 @@ class Service_centers extends CI_Controller {
      * @return json $output 
      */
     function get_delivered_bb_order_details() {
+        $this->check_BB_UserSession();
+        
         $length = $this->input->post('length');
         $start = $this->input->post('start');
         $search = $this->input->post('search');
@@ -1624,7 +1642,7 @@ class Service_centers extends CI_Controller {
         $order = $this->input->post('order');
         $draw = $this->input->post('draw');
         $status = $this->input->post('status');
-        $list = $this->cp_model->get_bb_order_list($length, $start, $search_value, $order, $status);
+        $list = $this->cp_model->get_bb_cp_order_list($length, $start, $search_value, $order, $status);
 
         $data = array();
         $no = $start;
@@ -1656,7 +1674,7 @@ class Service_centers extends CI_Controller {
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
                               <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."service_center/update_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."'>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."service_center/update_not_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."'>Not Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' href='".base_url()."service_center/update_not_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."'>Not Received</a></li>
                               <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."service_center/update_order_details/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."'>Report Issue</a></li>
                             </ul>
                           </div>";
@@ -1670,8 +1688,8 @@ class Service_centers extends CI_Controller {
 
         $output = array(
             "draw" => $draw,
-            "recordsTotal" => $this->cp_model->count_all($status),
-            "recordsFiltered" => $this->cp_model->count_filtered($search_value, $order, $status),
+            "recordsTotal" => $this->cp_model->cp_order_list_count_all($status),
+            "recordsFiltered" => $this->cp_model->cp_order_list_count_filtered($search_value, $order, $status),
             "data" => $data,
         );
 
@@ -1688,7 +1706,7 @@ class Service_centers extends CI_Controller {
      * @return void
      */
     function update_bb_order_details($order_id,$service_id,$city){
-        $this->checkUserSession();
+        $this->check_BB_UserSession();
         $data['order_id'] = urldecode($order_id);
         $data['service_id'] = urldecode($service_id);
         $data['city'] = urldecode($city);
@@ -1704,6 +1722,7 @@ class Service_centers extends CI_Controller {
      * @return $option string
      */
     function get_bb_order_brand(){
+        $this->check_BB_UserSession();
         $service_id = $this->input->post('service_id');
         $where = array('cp_id'=>$this->session->userdata('service_center_id'),'service_id' => $service_id, 'brand IS NOT NULL' => null);
         $select = "brand";
@@ -1734,6 +1753,7 @@ class Service_centers extends CI_Controller {
      * @return $option string
      */
     function get_bb_order_physical_condition() {
+        $this->check_BB_UserSession();
         $category = $this->input->post('category');
         $service_id = $this->input->post('service_id');
         $where = array('cp_id' => $this->session->userdata('service_center_id'), 
@@ -1763,6 +1783,7 @@ class Service_centers extends CI_Controller {
      * @return $option string
      */
     function get_bb_order_working_condition() {
+        $this->check_BB_UserSession();
         $category = $this->input->post('category');
         $service_id = $this->input->post('service_id');
         $physical_condition = $this->input->post('physical_condition');
@@ -1790,6 +1811,7 @@ class Service_centers extends CI_Controller {
      * @return string
      */
     function check_bb_order_key(){
+        $this->check_BB_UserSession();
         $category = $this->input->post('category');
         $service_id = $this->input->post('services');
         $physical_condition = $this->input->post('physical_condition');
@@ -1819,6 +1841,7 @@ class Service_centers extends CI_Controller {
      * @return void
      */
     function process_report_issue_bb_order_details(){
+        $this->check_BB_UserSession();
         //check for validation
         $this->form_validation->set_rules('order_id', 'Order Id', 'trim|required');
         $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
@@ -1915,17 +1938,18 @@ class Service_centers extends CI_Controller {
                 
                 $msg = "Order has been updated successfully";
                 $this->session->set_userdata('success',$msg);
-                redirect(base_url().'service_centers/bb_oder_details');
+                redirect(base_url().'service_center/bb_oder_details');
             }else{
                 $msg = "Oops!!! There are some issue in updating order. Please Try Again...";
                 $this->session->set_userdata('error',$msg);
-                redirect(base_url().'service_centers/bb_oder_details');
+                redirect(base_url().'service_center/bb_oder_details');
             }
         }
         
     }
     
     function get_bb_order_category_size(){
+        $this->check_BB_UserSession();
         $service_id = $this->input->post('product_service_id');
         $where = array('service_id'=> $service_id,'cp_id'=>$this->session->userdata('service_center_id'));
         $select = "category";
@@ -1947,7 +1971,7 @@ class Service_centers extends CI_Controller {
     }
     
     function update_received_bb_order($order_id,$service_id,$city){
-        $this->checkUserSession();
+        $this->check_BB_UserSession();
         
         $data['order_id'] = urldecode($order_id);
         $data['service_id'] = urldecode($service_id);
@@ -1961,7 +1985,7 @@ class Service_centers extends CI_Controller {
         
         //get physical condition
         $where = array('cp_id' => $this->session->userdata('service_center_id'), 
-            'service_id' => $service_id, 'category' => $data['category'],'physical_condition !=' => '');
+            'service_id' => $data['service_id'], 'category' => $data['category'],'physical_condition !=' => '');
         $select = "physical_condition";
         $physical_condition = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
         
@@ -1970,7 +1994,7 @@ class Service_centers extends CI_Controller {
             $data['physical_condition'] = $physical_condition[0]['physical_condition'];
         }else{
             $data['physical_condition'] = '';
-            $where = array('cp_id' => $this->session->userdata('service_center_id'), 'service_id' => $service_id, 'category' => $data['category'],'physical_condition'=>$data['physical_condition']);
+            $where = array('cp_id' => $this->session->userdata('service_center_id'), 'service_id' => $data['service_id'], 'category' => $data['category'],'physical_condition'=>$data['physical_condition']);
             $select = "working_condition";
             $data['working_condition'] = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
         }
@@ -1979,6 +2003,7 @@ class Service_centers extends CI_Controller {
     }
     
     function process_received_bb_order_update(){ 
+        $this->check_BB_UserSession();
          //check for validation
         $this->form_validation->set_rules('order_id', 'Order Id', 'trim|required');
         $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
@@ -2048,21 +2073,21 @@ class Service_centers extends CI_Controller {
             }else{
                 $msg = "Oops!!! There are some issue in updating order. Please Try Again...";
                 $this->session->set_userdata('error',$msg);
-                redirect(base_url().'service_centers/update_received_bb_order');
+                redirect(base_url().'service_center/update_received_bb_order/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city'));
             }
         }
     }
     
     function update_not_received_bb_order($order_id, $service_id, $city) {
-        $this->checkUserSession();
+        $this->check_BB_UserSession();
 
         $data['order_id'] = urldecode($order_id);
         $data['service_id'] = urldecode($service_id);
         $data['city'] = urldecode($city);
         
         $update_data = array('current_status' => _247AROUND_BB_IN_PROCESS,
-                             'internal_status' => _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS,
-                             'cp_id' => $this->input->post('service_center_id'));
+                             'internal_status' => _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS
+                            );
         
         $update_where = array('partner_order_id' => $data['order_id'],
                             'cp_id' => $this->session->userdata('service_center_id'));
@@ -2073,7 +2098,7 @@ class Service_centers extends CI_Controller {
 
             $msg = "Order has been updated successfully";
             $this->session->set_userdata('success', $msg);
-            redirect(base_url() . 'service_centers/bb_oder_details');
+            redirect(base_url() . 'service_center/bb_oder_details');
         }
     }
 
