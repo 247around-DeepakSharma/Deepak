@@ -37,6 +37,7 @@ class Service_centers extends CI_Controller {
         $this->load->helper('download');
         $this->load->library('user_agent');
         $this->load->library('notify');
+        
     }
 
     /**
@@ -1886,6 +1887,125 @@ class Service_centers extends CI_Controller {
             }
         }
         
+    }
+    /**
+     * @desc It check if sc update gst form first then show its profile otherwies GST form
+     */
+    function gst_update_form(){
+        $this->checkUserSession();
+        log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
+        $data = $this->service_centers_model->get_gst_details_table_data(array('service_center_id' => 
+            $this->session->userdata('service_center_id')));
+        if(empty($data)){
+
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/gst_update_form');
+         
+        } else {
+            $this->load->view('service_centers/header'); 
+            $this->load->view('service_centers/gst_details_view', $data[0]);
+        }
+    }
+    /**
+     * @desc This is used to insert gst for data.
+     */
+    function process_gst_update(){
+        $this->checkUserSession();
+        log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
+        $this->load->library('table');
+        
+        $this->form_validation->set_rules('company_name', 'Company Name', 'trim|required');
+        $this->form_validation->set_rules('company_address', 'Company Address', 'trim|required');
+        $this->form_validation->set_rules('pan_number', 'PAN NUmber', 'trim|required|min_length[10]|max_length[10]');
+        $this->form_validation->set_rules('is_gst', 'Have You GST No.', 'required');
+        
+        if($this->form_validation->run() === false){
+            $this->gst_update_form();
+        } else {
+           $is_gst =  $this->input->post('is_gst');
+           $is_gst_number =  NULL;
+           $gst_file_name = NULL;
+           if($is_gst == 1){
+                $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|min_length[15]|max_length[15]');
+                
+                if($this->form_validation->run() === false){
+                    $this->gst_update_form();
+                } else {
+                    $is_gst_number = $this->input->post('gst_number');
+                    $gst_file_name = $this->upload_gst_certificate_file();
+                            
+                }
+           }
+           $gst_details['service_center_id'] =  $this->session->userdata('service_center_id');
+           $gst_details['company_name'] = $this->input->post('company_name');
+           $gst_details['company_address'] = $this->input->post('company_address');
+           $gst_details['company_pan_number'] = $this->input->post('pan_number');
+           $gst_details['is_gst'] = $this->input->post('is_gst');
+           $gst_details['company_gst_number'] = $this->input->post('gst_number');
+           $gst_details['gst_certificate_file'] = $gst_file_name;
+           $gst_details['create_date'] = date('Y-m-d H:i:s');
+           
+           $gst_details_id = $this->service_centers_model->insert_gst_details_data($gst_details);
+           if($gst_details_id){
+               $sc['is_gst'] = $gst_details['is_gst'];
+               $sc['gst_number'] = $gst_details['company_gst_number'];
+               $sc['gst_certificate_file'] = $gst_details['gst_certificate_file'];
+               $this->vendor_model->edit_vendor($sc, $this->session->userdata('service_center_id'));
+               
+                $template = array(
+                'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                );
+
+                $this->table->set_template($template);
+
+                $this->table->set_heading(array('SC Name', 'Company Name', 'Company Address', 'Pan', 'IS GST', 'GST NUmber', 'GST FILE'));
+                $this->table->add_row($this->session->userdata('service_center_name'),  $gst_details['company_name'], 
+                    $gst_details['company_address'], $gst_details['company_pan_number'], 
+                    !empty($gst_details['is_gst'])?"YES":"NO",$gst_details['company_gst_number'],
+                       !empty($sc['gst_certificate_file'])? "https://s3.amazonaws.com/bookings-collateral/misc-images/".$sc['gst_certificate_file']:'' );
+                
+                $to = NITS_ANUJ_EMAIL_ID;
+                $cc = "";
+
+                $subject = "GST Form Updated By ".$this->session->userdata('service_center_name');
+                $message = "";
+                $message .= $this->table->generate();
+
+                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                
+                redirect(base_url()."service_center/gst_details");
+           }
+        }
+     
+    }
+    /**
+     * @desc Upload GST Certificate FIle to S3
+     * @return String
+     */
+    function upload_gst_certificate_file(){
+       log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
+        if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) {
+
+            $tmpFile = $_FILES['file']['tmp_name'];
+            $extention =  explode(".", $_FILES['file']['name'])[1];
+            $gst_file = $this->session->userdata('service_center_id').'-gst-' 
+                    . substr(md5(uniqid(rand(0, 9))), 0, 10) . "." .$extention;
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "misc-images/" . $gst_file;
+            $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            if($upload_file_status){
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'GST Certificate File Uploaded: '.$this->session->userdata('service_center_id'));
+                return $gst_file;
+            }else{
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Error In uploading sGST Certificate : '.$this->session->userdata('service_center_id'));
+                return NULL;
+            }
+
+        }
     }
 
 }

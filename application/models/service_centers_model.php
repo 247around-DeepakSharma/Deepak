@@ -626,5 +626,19 @@ class Service_centers_model extends CI_Model {
         $insert_id = $this->db->insert('bb_cp_order_action',$data);
         return $insert_id;
     }
+    /**
+     * @desc  Thsi is used to insert gst data in the gst sc gst table. Its inserted by SC
+     * @param Array $data
+     */
+    function insert_gst_details_data($data){
+        $insert_id = $this->db->insert('sc_gst_details',$data);
+        return $insert_id;
+    }
+    
+    function get_gst_details_table_data($where){
+        $this->db->where($where);
+        $query = $this->db->get('sc_gst_details');
+        return $query->result_array();
+    }
     
 }
