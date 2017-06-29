@@ -2394,3 +2394,378 @@ ALTER TABLE bb_order_image_mapping MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, 
 
 ---Abhay
 ALTER TABLE `bb_shop_address` ADD `alternate_conatct_number2` VARCHAR(28) NULL DEFAULT NULL AFTER `alternate_conatct_number`;
+
+-- Abhay 28- June
+ALTER TABLE `service_centres` ADD `is_gst` INT(2) NOT NULL DEFAULT NULL AFTER `is_cp`, ADD `gst_number` VARCHAR(20) NULL DEFAULT NULL AFTER `is_gst`;
+ALTER TABLE `service_centres` ADD `gst_certificate_file` VARCHAR(64) NULL DEFAULT NULL AFTER `gst_number`;
+
+--
+-- Table structure for table `sc_gst_details`
+--
+
+CREATE TABLE `sc_gst_details` (
+  `id` int(11) NOT NULL,
+  `service_center_id` int(50) NOT NULL,
+  `company_name` varchar(128) DEFAULT NULL,
+  `company_address` varchar(128) DEFAULT NULL,
+  `company_pan_number` varchar(20) DEFAULT NULL,
+  `is_gst` int(2) NOT NULL DEFAULT '0',
+  `company_gst_number` varchar(50) DEFAULT NULL,
+  `gst_certificate_file` varchar(128) DEFAULT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `sc_gst_details`
+--
+ALTER TABLE `sc_gst_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `sc_gst_details`
+--
+ALTER TABLE `sc_gst_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `partners` ADD `gst_number` VARCHAR(128) NULL DEFAULT NULL AFTER `pan`;
+
+
+--
+-- Table structure for table `bb_around_credit`
+--
+
+CREATE TABLE `bb_around_credit` (
+  `id` int(11) NOT NULL,
+  `add_credit` int(11) DEFAULT '0',
+  `remove_credit` int(11) NOT NULL DEFAULT '0',
+  `previous_credit` int(11) NOT NULL DEFAULT '0',
+  `final_credit` int(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `bb_around_credit`
+--
+ALTER TABLE `bb_around_credit`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `bb_around_credit`
+--
+ALTER TABLE `bb_around_credit`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `bb_charges`
+--
+
+CREATE TABLE `bb_charges` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `cp_id` int(11) NOT NULL,
+  `service_id` int(50) NOT NULL,
+  `category` varchar(128) NOT NULL,
+  `brand` varchar(128) DEFAULT NULL,
+  `physical_condition` varchar(256) NOT NULL,
+  `working_condition` varchar(256) NOT NULL,
+  `city` varchar(128) NOT NULL,
+  `partner_basic` decimal(10,2) NOT NULL,
+  `partner_tax` decimal(10,2) NOT NULL,
+  `partner_total` decimal(10,2) NOT NULL,
+  `cp_basic` decimal(10,2) NOT NULL,
+  `cp_tax` decimal(10,2) NOT NULL,
+  `cp_total` decimal(10,2) NOT NULL,
+  `around_basic` decimal(10,2) NOT NULL,
+  `around_tax` decimal(10,2) NOT NULL,
+  `around_total` decimal(10,2) NOT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `visible_to_partner` int(1) NOT NULL DEFAULT '1',
+  `visible_to_cp` int(1) NOT NULL DEFAULT '1',
+  `order_key` varchar(256) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `bb_charges`
+--
+ALTER TABLE `bb_charges`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `bb_charges`
+--
+ALTER TABLE `bb_charges`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--
+-- Table structure for table `bb_cp_order_action`
+--
+
+CREATE TABLE `bb_cp_order_action` (
+  `id` int(11) NOT NULL,
+  `partner_order_id` varchar(256) NOT NULL,
+  `cp_id` int(11) NOT NULL,
+  `category` varchar(128) DEFAULT NULL,
+  `brand` varchar(128) DEFAULT NULL,
+  `physical_condition` varchar(256) DEFAULT NULL,
+  `working_condition` varchar(256) DEFAULT NULL,
+  `remarks` varchar(256) DEFAULT NULL,
+  `current_status` varchar(128) NOT NULL,
+  `internal_status` varchar(128) NOT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `closed_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `bb_cp_order_action`
+--
+ALTER TABLE `bb_cp_order_action`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `bb_cp_order_action`
+--
+ALTER TABLE `bb_cp_order_action`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+
+--
+-- Table structure for table `bb_order_details`
+--
+
+CREATE TABLE `bb_order_details` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `partner_order_id` varchar(256) NOT NULL,
+  `partner_gc_id` varchar(256) DEFAULT NULL,
+  `partner_tracking_id` varchar(128) DEFAULT NULL,
+  `order_date` date NOT NULL,
+  `delivery_date` date DEFAULT NULL,
+  `city` varchar(128) NOT NULL,
+  `assigned_cp_id` int(11) DEFAULT NULL,
+  `current_status` varchar(56) NOT NULL,
+  `internal_status` varchar(128) DEFAULT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `bb_order_details`
+--
+ALTER TABLE `bb_order_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `bb_order_details`
+--
+ALTER TABLE `bb_order_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--
+-- Table structure for table `bb_order_image_mapping`
+--
+
+CREATE TABLE `bb_order_image_mapping` (
+  `id` int(11) NOT NULL,
+  `partner_order_id` varchar(256) NOT NULL,
+  `cp_id` int(11) NOT NULL,
+  `image_name` varchar(256) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `bb_order_image_mapping`
+--
+ALTER TABLE `bb_order_image_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `bb_order_image_mapping`
+--
+ALTER TABLE `bb_order_image_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--
+-- Table structure for table `bb_shop_address`
+--
+
+CREATE TABLE `bb_shop_address` (
+  `id` int(11) NOT NULL,
+  `cp_id` int(11) NOT NULL,
+  `partner_id` int(11) DEFAULT NULL,
+  `shop_address_line1` varchar(128) NOT NULL,
+  `shop_address_city` varchar(64) NOT NULL,
+  `active` int(1) NOT NULL DEFAULT '1',
+  `contact_person` varchar(128) DEFAULT NULL,
+  `primary_contact_number` varchar(50) DEFAULT NULL,
+  `contact_email` varchar(50) DEFAULT NULL,
+  `shop_address_line2` varchar(128) DEFAULT NULL,
+  `shop_address_state` varchar(50) DEFAULT NULL,
+  `shop_address_pincode` varchar(6) DEFAULT NULL,
+  `tin_number` varchar(28) DEFAULT NULL,
+  `alternate_conatct_number` varchar(28) NOT NULL,
+  `alternate_conatct_number2` varchar(28) DEFAULT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `bb_shop_address`
+--
+ALTER TABLE `bb_shop_address`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `bb_shop_address`
+--
+ALTER TABLE `bb_shop_address`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--
+-- Table structure for table `bb_state_change`
+--
+
+CREATE TABLE `bb_state_change` (
+  `id` int(11) NOT NULL,
+  `order_id` varchar(128) DEFAULT NULL,
+  `old_state` varchar(128) NOT NULL,
+  `new_state` varchar(128) NOT NULL,
+  `remarks` varchar(128) DEFAULT NULL,
+  `agent_id` int(11) NOT NULL,
+  `service_center_id` int(11) DEFAULT NULL,
+  `partner_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `bb_state_change`
+--
+ALTER TABLE `bb_state_change`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `bb_state_change`
+--
+ALTER TABLE `bb_state_change`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--
+-- Table structure for table `bb_unit_details`
+--
+
+CREATE TABLE `bb_unit_details` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `service_id` int(50) NOT NULL,
+  `partner_order_id` varchar(256) NOT NULL,
+  `category` varchar(128) DEFAULT NULL,
+  `brand` varchar(128) DEFAULT NULL,
+  `physical_condition` varchar(256) DEFAULT NULL,
+  `working_condition` varchar(256) DEFAULT NULL,
+  `order_key` varchar(128) DEFAULT NULL,
+  `order_status` varchar(128) DEFAULT NULL,
+  `partner_basic_charge` decimal(10,2) NOT NULL,
+  `partner_tax_charge` decimal(10,2) NOT NULL,
+  `cp_basic_charge` decimal(10,2) NOT NULL,
+  `cp_tax_charge` decimal(10,2) NOT NULL,
+  `around_commision_basic_charge` decimal(10,2) NOT NULL,
+  `around_commision_tax` decimal(10,2) NOT NULL,
+  `partner_sweetner_charges` decimal(10,2) DEFAULT NULL,
+  `partner_invoice_id` varchar(128) DEFAULT NULL,
+  `cp_invoice_id` varchar(128) DEFAULT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `bb_unit_details`
+--
+ALTER TABLE `bb_unit_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `bb_unit_details`
+--
+ALTER TABLE `bb_unit_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
