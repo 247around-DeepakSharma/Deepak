@@ -68,7 +68,7 @@
           
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title" style="text-align: center"><b>Penalty Removal Reason</b></h4>
+            <h4 class="modal-title" style="text-align: center"><b>Remove Penalty</b></h4>
           </div>
           <div class="modal-body">
               <span id="error_message" style="display:none;color: red;margin-bottom:10px;"><b>Please Select At Least 1 Booking</b></span>

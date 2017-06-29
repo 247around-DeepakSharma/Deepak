@@ -1,7 +1,6 @@
 <?php if(!empty($penalty_details)){ ?>
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h1 class="panel-title" >Penalty Removal Reason </h1>
     </div>
     <div class="panel-body">
         <div class="table-responsive">
