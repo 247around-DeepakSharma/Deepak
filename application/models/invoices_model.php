@@ -843,8 +843,8 @@ class invoices_model extends CI_Model {
                 $meta['total_part_cost'] += $value['p_part_cost'];
                 $meta['total_service_cost'] += $value['s_total_service_charge'];
             }
-            $meta['total_service_cost_14'] = $meta['total_service_cost'] * .14;
-            $meta['total_service_cost_5'] = $meta['total_service_cost'] * .005;
+            $meta['total_service_cost_14'] = round($meta['total_service_cost'] * .14, 2);
+            $meta['total_service_cost_5'] = round($meta['total_service_cost'] * .005, 2);
             $meta['sub_service_cost'] = $meta['total_service_cost'] + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] * 2;
             $meta['part_cost_vat'] = ($meta['total_part_cost'] * 5.00) / 100;
             $meta['sub_part'] = $meta['total_part_cost'] + $meta['part_cost_vat'];
@@ -1268,8 +1268,8 @@ class invoices_model extends CI_Model {
             $s_15charge = $this->booking_model->get_calculated_tax_charge($meta['total_charge'], 15);
             $s_basic_charge = $meta['total_charge'] - $s_15charge;
 
-            $meta['s_14charge'] = $s_basic_charge * 0.14;
-            $meta['s_5charge'] = $s_basic_charge * 0.005;
+            $meta['s_14charge'] = round($s_basic_charge * 0.14,2);
+            $meta['s_5charge'] = round($s_basic_charge * 0.005,2);
             $meta['total_charge'] = round($meta['total_charge'], 0);
             $meta['price_in_word'] = convert_number_to_words($meta['total_charge']);
             $meta['tin'] = $data[0]['tin'];

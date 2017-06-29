@@ -3275,8 +3275,8 @@ class Invoice extends CI_Controller {
 
             $meta['company_address'] = $this->input->post('partner_address');
             $meta['company_name'] = $this->input->post('partner_name');
-            $meta['total_service_cost_14'] = $sub_service_cost * .14;
-            $meta['total_service_cost_5'] = $sub_service_cost * 0.005;
+            $meta['total_service_cost_14'] = round($sub_service_cost * .14,2);
+            $meta['total_service_cost_5'] = round($sub_service_cost * 0.005,2);
 
             $meta['invoice_date'] = date('jS M, Y');
             $meta['sd'] = date('jS M, Y', strtotime($from_date));
