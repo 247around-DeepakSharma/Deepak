@@ -257,11 +257,12 @@ class Partner_model extends CI_Model {
 
           $query = $this->db->query("Select Distinct services.services,
             users.name as customername, users.phone_number,
-            booking_details.*, status
+            booking_details.*, status,appliance_brand
 
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+            LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` =  `booking_details`.`booking_id`
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
 
             WHERE
