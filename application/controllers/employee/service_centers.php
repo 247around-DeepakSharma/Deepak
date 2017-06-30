@@ -37,6 +37,7 @@ class Service_centers extends CI_Controller {
         $this->load->helper('download');
         $this->load->library('user_agent');
         $this->load->library('notify');
+        
     }
 
     /**
@@ -1587,4 +1588,428 @@ class Service_centers extends CI_Controller {
         return $rm_poc_email;
     }
     
+    
+    /**
+     * @desc Used to show buyback order data as requested
+     * @param void
+     * @return json $output 
+     */
+    public function view_delivered_bb_order_details(){
+        $this->checkUserSession();
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/bb_order_details');
+    }
+    
+    /**
+     * @desc Used to get buyback order data as requested and also search 
+     * @param void
+     * @return json $output 
+     */
+    function get_delivered_bb_order_details() {
+        $length = $this->input->post('length');
+        $start = $this->input->post('start');
+        $search = $this->input->post('search');
+        $search_value = $search['value'];
+        $order = $this->input->post('order');
+        $draw = $this->input->post('draw');
+        $status = $this->input->post('status');
+        $list = $this->service_centers_model->get_bb_order_list($length, $start, $search_value, $order, $status);
+
+        $data = array();
+        $no = $start;
+        foreach ($list as $order_list) {
+
+            $no++;
+            $row = array();
+            $row[] = $no;
+            $row[] = $order_list->partner_order_id;
+            $row[] = $order_list->services;
+            $row[] = $order_list->city;
+            $row[] = $order_list->physical_condition;
+            $row[] = $order_list->working_condition;
+           
+            $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+            if($order_list->current_status === 'Delivered'){
+                $row[] = "<span class='label label-success'>$order_list->current_status</span>";
+                }else if($order_list->current_status === 'In-Transit'){
+                    $row[] = "<span class='label label-primary'>$order_list->current_status</span>";
+                }else if($order_list->current_status === 'Attempted'){
+                    $row[] = "<span class='label label-warning'>$order_list->current_status</span>";
+                }else if($order_list->current_status === 'New Item In-transit'){
+                    $row[] = "<span class='label label-info'>$order_list->current_status</span>";
+                }
+            if($status === '0'){
+                $row[] = $order_list->delivery_date;
+                $row[] = "<a class='btn btn-default' target='_blank' href='".base_url()."service_center/update_order_details/".$order_list->partner_order_id."/".$order_list->service_id."/".$order_list->city."'><i class='fa fa-edit'></i></a>";
+                $row[] = "<a class='btn btn-default' target='_blank' href='javascript:void(0)'><i class='fa fa-remove'></i></a>";
+            } else {
+                $row[] = $order_list->order_date;
+            }
+            
+            $data[] = $row;
+        }
+
+
+        $output = array(
+            "draw" => $draw,
+            "recordsTotal" => $this->service_centers_model->count_all($status),
+            "recordsFiltered" => $this->service_centers_model->count_filtered($search_value, $order, $status),
+            "data" => $data,
+        );
+
+        //output to json format
+        echo json_encode($output);
+    }
+    
+    
+    /**
+     * @desc Used to show the buyback order details on cp panel
+     * @param $order_id string
+     * @param $service_id string
+     * @param $city string
+     * @return void
+     */
+    function update_bb_order_details($order_id,$service_id,$city){
+        $this->checkUserSession();
+        $data['order_id'] = $order_id;
+        $data['service_id'] = $service_id;
+        $data['city'] = $city;
+        $where = array('service_id'=> $service_id,'cp_id'=>$this->session->userdata('service_center_id'));
+        $select = "category";
+        $data['categories'] = $this->service_centre_charges_model->get_bb_charges($where,$select,TRUE);
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/update_bb_order_details',$data);
+    }
+    
+    
+    /**
+     * @desc Used to get buyback order brand from ajax call
+     * @param void
+     * @return $option string
+     */
+    function get_bb_order_brand(){
+        $service_id = $this->input->post('service_id');
+        $where = array('cp_id'=>$this->session->userdata('service_center_id'),'service_id' => $service_id, 'brand' => 'IS NOT NULL');
+        $select = "brand";
+        $brands = $this->service_centre_charges_model->get_bb_charges($where,$select,TRUE);
+        $option = '<option selected disabled>Select Brand</option>';
+        if(!empty($brands[0])){
+           print_r($brands);
+
+            foreach ($brands as $value) {
+                $option .= "<option value='" . $value['brand'] . "'";
+                $option .= " > ";
+                $option .= $value['brand'] . "</option>";
+            }
+ 
+        }else{
+            
+            $option .= "<option value=''>Others</option>";
+                
+        }
+        
+        echo $option;
+    }
+    
+    
+    /**
+     * @desc Used to get buyback order physical condition from ajax call
+     * @param void
+     * @return $option string
+     */
+    function get_bb_order_physical_condition() {
+        $category = $this->input->post('category');
+        $service_id = $this->input->post('service_id');
+        $where = array('cp_id' => $this->session->userdata('service_center_id'), 'service_id' => $service_id, 'category' => $category);
+        $select = "physical_condition";
+        $physical_condition = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
+
+        if (!empty($physical_condition)) {
+            $option = '<option selected disabled>Select Physical Condition</option>';
+
+            foreach ($physical_condition as $value) {
+                $option .= "<option value='" . $value['physical_condition'] . "'";
+                $option .= " > ";
+                $option .= $value['physical_condition'] . "</option>";
+            }
+
+            echo $option;
+        }else{
+            echo "empty";
+        }
+    }
+    
+    
+    /**
+     * @desc Used to get buyback order working condition from ajax call
+     * @param void
+     * @return $option string
+     */
+    function get_bb_order_working_condition() {
+        $category = $this->input->post('category');
+        $service_id = $this->input->post('service_id');
+        $physical_condition = $this->input->post('physical_condition');
+        $where = array('cp_id' => $this->session->userdata('service_center_id'), 'service_id' => $service_id, 'category' => $category,'physical_condition'=>$physical_condition);
+        $select = "working_condition";
+        $working_condition = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
+
+        if (!empty($working_condition)) {
+            $option = '<option selected disabled>Select Working Condition</option>';
+
+            foreach ($working_condition as $value) {
+                $option .= "<option value='" . $value['working_condition'] . "'";
+                $option .= " > ";
+                $option .= $value['working_condition'] . "</option>";
+            }
+
+            echo $option;
+        }
+    }
+    
+    
+    /**
+     * @desc Used to check buyback order key from ajax call
+     * @param void
+     * @return string
+     */
+    function check_bb_order_key(){
+        $category = $this->input->post('category');
+        $service_id = $this->input->post('service_id');
+        $physical_condition = $this->input->post('physical_condition');
+        $working_condition = $this->input->post('working_condition');
+        $brand = $this->input->post('brand');
+        $city = $this->input->post('city');
+        $order_id = $this->input->post('order_id');
+        
+        $where = array('cp_id' => $this->session->userdata('service_center_id'), 
+                        'service_id' => $service_id, 
+                        'category' => $category,
+                        'physical_condition'=>$physical_condition,
+                        'working_condition' => $working_condition,
+                        'brand'=>$brand,
+                        'city'=>$city);
+        $select = "order_key";
+        $order_key = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
+        if(!empty($order_key)){
+            $where1 = array('order_key'=>$order_key[0]['order_key'],'partner_order_id'=>$order_id);
+            $select1 = "id";
+            $is_order_key_exist = $this->service_centers_model->check_order_key_exist($where1,$select1);
+            if($is_order_key_exist){
+                echo "exist";
+            }else{
+                echo "not_exist";
+            }
+        }else {
+            echo "error";
+        }
+    }
+    
+    
+    /**
+     * @desc Used to process the  buyback update order form
+     * @param void
+     * @return void
+     */
+    function process_update_bb_order_details(){
+        //check for validation
+        $this->form_validation->set_rules('order_id', 'Order Id', 'trim|required');
+        $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
+        $this->form_validation->set_rules('order_working_condition', 'Order Working Condition', 'trim|required');
+        $this->form_validation->set_rules('category', 'Category', 'trim|required');
+        $this->form_validation->set_rules('optradio', 'Check Radio Box', 'trim|required');
+        
+        if($this->form_validation->run() === false){
+            $msg = "Please fill all required field";
+            $this->session->set_userdata('error',$msg);
+            redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city'));
+        }else {
+            $order_id = $this->input->post('order_id');
+            //allowed only images
+            $allowed_types = array('image/gif','image/jpg','image/png');
+            //process upload images
+            if(($_FILES['order_files']['error'] != 4) && !empty($_FILES['order_files']['tmp_name'])){
+                $filesCount = count($_FILES['order_files']['name']);
+                for($i = 0; $i < $filesCount; $i++){
+                    $file_type = $_FILES['order_files']['type'][$i];
+                    if(in_array($file_type, $allowed_types)){
+                        $tmp_name = $_FILES['order_files']['tmp_name'][$i];
+                        $file_name = str_replace(' ', '_', $_FILES['order_files']['name'][$i]);;
+                        $upload_order_file_new_name = $order_id."_".explode(".", $file_name)[0]."_".substr(md5(uniqid(rand(0, 9))), 0, 15).".".explode(".", $file_name)[1];
+                        $bucket = BITBUCKET_DIRECTORY;
+                        $directory_xls = "misc-images/" . $upload_order_file_new_name;
+                        $upload_file_status = $this->s3->putObjectFile($tmp_name, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                        if($upload_file_status){
+                            $insert_file_data['partner_order_id'] = $order_id;
+                            $insert_file_data['cp_id'] = $this->session->userdata('service_center_id');
+                            $insert_file_data['image_name'] = $upload_order_file_new_name;
+                            $insert_id = $this->service_centers_model->insert_bb_order_image($insert_file_data);
+                        }
+                    }
+                }
+            }
+            //check for working or not working
+            if($this->input->post('optradio') === '1'){
+                $order_condition = "Working";
+            }else if($this->input->post('optradio') === '0'){
+                $order_condition = "Not Working";
+            }
+            $data = array('partner_order_id' => $order_id,
+                            'cp_id' => $this->session->userdata('service_center_id'),
+                            'category' => $this->input->post('category'),
+                            'brand' => $this->input->post('category'),
+                            'physical_condition' => $this->input->post('order_physical_condition'),
+                            'working_condition' => $this->input->post('order_working_condition'),
+                            'status' => $order_condition,
+                            'remarks' => $this->input->post('remarks'),
+                            'brand' => $this->input->post('order_brand'),
+                            'current_status' => 'In_process',
+                            'internal_status' => 'Not_decided',
+                            'create_date'=> date('Y-m-d H:i:s'));
+            
+            $insert_id = $this->service_centers_model->insert_bb_order_status($data);
+            if($insert_id){
+                $msg = "Order has been updated successfully";
+                $this->session->set_userdata('success',$msg);
+                redirect(base_url().'service_centers/bb_oder_details');
+            }else{
+                $msg = "Oops!!! There are some issue in updating order. Please Try Again...";
+                $this->session->set_userdata('error',$msg);
+                redirect(base_url().'service_centers/bb_oder_details');
+            }
+        }
+        
+    }
+    /**
+     * @desc It check if sc update gst form first then show its profile otherwies GST form
+     */
+    function gst_update_form(){
+        $this->checkUserSession();
+        log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
+        $data = $this->service_centers_model->get_gst_details_table_data(array('service_center_id' => 
+            $this->session->userdata('service_center_id')));
+        if(empty($data)){
+
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/gst_update_form');
+         
+        } else {
+            $this->load->view('service_centers/header'); 
+            $this->load->view('service_centers/gst_details_view', $data[0]);
+        }
+    }
+    /**
+     * @desc This is used to insert gst for data.
+     */
+    function process_gst_update() {
+        $this->checkUserSession();
+        log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
+        $this->load->library('table');
+
+        $this->form_validation->set_rules('company_name', 'Company Name', 'trim|required');
+        $this->form_validation->set_rules('company_address', 'Company Address', 'trim|required');
+        $this->form_validation->set_rules('pan_number', 'PAN NUmber', 'trim|min_length[10]|max_length[10]');
+        $this->form_validation->set_rules('is_gst', 'Have You GST No.', 'required');
+
+        if ($this->form_validation->run() === false) {
+            $this->gst_update_form();
+        } else {
+            $status_flag = true;
+            $is_gst = $this->input->post('is_gst');
+            $is_gst_number = NULL;
+            $gst_file_name = NULL;
+            if ($is_gst == 1) {
+                $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|min_length[15]|max_length[15]');
+                $this->form_validation->set_rules('file', 'Company GST File', 'callback_upload_gst_certificate_file');
+
+                if ($this->form_validation->run() === false) {
+
+                    $this->gst_update_form();
+                    $status_flag = false;
+                } else {
+                    $is_gst_number = $this->input->post('gst_number');
+                    $gst_file_name = $this->input->post('gst_cer_file');
+                }
+            }
+            // It not Accessed When validation failed above
+            if ($status_flag) {
+                $gst_details['service_center_id'] = $this->session->userdata('service_center_id');
+                $gst_details['company_name'] = $this->input->post('company_name');
+                $gst_details['company_address'] = $this->input->post('company_address');
+                $gst_details['company_pan_number'] = $this->input->post('pan_number');
+                $gst_details['is_gst'] = $this->input->post('is_gst');
+                $gst_details['company_gst_number'] = $this->input->post('gst_number');
+                $gst_details['gst_certificate_file'] = $gst_file_name;
+                $gst_details['create_date'] = date('Y-m-d H:i:s');
+
+                $gst_details_id = $this->service_centers_model->insert_gst_details_data($gst_details);
+                if ($gst_details_id) {
+                    $sc['is_gst_doc'] = $gst_details['is_gst'];
+                    $sc['gst_no'] = $gst_details['company_gst_number'];
+                    $sc['gst_file'] = $gst_details['gst_certificate_file'];
+                    $this->vendor_model->edit_vendor($sc, $this->session->userdata('service_center_id'));
+
+                    $template = array(
+                        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                    );
+
+                    $this->table->set_template($template);
+
+                    $this->table->set_heading(array('SC Name', 'Company Name', 'Company Address', 'Pan', 'IS GST', 'GST NUmber', 'GST FILE'));
+                    $this->table->add_row($this->session->userdata('service_center_name'), $gst_details['company_name'], $gst_details['company_address'], $gst_details['company_pan_number'], !empty($gst_details['is_gst']) ? "YES" : "NO", $gst_details['company_gst_number'], !empty($sc['gst_certificate_file']) ? "https://s3.amazonaws.com/bookings-collateral/misc-images/" . $sc['gst_certificate_file'] : '' );
+
+                    $to = NITS_ANUJ_EMAIL_ID;
+                    
+                    $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('service_center_id'));
+                    $cc = $rm_details[0]['official_email'];
+                    
+                    $subject = "GST Form Updated By " . $this->session->userdata('service_center_name');
+                    $message  = "";
+                    $message .= $this->table->generate();
+
+                    $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+
+                    redirect(base_url() . "service_center/gst_details");
+                }
+            }
+        }
+    }
+
+    /**
+     * @desc Upload GST Certificate FIle to S3
+     * @return String
+     */
+    function upload_gst_certificate_file(){
+       log_message('info', __METHOD__ . " :".$this->session->userdata('service_center_id'));
+      
+        if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name']) ) {
+
+            $tmpFile = $_FILES['file']['tmp_name'];
+            $extention =  explode(".", $_FILES['file']['name'])[1];
+            $gst_file = $this->session->userdata('service_center_id').'-gst-' 
+                    . substr(md5(uniqid(rand(0, 9))), 0, 10) . "." .$extention;
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $gst_file;
+            $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            if($upload_file_status){
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'GST Certificate File Uploaded: '.$this->session->userdata('service_center_id'));
+                $_POST['gst_cer_file'] = $gst_file;
+                return true;;
+            }else{
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Error In uploading sGST Certificate : '.$this->session->userdata('service_center_id'));
+                $this->form_validation->set_message('upload_gst_certificate_file', 'Please Valid GST File.');
+
+                return false;
+            }
+
+        } else {
+          
+            $this->form_validation->set_message('upload_gst_certificate_file', 'Please Attach GST Certificate File.');
+            return false;
+        }
+    }
+
 }

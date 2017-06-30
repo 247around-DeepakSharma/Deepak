@@ -15,6 +15,7 @@ class Buyback_process extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library('buyback');
+        $this->load->library('PHPReport');
 
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -462,7 +463,7 @@ class Buyback_process extends CI_Controller {
             $row[] = $order_list->current_status;
             $row[] = $order_list->name;
             $row[] = "<a class='btn btn-info btn-sm' target='_blank' href='".base_url()."buyback/buyback_process/get_bb_order_image_link/".$order_list->partner_order_id."/".$order_list->cp_id."'><i class='fa fa-camera'></i></a>";
-            $row[] = "<label><input type='checkbox' class='flat check_single_row' id='approved_data' data-id='".$order_list->id."'></label>";
+            $row[] = "<label><input type='checkbox' class='flat check_single_row' id='approved_data' data-id='".$order_list->partner_order_id."' data-status='".$order_list->internal_status."'></label>";
             $data[] = $row;
         }
 
@@ -502,13 +503,31 @@ class Buyback_process extends CI_Controller {
      */
     function approve_all_bb_order(){
         if ($this->input->post()) {
+            $flag = FALSE;
             $order_ids = explode(',', $this->input->post('order_ids'));
-            $update = $this->bb_model->approved_bb_orders($order_ids);
-            if ($update) {
-                echo "Student Details Updated Successfully";
-            } else {
-                echo "OOPS!!! Can't Update Student Details At this time, Please Try Again...";
+            $status = explode(',',$this->input->post('status'));
+            foreach($order_ids as $key => $value){
+                $data['current_status'] = _247AROUND_BB_DELIVERED;
+                $data['internal_status'] = $status[$key];
+                
+                $update_order_details = $this->bb_model->update_bb_order_details(array('partner_order_id' => $value),$data);
+                
+                if($update_order_details){
+                    $update_cp_unit_details = $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $value),$data);
+                    
+                    if($update_cp_unit_details){
+                        $this->buyback->insert_bb_state_change($value, $data['internal_status'], '', $this->session->userdata('id'), _247AROUND, NULL);
+                        $flag = TRUE;
+                    }else{
+                        $flag = FALSE;
+                    }
+                }else{
+                    $flag = FALSE;
+                }
             }
+            
+            echo $flag;
+
         } else {
             echo "Invalid Request";
         }
@@ -591,5 +610,70 @@ class Buyback_process extends CI_Controller {
         $this->load->view('buyback/get_disputed_30_days_breech');
         $this->load->view('dashboard/dashboard_footer');
     }
+    
+    function download_bb_shop_address() {
 
+        $shop_address_data = $this->bb_model->download_bb_shop_address_data();
+
+        $shop_address_file = $this->generate_shop_address_data($shop_address_data);
+
+        if (file_exists($shop_address_file)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($shop_address_file) . '"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($shop_address_file));
+            readfile($shop_address_file);
+            exit;
+        }
+    }
+
+    private function generate_shop_address_data($shop_address_data){
+        $template = 'BB_Shop_Address.xlsx';
+        //set absolute path to directory with template files
+        $templateDir = FCPATH . "application/controllers/excel-templates/";
+
+        //set config for report
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        $R = new PHPReport($config);
+
+        $R->load(array(
+            array(
+                'id' => 'data',
+                'repeat' => true,
+                'data' => $shop_address_data
+            )
+                )
+        );
+
+        //Get populated XLS with data
+        $output_file = TMP_FOLDER . "Shop_Address_" . date('d-M-Y') . ".xlsx";
+        $R->render('excel', $output_file);
+        
+        return $output_file;
+    }
+    
+    function search_for_buyback(){
+        log_message("info",__METHOD__);
+        $post['search_value'] = $this->input->post('search');
+        $post['column_search'] = array('bb_unit_details.partner_order_id');
+        $post['where'] = array();
+        $post['where_in'] = array();
+        $post['column_order'] = array();
+        $post['length'] = -1;
+        
+        $list['list'] = $this->bb_model->get_bb_order_list($post);
+        
+        $this->load->view('buyback/bb_search_result', $list);
+    }
+
+        
+        
 }

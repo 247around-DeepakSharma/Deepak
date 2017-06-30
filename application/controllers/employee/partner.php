@@ -743,7 +743,7 @@ class Partner extends CI_Controller {
                         //Echoing message in Log file
                         log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
                     }
-                    
+                $edit_partner_data['partner']['gst_number'] = $this->input->post('gst_number');  
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
                 
                 //Getting Logged Employee Full Name
@@ -952,7 +952,7 @@ class Partner extends CI_Controller {
                     //Logging success for file uppload
                     log_message('info',__FUNCTION__.' Service Tax FILE is being uploaded sucessfully.');
                 }
-               
+                $return_data['partner']['gst_number'] = $this->input->post("gst_number");
                 
                 //Sending data array to Model
                 $partner_id = $this->partner_model->add_partner($return_data['partner']);
