@@ -466,7 +466,7 @@ class Buyback_process extends CI_Controller {
             }
             $row[] = $order_list->remarks;
             $row[] = "<a class='btn btn-info btn-sm' target='_blank' href='".base_url()."buyback/buyback_process/get_bb_order_image_link/".$order_list->partner_order_id."/".$order_list->cp_id."'><i class='fa fa-camera'></i></a>";
-            $row[] = "<label><input type='checkbox' class='flat check_single_row' id='approved_data' data-id='".$order_list->id."' data-status='".$order_list->internal_status."'></label>";
+            $row[] = "<label><input type='checkbox' class='flat check_single_row' id='approved_data' data-id='".$order_list->partner_order_id."' data-status='".$order_list->internal_status."'></label>";
             $data[] = $row;
         }
 
@@ -506,13 +506,31 @@ class Buyback_process extends CI_Controller {
      */
     function approve_all_bb_order(){
         if ($this->input->post()) {
+            $flag = FALSE;
             $order_ids = explode(',', $this->input->post('order_ids'));
-            $update = $this->bb_model->approved_bb_orders($order_ids);
-            if ($update) {
-                echo "Order Details Updated Successfully";
-            } else {
-                echo "OOPS!!! Can't Update Order Details At this time, Please Try Again...";
+            $status = explode(',',$this->input->post('status'));
+            foreach($order_ids as $key => $value){
+                $data['current_status'] = _247AROUND_BB_DELIVERED;
+                $data['internal_status'] = $status[$key];
+                
+                $update_order_details = $this->bb_model->update_bb_order_details(array('partner_order_id' => $value),$data);
+                
+                if($update_order_details){
+                    $update_cp_unit_details = $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $value),$data);
+                    
+                    if($update_cp_unit_details){
+                        $this->buyback->insert_bb_state_change($value, $data['internal_status'], '', $this->session->userdata('id'), _247AROUND, NULL);
+                        $flag = TRUE;
+                    }else{
+                        $flag = FALSE;
+                    }
+                }else{
+                    $flag = FALSE;
+                }
             }
+            
+            echo $flag;
+
         } else {
             echo "Invalid Request";
         }
@@ -658,4 +676,5 @@ class Buyback_process extends CI_Controller {
         
         $this->load->view('buyback/bb_search_result', $list);
     }
+   
 }

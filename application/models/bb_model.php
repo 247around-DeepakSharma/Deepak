@@ -263,21 +263,6 @@ class Bb_model extends CI_Model {
         return $query->result_array();
     }
     
-    
-    /**
-     * @desc Used to approve buyback order in bulk
-     * @param $data array
-     * @return boolean
-     */
-    function approved_bb_orders($data){
-        foreach ($data as $value) {
-            $this->db->where('id', $value);
-            $this->db->update('bb_cp_order_action', array('current_status' => _247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS));
-        }
-
-        return TRUE;
-    }
-    
     function get_bb_order_history($order_id){
         $this->db->select('bb_state_change.*,name as cp_name,public_name as partner_name');
         $this->db->where('bb_state_change.order_id',$order_id);
