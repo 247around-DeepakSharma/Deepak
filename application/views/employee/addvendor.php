@@ -1103,7 +1103,7 @@
                                         <div class="col-md-3">
                                         <input type="checkbox" value="1" name="is_verified" id="is_bank_details_verified" <?php if(isset($query[0]['is_verified']) && $query[0]['is_verified'] == '1') { ?>checked<?php } ?> style="zoom:1.5;">
                                         <?php }else { ?>
-                                        <input type="hidden" name="is_verified" value="<?php echo $query[0]['is_verified']; ?>">
+                                        <input type="hidden" name="is_verified" value="<?php if(isset($query[0]['is_verified'])) { echo $query[0]['is_verified']; }?>">
                                         <?php } ?>
                                         
                                     </div>

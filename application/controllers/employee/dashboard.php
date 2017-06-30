@@ -291,10 +291,39 @@ class Dashboard extends CI_Controller {
             $sf_list = $this->vendor_model->get_employee_relation($value['id'])[0];
             $region_data = $this->dashboard_model->get_booking_data_by_rm_region($startDate, $endDate, $sf_list['service_centres_id'], $partner_id);
             array_push($rm, $value['full_name']);
-            array_push($cancelled, $region_data[0]['Cancelled']);
-            array_push($completed, $region_data[0]['Completed']);
-            array_push($pending, $region_data[0]['Pending']);
-            array_push($total, $region_data[0]['Total']);
+            foreach ($region_data[0] as $key => $value){
+                switch ($key){
+                    case 'Cancelled':
+                        if(!empty($value)){
+                            array_push($cancelled, $value);
+                        }else{
+                            array_push($cancelled, '0');
+                        }
+                        break;
+                    case 'Completed':
+                        if(!empty($value)){
+                            array_push($completed, $value);
+                        }else{
+                            array_push($completed, '0');
+                        }
+                        break;
+                    case 'Pending':
+                        if(!empty($value)){
+                            array_push($pending, $value);
+                        }else{
+                            array_push($pending, '0');
+                        }
+                        break;
+                    case 'Total':
+                        if(!empty($value)){
+                            array_push($total, $value);
+                        }else{
+                            array_push($total, '0');
+                        }
+                        break;
+                }
+            }
+            
         }
         $json_data['rm'] = implode(",", $rm);
         $json_data['cancelled'] = implode(",", $cancelled);
