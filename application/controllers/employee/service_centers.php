@@ -2181,10 +2181,12 @@ class Service_centers extends CI_Controller {
                     $this->table->add_row($this->session->userdata('service_center_name'), $gst_details['company_name'], $gst_details['company_address'], $gst_details['company_pan_number'], !empty($gst_details['is_gst']) ? "YES" : "NO", $gst_details['company_gst_number'], !empty($sc['gst_certificate_file']) ? "https://s3.amazonaws.com/bookings-collateral/misc-images/" . $sc['gst_certificate_file'] : '' );
 
                     $to = NITS_ANUJ_EMAIL_ID;
-                    $cc = "";
-
+                    
+                    $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('service_center_id'));
+                    $cc = $rm_details[0]['official_email'];
+                    
                     $subject = "GST Form Updated By " . $this->session->userdata('service_center_name');
-                    $message = "";
+                    $message  = "";
                     $message .= $this->table->generate();
 
                     $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
