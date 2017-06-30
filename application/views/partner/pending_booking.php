@@ -33,6 +33,7 @@
                                     <th>S No.</th>
                                     <th>Booking ID</th>
                                     <th>Call Type</th>
+                                    <th>Brand</th>
                                     <th>Status</th>
                                     <th>User</th>
                                     <th>Mobile</th>
@@ -59,6 +60,7 @@
                                             
                                             ?></a>
                                     </td>
+                                    
                                     <td>
                                         <?php switch ($row->request_type){
                                             case "Installation & Demo":
@@ -75,6 +77,7 @@
                                             
                                             }  ?>
                                     </td>
+                                    <td><?php echo  $row->appliance_brand; ?></td>
                                     <td><?php if(!empty($row->status)){
                                         switch ($row->status){
                                             case "Delivered":
