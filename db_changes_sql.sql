@@ -2811,3 +2811,7 @@ Regards
 Team 247around', 'billing@247around.com', 'billing@247around.com', 'anuj@247around.com, nits@247around.com, adila@247around.com,oza@247around.com,nilanjan@247around.com,suresh@247around.com', '', '1', CURRENT_TIMESTAMP);
 
 
+
+
+ALTER TABLE `service_centres` CHANGE `is_gst` `is_gst_doc` INT(2) NULL DEFAULT '0', CHANGE `gst_number` `gst_no` VARCHAR(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL, CHANGE `gst_certificate_file` `gst_file` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
