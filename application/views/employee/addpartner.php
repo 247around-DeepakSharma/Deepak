@@ -735,6 +735,22 @@ if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
                                 </div>
                                 </div>
                             </div>
+                            
+                            <div class="col-md-12">
+                                <div class="form-group <?php if (form_error('gst_number')) {
+                                    echo 'has-error';
+                                } ?>">
+                                <label for="service_tax" class="col-md-3">GST Number</label>
+                                <div class="col-md-4" style="width:25%">
+                                    <input type="text" style="text-transform:uppercase" class="form-control blockspacialchar"  name="gst_number" id="gst_number" value = "<?php if (isset($query[0]['gst_number'])) {
+                                        echo $query[0]['gst_number'];
+                                    } ?>" placeholder="GST Number">
+                                </div>
+                               
+                                
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>    

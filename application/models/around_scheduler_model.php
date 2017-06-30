@@ -419,5 +419,22 @@ class Around_scheduler_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    /**
+     * @desc This is used to get SC email address with comma sepreated for active and not update GST form  
+     * @return Array
+     */
+    function get_vendor_email_contact_no(){
+        $sql1 = "SELECT  GROUP_CONCAT(DISTINCT primary_contact_email,  ',', owner_email ) AS email "
+                . " FROM  `service_centres` WHERE NOT EXISTS "
+                . " (SELECT * FROM sc_gst_details where service_center_id = service_centres.id) AND active = 1";
+        //$sql2 =  "SELECT  GROUP_CONCAT(DISTINCT owner_phone_1 ) AS email FROM  `service_centres` ";
+        $query1 = $this->db->query($sql1);
+       // $query2 = $this->db->query($sql2);
+        
+        return array(
+            'email' => $query1->result_array()[0]['email']
+            //'phone' => $query2->return_array()[0],
+        );
+    }
 
 }

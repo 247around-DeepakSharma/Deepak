@@ -198,10 +198,10 @@ class Around_scheduler extends CI_Controller {
         foreach ($data as $value) {
             echo ".." . PHP_EOL;
             $this->booking_model->update_booking($value['booking_id'], array('current_status' => 'Cancelled',
-                'internal_status' => 'Cancelled', 'cancellation_reason' => "Customer Not Reachable"));
+                'internal_status' => 'Cancelled', 'cancellation_reason' => "Customer not reachable / Customer not picked phone"));
             $this->booking_model->update_booking_unit_details($value['booking_id'], array('booking_status' => 'Cancelled'));
 
-            $this->notify->insert_state_change($value['booking_id'], "Cancelled", "FollowUp", "Customer Not Reachable", "1", "247Around", _247AROUND);
+            $this->notify->insert_state_change($value['booking_id'], "Cancelled", "FollowUp", "Customer not reachable / Customer not picked phone", "1", "247Around", _247AROUND);
         }
         log_message('info', __METHOD__ . '=> Exit...');
     }
@@ -639,6 +639,25 @@ class Around_scheduler extends CI_Controller {
                 $this->prepare_sms_data_to_send($smsTag, $value['phn_number'], $smsData, $value['booking_id'], "User", $value['user_id']);
             }
         }
+    }
+    /**
+     * @desc This is used to send GST notification email
+     */
+    function sent_mail_for_gst_notification(){
+        log_message('info', __METHOD__ . '=> Entering...');
+        $data = $this->around_scheduler_model->get_vendor_email_contact_no();
+        $template =  $this->booking_model->get_booking_email_template("gst_notification");
+        $body = $template[0];
+        $to = $template[1];
+        $from = $template[2];
+        $cc = $template[3];
+        $subject = $template[4];
+                
+        $bcc = $data['email'];
+        
+        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
+        log_message('info', __METHOD__ . '=> EXIT...');
+        
     }
     
 }

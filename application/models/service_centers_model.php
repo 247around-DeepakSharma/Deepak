@@ -497,4 +497,139 @@ class Service_centers_model extends CI_Model {
         log_message('info', __FUNCTION__ . '=> Delete sc unit details: ' .$this->db->last_query());
     }
     
+    /**
+     * @desc this is used to make the query for buyback order data
+     * @param type $search_value
+     * @param type $order
+     * @param type $status_flag
+     */
+    private function _get_bb_order_list_query($search_value, $order, $status_flag) {
+        $this->db->select('bb_order_details.id,bb_unit_details.partner_order_id, services,city, order_date, '
+                . 'delivery_date, current_status, cp_basic_charge,cp_tax_charge,bb_unit_details.physical_condition,'
+                . 'bb_unit_details.working_condition,bb_unit_details.service_id,bb_order_details.city');
+        $this->db->from('bb_order_details');
+
+        $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
+                . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
+        $this->db->join('services', 'services.id = bb_unit_details.service_id');
+        $this->db->where_in('current_status', $this->status[$status_flag]);
+        $this->db->where('assigned_cp_id',$this->session->userdata('service_center_id'));
+
+        $i = 0;
+
+        foreach ($this->column_search as $item) { // loop column 
+            if (!empty($search_value)) { // if datatable send POST for search
+                if ($i === 0) { // first loop
+                    $this->db->like($item, $search_value);
+                } else {
+                    $this->db->or_like($item, $search_value);
+                }
+            }
+            $i++;
+        }
+
+        if (!empty($order)) { // here order processing
+            $this->db->order_by($this->column_order[$order[0]['column'] - 1], $order[0]['dir']);
+        } else if (isset($this->order)) {
+            $order = $this->order;
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+    }
+    /**
+     * @desc this is used to get the buyback order data 
+     * @param type $length
+     * @param type $start
+     * @param type $search_value
+     * @param type $order
+     * @param type $status_flag
+     * @return Object
+     */
+    function get_bb_order_list($length, $start, $search_value, $order, $status_flag) {
+        $this->_get_bb_order_list_query($search_value, $order, $status_flag);
+        if ($length != -1) {
+            $this->db->limit($length, $start);
+        }
+        $query = $this->db->get();
+
+        return $query->result();
+    }
+    /**
+     * @desc This is used to get order data as requested
+     * @param String $search_value
+     * @param String $order
+     * @param Int $status_flag
+     * @return Number of rows
+     */
+    function count_filtered($search_value, $order, $status_flag) {
+        $this->_get_bb_order_list_query($search_value, $order, $status_flag);
+        $query = $this->db->get();
+
+        return $query->num_rows();
+    }
+    /**
+     * @desc Used to return count of data as requested status
+     * @param Int $status_flag
+     * @return Count
+     */
+    public function count_all($status_flag) {
+        $this->db->from('bb_order_details');
+        $this->db->where_in('current_status', $this->status[$status_flag]);
+        $this->db->where('assigned_cp_id',$this->session->userdata('service_center_id'));
+        return $this->db->count_all_results();
+    }
+    
+    
+    /**
+     * @desc Used to check buyback order key 
+     * @param $where array
+     * @param $select array
+     * @param $is_distinct default false
+     * @return array
+     */
+    function check_order_key_exist($where, $select,$is_distinct=False){
+        if($is_distinct){
+            $this->db->distinct();
+        }
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("bb_unit_details");
+        return $query->result_array();
+    }
+    
+    
+    /**
+     * @desc Used to insert  the  buyback images mapped with order id
+     * @param $data array
+     * @return $inser_id string
+     */
+    function insert_bb_order_image($data){
+        $insert_id = $this->db->insert('bb_order_image_mapping',$data);
+        return $insert_id;
+    }
+    
+    
+    /**
+     * @desc Used to insert  the  buyback updated data
+     * @param $data array
+     * @return $inser_id string
+     */
+    function insert_bb_order_status($data){
+        $insert_id = $this->db->insert('bb_cp_order_action',$data);
+        return $insert_id;
+    }
+    /**
+     * @desc  Thsi is used to insert gst data in the gst sc gst table. Its inserted by SC
+     * @param Array $data
+     */
+    function insert_gst_details_data($data){
+        $insert_id = $this->db->insert('sc_gst_details',$data);
+        return $insert_id;
+    }
+    
+    function get_gst_details_table_data($where){
+        $this->db->where($where);
+        $query = $this->db->get('sc_gst_details');
+        return $query->result_array();
+    }
+    
 }

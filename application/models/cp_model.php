@@ -2,9 +2,10 @@
 
 class Cp_model extends CI_Model {
 
-    var $column_order = array('public_name', 'name', 'contact_person', 'shop_address_city'); //set column field database for datatable orderable
-    var $column_search = array('public_name', 'name', 'contact_person',
-        'shop_address_city', 'primary_contact_number', 'alternate_conatct_number', 'shop_address_line1'); //set column field database for datatable searchable 
+   var $column_order = array(NULL,'name', 'contact_person',NULL,NULL, 'shop_address_line1',NULL,'shop_address_city'); //set column field database for datatable orderable
+   
+    var $column_search = array('name', 'contact_person',
+        'shop_address_city', 'primary_contact_number', 'shop_address_city', 'shop_address_line1'); //set column field database for datatable searchable 
     var $order = array('name,bb_shop_address.shop_address_city ' => 'asc'); // default order 
     
     var $bb_unit_column_order = array(
@@ -39,8 +40,9 @@ class Cp_model extends CI_Model {
         if ($length != -1) {
             $this->db->limit($length, $start);
         }
+        
         $query = $this->db->get();
-       //  echo $this->db->last_query();"<br/>";
+       
         return $query->result();
     }
 
@@ -66,7 +68,8 @@ class Cp_model extends CI_Model {
         }
 
         if (!empty($order)) { // here order processing
-            $this->db->order_by($this->column_order[$order[0]['column'] - 1], $order[0]['dir']);
+            
+            $this->db->order_by($this->column_order[$order[0]['column']], $order[0]['dir']);
         } else if (isset($this->order)) {
             $order = $this->order;
             $this->db->order_by(key($order), $order[key($order)]);
@@ -90,6 +93,12 @@ class Cp_model extends CI_Model {
         return $this->db->update('bb_shop_address', $data);
     }
     
+
+    function insert_bb_cp_order_action($data){
+        $this->db->insert('bb_cp_order_action',$data);
+        return $this->insert_id();
+    }
+
     /**
      * @desc this is used to make the query for buyback order data
      * @param type $search_value
@@ -242,6 +251,7 @@ class Cp_model extends CI_Model {
     function update_bb_cp_order_action($where,$data){
         $this->db->where($where);
         return $this->db->update('bb_cp_order_action', $data);
+
     }
 
 }

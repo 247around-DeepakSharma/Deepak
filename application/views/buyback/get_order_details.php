@@ -105,6 +105,7 @@
         </div>
     </div>
 </div>
+</div>
 <script type="text/javascript">
     var in_transit;
     var delivered;
