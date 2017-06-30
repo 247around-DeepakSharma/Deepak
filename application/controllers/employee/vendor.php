@@ -106,7 +106,13 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-            
+            if (($_FILES['gst_file']['error'] != 4) && !empty($_FILES['gst_file']['tmp_name'])) {
+                $attachment_gst = $this->upload_gst_file($data);
+                if($attachment_gst){} else {
+                    return FALSE;
+                }
+            }
+           
             //Start Processing CST File Upload
             if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
                 //Adding file validation
@@ -335,6 +341,10 @@ class vendor extends CI_Controller {
             if(!isset($_POST['is_cst_doc'])){
                 $_POST['is_cst_doc'] = 1;
             }
+            if(!isset($_POST['is_gst_doc'])){
+                $_POST['is_gst_doc'] = 1;
+            }
+            
             
             if(isset($_POST['is_verified'])){
                $_POST['is_verified'] = '1';
@@ -408,6 +418,9 @@ class vendor extends CI_Controller {
                         }
                         if(isset($attachment_contract)){
                             $this->email->attach($attachment_contract, 'attachment');
+                        }
+                        if(isset($attachment_gst)){
+                            $this->email->attach($attachment_gst, 'attachment');
                         }
 
                         if ($this->email->send()) {
@@ -583,6 +596,44 @@ class vendor extends CI_Controller {
         }
     }
     
+    function upload_gst_file($data) {
+        //Start  Processing PAN File Upload
+        if (($_FILES['gst_file']['error'] != 4) && !empty($_FILES['gst_file']['tmp_name'])) {
+            //Adding file validation
+            $checkfilevalidation = $this->file_input_validation('gst_file');
+            if ($checkfilevalidation) {
+                //Cross-check if Non Availiable is checked along with file upload
+                if (isset($data['is_gst_doc'])) {
+                    unset($_POST['is_gst_doc']);
+                }
+                //Making process for file upload
+                $tmpFile = $_FILES['gst_file']['tmp_name'];
+                $gst_file = implode("", explode(" ", $this->input->post('name'))) . '_gstfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['gst_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $gst_file);
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $gst_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $gst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $_POST['gst_file'] = $gst_file;
+
+                return "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $gst_file;
+
+                //Logging success for file uppload
+                //log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
+            } else {
+                //Redirect back to Form
+
+                if (!empty($_POST['id'])) {
+                    $this->editvendor($data['id']);
+                } else {
+                    $this->add_vendor();
+                }
+                return FALSE;
+            }
+        }
+    }
+
     /**
      * @desc : This function is used to get the form data of vendor
      *
@@ -616,6 +667,7 @@ class vendor extends CI_Controller {
                 $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
                 $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
                 $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
+                $vendor_data['is_gst_doc'] = $this->input->post('is_gst_doc');
                 
                 if(!empty($vendor_data['is_pan_doc']) && !empty($this->input->post('pan_no')) ){
                    $vendor_data['pan_no'] = $this->input->post('pan_no');
@@ -638,6 +690,11 @@ class vendor extends CI_Controller {
                     $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
                 }else{
                     $vendor_data['service_tax_no'] = "";
+                }
+                if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){
+                    $vendor_data['gst_no'] = $this->input->post('gst_no');
+                }else{
+                    $vendor_data['gst_no'] = NULL;
                 }
              
                 $vendor_data['bank_name'] = $this->input->post('bank_name');
@@ -725,6 +782,7 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('address', 'Vendor Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('district', 'District', 'trim|required');
+        $this->form_validation->set_rules('gst_no', 'GST Number', 'trim|min_length[15]|max_length[15]');
         if ($this->form_validation->run() == FALSE) {
             return FALSE;
         } else {

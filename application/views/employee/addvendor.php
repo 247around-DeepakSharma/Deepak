@@ -904,6 +904,66 @@
                                     </div>
                                 </div>
                             </div>
+                                    
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('service_tax_no')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="gst_no" class="col-md-4">GST No.</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control blockspacialchar"  id ="gst_no" name="gst_no" value = "<?php
+                                                if (isset($query[0]['gst_no'])) {
+                                                    echo $query[0]['gst_no'];
+                                                }
+                                                ?>">
+                                            <span class="err1"> <?php echo form_error('gst_no'); ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('gst_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="gst_file" class="col-md-4 blockspacialchar">Tax File</label>
+                                        <div class="col-md-7">
+                                            <input type="file" class="form-control"  name="gst_file" value = "<?php
+                                                if (isset($query[0]['gst_file'])) {
+                                                    echo $query[0]['gst_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('gst_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['gst_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php if(isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('gst_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['gst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3" style="margin-left:60px;">
+                                    <div class="checkbox">
+                                        <label>
+                                        <b style="font-size: 18px;">Not Available</b>   
+                                        </label>
+                                        <input type="checkbox"  value="0" id="is_gst_doc" name ="is_gst_doc" <?php if(isset($query[0]['is_gst_doc'])){ if($query[0]['is_gst_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 24px;margin-top: 5px;zoom:1.5;">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div  class = "panel panel-info">
@@ -1291,7 +1351,24 @@
                    return false;
                }
             }
-            
+             
+            //Check for GST  no.
+            if($('#is_gst_doc').is(":checked")){
+               if($('#gst_no').val() != ''){
+                   alert('Please Enter GST Number or Tick "Not Available" checkbox');
+                   return false;
+               }
+            }else{
+                if($('#gst_no').val() == ''){
+                   alert('Please Enter GST Number or Tick "Not Available" checkbox');
+                   return false;
+               }
+               else if($('#gst_no').val().length === '15'){
+                   alert('Please Enter Valid GST Number');
+                   return false;
+               }
+            }
+          
         }
         
 </script>

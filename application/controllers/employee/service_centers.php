@@ -2166,9 +2166,9 @@ class Service_centers extends CI_Controller {
 
                 $gst_details_id = $this->service_centers_model->insert_gst_details_data($gst_details);
                 if ($gst_details_id) {
-                    $sc['is_gst'] = $gst_details['is_gst'];
-                    $sc['gst_number'] = $gst_details['company_gst_number'];
-                    $sc['gst_certificate_file'] = $gst_details['gst_certificate_file'];
+                    $sc['is_gst_doc'] = $gst_details['is_gst'];
+                    $sc['gst_no'] = $gst_details['company_gst_number'];
+                    $sc['gst_file'] = $gst_details['gst_certificate_file'];
                     $this->vendor_model->edit_vendor($sc, $this->session->userdata('service_center_id'));
 
                     $template = array(
@@ -2213,7 +2213,7 @@ class Service_centers extends CI_Controller {
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "misc-images/" . $gst_file;
+            $directory_xls = "vendor-partner-docs/" . $gst_file;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
