@@ -15,6 +15,7 @@ class Buyback_process extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library('buyback');
+        $this->load->library('PHPReport');
 
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -592,6 +593,55 @@ class Buyback_process extends CI_Controller {
         $this->load->view('dashboard/dashboard_footer');
     }
     
+    function download_bb_shop_address() {
+
+        $shop_address_data = $this->bb_model->download_bb_shop_address_data();
+
+        $shop_address_file = $this->generate_shop_address_data($shop_address_data);
+
+        if (file_exists($shop_address_file)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($shop_address_file) . '"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($shop_address_file));
+            readfile($shop_address_file);
+            exit;
+        }
+    }
+
+    private function generate_shop_address_data($shop_address_data){
+        $template = 'BB_Shop_Address.xlsx';
+        //set absolute path to directory with template files
+        $templateDir = FCPATH . "application/controllers/excel-templates/";
+
+        //set config for report
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        $R = new PHPReport($config);
+
+        $R->load(array(
+            array(
+                'id' => 'data',
+                'repeat' => true,
+                'data' => $shop_address_data
+            )
+                )
+        );
+
+        //Get populated XLS with data
+        $output_file = TMP_FOLDER . "Shop_Address_" . date('d-M-Y') . ".xlsx";
+        $R->render('excel', $output_file);
+        
+        return $output_file;
+    }
+    
     function search_for_buyback(){
         log_message("info",__METHOD__);
         $post['search_value'] = $this->input->post('search');
@@ -605,7 +655,7 @@ class Buyback_process extends CI_Controller {
         
         $this->load->view('buyback/bb_search_result', $list);
     }
-        
+    
         
         
 }
