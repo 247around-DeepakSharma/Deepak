@@ -170,6 +170,27 @@
                             <th>Cancellation Reason: </th>
                             <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                         </tr>
+                        <tr>
+                            <th>Closing Remarks: </th>
+                            <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Reschedule Reason: </th>
+                            <td><?php echo $booking_history[0]['reschedule_reason']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Cancellation Reason: </th>
+                            <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Reschedule Reason: </th>
+                            <td><?php echo $booking_history[0]['reschedule_reason']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Cancellation Reason: </th>
+                            <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
+                        </tr>
+                        
                     </table>
                 </div>
                 
@@ -210,6 +231,11 @@
                             <?php } ?>
                             
                              <th>Booking Status</th>
+                             <?php if($booking_history[0]['current_status'] === 'Completed'){ ?>
+                             <th>Vendor Cash Invoice ID</th>
+                             <th>Vendor Foc Invoice ID</th>
+                             <th>Partner Invoice ID</th>
+                             <?php } ?>
                             
                         </tr>
                         <tbody>
@@ -267,6 +293,11 @@
                                 
                                 <?php }?>
                                 <td><?php print_r($unit_detail['booking_status']); ?></td>
+                                <?php if($booking_history[0]['current_status'] === 'Completed'){ ?>
+                                <td><?php print_r($unit_detail['vendor_cash_invoice_id']); ?></td>
+                                <td><?php print_r($unit_detail['vendor_foc_invoice_id']); ?></td>
+                                <td><?php print_r($unit_detail['partner_invoice_id']); ?></td>
+                                <?php } ?>
                             </tr>
                             <?php } ?>
                         </tbody>
