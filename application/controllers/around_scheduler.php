@@ -646,16 +646,19 @@ class Around_scheduler extends CI_Controller {
     function sent_mail_for_gst_notification(){
         log_message('info', __METHOD__ . '=> Entering...');
         $data = $this->around_scheduler_model->get_vendor_email_contact_no();
-        $template =  $this->booking_model->get_booking_email_template("gst_notification");
-        $body = $template[0];
-        $to = $template[1];
-        $from = $template[2];
-        $cc = $template[3];
-        $subject = $template[4];
-                
-        $bcc = $data['email'];
-        
-        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
+        if(!empty($data['email'])){
+            $template =  $this->booking_model->get_booking_email_template("gst_notification");
+            $body = $template[0];
+            $to = $template[1];
+            $from = $template[2];
+            $cc = $template[3];
+            $subject = $template[4];
+
+            $bcc = $data['email'];
+            print_r($data['email']);
+
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
+        }
         log_message('info', __METHOD__ . '=> EXIT...');
         
     }
