@@ -43,7 +43,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label for="state" class="col-sm-2">Select</label>
                 <div class="form-group">
                     <div class="col-md-8">
@@ -74,15 +74,28 @@
                 </div>
             </div>
             
-            <div class="col-md-6">
-                <?php if(isset($service_center)){ $label = 'Select Service Center Type';}else{ $label = 'Select Partner Type' ;} ?>
-                <label for="sf_type" class="col-sm-5"><?php echo $label;?></label>
-                <div class="form-group col-sm-6">
-                    <select class="form-control" id="sf_type" onchange="getVendor()">
-                        <option value="active" selected>Active</option>
-                        <option value="disabled">Disabled</option>
-                        <option value="all">All</option>
-                    </select>
+            <div class="col-md-8">
+                <div class="col-sm-7">
+                     <?php if(isset($service_center)){ $label = 'Select Service Center Type';}else{ $label = 'Select Partner Type' ;} ?>
+                        <label for="sf_type" class="col-sm-5"><?php echo $label;?></label>
+                        <div class="form-group col-sm-6">
+                            <select class="form-control" id="sf_type" onchange="getVendor()">
+                                <option value="active" selected>Active</option>
+                                <option value="disabled">Disabled</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                </div>
+                <div class="col-sm-5">
+                    <?php if(isset($service_center)) { ?>
+                    <div class="form-group col-sm-12">
+                        <select class="form-control" id="sf_cp" onchange="get_SF_CP_Vendor()">
+                            <option value="sf" selected>Service Center</option>
+                            <option value="cp">Collection Partner</option>
+                            <option value="both">Both</option>
+                        </select>
+                    </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>
@@ -335,7 +348,27 @@ if(isset($_SESSION['file_error'])){
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/invoice/invoice_listing_ajax/'+vendor_type,
-            data:{'vendor_partner': '<?php echo $vendor_partner; ?>'},
+            data:{'vendor_partner': '<?php echo $vendor_partner; ?>', 'sf_cp':''},
+            success: function (data) {
+                //console.log(data);
+                $('#loader_gif').attr('src', '');
+                $("#overall_summary").show();
+                $("#overall_summary").html(data);
+            }
+        });
+    }
+    
+    
+    function get_SF_CP_Vendor(){
+        $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loadring.gif');
+        var vendor_type = $('#sf_type').val();
+        var sf_cp = $('#sf_cp').val();
+        $("#invoicing_table").css('display', 'none');
+        $('#overall_summary').css('display', 'none');
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/invoice/invoice_listing_ajax/'+vendor_type,
+            data:{'vendor_partner': '<?php echo $vendor_partner; ?>', 'sf_cp':sf_cp},
             success: function (data) {
                 //console.log(data);
                 $('#loader_gif').attr('src', '');
