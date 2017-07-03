@@ -1,3 +1,4 @@
+<?php if(!isset($is_ajax)) { ?>
 <script>
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Vendor ?");
@@ -69,13 +70,23 @@
             </div>
 
             <div class="pull-right" style="margin-bottom: 20px; margin-right: 50px;">
-                <form action="<?php echo base_url();?>employee/vendor/viewvendor" method="get" id="get_vender" class="form-inline">
-                    <label for="active_state">Show Vender &nbsp; &nbsp;</label>
-                    <select name="active_state" id="active_state" onchange="get_data();" class="form-control">
-                        <option value="all" <?php echo isset($selected) && $selected['active_state'] == 'all'? 'selected="selected"':''?>>ALL</option>
-                        <option value="1" <?php echo isset($selected) && $selected['active_state'] == '1'? 'selected="selected"':''?>>Active</option>
-                    </select> 
-                </form>
+                <div class="col-sm-7">
+                    <form action="<?php echo base_url();?>employee/vendor/viewvendor" method="get" id="get_vender" class="form-inline">
+                        <label for="active_state">Show Vender &nbsp; &nbsp;</label>
+                        <select name="active_state" id="active_state" onchange="get_data();" class="form-control">
+                            <option value="all" <?php echo isset($selected) && $selected['active_state'] == 'all'? 'selected="selected"':''?>>ALL</option>
+                            <option value="1" <?php echo isset($selected) && $selected['active_state'] == '1'? 'selected="selected"':''?>>Active</option>
+                        </select> 
+                    </form>
+                </div>
+                
+                <div class="col-sm-5">
+                    <select id="sf_cp" onchange="get_sf_cp();" class="form-control">
+                        <option value="sf">Service Center</option>
+                        <option value="cp">Collection Partner</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div> 
             </div>
             <div style="background-color: #EEEEEE;width:400px;height:50px;padding-bottom:20px;border-radius: 5px;" id="inner_state_div">
                 <form method="POST" action ="<?php echo base_url(); ?>employee/vendor/get_sc_charges_list" style="padding-top:8px;">
@@ -91,9 +102,10 @@
                     <div class="col-md-2">
                         <input type="submit" value="Download Charges List" onclick="return validate_form()" class="btn btn-primary" />
                     </div>
-         </form>
-        </div>
-        
+                </form>
+            </div>
+    <div id="vendor_sf_cp_list">        
+ <?php } ?>
         <table class="table table-bordered table-condensed" id="vender_details">
           
           <tr>
@@ -166,9 +178,10 @@
           <?php } ?>
         </table>
 
-
+<?php if(!isset($is_ajax)) { ?>
         
-      </div>
+    </div>
+            </div>
     </div>
 </div>      
 <script type='text/javascript'>
@@ -187,6 +200,26 @@
         }
     }
     
+    function get_sf_cp(){
+        var sf_cp = $('#sf_cp').val();
+        var active_state = $('#active_state').val();
+        $.ajax({
+                method: "POST",
+                url:'<?php echo base_url()."employee/vendor/get_filterd_sf_cp_data" ?>',
+                data: {'sf_cp':sf_cp,'active_state':active_state},
+                success: function (data) {
+                    //console.log(data);
+                    if(data === 'No Data Found'){
+                        var resHTML = "<div class = 'text-center text-danger' style='margin-top:20px;'><strong>"+data+"</strong><div>";
+                        $('#vendor_sf_cp_list').html(resHTML);
+                    }else{
+                        $('#vendor_sf_cp_list').html(data);
+                    }
+                    
+                }
+            });
+    }
+    
     </script>
 
     
@@ -195,3 +228,4 @@
     } if ($this->session->userdata('error')) {
          $this->session->unset_userdata('error'); 
     }?>
+<?php } ?>
