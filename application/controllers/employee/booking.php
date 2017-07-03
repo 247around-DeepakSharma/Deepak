@@ -1897,8 +1897,7 @@ class Booking extends CI_Controller {
         // this function is used to update booking details table
         $this->booking_model->update_booking($booking_id, $booking);
         //Update Spare parts details table
-        $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => $internal_status));
-        
+        $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), array('status' => $internal_status));
         if ($status == 0) {
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
