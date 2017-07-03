@@ -1,3 +1,12 @@
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+<style>
+    .select2-container--default .select2-selection--single {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 34px;
+    }
+</style>
 <?php $offset = $this->uri->segment(5); ?>
 <script>
     $(function(){
@@ -23,6 +32,30 @@
                 </select>
             </div>
             <?php } ?>
+    <div class="row">
+        <div class="filter_brackets" style="margin-top:15px;">
+            <div class="filter_box">
+                    <div class="col-sm-3">
+                        <select class="form-control" id="sf_role" name="sf_role">
+                            <option selected disabled>Select Role</option>
+                            <option value="order_received_from">Order Received From</option>
+                            <option value="order_given_to">Order Given To</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <select class="form-control" id="sf_id" name="sf_id">
+                            <option selected="" disabled="">Select Service Center</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                            <input type="text" class="form-control valid" id="daterange" name="daterange">
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="btn btn-success" id="filter">Filter</div>
+                    </div>
+            </div>
+        </div>
+    </div>
     <div class="panel panel-info" style="margin-top:20px;">
         <div class="panel-heading"><center style="font-size:130%;">Brackets List</center></div>
         <div class="col-md-12">
@@ -74,6 +107,8 @@
                     </div>';
                     }
                     ?>
+            <div id="loader"><img src="<?php echo base_url(); ?>images/loadring.png" style="display:none;"></div>
+            <div class="show_brackets_list" id="brackets_list_box">
             <table class="table table-condensed table-bordered">
                 <thead>
                     <tr>
@@ -177,8 +212,59 @@
                     </tbody>
             </table>
             <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
+            </div>
         </div>
     </div>
 </div>
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<script type="text/javascript">
+    
+    $("#sf_id").select2();
+    $(function() {
+        $('input[name="daterange"]').daterangepicker();
+    });
+    
+    $(document).ready(function(){
+        $.ajax({
+            method:'POST',
+            url: "<?php echo base_url();?>employee/vendor/get_service_center_details",
+            success:function(response){
+                $('#sf_id').val('val', "");
+                $('#sf_id').val('Select Service Center').change();
+                $('#sf_id').select2().html(response);
+            }
+        });
+    });
+    
+    $('#filter').click(function(){
+       var role = $('#sf_role').val();
+       var sf_id = $('#sf_id').val();
+       var daterange = $('#daterange').val();
+       var start_date = daterange.split("-")[0];
+       var end_date = daterange.split("-")[1];
+       if(role === '' ||role === null || sf_id === '' || sf_id === undefined || sf_id === null || start_date === '' || end_date === ''){
+           alert("Please Select All Field");
+       }else{
+           $('#loader').show();
+           $.ajax({
+                method:'POST',
+                url: "<?php echo base_url();?>employee/inventory/get_filtered_brackets_list",
+                data: {'sf_role':role,'sf_id':sf_id,'start_date':start_date,'end_date':end_date,'filter':'filter'},
+                success:function(response){
+                    //console.log(response);
+                    if(response === 'No Data Found'){
+                        var res = "<div class='text-center text-danger'><strong>"+response+"</strong></div>";
+                        $('#brackets_list_box').html(res);
+                        $('#loader').hide();
+                    }else{
+                        $('#brackets_list_box').html(response);
+                        $('#loader').hide();
+                    }
+                }
+            });
+       }
+    });
+</script>
 <?php $this->session->unset_userdata('brackets_update_success');?>
 <?php $this->session->unset_userdata('brackets_cancelled_error');?>
