@@ -425,8 +425,8 @@ class Around_scheduler_model extends CI_Model {
      */
     function get_vendor_email_contact_no(){
         $sql1 = "SELECT  GROUP_CONCAT(DISTINCT primary_contact_email,  ',', owner_email ) AS email "
-                . " FROM  `service_centres` WHERE NOT EXISTS "
-                . " (SELECT * FROM sc_gst_details where service_center_id = service_centres.id) AND active = 1";
+                . " FROM  `service_centres` WHERE is_gst_doc IS NULL "
+                . " AND active = 1 ";
         //$sql2 =  "SELECT  GROUP_CONCAT(DISTINCT owner_phone_1 ) AS email FROM  `service_centres` ";
         $query1 = $this->db->query($sql1);
        // $query2 = $this->db->query($sql2);

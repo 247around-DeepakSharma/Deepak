@@ -19,6 +19,7 @@
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Status</th>
                                         <th class="text-center" data-orderable="false">Update</th>
+                                        <th class="text-center" data-orderable="false">Cancel</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -39,6 +40,7 @@
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
 
                                         <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
+                                        <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/cancel_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>" class="btn btn-sm btn-primary" >Delete</a></td> 
                                    </tr>
                              
                                     <?php $sn_no++; }}?>

@@ -267,7 +267,7 @@ class Service_centers extends CI_Controller {
             if($is_update_spare_parts){
                 
                 $sp['status'] = DEFECTIVE_PARTS_PENDING;
-                $this->service_centers_model->update_spare_parts(array('booking_id'=>$booking_id), $sp);
+                $this->service_centers_model->update_spare_parts(array('booking_id'=>$booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL), $sp);
                 redirect(base_url()."service_center/get_defective_parts_booking");
                 
             } else {
@@ -357,7 +357,7 @@ class Service_centers extends CI_Controller {
                     
                     $data['current_status'] = "InProcess";
                     $data['internal_status'] = "Cancelled";
-                    $data['service_center_remarks'] = $cancellation_text;
+                    $data['service_center_remarks'] = date("F j") . ":- " .$cancellation_text;
                     $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = $data['amount_paid'] = 0;
                     $data['cancellation_reason'] = $cancellation_reason;
                     $data['closed_date'] = date('Y-m-d H:i:s');
@@ -841,7 +841,7 @@ class Service_centers extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $sc_data['internal_status'] =  $this->input->post('reason');
         $sc_data['current_status'] = 'InProcess';
-        $sc_data['service_center_remarks'] = $this->input->post('sc_remarks');
+        $sc_data['service_center_remarks'] = date("F j") . ":- " .$this->input->post('sc_remarks');
         // Update Service center Action table
         $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
         if($state_change){
@@ -947,7 +947,7 @@ class Service_centers extends CI_Controller {
                     $this->booking_model->update_booking($booking_id, $booking);
                 }
 
-                $sc_data['service_center_remarks'] = $data['remarks_by_sc'];
+                $sc_data['service_center_remarks'] = date("F j") . ":- " .$data['remarks_by_sc'];
                 $sc_data['update_date'] = date("Y-m-d H:i:s");
 
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);

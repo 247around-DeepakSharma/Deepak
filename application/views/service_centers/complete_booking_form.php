@@ -98,7 +98,19 @@
                         </div>
                     </div>
                     <!-- row End  -->
-                    <input type="hidden" name="spare_parts_required" value="<?php if(isset($booking_history['spare_parts'])){ echo "1";} else { echo "0";}?>" />
+                    <input type="hidden" name="spare_parts_required" value="<?php if(isset($booking_history['spare_parts'])){ 
+                        $flag = 0;                                                                                                                                                           
+                        foreach ($booking_history['spare_parts'] as  $value) {
+                            if($value['status'] != "Completed" || $value['status'] != "Cancelled"){
+                                $flag = 1;
+                            }
+         
+                        }
+                        echo $flag;
+                        
+                    } else { echo "0";
+                        
+                        }?>" />
                     <?php $count = 0; foreach ($bookng_unit_details as $key => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <div class="panel-body">
