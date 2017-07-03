@@ -1015,5 +1015,39 @@ class Inventory extends CI_Controller {
         $data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['total_rows'], $offset);
         $this->load->view('employee/sparepart_on_tab' , $data);
     }
+    
+    
+    /**
+     * @Desc: This function is used to filtered the brackets list in our crm
+     * @params: void
+     * @return: array
+     * 
+     */
+    function get_filtered_brackets_list(){
+        if($this->input->post('filter') === 'filter'){
+            $sf_role = $this->input->post('sf_role');
+            $sf_id = $this->input->post('sf_id');
+            $start_date = date('Y-m-d 00:00:00', strtotime($this->input->post('start_date')));
+            $end_date = date('Y-m-d 23:59:59', strtotime($this->input->post('end_date')));
 
+            $data['brackets'] = $this->inventory_model->get_filtered_brackets($sf_role,$sf_id,$start_date,$end_date);
+            if(!empty($data['brackets'])){
+                //Getting name for order received from  to vendor
+                foreach($data['brackets'] as $key=>$value){
+                    $data['order_received_from'][$key] = $this->vendor_model->getVendorContact($value['order_received_from'])[0];
+
+                    // Getting name for order given to vendor
+
+                    $data['order_given_to'][$key] = $this->vendor_model->getVendorContact($value['order_given_to'])[0]['name'];
+                }
+                $response = $this->load->view('employee/show_filtered_brackets_list',$data);
+                
+                echo $response;
+            }else{
+                echo "No Data Found";
+            }
+        }else{
+            echo "Invalid Request";
+        }
+    }
 }

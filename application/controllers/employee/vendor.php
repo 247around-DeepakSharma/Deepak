@@ -4149,5 +4149,24 @@ class vendor extends CI_Controller {
             log_message("info", __METHOD__." There is no pending booking which need to update for upcountry");
         }
     }
+    
+    /**
+     * @Desc: This function is used to get the service center for filtered brackets list
+     * @param void
+     * @return: string
+     * 
+     */
+    function get_service_center_details(){
+        $data = $this->vendor_model->getActiveVendor();
+        $option = '<option selected="" disabled="">Select Service Center</option>';
+
+        foreach ($data as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            $option .= " > ";
+            $option .= $value['name'] . "</option>";
+        }
+
+        echo $option;
+    }
 
 }
