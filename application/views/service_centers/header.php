@@ -141,7 +141,7 @@
                                                   <h5><b>Mr. Nilanjan Das</b></h5> 
                                                   <p>Escalation East India</p>
                                                   <p>Regional Service Head East India</p>
-                                                  <p>Kolkata Office <span>8130572244</span></p>
+                                                  <p>Kolkata Office <span>9051159966</span></p>
                                                   <p> English, Hindi and Bengali</p>
                                                   <p>nilanjan@247around.com</p>
                                                 </div>
