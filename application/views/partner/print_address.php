@@ -19,7 +19,7 @@
        <span>From: <?php echo $value['partner']['company_name'];?></span><br/>
        <span><?php echo $value['partner']['address'];?></span><br/>
        <span><?php echo $value['partner']['district']. " ".$value['partner']['state']." - ".$value['partner']['pincode'];?></span><br/>
-       <span>Ph:<?php echo $value['primary_contact_phone_1'];?></span><br/>
+       <span>Ph:<?php echo $value['partner']['primary_contact_phone_1'];?></span><br/>
         
     </div>
 </div>
