@@ -165,6 +165,10 @@
                         <th>Total Amount Paid</th>
                         <?php } ?>
                         <th>Booking Status</th>
+                        <?php if ($booking_history[0]['current_status'] === "Completed") { ?>
+                        <th>Cash Invoice ID</th>
+                        <th>Foc Invoice ID</th>
+                        <?php } ?>
                     </tr>
                     <tbody>
                         <?php foreach ($unit_details as $unit_detail) { ?>
@@ -213,6 +217,10 @@
                                 </td>  
                                 <?php } ?>
                                 <td><?php print_r($unit_detail['booking_status']); ?></td>
+                                <?php if ($booking_history[0]['current_status'] === "Completed") { ?>
+                                <td><?php print_r($unit_detail['vendor_cash_invoice_id']); ?></td>
+                                <td><?php print_r($unit_detail['vendor_foc_invoice_id']); ?></td>
+                                <?php } ?>
                             </tr>
                         <?php } ?>
                     </tbody>

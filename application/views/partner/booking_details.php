@@ -180,6 +180,9 @@
                                 <th>Total Amount Paid</th>
     <?php } ?>
                             <th>Booking Status</th>
+                            <?php if($booking_history[0]['current_status'] === 'Completed') { ?>
+                            <th>Invoice ID</th>
+                            <?php } ?>
                         </tr>
                         <tbody>
     <?php foreach ($unit_details as $unit_detail) { ?>
@@ -230,6 +233,9 @@
                                         </td>  
         <?php } ?>
                                     <td><?php print_r($unit_detail['booking_status']); ?></td>
+                                    <?php if($booking_history[0]['current_status'] === 'Completed') { ?>
+                                    <td><?php print_r($unit_detail['partner_invoice_id']); ?></td>
+                                    <?php } ?>
                                 </tr>
                     <?php } ?>
                         </tbody>
