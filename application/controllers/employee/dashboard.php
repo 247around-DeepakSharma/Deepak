@@ -53,6 +53,28 @@ class Dashboard extends CI_Controller {
         $this->load->view('dashboard/main_dashboard', $data_report);
         $this->load->view('dashboard/dashboard_footer');
     }
+    
+    function get_count_unit_details() {
+
+        $sDate = $this->input->post('sDate');
+        $eDate = $this->input->post('eDate');
+        $current_status = "Completed";
+        $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
+        $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
+        $data_report = $this->reporting_utils->get_partners_booking_unit_report_chart_data($startDate, $endDate, $current_status);
+        $partner_category = array();
+        $data = array();
+        foreach ($data_report as  $value){
+            array_push($partner_category, $value['public_name']);
+            array_push($data, array("name" =>$value['public_name'], "y" =>intval($value['count'])) );
+            
+        }
+        $array = array(
+            'partner_category' => $partner_category,
+            'data' => $data
+        );
+        echo json_encode($array);
+    }
 
     /**
      * @desc: get paid or foc booking count on ajax call

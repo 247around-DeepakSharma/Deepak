@@ -1720,6 +1720,25 @@ class Reporting_utils extends CI_Model {
         $query = $this->db->get();
         return  $query->result_array();
     }
+    
+    function get_partners_booking_unit_report_chart_data($startDate,$endDate,$bookingStatus) {
+        $where="";
+        if($bookingStatus == 'ALL'){
+            $where .= "bu.create_date >=". "'$startDate'" . " AND bu.create_date <=" ."'$endDate'";
+        }else if($bookingStatus == 'Completed' || $bookingStatus == 'Cancelled'){
+            $where .= "bu.booking_status = '$bookingStatus' AND bu.ud_closed_date >=". "'$startDate'" . " AND bu.ud_closed_date <=" ."'$endDate'";
+        }else if ( $bookingStatus == 'Pending' ){
+            $where .= "bu.booking_status = '$bookingStatus' AND bu.create_date >=". "'$startDate'" . " AND bu.create_date <=" ."'$endDate'";
+        }
+
+        $this->db->select('bu.partner_id,p.public_name,count(*) as count');
+        $this->db->from('booking_unit_details as bu');
+        $this->db->join('partners as p', 'bu.partner_id = p.id', 'left');
+        $this->db->where($where);
+        $this->db->group_by('partner_id');
+        $query = $this->db->get();
+        return  $query->result_array();
+    }
 
     /**
      * @Desc: This function is used to get all latest file uploaded in s3 with agent name

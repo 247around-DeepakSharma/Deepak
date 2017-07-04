@@ -67,6 +67,35 @@
         </div>
 
     </div>
+       <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="dashboard_graph">
+
+                <div class="row x_title">
+                    <div class="col-md-6">
+                        <h3>Partner Unit Details
+                            <small>
+                            </small>
+                        </h3>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="unit_chart_range" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                            <span></span> <b class="caret"></b>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12"><center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div id="unit_chart" class="unit_chart" style="height:600px;"></div>
+                </div>
+
+                <div class="clearfix"></div>
+            </div>
+        </div>
+
+    </div>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="dashboard_graph">
@@ -236,6 +265,7 @@
         };
         change_chart_data.push(arr);
 <?php } ?>
+
     var chart = new Highcharts.Chart({
         chart: {
             renderTo: 'chart_container',
@@ -342,6 +372,7 @@
 
     });
     
+    
     $(function () {
         function cb(start, end) {
             $('#reportrange6 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -440,7 +471,7 @@
     });
    // partner_booking_status (start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
     function partner_booking_status (startDate,endDate){
-         var booking_status = $('#booking_status').val();
+        var booking_status = $('#booking_status').val();
         var url =  '<?php echo base_url(); ?>BookingSummary/get_partners_booking_report_chart';
         $('#loader_gif1').css('display', 'inherit');
         $('#loader_gif1').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
@@ -531,6 +562,129 @@
             }
         });
     }
+    $('#unit_chart_range').on('apply.daterangepicker', function (ev, picker) {
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        partner_unit_chart(startDate, endDate);
+        //console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
+    });
+    partner_unit_chart(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+    function partner_unit_chart(startDate,endDate){
+        var url = '<?php echo base_url(); ?>employee/dashboard/get_count_unit_details';
+        $('#loader_gif_unit').css('display', 'inherit');
+        $('#loader_gif_unit').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
+        $('#unit_chart').hide();
+         $.ajax({
+            type: 'POST',
+            url: url,
+            data: {sDate: startDate, eDate: endDate, current_status: $("#booking_status").val()},
+            success: function (response) {
+                $('#loader_gif_unit').attr('src', "");
+                $('#loader_gif_unit').css('display', 'none');
+                $('#loader_gif_unit').show();
+               $('#unit_chart').show();
+                var data = JSON.parse(response);
+
+                 unit_chart = new Highcharts.Chart({
+                    chart: {
+                        renderTo: 'unit_chart',
+                        type: 'column',
+                        events: {
+                            load: Highcharts.drawTable
+                        },
+                    },
+                    title: {
+                        text: '',
+                        x: -20 //center
+                    },
+                    xAxis: {
+                        categories: data['partner_category'],
+                        labels: {
+                            style: {
+                                fontSize:'13px'
+                            }
+                        }
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Count'
+                        },
+                        plotLines: [{
+                                value: 0,
+                                width: 1,
+                                color: '#808080'
+                            }]
+                    },
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: [
+                        {
+                            name: $("#booking_status").val(),
+                            data: data['data']
+                        }]
+                });
+              }
+        });
+    }
+    
+    
+    $(function () {
+        function cb(start, end) {
+            $('#unit_chart_range span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#unit_chart_range').daterangepicker({
+            startDate: start,
+            endDate: end,
+            minDate: '01/01/2000',
+            maxDate: '12/31/2030',
+            dateLimit: {
+                days: 120},
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1, timePicker12Hour: true,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'MM/DD/YYYY', separator: ' to ',
+            locale: {
+                applyLabel: 'Submit',
+                cancelLabel: 'Clear',
+                fromLabel: 'From',
+                toLabel: 'To',
+                customRangeLabel: 'Custom',
+                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                firstDay: 1
+            }
+        }, cb);
+
+        cb(start, end);
+
+    });
+
+    
     $('#reportrange6').on('apply.daterangepicker', function (ev, picker) {
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
