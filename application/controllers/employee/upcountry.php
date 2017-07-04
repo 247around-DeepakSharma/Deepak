@@ -91,6 +91,13 @@ class Upcountry extends CI_Controller {
                 $response = $this->upcountry_model->insert_batch_sub_sc_details($data);
                 $this->vendor_model->edit_vendor(array('is_upcountry' => '1'), $service_center_id);
                 if ($response) {
+                    $log = array(
+                    "entity" => "vendor",
+                    "entity_id" => $service_center_id,
+                    "agent_id" => $this->session->userdata('id'),
+                    "action" =>  "SC HQ Added"
+                );
+                $this->vendor_model->insert_log_action_on_entity($log);
                     $userSession = array('success' => 'Upcountry Charges Added');
                     $this->session->set_userdata($userSession);
                     log_message('info', __FUNCTION__ . " Added Upcountry Charges for SC id " . $service_center_id);

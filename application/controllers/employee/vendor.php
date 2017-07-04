@@ -438,6 +438,13 @@ class vendor extends CI_Controller {
                     //Loggin Error 
                     log_message('info', __FUNCTION__.' Error in mapping SF to RM relation RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
                 }
+                $log = array(
+                    "entity" => "vendor",
+                    "entity_id" => $_POST['id'],
+                    "agent_id" => $this->session->userdata('id'),
+                    "action" =>  SF_UPDATED
+                );
+                $this->vendor_model->insert_log_action_on_entity($log);
 
                 redirect(base_url() . 'employee/vendor/viewvendor');
             } else {
@@ -459,7 +466,13 @@ class vendor extends CI_Controller {
                 
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
-                
+                $log = array(
+                    "entity" => "vendor",
+                    "entity_id" => $sc_id,
+                    "agent_id" => $this->session->userdata('id'),
+                    "action" =>  NEW_SF_ADDED
+                );
+                $this->vendor_model->insert_log_action_on_entity($log);
                 //Adding details in Booking State Change
                 $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
                 
@@ -918,8 +931,14 @@ class vendor extends CI_Controller {
             log_message('info', __FUNCTION__ . ' Permanent ON of Vendor' . $sf_name);
         }
         
-        //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_VENDOR_ACTIVATED, _247AROUND_VENDOR_DEACTIVATED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        
+        $log = array(
+            "entity" => "vendor",
+            "entity_id" => $id,
+            "agent_id" => $this->session->userdata('id'),
+            "action" =>  _247AROUND_VENDOR_ACTIVATED
+        );
+        $this->vendor_model->insert_log_action_on_entity($log);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
         } 
     }
@@ -959,8 +978,14 @@ class vendor extends CI_Controller {
             log_message('info', __FUNCTION__ . ' Permanent OFF of Vendor' . $sf_name);
         }
         
-        //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_VENDOR_DEACTIVATED, _247AROUND_VENDOR_ACTIVATED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        
+        $log = array(
+            "entity" => "vendor",
+            "entity_id" => $id,
+            "agent_id" => $this->session->userdata('id'),
+            "action" =>  _247AROUND_VENDOR_DEACTIVATED
+        );
+        $this->vendor_model->insert_log_action_on_entity($log);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
 
@@ -3103,8 +3128,12 @@ class vendor extends CI_Controller {
         //Check on off
         if($on_off == 1){
             $on_off_value = 'ON';
+            $new_state = _247AROUND_VENDOR_NON_SUSPENDED;
+            $old_state = _247AROUND_VENDOR_SUSPENDED;
         }else{
             $on_off_value = 'OFF';
+            $new_state = _247AROUND_VENDOR_SUSPENDED;
+            $old_state = _247AROUND_VENDOR_NON_SUSPENDED;
         }
         
         //Getting Vendor Details
@@ -3131,8 +3160,13 @@ class vendor extends CI_Controller {
             log_message('info', __FUNCTION__ . ' Temporary  '.$on_off_value.' of Vendor' . $sf_name);
         }
         
-        //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_VENDOR_SUSPENDED, _247AROUND_VENDOR_NON_SUSPENDED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        $log = array(
+            "entity" => "vendor",
+            "entity_id" => $id,
+            "agent_id" => $this->session->userdata('id'),
+            "action" =>  $new_state
+        );
+        $this->vendor_model->insert_log_action_on_entity($log);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
     
@@ -4011,8 +4045,17 @@ class vendor extends CI_Controller {
                          'pincode'=>$this->input->post('pincode'),
                          'upcountry_rate'=>$this->input->post('upcountry_rate'));
            $id = $this->input->post('id');
+           $sc_id = $this->input->post('service_center_id');
            $update_id = $this->upcountry_model->update_sub_service_center_upcountry_details($data,$id);
            if($update_id){
+                $log = array(
+                    "entity" => "vendor",
+                    "entity_id" => $sc_id,
+                    "agent_id" => $this->session->userdata('id'),
+                    "action" =>  "SC HQ Updated",
+                    "remarks" => "Update SC HQ ID ".$id
+                );
+                $this->vendor_model->insert_log_action_on_entity($log);
                echo "success";
            }
            else{
@@ -4029,8 +4072,17 @@ class vendor extends CI_Controller {
         log_message('info',__FUNCTION__);
        if($this->input->post()){
            $id = $this->input->post('id');
+           $sc_id = $this->input->post('service_center_id');
            $update_id = $this->upcountry_model->delete_sub_service_center_upcountry_details($id);
            if($update_id){
+               $log = array(
+                    "entity" => "vendor",
+                    "entity_id" => $sc_id,
+                    "agent_id" => $this->session->userdata('id'),
+                    "action" =>  "SC HQ Updated",
+                    "remarks" => "Deleted SC HQ ID ".$id
+                );
+                $this->vendor_model->insert_log_action_on_entity($log);
                echo "success";
            }
            else{
