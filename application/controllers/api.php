@@ -4204,12 +4204,12 @@ class Api extends CI_Controller {
      * @param $from_number string 
      * @retun:void()
      */
-     private function do_process_for_missed_call_rating($from_number) {
+     public function do_process_for_missed_call_rating($from_number) {
 
         $check_booking_count = $this->booking_model->get_missed_call_rating_booking_count($from_number);
         //insert rating if booking is not empty and have only 1 booking
         //otherwise log this and show on view
-        if ($check_booking_count[0]['count'] === '1') {
+        if (!empty($check_booking_count)) {
             //insert rating in booking_details
             $insert_id = $this->booking_model->update_booking($check_booking_count[0]['booking_id'], array('rating_stars' => MISSED_CALL_DEFAULT_RATING));
             
