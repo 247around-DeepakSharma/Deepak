@@ -641,7 +641,7 @@ class Service_centers_model extends CI_Model {
     function get_vendor_rating_data($sf_id){
         $sql = "SELECT ROUND(AVG(rating_stars),1) as rating , count(booking_id) as count
                 FROM booking_details WHERE assigned_vendor_id = '$sf_id'
-                AND rating_stars IS NOT NULL AND cuurent_status = '"._247AROUND_COMPLETED."'";    
+                AND rating_stars IS NOT NULL AND current_status = '"._247AROUND_COMPLETED."'";    
         $query = $this->db->query($sql);
         return $query->result_array();
     }
