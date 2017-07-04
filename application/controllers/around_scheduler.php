@@ -655,8 +655,7 @@ class Around_scheduler extends CI_Controller {
             $subject = $template[4];
 
             $bcc = $data['email'];
-            print_r($data['email']);
-
+           
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
         }
         log_message('info', __METHOD__ . '=> EXIT...');

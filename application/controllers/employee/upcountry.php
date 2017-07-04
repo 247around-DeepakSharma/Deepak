@@ -91,6 +91,13 @@ class Upcountry extends CI_Controller {
                 $response = $this->upcountry_model->insert_batch_sub_sc_details($data);
                 $this->vendor_model->edit_vendor(array('is_upcountry' => '1'), $service_center_id);
                 if ($response) {
+                    $log = array(
+                    "entity" => "vendor",
+                    "entity_id" => $service_center_id,
+                    "agent_id" => $this->session->userdata('id'),
+                    "action" =>  "SC HQ Added"
+                );
+                $this->vendor_model->insert_log_action_on_entity($log);
                     $userSession = array('success' => 'Upcountry Charges Added');
                     $this->session->set_userdata($userSession);
                     log_message('info', __FUNCTION__ . " Added Upcountry Charges for SC id " . $service_center_id);
@@ -225,7 +232,12 @@ class Upcountry extends CI_Controller {
                     }
                 } else {
                     $booking['upcountry_paid_by_customer'] = 1;
-                    $booking['amount_due'] = $amount_due + ($data['partner_upcountry_rate'] * $data['upcountry_distance']);
+                    $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
+                    $cus_net_payable = 0;
+                    foreach ($unit_details as $value) {
+                        $cus_net_payable += $value['customer_net_payable'];
+                    }
+                    $booking['amount_due'] = $cus_net_payable + ($data['partner_upcountry_rate'] * $data['upcountry_distance']);
 
 
                     $this->booking_model->update_booking($booking_id, $booking);

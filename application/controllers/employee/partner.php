@@ -2920,6 +2920,11 @@ class Partner extends CI_Controller {
                 }
             }
         } else {
+            $to = NITS_ANUJ_EMAIL_ID;
+            $cc = "vijaya@247around.com";
+            $message = "Partner try to approve Booking Id ".$booking_id." But somehoow it failed. <br/>Please check this booking.";
+            $this->notify->sendEmail('booking@247around.com', $to, $cc, '',
+                'UpCountry Approval Failed', $message, '');
             if ($status == 0) {
                 echo "<script>alert('Thanks, Booking Has Been Already Approved.');</script>";
             } else {
@@ -2927,6 +2932,8 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
             }
+            
+                    
         }
     }
     /**
