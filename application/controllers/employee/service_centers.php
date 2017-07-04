@@ -108,6 +108,14 @@ class Service_centers extends CI_Controller {
     function pending_booking($booking_id="") {
         $this->checkUserSession();
         $data['booking_id'] = $booking_id;
+        $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
+        if(!empty($rating_data[0]['rating'])){
+            $data['rating'] =  $rating_data[0]['rating'];
+            $data['count'] =  $rating_data[0]['count'];
+        }else{
+            $data['rating'] = 0;
+            $data['count'] =  $rating_data[0]['count'];
+        }
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/pending_booking', $data);
         
@@ -2009,6 +2017,15 @@ class Service_centers extends CI_Controller {
           
             $this->form_validation->set_message('upload_gst_certificate_file', 'Please Attach GST Certificate File.');
             return false;
+        }
+    }
+    
+    function get_vendor_rating(){
+        $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
+        if(!empty($rating_data)){
+            echo $rating_data[0]['rating'];
+        }else{
+            echo '0';
         }
     }
 
