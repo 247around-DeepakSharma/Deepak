@@ -341,18 +341,18 @@ class Reporting_utils extends CI_Model {
 
         //Count phone not reachable and to be followed up - Total
         $this->db->where_in('Status_by_247around', array('FollowUp'));
-        $this->db->where_in('Remarks_by_247around', array('Customer not reachable / Customer not picked phone'));
+        $this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
         $total_ph_unreach = $this->db->count_all_results('snapdeal_leads');
 
         //Count phone not reachable and to be followed up - Today
         $this->db->where_in('Status_by_247around', array('FollowUp'));
-        $this->db->where_in('Remarks_by_247around', array('Customer not reachable / Customer not picked phone'));
+        $this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
         $this->db->like('Referred_Date_and_Time', $today);
         $today_ph_unreach = $this->db->count_all_results('snapdeal_leads');
 
         //Count phone not reachable and to be followed up - Y'day
         $this->db->where_in('Status_by_247around', array('FollowUp'));
-        $this->db->where_in('Remarks_by_247around', array('Customer not reachable / Customer not picked phone'));
+        $this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
         $this->db->like('Referred_Date_and_Time', $yday);
         $yday_ph_unreach = $this->db->count_all_results('snapdeal_leads');
 
@@ -1715,6 +1715,25 @@ class Reporting_utils extends CI_Model {
         $this->db->select('bd.partner_id,p.public_name,count(*) as count');
         $this->db->from('booking_details as bd');
         $this->db->join('partners as p', 'bd.partner_id=p.id', 'left');
+        $this->db->where($where);
+        $this->db->group_by('partner_id');
+        $query = $this->db->get();
+        return  $query->result_array();
+    }
+    
+    function get_partners_booking_unit_report_chart_data($startDate,$endDate,$bookingStatus) {
+        $where="";
+        if($bookingStatus == 'ALL'){
+            $where .= "bu.create_date >=". "'$startDate'" . " AND bu.create_date <=" ."'$endDate'";
+        }else if($bookingStatus == 'Completed' || $bookingStatus == 'Cancelled'){
+            $where .= "bu.booking_status = '$bookingStatus' AND bu.ud_closed_date >=". "'$startDate'" . " AND bu.ud_closed_date <=" ."'$endDate'";
+        }else if ( $bookingStatus == 'Pending' ){
+            $where .= "bu.booking_status = '$bookingStatus' AND bu.create_date >=". "'$startDate'" . " AND bu.create_date <=" ."'$endDate'";
+        }
+
+        $this->db->select('bu.partner_id,p.public_name,count(*) as count');
+        $this->db->from('booking_unit_details as bu');
+        $this->db->join('partners as p', 'bu.partner_id = p.id', 'left');
         $this->db->where($where);
         $this->db->group_by('partner_id');
         $query = $this->db->get();

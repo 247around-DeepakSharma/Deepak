@@ -39,19 +39,38 @@ class Dashboard extends CI_Controller {
      * @return void
      */
     function index() {
-        
+
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/main_dashboard');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    function execute_title_query(){
         $data_report['query'] = $this->vendor_model->get_around_dashboard_queries();
         $data_report['data'] = $this->vendor_model->execute_around_dashboard_query($data_report['query']);
+        $this->load->view('dashboard/dashboard_title', $data_report);
+    }
+    
+    function get_count_unit_details() {
 
-        $timestamp = strtotime(date("Y-m-d"));
-        $startDate = date('Y-m-01 00:00:00', $timestamp);
-        $endDate = date('Y-m-d 23:59:59', $timestamp);
-        $bookingStatus = _247AROUND_COMPLETED;
-        $data_report['partner_data'] = $this->reporting_utils->get_partners_booking_report_chart_data($startDate, $endDate, $bookingStatus);
- 
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        $this->load->view('dashboard/main_dashboard', $data_report);
-        $this->load->view('dashboard/dashboard_footer');
+        $sDate = $this->input->post('sDate');
+        $eDate = $this->input->post('eDate');
+        $current_status = "Completed";
+        $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
+        $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
+        $data_report = $this->reporting_utils->get_partners_booking_unit_report_chart_data($startDate, $endDate, $current_status);
+        $partner_category = array();
+        $data = array();
+        foreach ($data_report as  $value){
+            array_push($partner_category, $value['public_name']);
+            array_push($data, array("name" =>$value['public_name'], "y" =>intval($value['count'])) );
+            
+        }
+        $array = array(
+            'partner_category' => $partner_category,
+            'data' => $data
+        );
+        echo json_encode($array);
     }
 
     /**

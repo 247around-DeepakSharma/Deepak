@@ -12,13 +12,8 @@
 <!-- page content -->
 <div class="right_col" role="main">
     <!-- top tiles -->
-    <div class="row tile_count">
-        <?php foreach ($query as $key => $value) { ?>
-            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-                <span class="count_top" style="display:block;min-height: 60px;"><?php echo $value['description'] ?></span>
-                <div class="count"><?php echo $data[$key][0]['count'] ?></div>
-            </div>
-        <?php } ?>
+    <div class="row tile_count" id="title_count">
+         <div class="col-md-12"><center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
     </div>
     <!-- /top tiles -->
 
@@ -60,6 +55,35 @@
                 <div class="col-md-12"><center><img id="loader_gif1" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div id="chart_container" class="chart_container"></div>
+                </div>
+
+                <div class="clearfix"></div>
+            </div>
+        </div>
+
+    </div>
+       <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="dashboard_graph">
+
+                <div class="row x_title">
+                    <div class="col-md-6">
+                        <h3>Partner Unit Details
+                            <small>
+                            </small>
+                        </h3>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="unit_chart_range" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                            <span></span> <b class="caret"></b>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12"><center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div id="unit_chart" class="unit_chart" style="height:600px;"></div>
                 </div>
 
                 <div class="clearfix"></div>
@@ -217,6 +241,23 @@
 <!-- /page content -->
 <!-- create chart using MySQL data -->
 <script>
+     get_query_data();
+     function get_query_data(){
+        $('#loader_gif_title').css('display', 'inherit');
+        $('#loader_gif_title').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
+
+         $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/dashboard/execute_title_query',
+            success: function (response) {
+               
+                $('#loader_gif_title').attr('src', "");
+                $('#loader_gif_title').css('display', 'none');
+                $('#loader_gif_title').show();
+                $('#title_count').html(response);
+            }
+        });
+     }
     
     var partner_name = [];
     var completed_booking = [];
@@ -226,72 +267,6 @@
     var completed_booking = [];
     var partner_id = [];
     var change_chart_data = [];
-<?php foreach ($partner_data as $key => $value) { ?>
-        partner_name.push("<?php echo $value['public_name']; ?>");
-        completed_booking.push(parseInt("<?php echo $value['count']; ?>"));
-        partner_id['<?php echo $value['public_name']; ?>'] = <?php echo $value['partner_id']; ?>;
-        var arr = {
-            name: '<?php echo $value['public_name']; ?>',
-            y: parseInt(<?php echo $value['count']; ?>)
-        };
-        change_chart_data.push(arr);
-<?php } ?>
-    var chart = new Highcharts.Chart({
-        chart: {
-            renderTo: 'chart_container',
-            type: 'column'
-        },
-        title: {
-            text: '',
-            x: -20 //center
-        },
-        xAxis: {
-            categories: partner_name
-        },
-        yAxis: {
-            title: {
-                text: 'Count'
-            },
-            plotLines: [{
-                    value: 0,
-                    width: 1,
-                    color: '#808080'
-                }]
-        },
-        plotOptions: {
-            column: {
-                dataLabels: {
-                    enabled: true, }
-            },
-            pie: {
-                plotBorderWidth: 0, allowPointSelect: true,
-                cursor: 'pointer',
-                size: '100%',
-                dataLabels: {
-                    enabled: true,
-                    format: '{point.name}: <b>{point.y}</b>'
-                },
-                showInLegend: true
-            }
-        },
-        series: [
-            {
-                name: 'Completed Booking',
-                data: change_chart_data,
-                cursor: 'pointer',
-                point: {
-                    events: {
-                        click: function (event) {
-                            var get_date = $('#reportrange span').text().split('-');
-                            var startdate = Date.parse(get_date[0]).toString('dd-MMM-yyyy');
-                            var enddate = Date.parse(get_date[1]).toString('dd-MMM-yyyy');
-                            var booking_status = $('#booking_status').val();
-                            window.open(baseUrl + '/employee/dashboard/partner_reports/' + this.name + '/' + partner_id[this.name] + '/' + booking_status + '/' + encodeURI(startdate) + '/' + encodeURI(enddate), '_blank');
-                        }
-                    }
-                }
-            }]
-    });
 
 
     var start = moment().startOf('month');
@@ -341,6 +316,7 @@
         cb(start, end);
 
     });
+    
     
     $(function () {
         function cb(start, end) {
@@ -438,9 +414,10 @@
         partner_booking_status(startDate,endDate);
        
     });
+    partner_booking_status(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
    // partner_booking_status (start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
     function partner_booking_status (startDate,endDate){
-         var booking_status = $('#booking_status').val();
+        var booking_status = $('#booking_status').val();
         var url =  '<?php echo base_url(); ?>BookingSummary/get_partners_booking_report_chart';
         $('#loader_gif1').css('display', 'inherit');
         $('#loader_gif1').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
@@ -531,6 +508,129 @@
             }
         });
     }
+    $('#unit_chart_range').on('apply.daterangepicker', function (ev, picker) {
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        partner_unit_chart(startDate, endDate);
+        //console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
+    });
+    partner_unit_chart(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+    function partner_unit_chart(startDate,endDate){
+        var url = '<?php echo base_url(); ?>employee/dashboard/get_count_unit_details';
+        $('#loader_gif_unit').css('display', 'inherit');
+        $('#loader_gif_unit').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
+        $('#unit_chart').hide();
+         $.ajax({
+            type: 'POST',
+            url: url,
+            data: {sDate: startDate, eDate: endDate, current_status: $("#booking_status").val()},
+            success: function (response) {
+                $('#loader_gif_unit').attr('src', "");
+                $('#loader_gif_unit').css('display', 'none');
+                $('#loader_gif_unit').show();
+               $('#unit_chart').show();
+                var data = JSON.parse(response);
+
+                 unit_chart = new Highcharts.Chart({
+                    chart: {
+                        renderTo: 'unit_chart',
+                        type: 'column',
+                        events: {
+                            load: Highcharts.drawTable
+                        },
+                    },
+                    title: {
+                        text: '',
+                        x: -20 //center
+                    },
+                    xAxis: {
+                        categories: data['partner_category'],
+                        labels: {
+                            style: {
+                                fontSize:'13px'
+                            }
+                        }
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Count'
+                        },
+                        plotLines: [{
+                                value: 0,
+                                width: 1,
+                                color: '#808080'
+                            }]
+                    },
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                enabled: true
+                            }
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: [
+                        {
+                            name: $("#booking_status").val(),
+                            data: data['data']
+                        }]
+                });
+              }
+        });
+    }
+    
+    
+    $(function () {
+        function cb(start, end) {
+            $('#unit_chart_range span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#unit_chart_range').daterangepicker({
+            startDate: start,
+            endDate: end,
+            minDate: '01/01/2000',
+            maxDate: '12/31/2030',
+            dateLimit: {
+                days: 120},
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1, timePicker12Hour: true,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'MM/DD/YYYY', separator: ' to ',
+            locale: {
+                applyLabel: 'Submit',
+                cancelLabel: 'Clear',
+                fromLabel: 'From',
+                toLabel: 'To',
+                customRangeLabel: 'Custom',
+                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                firstDay: 1
+            }
+        }, cb);
+
+        cb(start, end);
+
+    });
+
+    
     $('#reportrange6').on('apply.daterangepicker', function (ev, picker) {
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
