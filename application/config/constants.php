@@ -142,7 +142,7 @@ define('_247AROUND_PARTNER_DEACTIVATED','Partner_Deactivated');
 //constant to define State for making Partner Suspended
 define('_247AROUND_VENDOR_SUSPENDED','Vendor Suspended');
 //constant to define State for making Partner Non Suspended
-define('_247AROUND_VENDOR_NON_SUSPENDED','Vendor Non_Suspended');
+define('_247AROUND_VENDOR_NON_SUSPENDED','Vendor Activated From TMP OFF');
 
 define("INSERT_NEW_BOOKING", "INSERT_NEW_BOOKING");
 
