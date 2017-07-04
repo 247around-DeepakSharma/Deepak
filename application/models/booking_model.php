@@ -1978,12 +1978,20 @@ class Booking_model extends CI_Model {
      * @retun:void()
      */
     function get_missed_call_rating_booking_count($missed_call_number){
-        $this->db->select('booking_id,count(booking_id) as count');
-        $this->db->where('current_status',_247AROUND_COMPLETED);
-        $this->db->where('rating_stars is NULL', NULL, TRUE);
-        $this->db->where('booking_primary_contact_no',$missed_call_number);
-        $this->db->or_where('booking_alternate_contact_no',$missed_call_number);
-        $query = $this->db->get('booking_details');
+        $sql = "SELECT DISTINCT booking_id "
+                . "FROM booking_details as bd,"
+                . "rating_passthru_misscall_log as rp, "
+                . "users as u WHERE current_status = 'Completed' "
+                . "AND bd.rating_stars IS NULL AND EXISTS "
+                . "(SELECT 1 from sms_sent_details as ssd WHERE "
+                . "ssd.booking_id = bd.booking_id AND ssd.sms_tag IN "
+                . "('missed_call_rating_sms', 'complete_booking')) "
+                . "AND bd.closed_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') "
+                . "- INTERVAL 2 MONTH AND rp.from_number = bd.booking_primary_contact_no "
+                . "AND u.user_id = bd.user_id "
+                . " AND rp.To = '01139588220' AND rp.from_number = '".$missed_call_number."'"
+                . " AND rp.create_date >= bd.closed_date having count(DISTINCT booking_id) = 1";
+        $query = $this->db->query($sql);
         return $query->result_array();
     }
     
@@ -1994,18 +2002,21 @@ class Booking_model extends CI_Model {
      *  @return : array()
      */
     function get_missed_call_rating_not_taken_booking_data(){
-        $sql = "SELECT DISTINCT u.name,rp.from_number,
-                CASE rp.To
-                WHEN '".GOOD_MISSED_CALL_RATING_NUMBER."' THEN 'good_rating'
-                WHEN '".POOR_MISSED_CALL_RATING_NUMBER."' THEN 'bad_rating'
-                ELSE NULL
-                END as 'rating' 
-                FROM booking_details as bd 
-                JOIN rating_passthru_misscall_log as rp ON bd.booking_primary_contact_no = rp.from_number 
-                JOIN users as u ON bd.user_id = u.user_id 
-                WHERE bd.current_status = 'completed' 
-                AND bd.rating_stars IS null 
-                AND bd.closed_date < rp.create_date";
+        $sql = "SELECT DISTINCT  u.name,rp.from_number,
+                 CASE rp.To WHEN '".GOOD_MISSED_CALL_RATING_NUMBER."' "
+                . " THEN 'good_rating' WHEN '".POOR_MISSED_CALL_RATING_NUMBER."' "
+                . " THEN 'bad_rating' ELSE NULL END as "
+                . " 'rating'FROM booking_details as bd,"
+                . " rating_passthru_misscall_log as rp, users as u "
+                . " WHERE current_status = 'Completed' "
+                . " AND bd.rating_stars IS NULL AND EXISTS "
+                . " (SELECT 1 from sms_sent_details as ssd WHERE "
+                . " ssd.booking_id = bd.booking_id AND ssd.sms_tag IN "
+                . " ('missed_call_rating_sms', 'complete_booking')) "
+                . " AND bd.closed_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 2 MONTH "
+                . " AND rp.from_number = bd.booking_primary_contact_no "
+                . " AND u.user_id = bd.user_id "
+                . " AND rp.create_date >= bd.closed_date";
         
         $query = $this->db->query($sql);
         return $query->result_array();
