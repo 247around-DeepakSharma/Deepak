@@ -158,7 +158,11 @@ class Miscelleneous {
             $return_status = 0;
             $partner_details = $this->My_CI->partner_model->get_all_partner($query1[0]['partner_id']);
             $data = $this->My_CI->upcountry_model->action_upcountry_booking($query1[0]['city'], $query1[0]['booking_pincode'], $vendor_data, $partner_details);
-
+            $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
+            $cus_net_payable = 0;
+            foreach ($unit_details as $value) {
+                $cus_net_payable += $value['customer_net_payable'];
+            }
             switch ($data['message']) {
                 case UPCOUNTRY_BOOKING:
                 case UPCOUNTRY_LIMIT_EXCEED:
@@ -170,6 +174,7 @@ class Miscelleneous {
                     $booking['upcountry_distance'] = $data['upcountry_distance'];
                     $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
                     $booking['partner_upcountry_rate'] = $data['partner_upcountry_rate'];
+                    
                     $is_upcountry = $this->My_CI->upcountry_model->is_upcountry_booking($booking_id);
                     if (!empty($is_upcountry)) {
 
@@ -177,6 +182,7 @@ class Miscelleneous {
 
                             log_message('info', __METHOD__ . " => Upcountry Booking Free Booking " . $booking_id);
                             $booking['upcountry_paid_by_customer'] = 0;
+                            $booking['amount_due'] = $cus_net_payable;
                             $this->My_CI->booking_model->update_booking($booking_id, $booking);
                             $return_status = TRUE;
                         } else if ($data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
@@ -186,6 +192,7 @@ class Miscelleneous {
                             $booking['internal_status'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
                             $booking['upcountry_partner_approved'] = '0';
                             $booking['upcountry_paid_by_customer'] = 0;
+                            $booking['amount_due'] = $cus_net_payable;
 
                             $this->My_CI->booking_model->update_booking($booking_id, $booking);
                             $this->My_CI->service_centers_model->delete_booking_id($booking_id);
@@ -244,11 +251,6 @@ class Miscelleneous {
                         log_message('info', __METHOD__ . " => Partner does not provide Upcountry charges " . $booking_id);
                         $booking['upcountry_paid_by_customer'] = 1;
                         $booking['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
-                        $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
-                        $cus_net_payable = 0;
-                        foreach ($unit_details as $value) {
-                            $cus_net_payable += $value['customer_net_payable'];
-                        }
 
                         log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
                         $booking['amount_due'] = $cus_net_payable + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
@@ -269,6 +271,9 @@ class Miscelleneous {
                     $booking['partner_upcountry_rate'] = NULL;
                     $booking['upcountry_paid_by_customer'] = '0';
                     $booking['upcountry_partner_approved'] = '1';
+                   
+                    log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
+                    $booking['amount_due'] = $cus_net_payable;
 
                     $this->My_CI->booking_model->update_booking($booking_id, $booking);
                     log_message('info', __METHOD__ . " => Not Upcountry Booking" . $booking_id);
@@ -282,6 +287,7 @@ class Miscelleneous {
                     $booking['upcountry_pincode'] = $data['upcountry_pincode'];
                     $booking['sub_vendor_id'] = $data['sub_vendor_id'];
                     $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
+                    $booking['amount_due'] = $cus_net_payable;
 
                     $this->My_CI->booking_model->update_booking($booking_id, $booking);
 
