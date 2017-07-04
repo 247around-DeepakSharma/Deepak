@@ -12,13 +12,8 @@
 <!-- page content -->
 <div class="right_col" role="main">
     <!-- top tiles -->
-    <div class="row tile_count">
-        <?php foreach ($query as $key => $value) { ?>
-            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-                <span class="count_top" style="display:block;min-height: 60px;"><?php echo $value['description'] ?></span>
-                <div class="count"><?php echo $data[$key][0]['count'] ?></div>
-            </div>
-        <?php } ?>
+    <div class="row tile_count" id="title_count">
+         <div class="col-md-12"><center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
     </div>
     <!-- /top tiles -->
 
@@ -246,6 +241,23 @@
 <!-- /page content -->
 <!-- create chart using MySQL data -->
 <script>
+     get_query_data();
+     function get_query_data(){
+        $('#loader_gif_title').css('display', 'inherit');
+        $('#loader_gif_title').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
+
+         $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/dashboard/execute_title_query',
+            success: function (response) {
+               
+                $('#loader_gif_title').attr('src', "");
+                $('#loader_gif_title').css('display', 'none');
+                $('#loader_gif_title').show();
+                $('#title_count').html(response);
+            }
+        });
+     }
     
     var partner_name = [];
     var completed_booking = [];
@@ -255,73 +267,6 @@
     var completed_booking = [];
     var partner_id = [];
     var change_chart_data = [];
-<?php foreach ($partner_data as $key => $value) { ?>
-        partner_name.push("<?php echo $value['public_name']; ?>");
-        completed_booking.push(parseInt("<?php echo $value['count']; ?>"));
-        partner_id['<?php echo $value['public_name']; ?>'] = <?php echo $value['partner_id']; ?>;
-        var arr = {
-            name: '<?php echo $value['public_name']; ?>',
-            y: parseInt(<?php echo $value['count']; ?>)
-        };
-        change_chart_data.push(arr);
-<?php } ?>
-
-    var chart = new Highcharts.Chart({
-        chart: {
-            renderTo: 'chart_container',
-            type: 'column'
-        },
-        title: {
-            text: '',
-            x: -20 //center
-        },
-        xAxis: {
-            categories: partner_name
-        },
-        yAxis: {
-            title: {
-                text: 'Count'
-            },
-            plotLines: [{
-                    value: 0,
-                    width: 1,
-                    color: '#808080'
-                }]
-        },
-        plotOptions: {
-            column: {
-                dataLabels: {
-                    enabled: true, }
-            },
-            pie: {
-                plotBorderWidth: 0, allowPointSelect: true,
-                cursor: 'pointer',
-                size: '100%',
-                dataLabels: {
-                    enabled: true,
-                    format: '{point.name}: <b>{point.y}</b>'
-                },
-                showInLegend: true
-            }
-        },
-        series: [
-            {
-                name: 'Completed Booking',
-                data: change_chart_data,
-                cursor: 'pointer',
-                point: {
-                    events: {
-                        click: function (event) {
-                            var get_date = $('#reportrange span').text().split('-');
-                            var startdate = Date.parse(get_date[0]).toString('dd-MMM-yyyy');
-                            var enddate = Date.parse(get_date[1]).toString('dd-MMM-yyyy');
-                            var booking_status = $('#booking_status').val();
-                            window.open(baseUrl + '/employee/dashboard/partner_reports/' + this.name + '/' + partner_id[this.name] + '/' + booking_status + '/' + encodeURI(startdate) + '/' + encodeURI(enddate), '_blank');
-                        }
-                    }
-                }
-            }]
-    });
 
 
     var start = moment().startOf('month');
@@ -469,6 +414,7 @@
         partner_booking_status(startDate,endDate);
        
     });
+    partner_booking_status(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
    // partner_booking_status (start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
     function partner_booking_status (startDate,endDate){
         var booking_status = $('#booking_status').val();

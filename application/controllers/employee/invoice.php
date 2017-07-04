@@ -58,9 +58,24 @@ class Invoice extends CI_Controller {
     
     public function invoice_listing_ajax($vendor_type = ""){
         $vendor_partner = $this->input->post('vendor_partner');
+        $sf_cp = $this->input->post('sf_cp');
+        $is_sf = '';
+        $is_cp = '';
+        if(!empty($sf_cp)){
+            if($sf_cp === 'sf'){
+                $is_sf = '1';
+                $is_cp = '0';
+            }else if($sf_cp === 'cp'){
+                $is_sf = '0';
+                $is_cp = '1';
+            }else if($sf_cp === 'both'){
+                $is_sf = '1';
+                $is_cp = '1';
+            }
+        }
         if($vendor_partner === 'vendor'){
             if($vendor_type != ""){
-                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",$vendor_type);
+                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",$vendor_type,$is_sf,$is_cp);
             }else{
                 $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
             }
@@ -68,7 +83,7 @@ class Invoice extends CI_Controller {
             $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
         }else{
             if($vendor_type != ""){
-                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner",$vendor_type);
+                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner",$vendor_type,$is_sf,$is_cp);
             }else{
                 $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
             }

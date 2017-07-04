@@ -39,19 +39,16 @@ class Dashboard extends CI_Controller {
      * @return void
      */
     function index() {
-        
+
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/main_dashboard');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    function execute_title_query(){
         $data_report['query'] = $this->vendor_model->get_around_dashboard_queries();
         $data_report['data'] = $this->vendor_model->execute_around_dashboard_query($data_report['query']);
-
-        $timestamp = strtotime(date("Y-m-d"));
-        $startDate = date('Y-m-01 00:00:00', $timestamp);
-        $endDate = date('Y-m-d 23:59:59', $timestamp);
-        $bookingStatus = _247AROUND_COMPLETED;
-        $data_report['partner_data'] = $this->reporting_utils->get_partners_booking_report_chart_data($startDate, $endDate, $bookingStatus);
- 
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        $this->load->view('dashboard/main_dashboard', $data_report);
-        $this->load->view('dashboard/dashboard_footer');
+        $this->load->view('dashboard/dashboard_title', $data_report);
     }
     
     function get_count_unit_details() {
