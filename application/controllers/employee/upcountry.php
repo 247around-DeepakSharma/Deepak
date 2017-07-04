@@ -232,7 +232,12 @@ class Upcountry extends CI_Controller {
                     }
                 } else {
                     $booking['upcountry_paid_by_customer'] = 1;
-                    $booking['amount_due'] = $amount_due + ($data['partner_upcountry_rate'] * $data['upcountry_distance']);
+                    $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
+                    $cus_net_payable = 0;
+                    foreach ($unit_details as $value) {
+                        $cus_net_payable += $value['customer_net_payable'];
+                    }
+                    $booking['amount_due'] = $cus_net_payable + ($data['partner_upcountry_rate'] * $data['upcountry_distance']);
 
 
                     $this->booking_model->update_booking($booking_id, $booking);

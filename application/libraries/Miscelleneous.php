@@ -244,10 +244,15 @@ class Miscelleneous {
                         log_message('info', __METHOD__ . " => Partner does not provide Upcountry charges " . $booking_id);
                         $booking['upcountry_paid_by_customer'] = 1;
                         $booking['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
-                        if ($query1[0]['is_upcountry'] == 0) {
-                            log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
-                            $booking['amount_due'] = $query1[0]['amount_due'] + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
+                        $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
+                        $cus_net_payable = 0;
+                        foreach ($unit_details as $value) {
+                            $cus_net_payable += $value['customer_net_payable'];
                         }
+
+                        log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
+                        $booking['amount_due'] = $cus_net_payable + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
+                        
 
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $return_status = TRUE;
