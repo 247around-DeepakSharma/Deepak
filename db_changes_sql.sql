@@ -2813,5 +2813,45 @@ Team 247around', 'billing@247around.com', 'billing@247around.com', 'anuj@247arou
 
 
 
+
+
+
 ALTER TABLE `service_centres` CHANGE `is_gst` `is_gst_doc` INT(2) NULL DEFAULT '0', CHANGE `gst_number` `gst_no` VARCHAR(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL, CHANGE `gst_certificate_file` `gst_file` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+
+
+
+--
+-- Table structure for table `log_action_on_entity`
+--
+
+CREATE TABLE `log_entity_action` (
+  `id` int(11) NOT NULL,
+  `entity` varchar(30) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `agent_id` int(11) NOT NULL,
+  `action` varchar(50) NOT NULL,
+  `remarks` varchar(128) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `log_action_on_entity`
+--
+ALTER TABLE `log_entity_action`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `log_action_on_entity`
+--
+ALTER TABLE `log_entity_action`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 

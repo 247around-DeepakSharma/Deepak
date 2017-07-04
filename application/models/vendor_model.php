@@ -1797,4 +1797,9 @@ class vendor_model extends CI_Model {
         return $query->result_array();
     }
     
+    function insert_log_action_on_entity($data){
+        $this->db->insert("log_entity_action", $data);
+        return $this->db->insert_id();
+    }
+    
 }
