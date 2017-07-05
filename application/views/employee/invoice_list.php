@@ -28,7 +28,7 @@
         <?php if(isset($service_center)){ $vendor_partner = 'vendor';}else{ $vendor_partner = 'partner';}?>
         <?php if(!isset($is_ajax)){ ?>
             
-        <a class="btn btn-lg btn-primary pull-right" style="margin-top:20px;" href="<?php echo base_url(); ?>employee/invoice/insert_update_invoice/<?php if (isset($service_center)) {
+        <a target="_blank" class="btn btn-lg btn-primary pull-right" style="margin-top:20px;" href="<?php echo base_url(); ?>employee/invoice/insert_update_invoice/<?php if (isset($service_center)) {
             echo 'vendor';
             } else {
             echo 'partner';
