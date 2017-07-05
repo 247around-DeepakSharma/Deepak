@@ -23,14 +23,23 @@
             </div>';
             }
             ?>
+        <div style="margin-top:10px;margin-left: 20px; display: flex" class="text-center">
+            <b>Your Current Rating: </b> &nbsp;&nbsp;
+            <span class="stars"><?php echo $rating; ?></span>&nbsp;&nbsp;
+            <b><span <?php if($rating > '3.5') { echo "class='text-success'";}else{echo "class='text-danger'";}?>><?php echo $rating; ?> /5</span></b>&nbsp;&nbsp;
+            <b>For</b>&nbsp;&nbsp;
+            <b><span style="color:#FF9800;"><?php echo $count; ?></span></b> &nbsp;&nbsp;
+            <b>Completed Bookings</b>
+        </div> 
+        <hr>
         <?php if($this->session->userdata('is_update') == 1){ ?>
         <div class="col-md-12" id="header_summary" style="margin-top:5px;">
             <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
         </div>
         <?php } ?>
         <div class="col-md-12">
-            <h2>Pending Bookings</h2>
-            <div class="pull-right" style=' margin-top: -20px;margin-bottom: 10px;margin-right: 15px;'>
+            <h2 style="display:inline-flex;">Pending Bookings</h2>
+            <div class="pull-right" style=' margin-top: 30px;margin-right: 15px;'>
                 <a href="<?php echo base_url(); ?>employee/service_centers/download_sf_pending_bookings_list_excel"class="btn btn-primary" style="background-color: #2C9D9C;border-color: #2C9D9C;">Download Pending Bookings List</a>
             </div>
         </div>
@@ -231,6 +240,17 @@
     font-size: 12px;
     /* text-align: center; */
     }
+    
+    span.stars, span.stars span {
+    display: block;
+    background: url(/images/stars.png) 0 -16px repeat-x;
+    width: 80px;
+    height: 16px;
+}
+
+span.stars span {
+    background-position: 0 0;
+}
 </style>
 <?php $this->session->unset_userdata('success'); ?>
 <script type="text/javascript">
@@ -355,6 +375,23 @@
     
     }
     
+    
+    
+    $.fn.stars = function() {
+    return $(this).each(function() {
+        // Get the value
+        var val = parseFloat($(this).html());
+        // Make sure that the value is in 0 - 5 range, multiply to get width
+        var size = Math.max(0, (Math.min(5, val))) * 16;
+        // Create stars holder
+        var $span = $('<span />').width(size);
+        // Replace the numerical value with stars
+        $(this).html($span);
+    });
+}
+    $(function() {
+    $('span.stars').stars();
+});
     
 </script>
 <?php $this->session->unset_userdata('success'); ?>
