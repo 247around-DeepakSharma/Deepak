@@ -345,9 +345,9 @@ class Inventory_model extends CI_Model {
      */
     function get_filtered_brackets($sf_role,$sf_id,$start_date,$end_date){
         if($sf_role === 'order_received_from'){
-            $where = 'order_received_from ='."'$sf_id'".'AND create_date >= '."'$start_date'".'AND create_date <= '."'$end_date'";
+            $where = 'order_received_from ='."'$sf_id'".'AND order_date >= '."'$start_date'".'AND order_date <= '."'$end_date'";
         }else if($sf_role === 'order_given_to'){
-            $where = 'order_given_to ='."'$sf_id'".'AND create_date >= '."'$start_date'".'AND create_date <= '."'$end_date'";
+            $where = 'order_given_to ='."'$sf_id'".'AND order_date >= '."'$start_date'".'AND order_date <= '."'$end_date'";
         }
         
         $this->db->select('*');

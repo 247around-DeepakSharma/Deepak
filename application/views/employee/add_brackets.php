@@ -9,10 +9,10 @@
                         <th>S.N.</th>
                         <th>Order Received From</th>
                         <th>Order Given To</th>
-                        <th>19 to 24 inch</th>
-                        <th>26 to 32 inch</th>
-                        <th>36 to 42 inch</th>
-                        <th>&gt;43 inch</th>
+<!--                        <th>19 to 24 inch</th>-->
+                        <th>Less Than 32</th>
+                        <th>Greater Than 32</th>
+<!--                        <th>&gt;43 inch</th>-->
                         <th>Total</th>
                         <!--<th>Order Given To</th>-->
                     </tr>
@@ -71,18 +71,18 @@
                                     <?php } ?>
                                 </select>
                             </td>
-                            <td>
+<!--                            <td>
                                 <input typt='text' name='_19_24[]' id ="_19_24_<?php echo $i ?>"   disabled="" class = "form-control" onchange="return add_value(this.id)"/>
-                            </td>
+                            </td>-->
                             <td>
                                 <input typt='text' name='_26_32[]' id = "_26_32_<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>
                             </td>
                             <td>
                                 <input typt='text' name='_36_42[]' id = "_36_42_<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>
                             </td>
-                            <td>
+<!--                            <td>
                                 <input typt='text' name='_43[]' id = "_43__<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>
-                            </td>
+                            </td>-->
                             <td>
                                 <input type='text' id = 'total_<?php echo $i ?>' name='total' value='0' disabled="" class = "form-control"/>
                             </td>
@@ -121,22 +121,22 @@ $this->session->unset_userdata('brackets_error');
 
     function add_value(id) {
         var id = id.split("_");
-        var _19_24 = 0;
+//        var _19_24 = 0;
         var _26_32 = 0;
         var _36_42 = 0;
-        var _43 = 0;
+//        var _43 = 0;
         
         var numbers = /^[0-9]+$/;
-        if ($('#_19_24_' + id[3]).val() == '') {
-            _19_24 = 0;
-        } else {
-            if ($('#_19_24_' + id[3]).val().match(numbers)) {
-                _19_24 = parseInt($('#_19_24_' + id[3]).val());
-            } else {
-                alert('Please add number in 19 to 24 inch');
-            }
-
-        }
+//        if ($('#_19_24_' + id[3]).val() == '') {
+//            _19_24 = 0;
+//        } else {
+//            if ($('#_19_24_' + id[3]).val().match(numbers)) {
+//                _19_24 = parseInt($('#_19_24_' + id[3]).val());
+//            } else {
+//                alert('Please add number in 19 to 24 inch');
+//            }
+//
+//        }
         if ($('#_26_32_' + id[3]).val() == '') {
             _26_32 = 0;
         } else {
@@ -157,33 +157,33 @@ $this->session->unset_userdata('brackets_error');
             }
 
         }
-        if ($('#_43__' + id[3]).val() == '') {
-            _43 = 0;
-        } else {
-            if ($('#_43__' + id[3]).val().match(numbers)) {
-                _43 = parseInt($('#_43__' + id[3]).val());
-            } else {
-                alert('Please add number in 43 inch');
-            }
+//        if ($('#_43__' + id[3]).val() == '') {
+//            _43 = 0;
+//        } else {
+//            if ($('#_43__' + id[3]).val().match(numbers)) {
+//                _43 = parseInt($('#_43__' + id[3]).val());
+//            } else {
+//                alert('Please add number in 43 inch');
+//            }
+//
+//        }
 
-        }
-
-        $('#total_' + id[3]).val(_19_24 + _26_32 + _36_42 + _43);
+        $('#total_' + id[3]).val( _26_32 + _36_42);
     }
 
     function validate(id) {
         var id = id.split("_")[1];
         if ($('#check_' + id).is(':checked')) {
-            $("#_19_24_" + id).attr('required', true);
-            $("#_19_24_" + id).attr('disabled', false);
+//            $("#_19_24_" + id).attr('required', true);
+//            $("#_19_24_" + id).attr('disabled', false);
             $("#order_received_from_" + id).attr('disabled', false);
             $("#order_given_to_" + id).attr('disabled', false);
             $("#_26_32_" + id).attr('required', true);
             $("#_26_32_" + id).attr('disabled', false);
             $("#_36_42_" + id).attr('required', true);
             $("#_36_42_" + id).attr('disabled', false);
-            $("#_43__" + id).attr('required', true);
-            $("#_43__" + id).attr('disabled', false);
+//            $("#_43__" + id).attr('required', true);
+//            $("#_43__" + id).attr('disabled', false);
             $("#order_received_from_" + id).attr('required', true);
             $("#order_given_to_" + id).attr('required', true);
         } else {
@@ -191,14 +191,14 @@ $this->session->unset_userdata('brackets_error');
             $("#order_received_from_" + id).removeAttr('required');
             $("#order_given_to_" + id).attr('disabled', true);
             $("#order_given_to_" + id).removeAttr('required');
-            $("#_19_24_" + id).removeAttr('required');
-            $("#_19_24_" + id).attr('disabled', true);
+//            $("#_19_24_" + id).removeAttr('required');
+//            $("#_19_24_" + id).attr('disabled', true);
             $("#_26_32_" + id).removeAttr('required');
             $("#_26_32_" + id).attr('disabled', true);
             $("#_36_42_" + id).removeAttr('required');
             $("#_36_42_" + id).attr('disabled', true);
-            $("#_43__" + id).removeAttr('required');
-            $("#_43__" + id).attr('disabled', true);
+//            $("#_43__" + id).removeAttr('required');
+//            $("#_43__" + id).attr('disabled', true);
         }
     }
 

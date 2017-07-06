@@ -2919,3 +2919,4 @@ Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> Phone Num
 -- bb -sachin 12 july 2017
 
 ALTER TABLE `bb_state_change` ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `partner_id`;
+
