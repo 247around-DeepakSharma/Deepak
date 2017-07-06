@@ -43,4 +43,38 @@
          }
        });
     }
+    
+    $(document).on("click", ".open-adminremarks", function () {
+   
+        var booking_id = this.id;
+        var url = $(this).data('id');
+        $('#modal-title').text(booking_id);
+        $('#textarea').val("");
+        $("#url").val(url);
+
+    });
+    
+    function reject_parts(){
+      var remarks =  $('#textarea').val();
+      var booking_id = $('#modal-title').text();
+      if(remarks !== ""){
+        var url =  $('#url').val();
+        $.ajax({
+            type:'POST',
+            url:url,
+            data:{remarks:remarks},
+            success: function(data){
+                console.log(data);
+                if(data === "Success"){
+                    $("#"+booking_id+"_1").hide();
+                    $('#myModal2').modal('hide');
+                } else {
+                    alert("Spare Parts Cancellation Failed!");
+                }
+            }
+        });
+      } else {
+          alert("Please Enter Remarks");
+      }
+    }
 </script>
