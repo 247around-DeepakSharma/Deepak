@@ -23,17 +23,15 @@
             </div>';
             }
             ?>
-        <div style="margin-top:10px;margin-left: 20px; display: flex" class="text-center">
-            <b>Your Current Rating: </b> &nbsp;&nbsp;
-            <span class="stars"><?php echo $rating; ?></span>&nbsp;&nbsp;
-            <b><span <?php if($rating > '3.5') { echo "class='text-success'";}else{echo "class='text-danger'";}?>><?php echo $rating; ?> /5</span></b>&nbsp;&nbsp;
-            <b>For</b>&nbsp;&nbsp;
-            <b><span style="color:#FF9800;"><?php echo $count; ?></span></b> &nbsp;&nbsp;
-            <b>Completed Bookings</b>
-        </div> 
-        <hr>
+        <div class="col-md-offset-5">
+            <div style="margin-top:10px; display: flex;font-size: 25px;">
+                    <b>Rating: </b> &nbsp;&nbsp;
+                    <span class="stars" style="margin-top: 9px;"><?php echo $rating; ?></span>&nbsp;&nbsp;
+                    <b><span <?php if($rating > '3.5') { echo "class='text-success'";}else{echo "class='text-danger'";}?>><?php echo $rating; ?> /5</span></b>&nbsp;&nbsp;
+            </div>
+    </div>
         <?php if($this->session->userdata('is_update') == 1){ ?>
-        <div class="col-md-12" id="header_summary" style="margin-top:5px;">
+        <div class="col-md-12" id="header_summary" style="margin-top:10px;">
             <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
         </div>
         <?php } ?>
