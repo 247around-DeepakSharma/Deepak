@@ -1549,10 +1549,12 @@ class Service_centers extends CI_Controller {
         }
         $order_id = $this->input->post('order_id');
         $order_received_from = $this->input->post('order_received_from');
-        $data['19_24_shipped'] = $this->input->post('19_24_shipped');
+//        $data['19_24_shipped'] = $this->input->post('19_24_shipped');
+        $data['19_24_shipped'] = '0';
         $data['26_32_shipped'] = $this->input->post('26_32_shipped');
         $data['36_42_shipped'] = $this->input->post('36_42_shipped');
-        $data['43_shipped'] = $this->input->post('43_shipped');
+//        $data['43_shipped'] = $this->input->post('43_shipped');
+        $data['43_shipped'] = '0';
         $data['total_shipped'] = $this->input->post('total_shipped');
         $data['shipment_date'] = !empty($this->input->post('shipment_date'))?$this->input->post('shipment_date'):date('Y-m-d H:i:s');
         $data['is_shipped'] = 1;
