@@ -244,6 +244,7 @@
         <!-- /top navigation -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.3/waypoints.min.js"></script> 
         <script src="<?php echo base_url(); ?>js/jquery.counterup.min.js"></script> 
+        <script src="<?php echo base_url();?>js/select2.min.js"></script>
         <script>
             jQuery(document).ready(function( $ ) {
                 $.ajax({

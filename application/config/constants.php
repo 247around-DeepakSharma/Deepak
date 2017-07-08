@@ -377,5 +377,8 @@ define('CLAIM_SUBMITTED','Claim Submitted');
 define('TO_BE_CLAIMED','To Be Claimed');
 define('CLAIM_SETTLED_BY_AMAZON','Claim Settled by Amazon');
 
+//new shop address added
+define('NEW_SHOP_ADDRESS_ADDED','New Shop Address Added');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
