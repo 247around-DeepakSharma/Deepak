@@ -48,9 +48,6 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_panel" style="min-height:500px;">
                         <div class="x_content">
-                            <div class="splash" ng-cloak="">
-                <p>Loading</p>
-              </div>
                             <div class="formcontainer" ng-controller="userController">
                                 <div class=" text-center alert alert-danger none"><p></p></div>
                                 <div class="text-center alert alert-success none"><p></p></div>
