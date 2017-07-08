@@ -6,6 +6,10 @@ if (!defined('BASEPATH'))
 //error_reporting(E_ERROR);
 //ini_set('display_errors', '-1');
 
+ini_set('memory_limit', '-1');
+//3600 seconds = 60 minutes
+ini_set('max_execution_time', 36000);
+
 class Around_scheduler extends CI_Controller {
 
     function __Construct() {
