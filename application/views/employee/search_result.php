@@ -148,7 +148,7 @@
               <div id="open_model"></div>
           </div>
           <div class="modal-footer">
-             <input type="button" onclick="form_submit()" value="Submit" class="btn btn-info " form="modal-form">
+              <input type="button" onclick="form_submit()" value="Submit" class="btn btn-info " form="modal-form" id="remove_penalty">
             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
           </div>
         </div>
@@ -276,6 +276,7 @@
                             <th>Edit Booking</th>
                             <th>Re-assign</th>
                             <th>Escalate</th>
+                            <th>Remove Penalty</th>
                         </tr>
                     </thead>
                     <?php if($offset == 0){ $offset = 1;}else { $offset = $offset+1; }  ?>
@@ -420,6 +421,9 @@
                         </td>
                         <td>
                             <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                        </td>
+                        <td>
+                            <a class='btn btn-sm col-md-4' style='background:#FF9E80;margin-left:10px;padding-right: 17px;' onclick='get_penalty_details("<?php echo $row->booking_id; ?>","<?php echo $row->current_status; ?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
                         </td>
                     </tr>
                     <?php $count++; $offset++;
@@ -727,13 +731,21 @@
     }
     
     function get_penalty_details(booking_id,status){
+
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/vendor/get_penalty_details_data/' + booking_id+"/"+status,
             success: function (data) {
-             $("#open_model").html(data);   
-             $('#penaltycancelmodal').modal('toggle');
-
+                if(data === 'penalty not found'){
+                    var html = "<div class='text-center text-danger'><strong>"+data+"</strong></div>"
+                    $("#open_model").html(html);   
+                    $('#penaltycancelmodal').modal('toggle');
+                    $('#remove_penalty').hide();
+                }else{
+                    $("#open_model").html(data);   
+                    $('#penaltycancelmodal').modal('toggle');
+                    $('#remove_penalty').show();
+                }
             }
           });
     }
