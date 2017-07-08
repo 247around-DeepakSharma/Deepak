@@ -28,16 +28,6 @@
     .headname{
         font-size:15px;
     }
-    
-    [ng-cloak].splash {
-    display: block !important;
-    }
-        .splash {
-        display: none;
-    }
-    .splash {
-        background-color: #428bca;
-    }
 
 </style>
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
@@ -59,8 +49,8 @@
                     <div class="x_panel" style="min-height:500px;">
                         <div class="x_content">
                             <div class="splash" ng-cloak="">
-                                <p>Loading</p>
-                            </div>
+                <p>Loading</p>
+              </div>
                             <div class="formcontainer" ng-controller="userController">
                                 <div class=" text-center alert alert-danger none"><p></p></div>
                                 <div class="text-center alert alert-success none"><p></p></div>
