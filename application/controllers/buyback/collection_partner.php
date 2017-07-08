@@ -136,5 +136,66 @@ class Collection_partner extends CI_Controller {
              echo "<option selected value='$dis' >$dis</option>";
         }
     }
+    
+    function add_cp_shop_address(){
+       
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/add_cp_shop_address');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    function process_add_cp_shop_address(){
+        
+        if(!empty($this->input->post('data'))){
+                $userData = array(
+                    'cp_id' => $this->input->post('data')['cp_id']['id'],
+                    'partner_id' => '247024',
+                    'shop_address_line1' => $this->input->post('data')['shop_address_line1'],
+                    'shop_address_line2' => isset($this->input->post('data')['shop_address_line2'])?$this->input->post('data')['shop_address_line2']:'',
+                    'shop_address_city' => $this->input->post('data')['shop_address_city'],
+                    'shop_address_pincode' => $this->input->post('data')['shop_address_pincode'],
+                    'shop_address_state' => $this->input->post('data')['shop_address_state'],
+                    'contact_person' => $this->input->post('data')['name'],
+                    'primary_contact_number' => $this->input->post('data')['phone_number'],
+                    'contact_email' => $this->input->post('data')['email'],
+                    'alternate_conatct_number' => isset($this->input->post('data')['alt_phone_number_1'])?$this->input->post('data')['alt_phone_number_1']:'',
+                    'alternate_conatct_number2' => isset($this->input->post('data')['alt_phone_number_2'])?$this->input->post('data')['alt_phone_number_2']:'',
+                    'active' => '1',
+                    'tin_number' => $this->input->post('data')['tin_number'],
+                    'create_date' => date('Y-m-d H-i-s'),
+                );
+                $insert_id = $this->cp_model->insert_cp_shop_address($userData);
+                if($insert_id){
+                    $log = array(
+                        "entity" => "cp",
+                        "entity_id" => $userData['cp_id'],
+                        "agent_id" => $this->session->userdata('id'),
+                        "action" =>  NEW_SHOP_ADDRESS_ADDED,
+                        "remarks" =>  NEW_SHOP_ADDRESS_ADDED
+                        );
+                    $log_insert_id = $this->vendor_model->insert_log_action_on_entity($log);
+                    if($log_insert_id){
+                        $data['status'] = 'OK';
+                        $data['msg'] = 'Shop Address details has been added successfully.';
+                    }else{
+                        $data['status'] = 'ERR';
+                        $data['msg'] = 'Some problem occurred, please try again.';
+                    }
+                    
+                }else{
+                    $data['status'] = 'ERR';
+                    $data['msg'] = 'Some problem occurred, please try again.';
+                }
+            }else{
+                $data['status'] = 'ERR';
+                $data['msg'] = 'Invalid Request';
+            }
+            echo json_encode($data);
+    }
+    
+    function get_active_cp_sf(){
+         $data = $this->vendor_model->getActiveVendor('','1','0','1');
+         echo json_encode($data);
+    }
 
 }
