@@ -103,8 +103,7 @@ class accounting_model extends CI_Model {
                     FROM  vendor_partner_invoices AS V
                     JOIN partners AS P on V.vendor_partner_id=P.id AND V.vendor_partner = 'partner'
                     JOIN tax_rates as tr  on tax_code='VAT' AND product_type='wall_bracket' AND P.state=tr.state
-                    WHERE V.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)
-                    AND V.type_code = 'A'
+                    WHERE V.type_code = 'A'
                     AND V.`invoice_date`>='$from_date'  AND V.`invoice_date` <'$to_date'";
         } else if ($partner_vendor == 'vendor') {
             $sql = "Select V.invoice_id AS 'InvoiceNo',SC.company_name as 'CompanyName',state as 'State',
@@ -113,18 +112,16 @@ class accounting_model extends CI_Model {
                     total_amount_collected AS 'TotalAmountCollected'
                     FROM  vendor_partner_invoices AS V
                     JOIN service_centres AS SC on V.vendor_partner_id=SC.id
-                    WHERE V.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)
-                    AND V.vendor_partner =  'vendor' AND V.invoice_date >= '$from_date' AND V.invoice_date <= '$to_date'
+                    WHERE V.vendor_partner =  'vendor' AND V.invoice_date >= '$from_date' AND V.invoice_date <= '$to_date'
                     AND type_code = 'A' AND type !=  'Stand' ";
         } else if ($partner_vendor == 'stand') {
-            $sql = "SELECT `invoice_id` as 'InvoiceNo', name as 'CompanyName', sc.state as State, IFNULL(tin_no,'') as 'TINNo', 
-                    invoice_date as 'InvoiceDate', vpi.`from_date` as 'FromDate', vpi.`to_date` as 'ToDate', 
-                    `parts_cost` as Parts, `vat` as VAT, `total_amount_collected` as 'TotalAmount',
-                    '5%' as 'VATRate', 'Iron Stands' AS 'Item'
-                    FROM `vendor_partner_invoices` as vpi, service_centres as sc
-                    WHERE `vendor_partner_id`=sc.id
-                    AND type_code = 'A' AND type =  'Stand'
-                    AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'";
+            $sql = "SELECT `invoice_id` AS 'InvoiceNo', company_name AS 'CompanyName', P.state AS State, IFNULL( P.service_tax_no, '' ) AS 'ServiceTaxNo', 
+                    IFNULL(tin_no, '' ) AS 'TINNo', invoice_date AS 'InvoiceDate', `parts_cost` AS Parts, `vat` AS VAT, 
+                    (ABS( `amount_collected_paid` ) + tds_amount) AS 'TotalAmount', 
+                    IFNULL( `rate` , 0 ) AS 'VATRate'
+                    FROM `vendor_partner_invoices` AS vpi, service_centres AS P, tax_rates AS tr
+                    WHERE `type_code` = 'B' AND vpi.type = 'Stand' AND vpi.`invoice_date` >= '$from_date' AND vpi.`invoice_date` < '$to_date'
+                    AND `vendor_partner_id` = P.id AND tax_code = 'VAT' AND product_type = 'wall_bracket' AND P.state = tr.state";
         }
 
         $query = $this->db->query($sql);
