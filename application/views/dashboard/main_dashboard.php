@@ -1357,11 +1357,13 @@
 
     }
 
-    $('#preview').html(chart.getCSV());
-    $.each(['line', 'column', 'spline', 'area', 'areaspline', 'scatter', 'pie'], function (i, type) {
-        $('#' + type).click(function () {
-            chart.series[0].update({
-                type: type
+    $(document).load(function(){
+        $('#preview').html(chart.getCSV());
+        $.each(['line', 'column', 'spline', 'area', 'areaspline', 'scatter', 'pie'], function (i, type) {
+            $('#' + type).click(function () {
+                chart.series[0].update({
+                    type: type
+                });
             });
         });
     });

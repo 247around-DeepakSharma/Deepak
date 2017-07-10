@@ -2009,23 +2009,28 @@ class Invoice extends CI_Controller {
             log_message('info', __FUNCTION__ . " Entering......... Invoice Id " . $invoice[0]['invoice_number']);
             $invoice[0]['invoice_date'] = date("jS M, Y");
             $invoice[0]['tax_rate'] = 5.00;
-            $invoice[0]['19_24_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_19_24_UNIT_PRICE, $invoice[0]['tax_rate']);
+            //$invoice[0]['19_24_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_19_24_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['26_32_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_26_32_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['36_42_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_36_42_UNIT_PRICE, $invoice[0]['tax_rate']);
-            $invoice[0]['43_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_43_UNIT_PRICE, $invoice[0]['tax_rate']);
-            $invoice[0]['19_24_unit_price'] = _247AROUND_BRACKETS_19_24_UNIT_PRICE - $invoice[0]['19_24_tax_total'];
-            $invoice[0]['26_32_unit_price'] = _247AROUND_BRACKETS_26_32_UNIT_PRICE - $invoice[0]['26_32_tax_total'];
-            $invoice[0]['36_42_unit_price'] = _247AROUND_BRACKETS_36_42_UNIT_PRICE - $invoice[0]['36_42_tax_total'];
-            $invoice[0]['43_unit_price'] = _247AROUND_BRACKETS_43_UNIT_PRICE - $invoice[0]['43_tax_total'];
+            //$invoice[0]['43_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_43_UNIT_PRICE, $invoice[0]['tax_rate']);
+            //$invoice[0]['19_24_unit_price'] = _247AROUND_BRACKETS_19_24_UNIT_PRICE - $invoice[0]['19_24_tax_total'];
+            $invoice[0]['26_32_unit_price'] = round((_247AROUND_BRACKETS_26_32_UNIT_PRICE - $invoice[0]['26_32_tax_total']),0);
+            $invoice[0]['36_42_unit_price'] = round((_247AROUND_BRACKETS_36_42_UNIT_PRICE - $invoice[0]['36_42_tax_total']),0);
+            //$invoice[0]['43_unit_price'] = _247AROUND_BRACKETS_43_UNIT_PRICE - $invoice[0]['43_tax_total'];
 
-            $invoice[0]['total_brackets'] = $invoice[0]['_19_24_total'] + $invoice[0]['_26_32_total'] + $invoice[0]['_36_42_total'] + $invoice[0]['_43_total'];
-            $invoice[0]['t_19_24_unit_price'] = $invoice[0]['_19_24_total'] * $invoice[0]['19_24_unit_price'];
-            $invoice[0]['t_26_32_unit_price'] = $invoice[0]['_26_32_total'] * $invoice[0]['26_32_unit_price'];
-            $invoice[0]['t_36_42_unit_price'] = $invoice[0]['_36_42_total'] * $invoice[0]['36_42_unit_price'];
-            $invoice[0]['t_43_unit_price'] = $invoice[0]['_43_total'] * $invoice[0]['43_unit_price'];
-            $invoice[0]['total_part_cost'] = ($invoice[0]['t_19_24_unit_price'] + $invoice[0]['t_26_32_unit_price'] + $invoice[0]['t_36_42_unit_price'] + $invoice[0]['t_43_unit_price']);
-            $invoice[0]['part_cost_vat'] = round($invoice[0]['total_part_cost'] * $invoice[0]['tax_rate'] / 100, 2);
-            $invoice[0]['sub_total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost']), 2);
+//            $invoice[0]['total_brackets'] = $invoice[0]['_19_24_total'] + $invoice[0]['_26_32_total'] + $invoice[0]['_36_42_total'] + $invoice[0]['_43_total'];
+            $invoice[0]['total_brackets'] = $invoice[0]['_26_32_total'] + $invoice[0]['_36_42_total'];
+            
+            //$invoice[0]['t_19_24_unit_price'] = $invoice[0]['_19_24_total'] * $invoice[0]['19_24_unit_price'];
+            $invoice[0]['t_26_32_unit_price'] = round(($invoice[0]['_26_32_total'] * $invoice[0]['26_32_unit_price']),0);
+            $invoice[0]['t_36_42_unit_price'] = round(($invoice[0]['_36_42_total'] * $invoice[0]['36_42_unit_price']),0);
+            //$invoice[0]['t_43_unit_price'] = $invoice[0]['_43_total'] * $invoice[0]['43_unit_price'];
+            //$invoice[0]['total_part_cost'] = ($invoice[0]['t_19_24_unit_price'] + $invoice[0]['t_26_32_unit_price'] + $invoice[0]['t_36_42_unit_price'] + $invoice[0]['t_43_unit_price']);
+            
+            $invoice[0]['total_part_cost'] = round(($invoice[0]['t_26_32_unit_price'] + $invoice[0]['t_36_42_unit_price']),0);
+            
+            $invoice[0]['part_cost_vat'] = round($invoice[0]['total_part_cost'] * $invoice[0]['tax_rate'] / 100, 0);
+            $invoice[0]['sub_total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost']), 0);
             $invoice[0]['total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost']), 0);
             $invoice[0]['price_inword'] = convert_number_to_words($invoice[0]['total']);
 
@@ -2149,7 +2154,7 @@ class Invoice extends CI_Controller {
         //$output_pdf_file_name = $output_file.".pdf";
         $output_file_excel = $output_file_dir . $output_file_name;
         //$output_file_pdf = $output_file_dir . $output_pdf_file_name;
-        $template = 'Bracket_Invoice.xlsx';
+        $template = 'Bracket_Invoice_new.xlsx';
         //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../excel-templates/";
         //set config for report
@@ -3539,25 +3544,25 @@ class Invoice extends CI_Controller {
             $order_id_data = $this->inventory_model->get_new_credit_note_brackets_data($order_id);
 
             $result = array();
-            $_19_24_shipped_brackets_data = array();
+            //$_19_24_shipped_brackets_data = array();
             $_26_32_shipped_brackets_data = array();
             $_36_42_shipped_brackets_data = array();
-            $_43_shipped_brackets_data = array();
+            //$_43_shipped_brackets_data = array();
             $courier_charges_data = array();
 
             //prepare data to make credit note file
-            if (!empty($order_id_data[0]['19_24_shipped'])) {
-                $_19_24_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (19-24 Inch)';
-                $_19_24_shipped_brackets_data[0]['p_tax_rate'] = '';
-                $_19_24_shipped_brackets_data[0]['qty'] = $order_id_data[0]['19_24_shipped'];
-                $_19_24_shipped_brackets_data[0]['p_rate'] = '';
-                $_19_24_shipped_brackets_data[0]['p_part_cost'] = '';
-                $_19_24_shipped_brackets_data[0]['s_service_charge'] = '';
-                $_19_24_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['19_24_shipped'] * _247AROUND_BRACKETS_19_24_UNIT_PRICE;
-                $_19_24_shipped_brackets_data[0]['s_total_service_charge'] = '';
-
-                $result = array_merge($result, $_19_24_shipped_brackets_data);
-            }
+//            if (!empty($order_id_data[0]['19_24_shipped'])) {
+//                $_19_24_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (19-24 Inch)';
+//                $_19_24_shipped_brackets_data[0]['p_tax_rate'] = '';
+//                $_19_24_shipped_brackets_data[0]['qty'] = $order_id_data[0]['19_24_shipped'];
+//                $_19_24_shipped_brackets_data[0]['p_rate'] = '';
+//                $_19_24_shipped_brackets_data[0]['p_part_cost'] = '';
+//                $_19_24_shipped_brackets_data[0]['s_service_charge'] = '';
+//                $_19_24_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['19_24_shipped'] * _247AROUND_BRACKETS_19_24_UNIT_PRICE;
+//                $_19_24_shipped_brackets_data[0]['s_total_service_charge'] = '';
+//
+//                $result = array_merge($result, $_19_24_shipped_brackets_data);
+//            }
 
             if (!empty($order_id_data[0]['26_32_shipped'])) {
                 $_26_32_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (26-32 Inch)';
@@ -3566,7 +3571,7 @@ class Invoice extends CI_Controller {
                 $_26_32_shipped_brackets_data[0]['p_rate'] = '';
                 $_26_32_shipped_brackets_data[0]['p_part_cost'] = '';
                 $_26_32_shipped_brackets_data[0]['s_service_charge'] = '';
-                $_26_32_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['26_32_shipped'] * _247AROUND_BRACKETS_26_32_UNIT_PRICE;
+                $_26_32_shipped_brackets_data[0]['misc_price'] = round(($order_id_data[0]['26_32_shipped'] * _247AROUND_BRACKETS_26_32_UNIT_PRICE),0);
                 $_26_32_shipped_brackets_data[0]['s_total_service_charge'] = '';
 
                 $result = array_merge($result, $_26_32_shipped_brackets_data);
@@ -3579,24 +3584,24 @@ class Invoice extends CI_Controller {
                 $_36_42_shipped_brackets_data[0]['p_rate'] = '';
                 $_36_42_shipped_brackets_data[0]['p_part_cost'] = '';
                 $_36_42_shipped_brackets_data[0]['s_service_charge'] = '';
-                $_36_42_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['36_42_shipped'] * _247AROUND_BRACKETS_36_42_UNIT_PRICE;
+                $_36_42_shipped_brackets_data[0]['misc_price'] = round(($order_id_data[0]['36_42_shipped'] * _247AROUND_BRACKETS_36_42_UNIT_PRICE),0);
                 $_36_42_shipped_brackets_data[0]['s_total_service_charge'] = '';
 
                 $result = array_merge($result, $_36_42_shipped_brackets_data);
             }
 
-            if (!empty($order_id_data[0]['43_shipped'])) {
-                $_43_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (Greater Than 43 Inch)';
-                $_43_shipped_brackets_data[0]['p_tax_rate'] = '';
-                $_43_shipped_brackets_data[0]['qty'] = $order_id_data[0]['43_shipped'];
-                $_43_shipped_brackets_data[0]['p_rate'] = '';
-                $_43_shipped_brackets_data[0]['p_part_cost'] = '';
-                $_43_shipped_brackets_data[0]['s_service_charge'] = '';
-                $_43_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['43_shipped'] * _247AROUND_BRACKETS_43_UNIT_PRICE;
-                $_43_shipped_brackets_data[0]['s_total_service_charge'] = '';
-
-                $result = array_merge($result, $_43_shipped_brackets_data);
-            }
+//            if (!empty($order_id_data[0]['43_shipped'])) {
+//                $_43_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (Greater Than 43 Inch)';
+//                $_43_shipped_brackets_data[0]['p_tax_rate'] = '';
+//                $_43_shipped_brackets_data[0]['qty'] = $order_id_data[0]['43_shipped'];
+//                $_43_shipped_brackets_data[0]['p_rate'] = '';
+//                $_43_shipped_brackets_data[0]['p_part_cost'] = '';
+//                $_43_shipped_brackets_data[0]['s_service_charge'] = '';
+//                $_43_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['43_shipped'] * _247AROUND_BRACKETS_43_UNIT_PRICE;
+//                $_43_shipped_brackets_data[0]['s_total_service_charge'] = '';
+//
+//                $result = array_merge($result, $_43_shipped_brackets_data);
+//            }
             
             //if there is no data for brackets then did not process the credit note and redirect to form
             if (!empty($result)) {
@@ -3606,20 +3611,20 @@ class Invoice extends CI_Controller {
                 $courier_charges_data[0]['p_rate'] = '';
                 $courier_charges_data[0]['p_part_cost'] = '';
                 $courier_charges_data[0]['s_service_charge'] = '';
-                $courier_charges_data[0]['misc_price'] = $courier_charges;
+                $courier_charges_data[0]['misc_price'] = round($courier_charges,0);
                 $courier_charges_data[0]['s_total_service_charge'] = '';
 
                 $result = array_merge($result, $courier_charges_data);
 
 
-                $total_brackets = $order_id_data[0]['19_24_shipped'] + $order_id_data[0]['26_32_shipped'] + $order_id_data[0]['36_42_shipped'] + $order_id_data[0]['43_shipped'];
-
-                $t_19_24_shipped_price = $order_id_data[0]['19_24_shipped'] * _247AROUND_BRACKETS_19_24_UNIT_PRICE;
+                //$total_brackets = $order_id_data[0]['19_24_shipped'] + $order_id_data[0]['26_32_shipped'] + $order_id_data[0]['36_42_shipped'] + $order_id_data[0]['43_shipped'];
+                $total_brackets = $order_id_data[0]['26_32_shipped'] + $order_id_data[0]['36_42_shipped'];
+                //$t_19_24_shipped_price = $order_id_data[0]['19_24_shipped'] * _247AROUND_BRACKETS_19_24_UNIT_PRICE;
                 $t_26_32_shipped_price = $order_id_data[0]['26_32_shipped'] * _247AROUND_BRACKETS_26_32_UNIT_PRICE;
                 $t_36_42_shipped_price = $order_id_data[0]['36_42_shipped'] * _247AROUND_BRACKETS_36_42_UNIT_PRICE;
-                $t_43_shipped_price = $order_id_data[0]['43_shipped'] * _247AROUND_BRACKETS_43_UNIT_PRICE;
-                $total_brackets_price = $t_19_24_shipped_price + $t_26_32_shipped_price + $t_36_42_shipped_price + $t_43_shipped_price;
-
+                //$t_43_shipped_price = $order_id_data[0]['43_shipped'] * _247AROUND_BRACKETS_43_UNIT_PRICE;
+                //$total_brackets_price = $t_19_24_shipped_price + $t_26_32_shipped_price + $t_36_42_shipped_price + $t_43_shipped_price;
+                $total_brackets_price = round(($t_26_32_shipped_price + $t_36_42_shipped_price),0);
                 $invoices = $this->create_invoice_id_to_insert($order_id_data, $order_id_data[0]['shipment_date'], $order_id_data[0]['sc_code']);
                 
                 $meta['invoice_type'] = $invoices['invoice_type'];
@@ -3627,7 +3632,7 @@ class Invoice extends CI_Controller {
                 
                 log_message('info', __METHOD__ . ": Invoice Id : ".$meta['invoice_id']." geneterated for order Id: ". $order_id);
 
-                $total_charges = round($total_brackets_price + $courier_charges);
+                $total_charges = round(($total_brackets_price + $courier_charges),0);
 
                 $meta['total_service_cost_14'] = '';
                 $meta['total_service_cost_5'] = '';

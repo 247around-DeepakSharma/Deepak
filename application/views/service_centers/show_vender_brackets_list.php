@@ -55,7 +55,7 @@
         <div class="table-div">
              <?php
                     if ($this->session->userdata('brackets_update_success')) {
-                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:30px;">
+                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:60px;">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -65,7 +65,7 @@
                     ?>
              <?php
                     if ($this->session->userdata('brackets_cancelled_error')) {
-                        echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:30px;">
+                        echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:60px;">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -79,9 +79,9 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td colspan="5" class="jumbotron" style="text-align: center;"><b>Requested Brackets</b></td>
-                        <td colspan="5" class="jumbotron" style="text-align: center;"><b>Shipped Brackets</b></td>
-                        <td colspan="5" class="jumbotron" style="text-align: center;"><b>Received Brackets</b></td>
+                        <td colspan="3" class="jumbotron" style="text-align: center;"><b>Requested Brackets</b></td>
+                        <td colspan="3" class="jumbotron" style="text-align: center;"><b>Shipped Brackets</b></td>
+                        <td colspan="3" class="jumbotron" style="text-align: center;"><b>Received Brackets</b></td>
                         <td></td>
                         <td colspan="2"></td>
                     </tr>
@@ -89,22 +89,22 @@
                         <th class="jumbotron">S.N.</th>
                         <th class="jumbotron" >Order ID</th>
                         <th class="jumbotron" style="width:20%">Received From</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">19-24"</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">26-32"</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">36-42"</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">&gt;43"</th>
-                        <th class="jumbotron" style="padding:1px;">Total</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">19-24"</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">26-32"</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">36-42"</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">&gt;43"</th>
-                        <th class="jumbotron" style="padding:1px;">Total</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">19-24"</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">26-32"</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">36-42"</th>
-                        <th class="jumbotron" style="padding:1px;width:4%">&gt;43"</th>
-                        <th class="jumbotron" style="padding:1px;">Total</th>
-                        <th class="jumbotron" style="padding:1px;text-align: center">Date</th>
+<!--                        <th class="jumbotron" style="padding:1px;width:4%">19-24"</th>-->
+                        <th class="jumbotron" >Less Than 32 Inch</th>
+                        <th class="jumbotron" >Greater Than 32 Inch</th>
+<!--                        <th class="jumbotron" style="padding:1px;width:4%">&gt;43"</th>-->
+                        <th class="jumbotron">Total</th>
+<!--                        <th class="jumbotron" style="padding:1px;width:4%">19-24"</th>-->
+                        <th class="jumbotron" >Less Than 32 Inch</th>
+                        <th class="jumbotron" >Greater Than 32 Inch</th>
+<!--                        <th class="jumbotron" style="padding:1px;width:4%">&gt;43"</th>-->
+                        <th class="jumbotron" >Total</th>
+<!--                        <th class="jumbotron" style="padding:1px;width:4%">19-24"</th>-->
+                        <th class="jumbotron" >Less Than 32 Inch</th>
+                        <th class="jumbotron" >Greater Than 32 Inch</th>
+<!--                        <th class="jumbotron" style="padding:1px;width:4%">&gt;43"</th>-->
+                        <th class="jumbotron">Total</th>
+                        <th class="jumbotron" >Date</th>
                         <!--<th class="jumbotron" style="width:20%">Given To</th>-->
                         <th style="text-align: center" colspan="2" class="jumbotron">Action</th>
                     </tr>
@@ -140,20 +140,20 @@
                                 <?php echo $order_received_from[$key]['owner_name'].'<br>'?>
                                 <?php echo $order_received_from[$key]['name']?>
                             </td>
-                            <td style="text-align: center;"><?php echo $value['19_24_requested']?></td>
-                            <td style="text-align: center;"><?php echo $value['26_32_requested']?></td>
-                            <td style="text-align: center;"><?php echo $value['36_42_requested']?></td>
-                            <td style="text-align: center;"><?php echo $value['43_requested']?></td>
+<!--                            <td style="text-align: center;"><?php //echo $value['19_24_requested']?></td>-->
+                            <td style="text-align: center;"><?php echo ($value['19_24_requested']+$value['26_32_requested']);?></td>
+                            <td style="text-align: center;"><?php echo ($value['36_42_requested']+$value['43_requested']);?></td>
+<!--                            <td style="text-align: center;"><?phecho $value['43_requested']?></td>-->
                             <td style="text-align: center;"><strong style="font-weight: 900;"><?php echo $value['total_requested']?></strong></td>
-                            <td style="text-align: center;"><?php echo $value['19_24_shipped']?></td>
-                            <td style="text-align: center;"><?php echo $value['26_32_shipped']?></td>
-                            <td style="text-align: center;"><?php echo $value['36_42_shipped']?></td>
-                            <td style="text-align: center;"><?php echo $value['43_shipped']?></td>
+<!--                            <td style="text-align: center;"><?php //echo $value['19_24_shipped']?></td>-->
+                            <td style="text-align: center;"><?php echo ($value['19_24_shipped']+$value['26_32_shipped']);?></td>
+                            <td style="text-align: center;"><?php echo ($value['36_42_shipped']+$value['43_shipped']);?></td>
+<!--                            <td style="text-align: center;"><?php// echo $value['43_shipped']?></td>-->
                             <td style="text-align: center;"><strong style="font-weight: 900;"><?php echo $value['total_shipped']?></strong></td>
-                            <td style="text-align: center;"><?php echo $value['19_24_received']?></td>
-                            <td style="text-align: center;"><?php echo $value['26_32_received']?></td>
-                            <td style="text-align: center;"><?php echo $value['36_42_received']?></td>
-                            <td style="text-align: center;"><?php echo $value['43_received']?></td>
+<!--                            <td style="text-align: center;"><?php //echo $value['19_24_received']?></td>-->
+                            <td style="text-align: center;"><?php echo ($value['19_24_received']+$value['26_32_received']);?></td>
+                            <td style="text-align: center;"><?php echo ($value['36_42_received']+$value['43_received']); ?></td>
+<!--                            <td style="text-align: center;"><?php //echo $value['43_received']?></td>-->
                             <td style="text-align: center;"><strong style="font-weight: 900;"><?php echo $value['total_received']?></strong></td>
                             <td style="text-align: center;"><?php 
                                     $old_date = $date;
