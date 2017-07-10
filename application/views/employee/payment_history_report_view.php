@@ -178,7 +178,7 @@
 
         var a = document.createElement('a');
         a.href = data_type + ', ' + table_html;
-        a.download = filename + '.xlsx';
+        a.download = filename + '.xls';
         a.click();
     });
 

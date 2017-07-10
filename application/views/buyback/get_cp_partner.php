@@ -15,12 +15,13 @@
                             <i class="fa fa-bars"></i> CP Shop Address <!--<small>Float left</small>-->
                         </h2>
                         <ul class="nav navbar-right panel_toolbox">
-                            <li class="btn btn-sm btn-primary">Add Shop Address
-                            </li>
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+<!--                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                             </li>
                             <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
+                            </li>-->
+                            <a  href="<?php echo base_url();?>buyback/collection_partner/add_cp_shop_address"><li class="btn btn-sm btn-primary">Add Shop Address
+                            </li></a>
+                            
                         </ul>
                         <div class="clearfix"></div>
                     </div>

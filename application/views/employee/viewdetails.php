@@ -170,26 +170,6 @@
                             <th>Cancellation Reason: </th>
                             <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                         </tr>
-                        <tr>
-                            <th>Closing Remarks: </th>
-                            <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Reschedule Reason: </th>
-                            <td><?php echo $booking_history[0]['reschedule_reason']; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Cancellation Reason: </th>
-                            <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Reschedule Reason: </th>
-                            <td><?php echo $booking_history[0]['reschedule_reason']; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Cancellation Reason: </th>
-                            <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
-                        </tr>
                         
                     </table>
                 </div>

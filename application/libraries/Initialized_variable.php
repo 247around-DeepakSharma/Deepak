@@ -6,6 +6,7 @@ class Initialized_variable {
     Private $t_delivered = -1;
     Private $t_inserted = -1;
     Private $t_updated = -1;
+    Private $t_not_assigned = -1;
 
     public function __construct() {
 	$this->My_CI = & get_instance();
@@ -22,7 +23,7 @@ class Initialized_variable {
         $select = "partners.id, bookings_sources.partner_id,bookings_sources.partner_type, bookings_sources.source, bookings_sources.code, "
                                 . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
                                 . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
-                                . " upcountry_rate1, upcountry_rate, partners.is_upcountry, public_name";
+                                . " upcountry_rate1, upcountry_rate, partners.is_upcountry, public_name, partners.auth_token";
         $this->PartnerData = $this->My_CI->partner_model->getpartner_details($select, $where_get_partner);
     }
     /**
@@ -66,5 +67,9 @@ class Initialized_variable {
      */
     function total_updated(){
         return $this->t_updated++;
+    }
+    
+    function not_assigned_order(){
+        return $this->t_not_assigned++;
     }
 }

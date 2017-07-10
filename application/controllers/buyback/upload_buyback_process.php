@@ -3,12 +3,12 @@
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
-
+require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php';
 use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
 
 ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
-require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php';
+
 class Upload_buyback_process extends CI_Controller {
 
     /**
@@ -46,7 +46,9 @@ class Upload_buyback_process extends CI_Controller {
     }
     
     function process_upload_order() {
+       
         if (!empty($_FILES['file']['name'])) {
+             
             $pathinfo = pathinfo($_FILES["file"]["name"]);
             if (($pathinfo['extension'] == 'xlsx' || $pathinfo['extension'] == 'xls') && $_FILES['file']['size'] > 0) {
                 $inputFileName = $_FILES['file']['tmp_name'];
@@ -92,6 +94,7 @@ class Upload_buyback_process extends CI_Controller {
                         if (isset($rowData1['usediteminfo'])) {
                             //Change index in lower case
                             $this->initialized_variable->set_post_buyback_order_details(array());
+                          
                             $rowData1['partner_id'] = 247024;
                             $rowData1['partner_name'] = "Amazon";
                             $rowData1['partner_charge'] = $rowData1['discount_value'];
@@ -99,7 +102,7 @@ class Upload_buyback_process extends CI_Controller {
                             $rowData1['order_date'] = $dateObj1->format('Y-m-d');
                             $rowData1['order_key'] = $rowData1['usediteminfo'];
                             $rowData1['current_status'] = $rowData1['orderstatus'];
-                            $rowData1['partner_sweetner_charges'] = $rowData1['sweetnervalue'];
+                            $rowData1['partner_sweetner_charges'] = $rowData1['sweetenervalue'];
                             $rowData1['partner_order_id'] = $rowData1['order_id'];
                             $rowData1['partner_basic_charge'] = $rowData1['discount_value'];
                             $rowData1['delivery_date'] = "";
@@ -144,10 +147,11 @@ class Upload_buyback_process extends CI_Controller {
                     
 
                     $subject = "Buyback Order is uploaded by ".$this->session->userdata('employee_id');
-                    $message  .= "Total lead ".$total_lead."<br/>";
-                    $message .= "Total Delivered(Inserted/Updated) ".($this->initialized_variable->delivered_count() -1)."<br/>";
-                    $message .= "Total Inserted".($this->initialized_variable->total_inserted() -1)."<br/>";
-                    $message .= "Total Updated".($this->initialized_variable->total_updated() -1)."<br/>";
+                    $message  .= "Total lead  ----".$total_lead."<br/><br/>";
+                    $message .= "Total Delivered ----".($this->initialized_variable->delivered_count())."<br/><br/>";
+                    $message .= "Total Inserted ----".($this->initialized_variable->total_inserted())."<br/><br/>";
+                    $message .= "Total Updated ----".($this->initialized_variable->total_updated())."<br/><br/>";
+                    $message .= "Total Not Assigned ----".($this->initialized_variable->not_assigned_order())."<br/><br/>";
                     $message .= "Please check below Order, these are neither inserted and nor uddated <br/><br/><br/>";
                     $message .= $this->table->generate();
 

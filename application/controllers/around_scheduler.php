@@ -3,6 +3,7 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
+ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
 //error_reporting(E_ERROR);
 //ini_set('display_errors', '-1');
 
