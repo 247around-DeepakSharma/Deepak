@@ -73,7 +73,7 @@ class Buyback {
             if ($is_unit) {
                 if(!empty($cp_id)){
                     $this->My_CI->cp_model->insert_bb_cp_order_action(array(
-                        "partner_order_id" => $this->POST_DATA['partner_id'],
+                        "partner_order_id" => $this->POST_DATA['partner_order_id'],
                         "cp_id" => $cp_id,
                         "create_date" => date('Y-m-d H:i:s'),
                         "current_status" => 'Pending',
