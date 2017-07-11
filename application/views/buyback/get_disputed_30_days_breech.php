@@ -7,14 +7,14 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_title">
                         <h2>
-                            <i class="fa fa-bars"></i> 30 Days Tat Breech <!--<small>Float left</small>-->
+                            <i class="fa fa-bars"></i> 30 Days TAT Breach <!--<small>Float left</small>-->
                         </h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
                         <div class="" role="tabpanel" data-example-id="togglable-tabs">
                             <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-                                <li role="presentation" class="active"><a href="#tab_content1" role="tab" id="auto-settle-tab" data-toggle="tab" aria-expanded="false">30 Days Tat Breech( <span style="font-weight: bold;" id="tat_record">0</span> )</a>
+                                <li role="presentation" class="active"><a href="#tab_content1" role="tab" id="auto-settle-tab" data-toggle="tab" aria-expanded="false">30 Days TAT Breach ( <span style="font-weight: bold;" id="tat_record">0</span> )</a>
                                 </li>
                                 <li role="presentation" class=""><a href="#tab_content2" id="claim_submitted" role="tab" data-toggle="tab" aria-expanded="true">Claim Submitted ( <span style="font-weight: bold;" id="claimed_record">0</span> )</a>
                                 </li>

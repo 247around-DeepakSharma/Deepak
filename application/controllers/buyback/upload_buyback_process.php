@@ -156,12 +156,12 @@ class Upload_buyback_process extends CI_Controller {
 
 
                         $subject = "Buyback Order is uploaded by " . $this->session->userdata('employee_id');
-                        $message .= "Total lead  ----" . $total_lead . "<br/><br/>";
+                        $message .= "Total Orders ----" . $total_lead . "<br/><br/>";
                         $message .= "Total Delivered ----" . ($this->initialized_variable->delivered_count()) . "<br/><br/>";
                         $message .= "Total Inserted ----" . ($this->initialized_variable->total_inserted()) . "<br/><br/>";
                         $message .= "Total Updated ----" . ($this->initialized_variable->total_updated()) . "<br/><br/>";
                         $message .= "Total Not Assigned ----" . ($this->initialized_variable->not_assigned_order()) . "<br/><br/>";
-                        $message .= "Please check below Order, these are neither inserted and nor uddated <br/><br/><br/>";
+                        $message .= "Please check below orders, these were neither inserted nor updated: <br/><br/><br/>";
                         $message .= $this->table->generate();
 
                         $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
@@ -188,52 +188,52 @@ class Upload_buyback_process extends CI_Controller {
         $error = false;
         
         if (!array_key_exists('usediteminfo', $rowData1)) {
-            $message .= " Used Item Info Column is not exit.<br/><br/>";
+            $message .= " Used Item Info Column does not exist.<br/><br/>";
             $this->Columfailed .= " Used Item Info, ";
             $error = true;
         }
 
         if (!array_key_exists('sweetenervalue', $rowData1)) {
-            $message .= " Sweetener Value Column is not exit. <br/><br/>";
+            $message .= " Sweetener Value Column does not exist. <br/><br/>";
             $this->Columfailed .= " Sweetener Value, ";
             $error = true;
         }
         
         if (!array_key_exists('order_id', $rowData1)) {
       
-            $message .= " Order ID Column is not exit. <br/><br/>";
+            $message .= " Order ID Column does not exist. <br/><br/>";
             $this->Columfailed .= "Order ID Column, ";
             $error = true;
         }
          
         if (!array_key_exists('discount_value', $rowData1)) {
        
-            $message .= " Discount Value Column is not exit. <br/><br/>";
+            $message .= " Discount Value Column does not exist. <br/><br/>";
             $this->Columfailed .= " Discount Value Column, ";
             $error = true;
         }
         if (!array_key_exists('order_day', $rowData1)) {
 
-            $message .= " Order day Column is not exit. <br/><br/>";
+            $message .= " Order day Column does not exist. <br/><br/>";
             $this->Columfailed .= " Order Day Column, ";
             $error = true;
         }
         if (!array_key_exists('city', $rowData1)) {
       
-            $message .= " City Column is not exit. <br/><br/>";
+            $message .= " City Column does not exist. <br/><br/>";
             $this->Columfailed .= "City Column, ";
             $error = true;
         }
         if (!array_key_exists('orderstatus', $rowData1)) {
       
-            $message .= " Order Status is not exit. <br/><br/>";
+            $message .= " Order Status does not exist. <br/><br/>";
             $this->Columfailed .= "Order Status ";
             $error = true;
         }
          
         if ($error) {
             $message .= " Please check and upload again.";
-            $this->Columfailed .= " column is not exist";
+            $this->Columfailed .= " column does not exist.";
             $to = NITS_ANUJ_EMAIL_ID . "," . ADIL_EMAIL_ID;
             $cc = "abhaya@247around.com";
             $subject = "Failure! Buyback Order is uploaded by " . $this->session->userdata('employee_id');

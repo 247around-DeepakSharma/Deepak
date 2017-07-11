@@ -76,7 +76,7 @@
                                         <a>Disputed Order <span class="fa fa-chevron-down"></span></a>
                                         <ul class="nav child_menu">
                                             <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_auto_settel">Auto-Settle</a></li>
-                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_30_days_breech">30 Days Tat Breeche</a></li>
+                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_30_days_breech">30 Days TAT Breach</a></li>
                                             <li><a href="typography.html">Vendor Rejected</a></li>
                                         </ul>
                                     </li>
