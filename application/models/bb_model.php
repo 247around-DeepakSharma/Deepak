@@ -34,6 +34,21 @@ class Bb_model extends CI_Model {
 
         return $query->result_array();
     }
+    /**
+     * @desc To get order details without CP details. 
+     * Note:- Do not try to make another join in this function.
+     * @param Array $where
+     * @param String $select
+     * @return Array
+     */
+    function get_bb_order($where, $select){
+        $this->db->select($select);
+        $this->db->from('bb_order_details');
+        $this->db->join('partners', 'bb_order_details.partner_id = partners.id');
+        $this->db->where($where);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 
     /**
      * @desc Get data from shop address
@@ -49,7 +64,7 @@ class Bb_model extends CI_Model {
     }
 
     function insert_bb_order_details($data) {
-        $this->db->insert('bb_order_details', $data);
+        $this->db->insert_ignore('bb_order_details', $data);
         return $this->db->insert_id();
     }
 

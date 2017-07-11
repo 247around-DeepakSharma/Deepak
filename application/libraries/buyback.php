@@ -23,7 +23,7 @@ class Buyback {
         $this->POST_DATA = $this->My_CI->initialized_variable->get_post_buyback_order_details();
         //Check order exist in the database
         $where_bb_order = array('partner_id' => $this->POST_DATA['partner_id'], 'partner_order_id' => $this->POST_DATA['partner_order_id']);  
-        $is_exist_order = $this->My_CI->bb_model->get_bb_order_details($where_bb_order, 'bb_order_details.id, bb_order_details.current_status, '
+        $is_exist_order = $this->My_CI->bb_model->get_bb_order($where_bb_order, 'bb_order_details.id, bb_order_details.current_status, '
                 . 'bb_order_details.internal_status');
         if ($is_exist_order) {
             //Order already exiting
@@ -62,6 +62,9 @@ class Buyback {
         if(empty($service_id)){
              $service_id = $this->get_service_id_by_appliance();
         }
+        if(empty($cp_id)){
+            $this->My_CI->initialized_variable->not_assigned_order();
+        }
         // Insert bb order details
         $is_insert = $this->insert_bb_order_details($cp_id);
         if ($is_insert) {
@@ -70,7 +73,7 @@ class Buyback {
             if ($is_unit) {
                 if(!empty($cp_id)){
                     $this->My_CI->cp_model->insert_bb_cp_order_action(array(
-                        "partner_order_id" => $this->POST_DATA['partner_id'],
+                        "partner_order_id" => $this->POST_DATA['partner_order_id'],
                         "cp_id" => $cp_id,
                         "create_date" => date('Y-m-d H:i:s'),
                         "current_status" => 'Pending',
@@ -198,8 +201,8 @@ class Buyback {
             $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
             if($is_status){
                     $bb_unit_details = array(
-                    'order_status' => $this->POST_DATA['current_status'],
-                    'delivery_date' => $this->POST_DATA['delivery_date']
+                    'order_status' => $this->POST_DATA['current_status']
+                    
                 );
                 $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $bb_unit_details);
                 $this->insert_bb_state_change($this->POST_DATA['partner_order_id'],

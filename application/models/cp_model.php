@@ -96,7 +96,7 @@ class Cp_model extends CI_Model {
 
     function insert_bb_cp_order_action($data){
         $this->db->insert('bb_cp_order_action',$data);
-        return $this->insert_id();
+        return $this->db->insert_id();
     }
 
     /**

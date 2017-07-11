@@ -104,7 +104,7 @@
                     <th>VAT</th>
                     <th>Total Amount</th>
                     <th>VAT %</th>
-                    <th>Item</th>
+<!--                    <th>Item</th>-->
                 </tr>
             </thead>
             <tbody>
@@ -125,7 +125,7 @@
                             <td><?php echo round($value['VAT'],0); ?></td>
                             <td><?php echo round($value['TotalAmount'],0); ?></td>
                             <td><?php echo round($value['VATRate'],0); ?></td>
-                            <td><?php echo $value['Item']; ?></td>
+<!--                            <td><?php //echo $value['Item']; ?></td>-->
                         </tr>
                         <?php $sn++;
                     }

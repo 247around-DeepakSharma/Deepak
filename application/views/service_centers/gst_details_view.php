@@ -18,34 +18,33 @@
                                 <div  class="form-group ">
                                     <label  for="company_name" class="col-md-4">Company Address</label>
                                     <div class="col-md-8">
-                                        
-                                       <b> <?php echo $company_address?></b>
+                                        <b> <?php echo $company_address?></b>
                                     </div>
                                     
                                 </div>
                                 <div  class="form-group ">
-                                    <label  for="company_name" class="col-md-4">Company Pan No.</label>
+                                    <label  for="company_name" class="col-md-4">Company PAN</label>
                                     <div class="col-md-8">
                                          <b> <?php echo $company_pan_number?></b>
                                     </div>
                                     
                                 </div>
                                 <div  class="form-group ">
-                                    <label  for="company_name" class="col-md-4">Is GST Number</label>
+                                    <label  for="company_name" class="col-md-4">GST Registration Done?</label>
                                     <div class="col-md-8">
                                      <b>  <?php if($is_gst == 1){ echo "YES";} else { echo "NO";} ?> </b>
                                     </div>
                                    
                                 </div>
                                  <div  class="form-group ">
-                                    <label  for="gst_no" class="col-md-4">Company GST No.</label>
+                                    <label  for="gst_no" class="col-md-4">Company GST No</label>
                                     <div class="col-md-8">
                                         <?php echo $company_gst_number; ?>
                                     </div>
                                     
                                 </div>
                                  <div  class="form-group ">
-                                    <label  for="gst_no" class="col-md-4">Company GST File.</label>
+                                    <label  for="gst_no" class="col-md-4">Company GST File</label>
                                     <div class="col-md-8">
                                      <?php if( !empty($gst_certificate_file)){ ?> <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php echo $gst_certificate_file; ?>">View Here</a>  <?php } ?>
                                         

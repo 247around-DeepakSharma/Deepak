@@ -3,13 +3,15 @@
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
+require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php';
 
 use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
 
 ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
-require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php';
+
 class Upload_buyback_process extends CI_Controller {
+    var $Columfailed = "";
 
     /**
      * load list modal and helpers
@@ -26,7 +28,7 @@ class Upload_buyback_process extends CI_Controller {
         $this->load->library('partner_utilities');
         $this->load->library('s3');
         $this->load->library('notify');
-        
+
         $this->load->model("partner_model");
         $this->load->model('reporting_utils');
 
@@ -37,16 +39,18 @@ class Upload_buyback_process extends CI_Controller {
             redirect(base_url() . "employee/login");
         }
     }
-    
-    function index(){
-        
+
+    function index() {
+
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('buyback/order_details_file_upload');
         $this->load->view('dashboard/dashboard_footer');
     }
-    
+
     function process_upload_order() {
+
         if (!empty($_FILES['file']['name'])) {
+
             $pathinfo = pathinfo($_FILES["file"]["name"]);
             if (($pathinfo['extension'] == 'xlsx' || $pathinfo['extension'] == 'xls') && $_FILES['file']['size'] > 0) {
                 $inputFileName = $_FILES['file']['tmp_name'];
@@ -55,9 +59,9 @@ class Upload_buyback_process extends CI_Controller {
                 } else {
                     $inputFileExtn = 'Excel5';
                 }
-                
+
                 $template = array(
-                'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
                 );
 
                 $this->table->set_template($template);
@@ -67,7 +71,7 @@ class Upload_buyback_process extends CI_Controller {
                 try {
 //                    $notify['notification'] = "Please Wait. File is under process.";
 //                    $this->load->view('notification', $notify, FALSE);
-                    
+
                     $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
                     $objPHPExcel = $objReader->load($inputFileName);
 
@@ -89,9 +93,12 @@ class Upload_buyback_process extends CI_Controller {
                         $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
                         $rowData11 = array_combine($headings_new[0], $rowData[0]);
                         $rowData1 = array_change_key_case($rowData11);
-                        if (isset($rowData1['usediteminfo'])) {
+                        $this->Columfailed = "";
+                        $status = $this->check_column_exist($rowData1);
+                        if ($status) {
                             //Change index in lower case
                             $this->initialized_variable->set_post_buyback_order_details(array());
+
                             $rowData1['partner_id'] = 247024;
                             $rowData1['partner_name'] = "Amazon";
                             $rowData1['partner_charge'] = $rowData1['discount_value'];
@@ -99,13 +106,13 @@ class Upload_buyback_process extends CI_Controller {
                             $rowData1['order_date'] = $dateObj1->format('Y-m-d');
                             $rowData1['order_key'] = $rowData1['usediteminfo'];
                             $rowData1['current_status'] = $rowData1['orderstatus'];
-                            $rowData1['partner_sweetner_charges'] = $rowData1['sweetnervalue'];
+                            $rowData1['partner_sweetner_charges'] = $rowData1['sweetenervalue'];
                             $rowData1['partner_order_id'] = $rowData1['order_id'];
                             $rowData1['partner_basic_charge'] = $rowData1['discount_value'];
                             $rowData1['delivery_date'] = "";
-                            if($rowData1['city'] == '0'){
+                            if ($rowData1['city'] == '0') {
                                 $rowData1['city'] = "";
-                            } 
+                            }
                             if (!empty($rowData1['old_item_del_date'])) {
                                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['old_item_del_date']);
                                 $rowData1['delivery_date'] = $dateObj2->format('Y-m-d');
@@ -123,45 +130,45 @@ class Upload_buyback_process extends CI_Controller {
                             $this->initialized_variable->set_post_buyback_order_details($rowData1);
 
                             //Insert/Update BB order details
-                            $status = $this->buyback->check_action_order_details();
+                            $status1 = $this->buyback->check_action_order_details();
                             $this->initialized_variable->set_post_buyback_order_details(array());
-                            if ($status) {
+                            if ($status1) {
                                 
                             } else {
 
                                 $this->table->add_row($rowData1['partner_order_id']);
                             }
                         } else {
-                            $message = " Used Item Info Column is not exit. Please check and upload again. <br/><br/>";
+
                             $error = true;
                             break;
                         }
                     }
                     $total_lead = $i;
-                   
-                    $to = NITS_ANUJ_EMAIL_ID.",".ADIL_EMAIL_ID;
-                    $cc = "abhaya@247around.com";
                     
-
-                    $subject = "Buyback Order is uploaded by ".$this->session->userdata('employee_id');
-                    $message  .= "Total lead ".$total_lead."<br/>";
-                    $message .= "Total Delivered(Inserted/Updated) ".($this->initialized_variable->delivered_count() -1)."<br/>";
-                    $message .= "Total Inserted".($this->initialized_variable->total_inserted() -1)."<br/>";
-                    $message .= "Total Updated".($this->initialized_variable->total_updated() -1)."<br/>";
-                    $message .= "Please check below Order, these are neither inserted and nor uddated <br/><br/><br/>";
-                    $message .= $this->table->generate();
-
-                    $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
-                    if($error){
-                        $response = array("code" => -247, "msg" => "Used Item Info Filed is not exist.");
+                    if ($error) {
+                        $response = array("code" => -247, "msg" => $this->Columfailed);
                         echo json_encode($response);
-                        
                     } else {
+
+                        $to = NITS_ANUJ_EMAIL_ID . "," . ADIL_EMAIL_ID;
+                        $cc = "abhaya@247around.com";
+
+
+                        $subject = "Buyback Order is uploaded by " . $this->session->userdata('employee_id');
+                        $message .= "Total lead  ----" . $total_lead . "<br/><br/>";
+                        $message .= "Total Delivered ----" . ($this->initialized_variable->delivered_count()) . "<br/><br/>";
+                        $message .= "Total Inserted ----" . ($this->initialized_variable->total_inserted()) . "<br/><br/>";
+                        $message .= "Total Updated ----" . ($this->initialized_variable->total_updated()) . "<br/><br/>";
+                        $message .= "Total Not Assigned ----" . ($this->initialized_variable->not_assigned_order()) . "<br/><br/>";
+                        $message .= "Please check below Order, these are neither inserted and nor uddated <br/><br/><br/>";
+                        $message .= $this->table->generate();
+
+                        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+
                         $response = array("code" => 247, "msg" => "File sucessfully processed.");
                         echo json_encode($response);
                     }
-                    
-                    
                 } catch (Exception $e) {
                     die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
                 }
@@ -169,7 +176,74 @@ class Upload_buyback_process extends CI_Controller {
                 echo json_decode("Error", "File format is not correct. Only XLS or XLSX files are allowed.");
             }
         }
-    }    
+    }
+
+    /**
+     * @desc this is used to check column field exist or not 
+     * @param Array $rowData1
+     * @return boolean
+     */
+    function check_column_exist($rowData1) {
+        $message = "";
+        $error = false;
+        
+        if (!array_key_exists('usediteminfo', $rowData1)) {
+            $message .= " Used Item Info Column is not exit.<br/><br/>";
+            $this->Columfailed .= " Used Item Info, ";
+            $error = true;
+        }
+
+        if (!array_key_exists('sweetenervalue', $rowData1)) {
+            $message .= " Sweetener Value Column is not exit. <br/><br/>";
+            $this->Columfailed .= " Sweetener Value, ";
+            $error = true;
+        }
+        
+        if (!array_key_exists('order_id', $rowData1)) {
+      
+            $message .= " Order ID Column is not exit. <br/><br/>";
+            $this->Columfailed .= "Order ID Column, ";
+            $error = true;
+        }
+         
+        if (!array_key_exists('discount_value', $rowData1)) {
+       
+            $message .= " Discount Value Column is not exit. <br/><br/>";
+            $this->Columfailed .= " Discount Value Column, ";
+            $error = true;
+        }
+        if (!array_key_exists('order_day', $rowData1)) {
+
+            $message .= " Order day Column is not exit. <br/><br/>";
+            $this->Columfailed .= " Order Day Column, ";
+            $error = true;
+        }
+        if (!array_key_exists('city', $rowData1)) {
+      
+            $message .= " City Column is not exit. <br/><br/>";
+            $this->Columfailed .= "City Column, ";
+            $error = true;
+        }
+        if (!array_key_exists('orderstatus', $rowData1)) {
+      
+            $message .= " Order Status is not exit. <br/><br/>";
+            $this->Columfailed .= "Order Status ";
+            $error = true;
+        }
+         
+        if ($error) {
+            $message .= " Please check and upload again.";
+            $this->Columfailed .= " column is not exist";
+            $to = NITS_ANUJ_EMAIL_ID . "," . ADIL_EMAIL_ID;
+            $cc = "abhaya@247around.com";
+            $subject = "Failure! Buyback Order is uploaded by " . $this->session->userdata('employee_id');
+            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     /**
      * @desc This function is used to upload the charges list excel
      * @para, void
@@ -191,7 +265,7 @@ class Upload_buyback_process extends CI_Controller {
             move_uploaded_file($tmpFile, TMP_FOLDER . $charges_file);
 
             //Processing File
-            $is_insert = $this->process_bb_chargs_file(TMP_FOLDER . $charges_file,$inputFileExtn);
+            $is_insert = $this->process_bb_chargs_file(TMP_FOLDER . $charges_file, $inputFileExtn);
             if ($is_insert) {
 
                 //Adding Details in File_Uploads table as well
@@ -199,16 +273,16 @@ class Upload_buyback_process extends CI_Controller {
                 $data['file_type'] = _247AROUND_BB_PRICE_LIST;
                 $data['agent_id'] = $this->session->userdata('id');
                 $insert_id = $this->partner_model->add_file_upload_details($data);
-                if($insert_id){ 
+                if ($insert_id) {
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/" . $charges_file;
                     $this->s3->putObjectFile(TMP_FOLDER . $charges_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 }
-                
+
                 //delete file from the system
                 exec("rm -rf " . escapeshellarg(TMP_FOLDER . $charges_file));
-                
+
                 //Return success Message
                 $msg = "File Uploaded Successfully.";
                 $response = array("code" => '247', "msg" => $msg);
@@ -224,7 +298,7 @@ class Upload_buyback_process extends CI_Controller {
             echo json_encode($response);
         }
     }
-    
+
     /**
      * @desc This function is used to process the charges list excel and insert into the table
      * @para, $charges_file string
@@ -246,17 +320,16 @@ class Upload_buyback_process extends CI_Controller {
             }
             $count = 1;
             $return = $this->bb_model->insert_charges_data_in_batch($charges_data);
-            if($return){
+            if ($return) {
                 $flag = True;
-            }else{
+            } else {
                 $flag = False;
             }
         }
-        
+
         return $flag;
     }
-    
-    
+
     /**
      * @desc This function is used to make final data from charges list excel to insert into the table
      * @para, $row array
@@ -265,7 +338,7 @@ class Upload_buyback_process extends CI_Controller {
     private function set_charges_rows_data($row) {
         $tmp['partner_id'] = $row[0];
         $tmp['cp_id'] = $row[2];
-        $tmp['service_id'] = $row[4] ;
+        $tmp['service_id'] = $row[4];
         $tmp['category'] = $row[5];
         $tmp['brand'] = isset($row[6]) ? $row[6] : NULL;
         $tmp['physical_condition'] = isset($row[7]) ? $row[7] : NULL;
@@ -284,11 +357,11 @@ class Upload_buyback_process extends CI_Controller {
         $tmp['visible_to_partner'] = isset($row[20]) ? $row[20] : '0';
         $tmp['visible_to_cp'] = isset($row[21]) ? $row[21] : '0';
         $tmp['create_date'] = date("Y-m-d H:i:s");
-        
+
         return $tmp;
     }
-    
-    public function upload_file_history($file_type){
+
+    public function upload_file_history($file_type) {
         $data = $this->reporting_utils->get_uploaded_file_history($file_type);
         print_r(json_encode($data, TRUE));
     }
