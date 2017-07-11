@@ -67,20 +67,20 @@ class accounting_model extends CI_Model {
      * @param: string
      * @return : array
      */
-    function get_payment_report_data($payment_type, $from_date, $to_date, $partner_vendor,$report_type="") {
+    function get_payment_report_data($payment_type, $from_date, $to_date, $partner_vendor,$is_challan_data,$report_type="") {
         $return_data = [];
         switch ($payment_type) {
             case 'sales':
-                $return_data = $this->get_sales_payment_report($from_date, $to_date, $partner_vendor);
+                $return_data = $this->get_sales_payment_report($from_date, $to_date, $partner_vendor,$is_challan_data);
                 break;
             case 'purchase':
-                $return_data = $this->get_purchase_payment_report($from_date, $to_date, $partner_vendor);
+                $return_data = $this->get_purchase_payment_report($from_date, $to_date, $partner_vendor,$is_challan_data);
                 break;
             case 'tds' :
                 if($report_type === 'draft'){
-                    $return_data = $this->get_draft_tds_payment_report($from_date, $to_date, $partner_vendor);
+                    $return_data = $this->get_draft_tds_payment_report($from_date, $to_date, $partner_vendor,$is_challan_data);
                 }else if($report_type === 'final'){
-                    $return_data = $this->get_final_tds_payment_report($from_date, $to_date, $partner_vendor);
+                    $return_data = $this->get_final_tds_payment_report($from_date, $to_date, $partner_vendor,$is_challan_data);
                 }
                 
                 break;
@@ -94,8 +94,13 @@ class accounting_model extends CI_Model {
      * @param: string
      * @return : array
      */
-    function get_sales_payment_report($from_date, $to_date, $partner_vendor) {
+    function get_sales_payment_report($from_date, $to_date, $partner_vendor,$is_challan_data) {
         if ($partner_vendor == 'partner') {
+            if($is_challan_data === '1'){
+                $where = "V.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping) AND";
+            }else if($is_challan_data === '2'){
+                $where = "";
+            }
             $sql = "Select V.invoice_id AS 'InvoiceNo',P.company_name as 'CompanyName', P.state as 'State',
                     V.invoice_date AS 'InvoiceDate',V.from_date AS 'FromDate',V.to_date AS 'ToDate', total_service_charge AS 'TotalServiceCharge' ,
                     V.service_tax AS 'ServiceTax', parts_cost as ' Parts',vat as 'VAT' ,`upcountry_price` as 'ConveyanceCharges',
@@ -103,18 +108,23 @@ class accounting_model extends CI_Model {
                     FROM  vendor_partner_invoices AS V
                     JOIN partners AS P on V.vendor_partner_id=P.id AND V.vendor_partner = 'partner'
                     JOIN tax_rates as tr  on tax_code='VAT' AND product_type='wall_bracket' AND P.state=tr.state
-                    WHERE V.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)
-                    AND V.type_code = 'A'
+                    WHERE $where
+                    V.type_code = 'A'
                     AND V.`invoice_date`>='$from_date'  AND V.`invoice_date` <'$to_date'";
         } else if ($partner_vendor == 'vendor') {
+            if($is_challan_data === '1'){
+                $where = "V.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping) AND";
+            }else if($is_challan_data === '2'){
+                $where = "";
+            }
             $sql = "Select V.invoice_id AS 'InvoiceNo',SC.company_name as 'CompanyName',state as 'State',
                     V.invoice_date AS 'InvoiceDate',from_date AS 'FromDate',to_date AS 'ToDate',
                     round((total_service_charge/1.15),2) AS 'AroundRoyalty' , round(((total_service_charge/1.15) * .15),2) AS 'ServiceTax',
                     total_amount_collected AS 'TotalAmountCollected'
                     FROM  vendor_partner_invoices AS V
                     JOIN service_centres AS SC on V.vendor_partner_id=SC.id
-                    WHERE V.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)
-                    AND V.vendor_partner =  'vendor' AND V.invoice_date >= '$from_date' AND V.invoice_date <= '$to_date'
+                    WHERE $where
+                    V.vendor_partner =  'vendor' AND V.invoice_date >= '$from_date' AND V.invoice_date <= '$to_date'
                     AND type_code = 'A' AND type !=  'Stand' ";
         } else if ($partner_vendor == 'stand') {
             $sql = "SELECT `invoice_id` as 'InvoiceNo', name as 'CompanyName', sc.state as State, IFNULL(tin_no,'') as 'TINNo', 
@@ -137,8 +147,13 @@ class accounting_model extends CI_Model {
      * @param: string
      * @return : array
      */
-    function get_purchase_payment_report($from_date, $to_date, $partner_vendor) {
+    function get_purchase_payment_report($from_date, $to_date, $partner_vendor,$is_challan_data) {
         if ($partner_vendor == 'partner') {
+            if($is_challan_data === '1'){
+                $where = "AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping )";
+            }else if($is_challan_data === '2'){
+                $where = "";
+            }
             $sql = "SELECT `invoice_id` as 'InvoiceNo', company_name as 'CompanyName', p.state as State, 
                     IFNULL(p.service_tax,'') as 'ServiceTaxNo', IFNULL(tin,'') as 'TINNo', 
                     invoice_date as 'InvoiceDate', vpi.`from_date` as 'FromDate', vpi.`to_date` as 'ToDate',
@@ -149,8 +164,13 @@ class accounting_model extends CI_Model {
                     FROM `vendor_partner_invoices` as vpi, partners as p, tax_rates as tr
                     WHERE `type_code` = 'B' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
                     AND `vendor_partner` = 'partner' AND `vendor_partner_id`=p.id AND tax_code='VAT' AND product_type='wall_bracket' 
-                    AND p.state=tr.state AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
+                    AND p.state=tr.state $where";
         } else if ($partner_vendor == 'vendor') {
+            if($is_challan_data === '1'){
+                $where = "AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping )";
+            }else if($is_challan_data === '2'){
+                $where = "";
+            }
             $sql = "SELECT `invoice_id` as 'InvoiceNo', name as 'CompanyName', sc.state as State, 
                     IFNULL(service_tax_no,'') as 'ServiceTaxNo', IFNULL(tin_no,'') as 'TINNo', 
                     invoice_date as 'InvoiceDate', vpi.`from_date` as 'FromDate', vpi.`to_date` as 'ToDate',
@@ -161,16 +181,21 @@ class accounting_model extends CI_Model {
                     FROM `vendor_partner_invoices` as vpi, service_centres as sc, tax_rates as tr
                     WHERE `type_code` = 'B' AND vpi.type !='Stand' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
                     AND `vendor_partner` = 'vendor' AND `vendor_partner_id`=sc.id AND tax_code='VAT' AND product_type='wall_bracket' 
-                    AND sc.state=tr.state AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
+                    AND sc.state=tr.state $where";
         } else if ($partner_vendor == 'stand') {
-            $sql = "SELECT `invoice_id` as 'InvoiceNo', company_name as 'CompanyName', P.state as State, IFNULL(P.service_tax,'') as 'ServiceTaxNo',
-                    IFNULL(tin,'') as 'TINNo', invoice_date as 'InvoiceDate', `parts_cost` as Parts, `vat` as VAT, 
+            if($is_challan_data === '1'){
+                $where = "AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping )";
+            }else if($is_challan_data === '2'){
+                $where = "";
+            }
+            $sql = "SELECT `invoice_id` as 'InvoiceNo', company_name as 'CompanyName', sc.state as State, IFNULL(sc.service_tax_no,'') as 'ServiceTaxNo',
+                    IFNULL(tin_no,'') as 'TINNo', invoice_date as 'InvoiceDate', `parts_cost` as Parts, `vat` as VAT, 
                     (abs(`amount_collected_paid`) + tds_amount ) as 'TotalAmount',
                     IFNULL(`rate`,0) as 'VATRate'
-                    FROM `vendor_partner_invoices` as vpi, partners as P, tax_rates as tr
+                    FROM `vendor_partner_invoices` as vpi, service_centres as sc, tax_rates as tr
                     WHERE `type_code` = 'B' AND vpi.type='Stand' AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date`<'$to_date'
-                    AND `vendor_partner_id`=P.id AND tax_code='VAT' AND product_type='wall_bracket' AND P.state=tr.state 
-                    AND invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
+                    AND `vendor_partner_id`=sc.id AND tax_code='VAT' AND product_type='wall_bracket' AND sc.state=tr.state 
+                    $where";
         }
 
         $query = $this->db->query($sql);
@@ -185,7 +210,7 @@ class accounting_model extends CI_Model {
      * @param: $partner_vendor string
      * @return : array
      */
-    function get_draft_tds_payment_report($from_date, $to_date, $partner_vendor) {
+    function get_draft_tds_payment_report($from_date, $to_date, $partner_vendor,$is_challan_data) {
         if ($partner_vendor == 'partner') {
             $sql = "";
             return false;
@@ -217,7 +242,7 @@ class accounting_model extends CI_Model {
      * @param: $partner_vendor string
      * @return : array
      */
-    function get_final_tds_payment_report($from_date, $to_date, $partner_vendor) {
+    function get_final_tds_payment_report($from_date, $to_date, $partner_vendor,$is_challan_data) {
         if ($partner_vendor == 'partner') {
             $sql = "";
             return false;

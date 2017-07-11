@@ -33,6 +33,10 @@
             <section class="fetch_payment_history" style="padding-left:20px;">
                 <div class="row">
                     <div class="row">
+                        <div class="form-group" style="margin-left: 10px;">
+                            <label class="radio-inline"><input type="radio" name="optradio" value="1" checked="">Without Challan Id</label>
+                            <label class="radio-inline"><input type="radio" name="optradio" value="2">All</label>
+                        </div>
                         <div class="form-inline" style="margin-left: 20px;">
                             <div class="form-group" style="margin-right: 10px;">
                                 <label for="type">Type:</label>
@@ -103,6 +107,8 @@
 
     $(document).ready(function () {
         $('#get_payment_history').click(function () {
+            var radio_box_val = $("input[type='radio']:checked").val();
+            //console.log(radio_box_val);
             var type = $('#type').val();
             var partner_vendor = $('#partner_vendor').val();
             var report_type = $('#report_type').val();
@@ -119,7 +125,7 @@
                 $.ajax({
                     method: 'POST',
                     url: '<?php echo base_url(); ?>employee/accounting/show_accounting_report',
-                    data: {type: type, from_date: from_date, to_date: to_date, partner_vendor: partner_vendor,report_type:report_type},
+                    data: {type: type, from_date: from_date, to_date: to_date, partner_vendor: partner_vendor,report_type:report_type,is_challan_data:radio_box_val},
                     success: function (response) {
                         //console.log(response);
                         if (response === "error") {
@@ -148,6 +154,7 @@
     $('#download_report').click(function (e) {
         var type = $('#type').val();
         var partner_vendor = $('#partner_vendor').val();
+        var report_type = $('#report_type').val();
         var time = moment().format('D-MMM-YYYY');
         if (type === 'sales' && partner_vendor === 'partner') {
             filename = 'partner_sales_report_' + time;
@@ -163,8 +170,10 @@
             filename = 'stand_purchase_report_' + time;
         } else if (type === 'tds' && partner_vendor === 'partner') {
             filename = 'partner_tds_report_' + time;
-        } else if (type === 'tds' && partner_vendor === 'vendor') {
-            filename = 'vendor_tds_report_' + time;
+        } else if (type === 'tds' && partner_vendor === 'vendor' && report_type === 'draft') {
+            filename = 'vendor_tds_draft_report_' + time;
+        } else if (type === 'tds' && partner_vendor === 'vendor' && report_type === 'final') {
+            filename = 'vendor_tds_final_report_' + time;
         } else if (type === 'tds' && partner_vendor === 'stand') {
             filename = 'stand_tds_report_' + time;
         }
