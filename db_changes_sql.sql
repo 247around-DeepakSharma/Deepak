@@ -2899,3 +2899,7 @@ UPDATE `email_template` SET `template` =
 : %s <br> Greater than 32 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>
 Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> Phone Number: %s, 
 %s<br><br> Please <b>ship</b> this order.' WHERE `email_template`.`id` = 21;
+
+-- bb -sachin 12 july 2017
+
+ALTER TABLE `bb_state_change` ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `partner_id`;
