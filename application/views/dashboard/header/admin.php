@@ -43,40 +43,39 @@
     </head>
     <body class="nav-md">
         <div class="container body">
-            <div class="main_container">
-                <div class="col-md-3 left_col">
-                    <div class="left_col scroll-view">
-                        <div class="navbar nav_title" style="border: 0;">
-                            <a href="<?php echo base_url(); ?>employee/dashboard" class="site_title"><i class="fa fa-paw"></i> <span>247Around</span></a>
-                        </div>
+        <div class="main_container">
+        <div class="col-md-3 left_col">
+            <div class="left_col scroll-view">
+                <div class="navbar nav_title" style="border: 0;">
+                    <a href="<?php echo base_url(); ?>employee/dashboard" class="site_title"><i class="fa fa-paw"></i> <span>247Around</span></a>
+                </div>
+                <div class="clearfix"></div>
+                <!-- menu profile quick info -->
+                <div class="profile clearfix">
+                    <div class="profile_pic">
+                        <!--                              <img src="images/img.jpg" alt="..." class="img-circle profile_img">-->
+                    </div>
+                    <div class="profile_info">
+                        <span>Welcome,</span>
+                        <h2><?php echo $this->session->userdata('employee_id') ?></h2>
+                    </div>
+                </div>
+                <!-- /menu profile quick info -->
+                <br />
+                <!-- sidebar menu -->
+                <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                    <div class="menu_section">
+                        <ul class="nav side-menu">
+                            <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM</a>
+                            <li><a href="<?php echo base_url(); ?>employee/dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
+                            </li>
+                            <li><a href="<?php echo base_url();?>buyback/buyback_process/download_bb_shop_address" ><i class="fa fa-download"></i>Download Shop Address File</a></li>
+                            <li>
+                                <a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
+                                <ul class="nav child_menu">
+                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload Order File</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process/price_sheet_upload">Upload Price Sheet</a></li>
 
-                        <div class="clearfix"></div>
-
-                        <!-- menu profile quick info -->
-                        <div class="profile clearfix">
-                            <div class="profile_pic">
-<!--                              <img src="images/img.jpg" alt="..." class="img-circle profile_img">-->
-                            </div>
-                            <div class="profile_info">
-                                <span>Welcome,</span>
-                                <h2><?php echo $this->session->userdata('employee_id') ?></h2>
-                            </div>
-                        </div>
-                        <!-- /menu profile quick info -->
-
-                        <br />
-
-                        <!-- sidebar menu -->
-                        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
-                            <div class="menu_section">
-                                <ul class="nav side-menu">
-                                    <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM</a>
-                                    <li><a href="<?php echo base_url(); ?>employee/dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
-                                    </li>
-                                    <li><a href="<?php echo base_url();?>buyback/buyback_process/download_bb_shop_address" ><i class="fa fa-download"></i>Download Shop Address File</a></li>
-                                    <li><a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
-                                        <ul class="nav child_menu">
-                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload files</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/view_bb_order_details">Pending Order</a></li>
                                     <li>
                                         <a>Disputed Order <span class="fa fa-chevron-down"></span></a>

@@ -36,16 +36,21 @@ class Cp_model extends CI_Model {
         $this->db->from('bb_shop_address');
         $this->db->join('service_centres', 'service_centres.id = bb_shop_address.cp_id ');
         $this->db->join('partners', 'partners.id = bb_shop_address.partner_id ');
-
+        if (!empty($search_value)) { // if datatable send POST for search
+        $like = "";
         foreach ($this->column_search as $key => $item) { // loop column 
-            if (!empty($search_value)) { // if datatable send POST for search
+           
                 if ($key === 0) { // first loop
-                    $this->db->like($item, $search_value);
+                    $like .= "( ".$item." LIKE '%".$search_value."%' ";
+                    //$this->db->like($item, $search_value);
                 } else {
-
-                    $this->db->or_like($item, $search_value);
+                    $like .= " OR ".$item." LIKE '%".$search_value."%' ";
+                    //$this->db->or_like($item, $search_value);
                 }
             }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
         }
 
         if (!empty($order)) { // here order processing
@@ -94,38 +99,44 @@ class Cp_model extends CI_Model {
 
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
                 . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
-        
+
         $this->db->join('bb_cp_order_action', 'bb_cp_order_action.partner_order_id = bb_unit_details.partner_order_id '
                 . 'AND bb_order_details.assigned_cp_id = bb_cp_order_action.cp_id');
-        
+
         $this->db->join('services', 'services.id = bb_unit_details.service_id');
-        
-        if($status_flag === '0'){
-            
-            $this->db->where('bb_cp_order_action.current_status','Pending');
-            $this->db->where('bb_cp_order_action.internal_status','Delivered');
-        } else{
-            $this->db->where('bb_cp_order_action.current_status','Pending');
-            $this->db->where_in('bb_cp_order_action.internal_status',$this->bb_unit_status[$status_flag]);
+
+        if ($status_flag === '0') {
+
+            $this->db->where('bb_cp_order_action.current_status', 'Pending');
+            $this->db->where('bb_cp_order_action.internal_status', 'Delivered');
+        } else {
+            $this->db->where('bb_cp_order_action.current_status', 'Pending');
+            $this->db->where_in('bb_cp_order_action.internal_status', $this->bb_unit_status[$status_flag]);
         }
-       
+
         $this->db->where_in('bb_order_details.current_status', $this->bb_unit_status[$status_flag]);
-        $this->db->where_in('bb_order_details.internal_status',$this->bb_unit_status[$status_flag]);
-        
-        $this->db->where('assigned_cp_id',$this->session->userdata('service_center_id'));
-        
+        $this->db->where_in('bb_order_details.internal_status', $this->bb_unit_status[$status_flag]);
+
+        $this->db->where('assigned_cp_id', $this->session->userdata('service_center_id'));
+
 
         $i = 0;
-
-        foreach ($this->bb_unit_column_search[$status_flag] as $item) { // loop column 
-            if (!empty($search_value)) { // if datatable send POST for search
+        if (!empty($search_value)) { // if datatable send POST for search
+            $like = "";
+            foreach ($this->bb_unit_column_search[$status_flag] as $item) { // loop column 
                 if ($i === 0) { // first loop
-                    $this->db->like($item, $search_value);
+                    $like .= "( " . $item . " LIKE '%" . $search_value . "%' ";
+                    // $this->db->like($item, $search_value);
                 } else {
-                    $this->db->or_like($item, $search_value);
+                    $like .= " OR " . $item . " LIKE '%" . $search_value . "%' ";
+                    //$this->db->or_like($item, $search_value);
                 }
+                $i++;
             }
-            $i++;
+
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
         }
 
         if (!empty($order)) { // here order processing
@@ -135,6 +146,7 @@ class Cp_model extends CI_Model {
             $this->db->order_by(key($order), $order[key($order)]);
         }
     }
+
     /**
      * @desc this is used to get the buyback order data 
      * @param type $length

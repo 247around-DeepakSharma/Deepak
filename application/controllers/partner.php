@@ -32,6 +32,7 @@ class Partner extends CI_Controller {
         $this->load->model('user_model');
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
+        $this->load->model('dealer_model');
         $this->load->model('service_centers_model');
         $this->load->library("miscelleneous");
         $this->load->library('email');
@@ -336,10 +337,10 @@ class Partner extends CI_Controller {
                         }else{
                             $this->booking_model->addunitdetails($unit_details);
                         }
-                        
-                        $p_login_details = $this->partner_model->partner_login_details(array('partner_id' => $this->partner['id'], "full_name" => 'STS'));
+
+                        $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => 'STS'));
             
-                        $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], $p_login_details[0]['id'], $requestData['partnerName'], $this->partner['id']);
+                        $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], $p_login_details[0]['agent_id'], $requestData['partnerName'], $this->partner['id']);
                         
                         if (empty($booking['state'])) {
 			    $to = NITS_ANUJ_EMAIL_ID;
@@ -1535,6 +1536,87 @@ class Partner extends CI_Controller {
              }
             
 
+             /* check dealer exist or not in the database
+              * if dealer does not exist into the database then
+              * insert dealer details in dealer_details table and dealer_brand_mapping table 
+              */
+             $booking['dealer_id'] = $requestData['dealer_id'];
+             if(isset($requestData['dealer_name']) && !empty($requestData['dealer_name'])){
+                 $dealer_id = $requestData['dealer_id'];
+                 $dealer_name = $requestData['dealer_name'];
+                 $dealer_phone_number = $requestData['dealer_phone_number'];
+                 if(!empty($dealer_id)){
+                     $condition = array(
+                            "where" => array('dealer_id'=>$dealer_id,'dealer_phone_number_1'=>$dealer_phone_number),
+                            "where_in" => array(),
+                            "search" => array(),
+                            "order_by" => "");
+                     $select = "dealer_name, dealer_phone_number_1";
+                     $check_new_phone_number = $this->dealer_model->get_dealer_mapping_details($condition, $select);
+                    
+                     if(empty($check_new_phone_number)){
+                        $dealer_data['dealer_name']=$dealer_name;
+                        $dealer_data['dealer_phone_number_1'] = $dealer_phone_number;
+                        $dealer_data['city'] = $booking['city'];
+                        $dealer_data['create_date'] = date('y-m-d');
+                        
+                        
+                        //make dealer brand mapping data
+                        $mapping_data['partner_id'] = $booking['partner_id'];
+                        $mapping_data['service_id'] = $unit_details['service_id'];
+                        $mapping_data['brand'] = $unit_details['appliance_brand'];
+                        $mapping_data['city'] = $booking['city'];
+                        //insert dealer details
+                        $insert_dealer_details = $this->dealer_model->insert_dealer_details($dealer_data);
+                        if(!empty($insert_dealer_details)){
+                            log_message('info' , __METHOD__."Dealer New phone Number inserted successfully". print_r($dealer_data,true));
+                            
+                            //do mapping for dealer and brand
+                            $mapping_data['dealer_id'] = $insert_dealer_details;
+                            $booking['dealer_id'] = $insert_dealer_details;
+                            $dealer_brand_mapping = $this->dealer_model->insert_dealer_brand_mapping($mapping_data);
+                            if(!empty($dealer_brand_mapping)){
+                                log_message('info' , __METHOD__."Dealer Brand mapping has been done successfully". print_r($mapping_data,true));
+                            }else{
+                                log_message('info' , __METHOD__."Error in Dealer Brand mapping". print_r($mapping_data,true));
+                            }
+                        }else{
+                            log_message('info' , __METHOD__."Error in inserting dealer details". print_r($dealer_data,true));
+                        }
+                     }
+                 } else if(empty($dealer_id)){
+                     //make dealer details data
+                    $dealer_data['dealer_name']=$dealer_name;
+                    $dealer_data['dealer_phone_number_1'] = $dealer_phone_number;
+                    $dealer_data['city'] = $booking['city'];
+                    $dealer_data['create_date'] = date('y-m-d');
+                    
+                    //make dealer brand mapping data
+                    $mapping_data['partner_id'] = $booking['partner_id'];
+                    $mapping_data['service_id'] = $unit_details['service_id'];
+                    $mapping_data['brand'] = $unit_details['appliance_brand'];
+                    $mapping_data['city'] = $booking['city'];
+                    //insert dealer details
+                    $insert_dealer_details = $this->dealer_model->insert_dealer_details($dealer_data);
+                    
+                    if(!empty($insert_dealer_details)){
+                        log_message('info' , __METHOD__."Dealer details added successfully". print_r($dealer_data,true));
+                        
+                        //do mapping for dealer and brand
+                        $mapping_data['dealer_id'] = $insert_dealer_details;
+                        $booking['dealer_id'] = $insert_dealer_details;
+                        $dealer_brand_mapping = $this->dealer_model->insert_dealer_brand_mapping($mapping_data);
+                        if(!empty($dealer_brand_mapping)){
+                            log_message('info' , __METHOD__."Dealer Brand mapping has been done successfully". print_r($mapping_data,true));
+                        }else{
+                            log_message('info' , __METHOD__."Error in Dealer Brand mapping". print_r($mapping_data,true));
+                        }
+                    }else{
+                        log_message('info' , __METHOD__."Error in inserting dealer details". print_r($dealer_data,true));
+                    }
+                 }
+             }
+
             //check partner status from partner_booking_status_mapping table  
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
             if(!empty($partner_status)){
@@ -1545,20 +1627,22 @@ class Partner extends CI_Controller {
             if(!empty($return_id)){
             $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
             $customer_net_payable = 0;
-            foreach ($requestData['requestType'] as $key => $sc) {
-                //$sc has service_centre_charges_id + customer_total + partner_offer separated by '_'
-                $explode = explode("_", $sc);
-                    
-                $unit_details['id'] =  $explode[0];
-                $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
-                $unit_details['partner_paid_basic_charges'] = $explode[2];
-                $unit_details['partner_net_payable'] = $explode[2];
-                $unit_details['booking_status'] = "Pending";
-                
-                //find customer net payable by subtracting partner offer
-                $customer_net_payable += ($explode[1] - $explode[2]);
-                $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], $key);
-                    
+            for($i =0; $i < $requestData['appliance_unit']; $i++){
+                foreach ($requestData['requestType'] as $key => $sc) {
+                    //$sc has service_centre_charges_id + customer_total + partner_offer separated by '_'
+                    $explode = explode("_", $sc);
+
+                    $unit_details['id'] =  $explode[0];
+                    $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
+                    $unit_details['partner_paid_basic_charges'] = $explode[2];
+                    $unit_details['partner_net_payable'] = $explode[2];
+                    $unit_details['booking_status'] = "Pending";
+
+                    //find customer net payable by subtracting partner offer
+                    $customer_net_payable += ($explode[1] - $explode[2]);
+                    $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], $key);
+
+                }
             }
             $is_price['customer_net_payable'] = $customer_net_payable;
             $is_price['is_upcountry'] = $booking['is_upcountry'];

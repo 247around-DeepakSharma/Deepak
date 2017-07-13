@@ -229,7 +229,24 @@
                                     
                                 </div>
                             </div> 
-                            <div class="col-md-4 ">
+
+                            <div class="col-md-3 ">
+                                <div class="form-group col-md-12  <?php if( form_error('dealer_name') ) { echo 'has-error';} ?>">
+                                    <label for="dealer_name">Dealer Name *  <span id="error_dealer_name" style="color:red"></span></label>
+                                    <input  type="text" class="form-control"  name="dealer_name" id="dealer_name" value = "<?php if(isset($dealer_data)){echo $dealer_data['dealer_name'] ;}?>" placeholder="Enter Dealer Name" autocomplete="off">
+                                    <input type="hidden" name="dealer_id" id="dealer_id" value="<?php if(isset($dealer_data)){echo $dealer_data['dealer_id'] ;}?>">
+                                    <div id="dealer_name_suggesstion_box"></div>
+                                </div>
+                            </div> 
+                            <div class="col-md-3 ">
+                                <div class="form-group col-md-12  <?php if( form_error('dealer_phone_number') ) { echo 'has-error';} ?>">
+                                    <label for="dealer_phone_number">Dealer Phone Number  <span id="error_dealer_phone_number" style="color:red"></span></label>
+                                    <input  type="text" class="form-control"  name="dealer_phone_number" id="dealer_phone_number" value = "<?php if(isset($dealer_data)){echo $dealer_data['dealer_phone_number_1'] ;}?>" placeholder="Enter Dealer Phone Number" autocomplete="off">
+                                    <div id="dealer_phone_suggesstion_box"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 ">
+
                                 <div class="form-group col-md-12  <?php if( form_error('purchase_month') ) { echo 'has-error';} ?>">
                                     <label for="Date of Purchase">Date of Purchase</label>
                                     <div class="row">

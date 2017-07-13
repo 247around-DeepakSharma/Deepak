@@ -155,12 +155,18 @@ class User_model extends CI_Model {
             return $query->result_array();
             
         } else {
-            $sql1 = "SELECT name,pincode,city,state, user_email,user_id, home_address, phone_number,alternate_phone_number FROM "
-                    . " users WHERE (users.phone_number = '$phone_number')";
-            $query1 = $this->db->query($sql1);
-            return $query1->result_array();
+           
+            return $this->get_users_by_any(array('(users.phone_number' => $phone_number));
+            
         }
-    } 
+    }
+    
+    function get_users_by_any($where){
+        $this->db->select('name,pincode,city,state, user_email,user_id, home_address, phone_number,alternate_phone_number ');
+        $this->db->where($where);
+        $query = $this->db->get('users');
+        return $query->result_array();
+    }
 
     /* function total_user_count($userName) {
       $this->db->select('user_id');

@@ -372,7 +372,7 @@ define('MISSED_CALL_DEFAULT_RATING', '5');
 
 //Buyback constant
 define('_247AROUND_BB_PRICE_LIST','BB-Price-List');
-//Buyback constant
+define('_247AROUND_BB_ORDER_LIST','BB-Order-List');
 define('_247AROUND_BB_ORDER_ID_IMAGE_TAG','order_id_image');
 define('_247AROUND_BB_DAMAGED_ORDER_IMAGE_TAG','damaged_order_image');
 define('_247AROUND_BB_DELIVERED','Delivered');

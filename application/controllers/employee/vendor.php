@@ -3272,60 +3272,7 @@ class vendor extends CI_Controller {
         
     }
     
-    /**
-     * @Desc: This function is used to login to particular vendor
-     *          This function is being called using AJAX
-     * @params: vendor id
-     * @return: void
-     * 
-     */
-    function allow_log_in_to_vendor($vendor_id){
-        //Getting vendor details
-        $vendor_details = $this->vendor_model->getVendorContact($vendor_id);
-        $data['user_name'] = strtolower($vendor_details[0]['sc_code']);
-        $data['password'] = md5(strtolower($vendor_details[0]['sc_code']));
     
-         //Loggin to SF Panel with username and password
-         
-        $agent = $this->service_centers_model->service_center_login($data);
-        if (!empty($agent)) {
-        //get sc details now
-        $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
-            
-        //Setting logging vendor session details
-        
-            $userSession = array(
-	    'session_id' => md5(uniqid(mt_rand(), true)),
-	    'service_center_id' => $sc_details[0]['id'],
-	    'service_center_name' => $sc_details[0]['name'],
-            'service_center_agent_id' => $agent['id'],
-            'is_update' => $sc_details[0]['is_update'],
-            'is_upcountry' => $sc_details[0]['is_upcountry'],
-	    'sess_expiration' => 30000,
-	    'loggedIn' => TRUE,
-	    'userType' => 'service_center'
-	);
-
-        $this->session->set_userdata($userSession);
-
-            //Saving Login Details in Database
-            $login_data['browser'] = $this->agent->browser();
-            $login_data['agent_string'] = $this->agent->agent_string();
-            $login_data['ip'] = $this->input->ip_address();
-            $login_data['action'] = _247AROUND_LOGIN;
-            $login_data['entity_type'] = $this->session->userdata('userType');
-            $login_data['agent_id'] = $this->session->userdata('service_center_agent_id');
-            $login_data['entity_id'] = $this->session->userdata('service_center_id');
-
-            $login_id = $this->employee_model->add_login_logout_details($login_data);
-            //Adding Log Details
-            if ($login_id) {
-                log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $sc_details[0]['name']);
-            } else {
-                log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $sc_details[0]['name']);
-            }
-        }   
-    }
   
     
     /**

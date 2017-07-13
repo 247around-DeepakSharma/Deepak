@@ -46,11 +46,18 @@ class Upload_buyback_process extends CI_Controller {
         $this->load->view('buyback/order_details_file_upload');
         $this->load->view('dashboard/dashboard_footer');
     }
+    
+     function price_sheet_upload() {
+
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/price_sheet_upload');
+        $this->load->view('dashboard/dashboard_footer');
+    }
 
     function process_upload_order() {
 
         if (!empty($_FILES['file']['name'])) {
-
+            $order_file = $_FILES["file"]["name"];
             $pathinfo = pathinfo($_FILES["file"]["name"]);
             if (($pathinfo['extension'] == 'xlsx' || $pathinfo['extension'] == 'xls') && $_FILES['file']['size'] > 0) {
                 $inputFileName = $_FILES['file']['tmp_name'];
@@ -156,7 +163,10 @@ class Upload_buyback_process extends CI_Controller {
 
 
                         $subject = "Buyback Order is uploaded by " . $this->session->userdata('employee_id');
-                        $message .= "Total Orders ----" . $total_lead . "<br/><br/>";
+
+                        $message .= "Order File Name ----".$order_file."<br/><br/>";
+                        $message .= "Total lead  ----" . $total_lead . "<br/><br/>";
+
                         $message .= "Total Delivered ----" . ($this->initialized_variable->delivered_count()) . "<br/><br/>";
                         $message .= "Total Inserted ----" . ($this->initialized_variable->total_inserted()) . "<br/><br/>";
                         $message .= "Total Updated ----" . ($this->initialized_variable->total_updated()) . "<br/><br/>";
@@ -165,7 +175,8 @@ class Upload_buyback_process extends CI_Controller {
                         $message .= $this->table->generate();
 
                         $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
-
+                        
+                        $this->upload_file_to_S3($order_file, _247AROUND_BB_ORDER_LIST, $_FILES['file']['tmp_name']);
                         $response = array("code" => 247, "msg" => "File sucessfully processed.");
                         echo json_encode($response);
                     }
@@ -176,6 +187,20 @@ class Upload_buyback_process extends CI_Controller {
                 echo json_decode("Error", "File format is not correct. Only XLS or XLSX files are allowed.");
             }
         }
+    }
+    
+    function upload_file_to_S3($file_name, $file_type, $file_path){
+        $data['file_name'] = $file_name;
+        $data['file_type'] = $file_type;
+        $data['agent_id'] = $this->session->userdata('id');
+        $insert_id = $this->partner_model->add_file_upload_details($data);
+        if ($insert_id) {
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $file_name;
+            $this->s3->putObjectFile($file_path, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        }
+        return true;
     }
 
     /**

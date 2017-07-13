@@ -19,6 +19,7 @@ class Service_centers extends CI_Controller {
         $this->load->model('service_centre_charges_model');
         $this->load->model('booking_model');
         $this->load->model('reporting_utils');
+        $this->load->model('dealer_model');
         $this->load->model('partner_model');
         $this->load->model('upcountry_model');
         $this->load->model('vendor_model');
@@ -51,55 +52,7 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/service_center_login' ,$data);
     }
 
-    /**
-     * @desc: This is used to login
-     *
-     * If user name and password matches allowed to login, else error message appears.
-     *
-     * @param: void
-     * @return: void
-     */
-    function service_center_login() {
-        $data['user_name'] = $this->input->post('user_name');
-        $data['password'] = md5($this->input->post('password'));
-        $agent = $this->service_centers_model->service_center_login($data);
-
-        if ($agent) {
-            //get sc details now
-            $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
-            if (!empty($sc_details)) {
-                $this->setSession($sc_details[0]['id'], $sc_details[0]['company_name'], $agent['id'], $sc_details[0]['is_update'], $sc_details[0]['is_upcountry']);
-
-                //Saving Login Details in Database
-                $login_data['browser'] = $this->agent->browser();
-                $login_data['agent_string'] = $this->agent->agent_string();
-                $login_data['ip'] = $this->input->ip_address();
-                $login_data['action'] = _247AROUND_LOGIN;
-                $login_data['entity_type'] = $this->session->all_userdata()['userType'];
-                $login_data['agent_id'] = $this->session->all_userdata()['service_center_agent_id'];
-                $login_data['entity_id'] = $this->session->all_userdata()['service_center_id'];
-
-                $login_id = $this->employee_model->add_login_logout_details($login_data);
-                //Adding Log Details
-                if ($login_id) {
-                    log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $login_data['agent_id']);
-                } else {
-                    log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['agent_id']);
-                }
-
-                redirect(base_url() . "service_center/pending_booking");
-            } else {
-                $userSession = array('error' => 'Please enter correct user name and password');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center");
-            }
-        } else {
-            $userSession = array('error' => 'Please enter correct user name and password');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "service_center");
-        }
-    }
-
+    
     /**
      * @desc: this is used to load pending booking
      * @param: booking id (optional)
@@ -405,29 +358,6 @@ class Service_centers extends CI_Controller {
         redirect(base_url() . "service_center/pending_booking");  
     }
 
-    /**
-     * @desc: This function Sets Session
-     * @param: Service center id
-     * @param: Service center name
-     * @param: Agent Id
-     * @param: is update
-     * @return: void
-     */
-    function setSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry) {
-	$userSession = array(
-	    'session_id' => md5(uniqid(mt_rand(), true)),
-	    'service_center_id' => $service_center_id,
-	    'service_center_name' => $service_center_name,
-            'service_center_agent_id' => $sc_agent_id,
-            'is_upcountry' => $is_upcountry,
-            'is_update' => $update,
-	    'sess_expiration' => 30000,
-	    'loggedIn' => TRUE,
-	    'userType' => 'service_center'
-	);
-
-        $this->session->set_userdata($userSession);
-    }
 
     /**
      * @desc: This funtion will check Session

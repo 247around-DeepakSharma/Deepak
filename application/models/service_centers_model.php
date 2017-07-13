@@ -314,6 +314,13 @@ class Service_centers_model extends CI_Model {
         return $query->result_array();
     }
     
+    function get_spare_parts_booking($where, $select){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("spare_parts_details");
+        return $query->result_array();
+    }
+    
     /**
      * @desc: This method is used to get Array whose booking is updated by SF.
      * Need to update to display in SF panel next Day
@@ -515,17 +522,21 @@ class Service_centers_model extends CI_Model {
         $this->db->where_in('current_status', $this->status[$status_flag]);
         $this->db->where('assigned_cp_id',$this->session->userdata('service_center_id'));
 
-        $i = 0;
-
-        foreach ($this->column_search as $item) { // loop column 
-            if (!empty($search_value)) { // if datatable send POST for search
+        
+        if (!empty($search_value)) { // if datatable send POST for search
+            $i = 0;
+            foreach ($this->column_search as $item) { // loop column 
+           
                 if ($i === 0) { // first loop
-                    $this->db->like($item, $search_value);
+                     $like .= "( ".$item." LIKE '%".$search_value."%' ";
                 } else {
-                    $this->db->or_like($item, $search_value);
+                    $like .= " OR ".$item." LIKE '%".$search_value."%' ";
                 }
+                 $i++;
             }
-            $i++;
+            $like .= ") ";
+
+           $this->db->where($like, null, false);
         }
 
         if (!empty($order)) { // here order processing

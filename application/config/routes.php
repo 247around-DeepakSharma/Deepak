@@ -126,7 +126,12 @@ $route['partner/download_partner_summary/(:any)'] = 'BookingSummary/send_leads_s
 
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
 $route['partner/invoice'] = 'employee/partner/inactive_partner_default_page';
-//$route['api/(:any)'] = 'partner/$2';
+
+$route['dealers'] = 'employee/login/dealer_login_form';
+$route['dealers/login'] = 'employee/login/dealer_login_process';
+$route['dealers/add_booking'] = 'employee/dealers/add_booking';
+$route['dealers/process_addbooking'] = 'employee/dealers/process_addbooking';
+$route['login/dealer_logout'] = 'employee/login/dealer_logout';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */
