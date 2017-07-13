@@ -92,7 +92,7 @@
                         </tr>
                         <tr>
                             <th>Source: </th>
-                            <td><?php echo $booking_history[0]['source'] . ' / ' . $booking_history[0]['partner_source']; ?></td>
+                            <td><?php echo $booking_history[0]['public_name'] . ' / ' . $booking_history[0]['partner_source']; ?></td>
                         </tr>
                         <tr>
                             <th>Units: </th>
