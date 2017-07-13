@@ -10,6 +10,8 @@
         <link href="<?php echo base_url()?>css/bootstrap.min.css" rel="stylesheet">
         <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <link href="<?php echo base_url()?>css/sb-admin.css" rel="stylesheet">
+        <!-- Sweet Alert Css -->
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
         <script src="<?php echo base_url()?>js/jquery.js"></script>
         <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
         <script src="<?php echo base_url()?>js/bootstrap.min.js"></script>
@@ -17,6 +19,8 @@
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+        <!-- sweet Alert JS -->
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
         <style type="text/css">
             .navbar{
             min-height: 80px;

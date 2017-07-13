@@ -203,6 +203,20 @@
 
 
 </script>
+<script>
+    function showConfirmDialougeBox(url){
+        swal({
+                title: "Do You Want To Continue?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                closeOnConfirm: false
+            },
+            function(){
+                window.location.href = url;
+            });
+    }
+</script>
 <?php 
 $this->session->unset_userdata('success');
 $this->session->unset_userdata('error');
