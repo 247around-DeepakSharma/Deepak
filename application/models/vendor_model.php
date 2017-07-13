@@ -18,13 +18,16 @@ class vendor_model extends CI_Model {
      * @param: $vendor_id
      * @return: array of vendor details
      */
-    function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_sf = '1' , $is_cp = '0') {
+    function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '') {
         $where_id = "";
         $where_active = "";
         $where_sf = "";
         $where_final = "";
-        $is_sf_cp = " AND is_sf = '$is_sf' AND is_cp = '$is_cp' ";
-
+        $cp = "";
+        if($is_cp != ''){
+            $cp = " AND is_cp = $is_cp";
+        }
+        
         if ($vendor_id != "") {
             $where_id .= "id= '$vendor_id'";
         }
@@ -35,24 +38,30 @@ class vendor_model extends CI_Model {
             $where_sf .= "service_centres.id  IN (" .$sf_list.")";
         }
         if($vendor_id != "" && $active != "" ){
-            $where_final = 'where '.$where_id." AND ".$where_active . $is_sf_cp;
+            $where_final = 'where '.$where_id." AND ".$where_active.$cp ;
         }
         if($vendor_id != ''){
-            $where_final = 'where '.$where_id . $is_sf_cp;
+            $where_final = 'where '.$where_id.$cp;
         }
         if($active != ""){
-            $where_final = 'where '.$where_active . $is_sf_cp;
+            $where_final = 'where '.$where_active.$cp;
         }
         if($sf_list != "" ){
-            $where_final = 'where '.$where_sf . $is_sf_cp;
+            $where_final = 'where '.$where_sf.$cp;
         }
         if($sf_list != "" && $active != ""){
-            $where_final = 'where '.$where_sf." AND ".$where_active . $is_sf_cp;
+            $where_final = 'where '.$where_sf." AND ".$where_active. $cp;
         }
         if($vendor_id != "" && $active != ""){
-            $where_final = 'where '.$where_id." AND ".$where_active. $is_sf_cp;
+            $where_final = 'where '.$where_id." AND ".$where_active . $cp;
         }
         
+        if($active === "" && $is_cp !== ""){
+            $where_final = "where is_cp = '1'";
+        }
+        
+        
+        //echo $where_final;exit();
         $sql = "Select * from service_centres $where_final";
 
         $query = $this->db->query($sql);
@@ -709,7 +718,7 @@ class vendor_model extends CI_Model {
      * @param: service_center_id, flag
      * @return : Array
      */
-    function getActiveVendor($service_center_id = "", $active = 1,$is_sf='',$is_cp='') {
+    function getActiveVendor($service_center_id = "", $active = 1,$is_cp='') {
         $this->db->select("service_centres.name, service_centres.id,on_off,active, is_verified, is_cp ");
         if ($service_center_id != "") {
             $this->db->where('id', $service_center_id);
@@ -720,8 +729,7 @@ class vendor_model extends CI_Model {
         }else if($active === 'disabled'){
             $this->db->where('active', 0);
         }
-        if($is_sf != '' && $is_cp != ''){
-            $this->db->where('is_sf',$is_sf);
+        if($is_cp != ''){
             $this->db->where('is_cp',$is_cp);
         }
         $sql = $this->db->get('service_centres');

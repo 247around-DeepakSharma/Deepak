@@ -4236,24 +4236,19 @@ class vendor extends CI_Controller {
             }
             
             if($sf_cp_type === 'sf'){
-                $is_sf = '1';
-                $is_cp = '0';
+                $is_cp = '';
             }else if($sf_cp_type === 'cp'){
-                $is_sf = '0';
-                $is_cp = '1';
-            }else if($sf_cp_type === 'both'){
-                $is_sf = '1';
                 $is_cp = '1';
             }
             
             $id = $this->session->userdata('id');   
-            $active = "1";
+            //$active = "1";
             //Getting employee relation if present for logged in user
             $sf_list = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
-            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_sf,$is_cp);
+            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp);
             if(!empty($query)){
                 $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true));
             }else{
