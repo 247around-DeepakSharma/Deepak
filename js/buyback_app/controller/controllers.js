@@ -75,6 +75,9 @@ orderDetails.controller('viewOrderHistory', function ($scope, $http) {
             .then(function (response) {
                 $scope.orderHistoryDetails = response.data;
             });
+    $scope.getDateFormat = function(timestamp) {
+    return new Date(timestamp);
+  }        
 });
 
 orderDetails.controller('viewOrderAppLianceDetails', function ($scope, $http) {

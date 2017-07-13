@@ -125,6 +125,7 @@
     var order_id = "<?php echo $order_id; ?>";
     var service_id = "<?php echo $service_id; ?>";
     var city = "<?php echo $city; ?>";
+    var cp_id = "<?php echo $cp_id; ?>";
     
     $("#order_services").select2();
     $("#order_category").select2();
@@ -141,8 +142,7 @@
                 //console.log(response);
                 $("order_brand").prop('required',true);
                 $('#order_brand').val('val', "");
-                $('#order_brand').val('Select Brand').change();
-                $('#order_brand').select2().html(response);
+                $('#order_brand').html(response).change();;
             }
         });
     });
@@ -158,8 +158,10 @@
                     data:{'product_service_id':product_service_id},
                     success:function(response){
                         $('#order_category').val('val', "");
-                        $('#order_category').val('Select Category').change();
-                        $('#order_category').select2().html(response);
+                        $('#order_category').html(response).change();
+                        $('#order_physical_condition').val('val', "");
+                        $('#order_physical_condition').val('Select Physical Condition').change();
+                        $('#phy_con').show();
                     }
                             
                 }); 
@@ -171,6 +173,7 @@
         
         $('#order_category').on('change',function(){    
             var category = $(this).val();
+            var service_id = $('#order_services').val();
             
             if(category){
                 $.ajax({
@@ -178,37 +181,40 @@
                     url:"<?php echo base_url(); ?>employee/service_centers/get_bb_order_physical_condition",
                     data:{'category':category,'service_id':service_id},
                     success:function(response){
+                        //console.log(response);
                         if(response === 'empty'){
                             $('#order_physical_condition').val('val', "");
                             $('#order_physical_condition').val('Select Physical Condition').change();
                             $('#phy_con').hide();
                         }else{
                             $('#order_physical_condition').val('val', "");
-                            $('#order_physical_condition').val('Select Physical Condition').change();
-                            $('#order_physical_condition').select2().html(response);
+                            $('#order_physical_condition').html(response).change();
                         }
                         
                     }
                             
                 }); 
             }else{
-                $('#order_physical_condition').html('<option value="">Select Category First</option>'); 
+            console.log("shbhsb");
+               $('#order_physical_condition').val('val', "");
+               $('#order_physical_condition').val('Select Physical Condition').change();
             }
         });
         
         $('#order_physical_condition').on('change',function(){    
             var category = $('#order_category').val();
             var physical_condition = $(this).val();
+            var service_id = $('#order_services').val();
             
             if(category){
                 $.ajax({
                     method:'POST',
                     url:"<?php echo base_url(); ?>employee/service_centers/get_bb_order_working_condition",
-                    data:{'category':category,'service_id':service_id,'physical_condition':physical_condition},
+                    data:{'category':category,'service_id':service_id,'physical_condition':physical_condition,'cp_id':cp_id},
                     success:function(response){
+                        //console.log(response);
                         $('#order_working_condition').val('val', "");
-                        $('#order_working_condition').val('Select Working Condition').change();
-                        $('#order_working_condition').select2().html(response);
+                        $('#order_working_condition').select2().html(response).change();
                     }
                             
                 }); 

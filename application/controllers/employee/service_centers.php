@@ -1605,9 +1605,9 @@ class Service_centers extends CI_Controller {
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."service_center/update_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."'>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' href='".base_url()."service_center/update_not_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."'>Not Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."service_center/update_order_details/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."'>Report Issue</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."service_center/update_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('".base_url()."service_center/update_not_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."')>Not Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."service_center/update_order_details/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Report Issue</a></li>
                             </ul>
                           </div>";
             } else {
@@ -1637,11 +1637,12 @@ class Service_centers extends CI_Controller {
      * @param $city string
      * @return void
      */
-    function update_bb_order_details($order_id,$service_id,$city){
+    function update_bb_report_issue_order_details($order_id,$service_id,$city,$cp_id){
         $this->check_BB_UserSession();
         $data['order_id'] = urldecode($order_id);
         $data['service_id'] = urldecode($service_id);
         $data['city'] = urldecode($city);
+        $data['cp_id'] = urldecode($cp_id);
         $data['products'] = $this->booking_model->selectservice();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/update_bb_order_details',$data);
@@ -1656,11 +1657,11 @@ class Service_centers extends CI_Controller {
     function get_bb_order_brand(){
         $this->check_BB_UserSession();
         $service_id = $this->input->post('service_id');
-        $where = array('cp_id'=>$this->session->userdata('service_center_id'),'service_id' => $service_id, 'brand IS NOT NULL' => null);
+        $where = array('cp_id'=>$this->session->userdata('service_center_id'),'service_id' => $service_id, 'brand != " "' => null);
         $select = "brand";
         $brands = $this->service_centre_charges_model->get_bb_charges($where,$select,TRUE);
         $option = '<option selected disabled>Select Brand</option>';
-        if(!empty($brands[0])){
+        if(!empty($brands)){
            //print_r($brands);
 
             foreach ($brands as $value) {
@@ -1688,8 +1689,8 @@ class Service_centers extends CI_Controller {
         $this->check_BB_UserSession();
         $category = $this->input->post('category');
         $service_id = $this->input->post('service_id');
-        $where = array('cp_id' => $this->session->userdata('service_center_id'), 
-            'service_id' => $service_id, 'category' => $category,'physical_condition !=' => '');
+        $where = array('cp_id' => $this->session->userdata('service_center_id'),
+            'service_id' => $service_id, 'category' => $category, 'physical_condition != " " ' => null);
         $select = "physical_condition";
         $physical_condition = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
         
@@ -1715,14 +1716,19 @@ class Service_centers extends CI_Controller {
      * @return $option string
      */
     function get_bb_order_working_condition() {
-        $this->check_BB_UserSession();
+        //$this->check_BB_UserSession();
         $category = $this->input->post('category');
         $service_id = $this->input->post('service_id');
         $physical_condition = $this->input->post('physical_condition');
-        $where = array('cp_id' => $this->session->userdata('service_center_id'), 'service_id' => $service_id, 'category' => $category,'physical_condition'=>$physical_condition);
+        $cp_id = $this->input->post('cp_id');
+        if(!empty($physical_condition)){
+            $where = array('cp_id' => $cp_id, 'service_id' => $service_id, 'category' => $category,'physical_condition'=>$physical_condition);
+        }else{
+            $where = array('cp_id' => $cp_id, 'service_id' => $service_id, 'category' => $category);
+        }
         $select = "working_condition";
         $working_condition = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
-
+        
         if (!empty($working_condition)) {
             $option = '<option selected disabled>Select Working Condition</option>';
 
@@ -1886,57 +1892,41 @@ class Service_centers extends CI_Controller {
         $where = array('service_id'=> $service_id,'cp_id'=>$this->session->userdata('service_center_id'));
         $select = "category";
         $categories = $this->service_centre_charges_model->get_bb_charges($where,$select,TRUE);
-        
+        $option = '<option selected disabled>Select Category</option>';
         if (!empty($categories)) {
-            $option = '<option selected disabled>Select Category</option>';
-
+            
             foreach ($categories as $value) {
                 $option .= "<option value='" . $value['category'] . "'";
                 $option .= " > ";
                 $option .= $value['category'] . "</option>";
             }
-
-            echo $option;
+            
         }else{
-            echo "empty";
+            $option .= "<option value='' disabled=''>No Data Found</option>";
         }
+        
+        echo $option;
     }
     
-    function update_received_bb_order($order_id,$service_id,$city){
+    function update_received_bb_order($order_id,$service_id,$city,$cp_id){
         $this->check_BB_UserSession();
         
         $data['order_id'] = urldecode($order_id);
         $data['service_id'] = urldecode($service_id);
         $data['city'] = urldecode($city);
+        $data['cp_id'] = urldecode($cp_id);
         
-        //get category,brand from bb unit charges table
-        $select_unit = 'bb_unit.category,bb_unit.brand';
-        $unit_data = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id' => $data['order_id']), $select_unit);
-        $data['category'] = $unit_data[0]['category'];
-        $data['brand'] = $unit_data[0]['brand'];
-        
-        //get physical condition
-        $where = array('cp_id' => $this->session->userdata('service_center_id'), 
-            'service_id' => $data['service_id'], 'category' => $data['category'],'physical_condition !=' => '');
-        $select = "physical_condition";
-        $physical_condition = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
-        
-        //if physical condition is empty then get working condition
-        if(!empty($physical_condition)){
-            $data['physical_condition'] = $physical_condition[0]['physical_condition'];
-        }else{
-            $data['physical_condition'] = '';
-            $where = array('cp_id' => $this->session->userdata('service_center_id'), 'service_id' => $data['service_id'], 'category' => $data['category'],'physical_condition'=>$data['physical_condition']);
-            $select = "working_condition";
-            $data['working_condition'] = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
-        }
+        $return_data = $this->buyback->get_bb_physical_working_condition($data['order_id'],$data['service_id'],$data['cp_id']);
+        $response_data = array_merge($data,$return_data);
         $this->load->view('service_centers/header');
-        $this->load->view('service_centers/update_received_bb_order_details',$data);
+        $this->load->view('service_centers/update_received_bb_order_details',$response_data);
     }
     
     function process_received_bb_order_update(){ 
         $this->check_BB_UserSession();
          //check for validation
+        
+        //check for validation
         $this->form_validation->set_rules('order_id', 'Order Id', 'trim|required');
         $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('order_working_condition', 'Order Working Condition', 'trim|required');
@@ -1944,68 +1934,16 @@ class Service_centers extends CI_Controller {
         if($this->form_validation->run() === false){
             $msg = "Please fill all required field";
             $this->session->set_userdata('error',$msg);
-            redirect(base_url().'service_center/update_received_bb_order/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city'));
+            redirect(base_url().'service_center/update_received_bb_order/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
         }else {
-            $order_id = $this->input->post('order_id');
-            
-            $physical_condition = $this->input->post('order_physical_condition');
-            if(!empty($physical_condition)){
-                $physical_condition = $this->input->post('order_physical_condition');
-            }else{
-                $physical_condition = '';
-            }
-            
-            
-            //get order key
-            $where = array('cp_id' => $this->session->userdata('service_center_id'), 
-                        'service_id' => $this->input->post('service_id'), 
-                        'category' => $this->input->post('category'),
-                        'physical_condition'=>$physical_condition,
-                        'working_condition' => $this->input->post('order_working_condition'),
-                        'brand'=>$this->input->post('brand'),
-                        'city'=>$this->input->post('city'));
-            $select = "order_key";
-            $order_key_data = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
-            if(!empty($order_key)){
-                $order_key = $order_key_data[0]['order_key'];
-            }else{
-                $order_key = '';
-            }
-            $data = array(  'category' => $this->input->post('category'),
-                            'physical_condition' => $physical_condition,
-                            'working_condition' => $this->input->post('order_working_condition'),
-                            'remarks' => $this->input->post('remarks'),
-                            'brand' => $this->input->post('brand'),
-                            'current_status' => _247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS,
-                            'internal_status' => _247AROUND_BB_ORDER_COMPLETED_INTERNAL_STATUS,
-                            'order_key' => $order_key,
-                            'create_date'=> date('Y-m-d H:i:s'));
-            
-             $update_where = array('partner_order_id' => $order_id,
-                            'cp_id' => $this->session->userdata('service_center_id'));
-            $update_id = $this->cp_model->update_bb_cp_order_action($update_where,$data);
-            
-            if($update_id){
-                
-                //update order_details
-                $where = array('partner_order_id' => $order_id );
-                $data = array('current_status' => _247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS , 'internal_status' => _247AROUND_BB_ORDER_COMPLETED_INTERNAL_STATUS);
-                $order_details_update_id = $this->bb_model->update_bb_order_details($where,$data);
-                if($order_details_update_id){
-                    // Insert state change
-                    $this->buyback->insert_bb_state_change($order_id,
-                            _247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS, $this->input->post('remarks'),
-                            $this->session->userdata('service_center_agent_id'), NULL, $this->session->userdata('service_center_id'));
-
-                    $msg = "Order has been updated successfully";
-                    $this->session->set_userdata('success',$msg);
-                    redirect(base_url().'service_centers/bb_oder_details');
-                }
-                
-            }else{
-                $msg = "Oops!!! There are some issue in updating order. Please Try Again...";
-                $this->session->set_userdata('error',$msg);
-                redirect(base_url().'service_center/update_received_bb_order/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city'));
+            $data = $this->input->post();
+            $response = $this->buyback->process_update_received_bb_order_details($data);
+            if($response['status'] === 'success'){
+                $this->session->set_userdata('success',$response['msg']);
+                redirect(base_url().'service_center/bb_oder_details');
+            }else if($response['status'] === 'error'){
+                $this->session->set_userdata('error',$response['msg']);
+                redirect(base_url().'service_center/update_received_bb_order/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
             }
         }
     }

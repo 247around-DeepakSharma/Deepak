@@ -1,4 +1,7 @@
 <style type="text/css">
+    #invoiceDetailsModal .modal-lg {
+        width: 100%!important;
+    }
     th,td{
     border: 1px #f2f2f2 solid;
     vertical-align: center;
@@ -6,6 +9,20 @@
     }
     tr:nth-child(even) {background-color: #f2f2f2}
 </style>
+<!--Invoice Details Modal-->
+<div id="invoiceDetailsModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+              <div id="open_model"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+  </div>
+</div>
+<!-- end Invoice Details Modal -->
 <div id="page-wrapper">
     <div class="">
         <div class="row">
@@ -75,7 +92,7 @@
                         </tr>
                         <tr>
                             <th>Source: </th>
-                            <td><?php echo $booking_history[0]['source'] . ' / ' . $booking_history[0]['partner_source']; ?></td>
+                            <td><?php echo $booking_history[0]['public_name'] . ' / ' . $booking_history[0]['partner_source']; ?></td>
                         </tr>
                         <tr>
                             <th>Units: </th>
@@ -274,9 +291,9 @@
                                 <?php }?>
                                 <td><?php print_r($unit_detail['booking_status']); ?></td>
                                 <?php if($booking_history[0]['current_status'] === 'Completed'){ ?>
-                                <td><?php print_r($unit_detail['vendor_cash_invoice_id']); ?></td>
-                                <td><?php print_r($unit_detail['vendor_foc_invoice_id']); ?></td>
-                                <td><?php print_r($unit_detail['partner_invoice_id']); ?></td>
+                                <td><a class="get_cash_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['vendor_cash_invoice_id']; ?>"><?php print_r($unit_detail['vendor_cash_invoice_id']); ?></a></td>
+                                <td><a class="get_foc_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['vendor_foc_invoice_id']; ?>"><?php print_r($unit_detail['vendor_foc_invoice_id']); ?></a></td>
+                                <td><a class="get_partner_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['partner_invoice_id']; ?>"><?php print_r($unit_detail['partner_invoice_id']); ?></a></td>
                                 <?php } ?>
                             </tr>
                             <?php } ?>
@@ -521,4 +538,37 @@
             });
     });
 
+</script>
+
+<script>
+        $('.get_cash_invoice_id_data').click(function(){
+            var invoice_id = $.trim($(".get_cash_invoice_id_data").attr("data-id"));
+            get_invoice_data(invoice_id)
+        });
+        $('.get_foc_invoice_id_data').click(function(){
+            var invoice_id = $.trim($(".get_foc_invoice_id_data").attr("data-id"));
+            get_invoice_data(invoice_id)
+        });
+        $('.get_partner_invoice_id_data').click(function(){
+            var invoice_id = $.trim($(".get_partner_invoice_id_data").attr("data-id"));
+            get_invoice_data(invoice_id)
+        });
+    
+    function get_invoice_data(invoice_id){
+        if (invoice_id){
+                $.ajax({
+                    method: 'POST',
+                    data: {invoice_id: invoice_id},
+                    url: '<?php echo base_url(); ?>employee/accounting/search_invoice_id',
+                    success: function (response) {
+                        console.log(response);
+                        $("#open_model").html(response);   
+                        $('#invoiceDetailsModal').modal('toggle');
+
+                    }
+                });
+            }else{
+                console.log("Contact Developers For This Issue");
+            }
+    }
 </script>

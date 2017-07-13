@@ -17,6 +17,24 @@
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
+                    <?php if ($this->session->userdata('error')) {
+                            echo '<br><br><div class="alert alert-danger alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
+
+                           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                               <span aria-hidden="true">&times;</span>
+                           </button>
+                           <strong>' . $this->session->userdata('error') . '</strong>
+                       </div>';
+                        }else if($this->session->userdata('success')){
+                                echo '<br><br><div class="alert alert-success alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
+
+                               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                   <span aria-hidden="true">&times;</span>
+                               </button>
+                               <strong>' . $this->session->userdata('success') . '</strong>
+                           </div>';
+                        }
+                        ?>
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
                             <li role="presentation" class="active"><a href="#tab_content1" role="tab" id="intransit-tab" data-toggle="tab" aria-expanded="false">In-Transit( <span style="font-weight: bold;" id="in_tranist_record">0</span> )</a>
@@ -60,6 +78,7 @@
                                             <th>Status</th>
                                             <th>Exchange Value</th>
                                             <th>SF Charge</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -225,3 +244,22 @@
     
     
 </script>
+<script>
+    
+    function showDialogueBox(url){
+        swal({
+                title: "Do You Want To Continue?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                closeOnConfirm: false
+            },
+            function(){
+                window.location.href = url;
+            });
+    }
+</script>
+<?php 
+$this->session->unset_userdata('success');
+$this->session->unset_userdata('error');
+?>

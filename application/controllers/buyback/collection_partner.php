@@ -194,8 +194,11 @@ class Collection_partner extends CI_Controller {
     }
     
     function get_active_cp_sf(){
-         $data = $this->vendor_model->getActiveVendor('','1','0','1');
-         echo json_encode($data);
+        $select = "id,name";
+        $where = array('active' => '1', 'is_cp' => '1');
+        $order_by = 'name';
+        $data = $this->vendor_model->getVendorDetailsBy($select, $where,$order_by);
+        echo json_encode($data);
     }
 
 }

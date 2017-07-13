@@ -150,6 +150,7 @@
                                                         <th>Partner Charge</th>
                                                         <th>Collection Partner Charge</th>
                                                         <th>Around Charge</th>
+                                                        <th>Partner Sweetner Charge</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -162,6 +163,7 @@
                                                         <td>{{x.partner_charge}}</td>
                                                         <td>{{x.cp_tax}}</td>
                                                         <td>{{x.around_charges}}</td>
+                                                        <td>{{x.partner_sweetner_charges}}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -197,8 +199,8 @@
                                                         <th>New State</th>
                                                         <th>Remarks</th>
                                                         <th>Agent Name</th>
-                                                        <th>Collection Partner Name</th>
-                                                        <th>Partner Name</th>
+                                                        <th>Partner</th>
+                                                        <th>Create Date</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -208,8 +210,8 @@
                                                         <td>{{x.new_state }}</td>
                                                         <td>{{x.remarks }}</td>
                                                         <td>{{x.agent_name}}</td>
-                                                        <td>{{x.cp_name }}</td>
-                                                        <td>{{x.partner_name }}</td>
+                                                        <td>{{x.cp_name ? x.cp_name:x.partner_name }}</td>
+                                                        <td>{{getDateFormat(x.create_date)|date:'dd-MM-yyyy' }}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

@@ -203,6 +203,7 @@
     function get_sf_cp(){
         var sf_cp = $('#sf_cp').val();
         var active_state = $('#active_state').val();
+        $('#vendor_sf_cp_list').html('<div class="col-md-6 col-md-offset-6" style="margin-top: 46px;"><img src="/images/loadring.gif"></div>');
         $.ajax({
                 method: "POST",
                 url:'<?php echo base_url()."employee/vendor/get_filterd_sf_cp_data" ?>',
