@@ -84,7 +84,6 @@
                     <select id="sf_cp" onchange="get_sf_cp();" class="form-control">
                         <option value="sf">Service Center</option>
                         <option value="cp">Collection Partner</option>
-                        <option value="both">Both</option>
                     </select>
                 </div> 
             </div>
