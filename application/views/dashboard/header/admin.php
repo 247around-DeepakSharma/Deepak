@@ -21,6 +21,8 @@
         <link href="<?php echo base_url() ?>css/daterangepicker.css" rel="stylesheet">
         <!-- Custom Theme Style -->
         <link href="<?php echo base_url() ?>css/dashboard_custom.min.css" rel="stylesheet">
+        <!-- Sweet Alert Css -->
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
         <!-- jQuery -->
         <script src="<?php echo base_url() ?>js/jquery.min.js"></script>
         <!-- Highchart.js -->
@@ -34,6 +36,10 @@
         <script src="<?php echo base_url() ?>js/daterangepicker.js"></script>
         <!-- DateJS -->
         <script src="<?php echo base_url() ?>assest/DateJS/build/date.js"></script>
+        <!-- Select2 JS -->
+        <script src="<?php echo base_url();?>js/select2.min.js"></script>
+        <!-- sweet Alert JS -->
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
     </head>
     <body class="nav-md">
         <div class="container body">

@@ -60,6 +60,7 @@
                                             <th>Status</th>
                                             <th>Exchange Value</th>
                                             <th>SF Charge</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -224,4 +225,19 @@
     });
     
     
+</script>
+<script>
+    
+    function showDialogueBox(url){
+        swal({
+                title: "Do You Want To Continue?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                closeOnConfirm: false
+            },
+            function(){
+                window.location.href = url;
+            });
+    }
 </script>

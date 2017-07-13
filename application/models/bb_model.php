@@ -27,7 +27,7 @@ class Bb_model extends CI_Model {
     function get_bb_order_details($where, $select) {
         $this->db->select($select);
         $this->db->from('bb_order_details');
-        $this->db->join('service_centres', 'bb_order_details.assigned_cp_id = service_centres.id');
+        $this->db->join('service_centres', 'bb_order_details.assigned_cp_id = service_centres.id','left');
         $this->db->join('partners', 'bb_order_details.partner_id = partners.id');
         $this->db->where($where);
         $query = $this->db->get();
@@ -103,7 +103,7 @@ class Bb_model extends CI_Model {
     private function _get_bb_order_list_query($post) {
         $this->db->from('bb_order_details');
         $this->db->select('bb_unit_details.partner_order_id, services,city, order_date, '
-                . 'delivery_date, current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge');
+                . 'delivery_date, current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,bb_unit_details.service_id,bb_order_details.assigned_cp_id');
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
                 . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
        
