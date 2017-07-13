@@ -1226,7 +1226,7 @@ class Booking extends CI_Controller {
         if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
             $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
         }
-
+        
         
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/viewdetails', $data);
