@@ -89,7 +89,7 @@ class Cp_model extends CI_Model {
     private function _get_bb_cp_order_list_query($search_value, $order, $status_flag) {
         $this->db->select('bb_order_details.id,bb_unit_details.partner_order_id, services,city, order_date, '
                 . 'delivery_date, bb_order_details.current_status, cp_basic_charge,cp_tax_charge,bb_unit_details.physical_condition,'
-                . 'bb_unit_details.working_condition,bb_unit_details.service_id,bb_order_details.city');
+                . 'bb_unit_details.working_condition,bb_unit_details.service_id,bb_order_details.city,bb_order_details.assigned_cp_id');
         $this->db->from('bb_order_details');
 
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
