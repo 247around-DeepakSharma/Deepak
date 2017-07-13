@@ -18,6 +18,7 @@ class Partner extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->model('user_model');
         $this->load->model('invoices_model');
+        $this->load->model('dealer_model');
         $this->load->model('service_centers_model');
         $this->load->library("pagination");
         $this->load->library("session");
@@ -46,69 +47,11 @@ class Partner extends CI_Controller {
        $this->load->view('partner/partner_login',$data);
 
     }
-
-     /**
-     * @desc: This is used to login
-     *
-     * If user name and password matches allowed to login and redirect pending booking, else error message appears.
-     *
-     * @param: void
-     * @return: void
-     */
-    function partner_login() {
-
-        $data['user_name'] = $this->input->post('user_name');
-        $data['password'] = md5($this->input->post('password'));
-        $partner = $this->partner_model->partner_login($data);
-        if ($partner) {
-            //get partner details now
-            $partner_details = $this->partner_model->getpartner($partner['partner_id'],FALSE);
-            if($partner_details){
-                $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id'],
-                        $partner_details[0]['is_active']);
-                log_message('info', 'Partner loggedIn  partner id' .
-                        $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
-
-                //Saving Login Details in Database
-                $login_data['browser'] = $this->agent->browser();
-                $login_data['agent_string'] = $this->agent->agent_string();
-                $login_data['ip'] = $this->session->all_userdata()['ip_address'];
-                $login_data['action'] = _247AROUND_LOGIN;
-                $login_data['entity_type'] = $this->session->all_userdata()['userType'];
-                $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
-                $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
-
-                $login_id = $this->employee_model->add_login_logout_details($login_data);
-                //Adding Log Details
-                if (!empty($login_id) && $partner_details[0]['is_active'] == 1) {
-                    log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . 
-                            $login_data['agent_id']);
-                    redirect(base_url() . "partner/home");
-                } else  if (!empty($login_id) && $partner_details[0]['is_active'] == 0) { 
-                    redirect(base_url() . "partner/invoice");
-                } else {
-                    log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
-                }
-
-                
-            }else{
-                $userSession = array('error' => 'Sorry, your Login has been De-Activated');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "partner/login");
-            }
-        } else {
-
-            $userSession = array('error' => 'Please enter correct user name and password');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "partner/login");
-        }
-    }
-
-     /**
-     * @desc: this is used to load pending booking
-     * @param: Offset and page no., all flag to get all data, Booking id
-     * @return: void
-     */
+   /**
+    * @desc: this is used to load pending booking
+    * @param: Offset and page no., all flag to get all data, Booking id
+    * @return: void
+    */
     function pending_booking($offset = 0,$all = 0,$booking_id = '') {
        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
@@ -236,28 +179,6 @@ class Partner extends CI_Controller {
 
         $this->load->view('partner/header');
         $this->load->view('partner/booking_details', $data);
-    }
-
-
-    /**
-     * @desc: This function Sets Session
-     * @param: Partrner id
-     * @param: Partner name
-     * @return: void
-     */
-    function setSession($partner_id, $partner_name, $agent_id,$status) {
-    $userSession = array(
-        'session_id' => md5(uniqid(mt_rand(), true)),
-        'partner_id' => $partner_id,
-        'partner_name' => $partner_name,
-        'agent_id' => $agent_id,
-        'sess_expiration' => 600000,
-        'loggedIn' => TRUE,
-        'userType' => 'partner',
-        'status' => $status
-    );
-
-        $this->session->set_userdata($userSession);
     }
 
     /**
@@ -457,7 +378,7 @@ class Partner extends CI_Controller {
         $post['alternate_phone_number'] = $this->input->post('alternate_phone_number');
         $post['booking_date'] = $booking_date;
         $post['partner_type'] = $this->input->post('partner_type');
-        
+        $post['appliance_unit'] = 1;
         $post['partner_code'] = $this->input->post('partner_code');
         $post['amount_due'] = $this->input->post('grand_total');
         $post['product_type'] = $this->input->post('product_type');
@@ -1142,19 +1063,10 @@ class Partner extends CI_Controller {
         foreach($query as $value){
             //Getting Appliances and Brands details for partner
             $service_brands[] = $this->partner_model->get_service_brands_for_partner($value['id']);
-            
-            $login = $this->partner_model->get_partner_login_details($value['id']);
+            $login = $this->dealer_model->entity_login(array('entity'=> "partner", 'entity_id' => $value['id']));
             if (!empty($login)) {
-                foreach ($login as $val) {
-                    if ($val['clear_text'] != '') {
-                        $value['user_name'] = $val['user_name'];
-                        $value['clear_text'] = $val['clear_text'];
-                        break;
-                    } else {
-                        $value['user_name'] = '';
-                        $value['clear_text'] = '';
-                    }
-                }
+                 $value['user_name'] = $login[0]['user_id'];
+                 $value['clear_text'] = $login[0]['clear_password'];
             } else {
                 $value['user_name'] = '';
                 $value['clear_text'] = '';
@@ -1212,7 +1124,6 @@ class Partner extends CI_Controller {
         $results['select_state'] = $this->vendor_model->getall_state();
         $results['services'] = $this->vendor_model->selectservice();
         //Getting Login Details for this partner
-        $results['login_details'] = $this->partner_model->get_partner_login_details($id);
         $results['partner_code'] = $this->partner_model->get_partner_code($id);
         $partner_code = $this->partner_model->get_availiable_partner_code();
         foreach($partner_code as $row)
@@ -1584,8 +1495,7 @@ class Partner extends CI_Controller {
                 $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
                 $bcc = "";
                 $attachment = "";
-
-                $partner_details = $this->partner_model->get_partner_login_details($this->session->userdata('partner_id'))[0];
+                $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];
                 $partner_mail_to = $partner_details['email'];
                 $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com";
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
@@ -1639,7 +1549,15 @@ class Partner extends CI_Controller {
             $data['price_tags'] = implode(",", $price_tag);
             
             if(isset($booking_history[0]['dealer_id']) && !empty($booking_history[0]['dealer_id'])){
-                $dealer_data = $this->partner_model->get_dealer_details_by_any(array('id'=>$booking_history[0]['dealer_id']));
+               
+                $condition = array(
+                            "where" => array('dealer_details.dealer_id' => $booking_history[0]['dealer_id']),
+                            "where_in" => array(),
+                            "search" => array(),
+                            "order_by" => "");
+                $select = "dealer_id, dealer_name, dealer_phone_number_1";
+                $dealer_data = $this->dealer_model->get_dealer_mapping_details($condition, $select);
+                
                 if(!empty($dealer_data)){
                     $data['dealer_data'] = $dealer_data[0];
                 }
@@ -1739,7 +1657,14 @@ class Partner extends CI_Controller {
                  $dealer_name = $post['dealer_name'];
                  $dealer_phone_number = $post['dealer_phone_number'];
                  if(!empty($dealer_id)){
-                     $check_new_phone_number = $this->partner_model->get_dealer_details_by_any(array('id'=>$dealer_id,'dealer_phone_number_1'=>$dealer_phone_number));
+                    $condition = array(
+                            "where" => array('dealer_id'=>$dealer_id,'dealer_phone_number_1'=>$dealer_phone_number),
+                            "where_in" => array(),
+                            "search" => array(),
+                            "order_by" => "");
+                     $select = "dealer_name, dealer_phone_number_1";
+                     $check_new_phone_number = $this->dealer_model->get_dealer_mapping_details($condition, $select);
+                    
                      if(empty($check_new_phone_number)){
                         $dealer_data['dealer_name']=$dealer_name;
                         $dealer_data['dealer_phone_number_1'] = $dealer_phone_number;
@@ -1753,14 +1678,14 @@ class Partner extends CI_Controller {
                         $mapping_data['brand'] = $unit_details['appliance_brand'];
                         $mapping_data['city'] = $booking_details['city'];
                         //insert dealer details
-                        $insert_dealer_details = $this->partner_model->insert_dealer_details($dealer_data);
+                        $insert_dealer_details = $this->dealer_model->insert_dealer_details($dealer_data);
                         if(!empty($insert_dealer_details)){
                             log_message('info' , __METHOD__."Dealer New phone Number inserted successfully". print_r($dealer_data,true));
                             
                             //do mapping for dealer and brand
                             $mapping_data['dealer_id'] = $insert_dealer_details;
                             $booking_details['dealer_id'] = $insert_dealer_details;
-                            $dealer_brand_mapping = $this->partner_model->insert_dealer_brand_mapping($mapping_data);
+                            $dealer_brand_mapping = $this->dealer_model->insert_dealer_brand_mapping($mapping_data);
                             if(!empty($dealer_brand_mapping)){
                                 log_message('info' , __METHOD__."Dealer Brand mapping has been done successfully". print_r($mapping_data,true));
                             }else{
@@ -1783,7 +1708,7 @@ class Partner extends CI_Controller {
                     $mapping_data['brand'] = $unit_details['appliance_brand'];
                     $mapping_data['city'] = $booking_details['city'];
                     //insert dealer details
-                    $insert_dealer_details = $this->partner_model->insert_dealer_details($dealer_data);
+                    $insert_dealer_details = $this->dealer_model->insert_dealer_details($dealer_data);
                     
                     if(!empty($insert_dealer_details)){
                         log_message('info' , __METHOD__."Dealer details added successfully". print_r($dealer_data,true));
@@ -1791,7 +1716,7 @@ class Partner extends CI_Controller {
                         //do mapping for dealer and brand
                         $mapping_data['dealer_id'] = $insert_dealer_details;
                         $booking_details['dealer_id'] = $insert_dealer_details;
-                        $dealer_brand_mapping = $this->partner_model->insert_dealer_brand_mapping($mapping_data);
+                        $dealer_brand_mapping = $this->dealer_model->insert_dealer_brand_mapping($mapping_data);
                         if(!empty($dealer_brand_mapping)){
                             log_message('info' , __METHOD__."Dealer Brand mapping has been done successfully". print_r($mapping_data,true));
                         }else{
@@ -2162,45 +2087,6 @@ class Partner extends CI_Controller {
     }
     
     /**
-     * @Desc: This function is used to login to particular Partner
-     *          This function is being called using AJAX
-     * @params: partner id
-     * @return: void
-     * 
-     */
-    function allow_log_in_to_partner($partner_id){
-        //Getting partner details
-        $partner_login = $this->partner_model->get_partner_login_details($partner_id);
-
-        if (!empty($partner_login)) {
-            //get partner details now
-            $partner_details = $this->partner_model->getpartner($partner_id);
-
-            $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner_login[0]['id'], $partner_details[0]['is_active']);
-            log_message('info', 'Partner loggedIn  partner id' .
-                    $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
-
-            //Saving Login Details in Database
-            $login_data['browser'] = $this->agent->browser();
-            $login_data['agent_string'] = $this->agent->agent_string();
-            $login_data['ip'] = $this->session->all_userdata()['ip_address'];
-            $login_data['action'] = _247AROUND_LOGIN;
-            $login_data['entity_type'] = $this->session->all_userdata()['userType'];
-            $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
-            $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
-
-            $login_id = $this->employee_model->add_login_logout_details($login_data);
-            //Adding Log Details
-            if ($login_id) {
-                log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' .$login_data['agent_id']);
-            } else {
-                log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
-            }
-
-        }
-             log_message('info',__FUNCTION__." No partner Details has been found for Login");
-    }
-    /**
      * @desc: Display list of Shipped Parts in the Partner Panel
      */
     function get_shipped_parts_list($offset= 0){
@@ -2460,9 +2346,10 @@ class Partner extends CI_Controller {
         $capacity = $this->input->post('capacity');
         $model_number = $this->input->post('model');
         $partner_type = $this->input->post('partner_type');
+       
         if($partner_type == OEM){
             //Getting Unique values of Model for Particular Partner ,service id and brand
-            $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category,'capacity'=>$capacity);
+            $where = array("partner_id" => $partner_id,'service_id'=>$service_id,'brand'=>$brand,'category'=>$category,'capacity'=>$capacity);
 
             $data = $this->partner_model->get_partner_specific_details($where, "model", "model");
             
@@ -2559,7 +2446,7 @@ class Partner extends CI_Controller {
      */
      function get_partner_login_details_form($partner_id){
          //Getting details for Login for this Partner
-         $login = $this->partner_model->get_partner_login_details($partner_id);
+         $login = $this->dealer_model->entity_login(array('entity'=>'partner','entity_id' => $partner_id));
          if(!empty($login)){
              //setting flag for New Add
              $login['add'] = TRUE;
@@ -2584,28 +2471,30 @@ class Partner extends CI_Controller {
         $choice = $this->input->post('choice');
         $partner_id = $this->input->post('partner_id');
         $login_id_array = $this->input->post('id');
+        $password_array = $this->input->post('password');
+        $retype_password_array = $this->input->post('retype_password');
+        $username_array =  $this->input->post('username');
         if (!empty($choice)) {
-            foreach ($choice as $value) {
-                $password = $this->input->post('password')[0];
-                $retype_password = $this->input->post('retype_password')[0];
-                $username = $this->input->post('username')[0];
-                         
+            foreach ($choice as $key => $value) {
+                $password = $password_array[$key];
+                $retype_password = $retype_password_array[$key];
+                $username = $username_array[$key];
+              
                 //checking for password and retype password value
                 if (strcmp($password, $retype_password) == 0) {
                     if (!empty($login_id_array[$value])) {
+                         
                         //Checking for Already Present Username
-                        $login_data['user_name'] = $username;
-                        $login_data['partner_id'] = $partner_id;
-                        $check_username = $this->partner_model->get_partner_username($login_data);
-                        if (!isset($check_username['user_name'])) {
+                        $check_username = $this->dealer_model->entity_login(array('entity'=>'partner','user_id'=>$username));
+                        if (!empty($check_username)) {
 
                             //Updating values when password matches 
-                            $where = array('id' => $login_id_array[$value]);
-                            $data['user_name'] = $username;
+                            $where = array('agent_id' => $login_id_array[$value]);
+                            $data['user_id'] = $username;
                             $data['password'] = md5($password);
-                            $data['clear_text'] = $password;
+                            $data['clear_password'] = $password;
 
-                            if ($this->partner_model->update_partner_login_details($data, $where)) {
+                            if ($this->partner_model->update_login_details($data, $where)) {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Partner Login has been updated for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
                             } else {
@@ -2615,29 +2504,30 @@ class Partner extends CI_Controller {
                         } else {
                             //Redirecting with Error message
                             //Setting error session data 
-                            $this->session->set_flashdata('login_error', ' Username Already Exists');
-
+                           
+                            $userSession = array('login_error' => 'Username Already Exists');
+                            $this->session->set_userdata($userSession);      
                             redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
                         }
                     } else {
                         //Add New Row in Partner Login Table
-                        $data['partner_id'] = $partner_id;
-                        $data['user_name'] = $username;
+                        $data['entity_id'] = $partner_id;
+                        $data['entity'] = "partner";
+                        $data['user_id'] = $username;
                         $data['password'] = md5($password);
-                        $data['clear_text'] = $password;
+                        $data['clear_password'] = $password;
                         $data['active'] = 1;
                         
-                        //Checking for Already Present Username
-                        $login_data['user_name'] = $username;
-                        $login_data['partner_id'] = $partner_id;
+                        $check_username = $this->dealer_model->entity_login(array('entity'=>'partner','user_id'=>$username));
                         
-                        $check_username = $this->partner_model->get_partner_username($login_data);
-                        if (!isset($check_username['user_name'])) {
+                        if (empty($check_username)) {
 
                             //Getting name of Partner by Partner ID
                             $partner_details = $this->partner_model->get_all_partner($partner_id);
-                            $data['full_name'] = $partner_details[0]['public_name'];
-                            if ($this->partner_model->add_partner_login($data)) {
+                            $data['agent_name'] = $partner_details[0]['public_name'];
+                            $data['entity_name'] = $partner_details[0]['public_name'];
+                            $s1 = $this->dealer_model->insert_entity_login($data); 
+                            if($s1) {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
                             } else {
@@ -2647,29 +2537,33 @@ class Partner extends CI_Controller {
                         } else {
                             //Redirecting with Error message
                             //Setting error session data 
-                            $this->session->set_flashdata('login_error', ' Username Already Exists');
-
+                            
+                            $userSession = array('login_error' => 'Username Already Exists ');
+                            $this->session->set_userdata($userSession);      
                             redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
                         }
                     }
                 } else {
+                     
                     //When password dosen't matches
                     //Setting error session data 
-                    $this->session->set_flashdata('login_error', 'Passwords does not match for Login ' . ($value + 1));
+                    $userSession = array('login_error' => 'Passwords does not match for Login ' . ($value + 1));
+                    $this->session->set_userdata($userSession);        
 
                     redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
                 }
             }
 
             //Setting success session data 
-            $this->session->set_flashdata('login_success', 'Partner Login has been Added');
+            $userSession = array('login_success' => 'Partner Login has been Added');
+            $this->session->set_userdata($userSession);        
 
             redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
         } else {
             //Setting error session data 
-            $this->session->set_flashdata('login_error', 'No Row has been selected for Add / Edit');
-
-            redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
+           $userSession = array('login_error' => 'No Row has been selected for Add / Edit');
+           $this->session->set_userdata($userSession);        
+           redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
         }
     }
      
@@ -2722,43 +2616,6 @@ class Partner extends CI_Controller {
         }
     }
     
-//    function get_service_category(){
-//        log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
-//        $this->checkUserSession();
-//        $service_id  = $this->input->post('service_id');
-//        $brand = $this->input->post('brand');
-//        $category = $this->input->post('category');
-//        $price_tags = $this->input->post('price_tags');
-//        $capacity = $this->input->post('capacity');
-//       
-//        $partner_type = $this->input->post('partner_type');
-//
-//        $result = array();
-//        if($partner_type == OEM){
-//            $result = $this->partner_model->get_service_category($service_id, $category, $capacity, $partner_mapping_id,"",$brand);
-//        } else {
-//            $result = $this->partner_model->get_service_category($service_id, $category, $capacity, $partner_mapping_id,"",""); 
-//        }
-//        
-//        if(!empty($result)){
-//            $service_category = "<option disabled selected>Please Select Call Type</option>";
-//            foreach($result as $value){
-//                $service_category .="<option ";
-//                if($price_tags === $value['service_category']){
-//                    $service_category .= " selected ";
-//                } else
-//                if(count($result) ==1){
-//                    $service_category .= " selected ";
-//                }
-//                $service_category .= " value='".$value['service_category']."'  >".$value['service_category']."</option>";
-//            }
-//            echo $service_category;
-//            
-//        } else {
-//            echo "ERROR";
-//        }
-//        
-//    }
     /**
      * @desc: This is used to return customer net payable, Its called by Ajax
      */
@@ -2840,7 +2697,7 @@ class Partner extends CI_Controller {
      */
     function get_district_by_pincode($pincode, $service_id){
         $select = 'vendor_pincode_mapping.City as district';
-        
+        $post_city = $this->input->post('city');
         $where = array(
             'service_centres.active' => 1, 
             'service_centres.on_off' => 1,
@@ -2848,9 +2705,19 @@ class Partner extends CI_Controller {
             'vendor_pincode_mapping.Appliance_ID' => $service_id);
         $city = $this->vendor_model->get_vendor_mapping_data($where, $select);
         if(!empty($city)){
+            $option = "";
             foreach ($city as $district){
-                 echo '<option selected>'.$district['district'].'</option>';
+                $option .= "<option value='".$district['district']."'";
+                if(count($district) == 1){
+                    $option .= "selected";
+                } else if(!empty($city)){
+                    if($post_city === $district['district']){
+                        $option .= "selected";
+                    }
+                }
+                 $option .=  "  >".$district['district']."</option>";
             }
+            echo $option;
         } else {
             echo 'ERROR';
         }
@@ -3193,33 +3060,23 @@ class Partner extends CI_Controller {
         $this->load->view('service_centers/upcountry_booking_details', $data);
     }
     
-    function get_dealer_name(){
+    function get_dealer_phone_number(){
         $partner_id = $this->input->post('partner_id');
-        //$service_id = $this->input->post('service_id');
-        //$brand = $this->input->post('brand');
-        //$city = $this->input->post('city');
         $search_term = $this->input->post('search_term');
-        $dealer_data = $this->partner_model->get_dealer_details($search_term,$partner_id);
+        $condition = array(
+            "where" => array('partner_id' => $partner_id),
+            "where_in" => array(),
+            "search" => array("dealer_phone_number_1" => $search_term),
+            "order_by" => "dealer_phone_number_1,owner_phone_number_1");
+        $select = "dealer_name, dealer_details.dealer_id, dealer_phone_number_1";
+        $dealer_data = $this->dealer_model->get_dealer_mapping_details($condition,$select);
         $response = "<ul id='dealer_list'>";
         if(!empty($dealer_data)){
             
             foreach($dealer_data as $value){
-                $response .= "<li onclick= selectDealer('".$value['dealer_name']."','".$value['id']."')>".$value['dealer_name']." (<b>".$value['dealer_phone_number_1']."</b>)"."</li>";
-            }
-        }
-        $response .= "</ul>";
-        echo $response;
-    }
-    
-    function get_dealer_phone_number(){
-        $dealer_id = $this->input->post('dealer_id');
-        $search_term = $this->input->post('search_term');
-        $dealer_phone_number_data = $this->partner_model->get_dealer_details_by_any(array('id'=>$dealer_id),$search_term);
-        $response = "<ul id='dealer_list'>";
-        if(!empty($dealer_phone_number_data)){
-            
-            foreach($dealer_phone_number_data as $value){
-                $response .= "<li onclick= selectDealerPhoneNumber('".$value['dealer_phone_number_1']."','".$value['id']."')>".$value['dealer_phone_number_1']."</li>";
+                $response .= "<li onclick= selectDealer('".$value['dealer_name']."','".
+                        $value['dealer_phone_number_1']."','".$value['dealer_id']."')>".
+                        $value['dealer_name']." (<b>".$value['dealer_phone_number_1']."</b>)"."</li>";
             }
         }
         $response .= "</ul>";

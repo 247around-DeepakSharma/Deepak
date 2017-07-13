@@ -188,7 +188,7 @@
         var c = confirm('Login to Service Center CRM?');
         if(c){
             $.ajax({
-                url:'<?php echo base_url()."employee/vendor/allow_log_in_to_vendor/" ?>'+vendor_id,
+                url:'<?php echo base_url()."employee/login/allow_log_in_to_vendor/" ?>'+vendor_id,
                 success: function (data) {
                     window.open("<?php echo base_url()?>"+"/"+data,'_blank');
                 }
