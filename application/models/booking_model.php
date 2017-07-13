@@ -1710,14 +1710,10 @@ class Booking_model extends CI_Model {
                     
                 } else {
                     // For Partner
-                    $this->db->select('full_name, bookings_sources.source');
-                    $this->db->from('partner_login');
-                    $this->db->join('bookings_sources','bookings_sources.partner_id = partner_login.partner_id');
-                    $this->db->where('partner_login.id', $value['agent_id']);
-                    $query1 = $this->db->get();
-                    $data1 = $query1->result_array();
-                    $data[$key]['full_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
-                    $data[$key]['source'] = isset($data1[0]['source'])?$data1[0]['source']:'';
+                    $data1 = $this->dealer_model->entity_login(array('agent_id' =>$value['agent_id']));
+                   
+                    $data[$key]['full_name'] = isset($data1[0]['agent_name'])?$data1[0]['agent_name']:'';
+                    $data[$key]['source'] = isset($data1[0]['entity_name'])?$data1[0]['entity_name']:'';
                 }
             } else if(!is_null($value['service_center_id'])){
                 // For Service center

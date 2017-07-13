@@ -5,22 +5,22 @@
         <div class="panel-body">
             
              <?php
-                    if ($this->session->flashdata('login_error')) {
+                    if ($this->session->userdata('login_error')) {
                         echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:-10px;width:40%;margin-left:32%;margin-bottom:5px;">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong>'.$this->session->flashdata('login_error').'</strong>
+                        <strong>'.$this->session->userdata('login_error').'</strong>
                     </div>';
                     }
                     ?>
             <?php
-                    if ($this->session->flashdata('login_success')) {
+                    if ($this->session->userdata('login_success')) {
                         echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:-10px;width:40%;margin-left:32%;margin-bottom:5px;">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong>'.$this->session->flashdata('login_success').'</strong>
+                        <strong>'.$this->session->userdata('login_success').'</strong>
                     </div>';
                     }
                     ?>
@@ -45,15 +45,15 @@
                                 <input type="checkbox" style="zoom: 1.5" name='choice[]' value='<?php echo ($i) ?>' id="check_<?php echo $i ?>" onchange="return validate(this.id)"/>
                             </td>
                             <td>
-                                <input type='text' name='username[]' id="username_<?php echo $i?>" disabled="" class = "form-control" value="<?php echo isset($login[$i]['user_name'])?$login[$i]['user_name']:''?>" />
+                                <input type='text' name='username[]' id="username_<?php echo $i?>" disabled="" class = "form-control" value="<?php echo isset($login[$i]['user_id'])?$login[$i]['user_id']:''?>" />
                             </td>
                             <td>
-                                <input type='password' name='password[]' id="password_<?php echo $i?>" class = "form-control" disabled="" value="<?php echo isset($login[$i]['clear_text'])?$login[$i]['clear_text']:''?>" />
+                                <input type='password' name='password[]' id="password_<?php echo $i?>" class = "form-control" disabled="" value="<?php echo isset($login[$i]['clear_password'])?$login[$i]['clear_password']:''?>" />
                             </td>
                             <td>
-                                <input type='password' name='retype_password[]' id="retype_password_<?php echo $i?>" class = "form-control" disabled="" value="<?php echo isset($login[$i]['clear_text'])?$login[$i]['clear_text']:''?>" onchange="return check_password(this.id)"/>
+                                <input type='password' name='retype_password[]' id="retype_password_<?php echo $i?>" class = "form-control" disabled="" value="<?php echo isset($login[$i]['clear_password'])?$login[$i]['clear_password']:''?>" onchange="return check_password(this.id)"/>
                             </td>
-                        <input type="hidden" name = "id[]" value="<?php echo isset($login[$i]['id'])?$login[$i]['id']:''?>"/>
+                        <input type="hidden" name = "id[]"  value="<?php echo isset($login[$i]['agent_id'])?$login[$i]['agent_id']:''?>"/>
                         
                         </tr>
                     <?php } ?>
@@ -95,7 +95,7 @@
        var id = id.split("_")[2];
        var password = $('#password_'+id).val();
        var retype_password = $('#retype_password_'+id).val();
-       if(password != retype_password){
+       if(password !== retype_password){
            alert('Please Enter Correct Password for Login '+ (parseInt(id)+1));
            return false;
        }

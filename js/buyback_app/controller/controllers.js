@@ -31,6 +31,14 @@ uploadfile.controller('uploadFileHistory', function ($scope, $http) {
             });
 });
 
+uploadfile.controller('getOrderFileHistory', function ($scope, $http) {
+    var get_url = baseUrl + "/buyback/upload_buyback_process/upload_file_history/BB-Order-List";
+    $http.get(get_url)
+            .then(function (response) {
+                $scope.getOrderFileHistory = response.data;
+            });
+});
+
 //shop address details file upload
 //uploadfile.controller('uploadShopAddressFile', ['$scope', 'fileUpload', function($scope, fileUpload){
 //    
@@ -78,6 +86,60 @@ orderDetails.controller('viewOrderAppLianceDetails', function ($scope, $http) {
             });
 });
 
+addDealers.controller("addDealersController", function($scope, $http){
+    $scope.tempData = {};
+    var get_url = baseUrl + "/employee/dealers/getpartner_city_list";
+    
+    $http.get(get_url)
+    .then(function (response) {
+       
+        $scope.partner_list = response.data.sources;
+        $scope.city_list = response.data.city;
+      /// $scope.tempData = {city : $scope.city_list[0].district};
+//        $scope.$watch("sourceCityId", function(newValue, oldValue) {
+//           if(newValue) $scope.fetchAsset();
+//        });
+
+        
+    $scope.create_new_dealer = function (type) {
+        var data = $.param({
+            'data': $scope.tempData,
+            'type': type
+        });
+        
+        var config = {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+            }
+        };
+        var URL = baseUrl + "/employee/dealers/process_add_dealer";
+        $http.post(URL, data, config).success(function (response) {
+           
+            if (response.code === 247) {
+               
+                notifyMe(response.msg);
+                alert(response.msg);
+                
+                $scope.dealerForm.$setPristine();
+                $scope.tempData = {};
+                $scope.tempData.city = {};
+
+            } else {
+                notifyMe(response.msg);
+                alert(response.msg);
+            }
+        });
+    };
+
+    // function to add user data
+    $scope.create_dealer = function () {
+        $scope.create_new_dealer('new_dealer');
+    };
+       
+    });
+    
+    
+});
 
 //add shop address
 addShopAddressDetails.controller("userController", function ($scope, $http) {

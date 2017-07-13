@@ -1263,7 +1263,7 @@ class Invoice extends CI_Controller {
         $to_date1 = date('Y-m-d', strtotime('+1 day', strtotime($to_date)));
         $penalty_data = $this->penalty_model->add_penalty_in_invoice($details['vendor_partner_id'], $from_date, $to_date1, "", $is_regenerate);
         $credit_penalty = $this->penalty_model->get_removed_penalty($details['vendor_partner_id'], $from_date, "");
-        $courier_charges = $this->invoices_model->get_sf_courier_charges($details['vendor_partner_id'], $from_date, $to_date1);
+        $courier_charges = $this->invoices_model->get_sf_courier_charges($details['vendor_partner_id'], $from_date, $to_date1, $is_regenerate);
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
         $invoices = $invoices_data['invoice_details'];

@@ -268,7 +268,7 @@
                                 <div class="form-group col-md-12  <?php if( form_error('dealer_name') ) { echo 'has-error';} ?>">
                                     <label for="dealer_name">Dealer Name *  <span id="error_dealer_name" style="color:red"></span></label>
                                     <input  type="text" class="form-control"  name="dealer_name" id="dealer_name" value = "<?php if(isset($dealer_data)){echo $dealer_data['dealer_name'] ;}?>" placeholder="Enter Dealer Name" autocomplete="off">
-                                    <input type="hidden" name="dealer_id" id="dealer_id" value="<?php if(isset($dealer_data)){echo $dealer_data['id'] ;}?>">
+                                    <input type="hidden" name="dealer_id" id="dealer_id" value="<?php if(isset($dealer_data)){echo $dealer_data['dealer_id'] ;}?>">
                                     <div id="dealer_name_suggesstion_box"></div>
                                 </div>
                             </div> 

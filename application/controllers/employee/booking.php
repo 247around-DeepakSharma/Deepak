@@ -30,6 +30,7 @@ class Booking extends CI_Controller {
         $this->load->model('inventory_model');
         $this->load->model('upcountry_model');
         $this->load->model('penalty_model');
+        $this->load->model("dealer_model");
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_cb');
         $this->load->library('notify');

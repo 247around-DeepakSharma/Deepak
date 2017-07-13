@@ -60,10 +60,11 @@
 <!-- page content -->
 <div class="right_col" role="main">
     <div class="buyback_file_upload" ng-app="uploadFile">
-        <div class="order_details_file">
+
+        <div class="price_charges_file">
             <div class="page-title">
                 <div class="title_left">
-                    <h3>Upload Order Details</h3>
+                    <h3>Upload Price charges file</h3>
                 </div>
             </div>
             <div class="clearfix"></div>
@@ -71,7 +72,7 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_panel">
                         <div class="x_title">
-                            <h2>Order Details file</h2>
+                            <h2>Price charges file</h2>
                             <ul class="nav navbar-right panel_toolbox">
                                 <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                                 </li>
@@ -82,7 +83,83 @@
                         <div class="x_content">
                             <br />
                             <div id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
-                                <div ng-controller="uploadOrderDetailsFile">
+
+                                <div ng-controller="uploadPriceChargesFile">
+                                    <div class="form-group" >
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="file" file-model="myFile" id="order_details_file" required="required" class="form-control col-md-7 col-xs-12">
+                                        </div>
+
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="spinner" ng-if="ShowSpinnerStatus">
+                                                <div class="rect1" style="background-color:#db3236"></div>
+                                                <div class="rect2" style="background-color:#4885ed"></div>
+                                                <div class="rect3" style="background-color:#f4c20d"></div>
+                                                <div class="rect4" style="background-color:#3cba54"></div>
+                                            </div>
+                                            <div ng-if="successMsg" class="alert alert-success alert-dismissable">{{msg}}</div>
+                                            <div ng-if="errorMsg" class="alert alert-danger alert-dismissable">{{msg}}</div>
+                                        </div>
+                                    </div>
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group">
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <button ng-click="uploadFile()" class="btn btn-success">Upload</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div ng-controller="uploadFileHistory" style="margin-top:30px;">
+                                    <h2>File History</h2>
+                                    <table class="table table-bordered table-hover table-responsive">
+                                        <thead>
+                                            <th>S.No.</th>
+                                            <th>Download</th>
+                                            <th>Uploaded By</th>
+                                            <th>Uploaded Date</th>    
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in uploadFileHistory">
+                                                <td>{{$index + 1}}</td>
+                                                <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/{{x.file_name}}'><div class="btn btn-success btn-sm">Download</div></a></td>
+                                                <td>{{ x.agent_name }}</td>
+                                                <td>{{ x.upload_date }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!--        <div class="shop_address_file">
+            <div class="page-title">
+                <div class="title_left">
+                    <h3>Upload Shop Address File</h3>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="height: auto;">
+                        <div class="x_title">
+                            <h2>Shop Address File</h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li><a class="collapse-link"><i class="fa fa-chevron-down"></i></a>
+                                </li>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content" style="display:none;">
+                            <br />
+                            <div id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+                                <div ng-controller="uploadShopAddressFile">
                                     <div class="form-group" >
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <input type="file" file-model="myFile" id="order_details_file" required="required" class="form-control col-md-7 col-xs-12">
@@ -105,32 +182,15 @@
                                             <button ng-click="uploadFile()" class="btn btn-success">Upload</button>
                                         </div>
                                     </div>
-                                    
                                 </div>
-                                <div ng-controller="getOrderFileHistory" style="margin-top:30px;">
-                                    <h2>File History</h2>
-                                    <table class="table table-bordered table-hover table-responsive">
-                                        <thead>
-                                            <th>S.No.</th>
-                                            <th>Download</th>
-                                            <th>Uploaded By</th>
-                                            <th>Uploaded Date</th>    
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat="x in getOrderFileHistory">
-                                                <td>{{$index + 1}}</td>
-                                                <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/{{x.file_name}}'><div class="btn btn-success btn-sm">Download</div></a></td>
-                                                <td>{{ x.agent_name }}</td>
-                                                <td>{{ x.upload_date }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
+
+
     </div>
 </div>

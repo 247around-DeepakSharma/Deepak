@@ -114,16 +114,23 @@ class Bb_model extends CI_Model {
            
             $this->db->where_in($index, $value);
         }
+        
         if (!empty($post['search_value'])) {
+            $like = "";
             foreach ($post['column_search'] as $key => $item) { // loop column 
                 // if datatable send POST for search
                 if ($key === 0) { // first loop
-                    $this->db->like($item, $post['search_value']);
+                    $like .= "( ".$item." LIKE '%".$post['search_value']."%' ";
+                   // $this->db->like($item, $post['search_value']);
                 } else {
-                     $this->db->or_like($item, $post['search_value']);
+                    $like .= " OR ".$item." LIKE '%".$post['search_value']."%' ";
+                     //$this->db->or_like($item, $post['search_value']);
+                     
                 }
              }
-           
+             $like .= ") ";
+
+           $this->db->where($like, null, false);
         }
 
         if (!empty($post['order'])) { // here order processing
@@ -201,16 +208,21 @@ class Bb_model extends CI_Model {
         $this->db->select('cp_action.id,cp_action.partner_order_id,cp_action.cp_id,cp_action.category,cp_action.brand,cp_action.physical_condition,
             cp_action.working_condition,cp_action.remarks,cp_action.internal_status, cp.name');
         $this->db->where('current_status', _247AROUND_BB_IN_PROCESS);
-        foreach ($this->cp_action_column_search as $key => $item) { // loop column 
-            if (!empty($search_value)) { // if datatable send POST for search
-                if ($key === 0) { // first loop
-                    $this->db->like($item, $search_value);
-                } else {
-                   $this->db->or_like($item, $search_value);
-                }
+        if (!empty($search_value)) { // if datatable send POST for search
+             $like = "";
+            foreach ($this->cp_action_column_search as $key => $item) { // loop column 
+                    if ($key === 0) { // first loop
+                       // $this->db->like($item, $search_value);
+                         $like .= "( ".$item." LIKE '%".$search_value."%' ";
+                    } else {
+                        $like .= " OR ".$item." LIKE '%".$search_value."%' ";
+                      // $this->db->or_like($item, $search_value);
+                    }
             }
-           
-        }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+         }
 
         if (!empty($order)) { // here order processing
             $this->db->order_by($this->cp_action_column_order[$order[0]['column'] - 1], $order[0]['dir']);

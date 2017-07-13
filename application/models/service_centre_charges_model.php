@@ -265,4 +265,13 @@ class service_centre_charges_model extends CI_Model {
        
         return $query->result_array();
     }
+    
+    function get_service_charge_details($where, $select, $order_by){
+        $this->db->distinct();
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->order_by($order_by);
+        $query = $this->db->get('service_centre_charges');
+        return $query->result_array();
+    }
 }
