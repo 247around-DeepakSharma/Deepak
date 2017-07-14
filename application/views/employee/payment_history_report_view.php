@@ -34,8 +34,8 @@
                 <div class="row">
                     <div class="row">
                         <div class="form-group" style="margin-left: 10px;">
-                            <label class="radio-inline"><input type="radio" name="optradio" value="1" checked="">Without Challan Id</label>
-                            <label class="radio-inline"><input type="radio" name="optradio" value="2">All</label>
+                            <label class="radio-inline"><input type="radio" name="optradio" value="2" checked="">All</label>
+                            <label class="radio-inline"><input type="radio" name="optradio" value="1">Challans Not Tagged</label>
                         </div>
                         <div class="form-inline" style="margin-left: 20px;">
                             <div class="form-group" style="margin-right: 10px;">

@@ -522,6 +522,9 @@ class vendor extends CI_Controller {
                         if(isset($attachment_contract)){
                             $this->email->attach($attachment_contract, 'attachment');
                         }
+                        if(isset($attachment_gst)){
+                            $this->email->attach($attachment_gst, 'attachment');
+                        }
 
                         if ($this->email->send()) {
                             log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
@@ -716,30 +719,46 @@ class vendor extends CI_Controller {
                 $vendor_data['ifsc_code'] = $this->input->post('ifsc_code');
                 $vendor_data['beneficiary_name'] = $this->input->post('beneficiary_name');
                 $vendor_data['is_verified'] = $this->input->post('is_verified');
-                if(!empty($this->input->post('contract_file')))
+                if(!empty($this->input->post('contract_file'))){
                     $vendor_data['contract_file'] = $this->input->post('contract_file');
-                if(!empty($this->input->post('id_proof_2_file')))
+                } 
+                if(!empty($this->input->post('id_proof_2_file'))){
                     $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
-                if(!empty($this->input->post('id_proof_1_file')))
+                }  
+                if(!empty($this->input->post('id_proof_1_file'))){
                     $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
-                if(!empty($this->input->post('cancelled_cheque_file')))
-                    $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
-                if(!empty($this->input->post('address_proof_file')))
+                } 
+                if(!empty($this->input->post('cancelled_cheque_file'))){
+                     $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
+                } 
+                if(!empty($this->input->post('address_proof_file'))){
                     $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
-                if(!empty($this->input->post('service_tax_file')))
+                } 
+                if(!empty($this->input->post('service_tax_file'))){
                     $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
-                if(!empty($this->input->post('tin_file')))
+                } 
+                if(!empty($this->input->post('tin_file'))){
                     $vendor_data['tin_file'] = $this->input->post('tin_file');
-                if(!empty($this->input->post('cst_file')))
+                }
+                if(!empty($this->input->post('cst_file'))){
                     $vendor_data['cst_file'] = $this->input->post('cst_file');
-                if(!empty($this->input->post('pan_file')))
+                }
+                if(!empty($this->input->post('pan_file'))){
                     $vendor_data['pan_file'] = $this->input->post('pan_file');
-                if(!empty($this->input->post('non_working_days')))
+                }   
+                if(!empty($this->input->post('non_working_days'))){
                     $vendor_data['non_working_days'] = $this->input->post('non_working_days');
-                if(!empty($this->input->post('appliances')))
+                } 
+                if(!empty($this->input->post('appliances'))){
                     $vendor_data['appliances'] = $this->input->post('appliances');
-                if(!empty($this->input->post('brands')))
-                    $vendor_data['brands'] = $this->input->post('brands');    
+                }
+                if(!empty($this->input->post('brands'))){
+                    $vendor_data['brands'] = $this->input->post('brands');  
+                }   
+                if(!empty($this->input->post('gst_file'))){
+                     $vendor_data['gst_file'] = $this->input->post('gst_file');
+                }
+                   
             
             return $vendor_data;
     }
@@ -4180,24 +4199,19 @@ class vendor extends CI_Controller {
             }
             
             if($sf_cp_type === 'sf'){
-                $is_sf = '1';
-                $is_cp = '0';
+                $is_cp = '';
             }else if($sf_cp_type === 'cp'){
-                $is_sf = '0';
-                $is_cp = '1';
-            }else if($sf_cp_type === 'both'){
-                $is_sf = '1';
                 $is_cp = '1';
             }
             
             $id = $this->session->userdata('id');   
-            $active = "1";
+            //$active = "1";
             //Getting employee relation if present for logged in user
             $sf_list = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
-            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_sf,$is_cp);
+            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp);
             if(!empty($query)){
                 $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true));
             }else{

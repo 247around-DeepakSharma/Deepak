@@ -92,7 +92,6 @@
                         <select class="form-control" id="sf_cp" onchange="get_SF_CP_Vendor()">
                             <option value="sf" selected>Service Center</option>
                             <option value="cp">Collection Partner</option>
-                            <option value="both">Both</option>
                         </select>
                     </div>
                     <?php } ?>
