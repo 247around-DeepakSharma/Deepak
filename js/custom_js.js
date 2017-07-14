@@ -203,6 +203,8 @@ function addBookingDialog() {
     var timeslot = $('#booking_timeslot').val();
     var type = $('input[name=type]:checked', '#booking_form').val();
     var source_code = $("#source_code option:selected").val();
+    var dealer_phone_number = $('#dealer_phone_number').val();
+    var dealer_name = $('#dealer_name').val();
 
     if (pincode.length !== 6) {
 
@@ -267,12 +269,12 @@ function addBookingDialog() {
         return false;
     }
 
-    if (p_contact_no != "" && !p_contact_no.match(exp1)) {
+    if (p_contact_no !== "" && !p_contact_no.match(exp1)) {
         alert("Enter Valid Phone Number Only");
         return false;
     }
     
-    if (alternate_contact_no != "" && !alternate_contact_no.match(exp1)) {
+    if (alternate_contact_no !== "" && !alternate_contact_no.match(exp1)) {
         alert("Enter Valid Alternate Phone Number Only");
         return false;
     }
@@ -283,18 +285,29 @@ function addBookingDialog() {
         return false;
     }
 
+    var partner_id = $("#source_code").find(':selected').attr('data-id');
+    var grand_total_price = $("#grand_total_price").val();
+    if (Number(grand_total_price) === 0) {
+       
+        if (partner_id !== "247001") {
+            var order_id = $('#order_id').val();
+            if (order_id === "" && dealer_phone_number === "") {
 
-   if (source_code === "SB") {
-   } else {
-
-       var order_id = $('#order_id').val();
-
-       if (order_id === "") {
-
-           alert('Please Fill Order Id');
-           return false;
-       }
-   }
+                alert('Please Fill Order Id Or Dealer Phone Number');
+                return false;
+            }
+            
+        }
+    }
+    if(dealer_phone_number !=="" && !dealer_phone_number.match(exp1)){
+        alert('Please Enter Valid Dealer Phone Number');   
+        return false;
+    }
+    
+    if(dealer_phone_number !=="" && dealer_name === ""){
+        alert("Please Enter Dealer Name");
+        return false;
+    }
 
     if (booking_date === "") {
 
@@ -567,13 +580,6 @@ function set_upcountry() {
     }
 }
 
-    $("#booking_pincode").keyup(function(event) {
-       
-        check_pincode();
-        getBrandForService();
-        
-    });
-    
     function check_pincode(){
         var pincode = $("#booking_pincode").val();
         if(pincode.length === 6){
@@ -603,6 +609,54 @@ function set_upcountry() {
             }); 
         }
     }
+    $(document).ready(function(){
+         $("#booking_pincode").keyup(function(event) {
+       
+            check_pincode();
+            getBrandForService();
+        
+        });
+        $("#dealer_phone_number").keyup(function(){
+            var partner_id = $("#source_code").find(':selected').attr('data-id');
+            if(partner_id !== undefined){
+                var search_term = $(this).val();
+                
+                if(search_term === ""){
+                    $("#dealer_id").val("");
+                    $("#dealer_name").val("");
+                    $("#dealer_phone_suggesstion_box").hide();
+                }else{
+
+                    $.ajax({
+                        type: "POST",
+                        url: baseUrl + "/employee/partner/get_dealer_phone_number",
+                        data: {partner_id: partner_id, search_term: search_term},
+                        beforeSend: function () {
+                            //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
+                        },
+                        success: function (data) {
+                            $("#dealer_phone_suggesstion_box").show();
+                            $("#dealer_phone_suggesstion_box").html(data);
+                            $("#dealer_phone_number").css("background", "#FFF");
+                        }
+                    });
+                }
+            } else{
+                alert("Please Select Partner");
+            }
+        });
+    
+});
+
+function selectDealer(name,ph, id) {
+
+    $("#dealer_phone_number").val(ph);
+    $("#dealer_name").val(name);
+    $("#dealer_id").val(id);
+
+    $("#dealer_phone_suggesstion_box").hide();
+ }
+
 
 
 

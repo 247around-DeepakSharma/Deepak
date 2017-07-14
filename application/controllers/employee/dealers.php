@@ -419,6 +419,7 @@ class Dealers extends CI_Controller {
             $dealer_details['owner_name'] = (isset($postData['owner_name']) ? $postData['owner_name']: NULL);
             $dealer_details['owner_phone_number_1'] = (isset($postData['owner_phone_number_1']) ? $postData['owner_phone_number_1']: NULL);
             $dealer_details['owner_email'] =(isset($postData['owner_email']) ? $postData['owner_email']: NULL);
+            $dealer_details['create_date'] = date("Y-m-d H:i:s");
 
             $dealer_id = $this->dealer_model->insert_dealer_details($dealer_details);
             if(!empty($dealer_id)){
@@ -455,6 +456,7 @@ class Dealers extends CI_Controller {
         for($i=0; $i < count($partner_data); $i++){
             $partner_data[$i]['dealer_id'] = $dealer_id;
             $partner_data[$i]['city'] = $postData['city'];
+            $partner_data[$i]['create_date'] = date("Y-m-d H:i:s");
 
         }
         $status = $this->dealer_model->insert_dealer_mapping_batch($partner_data);

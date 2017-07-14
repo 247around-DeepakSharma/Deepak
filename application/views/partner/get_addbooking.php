@@ -405,6 +405,7 @@
         var appliance = $("#service_name").val();
         var brand = $("#appliance_brand_1").val();
         var dealer_name = $("#dealer_name").val();
+        var dealer_phone_number = $("#dealer_phone_number").val();
         var not_visible = $("#not_visible").val();
         
          if(mobile_number === ""){
@@ -478,21 +479,14 @@
           
         }
         
-        if(order_id === '' && serial_number === '' && dealer_name === ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
+        if(order_id === '' && serial_number === '' && dealer_phone_number === ''){
+            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Phone Number");
             return false;
-        }else if(order_id !== '' && serial_number !== '' && dealer_name !== ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
-        }else if(order_id === '' && serial_number !== '' && dealer_name !== ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
-        }else if(order_id !== '' && serial_number === '' && dealer_name !== ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
-        }else if(order_id !== '' && serial_number !== '' && dealer_name === ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
+        } 
+        
+        if(dealer_phone_number !== "" && dealer_name){
+             alert("Please Enter Dealer Name");
+             return false;
         }
         
 //        if (order_id === "" && serial_number === ""  ) {
@@ -744,52 +738,6 @@
     
     }
     
-//    function getservice_category() {
-//    
-//        var postData = {};       
-//       
-//        postData['service_id'] = $("#service_name").find(':selected').attr('data-id');
-//        postData['brand'] = $('#appliance_brand_1').val();
-//        postData['category'] = $("#appliance_category_1").val();
-//        capacity = $("#appliance_capacity_1").val();
-//        postData['partner_type'] = '<?php //echo $partner_type;?>';
-//        $("#total_price").html("<br/>Rs.");
-//        if(capacity === null && capacity === ""){
-//            postData['capacity'] = "";
-//            
-//        } else {
-//            postData['capacity'] = capacity;
-//        }
-//
-//        $.ajax({
-//            type: 'POST',
-//            beforeSend: function(){
-//              $("#error_call_type").html("Loading......");
-//              $('#submitform').attr('disabled',true);
-//
-//            },
-//            url: '<?php //echo base_url(); ?>employee/partner/get_service_category',
-//            data: postData,
-//            success: function (data) {
-//            console.log(data);
-//                 if(data === "ERROR"){
-//                     
-//                   // alert("Price is not defined");
-//
-//                 } else {
-// 
-//                    $("#price_tag option[value !='option1']").remove();
-//                    $('#price_tag').append(data).change();
-//                    getPrice();
-//                    $('#submitform').attr('disabled',false);
-//                    $("#error_call_type").css("display","none");
-//                 }
-//            }
-//        });
-//        
-//    
-//    }
-//    
     $("#booking_pincode").keyup(function(event) {
         get_city();
         
@@ -966,10 +914,12 @@
     $(document).ready(function(){
 	$("#dealer_phone_number").keyup(function(){
                 var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
-                //var service_id = $("#service_name").val();
-                // brand = $('#appliance_brand_1').val();
-                //var city = $("#booking_city").val();
                 var search_term = $(this).val();
+                if(search_term === ""){
+                    $("#dealer_id").val("");
+                    $("#dealer_name").val("");
+                    $("#dealer_phone_suggesstion_box").hide();
+                } else{
                 
                 $.ajax({
                     type: "POST",
@@ -979,16 +929,18 @@
                             //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
                     },
                     success: function(data){
-                       
+                       console.log(data);
                             $("#dealer_phone_suggesstion_box").show();
                             $("#dealer_phone_suggesstion_box").html(data);
                             $("#dealer_phone_number").css("background","#FFF");
                         }
                     });
+               }
 	});
     });
     
     function selectDealer(name,ph, id) {
+  
         $("#dealer_phone_number").val(ph);
         $("#dealer_name").val(name);
         $("#dealer_id").val(id);

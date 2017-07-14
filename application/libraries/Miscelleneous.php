@@ -691,6 +691,100 @@ class Miscelleneous {
 
         return $result;
     }
+    /**
+     * @desc Checl delaer process
+     * @param Array $requestData
+     * @param Int $partner_id
+     * @return Int
+     */
+    function dealer_process($requestData, $partner_id) {
+        $dealer_id = $requestData['dealer_id'];
+        $dealer_name = $requestData['dealer_name'];
+        $dealer_phone_number = $requestData['dealer_phone_number'];
+        if(empty($dealer_id)){
+            $condition = array(
+                    "where" => array('dealer_details.dealer_phone_number_1' => $dealer_phone_number));
+           $select = " dealer_details.dealer_id";
+           $dealer_mapping_status = $this->My_CI->dealer_model->get_dealer_mapping_details($condition, $select);
+           $dealer_id = $dealer_mapping_status[0]['dealer_id'];
+        }
+        if (!empty($dealer_id)) {
+            $condition = array(
+                "where" => array('dealer_brand_mapping.partner_id' => $partner_id,
+                    'dealer_brand_mapping.dealer_id' => $dealer_id,
+                    "dealer_brand_mapping.brand" => $requestData['brand'],
+                    "dealer_brand_mapping.service_id" => $requestData['service_id']));
+            $select = " dealer_brand_mapping.dealer_id";
 
+            $dealer_mapping_status = $this->My_CI->dealer_model->get_dealer_mapping_details($condition, $select);
+            if (empty($dealer_mapping_status)) {
+                $mapping_data = array();
+                $mapping_data[0]['dealer_id'] = $dealer_id;
+                $mapping_data[0]['city'] = $requestData['city'];
+                $mapping_data[0]['create_date'] = date("Y-m-d H:i:s");
+                $mapping_data[0]['partner_id'] = $partner_id;
+                $mapping_data[0]['brand'] = $requestData['brand'];
+                $mapping_data[0]['service_id'] = $requestData['service_id'];
+
+                $status = $this->My_CI->dealer_model->insert_dealer_mapping_batch($mapping_data);
+            }
+            return $dealer_id;
+        } else if (empty($dealer_id)) {
+            //make dealer details data
+            $dealer_data['dealer_name'] = $dealer_name;
+            $dealer_data['dealer_phone_number_1'] = $dealer_phone_number;
+            $dealer_data['city'] = $requestData['city'];
+            $dealer_data['create_date'] = date('Y-m-d H:i:s');
+
+            $dealer_id = $this->My_CI->dealer_model->insert_dealer_details($dealer_data);
+
+            $select1 = "partner_id, service_id, brand";
+            $partner_data_sp = $this->My_CI->partner_model->get_partner_specific_details(array('partner_id' => $partner_id), $select1, "service_id");
+            if (!empty($partner_data_sp)) {
+                // don not remove $value
+                for ($i = 0; $i < count($partner_data_sp); $i++) {
+                    $partner_data_sp[$i]['dealer_id'] = $dealer_id;
+                    $partner_data_sp[$i]['city'] = $dealer_data['city'];
+                    $partner_data_sp[$i]['create_date'] = date("Y-m-d H:i:s");
+                }
+                $status = $this->My_CI->dealer_model->insert_dealer_mapping_batch($partner_data_sp);
+
+                if (!empty($status)) {
+                    log_message('info', __METHOD__ . "Dealer details added successfully" . print_r($dealer_data, true));
+
+                    //do mapping for dealer and brand
+
+                    $this->My_CI->create_dealer_login($dealer_data, $dealer_id);
+                } else {
+                    log_message('info', __METHOD__ . "Error in inserting dealer details" . print_r($dealer_data, true));
+                }
+            }
+
+            return $dealer_id;
+        }
+    }
+    
+
+    /**
+     * @desc Create dealer login
+     * @param Array $posData
+     * @return boolean
+     */
+    function create_dealer_login($posData, $dealer_id){
+        log_message("info", __METHOD__);
+        $login['user_id']  = $posData['dealer_phone_number_1'];
+        $login['password'] = md5($posData['dealer_phone_number_1']."247");
+        $login['clear_password'] = $posData['dealer_phone_number_1']."247";
+        $login['entity'] = "dealer";
+        $login['agent_name'] = $posData['dealer_name'];
+        $login['entity_name'] = $posData['dealer_name'];
+        $login['email'] = (isset($posData['dealer_email']) ? $posData['dealer_email']: NULL);
+        $login['entity_id'] = $dealer_id;
+        $login['create_date'] = date('Y-m-d H:i:s');
+        $this->My_CI->dealer_model->insert_entity_login($login);
+        
+        return true;
+        
+    }
 
 }
