@@ -88,6 +88,25 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_panel">
                         <div class="x_title">
+                            <h2>Booking based on partner source<small></small></h2>
+                            <div class="nav navbar-right panel_toolbox">
+                                <div id="reportrange5" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                    <span></span> <b class="caret"></b>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="col-md-12"><center><img id="loader_gif7" src="" style="display: none;"></center></div>
+                        <div class="x_content2">
+                            <div id="booking_based_on_partner_source_chart" style="width:90%; height:400px;" ></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
                             <h2>Booking based on Service Type<small></small></h2>
                             <div class="nav navbar-right panel_toolbox">
                                 <div id="reportrange3" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
@@ -357,13 +376,7 @@
 
     var start = moment(startdate);
     var end = moment(enddate);
-
-    $(function () {
-        function cb(start, end) {
-            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-        }
-
-        $('#reportrange').daterangepicker({
+    var options = {
             startDate: start,
             endDate: end,
             minDate: '01/01/2000',
@@ -400,7 +413,14 @@
                 monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
                 firstDay: 1
             }
-        }, cb);
+        }
+
+    $(function () {
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#reportrange').daterangepicker(options, cb);
 
         cb(start, end);
 
@@ -411,44 +431,7 @@
             $('#reportrange2 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
         }
 
-        $('#reportrange2').daterangepicker({
-            startDate: start,
-            endDate: end,
-            minDate: '01/01/2000',
-            maxDate: '12/31/2030',
-            dateLimit: {
-                days: 120
-            },
-            showDropdowns: true,
-            showWeekNumbers: true,
-            timePicker: false,
-            timePickerIncrement: 1,
-            timePicker12Hour: true,
-            ranges: {
-                'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                'This Month': [moment().startOf('month'), moment().endOf('month')],
-                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-            },
-            opens: 'left',
-            buttonClasses: ['btn btn-default'],
-            applyClass: 'btn-small btn-primary',
-            cancelClass: 'btn-small',
-            format: 'MM/DD/YYYY',
-            separator: ' to ',
-            locale: {
-                applyLabel: 'Submit',
-                cancelLabel: 'Clear',
-                fromLabel: 'From',
-                toLabel: 'To',
-                customRangeLabel: 'Custom',
-                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                firstDay: 1
-            }
-        }, cb);
+        $('#reportrange2').daterangepicker(options, cb);
 
         cb(start, end);
 
@@ -459,44 +442,7 @@
             $('#reportrange3 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
         }
 
-        $('#reportrange3').daterangepicker({
-            startDate: start,
-            endDate: end,
-            minDate: '01/01/2000',
-            maxDate: '12/31/2030',
-            dateLimit: {
-                days: 120
-            },
-            showDropdowns: true,
-            showWeekNumbers: true,
-            timePicker: false,
-            timePickerIncrement: 1,
-            timePicker12Hour: true,
-            ranges: {
-                'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                'This Month': [moment().startOf('month'), moment().endOf('month')],
-                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-            },
-            opens: 'left',
-            buttonClasses: ['btn btn-default'],
-            applyClass: 'btn-small btn-primary',
-            cancelClass: 'btn-small',
-            format: 'MM/DD/YYYY',
-            separator: ' to ',
-            locale: {
-                applyLabel: 'Submit',
-                cancelLabel: 'Clear',
-                fromLabel: 'From',
-                toLabel: 'To',
-                customRangeLabel: 'Custom',
-                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                firstDay: 1
-            }
-        }, cb);
+        $('#reportrange3').daterangepicker(options, cb);
 
         cb(start, end);
 
@@ -507,44 +453,18 @@
             $('#reportrange4 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
         }
 
-        $('#reportrange4').daterangepicker({
-            startDate: start,
-            endDate: end,
-            minDate: '01/01/2000',
-            maxDate: '12/31/2030',
-            dateLimit: {
-                days: 120
-            },
-            showDropdowns: true,
-            showWeekNumbers: true,
-            timePicker: false,
-            timePickerIncrement: 1,
-            timePicker12Hour: true,
-            ranges: {
-                'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                'This Month': [moment().startOf('month'), moment().endOf('month')],
-                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-            },
-            opens: 'left',
-            buttonClasses: ['btn btn-default'],
-            applyClass: 'btn-small btn-primary',
-            cancelClass: 'btn-small',
-            format: 'MM/DD/YYYY',
-            separator: ' to ',
-            locale: {
-                applyLabel: 'Submit',
-                cancelLabel: 'Clear',
-                fromLabel: 'From',
-                toLabel: 'To',
-                customRangeLabel: 'Custom',
-                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                firstDay: 1
-            }
-        }, cb);
+        $('#reportrange4').daterangepicker(options, cb);
+
+        cb(start, end);
+
+    });
+    
+    $(function () {
+        function cb(start, end) {
+            $('#reportrange5 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#reportrange5').daterangepicker(options, cb);
 
         cb(start, end);
 
@@ -768,6 +688,27 @@
             }
         });
     });
+    
+    $('#reportrange5').on('apply.daterangepicker', function (ev, picker) {
+
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        var url = baseUrl + '/employee/dashboard/get_booking_based_on_partner_source';
+        $('#loader_gif7').css('display', 'inherit');
+        $('#loader_gif7').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
+        $('#booking_based_on_partner_source_chart').hide();
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {sDate: startDate, eDate: endDate,partner_id:partner_id},
+            success: function (response) {
+                $('#loader_gif7').attr('src', "");
+                $('#loader_gif7').css('display', 'none');
+                $('#booking_based_on_partner_source_chart').show();
+                create_booking_based_on_partner_source_chart(response);
+            }
+        });
+    });
 
 
     function get_partner_booking_based_services(e, chart, startdate, enddate, partner_name, partner_id, booking_status) {
@@ -881,6 +822,15 @@
                 data: {partner_id:partner_id},
                 success: function (data) {
                     create_montly_booking_chart(data);
+                }
+            });
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/dashboard/get_booking_based_on_partner_source',
+                data: {sDate: startdate, eDate: enddate,partner_id:partner_id},
+                success: function (data) {
+                    //console.log(data);
+                    create_booking_based_on_partner_source_chart(data);
                 }
             });
 
@@ -1108,6 +1058,49 @@
                 {
                     name: 'Completed Bookings',
                     data: completed_booking
+                }]
+        });
+    }
+    
+    function create_booking_based_on_partner_source_chart(response){
+        var data = JSON.parse(response);
+        var booking = data.partner_source_booking.split(',');
+        var count = JSON.parse("[" + data.count + "]");
+        booking_based_on_partner_sorce_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'booking_based_on_partner_source_chart',
+                type: 'column'
+            },
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            xAxis: {
+                categories: booking
+            },
+            yAxis: {
+                title: {
+                    text: 'Count'
+                },
+                plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Bookings',
+                    data: count
                 }]
         });
     }

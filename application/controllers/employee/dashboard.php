@@ -144,8 +144,8 @@ class Dashboard extends CI_Controller {
      */
     function partner_reports($partner_name = "", $partner_id = "", $current_status = "", $sDate = "", $eDate = "") {
 
-        $data['partner_name'] = $partner_name;
-        $data['partner_id'] = $partner_id;
+        $data['partner_name'] = urldecode($partner_name);
+        $data['partner_id'] = urldecode($partner_id);
         $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
         $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
         $data['booking'] = $this->dashboard_model->get_partner_bookings_data($startDate, $endDate, $partner_id);
@@ -411,6 +411,32 @@ class Dashboard extends CI_Controller {
         $json_data['month'] = implode(",", $month);
         $json_data['completed_booking'] = implode(",", $completed_booking);
         echo json_encode($json_data);
+    }
+    
+    function get_booking_based_on_partner_source() {
+        $sDate = $this->input->post('sDate');
+        $eDate = $this->input->post('eDate');
+        $partner_id = "";
+        if ($this->input->post('partner_id')) {
+            $partner_id = $this->input->post('partner_id');
+        }
+        $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
+        $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
+        $data = $this->dashboard_model->get_booking_based_on_partner_source_data($startDate, $endDate, $partner_id);
+        
+        $count = [];
+        $booking = [];
+
+        foreach ($data as $key => $value) {
+            array_push($count, $value['count']);
+            array_push($booking, $value['partner_source']);
+        }
+
+        $json_data['count'] = implode(",", $count);
+        $json_data['partner_source_booking'] = implode(",", $booking);
+
+        echo json_encode($json_data);
+        
     }
 
 }
