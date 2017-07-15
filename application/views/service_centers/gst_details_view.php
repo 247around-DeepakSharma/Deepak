@@ -46,7 +46,15 @@
                                  <div  class="form-group ">
                                     <label  for="gst_no" class="col-md-4">Company GST File</label>
                                     <div class="col-md-8">
-                                     <?php if( !empty($gst_certificate_file)){ ?> <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php echo $gst_certificate_file; ?>">View Here</a>  <?php } ?>
+                                     <?php if( !empty($gst_certificate_file)){ ?> <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/<?php echo $gst_certificate_file; ?>">View Here</a>  <?php } ?>
+                                        
+                                    </div>
+                                    
+                                </div>
+                                <div  class="form-group ">
+                                    <label  for="gst_no" class="col-md-4">Signature</label>
+                                    <div class="col-md-8">
+                                     <?php if( !empty($signature_file)){ ?> <a target="_blank" href="https://s3.amazonaws.com/<?php echo  BITBUCKET_DIRECTORY;?>/vendor-partner-docs/<?php echo $signature_file; ?>">View Here</a>  <?php } ?>
                                         
                                     </div>
                                     
