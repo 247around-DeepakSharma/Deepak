@@ -1,5 +1,24 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js"></script>
+<style>
+      
+    #dealer_list{
+        float:left;
+        width:88%;
+        max-height: 300px;
+        list-style:none;
+        margin-top:0px;
+        padding:0;
+        position: absolute;
+        z-index: 99999;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        overflow-y: auto;
+    }
+    #dealer_list li{padding: 10px; border-bottom: #bbb9b9 1px solid;}
+    #dealer_list li:hover{background:#e9ebee;cursor: pointer;}
+</style>
 <div id="page-wrapper" >
     <div class="container" >
         <?php if(validation_errors()){?>
@@ -86,9 +105,18 @@
                                     </div>
                                 </div>
                                  <div class="form-group ">
-                                     <label for="service_name" class="col-md-4">Order ID </label>
+                                     <label for="order ID" class="col-md-4">Order ID </label>
                                       <div class="col-md-6">
-                                          <input class="form-control" name= "order_id" id="order_id"></input>
+                                          <input class="form-control" name= "order_id" placeholder="Enter Order ID" id="order_id"/>
+                                         
+                                      </div>
+                                 </div>
+                                 <div class="form-group ">
+                                     <label for="dealer_phone_number" class="col-md-4">Dealer Mobile Number </label>
+                                      <div class="col-md-6">
+                                          <input class="form-control" name= "dealer_phone_number" autocomplete="off" placeholder="Enter Dealer Mobile No" id="dealer_phone_number"/>
+                                           <input type="hidden" name="dealer_id" id="dealer_id" value="">
+                                            <div id="dealer_phone_suggesstion_box"></div>
                                       </div>
                                  </div>
                                 <!--  end col-md-6  -->
@@ -159,10 +187,17 @@
                                 
                                 <div class="form-group">
                                     <label for="support_file" class="col-md-4">Upload Support file</label>
-                                    <div class="col-md-8">
+                                    <div class="col-md-6">
                                         <input type="file" class="form-control" id="support_file" name="support_file">
                                     </div>
                                 </div>
+                                <div class="form-group ">
+                                     <label for="dealer name" class="col-md-4">Dealer Name </label>
+                                      <div class="col-md-6">
+                                          <input class="form-control" name= "dealer_name" placeholder="Enter Dealer Name" id="dealer_name"/>
+                                           
+                                      </div>
+                                 </div>
                                 <!-- end col-md-6 -->
                             </div>
                         </div>
@@ -371,7 +406,7 @@
                         <div class="form-group  col-md-12" >
                             <center>
 <!--                                <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md " data-toggle="modal" data-target="#myModal">Check Details</button>-->
-<input type="submit" id="submitform" class="btn btn-primary " onclick="return addBookingDialog()" value="Submit Booking">
+                                    <input type="submit" id="submitform" class="btn btn-primary " onclick="return addBookingDialog()" value="Submit Booking">
                         </div>
                         </center>
                     </div>
@@ -392,12 +427,7 @@
     $("#partner_source").select2();
 
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
-    $("#booking_pincode").keyup(function(event) {
-       
-        check_pincode();
-        getBrandForService();
-        
-    });
+
 </script>
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;

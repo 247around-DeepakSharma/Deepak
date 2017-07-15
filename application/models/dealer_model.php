@@ -31,8 +31,8 @@ class Dealer_model extends CI_Model {
     function get_dealer_mapping_details($condition, $select){
         $this->db->distinct();
         $this->db->select($select);
-        $this->db->from('dealer_brand_mapping');
-        $this->db->join('dealer_details', 'dealer_details.dealer_id = dealer_brand_mapping.dealer_id');
+        $this->db->from('dealer_details');
+        $this->db->join('dealer_brand_mapping', 'dealer_details.dealer_id = dealer_brand_mapping.dealer_id',"Left");
         $this->db->join('services', 'services.id = dealer_brand_mapping.service_id');
         
         if(!empty($condition['where'])){

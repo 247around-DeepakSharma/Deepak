@@ -265,6 +265,13 @@
                                 </div>
                             </div> 
                             <div class="col-md-3 ">
+                                <div class="form-group col-md-12  <?php if( form_error('dealer_phone_number') ) { echo 'has-error';} ?>">
+                                    <label for="dealer_phone_number">Dealer Phone Number  <span id="error_dealer_phone_number" style="color:red"></span></label>
+                                    <input  type="text" class="form-control"  name="dealer_phone_number" id="dealer_phone_number" value = "<?php if(isset($dealer_data)){echo $dealer_data['dealer_phone_number_1'] ;}?>" placeholder="Enter Dealer Phone Number" autocomplete="off">
+                                    <div id="dealer_phone_suggesstion_box"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 ">
                                 <div class="form-group col-md-12  <?php if( form_error('dealer_name') ) { echo 'has-error';} ?>">
                                     <label for="dealer_name">Dealer Name *  <span id="error_dealer_name" style="color:red"></span></label>
                                     <input  type="text" class="form-control"  name="dealer_name" id="dealer_name" value = "<?php if(isset($dealer_data)){echo $dealer_data['dealer_name'] ;}?>" placeholder="Enter Dealer Name" autocomplete="off">
@@ -272,13 +279,7 @@
                                     <div id="dealer_name_suggesstion_box"></div>
                                 </div>
                             </div> 
-                            <div class="col-md-3 ">
-                                <div class="form-group col-md-12  <?php if( form_error('dealer_phone_number') ) { echo 'has-error';} ?>">
-                                    <label for="dealer_phone_number">Dealer Phone Number  <span id="error_dealer_phone_number" style="color:red"></span></label>
-                                    <input  type="text" class="form-control"  name="dealer_phone_number" id="dealer_phone_number" value = "<?php if(isset($dealer_data)){echo $dealer_data['dealer_phone_number_1'] ;}?>" placeholder="Enter Dealer Phone Number" autocomplete="off">
-                                    <div id="dealer_phone_suggesstion_box"></div>
-                                </div>
-                            </div>
+                            
                             <div class="col-md-6 ">
                                 <div class="form-group col-md-12  <?php if( form_error('purchase_month') ) { echo 'has-error';} ?>">
                                     <label for="Date of Purchase">Date of Purchase</label>
@@ -400,6 +401,7 @@
         var appliance = $("#service_name").val();
         var brand = $("#appliance_brand_1").val();
         var dealer_name = $("#dealer_name").val();
+        var dealer_phone_number = $("#dealer_phone_number").val();
         
          if(mobile_number === ""){
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Mobile");
@@ -467,37 +469,15 @@
           
         }
         
-        if(order_id === '' && serial_number === '' && dealer_name === ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
+        if(order_id === '' && serial_number === '' && dealer_phone_number === ''){
+            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Phone Number");
             return false;
-        }else if(order_id !== '' && serial_number !== '' && dealer_name !== ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
-        }else if(order_id === '' && serial_number !== '' && dealer_name !== ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
-        }else if(order_id !== '' && serial_number === '' && dealer_name !== ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
-        }else if(order_id !== '' && serial_number !== '' && dealer_name === ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Name");
-            return false;
+        } 
+        
+        if(dealer_phone_number !== "" && dealer_name){
+             alert("Please Enter Dealer Name");
+             return false;
         }
-
-//        if (order_id === "" && serial_number === ""  ) {
-//             document.getElementById('order_id').style.borderColor = "red";
-//             document.getElementById('serial_number').style.borderColor = "red";
-//            document.getElementById('error_order_id').innerHTML = "Please enter Order ID";
-//            document.getElementById('error_serial_number').innerHTML = "Please enter Serial Number";
-//               
-//            return false;
-//        } else {
-//    
-//            document.getElementById('order_id').style.borderColor = "green";
-//            document.getElementById('serial_number').style.borderColor = "green";
-//            document.getElementById('error_order_id').innerHTML = "";
-//            document.getElementById('error_serial_number').innerHTML = "";
-//        }
 
         if(booking_address === ""){
              display_message("booking_address","error_address","red","Please Enter Booking Address");
@@ -737,53 +717,6 @@
     
     }
     
-//    function getservice_category() {
-//    
-//        var postData = {};       
-//       
-//        postData['service_id'] = $("#service_name").find(':selected').attr('data-id');
-//        postData['brand'] = $('#appliance_brand_1').val();
-//        postData['category'] = $("#appliance_category_1").val();
-//        capacity = $("#appliance_capacity_1").val();
-//        $("#total_price").html("<br/>Rs.");
-//        postData['partner_type'] = '<?php //echo $partner_type;?>';
-//        if(capacity === null && capacity === ""){
-//            postData['capacity'] = "";
-//            
-//        } else {
-//            postData['capacity'] = capacity;
-//        }
-//        postData['price_tags'] = '<?php //echo $unit_details[0]['price_tags']?>';
-//
-//        $.ajax({
-//            type: 'POST',
-//            beforeSend: function(){
-//              $("#error_call_type").html("Loading......");
-//              $('#submitform').attr('disabled',true);
-//
-//            },
-//            url: '<?php //echo base_url(); ?>employee/partner/get_service_category',
-//            data: postData,
-//            success: function (data) {
-//            //console.log(data);
-//                 if(data === "ERROR"){
-//                     
-//                   // alert("Price is not defined");
-//
-//                 } else {
-// 
-//                    $("#price_tag option[value !='option1']").remove();
-//                    $('#price_tag').append(data).change();
-//                    getPrice();
-//                    $('#submitform').attr('disabled',false);
-//                    $("#error_call_type").css("display","none");
-//                 }
-//            }
-//        });
-//        
-//    
-//    }
-    
     $("#booking_pincode").keyup(function(event) {
         var pincode = $("#booking_pincode").val();
         var service_id =  $("#service_name").val();
@@ -935,58 +868,45 @@
 </script>
 <script>
     $(document).ready(function(){
-	$("#dealer_name").keyup(function(){
+	$("#dealer_phone_number").keyup(function(){
                 var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
+                //var service_id = $("#service_name").val();
+                // brand = $('#appliance_brand_1').val();
+                //var city = $("#booking_city").val();
                 var search_term = $(this).val();
+                
+                if(search_term === ""){
+                    $("#dealer_id").val("");
+                    $("#dealer_name").val("");
+                    $("#dealer_phone_suggesstion_box").hide();
+                }else{
                 
                 $.ajax({
                     type: "POST",
-                    url: "<?php echo base_url();?>employee/partner/get_dealer_name",
+                    url: "<?php echo base_url();?>employee/partner/get_dealer_phone_number",
                     data:{partner_id:partner_id,search_term:search_term},
                     beforeSend: function(){
                             //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
                     },
                     success: function(data){
-                            $("#dealer_name_suggesstion_box").show();
-                            $("#dealer_name_suggesstion_box").html(data);
-                            $("#dealer_name").css("background","#FFF");
-                            $("#dealer_phone_number").val("");
-                        }
-                    });
-	});
-    });
-    
-    function selectDealer(val,id) {
-    $("#dealer_name").val(val);
-    $("#dealer_id").val(id);
-    $("#dealer_name_suggesstion_box").hide();
-    }
-    
-    
-    
-    $("#dealer_phone_number").keyup(function(){
-                var dealer_id = $('#dealer_id').val();
-                var search_term = $(this).val();
-                if(dealer_id !== ''){
-                    $.ajax({
-                    type: "POST",
-                    url: "<?php echo base_url();?>employee/partner/get_dealer_phone_number",
-                    data:{search_term:search_term,dealer_id:dealer_id},
-                    beforeSend: function(){
-                            //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
-                    },
-                    success: function(data){
+                       console.log(data);
                             $("#dealer_phone_suggesstion_box").show();
                             $("#dealer_phone_suggesstion_box").html(data);
                             $("#dealer_phone_number").css("background","#FFF");
                         }
                     });
-                }
+               }
 	});
+    });
         
-        function selectDealerPhoneNumber(val,id) {
-            $("#dealer_phone_number").val(val);
+     
+        function selectDealer(name,ph, id) {
+  
+            $("#dealer_phone_number").val(ph);
+            $("#dealer_name").val(name);
             $("#dealer_id").val(id);
+
             $("#dealer_phone_suggesstion_box").hide();
          }
+
 </script>

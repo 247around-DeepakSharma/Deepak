@@ -26,7 +26,7 @@ class Buyback {
         //Check order exist in the database
         $where_bb_order = array('partner_id' => $this->POST_DATA['partner_id'], 'partner_order_id' => $this->POST_DATA['partner_order_id']);
         $is_exist_order = $this->My_CI->bb_model->get_bb_order($where_bb_order, 'bb_order_details.id, bb_order_details.current_status, '
-                . 'bb_order_details.internal_status');
+                . 'bb_order_details.internal_status, city, partner_tracking_id, bb_order_details.partner_order_id');
         if ($is_exist_order) {
             //Order already exiting
             return $this->update_bb_order($is_exist_order);
@@ -202,7 +202,16 @@ class Buyback {
                 'internal_status' => $this->POST_DATA['current_status'],
                 'delivery_date' => (!empty($this->POST_DATA['delivery_date']) ? $this->POST_DATA['delivery_date'] : NULL)
             );
-            $where_bb_order = array('partner_id' => $this->POST_DATA['partner_id'], 'partner_order_id' => $this->POST_DATA['partner_id']);
+            if($this->POST_DATA['tracking_id'] != 0 ||$order_data[0]['partner_tracking_id'] != $this->POST_DATA['tracking_id']){
+                $bb_order_details['partner_tracking_id'] = $this->POST_DATA['tracking_id'];
+            }
+            if($this->POST_DATA['city'] != 0 || $order_data[0]['city'] != $this->POST_DATA['city']){
+                $bb_order_details['city'] = $this->POST_DATA['city'];
+            }
+            if($this->POST_DATA['partner_order_id'] != 0 || $order_data[0]['partner_order_id'] != $this->POST_DATA['partner_order_id']){
+                $bb_order_details['partner_order_id'] = $this->POST_DATA['partner_order_id'];
+            }
+            $where_bb_order = array('id' => $order_data[0]['id']);
             $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
             if ($is_status) {
                 $bb_unit_details = array(
@@ -324,7 +333,7 @@ class Buyback {
             'city' => $this->POST_DATA['city']);
         $select = "order_key";
         $order_key_data = $this->My_CI->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
-        if (!empty($order_key)) {
+        if (!empty($order_key_data)) {
             $order_key = $order_key_data[0]['order_key'];
         } else {
             $order_key = '';
