@@ -195,7 +195,7 @@ class InvoiceDashboard extends CI_Controller {
             'CASH Add. Charge', 'CASH Misc Charge', '<strong>Total Cash Charge</strong>', 
             'FOC Inst. Charge', 'FOC Parts Charge', 'FOC Misc Charge', 'FOC Total Charge'));
         
-        $vendor_details = $this->vendor_model->getActiveVendor('', 0);
+        $vendor_details = $this->vendor_model->getVendorDetails();
         $total_cash_charge = 0;
         $total_foc_charge = 0;
         foreach ($vendor_details as $value) {

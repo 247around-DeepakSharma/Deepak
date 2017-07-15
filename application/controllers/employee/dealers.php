@@ -203,7 +203,8 @@ class Dealers extends CI_Controller {
         $select = "id, service_category, partner_id, is_upcountry, customer_total,partner_net_payable"; $order_by = "service_category";
         $result = $this->service_centre_charges_model->get_service_charge_details($where, $select, $order_by);
         if(!empty($result)){
-            $partner_details = $this->partner_model->get_all_partner($result[0]['partner_id']);
+            $p_where = array('id' => $result[0]['partner_id']);
+            $partner_details = $this->partner_model->get_all_partner($p_where);
 
             $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $partner_details, NULL);
             

@@ -2078,7 +2078,8 @@ class vendor extends CI_Controller {
 
        $data['engineers'] =  $this->vendor_model->get_engineers($service_center_id);
        foreach ($data['engineers'] as $key => $value) {
-           $service_center = $this->vendor_model->getActiveVendor($value['service_center_id'],0);
+           $where = array('id' => $value['service_center_id'] );
+           $service_center = $this->vendor_model->getVendorDetails($where);
            $data['engineers'][$key]['service_center_name'] = $service_center[0]['name'];
            $service_id  = json_decode($value['appliance_id'],true);
            $appliances = array();
@@ -2262,7 +2263,7 @@ class vendor extends CI_Controller {
         print_r($data);
         }else{
             
-            $data['vendor_details'] = $this->vendor_model->getActiveVendor();
+            $data['vendor_details'] = $this->vendor_model->getVendorDetails();
             $data['state'] = $this->vendor_model->getall_state();
             // Return view for adding of New Vendor to Pincode
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -2294,7 +2295,7 @@ class vendor extends CI_Controller {
 
             $data = $this->input->post();
             
-            $data['vendor_details'] = $this->vendor_model->getActiveVendor();
+            $data['vendor_details'] = $this->vendor_model->getVendorDetails();
             $data['state'] = $this->vendor_model->getall_state();    
             
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -2317,11 +2318,12 @@ class vendor extends CI_Controller {
                                 'active'=>1
                 );
             //Looping through Appliance's Selected
-            foreach ($choice as $key => $value) {
+            foreach ($choice as $value) {
                     //Getting Appliance Name
                     $appliance = $this->booking_model->selectservicebyid($value);
                     //Getting Vendor Name
-                    $vendor_name = $this->vendor_model->getActiveVendor($this->input->post('vendor_id'));
+                    $where = array("id" => $this->input->post('vendor_id'));
+                    $vendor_name = $this->vendor_model->getVendorDetails($where);
                     //Appending Array
                     $vendor_mapping['Vendor_Name'] = $vendor_name[0]['name'];
                     $vendor_mapping['Appliance'] = $appliance[0]['services'];
@@ -2401,7 +2403,7 @@ class vendor extends CI_Controller {
 
 	$data = array();
 	//Getting data from database
-	$data['vendor_details'] = $this->vendor_model->getActiveVendor();
+	$data['vendor_details'] = $this->vendor_model->getVendorDetails();
 	$data['appliance'] = $this->booking_model->selectservice();
 	$data['state'] = $this->vendor_model->getall_state();
 
@@ -2519,7 +2521,7 @@ class vendor extends CI_Controller {
      */
     function get_mail_to_vendors_form() {
         $data = array();
-        $data['vendors'] = $this->vendor_model->getActiveVendor();
+        $data['vendors'] = $this->vendor_model->getVendorDetails();
         $data['partners'] = $this->partner_model->getpartner();
 
         //Declaring array for modal call to get_247around_email_template function
@@ -2572,7 +2574,7 @@ class vendor extends CI_Controller {
             $vendors = $this->input->post('vendors');
             //Checking for ALL vendors selected
             if($vendors[0] == 0){
-                $vendors_array = $this->vendor_model->getActiveVendor();
+                $vendors_array = $this->vendor_model->getVendorDetails();
                 foreach ($vendors_array as $value) {
                     $vendors_list[] = $value['id'];
                 }
@@ -4144,7 +4146,8 @@ class vendor extends CI_Controller {
                 } else {
                     $vendor_data[0]['city'] = $this->vendor_model->get_distict_details_from_india_pincode($value->booking_pincode)['district'];
                 }
-                $partner_details = $this->partner_model->get_all_partner($value->partner_id);
+                $p_where = array('id' => $value->partner_id);
+                $partner_details = $this->partner_model->get_all_partner($p_where);
                 $data = $this->upcountry_model->action_upcountry_booking($value->city, $value->booking_pincode, $vendor_data, $partner_details);
                 switch ($data['message']) {
                     case UPCOUNTRY_BOOKING:
@@ -4178,7 +4181,7 @@ class vendor extends CI_Controller {
      * 
      */
     function get_service_center_details(){
-        $data = $this->vendor_model->getActiveVendor();
+        $data = $this->vendor_model->getVendorDetails();
         $option = '<option selected="" disabled="">Select Service Center</option>';
 
         foreach ($data as $value) {

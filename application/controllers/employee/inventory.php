@@ -44,16 +44,17 @@ class Inventory extends CI_Controller {
             if (!empty($sf_list)) {
                 // Listing details acc to SF mapped
                 $sf_list = $sf_list[0]['service_centres_id'];
-                $service_center = $this->vendor_model->getActiveVendor("", 0);
+               
+                $service_center = $this->vendor_model->getVendorDetails();
                 $sf_array = explode(',',$sf_list);
-                foreach($service_center as $key=>$value){
+                foreach($service_center as $value){
                     if(array_search($value['id'],$sf_array)){
                         $data['vendor'][] = $value;
                     }
                 }
             }else{
                 //Getting all values
-                $data['vendor'] = $this->vendor_model->getActiveVendor();
+                $data['vendor'] = $this->vendor_model->getVendorDetails();
             }
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/add_brackets", $data);

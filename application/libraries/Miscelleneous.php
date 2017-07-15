@@ -156,7 +156,8 @@ class Miscelleneous {
             }
 
             $return_status = 0;
-            $partner_details = $this->My_CI->partner_model->get_all_partner($query1[0]['partner_id']);
+            $p_where = array("id" =>$query1[0]['partner_id']);
+            $partner_details = $this->My_CI->partner_model->get_all_partner($p_where);
             $data = $this->My_CI->upcountry_model->action_upcountry_booking($query1[0]['city'], $query1[0]['booking_pincode'], $vendor_data, $partner_details);
             $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $cus_net_payable = 0;

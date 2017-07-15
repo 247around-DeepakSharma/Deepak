@@ -164,39 +164,20 @@ class invoices_model extends CI_Model {
      * @param: String ( vendor or patner)
      * @return: Array()
      */
-    function getsummary_of_invoice($vendor_partner, $vendor_type="",$is_cp='') {
+    function getsummary_of_invoice($vendor_partner, $where) {
         $array = array();
 
         if ($vendor_partner == "vendor") {
-            switch ($vendor_type){
-                case 'active':
-                    $data = $this->vendor_model->getActiveVendor("", 1,$is_cp);
-                    break;
-                case 'disabled':
-                    $data = $this->vendor_model->getActiveVendor("", 'disabled',$is_cp);
-                    break;
-                case 'all':
-                    $data = $this->vendor_model->getActiveVendor("", 0,$is_cp);
-                    break;
-                default:
-                    $data = $this->vendor_model->getActiveVendor("", 0,$is_cp);
-            }
-            
+
+            $data = $this->vendor_model->getVendorDetails($where);
             $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
+            
         } else if ($vendor_partner == "partner") {
-            switch ($vendor_type){
-                case 'active':
-                    $data = $this->partner_model->getpartner();
-                    break;
-                case 'disabled':
-                    $data = $this->partner_model->get_all_partner("",0);
-                    break;
-                case 'all':
-                    $data = $this->partner_model->get_all_partner();
-                    break;
-                default:
-                    $data = $this->partner_model->getpartner();
+            $p_where = "";
+            if(isset($where['active'])){
+                $p_where = array('is_active' => $where['active']);
             }
+            $data = $this->partner_model->get_all_partner($p_where);
             
             $due_date_status = "";
         }
