@@ -2447,9 +2447,9 @@ class Partner extends CI_Controller {
                         $check_username = $this->dealer_model->entity_login(array('entity'=>'partner','user_id'=>$username));
                         
                         if (empty($check_username)) {
-
+                            $p_where = array('id' => $partner_id);
                             //Getting name of Partner by Partner ID
-                            $partner_details = $this->partner_model->get_all_partner($partner_id);
+                            $partner_details = $this->partner_model->get_all_partner($p_where);
                             $data['agent_name'] = $partner_details[0]['public_name'];
                             $data['entity_name'] = $partner_details[0]['public_name'];
                             $s1 = $this->dealer_model->insert_entity_login($data); 
@@ -2567,7 +2567,8 @@ class Partner extends CI_Controller {
             $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "",""); 
         }
         if(!empty($result)){
-            $partner_details = $this->partner_model->get_all_partner($partner_id);
+            $p_where = array('id' =>$partner_id);
+            $partner_details = $this->partner_model->get_all_partner($p_where);
             if (empty($assigned_vendor_id)) {
                 $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $partner_details, NULL);
             } else {
