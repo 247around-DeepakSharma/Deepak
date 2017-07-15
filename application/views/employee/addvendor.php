@@ -1518,7 +1518,7 @@
     
     $(document).ready(function () {
         var charReg = /^[0-9a-zA-Z,.()+\/\s-]*$/;
-        $('.blockspacialchar').keyup(function () {
+        $('.blockspacialchar').focusout(function () {
             var inputVal = $(this).val();
 
             if (!charReg.test(inputVal)) {
@@ -1535,7 +1535,7 @@
     
     $(document).ready(function () {
         var regxp = /^(\s*|\d+)$/;
-        $('.verigymobileNumber').blur(function () {
+        $('.verigymobileNumber').focusout(function () {
             var inputVal = $(this).val();
 
             if (!regxp.test(inputVal)) {

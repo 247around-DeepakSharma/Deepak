@@ -2920,3 +2920,8 @@ Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> Phone Num
 
 ALTER TABLE `bb_state_change` ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `partner_id`;
 
+ -- bb --sachin 14 july 2017
+
+ALTER TABLE `partners` ADD `invoice_courier_name` VARCHAR(128) NULL AFTER `invoice_email_bcc`, 
+ADD `invoice_courier_address` VARCHAR(256) NULL AFTER `invoice_courier_name`, 
+ADD `invoice_courier_phone_num` VARCHAR(20) NULL AFTER `invoice_courier_address`;

@@ -1012,6 +1012,9 @@ class Partner extends CI_Controller {
         $return_data['summary_email_cc']=$this->input->post('summary_email_cc');
         $return_data['invoice_email_to']=$this->input->post('invoice_email_to');
         $return_data['invoice_email_cc']=$this->input->post('invoice_email_cc');
+        $return_data['invoice_courier_name']=$this->input->post('invoice_courier_name');
+        $return_data['invoice_courier_address']=$this->input->post('invoice_courier_address');
+        $return_data['invoice_courier_phone_num']=$this->input->post('invoice_courier_phone_num');
         $return_data['pan']=$this->input->post('pan');
         $return_data['registration_no']=$this->input->post('registration_no');
         $return_data['tin']=$this->input->post('tin');
