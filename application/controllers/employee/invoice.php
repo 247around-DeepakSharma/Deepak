@@ -49,8 +49,8 @@ class Invoice extends CI_Controller {
      * Load invoicing form
      */
     public function index() {
-        $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",'active');
+        $data['service_center'] = $this->vendor_model->getVendorDetails();
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1));
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
@@ -58,30 +58,17 @@ class Invoice extends CI_Controller {
     
     public function invoice_listing_ajax($vendor_type = ""){
         $vendor_partner = $this->input->post('vendor_partner');
-        $sf_cp = $this->input->post('sf_cp');
-        $is_sf = '';
-        $is_cp = '';
-        if(!empty($sf_cp)){
-            if($sf_cp === 'sf'){
-                $is_cp = '';
-            }else if($sf_cp === 'cp'){
-                $is_cp = '1';
-            }
+        $sf_cp = json_decode($this->input->post('sf_cp'), true);
+        if($vendor_type != ""){
+            $sf_cp['active'] = $vendor_type;
         }
+        
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($vendor_partner,$sf_cp);
+        
         if($vendor_partner === 'vendor'){
-            if($vendor_type != ""){
-                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",$vendor_type,$is_cp);
-            }else{
-                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
-            }
-            
-            $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
+           
+            $data['service_center'] = $this->vendor_model->getVendorDetails();
         }else{
-            if($vendor_type != ""){
-                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner",$vendor_type,$is_cp);
-            }else{
-                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
-            }
             
             $data['partner'] = $this->partner_model->getpartner();
         }
@@ -182,7 +169,7 @@ class Invoice extends CI_Controller {
     function invoice_partner_view() {
 
         $data['partner'] = $this->partner_model->getpartner("", false);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
         
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
@@ -447,7 +434,7 @@ class Invoice extends CI_Controller {
                 echo "<option value='All'>All</option>";
             }
 
-            $all_vendors = $this->vendor_model->getActiveVendor("", 0);
+            $all_vendors = $this->vendor_model->getVendorDetails();
             foreach ($all_vendors as $v_name) {
                 $option = "<option value='" . $v_name['id'] . "'";
                 if ($vendor_partner_id == $v_name['id']) {
@@ -1832,7 +1819,7 @@ class Invoice extends CI_Controller {
 
                 if ($details['vendor_partner_id'] == 'All') {
 
-                    $vendor_details = $this->vendor_model->getActiveVendor('', 0);
+                    $vendor_details = $this->vendor_model->getVendorDetails();
                     foreach ($vendor_details as $value) {
                         $details['vendor_partner_id'] = $value['id'];
 
@@ -1883,7 +1870,7 @@ class Invoice extends CI_Controller {
 
                 if ($details['vendor_partner_id'] == 'All') {
 
-                    $vendor_details = $this->vendor_model->getActiveVendor('', 0);
+                    $vendor_details = $this->vendor_model->getVendorDetails();
                     echo " Preparing FOC Invoice  Vendor: " . $details['vendor_partner_id'];
                     foreach ($vendor_details as $value) {
                         $details['vendor_partner_id'] = $value['id'];
@@ -1926,7 +1913,7 @@ class Invoice extends CI_Controller {
                 $vendor_all_flag = 0;
                 if ($details['vendor_partner_id'] === 'All') {
                     $vendor_all_flag = 1;
-                    $vendor = $this->vendor_model->getActiveVendor('', 0);
+                    $vendor = $this->vendor_model->getVendorDetails();
 
                     foreach ($vendor as $value) {
                         log_message('info', __FUNCTION__ . " Brackets Vendor Id: " . $value['id']);
@@ -1950,7 +1937,7 @@ class Invoice extends CI_Controller {
      */
     function invoice_summary($vendor_partner, $vendor_partner_id) {
         if ($vendor_partner == 'vendor') {
-            $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
+            $data['service_center'] = $this->vendor_model->getVendorDetails();
         } else {
             $data['partner'] = $this->partner_model->getpartner("", false);
         }
