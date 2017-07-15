@@ -238,6 +238,18 @@
 //Checking for Edit Parnter
 if (isset($query[0]['id'])) {
     foreach (range('A', 'Z') as $char) {
+        $code = "P" . $char;
+        if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) {
+            ?>
+                                                        <option value="<?php echo $code; ?>" <?php
+            if (isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code )) {
+                echo "selected=''";
+            }
+            ?>><?php echo $code; ?></option>
+            <?php
+        }
+    }
+    foreach (range('A', 'Z') as $char) {
         $code = "S" . $char;
         if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) {
             ?>
@@ -249,9 +261,12 @@ if (isset($query[0]['id'])) {
             <?php
         }
     }
+    
+    
+     
 } else {// New Partner Addition
     foreach (range('A', 'Z') as $char) {
-        $code = "S" . $char;
+        $code = "P" . $char;
         if (!in_array($code, $results['partner_code'])) {
             ?>
                                                         <option value="<?php echo $code; ?>" ><?php echo $code; ?></option>
@@ -522,7 +537,7 @@ if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
                 </div>
                 <div class="col-md-12">
                     <div class="panel panel-default">
-                        <div class="panel-heading"><b>Invoice Email</b></div>
+                        <div class="panel-heading"><b>Invoice Details</b></div>
                         <div class="panel-body">
                             <div class="col-md-6 form-group <?php if (form_error('invoice_email_to')) {
                                 echo 'has-error';
@@ -544,6 +559,41 @@ if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
                                 echo $query[0]['invoice_email_cc'];
                             } ?>">
                                     <?php echo form_error('invoice_email_cc'); ?>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 form-group <?php if (form_error('invoice_courier_name')) {
+                                echo 'has-error';
+                            } ?>">
+                                <label for="invoice_courier_name" class="col-md-4">Invoice Courier Name</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="invoice_courier_name" value = "<?php if (isset($query[0]['invoice_courier_name'])) {
+                                echo $query[0]['invoice_courier_name'];
+                            } ?>">
+                            <?php echo form_error('invoice_courier_name'); ?>
+                                </div>
+                            </div>
+                            <div class="col-md-6 form-group <?php if (form_error('invoice_courier_address')) {
+                                echo 'has-error';
+                            } ?>">
+                                <label for="invoice_courier_address" class="col-md-4">Invoice Courier Address</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="invoice_courier_address" value = "<?php if (isset($query[0]['invoice_courier_address'])) {
+                                echo $query[0]['invoice_courier_address'];
+                            } ?>">
+                                    <?php echo form_error('invoice_courier_address'); ?>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 form-group <?php if (form_error('invoice_courier_phone_num')) {
+                                echo 'has-error';
+                            } ?>">
+                                <label for="invoice_courier_phone_num" class="col-md-4">Invoice Courier Phone Number</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="invoice_courier_phone_num" value = "<?php if (isset($query[0]['invoice_courier_phone_num'])) {
+                                echo $query[0]['invoice_courier_phone_num'];
+                            } ?>">
+                                    <?php echo form_error('invoice_courier_phone_num'); ?>
                                 </div>
                             </div>
                         </div>
@@ -789,7 +839,7 @@ foreach ($results['services'] as $value) {
     echo "Update Partner";
 } else {
     echo "Save Partner";
-} ?>" class="btn btn-primary" >
+    } ?>" class="btn btn-primary" id="submit_btn">
 <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/partner/viewpartner>Cancel</a>"; ?>
                     </center>
                 </div>
@@ -931,7 +981,9 @@ foreach ($results['services'] as $value) {
                                 owner_phone_2: {
                                     number: true
                                 },
-                                state: "required",
+                                state: {
+                                    required:true
+                                },
                                 email: {
                                     email: true
                                 },
@@ -942,6 +994,9 @@ foreach ($results['services'] as $value) {
                                 owner_email: {
                                     required: true,
                                     email: true
+                                },
+                                invoice_courier_phone_num: {
+                                    number: true
                                 }
                             },
                             messages: {
@@ -960,6 +1015,7 @@ foreach ($results['services'] as $value) {
                                 primary_contact_email: "Please fill correct email",
                                 owner_email: "Please fill correct email",
                                 username: "Please fill User Name",
+                                invoice_courier_phone_num:'Please fill correct phone number'
                             },
                             submitHandler: function (form) {
                                 form.submit();
@@ -998,15 +1054,17 @@ foreach ($results['services'] as $value) {
     });
     
     $(document).ready(function () {
-        var charReg = /^\s*[a-zA-Z0-9,\s]+\s*$/;
-        $('.blockspacialchar').keyup(function () {
+        var charReg = /^[0-9a-zA-Z,.()+\/\s-]*$/;
+        $('.blockspacialchar').focusout(function () {
             var inputVal = $(this).val();
 
             if (!charReg.test(inputVal)) {
                 alert("Spacial Characters are not allowed");
-                $(this).css({'border-color' : 'red'})
+                $(this).css({'border-color' : 'red'});
+                $('#submit_btn').attr('disabled',true);
             }else{
-                $(this).css({'border-color' : '#ccc'})
+                $(this).css({'border-color' : '#ccc'});
+                $('#submit_btn').attr('disabled',false);
             }
 
         });
@@ -1014,14 +1072,16 @@ foreach ($results['services'] as $value) {
     
     $(document).ready(function () {
         var regxp = /^(\s*|\d+)$/;
-        $('.verigymobileNumber').blur(function () {
+        $('.verigymobileNumber').focusout(function () {
             var inputVal = $(this).val();
 
             if (!regxp.test(inputVal)) {
                 alert("Please Enter Valid Phone Number");
-                $(this).css({'border-color' : 'red'})
+                $(this).css({'border-color' : 'red'});
+                $('#submit_btn').attr('disabled',true);
             }else{
-                $(this).css({'border-color' : '#ccc'})
+                $(this).css({'border-color' : '#ccc'});
+                $('#submit_btn').attr('disabled',false);
             }
 
         });
