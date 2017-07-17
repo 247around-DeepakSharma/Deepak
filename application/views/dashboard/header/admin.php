@@ -25,6 +25,8 @@
         <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
         <!-- jQuery -->
         <script src="<?php echo base_url() ?>js/jquery.min.js"></script>
+        <script src="<?php echo base_url();?>js/select2.min.js"></script>
+         <link href="<?php echo base_url()?>css/select2.min.css" rel="stylesheet" />
         <!-- Highchart.js -->
         <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="https://code.highcharts.com/modules/data.js"></script>
@@ -81,8 +83,9 @@
                                         <a>Disputed Order <span class="fa fa-chevron-down"></span></a>
                                         <ul class="nav child_menu">
                                             <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_auto_settel">Auto-Settle</a></li>
-                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_30_days_breech">30 Days TAT Breach</a></li>
-                                            <li><a href="typography.html">Vendor Rejected</a></li>
+
+                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_30_days_breech">30 Days Tat Breeche</a></li>
+                                            <li><a href="<?php echo base_url();?>buyback/buyback_process/vendor_rejected">Vendor Rejected</a></li>
                                         </ul>
                                     </li>
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_review">Review Order</a></li>
@@ -257,7 +260,7 @@
                     url: '<?php echo base_url(); ?>buyback/buyback_process/get_credit_amount',
                    
                     success: function (data) {
-                        console.log(data);
+                        
                       $('.numbers-with-commas').text(data);
                       $('.numbers-with-commas').counterUp({
                         delay: 10, // the delay time in ms
