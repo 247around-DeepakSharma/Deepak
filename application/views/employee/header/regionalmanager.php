@@ -138,7 +138,7 @@
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-fw fa-arrows-v"></i> Service Centres <i class="fa fa-caret-down"></i>
+                    <i class="fa fa-fw fa-arrows-v"></i> Service Center <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu">
                         <li>
@@ -175,6 +175,16 @@
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-fw fa-arrows-v"></i> Partner <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                         <li >
+                            <a href="<?php echo base_url() ?>employee/dealers/add_dealers_form"><i class="fa fa-fw fa-desktop "></i> <strong>Add Dealer</strong></a>
+                        </li>
+                    </ul>
                 </li>
                 <!-- /.dropdown -->
                 <li class="dropdown">
