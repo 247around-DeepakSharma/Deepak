@@ -15,6 +15,8 @@ class Buyback_process extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library('buyback');
+        $this->load->model('vendor_model');
+        $this->load->model('booking_model');
         $this->load->library('PHPReport');
 
 
@@ -29,6 +31,7 @@ class Buyback_process extends CI_Controller {
      * @desc Used to load order details view
      */
     function view_bb_order_details() {
+        log_message("info",__METHOD__);
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('buyback/get_order_details');
         $this->load->view('dashboard/dashboard_footer');
@@ -37,10 +40,9 @@ class Buyback_process extends CI_Controller {
      * @desc Used to get data as requested and also search 
      */
     function get_bb_order_details() {
-        //log_message("info", print_r(json_encode($_POST, TRUE), TRUE));
-       // $string = '{"draw":"1","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"status":"7"}';
-       // $_POST = json_decode($string, true);
-       
+        log_message("info",__METHOD__);
+       // $tmp ='{"draw":"5","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"7","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"date_range":"2017\/07\/01 - 2017\/07\/31","city":"Pune","service_id":"46","current_status":"","internal_status":"","status":"10"}'; 
+       // $_POST = json_decode($tmp, true);
         $data = array();
         switch ($this->input->post('status')){
             case 0:
@@ -81,6 +83,12 @@ class Buyback_process extends CI_Controller {
              case 9:
                 $data = $this->process_30_days_tat_breech_claim_settled();
                 break;
+             case 10:
+                $data = $this->advanced_bb_search();
+                break;
+            case 11:
+                $data = $this->get_not_received_data();
+                break;
         }
         
         $post = $data['post'];
@@ -94,10 +102,14 @@ class Buyback_process extends CI_Controller {
         unset($data);
         echo json_encode($output);
     }
-    
+    /**
+     * @desc get In-Transit data
+     * @return type
+     */
     function process_in_tansit(){
+       
         $post = $this->get_bb_post_view_data();
-        $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-t'));
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
@@ -117,7 +129,53 @@ class Buyback_process extends CI_Controller {
 
     }
     
+    function advanced_bb_search(){
+       // log_message("info",__METHOD__.json_encode($_POST, TRUE));
+        
+        $post = $this->get_bb_post_view_data();
+        $date_range = $this->input->post("date_range");
+        $order_date = explode("-", $date_range);
+        $city = $this->input->post("city");
+        $service_id = $this->input->post("service_id");
+        $current_status = $this->input->post("current_status");
+        $internal_status = $this->input->post("internal_status");
+       
+        $post['where'] = array('order_date >= ' => date("Y-m-d", strtotime(trim($order_date[0]))), 
+            'order_date < ' => date('Y-m-d', strtotime('+1 day', strtotime(trim($order_date[1])))) );
+        if(!empty($city)){
+             $post['where']['city'] = $city;
+        }
+        if(!empty($service_id)){
+             $post['where']['service_id'] = $service_id;
+        }
+        if(!empty($internal_status)){
+             $post['where']['internal_status'] = $internal_status;
+        }
+       
+        if(!empty($current_status)){
+             $post['where']['current_status'] = $current_status;
+        }
+        $post['where_in'] = array();
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+      
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->search_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+                );
+    }
+    
     function process_delivered(){
+        log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL);
         $post['where_in'] = array('current_status' => array('Delivered'), 'internal_status' => array('Delivered'));
@@ -141,6 +199,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_unassigned(){
+        log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where'] = array('assigned_cp_id IS NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime("-30 days")));
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
@@ -164,6 +223,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_lost_other(){
+        log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where'] = array('order_date >= ' => date('Y-m-d', strtotime("-30 days")));
         $post['where_in'] = array('current_status' => array('Lost', 'Unknown'));
@@ -187,6 +247,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_cancelled_not_claim(){
+        log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where_in'] = array(
             'current_status' => array('Cancelled', 'Rejected'), 
@@ -212,6 +273,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_cancelled_claim_submitted(){
+        log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array(
@@ -239,6 +301,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_cancelled_claim_settled(){
+        log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array(
@@ -266,6 +329,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_30_days_tat_breech_not_claim(){
+        log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
@@ -290,7 +354,34 @@ class Buyback_process extends CI_Controller {
                 );
     }
     
+    function get_not_received_data(){
+        log_message("info",__METHOD__);
+        $post = $this->get_bb_post_view_data();
+       
+        $post['where_in'] = array('current_status' => array('Delivered'),
+            'internal_status' => array(_247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['where'] = array();
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+    }
+    
     function process_30_days_tat_breech_claim_submitted(){
+        log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
@@ -316,6 +407,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_30_days_tat_breech_claim_settled(){
+        log_message("info",__METHOD__);
          $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
@@ -341,6 +433,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function get_bb_post_view_data(){
+        log_message("info",__METHOD__);
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
@@ -353,7 +446,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function in_tansit_table_data($order_list, $no){
-        
+        log_message("info",__METHOD__);
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
@@ -370,6 +463,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function delivered_table_data($order_list, $no){
+        log_message("info",__METHOD__);
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
@@ -396,6 +490,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function unassigned_table_data($order_list, $no){
+        log_message("info",__METHOD__);
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
@@ -408,26 +503,6 @@ class Buyback_process extends CI_Controller {
 
         return $row;
     }
-    
-//    function others_table_data($order_list, $no){
-//        $row = array();
-//        $row[] = $no;
-//        $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
-//                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
-//
-//        $row[] = $order_list->services;
-//        $row[] = $order_list->city;
-//        $row[] = $order_list->order_date;
-//       
-//        $row[] = $order_list->current_status;
-//        $row[] = $order_list->partner_basic_charge;
-//        
-//         return $row;
-//
-//    }
-
-
-
 
     /**
      * @desc Used to show the view of buyback order detailed list for review
@@ -435,6 +510,7 @@ class Buyback_process extends CI_Controller {
      * @return void
      */
     function bb_order_review(){
+        log_message("info",__METHOD__);
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('buyback/bb_order_review');
         $this->load->view('dashboard/dashboard_footer');
@@ -447,6 +523,7 @@ class Buyback_process extends CI_Controller {
      * @return $output json
      */
     function get_bb_review_order_details(){
+        log_message("info",__METHOD__);
         $length = $this->input->post('length');
         $start = $this->input->post('start');
         $search = $this->input->post('search');
@@ -499,6 +576,7 @@ class Buyback_process extends CI_Controller {
      * @return void
      */
     function get_bb_order_image_link($partner_order_id, $cp_id) {
+        log_message("info",__METHOD__);
         $select = "image_name";
         $where = array("partner_order_id" => $partner_order_id, "cp_id" => $cp_id);
         $data['image_list'] = $this->bb_model->get_bb_order_images($where, $select);
@@ -514,6 +592,7 @@ class Buyback_process extends CI_Controller {
      * @return string
      */
     function approve_all_bb_order(){
+        log_message("info",__METHOD__);
         if ($this->input->post()) {
             $flag = FALSE;
             $order_ids = explode(',', $this->input->post('order_ids'));
@@ -546,6 +625,7 @@ class Buyback_process extends CI_Controller {
     }
         
     function get_credit_amount(){
+        log_message("info",__METHOD__);
         echo "20000";
     }
     
@@ -556,7 +636,7 @@ class Buyback_process extends CI_Controller {
      * @return void
      */
     function view_order_details($partner_order_id){
-        
+        log_message("info",__METHOD__);
         $data['partner_order_id'] = $partner_order_id;
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('buyback/view_bb_order_details',$data);
@@ -570,6 +650,7 @@ class Buyback_process extends CI_Controller {
      * @return $data json
      */
     function get_bb_order_details_data($partner_order_id){
+        log_message("info",__METHOD__);
         if($partner_order_id){
             $data = $this->bb_model->get_bb_order_details(
                     array('bb_order_details.partner_order_id' =>$partner_order_id),
@@ -586,6 +667,7 @@ class Buyback_process extends CI_Controller {
      * @return $data json
      */
     function get_bb_order_history_details($partner_order_id){
+        log_message("info",__METHOD__);
         if($partner_order_id){
             $data = $this->bb_model->get_bb_order_history($partner_order_id);
             print_r(json_encode($data));
@@ -599,6 +681,7 @@ class Buyback_process extends CI_Controller {
      * @return $data json
      */
     function get_bb_order_appliance_details($partner_order_id){
+        log_message("info",__METHOD__);
         if($partner_order_id){
             $select = 'bb_unit.category, bb_unit.physical_condition, 
                 bb_unit.working_condition,
@@ -612,19 +695,21 @@ class Buyback_process extends CI_Controller {
     }
     
     function disputed_auto_settel(){
+        log_message("info",__METHOD__);
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('buyback/get_disputed_auto_settle');
         $this->load->view('dashboard/dashboard_footer');
     }
     
     function disputed_30_days_breech(){
+        log_message("info",__METHOD__);
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('buyback/get_disputed_30_days_breech');
         $this->load->view('dashboard/dashboard_footer');
     }
 
     function download_bb_shop_address() {
-
+        log_message("info",__METHOD__);
         $shop_address_data = $this->bb_model->download_bb_shop_address_data();
 
         $shop_address_file = $this->generate_shop_address_data($shop_address_data);
@@ -643,6 +728,7 @@ class Buyback_process extends CI_Controller {
     }
 
     private function generate_shop_address_data($shop_address_data){
+        log_message("info",__METHOD__);
         $template = 'BB_Shop_Address.xlsx';
         //set absolute path to directory with template files
         $templateDir = FCPATH . "application/controllers/excel-templates/";
@@ -675,7 +761,7 @@ class Buyback_process extends CI_Controller {
     function search_for_buyback(){
         log_message("info",__METHOD__);
         $post['search_value'] = $this->input->post('search');
-        $post['column_search'] = array('bb_unit_details.partner_order_id');
+        $post['column_search'] = array('bb_order_details.partner_order_id', 'bb_order_details.partner_tracking_id');
         $post['where'] = array();
         $post['where_in'] = array();
         $post['column_order'] = array();
@@ -698,6 +784,7 @@ class Buyback_process extends CI_Controller {
      */
     
     function update_received_bb_order($order_id,$service_id,$city,$cp_id){
+        log_message("info",__METHOD__);
         $data['order_id'] = urldecode($order_id);
         $data['service_id'] = urldecode($service_id);
         $data['city'] = urldecode($city);
@@ -718,6 +805,7 @@ class Buyback_process extends CI_Controller {
      * @return void();
      */
     function process_received_bb_order_update(){ 
+        log_message("info",__METHOD__);
         //check for validation
         $this->form_validation->set_rules('order_id', 'Order Id', 'trim|required');
         $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
@@ -751,6 +839,7 @@ class Buyback_process extends CI_Controller {
      * @return void();
      */
     function update_not_received_bb_order($order_id, $service_id, $city, $cp_id) {
+        log_message("info",__METHOD__);
         $data['order_id'] = urldecode($order_id);
         $data['service_id'] = urldecode($service_id);
         $data['city'] = urldecode($city);
@@ -763,6 +852,46 @@ class Buyback_process extends CI_Controller {
             $this->session->set_userdata('error',$response['msg']);
             redirect(base_url().'buyback/buyback_process/view_bb_order_details');
         }
+    }
+    
+    function bb_order_search(){
+        log_message("info",__METHOD__);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/advanced_search');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    function get_advanced_search_optionlist(){
+        log_message("info",__METHOD__);
+        $data['city'] = $this->vendor_model->getDistrict_from_india_pincode();
+        $data['service'] = $this->booking_model->selectservice();
+        $data['current_status'] = $this->bb_model->get_bb_order(array(),"current_status", "current_status");
+        $data['internal_status'] = $this->bb_model->get_bb_order(array(),"internal_status",  "internal_status");
+        echo json_encode($data);
+    }
+    
+     function search_table_data($order_list, $no){
+        log_message("info",__METHOD__);
+        $row = array();
+        $row[] = $no;
+        $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
+                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+
+        $row[] = $order_list->services;
+        $row[] = $order_list->city;
+        $row[] = $order_list->order_date;
+        $row[] = $order_list->current_status;
+        $row[] = $order_list->partner_basic_charge;
+        $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+        
+        return $row;
+    }
+    
+    function vendor_rejected(){
+        log_message("info",__METHOD__);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/get_vendor_rejected');
+        $this->load->view('dashboard/dashboard_footer');
     }
    
 }

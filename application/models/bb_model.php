@@ -7,9 +7,9 @@ class Bb_model extends CI_Model {
 
     
     var $cp_action_column_search = array('partner_order_id','name','category','brand','physical_condition','working_condition','internal_status');
-     var $cp_action_column_order = array('partner_order_id','name','category','brand','physical_condition','working_condition','internal_status');
+    var $cp_action_column_order = array('partner_order_id','name','category','brand','physical_condition','working_condition','internal_status');
                                     
-     var $cp_action_column_default_order = array('cp_action.id' => 'asc'); // default order 
+    var $cp_action_column_default_order = array('cp_action.id' => 'asc'); // default order 
 
     /**
      * @desc load both db
@@ -41,11 +41,15 @@ class Bb_model extends CI_Model {
      * @param String $select
      * @return Array
      */
-    function get_bb_order($where, $select){
+    function get_bb_order($where, $select, $order_by = ""){
+        $this->db->distinct();
         $this->db->select($select);
         $this->db->from('bb_order_details');
         $this->db->join('partners', 'bb_order_details.partner_id = partners.id');
         $this->db->where($where);
+        if(!empty($order_by)){
+            $this->db->order_by($order_by);
+        }
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -164,11 +168,15 @@ class Bb_model extends CI_Model {
     
     /**
      * @desc Used to return count of data as requested status
-     * @param Int $status_flag
+     * @param Array $post
      * @return Count
      */
     public function count_all($post) {
         $this->db->from('bb_order_details');
+        $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
+                . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
+       
+        $this->db->join('services', 'services.id = bb_unit_details.service_id');
         $this->db->where($post['where']);
         foreach ($post['where_in'] as $index => $value){
             $this->db->where_in($index, $value);
