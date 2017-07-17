@@ -1051,7 +1051,10 @@ class Service_centers extends CI_Controller {
             $this->load->view('service_centers/bookinghistory', $data);
         } else {
             //if user not found set error session data
-            $this->session->set_flashdata('error', 'Booking Not Found');
+            
+            $output = "Booking Not Found";
+            $userSession = array('error' => $output);
+            $this->session->set_userdata($userSession);
 
             redirect(base_url() . 'service_center/pending_booking');
         }
