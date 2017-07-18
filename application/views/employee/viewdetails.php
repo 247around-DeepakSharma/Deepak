@@ -392,9 +392,10 @@
                                  <th >Shipped Parts </th>
                                  <th >Courier Name:</th>
                                  <th >AWB </th>
+                                 <th >Courier Charge </th>
                                  <th >Shipped date </th>
                                  <th >Remarks By SF </th>
-                                 <th >Rejected Remarks By Partner</th>
+                                 <th >Remarks By Partner</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -403,6 +404,7 @@
                                     <td><?php echo $sp['defective_part_shipped']; ?></td>
                                     <td><?php echo $sp['courier_name_by_sf']; ?></td>
                                     <td><?php echo $sp['awb_by_sf']; ?></td>
+                                    <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                     <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                     <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                     <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
