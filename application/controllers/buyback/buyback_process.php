@@ -854,6 +854,75 @@ class Buyback_process extends CI_Controller {
         }
     }
     
+    function assigned_bb_unassigned_data(){
+        log_message("info",__METHOD__);
+       
+        $not_assigned = array();
+        $select = 'bb_order_details.city, bb_order_details.partner_id, bb_order_details.partner_order_id, bb_order_details.current_status';
+        $where = array("assigned_cp_id IS NULL" => NULL, 
+                       "current_status IN ('In-Transit', 'New Item In-transit', 'Attempted','Delivered')" => null
+                      );
+        $unassigned_order_data = $this->bb_model->get_bb_order_details($where,$select);
+        if(!empty($unassigned_order_data)){
+            foreach ($unassigned_order_data as  $value){
+                
+                $array = array('shop_address_city' => $value['city'], 'active' => 1);
+
+                //Get CP id from shop address table.
+                $cp_shop_ddress = $this->bb_model->get_cp_shop_address_details($array, 'cp_id');
+                if(!empty($cp_shop_ddress)){
+                    //Get Charges list
+                    $where_bb_charges = array('partner_id' => $value['partner_id'],
+                                              'city' => $value['city'],
+                                              'cp_id' => $cp_shop_ddress[0]['cp_id']
+                                    );
+                    $bb_charges = $this->service_centre_charges_model->get_bb_charges($where_bb_charges, '*');
+                    if(!empty($bb_charges)){
+                        $unit_data = array('category' => $bb_charges[0]['category'],
+                                      'brand' => $bb_charges[0]['brand'],
+                                      'physical_condition' => $bb_charges[0]['physical_condition'],
+                                      'working_condition' => $bb_charges[0]['working_condition'],
+                                      'partner_basic_charge' => $bb_charges[0]['partner_basic'],
+                                      'partner_tax_charge' => $bb_charges[0]['partner_tax'],
+                                      'cp_basic_charge' => $bb_charges[0]['cp_basic'],
+                                      'cp_tax_charge' => $bb_charges[0]['cp_tax'],
+                                      'around_commision_basic_charge' => $bb_charges[0]['around_basic'],
+                                      'around_commision_tax' => $bb_charges[0]['around_tax']
+                                      );
+                    
+                        $where_bb_order = array('partner_order_id' => $value['partner_order_id'],'partner_id'=> $value['partner_id']);
+                        $update_unit_details = $this->bb_model->update_bb_unit_details($where_bb_order,$unit_data);
+
+
+                        if ($update_unit_details) {
+                            $bb_order_details['assigned_cp_id'] = $cp_shop_ddress[0]['cp_id'];
+                            $is_status = $this->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
+                            if($is_status){
+                                $this->buyback->insert_bb_state_change($value['partner_order_id'], ASSIGNED_VENDOR, 'Assigned CP Id From Our CRM', $this->session->userdata('id'), _247AROUND, NULL);
+                            }else{
+                                log_message('info', __METHOD__. " Error In assigning cp_id for this partner_order_id: ". $value['partner_order_id']);
+                            }
+                        } else {
+                           log_message('info', __METHOD__. " Error In assigning cp_id for this partner_order_id: ". $value['partner_order_id']);
+                        }
+                    }else{
+                        
+                        array_push($not_assigned, array("partner_id" => 
+                            $value['partner_order_id'], "message" => "Charges Not Found"));
+                    }
+                    
+                }else{
+                    array_push($not_assigned, array("partner_id" => 
+                            $value['partner_order_id'], "message" => "City Not Found"));
+                }
+            }
+        }
+        
+        $data['not_assigned'] =  $not_assigned;
+
+        echo json_encode($data);
+    }  
+        
     function bb_order_search(){
         log_message("info",__METHOD__);
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
