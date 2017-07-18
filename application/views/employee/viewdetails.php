@@ -218,6 +218,7 @@
                             <th>Partner Offer</th>
                             <th>247Around Offer</th>
                             <th>Upcountry Charges</th>
+                            <th>Partner Offer Upcountry Charges</th>
                             <th>Paid Service Charges</th>
                             <th>Paid Additional Charges</th>
                             <th>Paid Parts Cost</th>
@@ -266,6 +267,8 @@
                                 <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                 <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
                                 <td><?php if($key == 0){ if($booking_history[0]['is_upcountry'] == 1){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } } ?></td>
+                                <!--Partner Offer Upcountry Charges-->
+                                <td><?php if($key == 0){ if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } else { echo "0.00";} } ?></td>
                                 <td><?php  print_r($unit_detail['customer_paid_basic_charges']); ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
@@ -392,9 +395,10 @@
                                  <th >Shipped Parts </th>
                                  <th >Courier Name:</th>
                                  <th >AWB </th>
+                                 <th >Courier Charge </th>
                                  <th >Shipped date </th>
                                  <th >Remarks By SF </th>
-                                 <th >Rejected Remarks By Partner</th>
+                                 <th >Remarks By Partner</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -403,6 +407,7 @@
                                     <td><?php echo $sp['defective_part_shipped']; ?></td>
                                     <td><?php echo $sp['courier_name_by_sf']; ?></td>
                                     <td><?php echo $sp['awb_by_sf']; ?></td>
+                                    <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                     <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                     <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                     <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>

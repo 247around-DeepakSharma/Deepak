@@ -41,7 +41,7 @@ class Buyback_process extends CI_Controller {
      */
     function get_bb_order_details() {
         log_message("info",__METHOD__);
-       // $tmp ='{"draw":"5","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"7","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"date_range":"2017\/07\/01 - 2017\/07\/31","city":"Pune","service_id":"46","current_status":"","internal_status":"","status":"10"}'; 
+       // $tmp ='{"draw":"2","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"7","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"date_range":"2017\/07\/01 - 2017\/07\/31","city":"Ghaziabad\n","service_id":"","current_status":"","internal_status":"","status":"10"}';
        // $_POST = json_decode($tmp, true);
         $data = array();
         switch ($this->input->post('status')){
@@ -932,7 +932,9 @@ class Buyback_process extends CI_Controller {
     
     function get_advanced_search_optionlist(){
         log_message("info",__METHOD__);
-        $data['city'] = $this->vendor_model->getDistrict_from_india_pincode();
+       
+        //Get CP id from shop address table.
+        $data['city'] = $this->bb_model->get_cp_shop_address_details(array(), 'shop_address_city as district');
         $data['service'] = $this->booking_model->selectservice();
         $data['current_status'] = $this->bb_model->get_bb_order(array(),"current_status", "current_status");
         $data['internal_status'] = $this->bb_model->get_bb_order(array(),"internal_status",  "internal_status");

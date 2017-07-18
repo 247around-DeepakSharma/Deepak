@@ -124,9 +124,9 @@ define('_247AROUND_BRACKETS_PENDING','Brackets_Pending');
 //constant to define 247around brackets charge for 19-24 inch
 define('_247AROUND_BRACKETS_19_24_UNIT_PRICE',120);
 //constant to define 247around brackets charge for 26-32 inch
-define('_247AROUND_BRACKETS_26_32_UNIT_PRICE',180);
+define('_247AROUND_BRACKETS_26_32_UNIT_PRICE',100);
 //constant to define 247around brackets charge for 36-42 inch
-define('_247AROUND_BRACKETS_36_42_UNIT_PRICE',290);
+define('_247AROUND_BRACKETS_36_42_UNIT_PRICE',165);
 //constant to define 247around brackets charge for greater than 43 inch
 define('_247AROUND_BRACKETS_43_UNIT_PRICE',425);
 //constant to define State for making Vendor Activate
@@ -339,7 +339,7 @@ define('RATING_NEW_STATE','Completed_With_Rating');
 define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,nilanjan@247around.com");
 
 //Email IDs when SF is not found in Vendor Pincode Mapping file
-define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com,abhaya@247around.com");
+define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com");
 
 

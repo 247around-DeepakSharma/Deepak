@@ -61,6 +61,7 @@ class Bb_model extends CI_Model {
      * @return Arary
      */
     function get_cp_shop_address_details($where, $select) {
+        $this->db->distinct();
         $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get("bb_shop_address");

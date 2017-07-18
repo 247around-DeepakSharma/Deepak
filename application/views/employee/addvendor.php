@@ -1175,6 +1175,20 @@
                             </div>
                         </div>
                     </div>
+                   
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><b>Vendor Type</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="is_sf" <?php if(isset($query[0]['is_sf'])) { if($query[0]['is_sf'] == 1){ echo "checked";}}?> name="is_sf" value="1"><b>Service Center</b>
+                              </label>
+                              <label class="checkbox-inline">
+                                  <input type="checkbox" id="is_cp" name="is_cp" <?php if(isset($query[0]['is_cp'])) { if($query[0]['is_cp'] == 1){ echo "checked";}}?> value="1"><b>Collection Partner</b>
+                              </label>
+                            </div>
+                        </div>
+                    </div>
                     <div style="float:left;width:90%;" class="form-group <?php
                         if (form_error('non_working_days')) {
                             echo 'has-error';
@@ -1368,6 +1382,11 @@
                    return false;
                }
             }
+            
+             if( ($('#is_cp').is(":checked") === false) && ($('#is_sf').is(":checked") === false)){
+                 alert("Please Select Atleast One Checkbox of Service Center OR Collection Partner");
+                 return false;
+             } 
           
         }
         
