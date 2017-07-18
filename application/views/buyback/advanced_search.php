@@ -28,7 +28,7 @@
                                     <tr>
                                         <td style="width: 22%;"><input type="text" class="form-control" id=""order_date" name="order_date"/></td>
                                         <td>
-                                            <select style="width:100%" onchange="get_data()" name="city" ui-select2 id="city"  class="form-control" ng-model="tempData.city"
+                                            <select style="width:100%"  name="city" ui-select2 id="city"  class="form-control" ng-model="tempData.city"
                                                 ng-options="option.district as option.district for option in city_list" 
                                                 data-placeholder="Select City">
                                                 <option value="" disabled="" ng-show="false"></option>
@@ -36,7 +36,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select style="width:100%" onchange="get_data()" name="service_id" ui-select2  id="service_id" class="form-control" 
+                                            <select style="width:100%"  name="service_id" ui-select2  id="service_id" class="form-control" 
                                                 ng-model="tempData.service_id" 
                                                
                                                 data-placeholder="Select Alliance">
@@ -45,14 +45,14 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select style="width:100%" onchange="get_data()" name="current_status" ui-select2  id="current_status" class="form-control" 
+                                            <select style="width:100%"  name="current_status" ui-select2  id="current_status" class="form-control" 
                                                 ng-model="tempData.current_status" 
                                                 ng-options="option1.current_status as option1.current_status for option1 in current_status_list" 
                                                 data-placeholder="Select Status1">
                                             <option value="" disabled="" ng-show="false"></option>
                                         </td>
                                         <td>
-                                            <select style="width:100%" onchange="get_data()" name="internal_status" ui-select2  id="internal_status" class="form-control" 
+                                            <select style="width:100%"  name="internal_status" ui-select2  id="internal_status" class="form-control" 
                                                 ng-model="tempData.internal_status" 
                                                 ng-options="option2.internal_status as option2.internal_status for option2 in internal_status_list" 
                                                 data-placeholder="Select Status2">
@@ -139,12 +139,12 @@
         
     });
     
-    
-    function get_data(){
-       
+
+    $('select').on('select2:closing', function (evt) {
+  
          ad_table.ajax.reload(null, false);  
 
-    }
+    });
     
     function download_excel(){
         var data_type = 'data:application/vnd.ms-excel';
