@@ -228,6 +228,33 @@ addShopAddressDetails.controller("userController", function ($scope, $http) {
     };
 });
 
+viewBBOrderList.controller('assignCP', function ($scope, $http) {
+
+    var post_url = baseUrl + "/buyback/buyback_process/assigned_bb_unassigned_data";
+    $scope.showDialogueBox = function() {
+        swal({
+                title: "Do You Want To Continue?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                closeOnConfirm: true
+            },
+            function(){
+                $scope.showLoader = true;
+                $http.post(post_url).success(function (response) {
+                    //console.log(response);
+                    $scope.notFoundCity = response.not_assigned;
+                    $scope.showLoader = false;
+                    $('#invoiceDetailsModal').modal("show");
+                    
+                });
+            });
+    };
+    $scope.closeModel = function(){
+        location.reload();
+    };
+});
+
 
 //desktop notification msg
 function notifyMe(msg) {
