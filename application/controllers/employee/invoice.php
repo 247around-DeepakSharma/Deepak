@@ -1990,7 +1990,7 @@ class Invoice extends CI_Controller {
 
             log_message('info', __FUNCTION__ . " Entering......... Invoice Id " . $invoice[0]['invoice_number']);
             $invoice[0]['invoice_date'] = date("jS M, Y");
-            $invoice[0]['tax_rate'] = 5.00;
+            $invoice[0]['tax_rate'] = 18.00;
             //$invoice[0]['19_24_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_19_24_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['26_32_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_26_32_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['36_42_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_36_42_UNIT_PRICE, $invoice[0]['tax_rate']);
