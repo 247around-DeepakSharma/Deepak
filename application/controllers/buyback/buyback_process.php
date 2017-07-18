@@ -482,7 +482,7 @@ class Buyback_process extends CI_Controller {
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
                               <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Received</a></li>
                               <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('".base_url()."buyback/buyback_process/update_not_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."')>Not Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='javascript:void(0);'>Report Issue</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Report Issue</a></li>
                             </ul>
                           </div>";
         
@@ -961,6 +961,57 @@ class Buyback_process extends CI_Controller {
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('buyback/get_vendor_rejected');
         $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    /**
+     * @desc Used to show the buyback order details on cp panel
+     * @param $order_id string
+     * @param $service_id string
+     * @param $city string
+     * @return void
+     */
+    function update_bb_report_issue_order_details($order_id,$service_id,$city,$cp_id){
+        $data['order_id'] = urldecode($order_id);
+        $data['service_id'] = urldecode($service_id);
+        $data['city'] = urldecode($city);
+        $data['cp_id'] = urldecode($cp_id);
+        $data['products'] = $this->booking_model->selectservice();
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/update_bb_order_details',$data);
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    
+    /**
+     * @desc Update Those order for which report issue was claimed by collection partner
+     * @param $post_data array()
+     * @return $response array()
+     */
+    
+    function process_report_issue_bb_order_details(){
+         log_message("info",__METHOD__);
+        //check input field validation
+        $this->form_validation->set_rules('order_id', 'Order Id', 'trim|required');
+        $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
+        $this->form_validation->set_rules('order_working_condition', 'Order Working Condition', 'trim|required');
+        $this->form_validation->set_rules('category', 'Category', 'trim|required');
+        $this->form_validation->set_rules('cp_id', 'Collection Partner Id', 'trim|required');
+        
+        if($this->form_validation->run() === false){
+            $msg = "Please fill all required field";
+            $this->session->set_userdata('error',$msg);
+            redirect(base_url().'buyback/buyback_process/update_bb_report_issue_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
+        } else {
+
+            $response = $this->buyback->process_bb_order_report_issue_update($this->input->post());
+            if ($response['status'] === 'success') {
+                $this->session->set_userdata('success', $response['msg']);
+                redirect(base_url().'buyback/buyback_process/view_bb_order_details');
+            } else if ($response['status'] === 'error') {
+                $this->session->set_userdata('error', $response['msg']);
+                redirect(base_url().'buyback/buyback_process/update_bb_report_issue_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
+            }
+        }
     }
    
 }

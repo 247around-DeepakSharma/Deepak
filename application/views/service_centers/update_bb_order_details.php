@@ -110,6 +110,7 @@
                 <input type="hidden" name="service_id" value="<?php echo $service_id; ?>">
                 <input type="hidden" name="city" value="<?php echo $city; ?>">
                 <input type="hidden" name="partner_order_key" value="" id="partner_order_key">
+                <input type="hidden" name="cp_id" value="<?php echo $cp_id; ?>" id="cp_id">
                 <input type="submit" class="btn btn-success" id="submit" value="Submit">
             </div>
         </div>
@@ -132,12 +133,13 @@
     $("#order_physical_condition").select2();
     $("#order_working_condition").select2();
     $("#order_brand").select2();
-
-    $(document).ready(function () {
+    
+    function get_bb_brand(){
+        var service_id = $('#order_services').val();
         $.ajax({
             method: "POST",
             url: "<?php echo base_url(); ?>employee/service_centers/get_bb_order_brand",
-            data:{'service_id':service_id},
+            data:{'service_id':service_id,'cp_id':cp_id},
             success: function (response) {
                 //console.log(response);
                 $("order_brand").prop('required',true);
@@ -145,7 +147,7 @@
                 $('#order_brand').html(response).change();;
             }
         });
-    });
+    }
         
         
         $('#order_services').on('change',function(){    
@@ -155,13 +157,14 @@
                 $.ajax({
                     method:'POST',
                     url:"<?php echo base_url(); ?>employee/service_centers/get_bb_order_category_size",
-                    data:{'product_service_id':product_service_id},
+                    data:{'product_service_id':product_service_id,'cp_id':cp_id},
                     success:function(response){
                         $('#order_category').val('val', "");
                         $('#order_category').html(response).change();
                         $('#order_physical_condition').val('val', "");
                         $('#order_physical_condition').val('Select Physical Condition').change();
                         $('#phy_con').show();
+                        get_bb_brand();
                     }
                             
                 }); 
@@ -179,7 +182,7 @@
                 $.ajax({
                     method:'POST',
                     url:"<?php echo base_url(); ?>employee/service_centers/get_bb_order_physical_condition",
-                    data:{'category':category,'service_id':service_id},
+                    data:{'category':category,'service_id':service_id,'cp_id':cp_id},
                     success:function(response){
                         //console.log(response);
                         if(response === 'empty'){
@@ -195,7 +198,7 @@
                             
                 }); 
             }else{
-            console.log("shbhsb");
+            //console.log("shbhsb");
                $('#order_physical_condition').val('val', "");
                $('#order_physical_condition').val('Select Physical Condition').change();
             }
@@ -241,7 +244,7 @@
                 $.ajax({
                     method:'POST',
                     url:"<?php echo base_url(); ?>employee/service_centers/check_bb_order_key",
-                    data:{'category':category,'physical_condition':physical_condition,'working_condition':working_condition,'brand':brand,'city':city,'order_id':order_id,'services': services},
+                    data:{'category':category,'physical_condition':physical_condition,'working_condition':working_condition,'brand':brand,'city':city,'order_id':order_id,'services': services, 'cp_id':cp_id},
                     success:function(response){
                         $('#partner_order_key').val(response);
                     }
