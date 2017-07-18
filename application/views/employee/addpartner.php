@@ -578,22 +578,23 @@ if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
                             } ?>">
                                 <label for="invoice_courier_address" class="col-md-4">Invoice Courier Address</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="invoice_courier_address" value = "<?php if (isset($query[0]['invoice_courier_address'])) {
+                                  
+                                    <textarea class="form-control"  name="invoice_courier_address"><?php if (isset($query[0]['invoice_courier_address'])) {
                                 echo $query[0]['invoice_courier_address'];
-                            } ?>">
+                            } ?></textarea>
                                     <?php echo form_error('invoice_courier_address'); ?>
                                 </div>
                             </div>
                             
-                            <div class="col-md-6 form-group <?php if (form_error('invoice_courier_phone_num')) {
+                            <div class="col-md-6 form-group <?php if (form_error('invoice_courier_phone_number')) {
                                 echo 'has-error';
                             } ?>">
-                                <label for="invoice_courier_phone_num" class="col-md-4">Invoice Courier Phone Number</label>
+                                <label for="invoice_courier_phone_number" class="col-md-4">Invoice Courier Phone Number</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="invoice_courier_phone_num" value = "<?php if (isset($query[0]['invoice_courier_phone_num'])) {
-                                echo $query[0]['invoice_courier_phone_num'];
+                                    <input type="text" class="form-control"  name="invoice_courier_phone_number" value = "<?php if (isset($query[0]['invoice_courier_phone_number'])) {
+                                echo $query[0]['invoice_courier_phone_number'];
                             } ?>">
-                                    <?php echo form_error('invoice_courier_phone_num'); ?>
+                                    <?php echo form_error('invoice_courier_phone_number'); ?>
                                 </div>
                             </div>
                         </div>
@@ -995,7 +996,7 @@ foreach ($results['services'] as $value) {
                                     required: true,
                                     email: true
                                 },
-                                invoice_courier_phone_num: {
+                                invoice_courier_phone_number: {
                                     number: true
                                 }
                             },
@@ -1015,7 +1016,7 @@ foreach ($results['services'] as $value) {
                                 primary_contact_email: "Please fill correct email",
                                 owner_email: "Please fill correct email",
                                 username: "Please fill User Name",
-                                invoice_courier_phone_num:'Please fill correct phone number'
+                                invoice_courier_phone_number:'Please fill correct phone number'
                             },
                             submitHandler: function (form) {
                                 form.submit();
