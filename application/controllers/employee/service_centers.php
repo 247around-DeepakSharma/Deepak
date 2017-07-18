@@ -1051,7 +1051,10 @@ class Service_centers extends CI_Controller {
             $this->load->view('service_centers/bookinghistory', $data);
         } else {
             //if user not found set error session data
-            $this->session->set_flashdata('error', 'Booking Not Found');
+            
+            $output = "Booking Not Found";
+            $userSession = array('error' => $output);
+            $this->session->set_userdata($userSession);
 
             redirect(base_url() . 'service_center/pending_booking');
         }
@@ -2001,10 +2004,12 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('company_address', 'Company Address', 'trim|required');
         $this->form_validation->set_rules('pan_number', 'PAN NUmber', 'trim|min_length[10]|max_length[10]');
         $this->form_validation->set_rules('is_gst', 'Have You GST No.', 'required');
+        $this->form_validation->set_rules('signature_file', 'Signature file', 'callback_upload_signature');
 
         if ($this->form_validation->run() === false) {
             $this->gst_update_form();
         } else {
+           
             $status_flag = true;
             $is_gst = $this->input->post('is_gst');
             $is_gst_number = NULL;
@@ -2032,12 +2037,13 @@ class Service_centers extends CI_Controller {
                 $gst_details['company_gst_number'] = $this->input->post('gst_number');
                 $gst_details['gst_certificate_file'] = $gst_file_name;
                 $gst_details['create_date'] = date('Y-m-d H:i:s');
-
+                $gst_details['signature_file'] = $this->input->post('signature_file_name');
                 $gst_details_id = $this->service_centers_model->insert_gst_details_data($gst_details);
                 if ($gst_details_id) {
                     $sc['is_gst_doc'] = $gst_details['is_gst'];
                     $sc['gst_no'] = $gst_details['company_gst_number'];
                     $sc['gst_file'] = $gst_details['gst_certificate_file'];
+                    $sc['signature_file'] = $gst_details['signature_file'];
                     $this->vendor_model->edit_vendor($sc, $this->session->userdata('service_center_id'));
 
                     $template = array(
@@ -2046,8 +2052,12 @@ class Service_centers extends CI_Controller {
 
                     $this->table->set_template($template);
 
-                    $this->table->set_heading(array('SC Name', 'Company Name', 'Company Address', 'Pan', 'IS GST', 'GST NUmber', 'GST FILE'));
-                    $this->table->add_row($this->session->userdata('service_center_name'), $gst_details['company_name'], $gst_details['company_address'], $gst_details['company_pan_number'], !empty($gst_details['is_gst']) ? "YES" : "NO", $gst_details['company_gst_number'], !empty($sc['gst_certificate_file']) ? "https://s3.amazonaws.com/bookings-collateral/misc-images/" . $sc['gst_certificate_file'] : '' );
+                    $this->table->set_heading(array('SC Name', 'Company Name', 'Company Address', 'Pan', 'IS GST', 'GST NUmber', 'GST FILE', 'Signature File'));
+                    $this->table->add_row($this->session->userdata('service_center_name'), $gst_details['company_name'], 
+                            $gst_details['company_address'], $gst_details['company_pan_number'], 
+                            !empty($gst_details['is_gst']) ? "YES" : "NO", $gst_details['company_gst_number'], 
+                            !empty($sc['gst_certificate_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $sc['gst_certificate_file'] : '',
+                            !empty($sc['signature_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $sc['signature_file'] : '');
 
                     $to = NITS_ANUJ_EMAIL_ID;
                     
@@ -2063,6 +2073,38 @@ class Service_centers extends CI_Controller {
                     redirect(base_url() . "service_center/gst_details");
                 }
             }
+        }
+    }
+    
+    function upload_signature() {
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "bmp", "BMP", "GIF", "PNG");
+        $temp = explode(".", $_FILES["signature_file"]["name"]);
+        $extension = end($temp);
+        if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
+            if ($_FILES["signature_file"]["name"] != null) {
+                if (($_FILES["signature_file"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+                    if ($_FILES["signature_file"]["error"] > 0) {
+                        $this->form_validation->set_message('upload_signature', $_FILES["signature_file"]["error"]);
+                        return FALSE;
+                    } else {
+                        $pic = md5(uniqid(rand()));
+                        $picName = $pic . "." . $extension;
+                        $_POST['signature_file_name'] = $picName;
+
+                        $bucket = BITBUCKET_DIRECTORY;
+                        $directory = "vendor-partner-docs/" . $picName;
+                        $this->s3->putObjectFile($_FILES["signature_file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                        return TRUE;
+                    }
+                } else {
+                    $this->form_validation->set_message('upload_signature', 'File size or File type is not supported.Allowed extentions are "png", "jpg", "jpeg". Maximum file size is 2MB.');
+                    return FALSE;
+                }
+            }
+        } else {
+
+            $this->form_validation->set_message('upload_signature', 'Please Attach Signature Image File');
+            return false;
         }
     }
 
@@ -2088,7 +2130,7 @@ class Service_centers extends CI_Controller {
                 //Logging success for file uppload
                 log_message('info', __METHOD__ . 'GST Certificate File Uploaded: '.$this->session->userdata('service_center_id'));
                 $_POST['gst_cer_file'] = $gst_file;
-                return true;;
+                return true;
             }else{
                 //Logging success for file uppload
                 log_message('info', __METHOD__ . 'Error In uploading sGST Certificate : '.$this->session->userdata('service_center_id'));

@@ -1802,13 +1802,5 @@ class vendor_model extends CI_Model {
         return $this->db->insert_id();
     }
     
-    function getVendorDetailsBy($select,$where,$order_by){
-        $this->db->select($select);
-        $this->db->where($where);
-        $this->db->order_by($order_by);
-        $this->db->from('service_centres');
-        $query = $this->db->get();
-        return $query->result_array();
-    }
     
 }

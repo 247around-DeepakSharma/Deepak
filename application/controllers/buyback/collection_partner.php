@@ -89,6 +89,16 @@ class Collection_partner extends CI_Controller {
     function activate_deactivate_cp($shop_id, $is_active){
         $status = $this->cp_model->update_cp_shop_address(array('id'=> $shop_id), array('active' => $is_active));
         if($status){
+            $log['entity'] = "CP";
+            $log['entity_id'] = $shop_id;
+            $log['agent_id'] = $this->session->userdata('id');
+            if($is_active ==0){
+                $log['action'] = SHOP_ADDRESS_DEACTIVATED;
+            } else {
+                $log['action'] = SHOP_ADDRESS_ACTIVATED;
+            }
+            
+            $this->vendor_model->insert_log_action_on_entity($log);
             echo "Success";
         } else {
             echo "Error";
@@ -194,10 +204,9 @@ class Collection_partner extends CI_Controller {
     }
     
     function get_active_cp_sf(){
-        $select = "id,name";
+      
         $where = array('active' => '1', 'is_cp' => '1');
-        $order_by = 'name';
-        $data = $this->vendor_model->getVendorDetailsBy($select, $where,$order_by);
+        $data = $this->vendor_model->getVendorDetails($where);
         echo json_encode($data);
     }
 

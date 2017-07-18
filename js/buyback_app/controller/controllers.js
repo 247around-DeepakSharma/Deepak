@@ -39,18 +39,6 @@ uploadfile.controller('getOrderFileHistory', function ($scope, $http) {
             });
 });
 
-//shop address details file upload
-//uploadfile.controller('uploadShopAddressFile', ['$scope', 'fileUpload', function($scope, fileUpload){
-//    
-//    $scope.uploadFile = function(){
-//        var file = $scope.myFile;
-//        $scope.ShowSpinnerStatus = true;
-//        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/upload_file";
-//        fileUpload.uploadFileToUrl($scope,file, uploadUrl);
-//    };
-//    
-//}]);
-
 orderDetails.controller('viewOrderDetails', function ($scope, $http) {
 
     var get_url = baseUrl + "/buyback/buyback_process/get_bb_order_details_data/" + partner_order_id;
@@ -140,10 +128,22 @@ addDealers.controller("addDealersController", function($scope, $http){
     };
        
     });
-    
-    
 });
 
+advanced_search.controller("advancedSearchController", function ($scope, $http) {
+    var get_url = baseUrl + "/buyback/buyback_process/get_advanced_search_optionlist";
+    
+        $http.get(get_url)
+        .then(function (response) {
+          
+                $scope.service_list = response.data.service;
+                $scope.city_list = response.data.city;
+                $scope.internal_status_list = response.data.internal_status;
+               
+                $scope.current_status_list = response.data.current_status;
+       });
+    
+});
 //add shop address
 addShopAddressDetails.controller("userController", function ($scope, $http) {
     

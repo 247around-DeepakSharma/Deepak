@@ -3048,10 +3048,9 @@ class vendor extends CI_Controller {
     function download_sf_list_excel(){
         //Getting only Active Vendors List
         //$vendor  = $this->vendor_model->viewvendor('',1);
-        $select = '*';
+       
         $where = array('active' => '1','on_off' => '1');
-        $order_by = 'name';
-        $vendor = $this->vendor_model->getVendorDetailsBy($select,$where,$order_by);
+        $vendor = $this->vendor_model->getVendorDetails($where);
         log_message('info', __FUNCTION__);
 
         $template = 'SF_List_Template.xlsx';
