@@ -41,20 +41,20 @@
             </div>
             <br>
             <?php
-            if ($this->session->flashdata('success')) {
+            if ($this->session->userdata('success')) {
                 echo '<div class="alert alert-success alert-dismissible" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <strong>' . $this->session->flashdata('success') . '</strong>
+                    <strong>' . $this->session->userdata('success') . '</strong>
                 </div>';
             }
-            if ($this->session->flashdata('error')) {
+            if ($this->session->userdata('error')) {
                 echo '<div class="alert alert-danger alert-dismissible" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <strong>' . $this->session->flashdata('error') . '</strong>
+                    <strong>' . $this->session->userdata('error') . '</strong>
                 </div>';
             }
             ?>
@@ -118,13 +118,13 @@
                                     <div class="col-md-8">
                                         <select name="partner_type" class="form-control" >
                                             <option selected disabled>Select Partner Type</option>
-                                            <option value="OEM" <?php if (isset($results['partner_code'][0])) {
+                                            <option value="OEM" <?php if (isset($results['partner_code'][0]['partner_type'])) {
                                                 if ($results['partner_code'][0]['partner_type'] == OEM) {
                                                     echo "selected";
                                                 }
                                             } ?>>OEM</option>
                                             <option value="ECOMMERCE" 
-                                            <?php if (isset($results['partner_code'][0])) {
+                                            <?php if (isset($results['partner_code'][0]['partner_type'])) {
                                                 if ($results['partner_code'][0]['partner_type'] == "ECOMMERCE") {
                                                     echo "selected";
                                                 }
@@ -233,7 +233,7 @@
                                     <label for="partner_code" class="col-md-4">Partner Code</label>
                                     <div class="col-md-8">
                                         <select class="form-control" name ="partner_code"  id="partner_code">
-                                            <option value="" disabled="" selected="">Select Partner Code</option>
+                                            <option value=""  selected="">Select Partner Code</option>
 <?php
 //Checking for Edit Parnter
 if (isset($query[0]['id'])) {

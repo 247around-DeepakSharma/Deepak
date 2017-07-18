@@ -5,22 +5,22 @@
             <div class="search_panel">
                 <div class="container" style="margin-left:90px;width:90%;">
                     <?php
-                    if ($this->session->flashdata('error')) {
+                    if ($this->session->userdata('error')) {
                         echo '<div class="alert alert-danger alert-dismissible partner_error" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong>' . $this->session->flashdata('error') . '</strong>
+                        <strong>' . $this->session->userdata('error') . '</strong>
                     </div>';
                     }
                     ?>
                     <?php
-                if ($this->session->flashdata('success')) {
+                if ($this->session->userdata('success')) {
                     echo '<div class="alert alert-success alert-dismissible partner_error" role="alert">
                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                            <span aria-hidden="true">&times;</span>
                        </button>
-                       <strong>' . $this->session->flashdata('success') . '</strong>
+                       <strong>' . $this->session->userdata('success') . '</strong>
                    </div>';
                 }
                 ?>

@@ -470,7 +470,7 @@ class Partner extends CI_Controller {
             if (!empty($this->input->post('id'))) {
                 //if vendor exists, details are edited
                 $partner_id = $this->input->post('id');
-                $edit_partner_data['partner'] = $this->get_partner_form_data($this->input->post());
+                $edit_partner_data['partner'] = $this->get_partner_form_data();
                 
                 //Processing Contract File
                 if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
@@ -730,12 +730,12 @@ class Partner extends CI_Controller {
             }else{
                 
                 //If Partner not present, Partner is being added
-                $return_data['partner'] = $this->get_partner_form_data($this->input->post());
+                $return_data['partner'] = $this->get_partner_form_data();
                 $return_data['partner']['is_active'] = '1';
                 $return_data['partner']['is_verified'] = '1';
                 
                 //Temporary value
-                $return_data['partner']['auth_token'] = substr(md5($return_data['public_name'].rand(1,100)), 0, 16);
+                $return_data['partner']['auth_token'] = substr(md5($return_data['partner']['public_name'].rand(1,100)), 0, 16);
                 
                 //Agreement End Date - Checking (If Not Present don't insert)
                 if(!empty($this->input->post('agreement_end_date'))){
@@ -884,7 +884,9 @@ class Partner extends CI_Controller {
                 $partner_id = $this->partner_model->add_partner($return_data['partner']);
                 //Set Flashdata on success or on Error of Data insert in table
                 if(!empty($partner_id)){
-                    $this->session->set_flashdata('success','Partner added successfully.');
+                    
+                    $msg = "Partner added successfully.";
+                    $this->session->set_userdata('success',$msg);
                     
                     //Getting Logged Employee Full Name
                     $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
@@ -981,7 +983,9 @@ class Partner extends CI_Controller {
                     }
                     
                 }else{
-                    $this->session->set_flashdata('error','Error in adding Partner.');
+                   
+                    $msg = "Error in adding Partner.";
+                    $this->session->set_userdata('error',$msg);
 
                     //Echoing message in Log file
                     log_message('error',__FUNCTION__.' Error in adding Partner  '. print_r($this->input->post(),TRUE));
@@ -995,7 +999,7 @@ class Partner extends CI_Controller {
 
     }
     
-    function get_partner_form_data($data){
+    function get_partner_form_data(){
         $return_data['company_name']=$this->input->post('company_name');
         $return_data['company_type']=$this->input->post('company_type');
         $return_data['public_name']=$this->input->post('public_name');
@@ -1025,6 +1029,12 @@ class Partner extends CI_Controller {
         $return_data['tin']=$this->input->post('tin');
         $return_data['cst_no']=$this->input->post('cst_no');
         $return_data['service_tax']=$this->input->post('service_tax');
+        $partner_code = $this->input->post('partner_code');
+        
+        if(empty($partner_code)){
+           $return_data['is_active'] = 0;
+        }
+       
         if($this->input->post('is_reporting_mail') == 'on'){
             $return_data['is_reporting_mail']= '1';
         }else{
@@ -1200,8 +1210,9 @@ class Partner extends CI_Controller {
                 $this->load->view('partner/header');
                 $this->load->view('partner/bookinghistory', $data);
             } else {
-                $this->session->set_flashdata('error', 'User Not Exist');
-
+                $msg = "User Not Exist.";
+                $this->session->set_userdata('error',$msg);
+                
                 redirect(base_url() . 'employee/partner/get_user_form');
             }
 
@@ -1228,7 +1239,9 @@ class Partner extends CI_Controller {
             $this->load->view('partner/header');
             $this->load->view('partner/bookinghistory',$data);
         } else {
-            $this->session->set_flashdata('error', 'User Not Exist');
+            $msg = "User Not Exist.";
+            $this->session->set_userdata('error',$msg);
+           
             redirect(base_url() . 'employee/partner/get_user_form');
         }
         
@@ -1334,8 +1347,9 @@ class Partner extends CI_Controller {
             $send['booking_id'] = $booking_id;
             $send['state'] = $data['current_status'];
             $this->asynchronous_lib->do_background_process($url, $send);
-            $this->session->set_flashdata('success', $booking_id . ' Booking Cancelled');
-
+            $msg = $booking_id." Booking Cancelled.";
+            $this->session->set_userdata('success',$msg);
+           
             redirect(base_url() . "partner/get_user_form");
         } else {
             // Booking isnot updated
@@ -1432,8 +1446,9 @@ class Partner extends CI_Controller {
                 //Prepare job card
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
                 $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
-
-                $this->session->set_flashdata('success', $booking_id . ' Booking Rescheduled');
+                $msg = $booking_id. " Booking Rescheduled.";
+                $this->session->set_userdata('success',$msg);
+                
                 redirect(base_url() . "partner/get_user_form");
             } else {
                 log_message('info', __FUNCTION__ . " Booking is not updated  " . print_r($data, true));
