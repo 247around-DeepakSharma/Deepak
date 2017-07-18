@@ -1014,7 +1014,7 @@ class Partner extends CI_Controller {
         $return_data['invoice_email_cc']=$this->input->post('invoice_email_cc');
         $return_data['invoice_courier_name']=$this->input->post('invoice_courier_name');
         $return_data['invoice_courier_address']=$this->input->post('invoice_courier_address');
-        $return_data['invoice_courier_phone_num']=$this->input->post('invoice_courier_phone_num');
+        $return_data['invoice_courier_phone_number']=$this->input->post('invoice_courier_phone_number');
         $return_data['pan']=$this->input->post('pan');
         $return_data['registration_no']=$this->input->post('registration_no');
         $return_data['tin']=$this->input->post('tin');
@@ -1824,7 +1824,7 @@ class Partner extends CI_Controller {
     
     /**
      * @desc: This method is used to load update form(spare parts).
-     * @param String $booking_id
+     * @param String $id
      */
     function update_spare_parts_form($id){
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Spare Parts ID: ". $id);
