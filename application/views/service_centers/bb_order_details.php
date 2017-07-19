@@ -62,9 +62,10 @@
                                
                                 <th>Charges</th>
                                 <th>Status</th>
-                                 <th>Delivery date</th>
-                                <th>Delivered</th>
-                                <th>Not Delivered</th>
+                                <th>Delivery date</th>
+                                <th>Action</th>
+<!--                                <th>Delivered</th>
+                                <th>Not Delivered</th>-->
                             </tr>
                         </thead>
                         <tbody>
@@ -124,7 +125,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,7,8,9,10], //first column / numbering column
+                    "targets": [0,7,8,9], //first column / numbering column
                     "orderable": false, //set not orderable
                 },
             ],
@@ -162,6 +163,20 @@
     });
 
 
+</script>
+<script>
+    function showConfirmDialougeBox(url){
+        swal({
+                title: "Do You Want To Continue?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                closeOnConfirm: false
+            },
+            function(){
+                window.location.href = url;
+            });
+    }
 </script>
 <?php 
 $this->session->unset_userdata('success');

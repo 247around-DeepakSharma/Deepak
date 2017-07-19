@@ -383,6 +383,9 @@ class Partner extends CI_Controller {
         $post['amount_due'] = $this->input->post('grand_total');
         $post['product_type'] = $this->input->post('product_type');
         $post['appliance_name'] = $this->input->post('appliance_name');
+        $post['dealer_name'] = $this->input->post('dealer_name');
+        $post['dealer_phone_number'] = $this->input->post('dealer_phone_number');
+        $post['dealer_id'] = $this->input->post('dealer_id');
         return $post;
         
     }
@@ -418,6 +421,8 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('booking_pincode', 'Booking Pincode', 'trim|required|exact_length[6]');
         $this->form_validation->set_rules('prices', 'Service Category', 'required');
         $this->form_validation->set_rules('grand_total', 'Grand Total', 'trim');
+        $this->form_validation->set_rules('dealer_name', 'Dealer Name', 'trim|xss_clean');
+        $this->form_validation->set_rules('dealer_phone_number', 'Dealer Phone Number', 'trim|xss_clean');
 
         if ($this->form_validation->run() == FALSE) {
             return FALSE;
@@ -1536,6 +1541,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
 
         $booking_history = $this->booking_model->getbooking_history($booking_id);
+        
         if(!empty($booking_history)){
             $data['booking_history'] = $booking_history;
             $partner_id = $this->session->userdata('partner_id');
@@ -1559,7 +1565,6 @@ class Partner extends CI_Controller {
                 array_push($price_tag, $unit['price_tags']);
             }
             $data['price_tags'] = implode(",", $price_tag);
-
             
             if(isset($booking_history[0]['dealer_id']) && !empty($booking_history[0]['dealer_id'])){
                
@@ -1576,7 +1581,6 @@ class Partner extends CI_Controller {
                 }
             }
             
-
             $this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
 
@@ -1586,7 +1590,7 @@ class Partner extends CI_Controller {
         
     }
     /**
-     * @desc: This method is used to upade booking by Partner Panel
+     * @desc: This method is used to update booking by Partner Panel
      * @param String $booking_id
      */
     function process_editbooking($booking_id) {
@@ -1671,7 +1675,6 @@ class Partner extends CI_Controller {
                     $booking_details['dealer_id'] = $is_dealer_id;
                 }
             }
-
 
             // Update users Table
             $user_status = $this->user_model->edit_user($user);
@@ -3001,7 +3004,6 @@ class Partner extends CI_Controller {
         $this->load->view('service_centers/upcountry_booking_details', $data);
     }
     
-
     function get_dealer_phone_number(){
         $partner_id = $this->input->post('partner_id');
         $search_term = $this->input->post('search_term');
@@ -3030,7 +3032,6 @@ class Partner extends CI_Controller {
         echo $response;
     }
     
-
     /**
       * @Desc: This function is used to show Partner Login Page for inactive partner
       * @params: void

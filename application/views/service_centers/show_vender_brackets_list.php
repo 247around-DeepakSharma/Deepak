@@ -143,7 +143,7 @@
 <!--                            <td style="text-align: center;"><?php //echo $value['19_24_requested']?></td>-->
                             <td style="text-align: center;"><?php echo ($value['19_24_requested']+$value['26_32_requested']);?></td>
                             <td style="text-align: center;"><?php echo ($value['36_42_requested']+$value['43_requested']);?></td>
-<!--                            <td style="text-align: center;"><?phecho $value['43_requested']?></td>-->
+
                             <td style="text-align: center;"><strong style="font-weight: 900;"><?php echo $value['total_requested']?></strong></td>
 <!--                            <td style="text-align: center;"><?php //echo $value['19_24_shipped']?></td>-->
                             <td style="text-align: center;"><?php echo ($value['19_24_shipped']+$value['26_32_shipped']);?></td>

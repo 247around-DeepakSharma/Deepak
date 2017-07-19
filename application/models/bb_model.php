@@ -5,12 +5,10 @@ class Bb_model extends CI_Model {
     
     var $order = array('bb_order_details.order_date' => 'desc'); // default order 
 
-
     var $cp_action_column_search = array('partner_order_id','name','category','brand','physical_condition','working_condition','internal_status');
     var $cp_action_column_order = array('partner_order_id','name','category','brand','physical_condition','working_condition','internal_status');
                                     
     var $cp_action_column_default_order = array('cp_action.id' => 'asc'); // default order 
-
 
     /**
      * @desc load both db
@@ -62,6 +60,7 @@ class Bb_model extends CI_Model {
      * @return Arary
      */
     function get_cp_shop_address_details($where, $select) {
+        $this->db->distinct();
         $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get("bb_shop_address");
@@ -215,7 +214,6 @@ class Bb_model extends CI_Model {
 
         $this->db->join('service_centres as cp', 'cp_action.cp_id = cp.id');
         $this->db->select('cp_action.id,cp_action.partner_order_id,cp_action.cp_id,cp_action.category,cp_action.brand,cp_action.physical_condition,
-
             cp_action.working_condition,cp_action.remarks,cp_action.internal_status, cp.name');
         $this->db->where('current_status', _247AROUND_BB_IN_PROCESS);
         if (!empty($search_value)) { // if datatable send POST for search
@@ -228,7 +226,6 @@ class Bb_model extends CI_Model {
                         $like .= " OR ".$item." LIKE '%".$search_value."%' ";
                       // $this->db->or_like($item, $search_value);
                     }
-
             }
             $like .= ") ";
 

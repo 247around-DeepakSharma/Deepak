@@ -3066,7 +3066,6 @@ class vendor extends CI_Controller {
         $where = array('active' => '1','on_off' => '1');
         $select = "service_centres.name, service_centres.id";
         $vendor = $this->vendor_model->getVendorDetails($select, $where);
-
         log_message('info', __FUNCTION__);
 
         $template = 'SF_List_Template.xlsx';
@@ -3288,9 +3287,6 @@ class vendor extends CI_Controller {
         
         
     }
-    
-    
-  
     
     /**
      * 

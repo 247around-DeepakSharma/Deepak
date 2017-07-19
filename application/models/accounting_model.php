@@ -130,7 +130,7 @@ class accounting_model extends CI_Model {
             $sql = "SELECT `invoice_id` AS 'InvoiceNo', company_name AS 'CompanyName', P.state AS State, IFNULL( P.service_tax_no, '' ) AS 'ServiceTaxNo', 
                     IFNULL(tin_no, '' ) AS 'TINNo', invoice_date AS 'InvoiceDate', `parts_cost` AS Parts, `vat` AS VAT, 
                     (ABS( `amount_collected_paid` ) + tds_amount) AS 'TotalAmount', 
-                    IFNULL( `rate` , 0 ) AS 'VATRate'
+                    IFNULL( `rate` , 0 ) AS 'VATRate',vpi.from_date AS 'FromDate',vpi.to_date AS 'ToDate'
                     FROM `vendor_partner_invoices` AS vpi, service_centres AS P, tax_rates AS tr
                     WHERE `type_code` = 'B' AND vpi.type = 'Stand' AND vpi.`invoice_date` >= '$from_date' AND vpi.`invoice_date` < '$to_date'
                     AND `vendor_partner_id` = P.id AND tax_code = 'VAT' AND product_type = 'wall_bracket' AND P.state = tr.state";

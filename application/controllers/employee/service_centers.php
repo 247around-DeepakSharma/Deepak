@@ -54,7 +54,6 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/service_center_login' ,$data);
     }
 
-    
     /**
      * @desc: this is used to load pending booking
      * @param: booking id (optional)
@@ -367,7 +366,24 @@ class Service_centers extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id'))) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
+                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center");
+        }
+    }
+    
+    /**
+     * @desc: This funtion will check Session
+     * @param: void
+     * @return: true if details matches else session is distroyed.
+     */
+    function check_BB_UserSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
+                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_cp'))) {
             return TRUE;
         } else {
             log_message('info', __FUNCTION__. " Session Expire for Service Center");
@@ -1540,7 +1556,7 @@ class Service_centers extends CI_Controller {
      * @return json $output 
      */
     public function view_delivered_bb_order_details(){
-        $this->checkUserSession();
+        $this->check_BB_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/bb_order_details');
     }
@@ -1551,6 +1567,8 @@ class Service_centers extends CI_Controller {
      * @return json $output 
      */
     function get_delivered_bb_order_details() {
+        $this->check_BB_UserSession();
+        
         $length = $this->input->post('length');
         $start = $this->input->post('start');
         $search = $this->input->post('search');
@@ -1558,7 +1576,7 @@ class Service_centers extends CI_Controller {
         $order = $this->input->post('order');
         $draw = $this->input->post('draw');
         $status = $this->input->post('status');
-        $list = $this->service_centers_model->get_bb_order_list($length, $start, $search_value, $order, $status);
+        $list = $this->cp_model->get_bb_cp_order_list($length, $start, $search_value, $order, $status);
 
         $data = array();
         $no = $start;
@@ -1585,8 +1603,15 @@ class Service_centers extends CI_Controller {
                 }
             if($status === '0'){
                 $row[] = $order_list->delivery_date;
-                $row[] = "<a class='btn btn-default' target='_blank' href='".base_url()."service_center/update_order_details/".$order_list->partner_order_id."/".$order_list->service_id."/".$order_list->city."'><i class='fa fa-edit'></i></a>";
-                $row[] = "<a class='btn btn-default' target='_blank' href='javascript:void(0)'><i class='fa fa-remove'></i></a>";
+                $row[] = "<div class='dropdown'>
+                            <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
+                            <span class='caret'></span></button>
+                            <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."service_center/update_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('".base_url()."service_center/update_not_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."')>Not Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."service_center/update_order_details/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Report Issue</a></li>
+                            </ul>
+                          </div>";
             } else {
                 $row[] = $order_list->order_date;
             }
@@ -1597,8 +1622,8 @@ class Service_centers extends CI_Controller {
 
         $output = array(
             "draw" => $draw,
-            "recordsTotal" => $this->service_centers_model->count_all($status),
-            "recordsFiltered" => $this->service_centers_model->count_filtered($search_value, $order, $status),
+            "recordsTotal" => $this->cp_model->cp_order_list_count_all($status),
+            "recordsFiltered" => $this->cp_model->cp_order_list_count_filtered($search_value, $order, $status),
             "data" => $data,
         );
 
@@ -1869,7 +1894,6 @@ class Service_centers extends CI_Controller {
             redirect(base_url() . 'service_center/bb_oder_details');
         }
     }
-
     /**
      * @desc It check if sc update gst form first then show its profile otherwies GST form
      */

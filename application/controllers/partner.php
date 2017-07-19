@@ -1424,11 +1424,9 @@ class Partner extends CI_Controller {
                             //Add sample appliances for this user
                             $count = $this->booking_model->getApplianceCountByUser($user_id);
 
-
                             //Add sample appliances if user has < 5 appliances in wallet
                             if ($count < 5) {
                                 $this->booking_model->addSampleAppliances($user_id, 5 - intval($count));
-
                             }
                         } else {
                             log_message('info', $requestData['mobile'] . ' exists');
@@ -1484,7 +1482,6 @@ class Partner extends CI_Controller {
                         } else {
                             $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
                         }
-
 
                         $unit_details['booking_id'] = $booking['booking_id'];
 

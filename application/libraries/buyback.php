@@ -198,7 +198,6 @@ class Buyback {
                 $order_data[0]['current_status'] != "Completed" || 
                 $order_data[0]['current_status'] != $this->POST_DATA['current_status']){
             
-
             $bb_order_details = array(
                 'current_status' => $this->POST_DATA['current_status'],
                 'internal_status' => $this->POST_DATA['current_status'],

@@ -7,6 +7,25 @@ class Cp_model extends CI_Model {
     var $column_search = array('name', 'contact_person',
         'shop_address_city', 'primary_contact_number', 'shop_address_city', 'shop_address_line1'); //set column field database for datatable searchable 
     var $order = array('name,bb_shop_address.shop_address_city ' => 'asc'); // default order 
+    
+    var $bb_unit_column_order = array(
+        '0' =>   array('bb_unit_details.partner_order_id', 'services', 'city',
+                       'physical_condition','working_condition','cp_basic_charge','current_status',
+                       'delivery_date',null,null),
+        '1' =>   array('bb_unit_details.partner_order_id', 'services', 'city',
+                       'physical_condition','working_condition','cp_basic_charge','current_status',
+                       'order_date',null,null)
+         );
+    var $bb_unit_column_search = array(
+        '0' =>   array('bb_unit_details.partner_order_id', 'services', 'city',
+        'order_date', 'delivery_date', 'current_status'),
+        '1' =>   array( 'bb_unit_details.partner_order_id', 'services', 'city',
+        'order_date', 'delivery_date', 'current_status')
+         );
+    var $bb_unit_order = array('bb_order_details.order_date' => 'desc'); // default order 
+    var $bb_unit_status = array('0' => array('Delivered'),
+        '1' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+    
 
     /**
      * @desc load both db
@@ -83,7 +102,6 @@ class Cp_model extends CI_Model {
         $this->db->insert('bb_cp_order_action',$data);
         return $this->db->insert_id();
     }
-
 
     /**
      * @desc this is used to make the query for buyback order data
