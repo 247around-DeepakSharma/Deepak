@@ -75,6 +75,14 @@ $route['service_center/gst_details'] = 'employee/service_centers/gst_update_form
 $route['service_center/gst_update_form'] = 'employee/service_centers/gst_update_form/';
 $route['service_center/process_gst_update'] = 'employee/service_centers/process_gst_update/';
 
+$route['service_center/bb_oder_details'] = 'employee/service_centers/view_delivered_bb_order_details';
+$route['service_center/update_order_details/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_bb_report_issue_order_details/$1/$2/$3/$4';
+$route['process_report_issue_bb_order_details'] = 'employee/service_centers/process_report_issue_bb_order_details';
+$route['service_center/update_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_received_bb_order/$1/$2/$3/$4';
+$route['service_center/update_not_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_not_received_bb_order/$1/$2/$3/$4';
+
+
+
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
 $route['partner/login'] = 'employee/partner';

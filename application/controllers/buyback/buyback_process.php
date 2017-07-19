@@ -41,7 +41,7 @@ class Buyback_process extends CI_Controller {
      */
     function get_bb_order_details() {
         log_message("info",__METHOD__);
-       // $tmp ='{"draw":"5","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"7","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"date_range":"2017\/07\/01 - 2017\/07\/31","city":"Pune","service_id":"46","current_status":"","internal_status":"","status":"10"}'; 
+		       // $tmp ='{"draw":"5","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"7","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"date_range":"2017\/07\/01 - 2017\/07\/31","city":"Pune","service_id":"46","current_status":"","internal_status":"","status":"10"}'; 
        // $_POST = json_decode($tmp, true);
         $data = array();
         switch ($this->input->post('status')){
@@ -540,14 +540,17 @@ class Buyback_process extends CI_Controller {
             $row = array();
             $row[] = $no;
             $row[] = $order_list->partner_order_id;
+            $row[] = $order_list->name;
             $row[] = $order_list->category;
             $row[] = $order_list->brand;
             $row[] = $order_list->physical_condition;
             $row[] = $order_list->working_condition;
-            $row[] = $order_list->status;
+            if($order_list->internal_status === _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS){
+                $row[] = "<span class='label label-warning'>$order_list->internal_status</span>";
+            }else if($order_list->internal_status === _247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS){
+                $row[] = "<span class='label label-danger'>$order_list->internal_status</span>";
+            }
             $row[] = $order_list->remarks;
-            $row[] = $order_list->current_status;
-            $row[] = $order_list->name;
             $row[] = "<a class='btn btn-info btn-sm' target='_blank' href='".base_url()."buyback/buyback_process/get_bb_order_image_link/".$order_list->partner_order_id."/".$order_list->cp_id."'><i class='fa fa-camera'></i></a>";
             $row[] = "<label><input type='checkbox' class='flat check_single_row' id='approved_data' data-id='".$order_list->partner_order_id."' data-status='".$order_list->internal_status."'></label>";
             $data[] = $row;
@@ -917,9 +920,8 @@ class Buyback_process extends CI_Controller {
         $data['not_assigned'] =  $not_assigned;
 
         echo json_encode($data);
-    }
-
-    
+    }  
+        
     function bb_order_search(){
         log_message("info",__METHOD__);
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
