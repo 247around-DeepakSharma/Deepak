@@ -90,7 +90,7 @@
                 <div class="row">
                     <div class="order_upload_file">
                         <div class="form-group form-inline">
-                            <label for="order_files" class="col-md-2 info_tooltip"><i class="fa fa-info info-labal text-danger" data-toggle="tooltip" title="You can upload multiple images"></i> &nbsp;Upload Order Id Image:</label>
+                            <label for="order_files" class="col-md-2 info_tooltip"> Upload Order Id Image:</label>
                             <input type="file" class="form-control col-md-8" id="order_files" name="order_files" accept="image/*" required></textarea>
                         </div>
                     </div>

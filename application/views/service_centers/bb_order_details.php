@@ -4,12 +4,15 @@
 <script src="<?php echo base_url() ?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
 <script src="<?php echo base_url() ?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
 <style>
-    #datatable_length,#datatable2_length{
-        display: none;
+    .dataTables_length{
+        margin:10px 0px;
     }
-    #datatable_filter,#datatable2_filter{
-        display: none;
+    
+    .dataTables_filter{
+        margin:10px 0px;
+        text-align: right;
     }
+    
 </style>
 
 <div class="bb_order_details" style="margin: 20px 20px 10px 10px;">
@@ -49,7 +52,7 @@
             <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
                 <div class="x_content">
 
-                    <table id="datatable" class="table table-striped table-bordered">
+                    <table id="delivered_datatable" class="table table-striped table-bordered">
                         <thead>
                             <tr>
                                 <th>No.</th>
@@ -58,14 +61,13 @@
 
                                 <th>City</th>
                                 <th>Physical Condition</th>
-                                <th>Workign Condition</th>
+                                <th>Working Condition</th>
                                
                                 <th>Charges</th>
-                                <th>Status</th>
+                               
                                 <th>Delivery date</th>
                                 <th>Action</th>
-<!--                                <th>Delivered</th>
-                                <th>Not Delivered</th>-->
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -76,7 +78,7 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
-                <table id="datatable2" class="table table-striped table-bordered" style="width: 100%;">
+                <table id="pending_datatable" class="table table-striped table-bordered" style="width: 100%;">
                     <thead>
                         <tr>
                             <th>No.</th>
@@ -85,11 +87,11 @@
 
                             <th>City</th>
                             <th>Physical Condition</th>
-                            <th>Workign Condition</th>
-                            
+                            <th>Working Condition</th>
+                            <th>Order date</th>
                             <th>SF Charge</th>
                             <th>Status</th>
-                            <th>Order date</th>
+                            
                             
 
                         </tr>
@@ -105,45 +107,45 @@
 </div>
 <script type="text/javascript">
 
-    var table;
-    var table1;
+    var delivered;
+    var pending;
 
     $(document).ready(function () {
 
-        //datatables
-        table = $('#datatable').DataTable({
+        //delivered datatables
+        delivered = $('#delivered_datatable').DataTable({
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
             // Load data for the table's content from an Ajax source
             "ajax": {
-                "url": "<?php echo base_url(); ?>employee/service_centers/get_delivered_bb_order_details",
+                "url": "<?php echo base_url(); ?>employee/service_centers/get_bb_order_details",
                 "type": "POST",
                 "data": {"status": 0}
             },
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,7,8,9], //first column / numbering column
+                    "targets": [0,7,8], //first column / numbering column
                     "orderable": false, //set not orderable
                 },
             ],
             "fnInitComplete": function (oSettings, response) {
-
+            
                 $("#deliverd_record").text(response.recordsTotal);
             }
         });
-
-        //datatables
-        table1 = $('#datatable2').DataTable({
+        
+        //pending datatables
+        pending = $('#pending_datatable').DataTable({
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
             // Load data for the table's content from an Ajax source
             "ajax": {
-                "url": "<?php echo base_url(); ?>employee/service_centers/get_delivered_bb_order_details",
+                "url": "<?php echo base_url(); ?>employee/service_centers/get_bb_order_details",
                 "type": "POST",
                 "data": {"status": 1}
             },
@@ -155,13 +157,11 @@
                 },
             ],
             "fnInitComplete": function (oSettings, response) {
-
+            
                 $("#pending_record").text(response.recordsTotal);
             }
         });
-
     });
-
 
 </script>
 <script>

@@ -1562,77 +1562,6 @@ class Service_centers extends CI_Controller {
     }
     
     /**
-     * @desc Used to get buyback order data as requested and also search 
-     * @param void
-     * @return json $output 
-     */
-    function get_delivered_bb_order_details() {
-        $this->check_BB_UserSession();
-        
-        $length = $this->input->post('length');
-        $start = $this->input->post('start');
-        $search = $this->input->post('search');
-        $search_value = $search['value'];
-        $order = $this->input->post('order');
-        $draw = $this->input->post('draw');
-        $status = $this->input->post('status');
-        $list = $this->cp_model->get_bb_cp_order_list($length, $start, $search_value, $order, $status);
-
-        $data = array();
-        $no = $start;
-        foreach ($list as $order_list) {
-
-            $no++;
-            $row = array();
-            $row[] = $no;
-            $row[] = $order_list->partner_order_id;
-            $row[] = $order_list->services;
-            $row[] = $order_list->city;
-            $row[] = $order_list->physical_condition;
-            $row[] = $order_list->working_condition;
-           
-            $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
-            if($order_list->current_status === 'Delivered'){
-                $row[] = "<span class='label label-success'>$order_list->current_status</span>";
-                }else if($order_list->current_status === 'In-Transit'){
-                    $row[] = "<span class='label label-primary'>$order_list->current_status</span>";
-                }else if($order_list->current_status === 'Attempted'){
-                    $row[] = "<span class='label label-warning'>$order_list->current_status</span>";
-                }else if($order_list->current_status === 'New Item In-transit'){
-                    $row[] = "<span class='label label-info'>$order_list->current_status</span>";
-                }
-            if($status === '0'){
-                $row[] = $order_list->delivery_date;
-                $row[] = "<div class='dropdown'>
-                            <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
-                            <span class='caret'></span></button>
-                            <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."service_center/update_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('".base_url()."service_center/update_not_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."')>Not Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."service_center/update_order_details/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Report Issue</a></li>
-                            </ul>
-                          </div>";
-            } else {
-                $row[] = $order_list->order_date;
-            }
-            
-            $data[] = $row;
-        }
-
-
-        $output = array(
-            "draw" => $draw,
-            "recordsTotal" => $this->cp_model->cp_order_list_count_all($status),
-            "recordsFiltered" => $this->cp_model->cp_order_list_count_filtered($search_value, $order, $status),
-            "data" => $data,
-        );
-
-        //output to json format
-        echo json_encode($output);
-    }
-    
-    
-    /**
      * @desc Used to show the buyback order details on cp panel
      * @param $order_id string
      * @param $service_id string
@@ -1808,6 +1737,12 @@ class Service_centers extends CI_Controller {
         
     }
     
+    
+    /**
+     * @desc Used to get the buyback order category
+     * @param void
+     * @return string
+     */
     function get_bb_order_category_size(){
         //$this->check_BB_UserSession();
         $service_id = $this->input->post('product_service_id');
@@ -1831,6 +1766,15 @@ class Service_centers extends CI_Controller {
         echo $option;
     }
     
+    
+    /**
+     * @desc Used to get  buyback form to update received bb order
+     * @param $order_id string
+     * @param $service_id string
+     * @param $city string
+     * @param $cp_id string
+     * @return void
+     */
     function update_received_bb_order($order_id,$service_id,$city,$cp_id){
         $this->check_BB_UserSession();
         
@@ -1845,6 +1789,12 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/update_received_bb_order_details',$response_data);
     }
     
+    
+    /**
+     * @desc Used to process the  buyback update order form
+     * @param void
+     * @return void
+     */
     function process_received_bb_order_update(){ 
         $this->check_BB_UserSession();
          //check for validation
@@ -1871,6 +1821,15 @@ class Service_centers extends CI_Controller {
         }
     }
     
+    
+    /**
+     * @desc Used to update not received bb order
+     * @param $order_id string
+     * @param $service_id string
+     * @param $city string
+     * @param $cp_id string
+     * @return void
+     */
     function update_not_received_bb_order($order_id, $service_id, $city) {
         $this->check_BB_UserSession();
 
@@ -2073,6 +2032,176 @@ class Service_centers extends CI_Controller {
         }else{
             echo '0';
         }
+    }
+    
+    /**
+     * @desc Used to get data as requested and also search 
+     */
+    function get_bb_order_details() {
+        log_message("info",__METHOD__);
+        $data = array();
+        switch ($this->input->post('status')){
+            case 0:
+                $data = $this->get_delivered_data();
+                break;
+            case 1:
+                $data = $this->get_pending_data();
+                break;
+        }
+        
+        $post = $data['post'];
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->cp_model->cp_order_list_count_all($post),
+            "recordsFiltered" =>  $this->cp_model->cp_order_list_count_filtered($post),
+            "data" => $data['data'],
+        );
+        unset($post);
+        unset($data);
+        echo json_encode($output);
+    }
+    
+    
+    /**
+     * @desc Used to get  delivered buyback data
+     * @param void
+     * @return array
+     */
+    function get_delivered_data(){
+        log_message("info",__METHOD__);
+        $post = $this->get_bb_post_view_data();
+        $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
+            'bb_cp_order_action.current_status' => 'Pending', 'bb_cp_order_action.internal_status' => 'Delivered');
+        $post['where_in'] = array();
+        $post['column_order'] = array( NULL,'bb_cp_order_action.partner_order_id','services', 'city','physical_condition', 'working_condition',
+              'cp_basic_charge','bb_cp_order_action.current_status','delivery_date',NULL,NULL);
+        $post['column_search'] = array('bb_cp_order_action.partner_order_id', 'services', 'city',
+            'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
+        $list = $this->cp_model->get_bb_cp_order_list($post);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->get_delivered_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+
+    }
+    
+    /**
+     * @desc Used to get pending buyback data
+     * @param void
+     * @return array
+     */
+    function get_pending_data(){
+        log_message("info",__METHOD__);
+        $post = $this->get_bb_post_view_data();
+        $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
+            'bb_cp_order_action.current_status' => 'Pending');
+        $post['where_in'] = array('bb_cp_order_action.internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+        $post['column_order'] = array( NULL,'partner_order_id','services', 'city','physical_condition', 'working_condition',
+              'cp_basic_charge','bb_cp_order_action.current_status','delivery_date',NULL,NULL);
+        $post['column_search'] = array('partner_order_id', 'services', 'city','order_date', 'delivery_date', 'bb_cp_order_action.current_status');
+        $list = $this->cp_model->get_bb_cp_order_list($post);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->get_pending_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+        
+    }
+    
+    
+    /**
+     * @desc Used to get  delivered buyback data table
+     * @param $order_list
+     * @param $no
+     * @return array
+     */
+    function get_delivered_table_data($order_list, $no) {
+        log_message("info", __METHOD__);
+        $row = array();
+        $row[] = $no;
+        $row[] = $order_list->partner_order_id;
+        $row[] = $order_list->services;
+        $row[] = $order_list->city;
+        $row[] = $order_list->physical_condition;
+        $row[] = $order_list->working_condition;
+        $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+        $row[] = $order_list->delivery_date;
+        $row[] = "<div class='dropdown'>
+                            <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
+                            <span class='caret'></span></button>
+                            <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_not_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Report Issue</a></li>
+                            </ul>
+                          </div>";
+
+        return $row;
+    }
+    
+    
+    /**
+     * @desc Used to get pending buyback data table
+     * @param $order_list
+     * @param $no
+     * @return array
+     */
+    function get_pending_table_data($order_list, $no) {
+        log_message("info", __METHOD__);
+        $row = array();
+        $row[] = $no;
+        $row[] = $order_list->partner_order_id;
+        $row[] = $order_list->services;
+        $row[] = $order_list->city;
+        $row[] = $order_list->physical_condition;
+        $row[] = $order_list->working_condition;
+         $row[] = $order_list->order_date;
+        $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+        if ($order_list->current_status === 'In-Transit') {
+            $row[] = "<span class='label label-primary'>$order_list->current_status</span>";
+        } else if ($order_list->current_status === 'Attempted') {
+            $row[] = "<span class='label label-warning'>$order_list->current_status</span>";
+        } else if ($order_list->current_status === 'New Item In-transit') {
+            $row[] = "<span class='label label-info'>$order_list->current_status</span>";
+        }
+       
+        
+        return $row;
+    }
+    
+    /**
+     * @desc Used to get  post data from the datatable
+     * @param void
+     * @return $post array()
+     */
+    function get_bb_post_view_data(){
+        log_message("info",__METHOD__);
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        $post['status'] = $this->input->post('status');
+        
+        return $post;
     }
 
 }
