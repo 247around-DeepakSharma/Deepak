@@ -59,12 +59,14 @@
                                     
                                 </div>
                                 <div  class="form-group <?php if( form_error('signature_file') ) { echo 'has-error';} ?>">
-                                    <label  for="signature_file" class="col-md-4">Signature File</label>
+                                    <label  for="signature_file" class="col-md-4">Signature Image File</label>
                                     <div class="col-md-8">
                                         <input  type="file" class="form-control" id="signature_file" name="signature_file" >
                                         <?php echo form_error('signature_file'); ?>
                                     </div>
                                     
+                                Scanned Image of Signature of Authorized Signatory (required for system-generated invoices)
+                                
                                 </div>
                                 <div  class="form-group">
                                     
