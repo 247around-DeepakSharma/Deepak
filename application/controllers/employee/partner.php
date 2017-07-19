@@ -2594,7 +2594,8 @@ class Partner extends CI_Controller {
                 $vendor_data = array();
                 $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
                 $vendor_data[0]['city'] = $city;
-
+                $vendor_data[0]['min_upcountry_distance'] = $this->vendor_model->getVendorDetails("min_upcountry_distance", 
+                        array('id' =>$assigned_vendor_id))[0]['min_upcountry_distance'];
                 $data = $this->upcountry_model->action_upcountry_booking($city, $pincode, $vendor_data, $partner_details);
             }
             
@@ -2734,7 +2735,7 @@ class Partner extends CI_Controller {
         } else {
             $to = NITS_ANUJ_EMAIL_ID;
             $cc = "vijaya@247around.com";
-            $message = "Partner try to approve Booking Id ".$booking_id." But somehoow it failed. <br/>Please check this booking.";
+            $message = "Partner try to approve Booking Id ".$booking_id." but somehow it failed. <br/>Please check this booking.";
             $this->notify->sendEmail('booking@247around.com', $to, $cc, '',
                 'UpCountry Approval Failed', $message, '');
             if ($status == 0) {
@@ -2744,8 +2745,6 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
             }
-            
-                    
         }
     }
     /**

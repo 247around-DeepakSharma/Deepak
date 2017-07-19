@@ -1,11 +1,14 @@
 <?php
 
 class Upcountry_model extends CI_Model {
+    var $vendor_min_up_distance = 25;
+    
     /**
      * @desc load both db
      */
     function __construct() {
         parent::__Construct();
+        
     }
     /**
      * @desc: This is used to insert upcountry details as a batch
@@ -99,7 +102,7 @@ class Upcountry_model extends CI_Model {
             $where1 = array('service_center_id' => $value['vendor_id'], 
                 'district'=> $value['city']);
             $res_sb = $this->get_sub_service_center_details($where1);
-           
+            $this->vendor_min_up_distance = $value['min_upcountry_distance'];
             if($res_sb){
                 if($res_sb[0]['pincode'] != $booking_pincode){
                     log_message('info', __METHOD__ ." Continue process....");
@@ -196,7 +199,7 @@ class Upcountry_model extends CI_Model {
                 $partner_upcountry_rate = $partner_data[0]['upcountry_rate1'];
             }
             $partner_upcountry_approval = $partner_data[0]['upcountry_approval'];
-            $min_threshold_distance = $partner_data[0]['upcountry_min_distance_threshold'] *2;
+            $min_threshold_distance = $this->vendor_min_up_distance *2;
             $max_threshold_distance = $partner_data[0]['upcountry_max_distance_threshold'] * 2;
         } else {
             $partner_upcountry_approval = 0;
@@ -537,7 +540,7 @@ class Upcountry_model extends CI_Model {
      */
     function get_vendor_upcountry($pincode, $service_id, $sf_id = false){
         $this->db->distinct();
-        $this->db->select('Vendor_ID,City,service_centres.is_upcountry');
+        $this->db->select('Vendor_ID,City,service_centres.is_upcountry, service_centres.min_upcountry_distance');
         $this->db->from('vendor_pincode_mapping');
         $this->db->order_by('vendor_pincode_mapping.Pincode');
         $this->db->where('vendor_pincode_mapping.Pincode', $pincode);

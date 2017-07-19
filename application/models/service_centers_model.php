@@ -1,7 +1,6 @@
 <?php
 
 class Service_centers_model extends CI_Model {
-    
     /**
      * @desc load both db
      */
@@ -503,7 +502,6 @@ class Service_centers_model extends CI_Model {
         }
         log_message('info', __FUNCTION__ . '=> Delete sc unit details: ' .$this->db->last_query());
     }
-    
     /**
      * @desc this is used to make the query for buyback order data
      * @param type $search_value
