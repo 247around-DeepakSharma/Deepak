@@ -10,45 +10,6 @@
     #datatable_filter,#datatable2_filter{
         display: none;
     }
-    
-    .action_container {
-    position: relative;
-    width: 50%;
-}
-
-.image {
-  opacity: 1;
-  display: block;
-  width: 100%;
-  height: auto;
-  transition: .5s ease;
-  backface-visibility: hidden;
-}
-
-.middle {
-  transition: .5s ease;
-  opacity: 0;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%)
-}
-
-.action_container:hover .image {
-  opacity: 0.3;
-}
-
-.action_container:hover .middle {
-  opacity: 1;
-}
-
-.text {
-  background-color: #ccc;
-  color: white;
-  font-size: 16px;
-  padding: 16px 32px;
-}
 </style>
 
 <div class="bb_order_details" style="margin: 20px 20px 10px 10px;">

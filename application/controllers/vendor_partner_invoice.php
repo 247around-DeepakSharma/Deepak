@@ -492,12 +492,6 @@ class vendor_partner_invoice extends CI_Controller {
 		    'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		);
 		$this->invoices_model->insert_new_invoice($invoice_details);
-
-		/*
-		 * Update booking-invoice table to capture this new invoice against these bookings.
-		 * Since this is a type A invoice, it would be stored as a vendor-debit invoice.
-		 */
-		$this->update_booking_invoice_mappings_installations($bookings_completed, $invoice_id);
 	    }
 
 	    //For testing, break after 1st vendor

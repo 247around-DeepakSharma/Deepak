@@ -98,7 +98,6 @@ class Cp_model extends CI_Model {
         return $this->db->update('bb_shop_address', $data);
     }
     
-
     function insert_bb_cp_order_action($data){
         $this->db->insert('bb_cp_order_action',$data);
         return $this->db->insert_id();
@@ -270,5 +269,4 @@ class Cp_model extends CI_Model {
         $this->db->insert('bb_shop_address',$data);
         return $this->db->insert_id();
     }
-
 }

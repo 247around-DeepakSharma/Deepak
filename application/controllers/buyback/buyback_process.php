@@ -707,7 +707,6 @@ class Buyback_process extends CI_Controller {
         $this->load->view('buyback/get_disputed_30_days_breech');
         $this->load->view('dashboard/dashboard_footer');
     }
-
     function download_bb_shop_address() {
         log_message("info",__METHOD__);
         $shop_address_data = $this->bb_model->download_bb_shop_address_data();
@@ -757,7 +756,6 @@ class Buyback_process extends CI_Controller {
         
         return $output_file;
     }
-        
     function search_for_buyback(){
         log_message("info",__METHOD__);
         $post['search_value'] = $this->input->post('search');
@@ -771,8 +769,6 @@ class Buyback_process extends CI_Controller {
         
         $this->load->view('buyback/bb_search_result', $list);
     }
-    
-    
     /**
      * @desc This function is used to show update form for those buyback order which order received by
      *       the collection partner.
@@ -853,7 +849,6 @@ class Buyback_process extends CI_Controller {
             redirect(base_url().'buyback/buyback_process/view_bb_order_details');
         }
     }
-    
     function assigned_bb_unassigned_data(){
         log_message("info",__METHOD__);
        

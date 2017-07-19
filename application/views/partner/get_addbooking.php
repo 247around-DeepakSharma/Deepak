@@ -757,7 +757,6 @@
                 },
                 url: '<?php echo base_url(); ?>employee/partner/get_district_by_pincode/'+ pincode+"/"+service_id,          
                 success: function (data) {
-                    console.log();
                     if(data !== "ERROR"){
                         $('#booking_city').select2().html(data).change();
 //                        $("#booking_city").select2({

@@ -5,7 +5,6 @@ class Bb_model extends CI_Model {
     
     var $order = array('bb_order_details.order_date' => 'desc'); // default order 
 
-    
     var $cp_action_column_search = array('partner_order_id','name','category','brand','physical_condition','working_condition','internal_status');
     var $cp_action_column_order = array('partner_order_id','name','category','brand','physical_condition','working_condition','internal_status');
                                     

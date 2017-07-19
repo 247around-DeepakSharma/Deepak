@@ -247,9 +247,8 @@ class service_centre_charges_model extends CI_Model {
         return $query->result_array();
     }
     
-    
     /**
-     * @desc Used to get the buyback charges from bb_charges tablecd
+     * @desc Used to get the buyback charges from bb_charges table
      * @param $where array
      * @param $select array
      * @param $is_distinct default false
@@ -262,7 +261,6 @@ class service_centre_charges_model extends CI_Model {
         $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get("bb_charges");
-       
         return $query->result_array();
     }
     

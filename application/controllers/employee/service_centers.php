@@ -40,7 +40,6 @@ class Service_centers extends CI_Controller {
         $this->load->library('user_agent');
         $this->load->library('notify');
         $this->load->library('buyback');
-
         
     }
 
