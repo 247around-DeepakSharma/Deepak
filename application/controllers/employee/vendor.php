@@ -686,6 +686,7 @@ class vendor extends CI_Controller {
                 $vendor_data['is_gst_doc'] = $this->input->post('is_gst_doc');
                 $vendor_data['is_sf'] = $this->input->post('is_sf');
                 $vendor_data['is_cp'] = $this->input->post('is_cp');
+                $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
                 if(empty( $vendor_data['is_cp'])){
                      $vendor_data['is_cp'] = 0;
                 }
