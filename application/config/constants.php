@@ -130,9 +130,9 @@ define('_247AROUND_BRACKETS_36_42_UNIT_PRICE',165);
 //constant to define 247around brackets charge for greater than 43 inch
 define('_247AROUND_BRACKETS_43_UNIT_PRICE',425);
 //constant to define State for making Vendor Activate
-define('_247AROUND_VENDOR_ACTIVATED','Vendor_Activated');
+define('_247AROUND_VENDOR_ACTIVATED','Vendor Activated');
 //constant to define State for making Vendor De-activate
-define('_247AROUND_VENDOR_DEACTIVATED','Vendor_Deactivated');
+define('_247AROUND_VENDOR_DEACTIVATED','Vendor Deactivated');
 //constant to define State for making Vendor DELETED
 define('_247AROUND_VENDOR_DELETED','Vendor_Deleted');
 //constant to define State for making Partner Activate
@@ -140,9 +140,9 @@ define('_247AROUND_PARTNER_ACTIVATED','Partner_Activated');
 //constant to define State for making Partner De-activate
 define('_247AROUND_PARTNER_DEACTIVATED','Partner_Deactivated');
 //constant to define State for making Partner Suspended
-define('_247AROUND_VENDOR_SUSPENDED','Vendor Suspended');
+define('_247AROUND_VENDOR_SUSPENDED','Vendor Temporary OFF');
 //constant to define State for making Partner Non Suspended
-define('_247AROUND_VENDOR_NON_SUSPENDED','Vendor Activated From TMP OFF');
+define('_247AROUND_VENDOR_NON_SUSPENDED','Vendor Temporary ON');
 
 define("INSERT_NEW_BOOKING", "INSERT_NEW_BOOKING");
 
@@ -384,6 +384,8 @@ define('_247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS','To Be Claimed Not Del
 define('CLAIM_SUBMITTED','Claim Submitted');
 define('TO_BE_CLAIMED','To Be Claimed');
 define('CLAIM_SETTLED_BY_AMAZON','Claim Settled by Amazon');
+define('_247AROUND_BB_REPORT_ISSUE_IN_PROCESS','InProcess_Claimed_Raised_By_CP');
+define('_247AROUND_BB_NOT_DELIVERED_IN_PROCESS','InProcess_Not_delivered');
 
 //new shop address added
 define('NEW_SHOP_ADDRESS_ADDED','New Shop Address Added');

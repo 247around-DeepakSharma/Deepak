@@ -12,108 +12,110 @@
 <div class="update_order_Details" style="margin-top: 20px;">
     <div class="container">
         <form action="<?php echo base_url();?>process_report_issue_bb_order_details" method="post" id="bb_order_update" role='form' enctype="multipart/form-data">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12">
-                <h2>Product Condition</h2>
-                        <?php if ($this->session->userdata('error')) {
-                            echo '<br><br><div class="alert alert-danger alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12">
+                    <h2>Product Condition</h2>
+                            <?php if ($this->session->userdata('error')) {
+                                echo '<br><br><div class="alert alert-danger alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
 
-                           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                               <span aria-hidden="true">&times;</span>
-                           </button>
-                           <strong>' . $this->session->userdata('error') . '</strong>
-                       </div>';
-                        }
-                        ?>
+                               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                   <span aria-hidden="true">&times;</span>
+                               </button>
+                               <strong>' . $this->session->userdata('error') . '</strong>
+                           </div>';
+                            }
+                            ?>
+                    <hr>
+                </div>
                 <hr>
-        </div>
-        <hr>
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-2">
-                <div>
-                    <div class="form-group">
-                        <select class="form-control" id="order_services" name="services">
-                            <option selected disabled>Select Product</option>
-                            <?php foreach ($products as $value) { ?> 
-                                <option value="<?php echo $value->id; ?>"><?php echo $value->services; ?></option>
-                            <?php } ?>
-                        </select>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-2">
+                        <div>
+                            <div class="form-group">
+                                <select class="form-control" id="order_services" name="services">
+                                    <option selected disabled>Select Product</option>
+                                    <?php foreach ($products as $value) { ?> 
+                                        <option value="<?php echo $value->id; ?>"><?php echo $value->services; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2">
+                        <div>
+                            <div class="form-group">
+                                <select class="form-control" id="order_category" name="category">
+                                    <option selected disabled>Select Category</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2" id="phy_con">
+                        <div>
+                            <div class="form-group">
+                                <select class="form-control" id="order_physical_condition" name="order_physical_condition">
+                                    <option selected disabled>Select Physical Condition</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2">
+                        <div>
+                            <div class="form-group">
+                                <select class="form-control" id="order_working_condition" name="order_working_condition">
+                                    <option selected disabled>Select Working Condition</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2">
+                        <div>
+                            <div class="form-group">
+                                <select class="form-control" id="order_brand" name="order_brand">
+                                    <option selected disabled>Select Brand</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="remarks">
+                        <div class="form-group form-inline">
+                            <label for="remarks" class="col-md-2">Remarks:</label>
+                            <textarea class="col-md-8" rows="3" id="remarks" name="remarks" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="order_upload_file">
+                        <div class="form-group form-inline">
+                            <label for="order_files" class="col-md-2 info_tooltip"><i class="fa fa-info info-labal text-danger" data-toggle="tooltip" title="You can upload multiple images"></i> &nbsp;Upload Order Id Image:</label>
+                            <input type="file" class="form-control col-md-8" id="order_files" name="order_files" accept="image/*" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="order_upload_file">
+                        <div class="form-group form-inline">
+                            <label for="damaged_order_files" class="col-md-2 info_tooltip"><i class="fa fa-info info-labal text-danger" data-toggle="tooltip" title="You can upload multiple images"></i> &nbsp;Upload Damaged Product Images:</label>
+                            <input type="file" class="form-control col-md-8" id="damaged_order_files" name="damaged_order_files[]" accept="image/*" multiple required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
+                        <input type="hidden" name="service_id" value="<?php echo $service_id; ?>">
+                        <input type="hidden" name="city" value="<?php echo $city; ?>">
+                        <input type="hidden" name="partner_order_key" value="" id="partner_order_key">
+                        <input type="hidden" name="cp_id" value="<?php echo $cp_id; ?>" id="cp_id">
+                        <input type="submit" class="btn btn-success" id="submit" value="Submit">
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-12 col-md-2">
-                <div>
-                    <div class="form-group">
-                        <select class="form-control" id="order_category" name="category">
-                            <option selected disabled>Select Category</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-2" id="phy_con">
-                <div>
-                    <div class="form-group">
-                        <select class="form-control" id="order_physical_condition" name="order_physical_condition">
-                            <option selected disabled>Select Physical Condition</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-2">
-                <div>
-                    <div class="form-group">
-                        <select class="form-control" id="order_working_condition" name="order_working_condition">
-                            <option selected disabled>Select Working Condition</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-2">
-                <div>
-                    <div class="form-group">
-                        <select class="form-control" id="order_brand" name="order_brand">
-                            <option selected disabled>Select Brand</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <hr>
-        <div class="row">
-            <div class="remarks">
-                <div class="form-group form-inline">
-                    <label for="remarks" class="col-md-2">Remarks:</label>
-                    <textarea class="col-md-8" rows="3" id="remarks" name="remarks" required></textarea>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="order_upload_file">
-                <div class="form-group form-inline">
-                    <label for="order_files" class="col-md-2 info_tooltip"><i class="fa fa-info info-labal text-danger" data-toggle="tooltip" title="You can upload multiple images"></i> &nbsp;Upload Order Id Image:</label>
-                    <input type="file" class="form-control col-md-8" id="order_files" name="order_files[]" accept="image/*" multiple required></textarea>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="order_upload_file">
-                <div class="form-group form-inline">
-                    <label for="damaged_order_files" class="col-md-2 info_tooltip"><i class="fa fa-info info-labal text-danger" data-toggle="tooltip" title="You can upload multiple images"></i> &nbsp;Upload Damaged Product Images:</label>
-                    <input type="file" class="form-control col-md-8" id="damaged_order_files" name="damaged_order_files[]" accept="image/*" multiple required></textarea>
-                </div>
-            </div>
-        </div>
-        <hr>
-        <div class="row">
-            <div class="col-md-4 col-md-offset-4">
-                <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
-                <input type="hidden" name="service_id" value="<?php echo $service_id; ?>">
-                <input type="hidden" name="city" value="<?php echo $city; ?>">
-                <input type="hidden" name="partner_order_key" value="" id="partner_order_key">
-                <input type="submit" class="btn btn-success" id="submit" value="Submit">
-            </div>
-        </div>
-       </form> 
+        </form>         
     </div>
 </div>
 <script>
@@ -132,12 +134,13 @@
     $("#order_physical_condition").select2();
     $("#order_working_condition").select2();
     $("#order_brand").select2();
-
-    $(document).ready(function () {
+    
+    function get_bb_brand(){
+        var service_id = $('#order_services').val();
         $.ajax({
             method: "POST",
             url: "<?php echo base_url(); ?>employee/service_centers/get_bb_order_brand",
-            data:{'service_id':service_id},
+            data:{'service_id':service_id,'cp_id':cp_id},
             success: function (response) {
                 //console.log(response);
                 $("order_brand").prop('required',true);
@@ -145,7 +148,7 @@
                 $('#order_brand').html(response).change();;
             }
         });
-    });
+    }
         
         
         $('#order_services').on('change',function(){    
@@ -155,13 +158,14 @@
                 $.ajax({
                     method:'POST',
                     url:"<?php echo base_url(); ?>employee/service_centers/get_bb_order_category_size",
-                    data:{'product_service_id':product_service_id},
+                    data:{'product_service_id':product_service_id,'cp_id':cp_id},
                     success:function(response){
                         $('#order_category').val('val', "");
                         $('#order_category').html(response).change();
                         $('#order_physical_condition').val('val', "");
                         $('#order_physical_condition').val('Select Physical Condition').change();
                         $('#phy_con').show();
+                        get_bb_brand();
                     }
                             
                 }); 
@@ -179,7 +183,7 @@
                 $.ajax({
                     method:'POST',
                     url:"<?php echo base_url(); ?>employee/service_centers/get_bb_order_physical_condition",
-                    data:{'category':category,'service_id':service_id},
+                    data:{'category':category,'service_id':service_id,'cp_id':cp_id},
                     success:function(response){
                         //console.log(response);
                         if(response === 'empty'){
@@ -195,7 +199,7 @@
                             
                 }); 
             }else{
-            console.log("shbhsb");
+            //console.log("shbhsb");
                $('#order_physical_condition').val('val', "");
                $('#order_physical_condition').val('Select Physical Condition').change();
             }
@@ -241,7 +245,7 @@
                 $.ajax({
                     method:'POST',
                     url:"<?php echo base_url(); ?>employee/service_centers/check_bb_order_key",
-                    data:{'category':category,'physical_condition':physical_condition,'working_condition':working_condition,'brand':brand,'city':city,'order_id':order_id,'services': services},
+                    data:{'category':category,'physical_condition':physical_condition,'working_condition':working_condition,'brand':brand,'city':city,'order_id':order_id,'services': services, 'cp_id':cp_id},
                     success:function(response){
                         $('#partner_order_key').val(response);
                     }

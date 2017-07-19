@@ -249,7 +249,7 @@ class service_centre_charges_model extends CI_Model {
     
     
     /**
-     * @desc Used to get the  buyback charges
+     * @desc Used to get the buyback charges from bb_charges tablecd
      * @param $where array
      * @param $select array
      * @param $is_distinct default false

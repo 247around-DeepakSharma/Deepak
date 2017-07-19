@@ -1658,9 +1658,10 @@ class Service_centers extends CI_Controller {
      * @return $option string
      */
     function get_bb_order_brand(){
-        $this->check_BB_UserSession();
+        //$this->check_BB_UserSession();
         $service_id = $this->input->post('service_id');
-        $where = array('cp_id'=>$this->session->userdata('service_center_id'),'service_id' => $service_id, 'brand != " "' => null);
+        $cp_id = $this->input->post('cp_id');
+        $where = array('cp_id'=>$cp_id,'service_id' => $service_id, 'brand != " "' => null);
         $select = "brand";
         $brands = $this->service_centre_charges_model->get_bb_charges($where,$select,TRUE);
         $option = '<option selected disabled>Select Brand</option>';
@@ -1689,10 +1690,11 @@ class Service_centers extends CI_Controller {
      * @return $option string
      */
     function get_bb_order_physical_condition() {
-        $this->check_BB_UserSession();
+        //$this->check_BB_UserSession();
         $category = $this->input->post('category');
         $service_id = $this->input->post('service_id');
-        $where = array('cp_id' => $this->session->userdata('service_center_id'),
+        $cp_id = $this->input->post('cp_id');
+        $where = array('cp_id' => $cp_id,
             'service_id' => $service_id, 'category' => $category, 'physical_condition != " " ' => null);
         $select = "physical_condition";
         $physical_condition = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
@@ -1752,7 +1754,7 @@ class Service_centers extends CI_Controller {
      * @return string
      */
     function check_bb_order_key(){
-        $this->check_BB_UserSession();
+        //$this->check_BB_UserSession();
         $category = $this->input->post('category');
         $service_id = $this->input->post('services');
         $physical_condition = $this->input->post('physical_condition');
@@ -1760,8 +1762,8 @@ class Service_centers extends CI_Controller {
         $brand = $this->input->post('brand');
         $city = $this->input->post('city');
         $order_id = $this->input->post('order_id');
-        
-        $where = array('cp_id' => $this->session->userdata('service_center_id'), 
+        $cp_id = $this->input->post('cp_id');
+        $where = array('cp_id' => $cp_id, 
                         'service_id' => $service_id, 
                         'category' => $category,
                         'physical_condition'=>$physical_condition,
@@ -1794,105 +1796,24 @@ class Service_centers extends CI_Controller {
             $this->session->set_userdata('error',$msg);
             redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city'));
         }else {
-            $order_id = $this->input->post('order_id');
-            //allowed only images
-            $allowed_types = array('image/gif','image/jpg','image/png','image/jpeg');
-            //process upload images
-            if(($_FILES['order_files']['error'] != 4) && !empty($_FILES['order_files']['tmp_name'])){
-                $filesCount = count($_FILES['order_files']['name']);
-                for($i = 0; $i < $filesCount; $i++){
-                    $file_type = $_FILES['order_files']['type'][$i];
-                    if(in_array($file_type, $allowed_types)){
-                        $tmp_name = $_FILES['order_files']['tmp_name'][$i];
-                        $file_name = str_replace(' ', '_', $_FILES['order_files']['name'][$i]);;
-                        $upload_order_file_new_name = $order_id."_".explode(".", $file_name)[0]."_".substr(md5(uniqid(rand(0, 9))), 0, 15).".".explode(".", $file_name)[1];
-                        $bucket = BITBUCKET_DIRECTORY;
-                        $directory_xls = "misc-images/" . $upload_order_file_new_name;
-                        $upload_file_status = $this->s3->putObjectFile($tmp_name, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                        if($upload_file_status){
-                            $insert_file_data['partner_order_id'] = $order_id;
-                            $insert_file_data['cp_id'] = $this->session->userdata('service_center_id');
-                            $insert_file_data['image_name'] = $upload_order_file_new_name;
-                            $insert_file_data['tag'] = _247AROUND_BB_ORDER_ID_IMAGE_TAG;
-                            $insert_id = $this->cp_model->insert_bb_order_image($insert_file_data);
-                        }
-                    }else{
-                         $msg = "Please Upload Valid Images Type";
-                         $this->session->set_userdata('error',$msg);
-                         redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city'));
-                    }
-                }
-            }
             
-            if(($_FILES['damaged_order_files']['error'] != 4) && !empty($_FILES['damaged_order_files']['tmp_name'])){
-                $filesCount = count($_FILES['damaged_order_files']['name']);
-                for($i = 0; $i < $filesCount; $i++){
-                    $file_type = $_FILES['damaged_order_files']['type'][$i];
-                    if(in_array($file_type, $allowed_types)){
-                        $tmp_name = $_FILES['damaged_order_files']['tmp_name'][$i];
-                        $file_name = str_replace(' ', '_', $_FILES['damaged_order_files']['name'][$i]);;
-                        $upload_order_file_new_name = $order_id."_".explode(".", $file_name)[0]."_".substr(md5(uniqid(rand(0, 9))), 0, 15).".".explode(".", $file_name)[1];
-                        $bucket = BITBUCKET_DIRECTORY;
-                        $directory_xls = "misc-images/" . $upload_order_file_new_name;
-                        $upload_file_status = $this->s3->putObjectFile($tmp_name, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                        if($upload_file_status){
-                            $insert_file_data['partner_order_id'] = $order_id;
-                            $insert_file_data['cp_id'] = $this->session->userdata('service_center_id');
-                            $insert_file_data['image_name'] = $upload_order_file_new_name;
-                            $insert_file_data['tag'] = _247AROUND_BB_DAMAGED_ORDER_IMAGE_TAG;
-                            $insert_id = $this->cp_model->insert_bb_order_image($insert_file_data);
-                        }
-                    }else{
-                         $msg = "Please Upload Valid Images Type";
-                         $this->session->set_userdata('error',$msg);
-                         redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city'));
-                    }
-                }
-            }
-            
-            $physical_condition = $this->input->post('order_physical_condition');
-            if(!empty($physical_condition)){
-                $physical_condition = $this->input->post('order_physical_condition');
-            }else{
-                $physical_condition = '';
-            }
-            
-            $data = array(
-                            'category' => $this->input->post('category'),
-                            'physical_condition' => $physical_condition,
-                            'working_condition' => $this->input->post('order_working_condition'),
-                            'remarks' => $this->input->post('remarks'),
-                            'brand' => $this->input->post('order_brand'),
-                            'current_status' => _247AROUND_BB_IN_PROCESS,
-                            'internal_status' => _247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS,
-                            'order_key' => $this->input->post('partner_order_key'),
-                            'create_date'=> date('Y-m-d H:i:s'));
-            
-            $where = array('partner_order_id' => $order_id,
-                            'cp_id' => $this->session->userdata('service_center_id'));
-            $update_id = $this->cp_model->update_bb_cp_order_action($where,$data);
-            if($update_id){
-                // Insert state change
-                $this->buyback->insert_bb_state_change($order_id,
-                        _247AROUND_BB_DELIVERED, $this->input->post('remarks'),
-                        $this->session->userdata('service_center_agent_id'), NULL, $this->session->userdata('service_center_id'));
-                
-                $msg = "Order has been updated successfully";
-                $this->session->set_userdata('success',$msg);
+            $response = $this->buyback->process_bb_order_report_issue_update($this->input->post());
+            if ($response['status'] === 'success') {
+                $this->session->set_userdata('success', $response['msg']);
                 redirect(base_url().'service_center/bb_oder_details');
-            }else{
-                $msg = "Oops!!! There are some issue in updating order. Please Try Again...";
-                $this->session->set_userdata('error',$msg);
-                redirect(base_url().'service_center/bb_oder_details');
+            } else if ($response['status'] === 'error') {
+                $this->session->set_userdata('error', $response['msg']);
+                redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city'));
             }
         }
         
     }
     
     function get_bb_order_category_size(){
-        $this->check_BB_UserSession();
+        //$this->check_BB_UserSession();
         $service_id = $this->input->post('product_service_id');
-        $where = array('service_id'=> $service_id,'cp_id'=>$this->session->userdata('service_center_id'));
+        $cp_id = $this->input->post('cp_id');
+        $where = array('service_id'=> $service_id,'cp_id'=>$cp_id);
         $select = "category";
         $categories = $this->service_centre_charges_model->get_bb_charges($where,$select,TRUE);
         $option = '<option selected disabled>Select Category</option>';
