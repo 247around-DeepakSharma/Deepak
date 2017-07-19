@@ -1033,17 +1033,19 @@ class Inventory extends CI_Controller {
     function cancel_spare_parts($id, $booking_id){
         log_message('info', __FUNCTION__. "Entering... id ". $id." Booking ID ". $booking_id);
         if(!empty($id)){
+            $remarks = $this->input->post("remarks");
             $this->service_centers_model->update_spare_parts(array('id' => $id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), array('status' => "Cancelled"));
-            $this->notify->insert_state_change($booking_id, "Spare Part Cancelled", "Spare Part Requested", 
-                      "Spare Part Cancelled By ".$this->session->userdata('employee_id'), 
+            $this->notify->insert_state_change($booking_id,"Spare Parts Cancelled","Spare Parts Requested", $remarks, 
                       $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
             $sc_data['current_status'] = "Pending";
             $sc_data['internal_status'] = "Pending";
             $sc_data['update_date'] = date("Y-m-d H:i:s");
           
             $this->vendor_model->update_service_center_action($booking_id,$sc_data);
-              
-            redirect(base_url()."employee/inventory/get_spare_parts");
+            echo "Success";
+            //redirect(base_url()."employee/inventory/get_spare_parts");
+        } else {
+            echo "Error";
         }
     }
 
