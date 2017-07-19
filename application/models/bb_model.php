@@ -105,10 +105,11 @@ class Bb_model extends CI_Model {
      * @param type $order
      * @param type $status_flag
      */
-    private function _get_bb_order_list_query($post) {
+    public function _get_bb_order_list_query($post) {
         $this->db->from('bb_order_details');
         $this->db->select('bb_unit_details.partner_order_id, services,city, order_date, '
-                . 'delivery_date, current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,bb_unit_details.service_id,bb_order_details.assigned_cp_id');
+                . 'delivery_date, bb_order_details.current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,'
+                . 'bb_unit_details.service_id,bb_order_details.assigned_cp_id,bb_unit_details.physical_condition,bb_unit_details.working_condition');
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
                 . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
        
@@ -173,6 +174,13 @@ class Bb_model extends CI_Model {
      * @return Count
      */
     public function count_all($post) {
+        $this->_count_all_bb_order($post);
+        $query = $this->db->count_all_results();
+       
+        return $query;
+    }  
+    
+    public function _count_all_bb_order($post){
         $this->db->from('bb_order_details');
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
                 . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
@@ -182,10 +190,7 @@ class Bb_model extends CI_Model {
         foreach ($post['where_in'] as $index => $value){
             $this->db->where_in($index, $value);
         }
-        $query = $this->db->count_all_results();
-       
-        return $query;
-    }  
+    }
     
     function count_filtered($post){
         $this->_get_bb_order_list_query($post);
