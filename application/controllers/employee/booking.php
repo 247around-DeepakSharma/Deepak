@@ -1128,7 +1128,9 @@ class Booking extends CI_Controller {
                 $vendor_data = array();
                 $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
                 $vendor_data[0]['city'] = $this->vendor_model->get_distict_details_from_india_pincode($booking_pincode)['district'];
-
+                $vendor_data[0]['min_upcountry_distance'] = $this->vendor_model->getVendorDetails("min_upcountry_distance", 
+                        array('id' =>$assigned_vendor_id))[0]['min_upcountry_distance'];
+            
                 $upcountry_data = $this->upcountry_model->action_upcountry_booking($booking_city, $booking_pincode, $vendor_data, $partner_data);
             }
 
@@ -2121,7 +2123,7 @@ class Booking extends CI_Controller {
                 //Checking for SF Details
                 if (!empty($value['service_center_id']) && empty($value['partner_id'])) {
                     $data['data'][$key]['full_name'] = $this->service_centers_model->get_sc_login_details_by_id($value['service_center_id'])[0]['full_name'];
-                    $data['data'][$key]['source'] = $this->vendor_model->getVendorContact($value['service_center_id'])[0]['name'];
+                    $data['data'][$key]['source'] = $this->vendor_model->getVendorDetails('name', array('id' => $value['service_center_id']))[0]['name']; 
                 }
             }
         }

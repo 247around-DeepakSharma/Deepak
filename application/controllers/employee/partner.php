@@ -2591,7 +2591,8 @@ class Partner extends CI_Controller {
                 $vendor_data = array();
                 $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
                 $vendor_data[0]['city'] = $city;
-
+                $vendor_data[0]['min_upcountry_distance'] = $this->vendor_model->getVendorDetails("min_upcountry_distance", 
+                        array('id' =>$assigned_vendor_id))[0]['min_upcountry_distance'];
                 $data = $this->upcountry_model->action_upcountry_booking($city, $pincode, $vendor_data, $partner_details);
             }
             

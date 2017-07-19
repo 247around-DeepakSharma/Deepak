@@ -2088,7 +2088,8 @@ class vendor extends CI_Controller {
        $data['engineers'] =  $this->vendor_model->get_engineers($service_center_id);
        foreach ($data['engineers'] as $key => $value) {
            $where = array('id' => $value['service_center_id'] );
-           $service_center = $this->vendor_model->getVendorDetails($where);
+           $select = "service_centres.name, service_centres.id";
+           $service_center = $this->vendor_model->getVendorDetails($select, $where);
            $data['engineers'][$key]['service_center_name'] = $service_center[0]['name'];
            $service_id  = json_decode($value['appliance_id'],true);
            $appliances = array();
@@ -2271,8 +2272,8 @@ class vendor extends CI_Controller {
         $data = $this->load->view('employee/add_vendor_to_pincode', $data, TRUE);
         print_r($data);
         }else{
-            
-            $data['vendor_details'] = $this->vendor_model->getVendorDetails();
+            $select = "service_centres.name, service_centres.id";
+            $data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
             $data['state'] = $this->vendor_model->getall_state();
             // Return view for adding of New Vendor to Pincode
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -2303,8 +2304,8 @@ class vendor extends CI_Controller {
             if ($this->form_validation->run() == FALSE) {
 
             $data = $this->input->post();
-            
-            $data['vendor_details'] = $this->vendor_model->getVendorDetails();
+            $select = "service_centres.name, service_centres.id";
+            $data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
             $data['state'] = $this->vendor_model->getall_state();    
             
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -2332,7 +2333,8 @@ class vendor extends CI_Controller {
                     $appliance = $this->booking_model->selectservicebyid($value);
                     //Getting Vendor Name
                     $where = array("id" => $this->input->post('vendor_id'));
-                    $vendor_name = $this->vendor_model->getVendorDetails($where);
+                    $select = "service_centres.name, service_centres.id";
+                    $vendor_name = $this->vendor_model->getVendorDetails($select, $where);
                     //Appending Array
                     $vendor_mapping['Vendor_Name'] = $vendor_name[0]['name'];
                     $vendor_mapping['Appliance'] = $appliance[0]['services'];
@@ -2412,7 +2414,8 @@ class vendor extends CI_Controller {
 
 	$data = array();
 	//Getting data from database
-	$data['vendor_details'] = $this->vendor_model->getVendorDetails();
+        $select = "service_centres.name, service_centres.id";
+	$data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
 	$data['appliance'] = $this->booking_model->selectservice();
 	$data['state'] = $this->vendor_model->getall_state();
 
@@ -2530,7 +2533,8 @@ class vendor extends CI_Controller {
      */
     function get_mail_to_vendors_form() {
         $data = array();
-        $data['vendors'] = $this->vendor_model->getVendorDetails();
+        $select = "service_centres.name, service_centres.id";
+        $data['vendors'] = $this->vendor_model->getVendorDetails($select);
         $data['partners'] = $this->partner_model->getpartner();
 
         //Declaring array for modal call to get_247around_email_template function
@@ -2583,7 +2587,8 @@ class vendor extends CI_Controller {
             $vendors = $this->input->post('vendors');
             //Checking for ALL vendors selected
             if($vendors[0] == 0){
-                $vendors_array = $this->vendor_model->getVendorDetails();
+                $select = "service_centres.name, service_centres.id";
+                $vendors_array = $this->vendor_model->getVendorDetails($select);
                 foreach ($vendors_array as $value) {
                     $vendors_list[] = $value['id'];
                 }
@@ -3057,10 +3062,11 @@ class vendor extends CI_Controller {
     function download_sf_list_excel(){
         //Getting only Active Vendors List
         //$vendor  = $this->vendor_model->viewvendor('',1);
-        $select = '*';
+       
         $where = array('active' => '1','on_off' => '1');
-        $order_by = 'name';
-        $vendor = $this->vendor_model->getVendorDetailsBy($select,$where,$order_by);
+        $select = "service_centres.name, service_centres.id";
+        $vendor = $this->vendor_model->getVendorDetails($select, $where);
+
         log_message('info', __FUNCTION__);
 
         $template = 'SF_List_Template.xlsx';
@@ -4149,7 +4155,7 @@ class vendor extends CI_Controller {
             if (!empty($value->booking_id) && $value->is_upcountry == 0) {
                 $vendor_data = array();
                 $vendor_data[0]['vendor_id'] = $value->assigned_vendor_id;
-
+                $vendor_data[0]['min_upcountry_distance'] = $value->min_upcountry_distance;
                 if (!empty($value->district)) {
                     $vendor_data[0]['city'] = $value->district;
                 } else {
@@ -4190,7 +4196,8 @@ class vendor extends CI_Controller {
      * 
      */
     function get_service_center_details(){
-        $data = $this->vendor_model->getVendorDetails();
+        $select = "service_centres.name, service_centres.id";
+        $data = $this->vendor_model->getVendorDetails($select);
         $option = '<option selected="" disabled="">Select Service Center</option>';
 
         foreach ($data as $value) {

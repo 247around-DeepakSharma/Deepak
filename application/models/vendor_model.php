@@ -718,8 +718,9 @@ class vendor_model extends CI_Model {
      * @param: Array
      * @return : Array
      */
-    function getVendorDetails($where ="") {
-        $this->db->select("service_centres.name, service_centres.id,on_off,active, is_verified, is_cp ");
+    function getVendorDetails($select, $where ="") {
+        
+        $this->db->select($select);
         if(!empty($where)){
            $this->db->where($where);
         }

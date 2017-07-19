@@ -358,11 +358,7 @@ class Accounting extends CI_Controller {
         $request_data = array('invoice_id' => $invoice_id);
         $data['invoiceid_data'] = $this->invoices_model->getInvoicingData($request_data);
         if (!empty($data['invoiceid_data'])) {
-            if ($data['invoiceid_data'][0]['vendor_partner'] == 'vendor') {
-                $data['vendor_name'] = $this->vendor_model->getVendorContact($data['invoiceid_data'][0]['vendor_partner_id']);
-            } else if ($data['invoiceid_data'][0]['vendor_partner'] == 'partner') {
-                $data['partner_name'] = $this->partner_model->getpartner($data['invoiceid_data'][0]['vendor_partner_id']);
-            }
+
             echo $this->load->view('employee/invoiceid_details_data_table', $data);
         } else {
             echo "<div class='text-danger text-center'> <b>No Data Found <b></div>";

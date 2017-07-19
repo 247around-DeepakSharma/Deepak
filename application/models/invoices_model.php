@@ -168,8 +168,8 @@ class invoices_model extends CI_Model {
         $array = array();
 
         if ($vendor_partner == "vendor") {
-
-            $data = $this->vendor_model->getVendorDetails($where);
+            $select = "service_centres.name, service_centres.id, on_off, active, is_verified";
+            $data = $this->vendor_model->getVendorDetails($select, $where);
             $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
             
         } else if ($vendor_partner == "partner") {
