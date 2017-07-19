@@ -384,6 +384,8 @@ define('_247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS','To Be Claimed Not Del
 define('CLAIM_SUBMITTED','Claim Submitted');
 define('TO_BE_CLAIMED','To Be Claimed');
 define('CLAIM_SETTLED_BY_AMAZON','Claim Settled by Amazon');
+define('_247AROUND_BB_REPORT_ISSUE_IN_PROCESS','InProcess_Claimed_Raised_By_CP');
+define('_247AROUND_BB_NOT_DELIVERED_IN_PROCESS','InProcess_Not_delivered');
 
 //new shop address added
 define('NEW_SHOP_ADDRESS_ADDED','New Shop Address Added');

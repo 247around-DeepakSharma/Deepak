@@ -409,9 +409,9 @@ class Buyback {
             if($order_details_update_id){
                 // Insert state change
                 if (!empty($this->My_CI->session->userdata('service_center_id'))) {
-                    $this->insert_bb_state_change($this->POST_DATA['order_id'], _247AROUND_BB_IN_PROCESS, '', $this->POST_DATA['cp_id'], Null, $this->POST_DATA['cp_id']);
+                    $this->insert_bb_state_change($this->POST_DATA['order_id'], _247AROUND_BB_NOT_DELIVERED_IN_PROCESS, '', $this->POST_DATA['cp_id'], Null, $this->POST_DATA['cp_id']);
                 } else {
-                    $this->insert_bb_state_change($this->POST_DATA['order_id'], _247AROUND_BB_DELIVERED, '', $this->My_CI->session->userdata('id'), _247AROUND, Null);
+                    $this->insert_bb_state_change($this->POST_DATA['order_id'], _247AROUND_BB_NOT_DELIVERED_IN_PROCESS, '', $this->My_CI->session->userdata('id'), _247AROUND, Null);
                 }
                 
                 $response['status'] = "success";
@@ -444,12 +444,10 @@ class Buyback {
         $allowed_types = array('image/gif', 'image/jpg', 'image/png', 'image/jpeg');
         //process upload images
         if (($_FILES['order_files']['error'] != 4) && !empty($_FILES['order_files']['tmp_name'])) {
-            $filesCount = count($_FILES['order_files']['name']);
-            for ($i = 0; $i < $filesCount; $i++) {
-                $file_type = $_FILES['order_files']['type'][$i];
+                $file_type = $_FILES['order_files']['type'];
                 if (in_array($file_type, $allowed_types)) {
-                    $tmp_name = $_FILES['order_files']['tmp_name'][$i];
-                    $file_name = str_replace(' ', '_', $_FILES['order_files']['name'][$i]);
+                    $tmp_name = $_FILES['order_files']['tmp_name'];
+                    $file_name = str_replace(' ', '_', $_FILES['order_files']['name']);
                     $upload_order_file_new_name = "Order_id_".$order_id . "_" . explode(".", $file_name)[0] . "_" . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $file_name)[1];
                     $upload_image_id = $this->upload_bb_report_issue_file($tmp_name,$upload_order_file_new_name, _247AROUND_BB_ORDER_ID_IMAGE_TAG);
                 } else {
@@ -457,7 +455,6 @@ class Buyback {
                     $response['msg'] = "Please Upload valid image files only";
                     return $response;
                 }
-            }
         }
 
         if (($_FILES['damaged_order_files']['error'] != 4) && !empty($_FILES['damaged_order_files']['tmp_name'])) {
@@ -503,7 +500,7 @@ class Buyback {
             log_message("info",__METHOD__. "Cp Action table updated for order id: ".$order_id);
             // Insert state change
             if (!empty($this->My_CI->session->userdata('service_center_id'))) {
-                $this->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $this->POST_DATA['remarks'], $this->My_CI->session->userdata('service_center_agent_id'), NULL, $this->My_CI->session->userdata('service_center_id'));
+                $this->insert_bb_state_change($order_id, _247AROUND_BB_REPORT_ISSUE_IN_PROCESS, $this->POST_DATA['remarks'], $this->My_CI->session->userdata('service_center_agent_id'), NULL, $this->My_CI->session->userdata('service_center_id'));
                 $response['status'] = "success";
                 $response['msg'] = "Order has been updated successfully";
             } else {
@@ -521,7 +518,7 @@ class Buyback {
                 if($update_id){
                     
                     log_message("info",__METHOD__. "Order Details table updated for order id: ".$order_id);
-                    $this->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS,$this->POST_DATA['remarks'], $this->My_CI->session->userdata('id'), _247AROUND, Null);
+                    $this->insert_bb_state_change($order_id, _247AROUND_BB_REPORT_ISSUE_IN_PROCESS,$this->POST_DATA['remarks'], $this->My_CI->session->userdata('id'), _247AROUND, Null);
                     $response['status'] = "success";
                     $response['msg'] = "Order has been updated successfully";
                 }else{
