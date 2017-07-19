@@ -2054,7 +2054,7 @@ ADD `credit_penalty_bookings_count` INT(10) NULL DEFAULT NULL AFTER `credit_pena
 
 -- sachin 06 april
 ALTER TABLE `partners` ADD `cst_no` VARCHAR(256) NOT NULL AFTER `tin`, ADD `tin_file` VARCHAR(512) NOT NULL AFTER `tin`, 
-ADD `cst_file` VARCHAR(512) NOT NULL AFTER `service_tax_no`, ADD `service_tax_file` VARCHAR(512) NOT NULL AFTER `cst_file`;
+ADD `cst_file` VARCHAR(512) NOT NULL AFTER `service_tax`, ADD `service_tax_file` VARCHAR(512) NOT NULL AFTER `cst_file`;
 
 -- sachin 07 April
 CREATE TABLE `challan_details` (
@@ -2908,4 +2908,7 @@ ALTER TABLE `bb_state_change` ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRE
 
 ALTER TABLE `partners` ADD `invoice_courier_name` VARCHAR(128) NULL AFTER `invoice_email_bcc`, 
 ADD `invoice_courier_address` VARCHAR(256) NULL AFTER `invoice_courier_name`, 
-ADD `invoice_courier_phone_num` VARCHAR(20) NULL AFTER `invoice_courier_address`;
+ADD `invoice_courier_phone_number` VARCHAR(20) NULL AFTER `invoice_courier_address`;
+
+-- Abhay 19 July
+ALTER TABLE `service_centres` ADD `min_upcountry_distance` INT(100) NULL DEFAULT '25' AFTER `gst_file`;

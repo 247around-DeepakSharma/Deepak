@@ -41,6 +41,7 @@ class Miscelleneous {
                 if($check_vendor[0]['is_upcountry'] ==1){
                     $data['vendor_id'] = $check_vendor[0]['Vendor_ID'];
                     $data['city'] = $sf_city;
+                    $data['min_upcountry_distance'] = $check_vendor[0]['min_upcountry_distance'];
                     array_push($data1, $data);
                 } else {
                     $msg['vendor_id'] = $check_vendor[0]['Vendor_ID'];
@@ -54,6 +55,7 @@ class Miscelleneous {
                     if($vendor['is_upcountry'] ==1){
                         $data['vendor_id'] = $vendor['Vendor_ID'];
                         $data['city'] = $sf_city;
+                        $data['min_upcountry_distance'] = $check_vendor[0]['min_upcountry_distance'];
                         
                         array_push($data1, $data);
                     } else {
@@ -148,13 +150,14 @@ class Miscelleneous {
         $vendor_data = array();
         if (!empty($query1[0]['assigned_vendor_id'])) {
             $vendor_data[0]['vendor_id'] = $query1[0]['assigned_vendor_id'];
+            $vendor_data[0]['min_upcountry_distance'] = $query1[0]['min_upcountry_distance'];
 
             if (!empty($query1[0]['district'])) {
                 $vendor_data[0]['city'] = $query1[0]['district'];
             } else {
                 $vendor_data[0]['city'] = $this->My_CI->vendor_model->get_distict_details_from_india_pincode($query1[0]['booking_pincode'])['district'];
             }
-
+                
             $return_status = 0;
             $p_where = array("id" =>$query1[0]['partner_id']);
             $partner_details = $this->My_CI->partner_model->get_all_partner($p_where);

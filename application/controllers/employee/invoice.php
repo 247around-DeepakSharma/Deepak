@@ -49,7 +49,8 @@ class Invoice extends CI_Controller {
      * Load invoicing form
      */
     public function index() {
-        $data['service_center'] = $this->vendor_model->getVendorDetails();
+        $select = "service_centres.name, service_centres.id";
+        $data['service_center'] = $this->vendor_model->getVendorDetails($select);
         $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1));
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
@@ -67,10 +68,10 @@ class Invoice extends CI_Controller {
         
         if($vendor_partner === 'vendor'){
            
-            $data['service_center'] = $this->vendor_model->getVendorDetails();
+            $data['service_center'] = "service_center";
         }else{
             
-            $data['partner'] = $this->partner_model->getpartner();
+            $data['partner'] = "partner";
         }
         $data['is_ajax'] = TRUE;
         echo $this->load->view('employee/invoice_list', $data);
@@ -433,8 +434,8 @@ class Invoice extends CI_Controller {
             if ($flag == 1) {
                 echo "<option value='All'>All</option>";
             }
-
-            $all_vendors = $this->vendor_model->getVendorDetails();
+            $select = "service_centres.name, service_centres.id";
+            $all_vendors = $this->vendor_model->getVendorDetails($select);
             foreach ($all_vendors as $v_name) {
                 $option = "<option value='" . $v_name['id'] . "'";
                 if ($vendor_partner_id == $v_name['id']) {
@@ -1818,8 +1819,8 @@ class Invoice extends CI_Controller {
             case "cash":
 
                 if ($details['vendor_partner_id'] == 'All') {
-
-                    $vendor_details = $this->vendor_model->getVendorDetails();
+                    $select = "service_centres.name, service_centres.id";
+                    $vendor_details = $this->vendor_model->getVendorDetails($select);
                     foreach ($vendor_details as $value) {
                         $details['vendor_partner_id'] = $value['id'];
 
@@ -1869,8 +1870,8 @@ class Invoice extends CI_Controller {
                 log_message('info', __FUNCTION__ . " Preparing FOC Invoice");
 
                 if ($details['vendor_partner_id'] == 'All') {
-
-                    $vendor_details = $this->vendor_model->getVendorDetails();
+                    $select = "service_centres.name, service_centres.id";
+                    $vendor_details = $this->vendor_model->getVendorDetails($select);
                     echo " Preparing FOC Invoice  Vendor: " . $details['vendor_partner_id'];
                     foreach ($vendor_details as $value) {
                         $details['vendor_partner_id'] = $value['id'];
@@ -1913,7 +1914,8 @@ class Invoice extends CI_Controller {
                 $vendor_all_flag = 0;
                 if ($details['vendor_partner_id'] === 'All') {
                     $vendor_all_flag = 1;
-                    $vendor = $this->vendor_model->getVendorDetails();
+                    $select = "service_centres.name, service_centres.id";
+                    $vendor = $this->vendor_model->getVendorDetails($select);
 
                     foreach ($vendor as $value) {
                         log_message('info', __FUNCTION__ . " Brackets Vendor Id: " . $value['id']);
@@ -1937,7 +1939,8 @@ class Invoice extends CI_Controller {
      */
     function invoice_summary($vendor_partner, $vendor_partner_id) {
         if ($vendor_partner == 'vendor') {
-            $data['service_center'] = $this->vendor_model->getVendorDetails();
+            $select = "service_centres.name, service_centres.id";
+            $data['service_center'] = $this->vendor_model->getVendorDetails($select);
         } else {
             $data['partner'] = $this->partner_model->getpartner("", false);
         }

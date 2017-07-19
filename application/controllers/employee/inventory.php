@@ -44,8 +44,8 @@ class Inventory extends CI_Controller {
             if (!empty($sf_list)) {
                 // Listing details acc to SF mapped
                 $sf_list = $sf_list[0]['service_centres_id'];
-               
-                $service_center = $this->vendor_model->getVendorDetails();
+                $select = "service_centres.name, service_centres.id";
+                $service_center = $this->vendor_model->getVendorDetails($select);
                 $sf_array = explode(',',$sf_list);
                 foreach($service_center as $value){
                     if(array_search($value['id'],$sf_array)){
@@ -53,8 +53,9 @@ class Inventory extends CI_Controller {
                     }
                 }
             }else{
+                $select = "service_centres.name, service_centres.id";
                 //Getting all values
-                $data['vendor'] = $this->vendor_model->getVendorDetails();
+                $data['vendor'] = $this->vendor_model->getVendorDetails($select);
             }
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/add_brackets", $data);
@@ -108,12 +109,10 @@ class Inventory extends CI_Controller {
 
                     //Adding value in Booking State Change
                     $this->notify->insert_state_change($data_post['order_id'], _247AROUND_BRACKETS_PENDING, _247AROUND_BRACKETS_REQUESTED, "Brackets Requested", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-
-                    $vendor_requested = $this->vendor_model->getVendorContact($data_post['order_received_from']);
+                    $select = "primary_contact_email,owner_email, company_name, company_name";
+                    $vendor_requested = $this->vendor_model->getVendorDetails($select, array('id' => $data_post['order_received_from']));
                     
-                    $vendor_poc_mail = $vendor_requested[0]['primary_contact_email'];
-                    $vendor_owner_mail = $vendor_requested[0]['owner_email'];
-                    $to = $vendor_poc_mail . ',' . $vendor_owner_mail;
+                    $to = $vendor_requested[0]['primary_contact_email'] . ',' . $vendor_requested[0]['owner_email'];
 
                     // Sending brackets confirmation details mail to Vendor using Template
                     $email_order_received_from = array();
@@ -134,19 +133,16 @@ class Inventory extends CI_Controller {
                     
                     //Logging Email Send to order received from vendor
                     log_message('info', __FUNCTION__ . ' Email has been sent to order_received_from vendor ' . $vendor_requested[0]['company_name']);
-
-                    //Sending Mail to order given to
-                    $vendor_requested_to = $this->vendor_model->getVendorContact($data_post['order_given_to'])[0];
-                    $vendor_poc_mail = $vendor_requested_to['primary_contact_email'];
-                    $vendor_owner_mail = $vendor_requested_to['owner_email'];
-                    $to = $vendor_poc_mail . ',' . $vendor_owner_mail;
+                     //Sending Mail to order given to
+                    $vendor_requested_to = $this->vendor_model->getVendorDetails($select, array('id' => $data_post['order_given_to']));
+                    $to = $vendor_requested_to['primary_contact_email'] . ',' . $vendor_requested_to['owner_email'];
 
                     // Sending Mail to order given to vendor using Template
                     $email = array();
                     //Getting template from Database
-                    $template = $this->booking_model->get_booking_email_template("brackets_requested_from_vendor");
+                    $template1 = $this->booking_model->get_booking_email_template("brackets_requested_from_vendor");
 
-                    if (!empty($template)) {
+                    if (!empty($template1)) {
                         $email['order_id'] = $order_id;
 //                        $email['19_24_requested'] = $data_post['19_24_requested'];
                         $email['26_32_requested'] = $data_post['26_32_requested'];
@@ -163,9 +159,9 @@ class Inventory extends CI_Controller {
                         $email['owner_phone_1'] = $vendor_requested[0]['owner_phone_1'];
                         $subject = "Brackets Requested by " . $vendor_requested[0]['company_name'];
 
-                        $emailBody = vsprintf($template[0], $email);
+                        $emailBody = vsprintf($template1[0], $email);
 
-                        $this->notify->sendEmail($template[2], $to, $template[3] . ',' . $this->get_rm_email($data_post['order_given_to']), '', $subject, $emailBody, "");
+                        $this->notify->sendEmail($template1[2], $to, $template1[3] . ',' . $this->get_rm_email($data_post['order_given_to']), '', $subject, $emailBody, "");
                     }
                     //Logging Email Send to order sent to vendor
                     log_message('info', __FUNCTION__ . ' Email has been sent to order_sent_to vendor ' . $vendor_requested_to['company_name']);

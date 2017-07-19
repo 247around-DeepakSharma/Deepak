@@ -265,7 +265,7 @@ class Booking_model extends CI_Model {
         $query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
             booking_details.*, service_centres.name as service_centre_name,
-            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
+            service_centres.primary_contact_name,service_centres.primary_contact_phone_1, service_centres.min_upcountry_distance
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
@@ -407,7 +407,7 @@ class Booking_model extends CI_Model {
         $partner = "";
         $partner_name = "";
         if($join !=""){
-            $service_center_name = ",service_centres.name as vendor_name, service_centres.district as sc_district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, "
+            $service_center_name = ",service_centres.name as vendor_name, service_centres.min_upcountry_distance, service_centres.district as sc_district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, "
 		. "service_centres.primary_contact_name, service_centres.owner_email,service_centres.owner_name, "
 		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, service_centres.primary_contact_email,service_centres.owner_phone_1, service_centres.phone_1 ";
 	    $service_centre = ", service_centres ";

@@ -503,7 +503,7 @@ class Partner_model extends CI_Model {
 	$partner_source_code = $this->get_source_code_for_partner($partner_id);
 
 	//Count all partner leads
-	$this->db->like('partner_id', $partner_id);
+	$this->db->where('partner_id', $partner_id);
 	$total_install_req = $this->db->count_all_results('booking_details');
 
 	//Count today leads which has create_date as today
@@ -516,20 +516,19 @@ class Partner_model extends CI_Model {
 	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
 	$this->db->where('create_date < ', date('Y-m-d'));
 	$yday_install_req = $this->db->count_all_results('booking_details');
-
-	//Count This month leads
-	$sql = "SELECT * FROM booking_details WHERE partner_id = '" . $partner_id . "'"
-	    . " AND create_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";
-	$query = $this->db->query($sql);
-	$month_array = $query->result_array();
-	$month_install_req = count($month_array);
+        
+        //Count This month leads
+        $this->db->where('partner_id',$partner_id );
+        $this->db->where("create_date >=", date('Y-m-01'));
+        $month_install_req =$this->db->count_all_results('booking_details');
+        
 
 
 	//Count total installations scheduled
 //	$this->db->where('partner_id', $partner_id);
 //	$this->db->where_in('current_status', array('Pending', 'Rescheduled'));
 //	$total_install_sched = $this->db->count_all_results('booking_details');
-        $sql = "SELECT COUNT(distinct(booking_id)) as total FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
+        $sql = "SELECT COUNT(distinct(booking_id)) as total FROM booking_state_change WHERE  LIKE '%" . $partner_source_code . "%'"
 	    . " AND (new_state = 'Pending' OR new_state = 'Rescheduled') "
 	    . " AND (old_state = 'FollowUp' OR old_state = 'New_Booking' ) ";
         $scheduled_query = $this->db->query($sql);
@@ -586,7 +585,7 @@ class Partner_model extends CI_Model {
 
 	//Count this month installations completed
 	$sql = "SELECT * FROM booking_details WHERE partner_id = '" . $partner_id . "'"
-	    . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+	    . " AND closed_date >= '".date('Y-m-01')."' "
 	    . "AND current_status = 'Completed' ";
 	$comp_query = $this->db->query($sql);
 	$month_comp = $comp_query->result_array();

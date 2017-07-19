@@ -1,13 +1,7 @@
 <div class="vendor_partner_name">
-    <?php if(isset($vendor_name)){ ?>
     <div class="vendor_partner" style="margin-bottom: 10px;">
-        <h4><strong>Vendor Name : </strong> <a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/vendor/<?php echo $vendor_name[0]['id']; ?>" target="_blank"><?php echo $vendor_name[0]['name']; ?></a></h4>
+        <h4><strong>Vendor Name : </strong> <a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/<?php echo $invoiceid_data[0]['vendor_partner'];?>/<?php echo $invoiceid_data[0]['vendor_partner_id'];?>" target="_blank"><?php echo $vendor_name[0]['name']; ?></a></h4>
     </div> 
-    <?php } else if(isset($partner_name)){ ?>
-        <div class="vendor_partner" style="margin-bottom: 10px;">
-            <h4><strong>Partner Name : </strong> <a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $partner_name[0]['id']; ?>" target="_blank"><?php echo $partner_name[0]['public_name']; ?></a></h4>
-    </div>
-    <?php } ?>
 </div>
 <hr>
 <table class="table table-bordered  table-hover table-striped data"  >
