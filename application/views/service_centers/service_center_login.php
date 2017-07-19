@@ -78,7 +78,7 @@
                                     </div>';
                             }
                             ?>
-                            <form class="form-horizontal" action="<?php echo base_url(); ?>employee/service_centers/service_center_login" style="margin-top:45px;" method="post" id="login_form">
+                            <form class="form-horizontal" action="<?php echo base_url(); ?>employee/login/service_center_login" style="margin-top:45px;" method="post" id="login_form">
                                 <div class="form-group">
                                     <div class="col-sm-offset-1 col-sm-10 col-sm-offset-1">
                                         <div class = "input-group">

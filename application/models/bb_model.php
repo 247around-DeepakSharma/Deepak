@@ -5,12 +5,10 @@ class Bb_model extends CI_Model {
     
     var $order = array('bb_order_details.order_date' => 'desc'); // default order 
 
-    
-    var $cp_action_column_search = array('partner_order_id','category','brand','physical_condition','working_condition','status',
-                                    'current_status','name');
-     var $cp_action_column_order = array('partner_order_id','category','brand','physical_condition','working_condition','status',
-                                    'current_status','name');
-     var $cp_action_column_default_order = array('cp_action.id' => 'asc'); // default order 
+    var $cp_action_column_search = array('partner_order_id','name','category','brand','physical_condition','working_condition','internal_status');
+    var $cp_action_column_order = array('partner_order_id','name','category','brand','physical_condition','working_condition','internal_status');
+                                    
+    var $cp_action_column_default_order = array('cp_action.id' => 'asc'); // default order 
 
     /**
      * @desc load both db
@@ -28,7 +26,7 @@ class Bb_model extends CI_Model {
     function get_bb_order_details($where, $select) {
         $this->db->select($select);
         $this->db->from('bb_order_details');
-        $this->db->join('service_centres', 'bb_order_details.assigned_cp_id = service_centres.id');
+        $this->db->join('service_centres', 'bb_order_details.assigned_cp_id = service_centres.id','left');
         $this->db->join('partners', 'bb_order_details.partner_id = partners.id');
         $this->db->where($where);
         $query = $this->db->get();
@@ -42,11 +40,15 @@ class Bb_model extends CI_Model {
      * @param String $select
      * @return Array
      */
-    function get_bb_order($where, $select){
+    function get_bb_order($where, $select, $order_by = ""){
+        $this->db->distinct();
         $this->db->select($select);
         $this->db->from('bb_order_details');
         $this->db->join('partners', 'bb_order_details.partner_id = partners.id');
         $this->db->where($where);
+        if(!empty($order_by)){
+            $this->db->order_by($order_by);
+        }
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -58,6 +60,7 @@ class Bb_model extends CI_Model {
      * @return Arary
      */
     function get_cp_shop_address_details($where, $select) {
+        $this->db->distinct();
         $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get("bb_shop_address");
@@ -101,10 +104,11 @@ class Bb_model extends CI_Model {
      * @param type $order
      * @param type $status_flag
      */
-    private function _get_bb_order_list_query($post) {
+    public function _get_bb_order_list_query($post) {
         $this->db->from('bb_order_details');
         $this->db->select('bb_unit_details.partner_order_id, services,city, order_date, '
-                . 'delivery_date, current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge');
+                . 'delivery_date, bb_order_details.current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,'
+                . 'bb_unit_details.service_id,bb_order_details.assigned_cp_id,bb_unit_details.physical_condition,bb_unit_details.working_condition');
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
                 . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
        
@@ -115,16 +119,23 @@ class Bb_model extends CI_Model {
            
             $this->db->where_in($index, $value);
         }
+        
         if (!empty($post['search_value'])) {
+            $like = "";
             foreach ($post['column_search'] as $key => $item) { // loop column 
                 // if datatable send POST for search
                 if ($key === 0) { // first loop
-                    $this->db->like($item, $post['search_value']);
+                    $like .= "( ".$item." LIKE '%".$post['search_value']."%' ";
+                   // $this->db->like($item, $post['search_value']);
                 } else {
-                     $this->db->or_like($item, $post['search_value']);
+                    $like .= " OR ".$item." LIKE '%".$post['search_value']."%' ";
+                     //$this->db->or_like($item, $post['search_value']);
+                     
                 }
              }
-           
+             $like .= ") ";
+
+           $this->db->where($like, null, false);
         }
 
         if (!empty($post['order'])) { // here order processing
@@ -158,19 +169,27 @@ class Bb_model extends CI_Model {
     
     /**
      * @desc Used to return count of data as requested status
-     * @param Int $status_flag
+     * @param Array $post
      * @return Count
      */
     public function count_all($post) {
-        $this->db->from('bb_order_details');
-        $this->db->where($post['where']);
-        foreach ($post['where_in'] as $index => $value){
-            $this->db->where_in($index, $value);
-        }
+        $this->_count_all_bb_order($post);
         $query = $this->db->count_all_results();
        
         return $query;
     }  
+    
+    public function _count_all_bb_order($post){
+        $this->db->from('bb_order_details');
+        $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
+                . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
+       
+        $this->db->join('services', 'services.id = bb_unit_details.service_id');
+        $this->db->where($post['where']);
+        foreach ($post['where_in'] as $index => $value){
+            $this->db->where_in($index, $value);
+        }
+    }
     
     function count_filtered($post){
         $this->_get_bb_order_list_query($post);
@@ -200,18 +219,23 @@ class Bb_model extends CI_Model {
 
         $this->db->join('service_centres as cp', 'cp_action.cp_id = cp.id');
         $this->db->select('cp_action.id,cp_action.partner_order_id,cp_action.cp_id,cp_action.category,cp_action.brand,cp_action.physical_condition,
-            cp_action.working_condition,cp_action.status,cp_action.remarks,cp_action.current_status, cp.name');
-        $this->db->where('current_status','In_process');
-        foreach ($this->cp_action_column_search as $key => $item) { // loop column 
-            if (!empty($search_value)) { // if datatable send POST for search
-                if ($key === 0) { // first loop
-                    $this->db->like($item, $search_value);
-                } else {
-                   $this->db->or_like($item, $search_value);
-                }
+            cp_action.working_condition,cp_action.remarks,cp_action.internal_status, cp.name');
+        $this->db->where('current_status', _247AROUND_BB_IN_PROCESS);
+        if (!empty($search_value)) { // if datatable send POST for search
+             $like = "";
+            foreach ($this->cp_action_column_search as $key => $item) { // loop column 
+                    if ($key === 0) { // first loop
+                       // $this->db->like($item, $search_value);
+                         $like .= "( ".$item." LIKE '%".$search_value."%' ";
+                    } else {
+                        $like .= " OR ".$item." LIKE '%".$search_value."%' ";
+                      // $this->db->or_like($item, $search_value);
+                    }
             }
-           
-        }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+         }
 
         if (!empty($order)) { // here order processing
             $this->db->order_by($this->cp_action_column_order[$order[0]['column'] - 1], $order[0]['dir']);

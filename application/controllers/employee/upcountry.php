@@ -143,7 +143,8 @@ class Upcountry extends CI_Controller {
         $upcountry_vendor['sub_vendor_id'] = $query1[0]['sub_vendor_id'];
         $upcountry_vendor['vendor_id'] = $query1[0]['assigned_vendor_id'];
         $upcountry_vendor['upcountry_pincode'] = $query1[0]['upcountry_pincode'];
-        $partner_details = $this->partner_model->get_all_partner($query1[0]['partner_id']);
+        $p_where = array('id' =>$query1[0]['partner_id'] );
+        $partner_details = $this->partner_model->get_all_partner($p_where);
 
         $data = $this->upcountry_model->mark_upcountry_vendor($upcountry_vendor, $partner_details);
 

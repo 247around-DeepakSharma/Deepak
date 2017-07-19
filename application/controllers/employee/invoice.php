@@ -49,8 +49,9 @@ class Invoice extends CI_Controller {
      * Load invoicing form
      */
     public function index() {
-        $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",'active');
+        $select = "service_centres.name, service_centres.id";
+        $data['service_center'] = $this->vendor_model->getVendorDetails($select);
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1));
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
@@ -58,37 +59,19 @@ class Invoice extends CI_Controller {
     
     public function invoice_listing_ajax($vendor_type = ""){
         $vendor_partner = $this->input->post('vendor_partner');
-        $sf_cp = $this->input->post('sf_cp');
-        $is_sf = '';
-        $is_cp = '';
-        if(!empty($sf_cp)){
-            if($sf_cp === 'sf'){
-                $is_sf = '1';
-                $is_cp = '0';
-            }else if($sf_cp === 'cp'){
-                $is_sf = '0';
-                $is_cp = '1';
-            }else if($sf_cp === 'both'){
-                $is_sf = '1';
-                $is_cp = '1';
-            }
+        $sf_cp = json_decode($this->input->post('sf_cp'), true);
+        if($vendor_type != ""){
+            $sf_cp['active'] = $vendor_type;
         }
+        
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($vendor_partner,$sf_cp);
+        
         if($vendor_partner === 'vendor'){
-            if($vendor_type != ""){
-                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",$vendor_type,$is_sf,$is_cp);
-            }else{
-                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
-            }
-            
-            $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
+           
+            $data['service_center'] = "service_center";
         }else{
-            if($vendor_type != ""){
-                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner",$vendor_type,$is_sf,$is_cp);
-            }else{
-                $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
-            }
             
-            $data['partner'] = $this->partner_model->getpartner();
+            $data['partner'] = "partner";
         }
         $data['is_ajax'] = TRUE;
         echo $this->load->view('employee/invoice_list', $data);
@@ -187,7 +170,7 @@ class Invoice extends CI_Controller {
     function invoice_partner_view() {
 
         $data['partner'] = $this->partner_model->getpartner("", false);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
         
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
@@ -451,8 +434,8 @@ class Invoice extends CI_Controller {
             if ($flag == 1) {
                 echo "<option value='All'>All</option>";
             }
-
-            $all_vendors = $this->vendor_model->getActiveVendor("", 0);
+            $select = "service_centres.name, service_centres.id";
+            $all_vendors = $this->vendor_model->getVendorDetails($select);
             foreach ($all_vendors as $v_name) {
                 $option = "<option value='" . $v_name['id'] . "'";
                 if ($vendor_partner_id == $v_name['id']) {
@@ -1263,7 +1246,7 @@ class Invoice extends CI_Controller {
         $to_date1 = date('Y-m-d', strtotime('+1 day', strtotime($to_date)));
         $penalty_data = $this->penalty_model->add_penalty_in_invoice($details['vendor_partner_id'], $from_date, $to_date1, "", $is_regenerate);
         $credit_penalty = $this->penalty_model->get_removed_penalty($details['vendor_partner_id'], $from_date, "");
-        $courier_charges = $this->invoices_model->get_sf_courier_charges($details['vendor_partner_id'], $from_date, $to_date1);
+        $courier_charges = $this->invoices_model->get_sf_courier_charges($details['vendor_partner_id'], $from_date, $to_date1, $is_regenerate);
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
         $invoices = $invoices_data['invoice_details'];
@@ -1836,8 +1819,8 @@ class Invoice extends CI_Controller {
             case "cash":
 
                 if ($details['vendor_partner_id'] == 'All') {
-
-                    $vendor_details = $this->vendor_model->getActiveVendor('', 0);
+                    $select = "service_centres.name, service_centres.id";
+                    $vendor_details = $this->vendor_model->getVendorDetails($select);
                     foreach ($vendor_details as $value) {
                         $details['vendor_partner_id'] = $value['id'];
 
@@ -1887,8 +1870,8 @@ class Invoice extends CI_Controller {
                 log_message('info', __FUNCTION__ . " Preparing FOC Invoice");
 
                 if ($details['vendor_partner_id'] == 'All') {
-
-                    $vendor_details = $this->vendor_model->getActiveVendor('', 0);
+                    $select = "service_centres.name, service_centres.id";
+                    $vendor_details = $this->vendor_model->getVendorDetails($select);
                     echo " Preparing FOC Invoice  Vendor: " . $details['vendor_partner_id'];
                     foreach ($vendor_details as $value) {
                         $details['vendor_partner_id'] = $value['id'];
@@ -1931,7 +1914,8 @@ class Invoice extends CI_Controller {
                 $vendor_all_flag = 0;
                 if ($details['vendor_partner_id'] === 'All') {
                     $vendor_all_flag = 1;
-                    $vendor = $this->vendor_model->getActiveVendor('', 0);
+                    $select = "service_centres.name, service_centres.id";
+                    $vendor = $this->vendor_model->getVendorDetails($select);
 
                     foreach ($vendor as $value) {
                         log_message('info', __FUNCTION__ . " Brackets Vendor Id: " . $value['id']);
@@ -1955,7 +1939,8 @@ class Invoice extends CI_Controller {
      */
     function invoice_summary($vendor_partner, $vendor_partner_id) {
         if ($vendor_partner == 'vendor') {
-            $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
+            $select = "service_centres.name, service_centres.id";
+            $data['service_center'] = $this->vendor_model->getVendorDetails($select);
         } else {
             $data['partner'] = $this->partner_model->getpartner("", false);
         }
@@ -2008,24 +1993,29 @@ class Invoice extends CI_Controller {
 
             log_message('info', __FUNCTION__ . " Entering......... Invoice Id " . $invoice[0]['invoice_number']);
             $invoice[0]['invoice_date'] = date("jS M, Y");
-            $invoice[0]['tax_rate'] = 5.00;
-            $invoice[0]['19_24_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_19_24_UNIT_PRICE, $invoice[0]['tax_rate']);
+            $invoice[0]['tax_rate'] = 18.00;
+            //$invoice[0]['19_24_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_19_24_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['26_32_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_26_32_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['36_42_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_36_42_UNIT_PRICE, $invoice[0]['tax_rate']);
-            $invoice[0]['43_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_43_UNIT_PRICE, $invoice[0]['tax_rate']);
-            $invoice[0]['19_24_unit_price'] = _247AROUND_BRACKETS_19_24_UNIT_PRICE - $invoice[0]['19_24_tax_total'];
-            $invoice[0]['26_32_unit_price'] = _247AROUND_BRACKETS_26_32_UNIT_PRICE - $invoice[0]['26_32_tax_total'];
-            $invoice[0]['36_42_unit_price'] = _247AROUND_BRACKETS_36_42_UNIT_PRICE - $invoice[0]['36_42_tax_total'];
-            $invoice[0]['43_unit_price'] = _247AROUND_BRACKETS_43_UNIT_PRICE - $invoice[0]['43_tax_total'];
+            //$invoice[0]['43_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_43_UNIT_PRICE, $invoice[0]['tax_rate']);
+            //$invoice[0]['19_24_unit_price'] = _247AROUND_BRACKETS_19_24_UNIT_PRICE - $invoice[0]['19_24_tax_total'];
+            $invoice[0]['26_32_unit_price'] = round((_247AROUND_BRACKETS_26_32_UNIT_PRICE - $invoice[0]['26_32_tax_total']),0);
+            $invoice[0]['36_42_unit_price'] = round((_247AROUND_BRACKETS_36_42_UNIT_PRICE - $invoice[0]['36_42_tax_total']),0);
+            //$invoice[0]['43_unit_price'] = _247AROUND_BRACKETS_43_UNIT_PRICE - $invoice[0]['43_tax_total'];
 
-            $invoice[0]['total_brackets'] = $invoice[0]['_19_24_total'] + $invoice[0]['_26_32_total'] + $invoice[0]['_36_42_total'] + $invoice[0]['_43_total'];
-            $invoice[0]['t_19_24_unit_price'] = $invoice[0]['_19_24_total'] * $invoice[0]['19_24_unit_price'];
-            $invoice[0]['t_26_32_unit_price'] = $invoice[0]['_26_32_total'] * $invoice[0]['26_32_unit_price'];
-            $invoice[0]['t_36_42_unit_price'] = $invoice[0]['_36_42_total'] * $invoice[0]['36_42_unit_price'];
-            $invoice[0]['t_43_unit_price'] = $invoice[0]['_43_total'] * $invoice[0]['43_unit_price'];
-            $invoice[0]['total_part_cost'] = ($invoice[0]['t_19_24_unit_price'] + $invoice[0]['t_26_32_unit_price'] + $invoice[0]['t_36_42_unit_price'] + $invoice[0]['t_43_unit_price']);
-            $invoice[0]['part_cost_vat'] = round($invoice[0]['total_part_cost'] * $invoice[0]['tax_rate'] / 100, 2);
-            $invoice[0]['sub_total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost']), 2);
+//            $invoice[0]['total_brackets'] = $invoice[0]['_19_24_total'] + $invoice[0]['_26_32_total'] + $invoice[0]['_36_42_total'] + $invoice[0]['_43_total'];
+            $invoice[0]['total_brackets'] = $invoice[0]['_26_32_total'] + $invoice[0]['_36_42_total'];
+            
+            //$invoice[0]['t_19_24_unit_price'] = $invoice[0]['_19_24_total'] * $invoice[0]['19_24_unit_price'];
+            $invoice[0]['t_26_32_unit_price'] = round(($invoice[0]['_26_32_total'] * $invoice[0]['26_32_unit_price']),0);
+            $invoice[0]['t_36_42_unit_price'] = round(($invoice[0]['_36_42_total'] * $invoice[0]['36_42_unit_price']),0);
+            //$invoice[0]['t_43_unit_price'] = $invoice[0]['_43_total'] * $invoice[0]['43_unit_price'];
+            //$invoice[0]['total_part_cost'] = ($invoice[0]['t_19_24_unit_price'] + $invoice[0]['t_26_32_unit_price'] + $invoice[0]['t_36_42_unit_price'] + $invoice[0]['t_43_unit_price']);
+            
+            $invoice[0]['total_part_cost'] = round(($invoice[0]['t_26_32_unit_price'] + $invoice[0]['t_36_42_unit_price']),0);
+            
+            $invoice[0]['part_cost_vat'] = round($invoice[0]['total_part_cost'] * $invoice[0]['tax_rate'] / 100, 0);
+            $invoice[0]['sub_total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost']), 0);
             $invoice[0]['total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost']), 0);
             $invoice[0]['price_inword'] = convert_number_to_words($invoice[0]['total']);
 
@@ -2149,7 +2139,7 @@ class Invoice extends CI_Controller {
         //$output_pdf_file_name = $output_file.".pdf";
         $output_file_excel = $output_file_dir . $output_file_name;
         //$output_file_pdf = $output_file_dir . $output_pdf_file_name;
-        $template = 'Bracket_Invoice.xlsx';
+        $template = 'Bracket_Invoice_new.xlsx';
         //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../excel-templates/";
         //set config for report
@@ -3539,25 +3529,25 @@ class Invoice extends CI_Controller {
             $order_id_data = $this->inventory_model->get_new_credit_note_brackets_data($order_id);
 
             $result = array();
-            $_19_24_shipped_brackets_data = array();
+            //$_19_24_shipped_brackets_data = array();
             $_26_32_shipped_brackets_data = array();
             $_36_42_shipped_brackets_data = array();
-            $_43_shipped_brackets_data = array();
+            //$_43_shipped_brackets_data = array();
             $courier_charges_data = array();
 
             //prepare data to make credit note file
-            if (!empty($order_id_data[0]['19_24_shipped'])) {
-                $_19_24_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (19-24 Inch)';
-                $_19_24_shipped_brackets_data[0]['p_tax_rate'] = '';
-                $_19_24_shipped_brackets_data[0]['qty'] = $order_id_data[0]['19_24_shipped'];
-                $_19_24_shipped_brackets_data[0]['p_rate'] = '';
-                $_19_24_shipped_brackets_data[0]['p_part_cost'] = '';
-                $_19_24_shipped_brackets_data[0]['s_service_charge'] = '';
-                $_19_24_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['19_24_shipped'] * _247AROUND_BRACKETS_19_24_UNIT_PRICE;
-                $_19_24_shipped_brackets_data[0]['s_total_service_charge'] = '';
-
-                $result = array_merge($result, $_19_24_shipped_brackets_data);
-            }
+//            if (!empty($order_id_data[0]['19_24_shipped'])) {
+//                $_19_24_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (19-24 Inch)';
+//                $_19_24_shipped_brackets_data[0]['p_tax_rate'] = '';
+//                $_19_24_shipped_brackets_data[0]['qty'] = $order_id_data[0]['19_24_shipped'];
+//                $_19_24_shipped_brackets_data[0]['p_rate'] = '';
+//                $_19_24_shipped_brackets_data[0]['p_part_cost'] = '';
+//                $_19_24_shipped_brackets_data[0]['s_service_charge'] = '';
+//                $_19_24_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['19_24_shipped'] * _247AROUND_BRACKETS_19_24_UNIT_PRICE;
+//                $_19_24_shipped_brackets_data[0]['s_total_service_charge'] = '';
+//
+//                $result = array_merge($result, $_19_24_shipped_brackets_data);
+//            }
 
             if (!empty($order_id_data[0]['26_32_shipped'])) {
                 $_26_32_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (26-32 Inch)';
@@ -3566,7 +3556,7 @@ class Invoice extends CI_Controller {
                 $_26_32_shipped_brackets_data[0]['p_rate'] = '';
                 $_26_32_shipped_brackets_data[0]['p_part_cost'] = '';
                 $_26_32_shipped_brackets_data[0]['s_service_charge'] = '';
-                $_26_32_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['26_32_shipped'] * _247AROUND_BRACKETS_26_32_UNIT_PRICE;
+                $_26_32_shipped_brackets_data[0]['misc_price'] = round(($order_id_data[0]['26_32_shipped'] * _247AROUND_BRACKETS_26_32_UNIT_PRICE),0);
                 $_26_32_shipped_brackets_data[0]['s_total_service_charge'] = '';
 
                 $result = array_merge($result, $_26_32_shipped_brackets_data);
@@ -3579,24 +3569,24 @@ class Invoice extends CI_Controller {
                 $_36_42_shipped_brackets_data[0]['p_rate'] = '';
                 $_36_42_shipped_brackets_data[0]['p_part_cost'] = '';
                 $_36_42_shipped_brackets_data[0]['s_service_charge'] = '';
-                $_36_42_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['36_42_shipped'] * _247AROUND_BRACKETS_36_42_UNIT_PRICE;
+                $_36_42_shipped_brackets_data[0]['misc_price'] = round(($order_id_data[0]['36_42_shipped'] * _247AROUND_BRACKETS_36_42_UNIT_PRICE),0);
                 $_36_42_shipped_brackets_data[0]['s_total_service_charge'] = '';
 
                 $result = array_merge($result, $_36_42_shipped_brackets_data);
             }
 
-            if (!empty($order_id_data[0]['43_shipped'])) {
-                $_43_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (Greater Than 43 Inch)';
-                $_43_shipped_brackets_data[0]['p_tax_rate'] = '';
-                $_43_shipped_brackets_data[0]['qty'] = $order_id_data[0]['43_shipped'];
-                $_43_shipped_brackets_data[0]['p_rate'] = '';
-                $_43_shipped_brackets_data[0]['p_part_cost'] = '';
-                $_43_shipped_brackets_data[0]['s_service_charge'] = '';
-                $_43_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['43_shipped'] * _247AROUND_BRACKETS_43_UNIT_PRICE;
-                $_43_shipped_brackets_data[0]['s_total_service_charge'] = '';
-
-                $result = array_merge($result, $_43_shipped_brackets_data);
-            }
+//            if (!empty($order_id_data[0]['43_shipped'])) {
+//                $_43_shipped_brackets_data[0]['description'] = 'Bracket Charges Refund (Greater Than 43 Inch)';
+//                $_43_shipped_brackets_data[0]['p_tax_rate'] = '';
+//                $_43_shipped_brackets_data[0]['qty'] = $order_id_data[0]['43_shipped'];
+//                $_43_shipped_brackets_data[0]['p_rate'] = '';
+//                $_43_shipped_brackets_data[0]['p_part_cost'] = '';
+//                $_43_shipped_brackets_data[0]['s_service_charge'] = '';
+//                $_43_shipped_brackets_data[0]['misc_price'] = $order_id_data[0]['43_shipped'] * _247AROUND_BRACKETS_43_UNIT_PRICE;
+//                $_43_shipped_brackets_data[0]['s_total_service_charge'] = '';
+//
+//                $result = array_merge($result, $_43_shipped_brackets_data);
+//            }
             
             //if there is no data for brackets then did not process the credit note and redirect to form
             if (!empty($result)) {
@@ -3606,20 +3596,20 @@ class Invoice extends CI_Controller {
                 $courier_charges_data[0]['p_rate'] = '';
                 $courier_charges_data[0]['p_part_cost'] = '';
                 $courier_charges_data[0]['s_service_charge'] = '';
-                $courier_charges_data[0]['misc_price'] = $courier_charges;
+                $courier_charges_data[0]['misc_price'] = round($courier_charges,0);
                 $courier_charges_data[0]['s_total_service_charge'] = '';
 
                 $result = array_merge($result, $courier_charges_data);
 
 
-                $total_brackets = $order_id_data[0]['19_24_shipped'] + $order_id_data[0]['26_32_shipped'] + $order_id_data[0]['36_42_shipped'] + $order_id_data[0]['43_shipped'];
-
-                $t_19_24_shipped_price = $order_id_data[0]['19_24_shipped'] * _247AROUND_BRACKETS_19_24_UNIT_PRICE;
+                //$total_brackets = $order_id_data[0]['19_24_shipped'] + $order_id_data[0]['26_32_shipped'] + $order_id_data[0]['36_42_shipped'] + $order_id_data[0]['43_shipped'];
+                $total_brackets = $order_id_data[0]['26_32_shipped'] + $order_id_data[0]['36_42_shipped'];
+                //$t_19_24_shipped_price = $order_id_data[0]['19_24_shipped'] * _247AROUND_BRACKETS_19_24_UNIT_PRICE;
                 $t_26_32_shipped_price = $order_id_data[0]['26_32_shipped'] * _247AROUND_BRACKETS_26_32_UNIT_PRICE;
                 $t_36_42_shipped_price = $order_id_data[0]['36_42_shipped'] * _247AROUND_BRACKETS_36_42_UNIT_PRICE;
-                $t_43_shipped_price = $order_id_data[0]['43_shipped'] * _247AROUND_BRACKETS_43_UNIT_PRICE;
-                $total_brackets_price = $t_19_24_shipped_price + $t_26_32_shipped_price + $t_36_42_shipped_price + $t_43_shipped_price;
-
+                //$t_43_shipped_price = $order_id_data[0]['43_shipped'] * _247AROUND_BRACKETS_43_UNIT_PRICE;
+                //$total_brackets_price = $t_19_24_shipped_price + $t_26_32_shipped_price + $t_36_42_shipped_price + $t_43_shipped_price;
+                $total_brackets_price = round(($t_26_32_shipped_price + $t_36_42_shipped_price),0);
                 $invoices = $this->create_invoice_id_to_insert($order_id_data, $order_id_data[0]['shipment_date'], $order_id_data[0]['sc_code']);
                 
                 $meta['invoice_type'] = $invoices['invoice_type'];
@@ -3627,7 +3617,7 @@ class Invoice extends CI_Controller {
                 
                 log_message('info', __METHOD__ . ": Invoice Id : ".$meta['invoice_id']." geneterated for order Id: ". $order_id);
 
-                $total_charges = round($total_brackets_price + $courier_charges);
+                $total_charges = round(($total_brackets_price + $courier_charges),0);
 
                 $meta['total_service_cost_14'] = '';
                 $meta['total_service_cost_5'] = '';

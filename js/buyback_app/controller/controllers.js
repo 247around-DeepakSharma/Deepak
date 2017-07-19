@@ -31,17 +31,13 @@ uploadfile.controller('uploadFileHistory', function ($scope, $http) {
             });
 });
 
-//shop address details file upload
-//uploadfile.controller('uploadShopAddressFile', ['$scope', 'fileUpload', function($scope, fileUpload){
-//    
-//    $scope.uploadFile = function(){
-//        var file = $scope.myFile;
-//        $scope.ShowSpinnerStatus = true;
-//        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/upload_file";
-//        fileUpload.uploadFileToUrl($scope,file, uploadUrl);
-//    };
-//    
-//}]);
+uploadfile.controller('getOrderFileHistory', function ($scope, $http) {
+    var get_url = baseUrl + "/buyback/upload_buyback_process/upload_file_history/BB-Order-List";
+    $http.get(get_url)
+            .then(function (response) {
+                $scope.getOrderFileHistory = response.data;
+            });
+});
 
 orderDetails.controller('viewOrderDetails', function ($scope, $http) {
 
@@ -67,6 +63,9 @@ orderDetails.controller('viewOrderHistory', function ($scope, $http) {
             .then(function (response) {
                 $scope.orderHistoryDetails = response.data;
             });
+    $scope.getDateFormat = function(timestamp) {
+    return new Date(timestamp);
+  }        
 });
 
 orderDetails.controller('viewOrderAppLianceDetails', function ($scope, $http) {
@@ -78,7 +77,73 @@ orderDetails.controller('viewOrderAppLianceDetails', function ($scope, $http) {
             });
 });
 
+addDealers.controller("addDealersController", function($scope, $http){
+    $scope.tempData = {};
+    var get_url = baseUrl + "/employee/dealers/getpartner_city_list";
+    
+    $http.get(get_url)
+    .then(function (response) {
+       
+        $scope.partner_list = response.data.sources;
+        $scope.city_list = response.data.city;
+      /// $scope.tempData = {city : $scope.city_list[0].district};
+//        $scope.$watch("sourceCityId", function(newValue, oldValue) {
+//           if(newValue) $scope.fetchAsset();
+//        });
 
+        
+    $scope.create_new_dealer = function (type) {
+        var data = $.param({
+            'data': $scope.tempData,
+            'type': type
+        });
+        
+        var config = {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+            }
+        };
+        var URL = baseUrl + "/employee/dealers/process_add_dealer";
+        $http.post(URL, data, config).success(function (response) {
+           
+            if (response.code === 247) {
+               
+                notifyMe(response.msg);
+                alert(response.msg);
+                
+                $scope.dealerForm.$setPristine();
+                $scope.tempData = {};
+                $scope.tempData.city = {};
+
+            } else {
+                notifyMe(response.msg);
+                alert(response.msg);
+            }
+        });
+    };
+
+    // function to add user data
+    $scope.create_dealer = function () {
+        $scope.create_new_dealer('new_dealer');
+    };
+       
+    });
+});
+
+advanced_search.controller("advancedSearchController", function ($scope, $http) {
+    var get_url = baseUrl + "/buyback/buyback_process/get_advanced_search_optionlist";
+    
+        $http.get(get_url)
+        .then(function (response) {
+          
+                $scope.service_list = response.data.service;
+                $scope.city_list = response.data.city;
+                $scope.internal_status_list = response.data.internal_status;
+               
+                $scope.current_status_list = response.data.current_status;
+       });
+    
+});
 //add shop address
 addShopAddressDetails.controller("userController", function ($scope, $http) {
     
@@ -160,6 +225,33 @@ addShopAddressDetails.controller("userController", function ($scope, $http) {
             //console.log(response);
             $('#shop_address_city').html(response);
         });
+    };
+});
+
+viewBBOrderList.controller('assignCP', function ($scope, $http) {
+
+    var post_url = baseUrl + "/buyback/buyback_process/assigned_bb_unassigned_data";
+    $scope.showDialogueBox = function() {
+        swal({
+                title: "Do You Want To Continue?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                closeOnConfirm: true
+            },
+            function(){
+                $scope.showLoader = true;
+                $http.post(post_url).success(function (response) {
+                    //console.log(response);
+                    $scope.notFoundCity = response.not_assigned;
+                    $scope.showLoader = false;
+                    $('#invoiceDetailsModal').modal("show");
+                    
+                });
+            });
+    };
+    $scope.closeModel = function(){
+        location.reload();
     };
 });
 

@@ -261,4 +261,15 @@ class dashboard_model extends CI_Model {
         $completed_booking = $query->result_array();
         return $completed_booking;
     }
+    
+    function get_booking_based_on_partner_source_data($startDate, $endDate,$partner_id){
+        $sql = "SELECT count(booking_id) as count ,  CASE WHEN partner_source != '' THEN (partner_source) ELSE ('Partner Source Not Assigned') END as partner_source "
+                . " FROM booking_details "
+                . "where partner_id = '$partner_id' "
+                . "AND create_date >='$startDate' AND create_date<='$endDate'"
+                . "GROUP BY partner_source";
+        $query = $this->db->query($sql);
+        $data = $query->result_array();
+        return $data;
+    }
 }

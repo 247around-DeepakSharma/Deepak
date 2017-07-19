@@ -52,7 +52,7 @@
                                     
                                 </div>
                                 <div  class="form-group ">
-                                    <label  for="gst_no" class="col-md-4">Signature</label>
+                                    <label  for="gst_no" class="col-md-4">Signature Image File</label>
                                     <div class="col-md-8">
                                      <?php if( !empty($signature_file)){ ?> <a target="_blank" href="https://s3.amazonaws.com/<?php echo  BITBUCKET_DIRECTORY;?>/vendor-partner-docs/<?php echo $signature_file; ?>">View Here</a>  <?php } ?>
                                         

@@ -103,7 +103,7 @@ class accounting_model extends CI_Model {
             }
             $sql = "Select V.invoice_id AS 'InvoiceNo',P.company_name as 'CompanyName', P.state as 'State',
                     V.invoice_date AS 'InvoiceDate',V.from_date AS 'FromDate',V.to_date AS 'ToDate', total_service_charge AS 'TotalServiceCharge' ,
-                    V.service_tax AS 'ServiceTax', parts_cost as ' Parts',vat as 'VAT' ,`upcountry_price` as 'ConveyanceCharges',
+                    V.total_additional_service_charge,V.service_tax AS 'ServiceTax', parts_cost as ' Parts',vat as 'VAT' ,`upcountry_price` as 'ConveyanceCharges',
                     courier_charges as 'Courier', total_amount_collected AS 'TotalAmountCollected', IFNULL(`rate`,0) as 'VAT Rate'
                     FROM  vendor_partner_invoices AS V
                     JOIN partners AS P on V.vendor_partner_id=P.id AND V.vendor_partner = 'partner'
@@ -130,7 +130,7 @@ class accounting_model extends CI_Model {
             $sql = "SELECT `invoice_id` AS 'InvoiceNo', company_name AS 'CompanyName', P.state AS State, IFNULL( P.service_tax_no, '' ) AS 'ServiceTaxNo', 
                     IFNULL(tin_no, '' ) AS 'TINNo', invoice_date AS 'InvoiceDate', `parts_cost` AS Parts, `vat` AS VAT, 
                     (ABS( `amount_collected_paid` ) + tds_amount) AS 'TotalAmount', 
-                    IFNULL( `rate` , 0 ) AS 'VATRate'
+                    IFNULL( `rate` , 0 ) AS 'VATRate',vpi.from_date AS 'FromDate',vpi.to_date AS 'ToDate'
                     FROM `vendor_partner_invoices` AS vpi, service_centres AS P, tax_rates AS tr
                     WHERE `type_code` = 'B' AND vpi.type = 'Stand' AND vpi.`invoice_date` >= '$from_date' AND vpi.`invoice_date` < '$to_date'
                     AND `vendor_partner_id` = P.id AND tax_code = 'VAT' AND product_type = 'wall_bracket' AND P.state = tr.state";
@@ -156,7 +156,7 @@ class accounting_model extends CI_Model {
             $sql = "SELECT `invoice_id` as 'InvoiceNo', company_name as 'CompanyName', p.state as State, 
                     IFNULL(p.service_tax,'') as 'ServiceTaxNo', IFNULL(tin,'') as 'TINNo', 
                     invoice_date as 'InvoiceDate', vpi.`from_date` as 'FromDate', vpi.`to_date` as 'ToDate',
-                    `total_service_charge` as 'ServiceCharges', '' as 'ServiceTax', `parts_cost` as Parts, 
+                    `total_service_charge` as 'ServiceCharges', vpi.total_additional_service_charge,round(vpi.service_tax,0) as 'ServiceTax', `parts_cost` as Parts, 
                     `vat` as VAT, `upcountry_price` as 'ConveyanceCharges', courier_charges as Courier,`penalty_amount` AS 'MiscDebit',
                     `credit_penalty_amount` AS 'MiscCredit', (abs(`amount_collected_paid`) + tds_amount ) as 'TotalAmount',
                     IFNULL(`rate`,0) as 'VATRate'
@@ -173,7 +173,7 @@ class accounting_model extends CI_Model {
             $sql = "SELECT `invoice_id` as 'InvoiceNo', name as 'CompanyName', sc.state as State, 
                     IFNULL(service_tax_no,'') as 'ServiceTaxNo', IFNULL(tin_no,'') as 'TINNo', 
                     invoice_date as 'InvoiceDate', vpi.`from_date` as 'FromDate', vpi.`to_date` as 'ToDate',
-                    `total_service_charge` as 'ServiceCharges', `service_tax` as 'ServiceTax', `parts_cost` as Parts, 
+                    `total_service_charge` as 'ServiceCharges', vpi.total_additional_service_charge,`service_tax` as 'ServiceTax', `parts_cost` as Parts, 
                     `vat` as VAT, `upcountry_price` as 'ConveyanceCharges', courier_charges as Courier,`penalty_amount` AS 'MiscDebit',
                     `credit_penalty_amount` AS 'MiscCredit', (abs(`amount_collected_paid`) + tds_amount ) as 'TotalAmount',
                     IFNULL(`rate`,0) as 'VATRate'

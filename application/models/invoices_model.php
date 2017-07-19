@@ -164,39 +164,20 @@ class invoices_model extends CI_Model {
      * @param: String ( vendor or patner)
      * @return: Array()
      */
-    function getsummary_of_invoice($vendor_partner, $vendor_type="",$is_sf='',$is_cp='') {
+    function getsummary_of_invoice($vendor_partner, $where) {
         $array = array();
 
         if ($vendor_partner == "vendor") {
-            switch ($vendor_type){
-                case 'active':
-                    $data = $this->vendor_model->getActiveVendor("", 1,$is_sf,$is_cp);
-                    break;
-                case 'disabled':
-                    $data = $this->vendor_model->getActiveVendor("", 'disabled',$is_sf,$is_cp);
-                    break;
-                case 'all':
-                    $data = $this->vendor_model->getActiveVendor("", 0,$is_sf,$is_cp);
-                    break;
-                default:
-                    $data = $this->vendor_model->getActiveVendor("", 0,$is_sf,$is_cp);
-            }
-            
+            $select = "service_centres.name, service_centres.id, on_off, active, is_verified";
+            $data = $this->vendor_model->getVendorDetails($select, $where);
             $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
+            
         } else if ($vendor_partner == "partner") {
-            switch ($vendor_type){
-                case 'active':
-                    $data = $this->partner_model->getpartner();
-                    break;
-                case 'disabled':
-                    $data = $this->partner_model->get_all_partner("",0);
-                    break;
-                case 'all':
-                    $data = $this->partner_model->get_all_partner();
-                    break;
-                default:
-                    $data = $this->partner_model->getpartner();
+            $p_where = "";
+            if(isset($where['active'])){
+                $p_where = array('is_active' => $where['active']);
             }
+            $data = $this->partner_model->get_all_partner($p_where);
             
             $due_date_status = "";
         }
@@ -884,7 +865,7 @@ class invoices_model extends CI_Model {
         if($is_regenerate == 0){
             $is_invoice_null = " AND vendor_foc_invoice_id IS NULL ";
         }
-        $sql = "SELECT DISTINCT round((`vendor_basic_charges`),0) AS s_service_charge, sum(`courier_charges_by_sf`) AS misc_price,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
+        $sql = "SELECT DISTINCT round((`vendor_basic_charges`),0) AS s_service_charge, '' AS misc_price,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
                CASE 
                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
@@ -914,8 +895,6 @@ class invoices_model extends CI_Model {
                 JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
                 JOIN services ON services.id = bd.service_id
                 JOIN service_centres as sc ON sc.id = bd.assigned_vendor_id
-                LEFT JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id
-                AND sp.status = 'Completed'
                 WHERE  `product_or_services` =  'Service'
                 
                 AND ud.booking_status =  'Completed'
@@ -930,7 +909,7 @@ class invoices_model extends CI_Model {
 
         $query = $this->db->query($sql);
         $service = $query->result_array();
-
+       
         //FOR Parts
         $sql1 = "SELECT DISTINCT round((`vendor_basic_charges`),0) AS p_rate, '' AS misc_price, '' AS s_service_charge, '' AS s_total_service_charge,
                CASE 
@@ -1012,6 +991,21 @@ class invoices_model extends CI_Model {
 
             $penalty_data = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "distinct", $is_regenerate);
             $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, "distinct" );
+            $courier_charges = $this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
+            if(!empty($courier_charges)){
+                $courier = array();
+                $courier[0]['s_total_service_charge'] = '';
+                $courier[0]['p_tax_rate'] = '';
+                $courier[0]['p_part_cost'] = '';
+                $courier[0]['s_service_charge'] = '';
+                $courier[0]['qty'] = count($courier_charges);
+                $courier[0]['description'] = "Courier Charges";
+                $courier[0]['p_rate'] = '';
+               
+                $courier[0]['misc_price'] = (array_sum(array_column($courier_charges, 'courier_charges_by_sf')));
+
+                $result = array_merge($result, $courier);
+            }
 
             $penalty_amount = 0;
             $cr_penalty_amount = 0;
@@ -1320,18 +1314,24 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function get_sf_courier_charges($vendor_id, $from_date, $to_date) {
+    function get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate) {
+        $invoice_check = "";
+        if($is_regenerate == 0){
+            $invoice_check .= "AND vendor_foc_invoice_id IS NULL ";
+        }
         $sql = " SELECT distinct bd.booking_id, courier_charges_by_sf 
-                FROM  `booking_unit_details` AS ud 
-                JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
-                LEFT JOIN spare_parts_details as sp ON sp.booking_id = ud.booking_id
-                AND status = 'Completed'
+                FROM  booking_details as bd, booking_unit_details as ud,
+                spare_parts_details as sp
                 WHERE 
                 ud.booking_status =  'Completed'
                 AND bd.assigned_vendor_id = '$vendor_id'
+                AND  status = 'Completed'
+                AND sp.booking_id = bd.booking_id
+                AND bd.booking_id = ud.booking_id
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
                 AND pay_to_sf = '1'
+                $invoice_check
                 AND courier_charges_by_sf > 0 ";
 
         $query = $this->db->query($sql);

@@ -19,15 +19,15 @@
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Status</th>
                                         <th class="text-center" data-orderable="false">Update</th>
-                                        <th class="text-center" data-orderable="false">Cancel</th>
+                                        <th class="text-center" data-orderable="false">Reject</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php $sn_no='1'; foreach ($spare_parts as $value) {  
+                                    <?php foreach ($spare_parts as $key => $value) {  
                                         if($value['status'] == 'Spare Parts Requested'){
                                     ?>
-                                    <tr>
-                                        <td class="text-center"><?php echo $sn_no; ?></td>
+                                    <tr id="<?php echo $value['booking_id']."_1";?>">
+                                        <td class="text-center"><?php echo ($key +1); ?></td>
                                         <td class="text-center"><a 
                                           href="<?php echo base_url(); ?>employee/booking/viewdetails/<?php echo $value['booking_id']; ?>" target='_blank' title='view'><?php echo $value['booking_id'];?></a>
                                         </td>
@@ -40,10 +40,11 @@
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
 
                                         <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
-                                        <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/cancel_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>" class="btn btn-sm btn-primary" >Delete</a></td> 
+                                        
+                                        <td class="text-center"><button type="button" id="<?php echo $value['booking_id'];?>" data-id="<?php echo base_url(); ?>employee/inventory/cancel_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Reject</button></td>
                                    </tr>
                              
-                                    <?php $sn_no++; }}?>
+                                    <?php }}?>
                                 </tbody>
                                 
                             </table>
@@ -54,7 +55,25 @@
         </div>
     </div>
 </div>
-
+<div id="myModal2" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal">&times;</button>
+               <h4 class="modal-title" id="modal-title">Reject Parts</h4>
+            </div>
+            <div class="modal-body">
+               <textarea rows="8" class="form-control" id="textarea"></textarea>
+            </div>
+            <input type="hidden" id="url"></input>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-success" onclick="reject_parts()">Send</button>
+               <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+            </div>
+         </div>
+      </div>
+   </div>
 <div role="tabpanel" class="tab-pane" id="defective_part_shipped_by_SF">
     <div class="container-fluid">
         <div class="row" >

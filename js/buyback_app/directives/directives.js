@@ -34,3 +34,73 @@ addShopAddressDetails.directive('numbersOnly', function () {
         }
     };
 });
+
+addDealers.directive('numbersOnly', function () {
+    return {
+        require: 'ngModel',
+        link: function (scope, element, attr, ngModelCtrl) {
+            function fromUser(text) {
+                if (text) {
+                    var transformedInput = text.replace(/[^0-9]/g, '');
+
+                    if (transformedInput !== text) {
+                        ngModelCtrl.$setViewValue(transformedInput);
+                        ngModelCtrl.$render();
+                    }
+                    return transformedInput;
+                }
+                return undefined;
+            }            
+            ngModelCtrl.$parsers.push(fromUser);
+        }
+    };
+});
+
+addDealers.directive("uiSelect2", function() {
+    var linker = function(scope, element, attr) {
+        element.select2({
+           
+            multiple: true,
+            allowClear: true
+          });
+       
+
+        scope.$watch(attr.ngModel, function(newValue, oldValue) {
+            //console.log("uiSelect", attr.ngModel, newValue, oldValue);
+            
+            // Give the new options time to render
+            setTimeout(function() {
+                if(newValue) element.trigger("change");
+            });
+            
+        });
+    };
+
+    return {
+        link: linker
+    };
+});
+
+advanced_search.directive("uiSelect2", function() {
+    var linker = function(scope, element, attr) {
+        element.select2({
+            allowClear: true
+          });
+       
+
+        scope.$watch(attr.ngModel, function(newValue, oldValue) {
+            //console.log("uiSelect", attr.ngModel, newValue, oldValue);
+            
+            // Give the new options time to render
+            setTimeout(function() {
+                if(newValue) element.trigger("change");
+            });
+            
+        });
+    };
+
+    return {
+        link: linker
+    };
+});
+

@@ -522,6 +522,9 @@ class vendor extends CI_Controller {
                         if(isset($attachment_contract)){
                             $this->email->attach($attachment_contract, 'attachment');
                         }
+                        if(isset($attachment_gst)){
+                            $this->email->attach($attachment_gst, 'attachment');
+                        }
 
                         if ($this->email->send()) {
                             log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
@@ -681,6 +684,16 @@ class vendor extends CI_Controller {
                 $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
                 $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
                 $vendor_data['is_gst_doc'] = $this->input->post('is_gst_doc');
+                $vendor_data['is_sf'] = $this->input->post('is_sf');
+                $vendor_data['is_cp'] = $this->input->post('is_cp');
+                $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
+                if(empty( $vendor_data['is_cp'])){
+                     $vendor_data['is_cp'] = 0;
+                }
+                
+                if(empty( $vendor_data['is_sf'])){
+                     $vendor_data['is_sf'] = 0;
+                }
                 
                 if(!empty($vendor_data['is_pan_doc']) && !empty($this->input->post('pan_no')) ){
                    $vendor_data['pan_no'] = $this->input->post('pan_no');
@@ -716,30 +729,46 @@ class vendor extends CI_Controller {
                 $vendor_data['ifsc_code'] = $this->input->post('ifsc_code');
                 $vendor_data['beneficiary_name'] = $this->input->post('beneficiary_name');
                 $vendor_data['is_verified'] = $this->input->post('is_verified');
-                if(!empty($this->input->post('contract_file')))
+                if(!empty($this->input->post('contract_file'))){
                     $vendor_data['contract_file'] = $this->input->post('contract_file');
-                if(!empty($this->input->post('id_proof_2_file')))
+                } 
+                if(!empty($this->input->post('id_proof_2_file'))){
                     $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
-                if(!empty($this->input->post('id_proof_1_file')))
+                }  
+                if(!empty($this->input->post('id_proof_1_file'))){
                     $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
-                if(!empty($this->input->post('cancelled_cheque_file')))
-                    $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
-                if(!empty($this->input->post('address_proof_file')))
+                } 
+                if(!empty($this->input->post('cancelled_cheque_file'))){
+                     $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
+                } 
+                if(!empty($this->input->post('address_proof_file'))){
                     $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
-                if(!empty($this->input->post('service_tax_file')))
+                } 
+                if(!empty($this->input->post('service_tax_file'))){
                     $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
-                if(!empty($this->input->post('tin_file')))
+                } 
+                if(!empty($this->input->post('tin_file'))){
                     $vendor_data['tin_file'] = $this->input->post('tin_file');
-                if(!empty($this->input->post('cst_file')))
+                }
+                if(!empty($this->input->post('cst_file'))){
                     $vendor_data['cst_file'] = $this->input->post('cst_file');
-                if(!empty($this->input->post('pan_file')))
+                }
+                if(!empty($this->input->post('pan_file'))){
                     $vendor_data['pan_file'] = $this->input->post('pan_file');
-                if(!empty($this->input->post('non_working_days')))
+                }   
+                if(!empty($this->input->post('non_working_days'))){
                     $vendor_data['non_working_days'] = $this->input->post('non_working_days');
-                if(!empty($this->input->post('appliances')))
+                } 
+                if(!empty($this->input->post('appliances'))){
                     $vendor_data['appliances'] = $this->input->post('appliances');
-                if(!empty($this->input->post('brands')))
-                    $vendor_data['brands'] = $this->input->post('brands');    
+                }
+                if(!empty($this->input->post('brands'))){
+                    $vendor_data['brands'] = $this->input->post('brands');  
+                }   
+                if(!empty($this->input->post('gst_file'))){
+                     $vendor_data['gst_file'] = $this->input->post('gst_file');
+                }
+                   
             
             return $vendor_data;
     }
@@ -2059,7 +2088,9 @@ class vendor extends CI_Controller {
 
        $data['engineers'] =  $this->vendor_model->get_engineers($service_center_id);
        foreach ($data['engineers'] as $key => $value) {
-           $service_center = $this->vendor_model->getActiveVendor($value['service_center_id'],0);
+           $where = array('id' => $value['service_center_id'] );
+           $select = "service_centres.name, service_centres.id";
+           $service_center = $this->vendor_model->getVendorDetails($select, $where);
            $data['engineers'][$key]['service_center_name'] = $service_center[0]['name'];
            $service_id  = json_decode($value['appliance_id'],true);
            $appliances = array();
@@ -2242,8 +2273,8 @@ class vendor extends CI_Controller {
         $data = $this->load->view('employee/add_vendor_to_pincode', $data, TRUE);
         print_r($data);
         }else{
-            
-            $data['vendor_details'] = $this->vendor_model->getActiveVendor();
+            $select = "service_centres.name, service_centres.id";
+            $data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
             $data['state'] = $this->vendor_model->getall_state();
             // Return view for adding of New Vendor to Pincode
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -2274,8 +2305,8 @@ class vendor extends CI_Controller {
             if ($this->form_validation->run() == FALSE) {
 
             $data = $this->input->post();
-            
-            $data['vendor_details'] = $this->vendor_model->getActiveVendor();
+            $select = "service_centres.name, service_centres.id";
+            $data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
             $data['state'] = $this->vendor_model->getall_state();    
             
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -2298,11 +2329,13 @@ class vendor extends CI_Controller {
                                 'active'=>1
                 );
             //Looping through Appliance's Selected
-            foreach ($choice as $key => $value) {
+            foreach ($choice as $value) {
                     //Getting Appliance Name
                     $appliance = $this->booking_model->selectservicebyid($value);
                     //Getting Vendor Name
-                    $vendor_name = $this->vendor_model->getActiveVendor($this->input->post('vendor_id'));
+                    $where = array("id" => $this->input->post('vendor_id'));
+                    $select = "service_centres.name, service_centres.id";
+                    $vendor_name = $this->vendor_model->getVendorDetails($select, $where);
                     //Appending Array
                     $vendor_mapping['Vendor_Name'] = $vendor_name[0]['name'];
                     $vendor_mapping['Appliance'] = $appliance[0]['services'];
@@ -2382,7 +2415,8 @@ class vendor extends CI_Controller {
 
 	$data = array();
 	//Getting data from database
-	$data['vendor_details'] = $this->vendor_model->getActiveVendor();
+        $select = "service_centres.name, service_centres.id";
+	$data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
 	$data['appliance'] = $this->booking_model->selectservice();
 	$data['state'] = $this->vendor_model->getall_state();
 
@@ -2500,7 +2534,8 @@ class vendor extends CI_Controller {
      */
     function get_mail_to_vendors_form() {
         $data = array();
-        $data['vendors'] = $this->vendor_model->getActiveVendor();
+        $select = "service_centres.name, service_centres.id";
+        $data['vendors'] = $this->vendor_model->getVendorDetails($select);
         $data['partners'] = $this->partner_model->getpartner();
 
         //Declaring array for modal call to get_247around_email_template function
@@ -2553,7 +2588,8 @@ class vendor extends CI_Controller {
             $vendors = $this->input->post('vendors');
             //Checking for ALL vendors selected
             if($vendors[0] == 0){
-                $vendors_array = $this->vendor_model->getActiveVendor();
+                $select = "service_centres.name, service_centres.id";
+                $vendors_array = $this->vendor_model->getVendorDetails($select);
                 foreach ($vendors_array as $value) {
                     $vendors_list[] = $value['id'];
                 }
@@ -3026,8 +3062,11 @@ class vendor extends CI_Controller {
      */
     function download_sf_list_excel(){
         //Getting only Active Vendors List
-        $vendor  = $this->vendor_model->viewvendor('',1);
-        
+        //$vendor  = $this->vendor_model->viewvendor('',1);
+       
+        $where = array('active' => '1','on_off' => '1');
+        $select = "service_centres.name, service_centres.id";
+        $vendor = $this->vendor_model->getVendorDetails($select, $where);
         log_message('info', __FUNCTION__);
 
         $template = 'SF_List_Template.xlsx';
@@ -3249,62 +3288,6 @@ class vendor extends CI_Controller {
         
         
     }
-    
-    /**
-     * @Desc: This function is used to login to particular vendor
-     *          This function is being called using AJAX
-     * @params: vendor id
-     * @return: void
-     * 
-     */
-    function allow_log_in_to_vendor($vendor_id){
-        //Getting vendor details
-        $vendor_details = $this->vendor_model->getVendorContact($vendor_id);
-        $data['user_name'] = strtolower($vendor_details[0]['sc_code']);
-        $data['password'] = md5(strtolower($vendor_details[0]['sc_code']));
-    
-         //Loggin to SF Panel with username and password
-         
-        $agent = $this->service_centers_model->service_center_login($data);
-        if (!empty($agent)) {
-        //get sc details now
-        $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
-            
-        //Setting logging vendor session details
-        
-            $userSession = array(
-	    'session_id' => md5(uniqid(mt_rand(), true)),
-	    'service_center_id' => $sc_details[0]['id'],
-	    'service_center_name' => $sc_details[0]['name'],
-            'service_center_agent_id' => $agent['id'],
-            'is_update' => $sc_details[0]['is_update'],
-            'is_upcountry' => $sc_details[0]['is_upcountry'],
-	    'sess_expiration' => 30000,
-	    'loggedIn' => TRUE,
-	    'userType' => 'service_center'
-	);
-
-        $this->session->set_userdata($userSession);
-
-            //Saving Login Details in Database
-            $login_data['browser'] = $this->agent->browser();
-            $login_data['agent_string'] = $this->agent->agent_string();
-            $login_data['ip'] = $this->input->ip_address();
-            $login_data['action'] = _247AROUND_LOGIN;
-            $login_data['entity_type'] = $this->session->userdata('userType');
-            $login_data['agent_id'] = $this->session->userdata('service_center_agent_id');
-            $login_data['entity_id'] = $this->session->userdata('service_center_id');
-
-            $login_id = $this->employee_model->add_login_logout_details($login_data);
-            //Adding Log Details
-            if ($login_id) {
-                log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $sc_details[0]['name']);
-            } else {
-                log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $sc_details[0]['name']);
-            }
-        }   
-    }
-  
     
     /**
      * 
@@ -4169,13 +4152,14 @@ class vendor extends CI_Controller {
             if (!empty($value->booking_id) && $value->is_upcountry == 0) {
                 $vendor_data = array();
                 $vendor_data[0]['vendor_id'] = $value->assigned_vendor_id;
-
+                $vendor_data[0]['min_upcountry_distance'] = $value->min_upcountry_distance;
                 if (!empty($value->district)) {
                     $vendor_data[0]['city'] = $value->district;
                 } else {
                     $vendor_data[0]['city'] = $this->vendor_model->get_distict_details_from_india_pincode($value->booking_pincode)['district'];
                 }
-                $partner_details = $this->partner_model->get_all_partner($value->partner_id);
+                $p_where = array('id' => $value->partner_id);
+                $partner_details = $this->partner_model->get_all_partner($p_where);
                 $data = $this->upcountry_model->action_upcountry_booking($value->city, $value->booking_pincode, $vendor_data, $partner_details);
                 switch ($data['message']) {
                     case UPCOUNTRY_BOOKING:
@@ -4209,7 +4193,8 @@ class vendor extends CI_Controller {
      * 
      */
     function get_service_center_details(){
-        $data = $this->vendor_model->getActiveVendor();
+        $select = "service_centres.name, service_centres.id";
+        $data = $this->vendor_model->getVendorDetails($select);
         $option = '<option selected="" disabled="">Select Service Center</option>';
 
         foreach ($data as $value) {
@@ -4233,24 +4218,19 @@ class vendor extends CI_Controller {
             }
             
             if($sf_cp_type === 'sf'){
-                $is_sf = '1';
-                $is_cp = '0';
+                $is_cp = '';
             }else if($sf_cp_type === 'cp'){
-                $is_sf = '0';
-                $is_cp = '1';
-            }else if($sf_cp_type === 'both'){
-                $is_sf = '1';
                 $is_cp = '1';
             }
             
             $id = $this->session->userdata('id');   
-            $active = "1";
+            //$active = "1";
             //Getting employee relation if present for logged in user
             $sf_list = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
-            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_sf,$is_cp);
+            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp);
             if(!empty($query)){
                 $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true));
             }else{

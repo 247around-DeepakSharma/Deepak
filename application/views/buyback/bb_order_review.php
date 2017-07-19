@@ -19,14 +19,13 @@
                                     <tr>
                                         <th>No.</th>
                                         <th>Order ID</th>
+                                        <th>CP Name</th>
                                         <th>Category</th>
                                         <th>Brand</th>
                                         <th>Physical Condition</th>
                                         <th>Working condition</th>
-                                        <th>Status</th>
+                                        <th>Internal Status</th>
                                         <th>Remarks</th>
-                                        <th>Current Status</th>
-                                        <th>CP Name</th>
                                         <th>View Image</th>
                                         <th>Approved <input type="checkbox" id="check_all_row_to_approve"></th>
 
@@ -72,7 +71,7 @@
                 //Set column definition initialisation properties.
                 "columnDefs": [
                     {
-                        "targets": [0,7,8,9,10,11], //first column / numbering column
+                        "targets": [0,8,9,10], //first column / numbering column
                         "orderable": false, //set not orderable
                     },
                 ],
@@ -96,8 +95,10 @@
 
     $('#approved_all_order').on('click', function () {
         var allVals = [];
+        var allCurrentStatus = [];
         $(".check_single_row:checked").each(function () {
             allVals.push($(this).attr('data-id'));
+            allCurrentStatus.push($(this).attr('data-status'));
         });  
         if (allVals.length <= 0)
         {
@@ -109,11 +110,12 @@
             var check = confirm(WRN);
             if (check === true) {
                 var join_selected_values = allVals.join(",");
+                var join_selected_status = allCurrentStatus.join(",");
                 $.ajax({
                     type: "POST",
                     url: "<?php echo base_url(); ?>buyback/buyback_process/approve_all_bb_order",
                     cache: false,
-                    data: 'order_ids=' + join_selected_values,
+                    data: {'order_ids':join_selected_values,'status':join_selected_status},
                     success: function (response)
                     {
                         location.reload();

@@ -436,7 +436,7 @@ class Partner_model extends CI_Model {
             user_email As 'Email ID', 
             request_type AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
             partner_current_status AS 'Status By Brand', 
-            '' AS 'Remarks by Brand',
+            CASE WHEN(current_status = 'Rescheduled') THEN (reschedule_reason) ELSE ('') END AS 'Remarks by Brand',
             'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
@@ -464,7 +464,7 @@ class Partner_model extends CI_Model {
             user_email As 'Email ID', 
             request_type AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
             partner_current_status AS 'Status By Brand', 
-            '' AS 'Remarks by Brand',
+            CASE WHEN(current_status = 'Rescheduled') THEN (reschedule_reason) ELSE ('') END AS 'Remarks by Brand',
             'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
@@ -503,7 +503,7 @@ class Partner_model extends CI_Model {
 	$partner_source_code = $this->get_source_code_for_partner($partner_id);
 
 	//Count all partner leads
-	$this->db->like('partner_id', $partner_id);
+	$this->db->where('partner_id', $partner_id);
 	$total_install_req = $this->db->count_all_results('booking_details');
 
 	//Count today leads which has create_date as today
@@ -516,13 +516,12 @@ class Partner_model extends CI_Model {
 	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
 	$this->db->where('create_date < ', date('Y-m-d'));
 	$yday_install_req = $this->db->count_all_results('booking_details');
-
-	//Count This month leads
-	$sql = "SELECT * FROM booking_details WHERE partner_id = '" . $partner_id . "'"
-	    . " AND create_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";
-	$query = $this->db->query($sql);
-	$month_array = $query->result_array();
-	$month_install_req = count($month_array);
+        
+        //Count This month leads
+        $this->db->where('partner_id',$partner_id );
+        $this->db->where("create_date >=", date('Y-m-01'));
+        $month_install_req =$this->db->count_all_results('booking_details');
+        
 
 
 	//Count total installations scheduled
@@ -586,7 +585,7 @@ class Partner_model extends CI_Model {
 
 	//Count this month installations completed
 	$sql = "SELECT * FROM booking_details WHERE partner_id = '" . $partner_id . "'"
-	    . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+	    . " AND closed_date >= '".date('Y-m-01')."' "
 	    . "AND current_status = 'Completed' ";
 	$comp_query = $this->db->query($sql);
 	$month_comp = $comp_query->result_array();
@@ -887,21 +886,6 @@ class Partner_model extends CI_Model {
     }
     
     /**
-     * @Desc: This function is used to add Partner Login details in Partner Login Table
-     * @params: Array
-     * @return: Boolean
-     * 
-     */
-    function add_partner_login($data){
-        $this->db->insert("partner_login", $data);
-        if($this->db->affected_rows() > 0){
-            return TRUE;
-        }else{
-            return FALSE;
-        }
-    }
-    
-    /**
      * @Desc: This function is used to get Partner Operation Region Details for particular Partner
      * @params: Array
      * @return: Array
@@ -921,9 +905,9 @@ class Partner_model extends CI_Model {
      * @return: Boolean
      * 
      */
-    function update_partner_login_details($data,$where){
+    function update_login_details($data,$where){
         $this->db->where($where);
-        $this->db->update('partner_login',$data);
+        $this->db->update('entity_login_table',$data);
         if($this->db->affected_rows() > 0 ){
             return TRUE;
         }else{
@@ -1106,17 +1090,15 @@ class Partner_model extends CI_Model {
      * @desc: This is used to get active partner details and also get partner details by partner id
      *          Without looking for Active or Disabled
      */
-    function get_all_partner($partner_id = "",$partner_type="") {
-	    if ($partner_id != "") {
-	        $this->db->where('id', $partner_id);
-	    }
-            if($partner_type === 0){
-                $this->db->where('is_active',0);
-            }
-	    $this->db->select('*');
-	    $query = $this->db->get('partners');
+    function get_all_partner($where = "") {
 
-	    return $query->result_array();
+        $this->db->select('*');
+        if(!empty($where)){
+           $this->db->where($where);
+        }
+        $query = $this->db->get('partners');
+
+        return $query->result_array();
     }
     
     /**
@@ -1228,13 +1210,13 @@ class Partner_model extends CI_Model {
     /**
      * @desc: This method is used to search booking by phone number or booking id
      * this is called by Partner panel
-     * @param String $searched_text
+     * @param String $searched_text_tmp
      * @param String $partner_id
      * @return Array
      */
-    function search_booking_history($searched_text,$partner_id) {
+    function search_booking_history($searched_text_tmp,$partner_id) {
         //Sanitizing Searched text - Getting only Numbers, Alphabets and '-'
-        $searched_text = preg_replace('/[^A-Za-z0-9-]/', '', $searched_text);
+        $searched_text = preg_replace('/[^A-Za-z0-9-]/', '', $searched_text_tmp);
         
         $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text')";
         $where_booking_id = "AND `booking_id` LIKE '%$searched_text%'";
@@ -1258,41 +1240,28 @@ class Partner_model extends CI_Model {
         return $query->result_array();
     }
     
-    /**
-     * @Desc: This function is used to get username for particular partner
-     * @params: Array
-     * @return: Mix
-     * 
-     */
-    function get_partner_username($data) {
-        $this->db->select('user_name');
-        $this->db->where('user_name', $data['user_name']);
-        $this->db->where('partner_id', $data['partner_id']);
-        $query = $this->db->get('partner_login');
-        
-        if ($query->num_rows() > 0) {
-            $result = $query->result_array();
-            return $result[0];
-        } else {
-
-            return false;
-        }
-    }
     
     /**
      * @desc: This is used to return Partner Specific Brand details
      * @param Array $where
      * @return Array
      */
-    function get_partner_specific_details($where, $select, $order_by){
+    function get_partner_specific_details($where, $select, $order_by, $where_in = ""){
         
         $this->db->distinct();
         $this->db->select($select);
         $this->db->where($where);
+       
+        if(!empty($where_in)){
+            foreach($where_in as $index => $value){
+                $this->db->where_in($index, $value);
+            } 
+        }
         $this->db->order_by($order_by, 'asc');
         $this->db->where('partner_appliance_details.active',1);
         $query = $this->db->get('partner_appliance_details');
- 
+       
+        log_message("info", $this->db->last_query());
         return $query->result_array();
          
     }
