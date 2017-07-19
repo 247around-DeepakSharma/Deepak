@@ -7,7 +7,7 @@
         var c = confirm('Login to Partner CRM');
         if(c){
             $.ajax({
-                url:'<?php echo base_url()."employee/partner/allow_log_in_to_partner/" ?>'+partner_id,
+                url:'<?php echo base_url()."employee/login/allow_log_in_to_partner/" ?>'+partner_id,
                 success: function (data) {
                     //console.log(data);
                     window.open("<?php echo base_url().'partner/home'?>",'_blank');

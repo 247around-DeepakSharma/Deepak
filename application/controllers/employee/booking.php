@@ -30,6 +30,7 @@ class Booking extends CI_Controller {
         $this->load->model('inventory_model');
         $this->load->model('upcountry_model');
         $this->load->model('penalty_model');
+        $this->load->model("dealer_model");
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_cb');
         $this->load->library('notify');
@@ -373,10 +374,16 @@ class Booking extends CI_Controller {
         if ($support_file) {
             $booking['support_file'] = $support_file;
         }
+        
 
-        $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id']);
-
+        $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
+      
         if ($validate_order_id) {
+            $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id']);
+           
+            if(!empty($is_dealer)){
+                $booking['dealer_id'] = $is_dealer;
+            }
 
             if ($booking['type'] == 'Booking') {
                 $booking['current_status'] = 'Pending';
@@ -452,6 +459,25 @@ class Booking extends CI_Controller {
         } else {
             return false;
         }
+    }
+    
+    function dealer_process($city, $partner_id, $service_id){
+        $dealer_phone_number = $this->input->post("dealer_phone_number");
+        $dealer_id = "";
+        if(!empty($dealer_phone_number)){
+            $data['city'] = $city;
+            $data['dealer_id'] = $this->input->post("dealer_id");
+            $data['dealer_name'] = $this->input->post("dealer_name");
+            $data['dealer_phone_number'] = $dealer_phone_number;
+            $data['service_id'] = $service_id;
+            $data['brand'] = $this->input->post('appliance_brand')[0];
+            $is_dealer_id = $this->miscelleneous->dealer_process($data, $partner_id);
+            if (!empty($is_dealer_id)) {
+                $dealer_id = $is_dealer_id;
+            }
+        }
+        
+        return $dealer_id;
     }
 
     /**
@@ -1102,7 +1128,9 @@ class Booking extends CI_Controller {
                 $vendor_data = array();
                 $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
                 $vendor_data[0]['city'] = $this->vendor_model->get_distict_details_from_india_pincode($booking_pincode)['district'];
-
+                $vendor_data[0]['min_upcountry_distance'] = $this->vendor_model->getVendorDetails("min_upcountry_distance", 
+                        array('id' =>$assigned_vendor_id))[0]['min_upcountry_distance'];
+            
                 $upcountry_data = $this->upcountry_model->action_upcountry_booking($booking_city, $booking_pincode, $vendor_data, $partner_data);
             }
 
@@ -1226,7 +1254,7 @@ class Booking extends CI_Controller {
         if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
             $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
         }
-
+        
         
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/viewdetails', $data);
@@ -1373,6 +1401,17 @@ class Booking extends CI_Controller {
             $booking = $this->booking_model->get_city_source();
             $booking['booking_history'] = $booking_history;
             $booking['unit_details'] = $this->booking_model->getunit_details($booking_id, $appliance_id);
+            if(!empty($booking_history[0]['dealer_id'])){
+                $condition = array(
+                "where" => array('dealer_details.dealer_id' => $booking_history[0]['dealer_id']));
+                $select = " dealer_details.dealer_id, dealer_name, dealer_phone_number_1";
+        
+                 $dealer_details = $this->dealer_model->get_dealer_mapping_details($condition, $select);
+                 if($dealer_details){
+                      $booking['booking_history'][0]['dealer_phone_number'] = $dealer_details[0]['dealer_phone_number_1'];
+                      $booking['booking_history'][0]['dealer_name'] = $dealer_details[0]['dealer_name'];
+                 }
+            }
             
             $booking['partner_type'] = "";
 
@@ -2084,7 +2123,7 @@ class Booking extends CI_Controller {
                 //Checking for SF Details
                 if (!empty($value['service_center_id']) && empty($value['partner_id'])) {
                     $data['data'][$key]['full_name'] = $this->service_centers_model->get_sc_login_details_by_id($value['service_center_id'])[0]['full_name'];
-                    $data['data'][$key]['source'] = $this->vendor_model->getVendorContact($value['service_center_id'])[0]['name'];
+                    $data['data'][$key]['source'] = $this->vendor_model->getVendorDetails('name', array('id' => $value['service_center_id']))[0]['name']; 
                 }
             }
         }
@@ -2114,6 +2153,7 @@ class Booking extends CI_Controller {
 
         $this->form_validation->set_rules('partner_paid_basic_charges', 'Please Select Partner Charged', 'required');
         $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
+        $this->form_validation->set_rules('dealer_phone_number', 'Dealer Mobile Number', 'trim|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
         $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|xss_clean');
         $this->form_validation->set_rules('support_file', 'Suppoart File', 'callback_validate_upload_orderId_support_file');
 
@@ -2124,7 +2164,7 @@ class Booking extends CI_Controller {
      * @desc Validate Order ID
      * @return boolean
      */
-    function validate_order_id($partner_id, $booking_id, $order_id) {
+    function validate_order_id($partner_id, $booking_id, $order_id, $amount_due) {
 
         switch ($partner_id) {
             case '247001':
@@ -2132,7 +2172,7 @@ class Booking extends CI_Controller {
                 return true;
             // break;
             default :
-
+                $dealer_phone_number = $this->input->post("dealer_phone_number");
                 if (!empty($order_id)) {
                     $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $order_id, $booking_id);
                     if (is_null($partner_booking)) {
@@ -2143,13 +2183,15 @@ class Booking extends CI_Controller {
                         $this->session->set_userdata($userSession);
                         return FALSE;
                     }
-                } else {
-                    $output = "Please Enter Order ID";
+                } else if(empty($dealer_phone_number) && $amount_due ==0){
+                    
+                    $output = "Please Enter Order ID OR Dealer Mobile Number";
                     $userSession = array('error' => $output);
                     $this->session->set_userdata($userSession);
                     return FALSE;
-                }
-                break;
+                } 
+                return true;
+               // break;
         }
     }
 

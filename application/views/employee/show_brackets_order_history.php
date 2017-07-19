@@ -30,10 +30,10 @@
                 <thead>
                     <tr>
                         <th class="jumbotron">Action</th>
-                        <th class="jumbotron">19 to 24 inch</th>
-                        <th class="jumbotron">26 to 32 inch</th>
-                        <th class="jumbotron">36 to 42 inch</th>
-                        <th class="jumbotron">&gt;43 inch</th>
+<!--                        <th class="jumbotron">19 to 24 inch</th>-->
+                        <th class="jumbotron">Less Than 32 Inch</th>
+                        <th class="jumbotron">Greater Than 32 Inch</th>
+<!--                        <th class="jumbotron">&gt;43 inch</th>-->
                         <th class="jumbotron">Total</th>
                         <th class="jumbotron">Agent</th>
                         <th class="jumbotron">Partner</th>
@@ -48,10 +48,10 @@
                             ?>	
                             <tr>
                                 <td><strong>Requested</strong></td>
-                                <td><?php echo $value['19_24_requested'] ?></td>
-                                <td><?php echo $value['26_32_requested'] ?></td>
-                                <td><?php echo $value['36_42_requested'] ?></td>
-                                <td><?php echo $value['43_requested'] ?></td>
+<!--                                <td><?php //echo $value['19_24_requested'] ?></td>-->
+                                <td><?php echo ($value['26_32_requested'] + $value['19_24_requested']);?></td>
+                                <td><?php echo ($value['36_42_requested'] + $value['43_requested']);?></td>
+<!--                                <td><?php //echo $value['43_requested'] ?></td>-->
                                 <td><?php echo $value['total_requested'] ?></td>
                                 <td><?php echo $value['agent_name'] ?></td>
                                 <td><?php echo $value['partner_name'] ?></td>
@@ -66,10 +66,10 @@
                         <?php } elseif ($value['new_state'] == 'Brackets_Shipped') { ?>
                             <tr>
                                 <td><strong>Shipped</strong></td>
-                                <td><?php echo $value['19_24_shipped'] ?></td>
-                                <td><?php echo $value['26_32_shipped'] ?></td>
-                                <td><?php echo $value['36_42_shipped'] ?></td>
-                                <td><?php echo $value['43_shipped'] ?></td>
+<!--                                <td><?php //echo $value['19_24_shipped'] ?></td>-->
+                                <td><?php echo ($value['26_32_shipped'] + $value['19_24_shipped']);?></td>
+                                <td><?php echo ($value['36_42_shipped'] + $value['43_shipped']);?></td>
+<!--                                <td><?php //echo $value['43_shipped'] ?></td>-->
                                 <td><?php echo $value['total_shipped'] ?></td>
                                 <td><?php echo $value['agent_name'] ?></td>
                                 <td><?php echo $value['partner_name'] ?></td>
@@ -86,10 +86,10 @@
 
                             <tr>
                                 <td><strong>Received</strong></td>
-                                <td><?php echo $value['19_24_received'] ?></td>
-                                <td><?php echo $value['26_32_received'] ?></td>
-                                <td><?php echo $value['36_42_received'] ?></td>
-                                <td><?php echo $value['43_received'] ?></td>
+<!--                                <td><?php //echo $value['19_24_received'] ?></td>-->
+                                <td><?php echo ($value['26_32_received'] + $value['19_24_received']);?></td>
+                                <td><?php echo ($value['36_42_received'] + $value['43_received']);?></td>
+<!--                                <td><?php// echo $value['43_received'] ?></td>-->
                                 <td><?php echo $value['total_received'] ?></td>
                                 <td><?php echo $value['agent_name'] ?></td>
                                 <td><?php echo $value['partner_name'] ?></td>

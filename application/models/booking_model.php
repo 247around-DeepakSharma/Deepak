@@ -265,7 +265,7 @@ class Booking_model extends CI_Model {
         $query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
             booking_details.*, service_centres.name as service_centre_name,
-            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
+            service_centres.primary_contact_name,service_centres.primary_contact_phone_1, service_centres.min_upcountry_distance
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
@@ -404,16 +404,21 @@ class Booking_model extends CI_Model {
         $service_centre = "";
         $condition ="";
         $service_center_name ="";
+        $partner = "";
+        $partner_name = "";
         if($join !=""){
-            $service_center_name = ",service_centres.name as vendor_name, service_centres.district as sc_district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, "
+            $service_center_name = ",service_centres.name as vendor_name, service_centres.min_upcountry_distance, service_centres.district as sc_district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, "
 		. "service_centres.primary_contact_name, service_centres.owner_email,service_centres.owner_name, "
-		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, service_centres.primary_contact_email,owner_phone_1, phone_1 ";
+		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, service_centres.primary_contact_email,service_centres.owner_phone_1, service_centres.phone_1 ";
 	    $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
+            $partner_name = ", partners.public_name  ";
+            $partner = ", partners  ";
+            $condition .= " and booking_details.partner_id =  partners.id";
         }
 
-        $sql = " SELECT `services`.`services`, users.*, booking_details.* ".  $service_center_name
-               . "from booking_details, users, services " . $service_centre
+        $sql = " SELECT `services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name
+               . "from booking_details, users, services " . $service_centre .$partner
                . "where booking_details.booking_id='$booking_id' and "
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  ". $condition;
@@ -444,17 +449,18 @@ class Booking_model extends CI_Model {
         if($query->num_rows > 0){
             // NOT NUll
             $data = $this->getbooking_history($booking_id, "Join");
-
+            
             log_message('info', __METHOD__ . $this->db->last_query());
             return $data;
 
         } else {
             //NUll
-            $sql = " SELECT `services`.`services`, users.*, booking_details.* "
-               . "from booking_details, users, services "
+            $sql = " SELECT `services`.`services`, users.*, booking_details.*, partners.public_name "
+               . "from booking_details, users, services ,partners "
                . "where booking_details.booking_id='$booking_id' and "
                . "booking_details.user_id = users.user_id and "
-               . "services.id = booking_details.service_id  ";
+               . "services.id = booking_details.service_id  "
+               . "and booking_details.partner_id =  partners.id";
 
         $query = $this->db->query($sql);
        // log_message('info', __METHOD__ . $this->db->last_query());
@@ -1710,14 +1716,10 @@ class Booking_model extends CI_Model {
                     
                 } else {
                     // For Partner
-                    $this->db->select('full_name, bookings_sources.source');
-                    $this->db->from('partner_login');
-                    $this->db->join('bookings_sources','bookings_sources.partner_id = partner_login.partner_id');
-                    $this->db->where('partner_login.id', $value['agent_id']);
-                    $query1 = $this->db->get();
-                    $data1 = $query1->result_array();
-                    $data[$key]['full_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
-                    $data[$key]['source'] = isset($data1[0]['source'])?$data1[0]['source']:'';
+                    $data1 = $this->dealer_model->entity_login(array('agent_id' =>$value['agent_id']));
+                   
+                    $data[$key]['full_name'] = isset($data1[0]['agent_name'])?$data1[0]['agent_name']:'';
+                    $data[$key]['source'] = isset($data1[0]['entity_name'])?$data1[0]['entity_name']:'';
                 }
             } else if(!is_null($value['service_center_id'])){
                 // For Service center

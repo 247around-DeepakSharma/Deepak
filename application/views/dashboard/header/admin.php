@@ -21,8 +21,12 @@
         <link href="<?php echo base_url() ?>css/daterangepicker.css" rel="stylesheet">
         <!-- Custom Theme Style -->
         <link href="<?php echo base_url() ?>css/dashboard_custom.min.css" rel="stylesheet">
+        <!-- Sweet Alert Css -->
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
         <!-- jQuery -->
         <script src="<?php echo base_url() ?>js/jquery.min.js"></script>
+        <script src="<?php echo base_url();?>js/select2.min.js"></script>
+         <link href="<?php echo base_url()?>css/select2.min.css" rel="stylesheet" />
         <!-- Highchart.js -->
         <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="https://code.highcharts.com/modules/data.js"></script>
@@ -34,50 +38,55 @@
         <script src="<?php echo base_url() ?>js/daterangepicker.js"></script>
         <!-- DateJS -->
         <script src="<?php echo base_url() ?>assest/DateJS/build/date.js"></script>
+        <!-- Select2 JS -->
+        <script src="<?php echo base_url();?>js/select2.min.js"></script>
+        <!-- sweet Alert JS -->
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
     </head>
     <body class="nav-md">
         <div class="container body">
-            <div class="main_container">
-                <div class="col-md-3 left_col">
-                    <div class="left_col scroll-view">
-                        <div class="navbar nav_title" style="border: 0;">
-                            <a href="<?php echo base_url(); ?>employee/dashboard" class="site_title"><i class="fa fa-paw"></i> <span>247Around</span></a>
-                        </div>
+        <div class="main_container">
+        <div class="col-md-3 left_col">
+            <div class="left_col scroll-view">
+                <div class="navbar nav_title" style="border: 0;">
+                    <a href="<?php echo base_url(); ?>employee/dashboard" class="site_title"><i class="fa fa-paw"></i> <span>247Around</span></a>
+                </div>
+                <div class="clearfix"></div>
+                <!-- menu profile quick info -->
+                <div class="profile clearfix">
+                    <div class="profile_pic">
+                        <!--                              <img src="images/img.jpg" alt="..." class="img-circle profile_img">-->
+                    </div>
+                    <div class="profile_info">
+                        <span>Welcome,</span>
+                        <h2><?php echo $this->session->userdata('employee_id') ?></h2>
+                    </div>
+                </div>
+                <!-- /menu profile quick info -->
+                <br />
+                <!-- sidebar menu -->
+                <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                    <div class="menu_section">
+                        <ul class="nav side-menu">
+                            <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM</a>
+                            <li><a href="<?php echo base_url(); ?>employee/dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
+                            </li>
+                            <li><a href="<?php echo base_url();?>buyback/buyback_process/download_bb_shop_address" ><i class="fa fa-download"></i>Download Shop Address File</a></li>
+                            <li>
+                                <a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
+                                <ul class="nav child_menu">
+                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_search">Search Order</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload Order File</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process/price_sheet_upload">Upload Price Sheet</a></li>
 
-                        <div class="clearfix"></div>
-
-                        <!-- menu profile quick info -->
-                        <div class="profile clearfix">
-                            <div class="profile_pic">
-<!--                              <img src="images/img.jpg" alt="..." class="img-circle profile_img">-->
-                            </div>
-                            <div class="profile_info">
-                                <span>Welcome,</span>
-                                <h2><?php echo $this->session->userdata('employee_id') ?></h2>
-                            </div>
-                        </div>
-                        <!-- /menu profile quick info -->
-
-                        <br />
-
-                        <!-- sidebar menu -->
-                        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
-                            <div class="menu_section">
-                                <ul class="nav side-menu">
-                                    <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM</a>
-                                    <li><a href="<?php echo base_url(); ?>employee/dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
-                                    </li>
-                                    <li><a href="<?php echo base_url();?>buyback/buyback_process/download_bb_shop_address" ><i class="fa fa-download"></i>Download Shop Address File</a></li>
-                                    <li><a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
-                                        <ul class="nav child_menu">
-                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload files</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/view_bb_order_details">Pending Order</a></li>
                                     <li>
                                         <a>Disputed Order <span class="fa fa-chevron-down"></span></a>
                                         <ul class="nav child_menu">
                                             <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_auto_settel">Auto-Settle</a></li>
-                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_30_days_breech">30 Days TAT Breach</a></li>
-                                            <li><a href="typography.html">Vendor Rejected</a></li>
+
+                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_30_days_breech">30 Days Tat Breeche</a></li>
+                                            <li><a href="<?php echo base_url();?>buyback/buyback_process/vendor_rejected">Vendor Rejected</a></li>
                                         </ul>
                                     </li>
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_review">Review Order</a></li>
@@ -252,7 +261,7 @@
                     url: '<?php echo base_url(); ?>buyback/buyback_process/get_credit_amount',
                    
                     success: function (data) {
-                        console.log(data);
+                        
                       $('.numbers-with-commas').text(data);
                       $('.numbers-with-commas').counterUp({
                         delay: 10, // the delay time in ms

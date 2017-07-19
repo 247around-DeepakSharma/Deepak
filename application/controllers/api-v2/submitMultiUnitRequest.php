@@ -23,6 +23,7 @@ class submitMultiUnitRequest extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
         $this->load->library('booking_utilities');
+        $this->load->model("dealer_model");
         $this->load->library("miscelleneous");
         $this->load->library('email');
         $this->load->library('notify');
@@ -103,7 +104,8 @@ class submitMultiUnitRequest extends CI_Controller {
                             $this->insertAppliance_BookingUnitDetails();
                            
                             $remarks = (isset($this->ApiData['remarks']) ? $this->ApiData['remarks'] : "");
-                            $p_login_details = $this->partner_model->partner_login_details(array('partner_id' => $this->partner['id'], "full_name" => 'STS'));
+                           
+                            $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => 'STS'));
                             //Insert Data in booking state change
                             $this->notify->insert_state_change($this->ApiData['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY ,$remarks , $p_login_details[0]['id'], 
                                     $this->ApiData['partnerName'], $this->partner['id']);

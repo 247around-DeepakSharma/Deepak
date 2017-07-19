@@ -3,13 +3,10 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
-//error_reporting(E_ERROR);
-//ini_set('display_errors', '-1');
 
 ini_set('memory_limit', '-1');
 //3600 seconds = 60 minutes
-ini_set('max_execution_time', 36000);
+ini_set('max_execution_time', 360000);
 
 class Around_scheduler extends CI_Controller {
 

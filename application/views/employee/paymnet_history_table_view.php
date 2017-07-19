@@ -11,6 +11,7 @@
                     <th>From Date</th>
                     <th>To Date</th>
                     <th>Total Service Charge</th>
+                    <th>Total Additional Service Charge</th>
                     <th>Service Tax</th>
                     <th>Parts</th>
                     <th>VAT</th>
@@ -35,6 +36,7 @@
                             <td><?php echo $value['FromDate']; ?></td>
                             <td><?php echo $value['ToDate']; ?></td>
                             <td><?php echo round($value['TotalServiceCharge'],0); ?></td>
+                            <td><?php echo round($value['total_additional_service_charge'],0); ?></td>
                             <td><?php echo round($value['ServiceTax'],0); ?></td>
                             <td><?php echo round($value['Parts'],0); ?></td>
                             <td><?php echo round($value['VAT'],0); ?></td>
@@ -104,7 +106,7 @@
                     <th>VAT</th>
                     <th>Total Amount</th>
                     <th>VAT %</th>
-                    <th>Item</th>
+<!--                    <th>Item</th>-->
                 </tr>
             </thead>
             <tbody>
@@ -125,7 +127,7 @@
                             <td><?php echo round($value['VAT'],0); ?></td>
                             <td><?php echo round($value['TotalAmount'],0); ?></td>
                             <td><?php echo round($value['VATRate'],0); ?></td>
-                            <td><?php echo $value['Item']; ?></td>
+<!--                            <td><?php //echo $value['Item']; ?></td>-->
                         </tr>
                         <?php $sn++;
                     }
@@ -150,6 +152,7 @@
                     <th>From Date</th>
                     <th>To Date</th>
                     <th>Service Charge</th>
+                    <th>Additional Service Charge</th>
                     <th>Service Tax</th>
                     <th>Parts</th>
                     <th>VAT</th>
@@ -178,6 +181,7 @@
                             <td><?php echo $value['FromDate']; ?></td>
                             <td><?php echo $value['ToDate']; ?></td>
                             <td><?php echo round($value['ServiceCharges'],0); ?></td>
+                            <td><?php echo round($value['total_additional_service_charge'],0); ?></td>
                             <td><?php echo round($value['ServiceTax'],0); ?></td>
                             <td><?php echo round($value['Parts'],0); ?></td>
                             <td><?php echo round($value['VAT'],0); ?></td>
