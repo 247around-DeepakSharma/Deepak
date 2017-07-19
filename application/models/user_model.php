@@ -156,7 +156,7 @@ class User_model extends CI_Model {
             
         } else {
            
-            return $this->get_users_by_any(array('(users.phone_number' => $phone_number));
+            return $this->get_users_by_any(array('users.phone_number' => $phone_number));
             
         }
     }
