@@ -378,7 +378,7 @@ class Partner extends CI_Controller {
         $post['alternate_phone_number'] = $this->input->post('alternate_phone_number');
         $post['booking_date'] = $booking_date;
         $post['partner_type'] = $this->input->post('partner_type');
-        $post['appliance_unit'] = 1;
+        $post['appliance_unit'] = $this->input->post('appliance_unit');
         $post['partner_code'] = $this->input->post('partner_code');
         $post['amount_due'] = $this->input->post('grand_total');
         $post['product_type'] = $this->input->post('product_type');
@@ -2655,7 +2655,7 @@ class Partner extends CI_Controller {
             foreach ($city as $district){
                 $option .= "<option value='".$district['district']."'";
                 if(count($district) == 1){
-                    $option .= "selected";
+                    $option .= " selected ";
                 } else if(!empty($city)){
                     if($post_city === $district['district']){
                         $option .= "selected";
@@ -3004,14 +3004,15 @@ class Partner extends CI_Controller {
         $this->load->view('service_centers/upcountry_booking_details', $data);
     }
     
-    function get_dealer_phone_number(){
+    function get_dealer_details(){
         $partner_id = $this->input->post('partner_id');
         $search_term = $this->input->post('search_term');
+        $column = $this->input->post("dealer_field");
         $condition = array(
             "where" => array('partner_id' => $partner_id),
             "where_in" => array(),
-            "search" => array("dealer_phone_number_1" => $search_term),
-            "order_by" => "dealer_phone_number_1,owner_phone_number_1");
+            "search" => array($column => $search_term),
+            "order_by" => $column);
         $select = "dealer_name, dealer_details.dealer_id, dealer_phone_number_1";
         $dealer_data = $this->dealer_model->get_dealer_mapping_details($condition,$select);
         $response = "<ul id='dealer_list'>";
