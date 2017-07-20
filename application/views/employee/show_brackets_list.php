@@ -20,8 +20,10 @@
     });
 </script>
 <div id="page-wrapper" >
-    <?php  if($this->uri->segment(3) == 'show_brackets_list'){?>
-            <div class="pagination">
+    <div class="row">
+        <?php  if($this->uri->segment(3) == 'show_brackets_list'){?>
+    <div class="col-md-6 col-sm-6 col-xs-12" >
+        <div class="pagination">
                 <select id="dynamic_select" class="form-control">
                     <option value="<?php echo base_url().'employee/inventory/show_brackets_list'?>" <?php if($this->uri->segment(4) == 50){ echo 'selected';}?>>50</option>
                     <option value="<?php echo base_url().'employee/inventory/show_brackets_list/100/0'?>" <?php if($this->uri->segment(4) == 100){ echo 'selected';}?>>100</option>
@@ -31,9 +33,28 @@
 
                 </select>
             </div>
+    </div>
             <?php } ?>
+    <div class="col-md-4 col-sm-6 col-xs-12 pull-right">
+        <div class="input-group" style="margin: 20px 0;">
+            <input type="text" class="form-control" placeholder="Search order id" id="order_id" 
+                   onkeydown="return ( event.ctrlKey || event.altKey 
+                    || (47<event.keyCode && event.keyCode<58 && event.shiftKey==false) 
+                    || (95<event.keyCode && event.keyCode<106)
+                    || (event.keyCode==8) || (event.keyCode==9) 
+                    || (event.keyCode>34 && event.keyCode<40) 
+                    || (event.keyCode==46) )">
+            <div class="input-group-btn">
+                <button class="btn btn-default" id="search">
+                <i class="glyphicon glyphicon-search"></i>
+              </button>
+            </div>
+        </div>
+    </div>
+    </div>
+    <hr>
     <div class="row">
-        <div class="filter_brackets" style="margin-top:15px;">
+        <div class="filter_brackets">
             <div class="filter_box">
                     <div class="col-sm-3">
                         <select class="form-control" id="sf_role" name="sf_role">
@@ -56,6 +77,7 @@
             </div>
         </div>
     </div>
+    <hr>
     <div class="panel panel-info" style="margin-top:20px;">
         <div class="panel-heading"><center style="font-size:130%;">Brackets List</center></div>
         <div class="col-md-12">
@@ -107,7 +129,7 @@
                     </div>';
                     }
                     ?>
-            <div id="loader"><img src="<?php echo base_url(); ?>images/loadring.png" style="display:none;"></div>
+            <div id="loader"><img src="<?php echo base_url(); ?>images/loadring.gif" style="display:none;"></div>
             <div class="show_brackets_list" id="brackets_list_box">
             <table class="table table-condensed table-bordered">
                 <thead>
@@ -221,9 +243,28 @@
 <script type="text/javascript">
     
     $("#sf_id").select2();
+//    $(function() {
+//        $('input[name="daterange"]').daterangepicker();
+//    });
+//    
     $(function() {
-        $('input[name="daterange"]').daterangepicker();
-    });
+
+  $('input[name="daterange"]').daterangepicker({
+      autoUpdateInput: false,
+      locale: {
+          cancelLabel: 'Clear'
+      }
+  });
+
+  $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+      $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+  });
+
+  $('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
+      $(this).val('');
+  });
+
+});
     
     $(document).ready(function(){
         $.ajax({
@@ -243,14 +284,14 @@
        var daterange = $('#daterange').val();
        var start_date = daterange.split("-")[0];
        var end_date = daterange.split("-")[1];
-       if(role === '' ||role === null || sf_id === '' || sf_id === undefined || sf_id === null || start_date === '' || end_date === ''){
+       if(role === '' ||role === null || sf_id === '' || sf_id === undefined || sf_id === null){
            alert("Please Select All Field");
        }else{
            $('#loader').show();
            $.ajax({
                 method:'POST',
-                url: "<?php echo base_url();?>employee/inventory/get_filtered_brackets_list",
-                data: {'sf_role':role,'sf_id':sf_id,'start_date':start_date,'end_date':end_date,'filter':'filter'},
+                url: "<?php echo base_url();?>employee/inventory/get_brackets_detailed_list",
+                data: {'sf_role':role,'sf_id':sf_id,'start_date':start_date,'end_date':end_date,'type':'filter'},
                 success:function(response){
                     //console.log(response);
                     if(response === 'No Data Found'){
@@ -265,6 +306,34 @@
             });
        }
     });
+    
+    $('#search').click(function(){
+       var order_id = $('#order_id').val();
+       if(order_id === '' || order_id === undefined || order_id === null){
+           alert("Please Enter Order Id");
+       }else{
+           $('.filter_brackets').hide();
+           $('#loader').show();
+           $.ajax({
+                method:'POST',
+                url: "<?php echo base_url();?>employee/inventory/get_brackets_detailed_list",
+                data: {'order_id':order_id,'type':'search'},
+                success:function(response){
+                    //console.log(response);
+                    if(response === 'No Data Found'){
+                        var res = "<div class='text-center text-danger'><strong>"+response+"</strong></div>";
+                        $('#brackets_list_box').html(res);
+                        $('#loader').hide();
+                    }else{
+                        $('#brackets_list_box').html(response);
+                        $('#loader').hide();
+                    }
+                }
+            });
+       }
+    });
+    
+    
 </script>
 <?php $this->session->unset_userdata('brackets_update_success');?>
 <?php $this->session->unset_userdata('brackets_cancelled_error');?>
