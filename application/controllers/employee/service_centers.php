@@ -1935,7 +1935,7 @@ class Service_centers extends CI_Controller {
                     $this->table->add_row($this->session->userdata('service_center_name'), $gst_details['company_name'], 
                             $gst_details['company_address'], $gst_details['company_pan_number'], 
                             !empty($gst_details['is_gst']) ? "YES" : "NO", $gst_details['company_gst_number'], 
-                            !empty($sc['gst_certificate_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $sc['gst_certificate_file'] : '',
+                            !empty($sc['gst_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $sc['gst_file'] : '',
                             !empty($sc['signature_file']) ? "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $sc['signature_file'] : '');
 
                     $to = NITS_ANUJ_EMAIL_ID;
