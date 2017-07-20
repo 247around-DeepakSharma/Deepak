@@ -455,7 +455,9 @@ class Upcountry_model extends CI_Model {
                     . " AND sub_vendor_id IS NOT NULL "
                     . " AND bd.current_status IN ('Completed', 'Pending', 'Rescheduled') $where "
                     . " GROUP BY "
-                    . " CASE WHEN (upcountry_paid_by_customer = 0 OR upcountry_paid_by_customer IS NULL) THEN ( bd.booking_date AND bd.booking_pincode AND bd.sf_upcountry_rate ) "
+                    . " CASE WHEN (upcountry_paid_by_customer = 0 OR upcountry_paid_by_customer IS NULL) THEN ( bd.booking_date ) "
+                    . " WHEN (upcountry_paid_by_customer = 0 OR upcountry_paid_by_customer IS NULL) THEN ( bd.booking_pincode ) "
+                    . " WHEN (upcountry_paid_by_customer = 0 OR upcountry_paid_by_customer IS NULL) THEN ( bd.sf_upcountry_rate ) "
                     . " ELSE (bd.booking_id) END ";
 
             $query = $this->db->query($sql);
