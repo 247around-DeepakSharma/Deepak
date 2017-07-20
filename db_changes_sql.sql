@@ -2860,14 +2860,14 @@ ALTER TABLE `log_entity_action`
 UPDATE `email_template` SET `template` = 
 'Dear Partner,<br>Your brackets order has been placed sucessfully.<br>
 <br>Your Order ID is: <b>%s</b> <br> <strong>Order Details:</strong>
-<br> Less Than 32 Inch Brackets : %s <br> Greater Than 32 Inch Brackets : %s <br> 
+<br> Less Than 32 Inch Brackets : %s <br> 32 Inch & Above Brackets : %s <br> 
 Total Requested : %s<br><br> We will update you as soon as the brackets are shipped.
 <br><br>Regards,<br>247Around Team' WHERE `email_template`.`id` = 11;
 
 UPDATE `email_template` SET `template` = 
 'Dear Partner,<br>You have received a new order for brackets.<br><br>
 Your Order ID is : <b>%s</b> <br> <strong>Order Details:</strong><br>
-<br> Less Than 32 Inch Brackets : %s <br> Greater Than 32 Inch Brackets : %s 
+<br> Less Than 32 Inch Brackets : %s <br> 32 & Above Inch Brackets : %s 
 <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> 
 c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: %s 
 <br> Phone Number: %s, %s<br><br> Please notify when you ship the above order.<br>
@@ -2876,27 +2876,27 @@ c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: %s
 UPDATE `email_template` SET `template` = 
 '%s order has been Cancelled sucessfully for the <strong>Order ID : %s </strong><br>
 <br><strong>Reason : </strong> %s <br><br> <strong>Order Details are:</strong><br> 
-Less than 32 Inch Brackets : %s <br> Greater Than 32 Inch Brackets : %s <br> Total 
+Less than 32 Inch Brackets : %s <br> 32 Inch & Above Brackets Shipped by Brackets : %s <br> Total 
 Requested : %s<br><br> Thanks Team 247Around' WHERE `email_template`.`id` = 12;
 
 UPDATE `email_template` SET `template` = 
 'Brackets order <strong>%s</strong> has been Cancelled. <br><br><strong>Reason 
 : </strong> %s <br><br> <strong>Order Details:</strong><br><br> Less than 32 Inch Brackets : 
-%s <br> Greater Than 32 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested 
+%s <br> 32 Inch & Above Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested 
 From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br>City: %s <br> State: %s <br> Pincode:
  %s <br> Phone Number: %s, %s<br><br> Please <b>don\'\'t</b> ship this order.' WHERE `email_template`.`id` = 13;
 
 UPDATE `email_template` SET `template` = 
 '%s order has been Un-Cancelled sucessfully for the <strong>Order ID : %s 
 </strong><br><br> <strong>Order Details are:</strong><br> Less than 32 Inch 
-Brackets : %s <br> Greater than 32 Inch Brackets : %s <br> Total Requested :
+Brackets : %s <br> 32 Inch & Above Brackets : %s <br> Total Requested :
  %s<br><br> Team 247Around' WHERE `email_template`.`id` = 20;
 
 
 UPDATE `email_template` SET `template` = 
 'An order has been <b>Un-Cancelled</b> for Brackets of <strong>Order ID : %s 
 </strong><br><br> <strong>Order Details:</strong><br><br> Less than 32 Inch Brackets 
-: %s <br> Greater than 32 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>
+: %s <br> 32 Inch & Above Brackets : %s <br> Total Requested : %s<br><br> <strong>
 Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> Phone Number: %s, 
 %s<br><br> Please <b>ship</b> this order.' WHERE `email_template`.`id` = 21;
 
