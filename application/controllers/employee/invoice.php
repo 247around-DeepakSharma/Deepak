@@ -320,12 +320,15 @@ class Invoice extends CI_Controller {
                 if ($credit_debit == 'Credit') {
 
                     $paid_amount += round($credit_debit_amount[$key], 0);
+                    $amount_collected = abs(round(($data[0]['amount_collected_paid'] - $data[0]['amount_paid']), 0));
+                    
                 } else if ($credit_debit == 'Debit') {
 
                     $paid_amount += (-round($credit_debit_amount[$key], 0));
+                    $amount_collected = abs(round(($data[0]['amount_collected_paid'] + $data[0]['amount_paid']), 0));
                 }
+              
                 $tds += $tds_amount_array[$key];
-                $amount_collected = abs(round(($data[0]['amount_collected_paid'] + $data[0]['amount_paid']), 0));
 
                 if ($amount_collected == round($credit_debit_amount[$key], 0)) {
 
@@ -333,7 +336,7 @@ class Invoice extends CI_Controller {
                     $vp_details['amount_paid'] = $credit_debit_amount[$key] + $data[0]['amount_paid'];
                 } else {
                     //partner Pay to 247Around
-                    if ($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Credit') {
+                    if ($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Credit' && $data[0]['tds_amount'] == 0) {
                         $per_tds = ($tds_amount_array[$key] * 100) / $data[0]['amount_collected_paid'];
                         $vp_details['tds_amount'] = $tds_amount_array[$key];
                         $vp_details['tds_rate'] = $per_tds;
@@ -375,7 +378,7 @@ class Invoice extends CI_Controller {
         } else {
             $this->invoices_model->update_bank_transactions(array('id' => $bank_txn_id), $account_statement);
         }
-
+        //Donot remove $value
         foreach ($payment_history as $key => $value) {
             $payment_history[$key]['bank_transaction_id'] = $bank_txn_id;
         }
