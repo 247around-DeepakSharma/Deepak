@@ -36,7 +36,7 @@
                <b> Upload Delivered Products Excel</b>
             </h1>
 
-             <form class="form-horizontal"  id="fileinfo" action="<?php echo base_url();?>buyback/upload_buyback_process/process_upload_order" name="file"  method="POST" enctype="multipart/form-data">
+             <form class="form-horizontal"  id="fileinfo" onsubmit="return submitForm();" name="file"  method="POST" enctype="multipart/form-data">
                 <div class="form-group  <?php if( form_error('excel') ) { echo 'has-error';} ?>">
                   <label for="excel" class="col-md-1">Delivered Products Excel</label>
                   <div class="col-md-4">
