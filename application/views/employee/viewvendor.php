@@ -190,7 +190,7 @@
             $.ajax({
                 url:'<?php echo base_url()."employee/login/allow_log_in_to_vendor/" ?>'+vendor_id,
                 success: function (data) {
-                    window.open("<?php echo base_url()?>"+"/"+data,'_blank');
+                    window.open("<?php echo base_url()?>"+data,'_blank');
                 }
             });
             

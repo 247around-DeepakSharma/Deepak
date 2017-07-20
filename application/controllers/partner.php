@@ -1552,9 +1552,10 @@ class Partner extends CI_Controller {
                         }
                         $return_id = $this->booking_model->addbooking($booking);
                         if (!empty($return_id)) {
-                            $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
+                            
                             $customer_net_payable = 0;
                             for ($i = 0; $i < $requestData['appliance_unit']; $i++) {
+                                $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
                                 foreach ($requestData['requestType'] as $key => $sc) {
                                     //$sc has service_centre_charges_id + customer_total + partner_offer separated by '_'
                                     $explode = explode("_", $sc);

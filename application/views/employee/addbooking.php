@@ -195,7 +195,7 @@
                                      <label for="dealer name" class="col-md-4">Dealer Name </label>
                                       <div class="col-md-6">
                                           <input class="form-control" name= "dealer_name" placeholder="Enter Dealer Name" id="dealer_name"/>
-                                           
+                                           <div id="dealer_name_suggesstion_box"></div>
                                       </div>
                                  </div>
                                 <!-- end col-md-6 -->
