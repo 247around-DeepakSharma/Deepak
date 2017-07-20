@@ -2023,5 +2023,20 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
+    /**
+     * @Desc: This function is used to get SMS sent details for which 
+     * booking id is not available in sms_sent_details table
+     * @params: booking_id
+     * @return: array
+     * 
+     */
+    function get_sms_sent_details_for_empty_bookings($phone){
+        $this->db->select('*');
+        $this->db->where('booking_id','');
+        $this->db->where('phone',$phone);
+        $query = $this->db->get('sms_sent_details');
+        return $query->result_array();
+    }
 
 }
