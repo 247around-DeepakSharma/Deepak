@@ -1046,36 +1046,106 @@ class Inventory extends CI_Controller {
     }
 
     /**
-     * @Desc: This function is used to filtered the brackets list in our crm
+     * @Desc: This function is used to get the brackets list in our crm
      * @params: void
      * @return: array
      * 
      */
-    function get_filtered_brackets_list(){
-        if($this->input->post('filter') === 'filter'){
-            $sf_role = $this->input->post('sf_role');
-            $sf_id = $this->input->post('sf_id');
-            $start_date = date('Y-m-d 00:00:00', strtotime($this->input->post('start_date')));
-            $end_date = date('Y-m-d 23:59:59', strtotime($this->input->post('end_date')));
-
-            $data['brackets'] = $this->inventory_model->get_filtered_brackets($sf_role,$sf_id,$start_date,$end_date);
-            if(!empty($data['brackets'])){
-                //Getting name for order received from  to vendor
-                foreach($data['brackets'] as $key=>$value){
-                    $data['order_received_from'][$key] = $this->vendor_model->getVendorContact($value['order_received_from'])[0];
-
-                    // Getting name for order given to vendor
-
-                    $data['order_given_to'][$key] = $this->vendor_model->getVendorContact($value['order_given_to'])[0]['name'];
-                }
-                $response = $this->load->view('employee/show_filtered_brackets_list',$data);
-                
-                echo $response;
-            }else{
-                echo "No Data Found";
+    function get_brackets_detailed_list(){
+        if($this->input->post()){
+            
+            switch($this->input->post('type')){
+                case 'filter':
+                    $response = $this->make_filter_data_for_brackets();
+                    break;
+                case 'search':
+                    $response = $this->make_search_data_for_brackets();
+                    break;
             }
-        }else{
+            
+            echo $response;
+            
+        } else {
             echo "Invalid Request";
         }
     }
+    
+    
+    /**
+     * @Desc: This function is used to get filtered  brackets list in our crm
+     * @params: void
+     * @return: array
+     * 
+     */
+    private function make_filter_data_for_brackets() {
+        $sf_role = $this->input->post('sf_role');
+        $sf_id = $this->input->post('sf_id');
+        
+        $select = '*';
+        
+        //check sf_role 
+        if($sf_role === 'order_received_from'){
+            $where = "order_received_from = '$sf_id'";
+        }else if($sf_role === 'order_given_to'){
+            $where = "order_given_to = '$sf_id'";
+        }
+        
+        //check daterange selected or not
+        if (!empty($this->input->post('start_date') && !empty($this->input->post('end_date')))) {
+            $start_date = date('Y-m-d 00:00:00', strtotime($this->input->post('start_date')));
+            $end_date = date('Y-m-d 23:59:59', strtotime($this->input->post('end_date')));   
+            
+            $where .= " AND order_date >= '$start_date' AND order_date <= '$end_date'";
+        }
+        
+        $brackets_data = $this->get_brackets_data_by($select, $where);
+        
+        return $brackets_data;
+    }
+    
+    /**
+     * @Desc: This function is used to get search  brackets list in our crm
+     * by order id
+     * @params: void
+     * @return: array
+     * 
+     */
+    private function make_search_data_for_brackets() {
+        $order_id = trim($this->input->post('order_id'));
+        
+        $select = '*';
+        
+        $where = array('order_id' => $order_id);
+        
+        $brackets_data = $this->get_brackets_data_by($select, $where);
+        
+        return $brackets_data;
+    }
+    
+    
+    /**
+     * @Desc: This function is used to get the brackets list in our crm by any option
+     * @params: $select string
+     * @return: $where string
+     */
+    private function get_brackets_data_by($select, $where) {
+        $data['brackets'] = $this->inventory_model->get_filtered_brackets($select, $where);
+        
+        if (!empty($data['brackets'])) {
+            //Getting name for order received from  to vendor
+            foreach ($data['brackets'] as $key => $value) {
+                $data['order_received_from'][$key] = $this->vendor_model->getVendorContact($value['order_received_from'])[0];
+
+                // Getting name for order given to vendor
+
+                $data['order_given_to'][$key] = $this->vendor_model->getVendorContact($value['order_given_to'])[0]['name'];
+            }
+            $response = $this->load->view('employee/show_filtered_brackets_list', $data);
+        } else {
+            $response = "No Data Found";
+        }
+        
+        return $response;
+    }
+
 }
