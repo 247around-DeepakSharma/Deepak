@@ -194,10 +194,22 @@
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-md-12">
-                                 <label for="Product Type">Product Type *</label>
-                                <div class="form-group col-md-12  <?php if( form_error('product_type') ) { echo 'has-error';} ?>">
-                                   
+                            <div class="col-md-4">
+                                <div class="form-group col-md-5 ">
+                                    <label for="Appliance unit ">Unit* <span id="error_seller" style="color: red;"></label>
+                                     
+                                    <select type="text" style="width:55%" class="form-control"  id="appliance_unit" name="appliance_unit" >
+                                      
+                                        <?php for($i =1; $i <26; $i++) { ?>
+                                        <option value="<?php echo $i;?>"><?php echo $i; ?></option>
+                                        <?php }?>
+                                    </select>
+                                    <!--   -->
+                                    
+                                </div>
+                                 
+                                <div class="form-group col-md-7  <?php if( form_error('product_type') ) { echo 'has-error';} ?>">
+                                   <label for="Product Type">Product Type *</label>
                                      <label class="radio-inline">
                                         <input type="radio" name="product_type" value="Delivered" checked>Delivered
                                       </label>
@@ -254,14 +266,14 @@
                         <div class="col-md-12">
                             <div class="col-md-3 ">
                                 <div class="form-group col-md-12    <?php if( form_error('order_id') ) { echo 'has-error';} ?>">
-                                    <label for="order id">Order ID * <span id="error_order_id" style="color:red"></span></label>
+                                    <label for="order id">Order ID  <span id="error_order_id" style="color:red"></span></label>
                                     <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Order ID" id="order_id"  />
                                     
                                 </div>
                             </div>
                             <div class="col-md-3 ">
                                 <div class="form-group col-md-12  <?php if( form_error('serial_number') ) { echo 'has-error';} ?>">
-                                    <label for="serial NUmber">Serial Number *  <span id="error_serial_number" style="color:red"></span></label>
+                                    <label for="serial NUmber">Serial Number   <span id="error_serial_number" style="color:red"></span></label>
                                     <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" >
                                     
                                 </div>
@@ -275,11 +287,11 @@
                             </div> 
                             <div class="col-md-3 ">
                                 <div class="form-group col-md-12  <?php if( form_error('dealer_name') ) { echo 'has-error';} ?>">
-                                    <label for="dealer_name">Dealer Name *  <span id="error_dealer_name" style="color:red"></span></label>
+                                    <label for="dealer_name">Dealer Name   <span id="error_dealer_name" style="color:red"></span></label>
                                     <input  type="text" class="form-control"  name="dealer_name" id="dealer_name" value = "<?php echo set_value('dealer_name'); ?>" placeholder="Enter Dealer Name" autocomplete="off">
                                     <input type="hidden" name="dealer_id" id="dealer_id" value="">
                                    
-                                    <div id="dealer_name_suggesstion_box"></div>
+                                     <div id="dealer_name_suggesstion_box"></div>
                                 </div>
                             </div> 
                             
@@ -921,31 +933,25 @@
 
 <script>
     $(document).ready(function(){
-	$("#dealer_phone_number").keyup(function(){
-                var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
+        $("#dealer_phone_number").keyup(function(){
+            var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
+            if(partner_id !== undefined){
+                 var search_term = $(this).val();
+                 dealer_setup(partner_id, search_term, "dealer_phone_number_1");
+            } else{
+                alert("Please Select Partner");
+            }
+        });
+	$("#dealer_name").keyup(function(){
+            var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
+            if(partner_id !== undefined){
                 var search_term = $(this).val();
-                if(search_term === ""){
-                    $("#dealer_id").val("");
-                    $("#dealer_name").val("");
-                    $("#dealer_phone_suggesstion_box").hide();
-                } else{
-                
-                $.ajax({
-                    type: "POST",
-                    url: "<?php echo base_url();?>employee/partner/get_dealer_phone_number",
-                    data:{partner_id:partner_id,search_term:search_term},
-                    beforeSend: function(){
-                            //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
-                    },
-                    success: function(data){
-                       console.log(data);
-                            $("#dealer_phone_suggesstion_box").show();
-                            $("#dealer_phone_suggesstion_box").html(data);
-                            $("#dealer_phone_number").css("background","#FFF");
-                        }
-                    });
-               }
-	});
+                dealer_setup(partner_id, search_term, "dealer_name");
+                 
+            } else{
+                alert("Please Select Partner");
+            }
+        });
     });
     
     function selectDealer(name,ph, id) {
@@ -955,7 +961,40 @@
         $("#dealer_id").val(id);
 
         $("#dealer_phone_suggesstion_box").hide();
+        $("#dealer_name_suggesstion_box").hide();
     }
+    
+function dealer_setup(partner_id,search_term,search_filed){
+                
+    if(search_term === ""){
+        $("#dealer_id").val("");
+        $("#dealer_name").val("");
+        $("#dealer_phone_number").val("");
+        $("#dealer_phone_suggesstion_box").hide();
+        $("#dealer_name_suggesstion_box").hide();
+    }else{
+
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/employee/partner/get_dealer_details",
+            data: {partner_id: partner_id, search_term: search_term,dealer_field: search_filed},
+            beforeSend: function () {
+                //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
+            },
+            success: function (data) {
+                if(search_filed === "dealer_phone_number_1"){
+                    $("#dealer_phone_suggesstion_box").show();
+                    $("#dealer_phone_suggesstion_box").html(data);
+                    $("#dealer_phone_number").css("background", "#FFF");
+               } else {
+                    $("#dealer_name_suggesstion_box").show();
+                    $("#dealer_name_suggesstion_box").html(data);
+                    $("#dealer_name").css("background", "#FFF");
+               }
+            }
+        });
+    }
+}
     
     
 </script>

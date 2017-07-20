@@ -356,7 +356,7 @@ class Accounting extends CI_Controller {
     function search_invoice_id() {
         $invoice_id = trim($this->input->post('invoice_id'));
         $request_data = array('invoice_id' => $invoice_id);
-        $data['invoiceid_data'] = $this->invoices_model->getInvoicingData($request_data);
+        $data['invoiceid_data'] = $this->invoices_model->getInvoicingData($request_data,true);
         if (!empty($data['invoiceid_data'])) {
 
             echo $this->load->view('employee/invoiceid_details_data_table', $data);
