@@ -336,23 +336,15 @@ class Inventory_model extends CI_Model {
     
     /**
      * @Desc: This function is used to get the filtered brackets list
-     * @params: $sf_role string
-     * @params: $sf_id string
-     * @params: $start_date string
-     * @params: $end_date string
+     * @params: $select string
+     * @params: $where string
      * @return: array
      * 
      */
-    function get_filtered_brackets($sf_role,$sf_id,$start_date,$end_date){
-        if($sf_role === 'order_received_from'){
-            $where = 'order_received_from ='."'$sf_id'".'AND order_date >= '."'$start_date'".'AND order_date <= '."'$end_date'";
-        }else if($sf_role === 'order_given_to'){
-            $where = 'order_given_to ='."'$sf_id'".'AND order_date >= '."'$start_date'".'AND order_date <= '."'$end_date'";
-        }
-        
-        $this->db->select('*');
-        $this->db->from('brackets');
+    function get_filtered_brackets($select, $where){
+        $this->db->select($select);
         $this->db->where($where);
+        $this->db->from('brackets');
         $query = $this->db->get();
         return $query->result_array();
     }
