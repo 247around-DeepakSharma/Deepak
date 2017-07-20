@@ -91,17 +91,17 @@
                         <th class="jumbotron" style="width:20%">Received From</th>
 <!--                        <th class="jumbotron" style="padding:1px;width:4%">19-24"</th>-->
                         <th class="jumbotron" >Less Than 32 Inch</th>
-                        <th class="jumbotron" >Greater Than 32 Inch</th>
+                        <th class="jumbotron" >32 Inch & Above</th>
 <!--                        <th class="jumbotron" style="padding:1px;width:4%">&gt;43"</th>-->
                         <th class="jumbotron">Total</th>
 <!--                        <th class="jumbotron" style="padding:1px;width:4%">19-24"</th>-->
                         <th class="jumbotron" >Less Than 32 Inch</th>
-                        <th class="jumbotron" >Greater Than 32 Inch</th>
+                        <th class="jumbotron" >32 Inch & Above</th>
 <!--                        <th class="jumbotron" style="padding:1px;width:4%">&gt;43"</th>-->
                         <th class="jumbotron" >Total</th>
 <!--                        <th class="jumbotron" style="padding:1px;width:4%">19-24"</th>-->
                         <th class="jumbotron" >Less Than 32 Inch</th>
-                        <th class="jumbotron" >Greater Than 32 Inch</th>
+                        <th class="jumbotron" >32 Inch & Above</th>
 <!--                        <th class="jumbotron" style="padding:1px;width:4%">&gt;43"</th>-->
                         <th class="jumbotron">Total</th>
                         <th class="jumbotron" >Date</th>

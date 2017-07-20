@@ -32,7 +32,7 @@
                         <th class="jumbotron">Action</th>
 <!--                        <th class="jumbotron">19 to 24 inch</th>-->
                         <th class="jumbotron">Less Than 32 Inch</th>
-                        <th class="jumbotron">Greater Than 32 Inch</th>
+                        <th class="jumbotron">32 Inch & Above</th>
 <!--                        <th class="jumbotron">&gt;43 inch</th>-->
                         <th class="jumbotron">Total</th>
                         <th class="jumbotron">Agent</th>
