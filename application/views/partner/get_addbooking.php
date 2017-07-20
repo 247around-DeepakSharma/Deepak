@@ -392,6 +392,7 @@
 </div>
 <script type="text/javascript">
     function check_validation(){
+        var exp1 = /^[7-9]{1}[0-9]{9}$/;
         var order_id =  $('#order_id').val();
         var booking_address = $('#booking_address').val();
         var mobile_number = $('#booking_primary_contact_no').val();
@@ -407,7 +408,11 @@
         var dealer_name = $("#dealer_name").val();
         var dealer_phone_number = $("#dealer_phone_number").val();
         var not_visible = $("#not_visible").val();
-        
+        if(!mobile_number.match(exp1)){
+            alert('Please Enter Valid User Phone Number');   
+            display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Valid User Phone Number");
+            return false;
+        }
          if(mobile_number === ""){
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Mobile");
              return false;
@@ -479,14 +484,19 @@
           
         }
         
-        if(order_id === '' && serial_number === '' && dealer_phone_number === ''){
-            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Phone Number");
-            return false;
-        } 
+//        if(order_id === '' && serial_number === '' && dealer_phone_number === ''){
+//            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Phone Number");
+//            return false;
+//        } 
         
-        if(dealer_phone_number !== "" && dealer_name){
+       
+        if(dealer_phone_number !== "" && dealer_name === ""){
              alert("Please Enter Dealer Name");
              return false;
+        }
+         if(dealer_phone_number !=="" && !dealer_phone_number.match(exp1)){
+            alert('Please Enter Valid Dealer Phone Number');   
+            return false;
         }
         
 //        if (order_id === "" && serial_number === ""  ) {
