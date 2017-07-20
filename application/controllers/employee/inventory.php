@@ -1111,7 +1111,7 @@ class Inventory extends CI_Controller {
      * 
      */
     private function make_search_data_for_brackets() {
-        $order_id = $this->input->post('order_id');
+        $order_id = trim($this->input->post('order_id'));
         
         $select = '*';
         
