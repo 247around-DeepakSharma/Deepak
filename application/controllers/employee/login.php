@@ -54,7 +54,7 @@ class Login extends CI_Controller {
             $employee_password = $this->input->post('employee_password');
             $login = $this->employeelogin->login($employee_id, md5($employee_password));
             if ($login) {
-                $this->session->unset_userdata('email');
+                $this->session->sess_create();
                 $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email']);
                 
                 //Saving Login Details in Database

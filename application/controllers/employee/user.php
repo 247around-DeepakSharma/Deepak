@@ -100,6 +100,7 @@ class User extends CI_Controller {
 
                     $data['data'] = $output_data;
                     $data['appliance_details'] = $this->user_model->appliance_details($phone_number);
+                    $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details_for_empty_bookings($phone_number);
 
                     $this->load->view('employee/header/'.$this->session->userdata('user_group'));
                     $this->load->view('employee/bookinghistory', $data);

@@ -50,7 +50,7 @@
                             <th></th>
 <!--                            <th>19 to 24 inch</th>-->
                             <th>Less Than 32 Inch</th>
-                            <th>Greater Than 32 Inch</th>
+                            <th>32 Inch & Above</th>
 <!--                            <th>&gt; 43 inch</th>-->
                             <th>Total</th>
                             <th>Shipment Date</th>

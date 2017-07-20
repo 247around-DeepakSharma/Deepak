@@ -619,34 +619,57 @@ function set_upcountry() {
         $("#dealer_phone_number").keyup(function(){
             var partner_id = $("#source_code").find(':selected').attr('data-id');
             if(partner_id !== undefined){
+                 var search_term = $(this).val();
+                 dealer_setup(partner_id, search_term, "dealer_phone_number_1");
+            } else{
+                alert("Please Select Partner");
+            }
+        });
+        
+        $("#dealer_name").keyup(function(){
+            var partner_id = $("#source_code").find(':selected').attr('data-id');
+            if(partner_id !== undefined){
                 var search_term = $(this).val();
-                
-                if(search_term === ""){
-                    $("#dealer_id").val("");
-                    $("#dealer_name").val("");
-                    $("#dealer_phone_suggesstion_box").hide();
-                }else{
-
-                    $.ajax({
-                        type: "POST",
-                        url: baseUrl + "/employee/partner/get_dealer_phone_number",
-                        data: {partner_id: partner_id, search_term: search_term},
-                        beforeSend: function () {
-                            //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
-                        },
-                        success: function (data) {
-                            $("#dealer_phone_suggesstion_box").show();
-                            $("#dealer_phone_suggesstion_box").html(data);
-                            $("#dealer_phone_number").css("background", "#FFF");
-                        }
-                    });
-                }
+                dealer_setup(partner_id, search_term, "dealer_name");
+                 
             } else{
                 alert("Please Select Partner");
             }
         });
     
 });
+
+function dealer_setup(partner_id,search_term,search_filed){
+                
+    if(search_term === ""){
+        $("#dealer_id").val("");
+        $("#dealer_name").val("");
+        $("#dealer_phone_number").val("");
+        $("#dealer_phone_suggesstion_box").hide();
+        $("#dealer_name_suggesstion_box").hide();
+    }else{
+
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/employee/partner/get_dealer_details",
+            data: {partner_id: partner_id, search_term: search_term,dealer_field: search_filed},
+            beforeSend: function () {
+                //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
+            },
+            success: function (data) {
+                if(search_filed === "dealer_phone_number_1"){
+                    $("#dealer_phone_suggesstion_box").show();
+                    $("#dealer_phone_suggesstion_box").html(data);
+                    $("#dealer_phone_number").css("background", "#FFF");
+               } else {
+                    $("#dealer_name_suggesstion_box").show();
+                    $("#dealer_name_suggesstion_box").html(data);
+                    $("#dealer_name").css("background", "#FFF");
+               }
+            }
+        });
+    }
+}
 
 function selectDealer(name,ph, id) {
 
@@ -655,10 +678,9 @@ function selectDealer(name,ph, id) {
     $("#dealer_id").val(id);
 
     $("#dealer_phone_suggesstion_box").hide();
+    $("#dealer_name_suggesstion_box").hide();
  }
-
-
-
+ 
 
 
 

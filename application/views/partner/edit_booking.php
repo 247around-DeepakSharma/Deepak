@@ -186,10 +186,30 @@
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
-                            
+                            <?php  $unique_appliance = array_unique(array_map(function ($k) {
+                                        return $k['appliance_id'];
+                                    }, $unit_details));
+                                    
+                                    ?>
                             <div class="col-md-4 col-md-12">
-                                 <label for="Product Type">Product Type *</label>
-                                <div class="form-group col-md-12  <?php if( form_error('product_type') ) { echo 'has-error';} ?>">
+                                <div class="form-group col-md-5 ">
+                                    <label for="Appliance unit ">Unit* <span id="error_seller" style="color: red;"></label>
+                                     
+                                    <select type="text" style="width:55%" class="form-control"  id="appliance_unit" name="appliance_unit" >
+                                      
+                                        <?php for($i =1; $i <26; $i++) { ?>
+                                        <option value="<?php echo $i;?>" <?php if(count($unique_appliance) == $i){ echo "selected";} ?>><?php echo $i; ?></option>
+                                        <?php }?>
+                                       
+                                       
+                                        
+                                    </select>
+                                    <!--   -->
+                                    
+                                </div>
+
+                                <div class="form-group col-md-7  <?php if( form_error('product_type') ) { echo 'has-error';} ?>">
+                                     <label for="Product Type">Product Type *</label>
                                    <?php if(empty($booking_history[0]['assigned_vendor_id'])){ ?>
                                      <label class="radio-inline">
                                         <input type="radio" name="product_type" value="Delivered" checked>Delivered
@@ -276,7 +296,7 @@
                                     <label for="dealer_name">Dealer Name *  <span id="error_dealer_name" style="color:red"></span></label>
                                     <input  type="text" class="form-control"  name="dealer_name" id="dealer_name" value = "<?php if(isset($dealer_data)){echo $dealer_data['dealer_name'] ;}?>" placeholder="Enter Dealer Name" autocomplete="off">
                                     <input type="hidden" name="dealer_id" id="dealer_id" value="<?php if(isset($dealer_data)){echo $dealer_data['dealer_id'] ;}?>">
-                                    <div id="dealer_name_suggesstion_box"></div>
+                                     <div id="dealer_name_suggesstion_box"></div>
                                 </div>
                             </div> 
                             
@@ -378,7 +398,7 @@
             <div class="row">
                 <div class="form-group  col-md-12" >
                     <center>
-                        <input type="submit" id="submitform" class="btn btn-primary " onclick="return check_validation()" value="Submit Booking">
+                        <input type="submit" id="submitform" class="btn btn-primary "<?php if(count($unique_appliance) > 1){ echo "disabled";}?> onclick="return check_validation()" value="Submit Booking">
                     </center>
                 </div>
             </div>
@@ -505,7 +525,10 @@
             document.getElementById('remarks').style.borderColor = "green";
             document.getElementById('error_remarks').innerHTML = "";  
         }
-        
+        <?php if(count($unique_appliance) > 1){ ?>
+             alert("Please Contact 247Around Team To Update This Booking");
+             return false;
+        <?php }?>
         
        
     }
@@ -879,35 +902,25 @@
 </script>
 <script>
     $(document).ready(function(){
-	$("#dealer_phone_number").keyup(function(){
-                var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
-                //var service_id = $("#service_name").val();
-                // brand = $('#appliance_brand_1').val();
-                //var city = $("#booking_city").val();
+        $("#dealer_phone_number").keyup(function(){
+            var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
+            if(partner_id !== undefined){
+                 var search_term = $(this).val();
+                 dealer_setup(partner_id, search_term, "dealer_phone_number_1");
+            } else{
+                alert("Please Select Partner");
+            }
+        });
+	$("#dealer_name").keyup(function(){
+            var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
+            if(partner_id !== undefined){
                 var search_term = $(this).val();
-                
-                if(search_term === ""){
-                    $("#dealer_id").val("");
-                    $("#dealer_name").val("");
-                    $("#dealer_phone_suggesstion_box").hide();
-                }else{
-                
-                $.ajax({
-                    type: "POST",
-                    url: "<?php echo base_url();?>employee/partner/get_dealer_phone_number",
-                    data:{partner_id:partner_id,search_term:search_term},
-                    beforeSend: function(){
-                            //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
-                    },
-                    success: function(data){
-                       console.log(data);
-                            $("#dealer_phone_suggesstion_box").show();
-                            $("#dealer_phone_suggesstion_box").html(data);
-                            $("#dealer_phone_number").css("background","#FFF");
-                        }
-                    });
-               }
-	});
+                dealer_setup(partner_id, search_term, "dealer_name");
+                 
+            } else{
+                alert("Please Select Partner");
+            }
+        });
     });
         
      
@@ -919,5 +932,47 @@
 
             $("#dealer_phone_suggesstion_box").hide();
          }
+         
+    function selectDealer(name,ph, id) {
+  
+        $("#dealer_phone_number").val(ph);
+        $("#dealer_name").val(name);
+        $("#dealer_id").val(id);
+
+        $("#dealer_phone_suggesstion_box").hide();
+        $("#dealer_name_suggesstion_box").hide();
+    }
+    
+function dealer_setup(partner_id,search_term,search_filed){
+                
+    if(search_term === ""){
+        $("#dealer_id").val("");
+        $("#dealer_name").val("");
+        $("#dealer_phone_number").val("");
+        $("#dealer_phone_suggesstion_box").hide();
+        $("#dealer_name_suggesstion_box").hide();
+    }else{
+
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/employee/partner/get_dealer_details",
+            data: {partner_id: partner_id, search_term: search_term,dealer_field: search_filed},
+            beforeSend: function () {
+                //$("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
+            },
+            success: function (data) {
+                if(search_filed === "dealer_phone_number_1"){
+                    $("#dealer_phone_suggesstion_box").show();
+                    $("#dealer_phone_suggesstion_box").html(data);
+                    $("#dealer_phone_number").css("background", "#FFF");
+               } else {
+                    $("#dealer_name_suggesstion_box").show();
+                    $("#dealer_name_suggesstion_box").html(data);
+                    $("#dealer_name").css("background", "#FFF");
+               }
+            }
+        });
+    }
+}
 
 </script>

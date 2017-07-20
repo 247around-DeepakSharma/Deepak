@@ -10,8 +10,8 @@
                         <th>Order Received From</th>
                         <th>Order Given To</th>
 <!--                        <th>19 to 24 inch</th>-->
-                        <th>Less Than 32</th>
-                        <th>Greater Than 32</th>
+                        <th>Less Than 32"</th>
+                        <th>32" & Above </th>
 <!--                        <th>&gt;43 inch</th>-->
                         <th>Total</th>
                         <!--<th>Order Given To</th>-->
