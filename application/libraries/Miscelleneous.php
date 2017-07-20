@@ -758,7 +758,7 @@ class Miscelleneous {
 
                     //do mapping for dealer and brand
 
-                    $this->My_CI->create_dealer_login($dealer_data, $dealer_id);
+                    $this->create_dealer_login($dealer_data, $dealer_id);
                 } else {
                     log_message('info', __METHOD__ . "Error in inserting dealer details" . print_r($dealer_data, true));
                 }
