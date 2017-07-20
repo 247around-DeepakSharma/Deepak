@@ -59,12 +59,24 @@ class invoices_model extends CI_Model {
      * @param : vendor partner id
      * @return :Array
      */
-    function getInvoicingData($data) {
+    function getInvoicingData($data,$join = false) {
         $this->db->where($data);
         $this->db->order_by('from_date');
         $query = $this->db->get('vendor_partner_invoices');
+        $return_data = $query->result_array();
+        
+        if($join && !empty($return_data)){
+            if($return_data[0]['vendor_partner'] === 'vendor'){
+                $details = $this->vendor_model->getVendorDetails("company_name as vendor_partner_name",array('id'=> $return_data[0]['vendor_partner_id']));
+            }
+            else if($return_data[0]['vendor_partner'] === 'partner'){
+                $details = $this->partner_model->getpartner_details("public_name as vendor_partner_name",array('partners.id'=> $return_data[0]['vendor_partner_id']));
+            }
+            
+            $return_data[0]['vendor_partner_name'] = $details[0]['vendor_partner_name'];
+        }
 
-        return $query->result_array();
+        return $return_data;
     }
 
     /**

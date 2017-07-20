@@ -1,6 +1,6 @@
 <div class="vendor_partner_name">
     <div class="vendor_partner" style="margin-bottom: 10px;">
-        <h4><strong>Vendor Name : </strong> <a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/<?php echo $invoiceid_data[0]['vendor_partner'];?>/<?php echo $invoiceid_data[0]['vendor_partner_id'];?>" target="_blank"><?php echo $vendor_name[0]['name']; ?></a></h4>
+        <h4><strong>Vendor Name : </strong> <a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/<?php echo $invoiceid_data[0]['vendor_partner'];?>/<?php echo $invoiceid_data[0]['vendor_partner_id'];?>" target="_blank"><?php echo $invoiceid_data[0]['vendor_partner_name']; ?></a></h4>
     </div> 
 </div>
 <hr>
