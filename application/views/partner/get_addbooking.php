@@ -180,7 +180,7 @@
                                     <select type="text" class="form-control"  id="partner_source" name="partner_source" >
                                         <option value="">Please select seller channel</option>
                                         <option <?php if(set_value('partner_source') == "Amazon"){ echo "selected";} ?>>Amazon</option>
-                                        <option <?php if(set_value('partner_source') == "CallCenter"){ echo "selected";} ?>>CallCenter</option>
+<!--                                        <option <?php// if(set_value('partner_source') == "CallCenter"){ echo "selected";} ?>>CallCenter</option>-->
                                         <option <?php if(set_value('partner_source') == "Ebay"){ echo "selected";} ?>>Ebay</option>
                                         <option <?php if(set_value('partner_source') == "Flipkart"){ echo "selected";} ?>>Flipkart</option>
                                         <option <?php if(set_value('partner_source') == "Offline"){ echo "selected";} ?>>Offline</option>
