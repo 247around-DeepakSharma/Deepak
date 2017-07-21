@@ -391,5 +391,6 @@ define('_247AROUND_BB_NOT_DELIVERED_IN_PROCESS','InProcess_Not_delivered');
 define('NEW_SHOP_ADDRESS_ADDED','New Shop Address Added');
 define('SHOP_ADDRESS_DEACTIVATED','Shop Address De-Activated');
 define('SHOP_ADDRESS_ACTIVATED','Shop Address Activated');
+define('BB_CP_ADDRESS','CP_ADDRESS');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

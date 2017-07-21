@@ -194,7 +194,7 @@ class InvoiceDashboard extends CI_Controller {
        $this->table->set_heading(array('SF name', 'CASH Inst. Charge', 
             'CASH Add. Charge', 'CASH Misc Charge', '<strong>Total Cash Charge</strong>', 
             'FOC Inst. Charge', 'FOC Parts Charge', 'FOC Misc Charge', 'FOC Total Charge'));
-        $select = "service_centres.name, service_centres.id";
+        $select = "service_centres.name, service_centres.id, active";
         $vendor_details = $this->vendor_model->getVendorDetails($select);
         $total_cash_charge = 0;
         $total_foc_charge = 0;

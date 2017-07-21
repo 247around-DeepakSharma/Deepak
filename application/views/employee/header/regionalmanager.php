@@ -181,8 +181,8 @@
                     <i class="fa fa-fw fa-arrows-v"></i> Partner <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu">
-                         <li >
-                            <a href="<?php echo base_url() ?>employee/dealers/add_dealers_form"><i class="fa fa-fw fa-desktop "></i> <strong>Add Dealer</strong></a>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/dealers/show_dealer_list"><i class="fa fa-fw fa-desktop "></i> <strong>View Dealer List</strong></a>
                         </li>
                     </ul>
                 </li>

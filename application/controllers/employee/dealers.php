@@ -488,6 +488,29 @@ class Dealers extends CI_Controller {
         return true;
         
     }
+    
+    /**
+     * @desc: This is used to get the dealer details
+     * @param $dealer_id string
+     * @return void
+     */
+    function show_dealer_list($dealer_id = ""){
+        $select = '*';
+        if($dealer_id !== ''){
+            $where = array('dealer_id'=> $dealer_id);
+        }else{
+            $where = '';
+        }
+        $dealer_data = $this->dealer_model->get_dealer_details($select,$where);
+        
+        foreach ($dealer_data as $value){
+            //Getting Appliances and Brands details for dealer
+            $dealer_mapping_data[] = $this->dealer_model->get_dealer_brand_mapping_details($value['dealer_id']);
+        }
+        
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('dealers/show_dealers_list',array('dealers'=>$dealer_data,'dealers_mapping'=>$dealer_mapping_data));
+    }
    
 
 }

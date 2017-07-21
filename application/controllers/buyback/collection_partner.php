@@ -54,7 +54,11 @@ class Collection_partner extends CI_Controller {
             $row = array();
             $row[] = $no;
            
-            $row[] = $cp_address->name;
+            $a = "<a href='javascript:void(0)' onclick='";
+            $a .= "get_cp_history(".$cp_address->id;
+            $a .= ', "'.$cp_address->name.'"';
+            $a .= ")' >".$cp_address->name."</a>";
+            $row[] = $a;
             $row[] = $cp_address->contact_person;
             $row[] = $cp_address->primary_contact_number;
             $row[] = $cp_address->alternate_conatct_number;
@@ -89,7 +93,7 @@ class Collection_partner extends CI_Controller {
     function activate_deactivate_cp($shop_id, $is_active){
         $status = $this->cp_model->update_cp_shop_address(array('id'=> $shop_id), array('active' => $is_active));
         if($status){
-            $log['entity'] = "CP";
+            $log['entity'] = BB_CP_ADDRESS;
             $log['entity_id'] = $shop_id;
             $log['agent_id'] = $this->session->userdata('id');
             if($is_active ==0){
@@ -208,6 +212,22 @@ class Collection_partner extends CI_Controller {
         $select = "service_centres.name, service_centres.id,on_off,active, is_verified, is_cp ";
         $data = $this->vendor_model->getVendorDetails($select, $where);
         echo json_encode($data);
+    }
+    
+    
+    /**
+     * @desc Used to get cp histroy from log_entity_action table
+     * @param $shop_id string
+     * @return void();
+     */
+    function get_cp_history($shop_id){
+        
+        $select = 'log_entity_action.* , employee.full_name as agent_name';
+        $where = array('entity_id' => $shop_id,'entity'=>BB_CP_ADDRESS);
+        
+        $data['cp_history'] = $this->cp_model->get_cp_history($select,$where);
+        
+        echo $this->load->view('buyback/show_cp_history',$data);
     }
 
 }
