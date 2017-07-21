@@ -46,6 +46,15 @@
                                 <?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>
                                 </label>
                             </div>
+                           
+                             <?php if($Service_Center_Visit == 1){ ?>
+                                <div class="radio ">
+                                <label>
+                                <input type="radio" id="service_center_visit" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER;?>" >
+                                <?php echo CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER;?>
+                                </label>
+                            </div>
+                            <?php }?>
                             <div class="radio ">
                                 <label>
                                 <input type="radio" id="product_not_delivered" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>" >
@@ -60,6 +69,7 @@
                                 </label>
                             </div>
                             <?php } ?>
+                           
                         </div>
                     </div>
                    

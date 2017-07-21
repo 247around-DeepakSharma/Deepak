@@ -649,6 +649,7 @@ class Service_centers extends CI_Controller {
                 $current_booking_date = date_create(date('Y-m-d', strtotime($data['bookinghistory'][0]['booking_date'])));
 
                 $date_diff = date_diff($current_date, $current_booking_date);
+                 $data['Service_Center_Visit'] = 0;
                 // We will not display internal status after 1st day.
                 if ($date_diff->days < 1) {
                     $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
@@ -670,6 +671,9 @@ class Service_centers extends CI_Controller {
                 foreach ($unit_details as $value) {
                     if (stristr($value['price_tags'], "Repair")) {
                         $data['spare_flag'] = 1;
+                    }
+                    if(stristr($value['price_tags'], "Service Center Visit")){
+                        $data['Service_Center_Visit'] = 1;
                     }
                     // These all Partner id is 247around Id
 //                    switch ($value['partner_id']) {
@@ -746,6 +750,7 @@ class Service_centers extends CI_Controller {
                         break;
 
                   case "Engineer on route":    
+                  case CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER: 
                       log_message('info', __FUNCTION__. "Engineer on route". $this->session->userdata('service_center_id'));
                       $this->default_update(true, true);
                       break;
