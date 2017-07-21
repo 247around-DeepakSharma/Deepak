@@ -75,7 +75,7 @@ class Dealers extends CI_Controller {
                 $option .= "<option  ";
                  
                 if(count($appliance) == 1){
-                    $option .="selected";
+                    $option .=" selected ";
                 }
                 $option .= "value = '".$value['service_id']."' data-id='".$value['services']."' >".$value['services']."</option>";
             }

@@ -109,16 +109,17 @@ class Inventory extends CI_Controller {
 
                     //Adding value in Booking State Change
                     $this->notify->insert_state_change($data_post['order_id'], _247AROUND_BRACKETS_PENDING, _247AROUND_BRACKETS_REQUESTED, "Brackets Requested", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-                    $select = "primary_contact_email,owner_email, company_name, company_name";
+                    $select = "primary_contact_email,owner_email, company_name, "
+                            . "address, district, state, pincode,primary_contact_phone_1,owner_phone_1, owner_name";
                     $vendor_requested = $this->vendor_model->getVendorDetails($select, array('id' => $data_post['order_received_from']));
                     
                     $to = $vendor_requested[0]['primary_contact_email'] . ',' . $vendor_requested[0]['owner_email'];
-
+                   
                     // Sending brackets confirmation details mail to Vendor using Template
                     $email_order_received_from = array();
                     //Getting template from Database
                     $template = $this->booking_model->get_booking_email_template("brackets_order_received_from_vendor");
-
+               
                     if (!empty($template)) {
                         $email_order_received_from['order_id'] = $order_id;
 //                        $email_order_received_from['19_24_requested'] = $data_post['19_24_requested'];
@@ -128,6 +129,7 @@ class Inventory extends CI_Controller {
                         $email_order_received_from['total_requested'] = $data_post['total_requested'];
                         $subject = "Brackets Requested by " . $vendor_requested[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email_order_received_from);
+                        
                         $this->notify->sendEmail($template[2], $to, $template[3] . ',' . $this->get_rm_email($data_post['order_received_from']), '', $subject, $emailBody, "");
                     }
                     
@@ -135,7 +137,7 @@ class Inventory extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Email has been sent to order_received_from vendor ' . $vendor_requested[0]['company_name']);
                      //Sending Mail to order given to
                     $vendor_requested_to = $this->vendor_model->getVendorDetails($select, array('id' => $data_post['order_given_to']));
-                    $to = $vendor_requested_to['primary_contact_email'] . ',' . $vendor_requested_to['owner_email'];
+                    $to = $vendor_requested_to[0]['primary_contact_email'] . ',' . $vendor_requested_to[0]['owner_email'];
 
                     // Sending Mail to order given to vendor using Template
                     $email = array();
@@ -149,15 +151,15 @@ class Inventory extends CI_Controller {
                         $email['36_42_requested'] = $data_post['36_42_requested'];
 //                        $email['43_requested'] = $data_post['43_requested'];
                         $email['total_requested'] = $data_post['total_requested'];
-                        $email['owner_name'] = $vendor_requested[0]['owner_name'];
-                        $email['company_name'] = $vendor_requested[0]['company_name'];
-                        $email['address'] = $vendor_requested[0]['address'];
-                        $email['district'] = $vendor_requested[0]['district'];
-                        $email['state'] = $vendor_requested[0]['state'];
-                        $email['pincode'] = $vendor_requested[0]['pincode'];
-                        $email['primary_contact_phone_1'] = $vendor_requested[0]['primary_contact_phone_1'];
-                        $email['owner_phone_1'] = $vendor_requested[0]['owner_phone_1'];
-                        $subject = "Brackets Requested by " . $vendor_requested[0]['company_name'];
+                        $email['owner_name'] = $vendor_requested_to[0]['owner_name'];
+                        $email['company_name'] = $vendor_requested_to[0]['company_name'];
+                        $email['address'] = $vendor_requested_to[0]['address'];
+                        $email['district'] = $vendor_requested_to[0]['district'];
+                        $email['state'] = $vendor_requested_to[0]['state'];
+                        $email['pincode'] = $vendor_requested_to[0]['pincode'];
+                        $email['primary_contact_phone_1'] = $vendor_requested_to[0]['primary_contact_phone_1'];
+                        $email['owner_phone_1'] = $vendor_requested_to[0]['owner_phone_1'];
+                        $subject = "Brackets Requested by " . $vendor_requested_to[0]['company_name'];
 
                         $emailBody = vsprintf($template1[0], $email);
 

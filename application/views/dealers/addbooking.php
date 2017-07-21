@@ -175,7 +175,7 @@
                                      
                                     <select type="text" class="form-control"  id="appliance_unit" name="appliance_unit" >
                                       
-                                        <?php for($i =1; $i <101; $i++) { ?>
+                                        <?php for($i =1; $i <26; $i++) { ?>
                                         <option value="<?php echo $i;?>"><?php echo $i; ?></option>
                                         <?php }?>
                                        
@@ -186,7 +186,7 @@
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
-
+                            
                             <!-- end col-md-6 -->
                         </div>
                     </div>
@@ -614,10 +614,7 @@
     
     }
     
-    $("#booking_pincode").keyup(function(event) {
-        get_city();
-        
-    });
+   
     
     function get_city(){
         var pincode = $("#booking_pincode").val();
@@ -635,7 +632,7 @@
                 url: '<?php echo base_url(); ?>employee/partner/get_district_by_pincode/'+ pincode+"/"+service_id, 
                 data:{city:city},
                 success: function (data) {
-                  
+                  console.log(data);
                     if(data !== "ERROR"){
                         $('#booking_city').select2().html(data).change();
                         $('#submitform').prop('disabled', false);
@@ -658,53 +655,56 @@
     
 
     $(document).ready(function(){
+         $("#booking_pincode").keyup(function(event) {
+            get_city();
         
-            $("#booking_primary_contact_no").keyup(function(event) {
-                var phone_number = $("#booking_primary_contact_no").val();
-               
-                if(phone_number.length === 10){
-                    $.ajax({
-                        type:"POST",
-                        url: "<?php echo base_url();?>employee/dealers/get_users_details",
-                        data:{phone_number: phone_number},
-                        beforeSend: function(){
-                            $('body').loadingModal({
-                            position: 'auto',
-                            text: 'Loading Please Wait...',
-                            color: '#fff',
-                            opacity: '0.7',
-                            backgroundColor: 'rgb(0,0,0)',
-                            animation: 'wave'
-                          });
-                         // $('body').loadingModal('hide');
+        });
+        $("#booking_primary_contact_no").keyup(function(event) {
+            var phone_number = $("#booking_primary_contact_no").val();
+
+            if(phone_number.length === 10){
+                $.ajax({
+                    type:"POST",
+                    url: "<?php echo base_url();?>employee/dealers/get_users_details",
+                    data:{phone_number: phone_number},
+                    beforeSend: function(){
+                        $('body').loadingModal({
+                        position: 'auto',
+                        text: 'Loading Please Wait...',
+                        color: '#fff',
+                        opacity: '0.7',
+                        backgroundColor: 'rgb(0,0,0)',
+                        animation: 'wave'
+                      });
+                     // $('body').loadingModal('hide');
 
 
-                        },
-                        success: function(response){
-                            var data = jQuery.parseJSON(response);
-                           console.log(data);
-                            if(data.code === '0001'){
-                                $("#tmp").val(data.user_data['0']['city']);
-                                $("#name").val(data.user_data['0']['name']);
-                                $("#booking_alternate_contact_no").val(data.user_data['0']['alternate_phone_number']);
-                                
-                                $("#booking_address").val(data.user_data['0']['home_address']);
-                                $("#user_id").val(data.user_data['0']['user_id']);
-                                $("#booking_pincode").val(data.user_data['0']['pincode']);
-                                  
-                            } 
-                            $("#service_name option[value !='option1']").remove();
-                            $("#service_name").append(data.appliance_data).change();
-                              
-                              
-                            $('body').loadingModal('destroy');
+                    },
+                    success: function(response){
+                        var data = jQuery.parseJSON(response);
+                       console.log(data);
+                        if(data.code === '0001'){
+                            $("#tmp").val(data.user_data['0']['city']);
+                            $("#name").val(data.user_data['0']['name']);
+                            $("#booking_alternate_contact_no").val(data.user_data['0']['alternate_phone_number']);
 
-                        }
+                            $("#booking_address").val(data.user_data['0']['home_address']);
+                            $("#user_id").val(data.user_data['0']['user_id']);
+                            $("#booking_pincode").val(data.user_data['0']['pincode']);
 
-                    });
-                }
+                        } 
+                        $("#service_name option[value !='option1']").remove();
+                        $("#service_name").append(data.appliance_data).change();
 
-            });
+
+                        $('body').loadingModal('destroy');
+
+                    }
+
+                });
+            }
+
+        });
     });
     
     function set_upcountry(){
