@@ -170,6 +170,25 @@
 
         </div>
     </div>
+    
+    <!--CP History Details Modal-->
+    <div id="cpHistoryModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="modal_cp_name"> </h4>
+                </div>
+                <div class="modal-body">
+                    <div id="open_cpHistoryModal"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end CP History Modal -->
 
     <script type="text/javascript">
 
@@ -297,6 +316,19 @@
                  
             }); 
         }
+    }
+    
+    function get_cp_history(shop_id,cp_name){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>buyback/collection_partner/get_cp_history/' + shop_id,
+            success: function (response) {
+                //console.log(response);
+                $('#modal_cp_name').html(cp_name);
+                $('#open_cpHistoryModal').html(response);
+                $('#cpHistoryModal').modal('toggle');
+            }
+        });
     }
 
     </script>

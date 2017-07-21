@@ -186,4 +186,21 @@ class Cp_model extends CI_Model {
         $this->db->insert('bb_shop_address',$data);
         return $this->db->insert_id();
     }
+    
+    
+    /**
+     * @desc Used to get cp histroy from log_entity_action table
+     * @param $select string
+     * @param $where array();
+     * @return $query array();
+     */
+    function get_cp_history($select,$where){
+        
+        $this->db->select($select);
+        $this->db->from('log_entity_action');
+        $this->db->where($where);
+        $this->db->join('employee', 'log_entity_action.agent_id = employee.id','left');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }
