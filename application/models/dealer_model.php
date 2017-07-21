@@ -90,4 +90,35 @@ class Dealer_model extends CI_Model {
         $insert_id = $this->db->insert_id();
         return  $insert_id;
     }
+    
+    /**
+     * @desc: This is used to get the dealer details by any 
+     * @param $select string
+     * @param $where array
+     * @return Array
+     */
+    function get_dealer_details($select , $where=""){
+        if($where !== ''){
+            $this->db->where($where);
+        }
+        $this->db->select($select);
+        $this->db->from('dealer_details');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This is used to get the dealer brand mapping details by dealer id
+     * @param $dealer_id string
+     * @return Array
+     */
+    function get_dealer_brand_mapping_details($dealer_id){
+        $sql = "SELECT p.public_name,s.services,dbm.brand "
+                . "FROM dealer_brand_mapping AS dbm "
+                . "LEFT JOIN partners AS p ON dbm.partner_id = p.id "
+                . "LEFT JOIN services AS s ON dbm.service_id = s.id "
+                . "WHERE dealer_id = '$dealer_id'";
+        $query= $this->db->query($sql);
+        return $query->result_array();
+    }
 }

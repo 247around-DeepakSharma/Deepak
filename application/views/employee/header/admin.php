@@ -177,7 +177,7 @@
                         </li>
                         <li class="divider"></li>
                         <li >
-                            <a href="<?php echo base_url() ?>employee/dealers/add_dealers_form"><i class="fa fa-fw fa-desktop "></i> <strong>Add Dealer</strong></a>
+                            <a href="<?php echo base_url() ?>employee/dealers/show_dealer_list"><i class="fa fa-fw fa-desktop "></i> <strong>View Dealer List</strong></a>
                         </li>
 
                     </ul>
