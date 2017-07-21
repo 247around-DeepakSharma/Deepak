@@ -93,7 +93,7 @@ class Collection_partner extends CI_Controller {
     function activate_deactivate_cp($shop_id, $is_active){
         $status = $this->cp_model->update_cp_shop_address(array('id'=> $shop_id), array('active' => $is_active));
         if($status){
-            $log['entity'] = "CP";
+            $log['entity'] = BB_CP_ADDRESS;
             $log['entity_id'] = $shop_id;
             $log['agent_id'] = $this->session->userdata('id');
             if($is_active ==0){
@@ -223,7 +223,7 @@ class Collection_partner extends CI_Controller {
     function get_cp_history($shop_id){
         
         $select = 'log_entity_action.* , employee.full_name as agent_name';
-        $where = array('entity_id' => $shop_id);
+        $where = array('entity_id' => $shop_id,'entity'=>BB_CP_ADDRESS);
         
         $data['cp_history'] = $this->cp_model->get_cp_history($select,$where);
         
