@@ -75,22 +75,22 @@
                             <li>
                                 <a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
                                 <ul class="nav child_menu">
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_search">Search Order</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_search">Orders Snapshot</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload Order File</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process/price_sheet_upload">Upload Price Sheet</a></li>
 
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/view_bb_order_details">Pending Order</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/view_bb_order_details">Pending Orders</a></li>
                                     <li>
-                                        <a>Disputed Order <span class="fa fa-chevron-down"></span></a>
+                                        <a>Disputed Orders <span class="fa fa-chevron-down"></span></a>
                                         <ul class="nav child_menu">
-                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_auto_settel">Auto-Settle</a></li>
+                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_auto_settel">Auto Settled (Cancelled / Rejected)</a></li>
 
-                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_30_days_breech">30 Days Tat Breeche</a></li>
-                                            <li><a href="<?php echo base_url();?>buyback/buyback_process/vendor_rejected">Vendor Rejected</a></li>
+                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_30_days_breech">30 Days TAT Breach</a></li>
+                                            <li><a href="<?php echo base_url();?>buyback/buyback_process/vendor_rejected">Rejected By CP</a></li>
                                         </ul>
                                     </li>
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_review">Review Order</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/collection_partner/get_cp_shop_address">Shop Address</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/collection_partner/get_cp_shop_address">Shop Addresses</a></li>
                                 </ul>
                             </li>
                             <!--                        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
@@ -237,11 +237,11 @@
                                 <li><a href="<?php echo base_url() ?>employee/login/logout"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                             </ul>
                         </li>
-                        <li><a href="javascript:void(0)">Credit Amount(Rs. <span class="numbers-with-commas">0</span> )</a></li>
+                        <li><a href="javascript:void(0)">Credit Amount (Rs. <span class="numbers-with-commas">0</span>)</a></li>
                         <li class="col-md-4">
                             <a href="javascript:void(0)" style="background: #EDEDED;">
                            
-                                <input type="text" class="form-control" placeholder="Search Order Id ..." onkeydown="search_order_id(this)" 
+                                <input type="text" class="form-control" placeholder="Search Order/Tracking ID ..." onkeydown="search_order_id(this)" 
                                        style="border-radius:25px 25px 25px 25px">
                             
                             </a>
