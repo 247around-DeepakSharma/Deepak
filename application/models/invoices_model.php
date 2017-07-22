@@ -1331,7 +1331,7 @@ class invoices_model extends CI_Model {
         if($is_regenerate == 0){
             $invoice_check .= "AND vendor_foc_invoice_id IS NULL ";
         }
-        $sql = " SELECT distinct bd.booking_id, courier_charges_by_sf 
+        $sql = " SELECT bd.booking_id, courier_charges_by_sf 
                 FROM  booking_details as bd, booking_unit_details as ud,
                 spare_parts_details as sp
                 WHERE 
@@ -1343,12 +1343,14 @@ class invoices_model extends CI_Model {
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
                 AND pay_to_sf = '1'
+                AND `approved_defective_parts_by_partner` = 1
                 $invoice_check
                 AND courier_charges_by_sf > 0 ";
 
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
 
     function get_payment_history($where) {
         $this->db->select('*');
