@@ -326,9 +326,13 @@ class Accounting extends CI_Controller {
         $partner_vendor = $this->input->post('partner_vendor');
         $report_type = $this->input->post('report_type');
         $is_challan_data = $this->input->post('is_challan_data');
-        $data['report_data'] = $this->accounting_model->get_payment_report_data($payment_type, $from_date, $new_to_date, $partner_vendor,$is_challan_data,$report_type);
+        $invoice_data_by = $this->input->post('invoice_by');
+        
+        
+        $data = $this->accounting_model->get_payment_report_data($payment_type, $from_date, $new_to_date, $partner_vendor,$is_challan_data,$invoice_data_by,$report_type);
+        //echo "<pre>";print_r($data);exit();
         //echo $this->db->last_query();exit();
-        if($data['report_data']){
+        if(!empty($data)){
             $data['partner_vendor'] = $partner_vendor;
             $data['payment_type'] = $payment_type;
             $data['report_type'] = $report_type;
