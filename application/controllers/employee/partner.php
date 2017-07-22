@@ -2853,7 +2853,7 @@ class Partner extends CI_Controller {
      */
     function upload_partner_brand_logo($id="",$name=""){
         $data['partner'] = array('partner_id' => $id,
-                                 'public_name'=>$name);
+                                 'public_name'=> urldecode($name));
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/upload_partner_brand_logo',$data);
     }
@@ -2890,16 +2890,16 @@ class Partner extends CI_Controller {
             }
             if($res){
                     $this->session->set_flashdata('success','Partner Logo has been inserted successfully');
-                    redirect(base_url() . "employee/partner/upload_partner_brand_logo/".$partner_id."/".$partner_name);
+                    redirect(base_url() . "employee/partner/upload_partner_brand_logo/".$partner_id."/".$partner_name,'refresh');
                 }
                 else{
                     $this->session->set_flashdata('failed','Error in Inserting Partner Logo. Please Try Again...');
-                    redirect(base_url() . "employee/partner/upload_partner_brand_logo/".$partner_id."/".$partner_name);
+                    redirect(base_url() . "employee/partner/upload_partner_brand_logo/".$partner_id."/".$partner_name,'refresh');
                 }
         }
         else{
             $this->session->set_flashdata('failed','Please Select Partner Name');
-            redirect(base_url() . "employee/partner/upload_partner_brand_logo");
+            redirect(base_url() . "employee/partner/upload_partner_brand_logo".$partner_id."/".$partner_name,'refresh');
         }
     }
     
