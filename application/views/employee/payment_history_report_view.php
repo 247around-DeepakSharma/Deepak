@@ -33,40 +33,63 @@
             <section class="fetch_payment_history" style="padding-left:20px;">
                 <div class="row">
                     <div class="row">
-                        <div class="form-group" style="margin-left: 10px;">
+                        <div class="form-group" style="margin-left: 31px;">
                             <label class="radio-inline"><input type="radio" name="optradio" value="2" checked="">All</label>
                             <label class="radio-inline"><input type="radio" name="optradio" value="1">Challans Not Tagged</label>
                         </div>
-                        <div class="form-inline" style="margin-left: 20px;">
-                            <div class="form-group" style="margin-right: 10px;">
-                                <label for="type">Type:</label>
-                                <select class="form-control" id="type">
-                                    <option value="sales">Sales</option>
-                                    <option value="purchase">Purchase</option>
-                                    <option value="tds">TDS</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="margin-right: 10px;">
-                                <label for="daterange">Select Invoice Period</label>
-                                <input type="text" class="form-control" id="daterange" name="daterange">
-                            </div>
-                            <div class="form-group" style="margin-right: 10px;">
-                                <label for="partner_service_center">Select Partner/Service Center</label>
-                                <select class="form-control" id="partner_vendor">
-                                    <option value="partner">Partner</option>
-                                    <option value="vendor">Vendor</option>
-                                    <option value="stand">Stand</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="margin-right: 10px;">
-                                <label for="report_type">Report Type</label>
-                                <select class="form-control" id="report_type">
-                                    <option value="draft">Draft</option>
-                                    <option value="final">Final</option>
-                                </select>
-                            </div>
-                            <button class="btn btn-success" id="get_payment_history">Fetch</button>
-                        </div>
+                        <div class="col-md-12" >
+                            <div class="form-horizontal" style="margin-left: 20px;">
+                                <div class="form-group">
+                                    <label class="col-sm-2" for="type">Type:</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control" id="type">
+                                            <option value="sales">Sales</option>
+                                            <option value="purchase">Purchase</option>
+                                            <option value="tds">TDS</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <label class="col-sm-3" for="partner_service_center">Select Partner/Service Center</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control" id="partner_vendor">
+                                            <option value="partner">Partner</option>
+                                            <option value="vendor">Vendor</option>
+                                            <option value="stand">Stand</option>
+                                            <option value="buyback">Buyback</option>
+                                        </select>
+                                    </div>    
+                                  </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-2" for="invoice_by">Invoice By</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control" id="invoice_by">
+                                            <option value="invoice_date">Invoice Date</option>
+                                            <option value="period">Period</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <label class="col-sm-3" for="daterange">Select Date Range</label>
+                                    <div class="col-sm-3">
+                                        <input type="text" class="form-control" id="daterange" name="daterange">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="col-sm-2" for="report_type">Report Type</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control" id="report_type">
+                                            <option value="draft">Draft</option>
+                                            <option value="final">Final</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <button class="btn btn-success" id="get_payment_history" style="margin-left: 16px;">Get Invoice Summary</button>
+                                </div>
+                            </div>    
+                        </div>    
                     </div>
                 </div>
             </section>
@@ -112,6 +135,7 @@
             var type = $('#type').val();
             var partner_vendor = $('#partner_vendor').val();
             var report_type = $('#report_type').val();
+            var invoice_by = $('#invoice_by').val();
             var daterange = $('#daterange').val().split('-');
             var from_date = daterange[0];
             var to_date = daterange[1]; 
@@ -125,7 +149,7 @@
                 $.ajax({
                     method: 'POST',
                     url: '<?php echo base_url(); ?>employee/accounting/show_accounting_report',
-                    data: {type: type, from_date: from_date, to_date: to_date, partner_vendor: partner_vendor,report_type:report_type,is_challan_data:radio_box_val},
+                    data: {type: type, from_date: from_date, to_date: to_date, partner_vendor: partner_vendor,report_type:report_type,is_challan_data:radio_box_val,'invoice_by':invoice_by},
                     success: function (response) {
                         //console.log(response);
                         if (response === "error") {
