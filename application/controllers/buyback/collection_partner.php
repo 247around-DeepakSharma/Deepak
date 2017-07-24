@@ -64,7 +64,7 @@ class Collection_partner extends CI_Controller {
             $row[] = $cp_address->alternate_conatct_number;
             $row[] = $cp_address->shop_address_line1;
             $row[] = $cp_address->shop_address_line2;
-            $row[] = $cp_address->shop_address_city;
+            $row[] = $cp_address->shop_address_region;
 
             if($cp_address->active == 1){
                  $row[] = "<button class='btn btn-sm btn-danger' onclick='activate_deactivate($cp_address->id,0)'  >De-Activate</button>";
@@ -119,6 +119,7 @@ class Collection_partner extends CI_Controller {
         $data['tin_number'] = $this->input->post('tin_number');
         $data['shop_address_line1'] = $this->input->post('shop_address_line1');
         $data['shop_address_line2'] = $this->input->post('shop_address_line2');
+        $data['shop_address_region'] = $this->input->post('shop_address_region');
         $data['shop_address_city'] = $this->input->post('shop_address_city');
         $data['shop_address_pincode'] = $this->input->post('shop_address_pincode');
         $data['shop_address_state'] = $this->input->post('shop_address_state');
@@ -131,26 +132,49 @@ class Collection_partner extends CI_Controller {
         }
     }
     
-    function get_city_for_cp(){
+    function get_city_for_cp() {
         $dis = $this->input->post('city');
         $pincode = $this->input->post('pincode');
+        $region_post = $this->input->post('region');
         $data = $this->vendor_model->getDistrict_from_india_pincode("", $pincode);
-        echo "<option selected='selected' value='' disabled>Select City</option>";
-        $flag = false;
-        foreach ($data as $district) {
-            if (strtolower(trim($dis)) == strtolower(trim($district['district']))) {
-                echo "<option selected value='$district[district]'>$district[district]</option>";
-                $flag = true;
-            } else {
-                echo "<option value='$district[district]'>$district[district]</option>";
+        if (!empty($data)) {
+            $city = "<option selected='selected' value='' disabled>Select City</option>";
+            $region = "<option selected='selected' value='' disabled>Select Region</option>";
+            $flag = false;
+            $flag1 = false;
+            foreach ($data as $district) {
+                if (strtolower(trim($dis)) == strtolower(trim($district['district']))) {
+                    $city .= "<option selected value='$district[district]'>$district[district]</option>";
+                    $flag = true;
+                } else {
+                    $city .= "<option value='$district[district]'>$district[district]</option>";
+                }
+
+                if (strtolower(trim($region_post)) == strtolower(trim($district['district']))) {
+                    $region .= "<option selected value='$district[district]'>$district[district]</option>";
+                    $flag1 = true;
+                } else {
+                    $region .= "<option value='$district[district]'>$district[district]</option>";
+                }
             }
-        }
-        
-        if(!$flag && !empty($dis)){
-             echo "<option selected value='$dis' >$dis</option>";
+
+            if (!$flag && !empty($dis)) {
+                $city .= "<option selected value='$dis' >$dis</option>";
+            }
+
+            if (!$flag1 && !empty($region_post)) {
+                $region .= "<option selected value='$region_post' >$region_post</option>";
+            }
+
+            $output['city'] = $city;
+            $output['region'] = $region;
+            echo json_encode($output, true);
+            
+        } else {
+            echo "Not Exist";
         }
     }
-    
+
     function add_cp_shop_address(){
        
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
@@ -167,6 +191,7 @@ class Collection_partner extends CI_Controller {
                     'shop_address_line1' => $this->input->post('data')['shop_address_line1'],
                     'shop_address_line2' => isset($this->input->post('data')['shop_address_line2'])?$this->input->post('data')['shop_address_line2']:'',
                     'shop_address_city' => $this->input->post('data')['shop_address_city'],
+                    'shop_address_region' => $this->input->post('data')['shop_address_region'],
                     'shop_address_pincode' => $this->input->post('data')['shop_address_pincode'],
                     'shop_address_state' => $this->input->post('data')['shop_address_state'],
                     'contact_person' => $this->input->post('data')['name'],

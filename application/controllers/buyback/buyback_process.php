@@ -860,16 +860,14 @@ class Buyback_process extends CI_Controller {
         $unassigned_order_data = $this->bb_model->get_bb_order_details($where,$select);
         if(!empty($unassigned_order_data)){
             foreach ($unassigned_order_data as  $value){
-                
-                $array = array('shop_address_city' => $value['city'], 'active' => 1);
 
                 //Get CP id from shop address table.
-                $cp_shop_ddress = $this->bb_model->get_cp_shop_address_details($array, 'cp_id');
-                if(!empty($cp_shop_ddress)){
+                $cp_id = $this->buyback->get_cp_id_from_region($value['city']);
+                if(!empty($cp_id)){
                     //Get Charges list
                     $where_bb_charges = array('partner_id' => $value['partner_id'],
                                               'city' => $value['city'],
-                                              'cp_id' => $cp_shop_ddress[0]['cp_id']
+                                              'cp_id' => $cp_id
                                     );
                     $bb_charges = $this->service_centre_charges_model->get_bb_charges($where_bb_charges, '*');
                     if(!empty($bb_charges)){
@@ -890,7 +888,7 @@ class Buyback_process extends CI_Controller {
 
 
                         if ($update_unit_details) {
-                            $bb_order_details['assigned_cp_id'] = $cp_shop_ddress[0]['cp_id'];
+                            $bb_order_details['assigned_cp_id'] = $cp_id;
                             $is_status = $this->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
                             if($is_status){
                                 $this->buyback->insert_bb_state_change($value['partner_order_id'], ASSIGNED_VENDOR, 'Assigned CP Id From Our CRM', $this->session->userdata('id'), _247AROUND, NULL);
@@ -1010,5 +1008,5 @@ class Buyback_process extends CI_Controller {
             }
         }
     }
-   
+    
 }

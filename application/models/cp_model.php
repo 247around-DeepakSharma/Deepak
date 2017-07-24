@@ -2,11 +2,11 @@
 
 class Cp_model extends CI_Model {
 
-   var $column_order = array(NULL,'name', 'contact_person',NULL,NULL, 'shop_address_line1',NULL,'shop_address_city'); //set column field database for datatable orderable
+   var $column_order = array(NULL,'name', 'contact_person',NULL,NULL, 'shop_address_line1',NULL,'shop_address_region'); //set column field database for datatable orderable
    
     var $column_search = array('name', 'contact_person',
-        'shop_address_city', 'primary_contact_number', 'shop_address_city', 'shop_address_line1'); //set column field database for datatable searchable 
-    var $order = array('name,bb_shop_address.shop_address_city ' => 'asc'); // default order 
+        'shop_address_region', 'primary_contact_number', 'shop_address_line1'); //set column field database for datatable searchable 
+    var $order = array('name,bb_shop_address.shop_address_region ' => 'asc'); // default order 
 
     /**
      * @desc load both db
@@ -29,7 +29,7 @@ class Cp_model extends CI_Model {
 
     function _get_cp_shop_address_list_query($search_value, $order) {
         $this->db->select('bb_shop_address.id, public_name, name, contact_person, '
-                . 'shop_address_city, primary_contact_number, alternate_conatct_number, shop_address_line1,'
+                . 'shop_address_region,shop_address_city, primary_contact_number, alternate_conatct_number, shop_address_line1,'
                 . 'shop_address_line2, shop_address_pincode, bb_shop_address.active,'
                 . ' bb_shop_address.contact_email, tin_number, alternate_conatct_number2, shop_address_state');
 

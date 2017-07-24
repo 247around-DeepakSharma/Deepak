@@ -42,32 +42,30 @@ class Buyback {
      * @return boolean
      */
     function new_bb_order() {
-        $array = array('shop_address_city' => $this->POST_DATA['city'], 'active' => 1);
+        // Get CP Id
+        $cp_id = $this->get_cp_id_from_region( $this->POST_DATA['city']);
 
-        //Get CP id from shop address table.
-        $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details($array, '*');
         $bb_charges = array();
-        $cp_id = FALSE;
         $service_id = 0;
-        if (!empty($cp_shop_ddress)) {
+        if (!empty($cp_id)) {
             //Get Charges list
             $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges(array(
                 'partner_id' => $this->POST_DATA['partner_id'],
                 'city' => $this->POST_DATA['city'],
                 'order_key' => $this->POST_DATA['order_key'],
-                'cp_id' => $cp_shop_ddress[0]['cp_id']
+                'cp_id' => $cp_id
                     ), '*');
             if (!empty($bb_charges)) {
                 $cp_id = $bb_charges[0]['cp_id'];
                 $service_id = $bb_charges[0]['service_id'];
             }
+        } else {
+            $this->My_CI->initialized_variable->not_assigned_order();
         }
         if (empty($service_id)) {
             $service_id = $this->get_service_id_by_appliance();
         }
-        if (empty($cp_id)) {
-            $this->My_CI->initialized_variable->not_assigned_order();
-        }
+
         // Insert bb order details
         $is_insert = $this->insert_bb_order_details($cp_id);
         if ($is_insert) {
@@ -553,8 +551,40 @@ class Buyback {
             $insert_file_data['cp_id'] = $this->POST_DATA['cp_id'];
             $insert_file_data['image_name'] = $file_name;
             $insert_file_data['tag'] = $tag;
-            $insert_id = $this->My_CI->cp_model->insert_bb_order_image($insert_file_data);
+            $this->My_CI->cp_model->insert_bb_order_image($insert_file_data);
         }
     }
-
+    /**
+     * @desc. If in one region only one CP is present, return cp id,  DO NOT check for ACTIVE flag.
+     * If in one region two CPs are active or NOT active (basically in the same state), DO NOT return cp id.
+     * If in one region more than 1 CPs are there but ONLY one is active and the others are not active, return active cp
+     * @param String $region
+     * @return boolean|array
+     */
+    function get_cp_id_from_region($region){
+        
+        //Get CP id from shop address table.
+        $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details(array('shop_address_region' => $region), 'cp_id, active');
+        if(count($cp_shop_ddress) ==1){
+            
+            return $cp_shop_ddress[0]['cp_id'];
+            
+        } else if(count($cp_shop_ddress) > 1){
+            
+            $ac_cp = array();
+            foreach ($cp_shop_ddress as $value) {
+                if($value['active'] == 1){
+                    array_push($ac_cp, $value['cp_id']);
+                } 
+            }
+            
+            if(count($ac_cp) == 1){
+                return $ac_cp[0];
+                
+            } 
+        }
+        
+        return false;
+    }
+    
 }
