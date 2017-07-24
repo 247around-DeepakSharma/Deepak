@@ -4,6 +4,13 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
+
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 36000);
+
 class Buyback_process extends CI_Controller {
 
     /**
@@ -1239,5 +1246,5 @@ class Buyback_process extends CI_Controller {
         
         $this->load->view('buyback/show_bb_charges', $cp);
     }
-    
+        
 }

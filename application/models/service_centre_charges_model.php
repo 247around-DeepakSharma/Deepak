@@ -254,12 +254,14 @@ class service_centre_charges_model extends CI_Model {
      * @param $is_distinct default false
      * @return array
      */
-    function get_bb_charges($where, $select,$is_distinct=False){
+    function get_bb_charges($where='', $select,$is_distinct=False){
         if($is_distinct){
             $this->db->distinct();
         }
         $this->db->select($select);
-        $this->db->where($where);
+        if($where != ''){
+            $this->db->where($where);
+        }
         $query = $this->db->get("bb_charges");
         return $query->result_array();
     }
