@@ -363,9 +363,10 @@ class Bb_model extends CI_Model {
     }
     
     function download_bb_shop_address_data(){
-        $sql = "SELECT cp_id,contact_person,contact_email,shop_address_line1,shop_address_line2,shop_address_city,"
+        $sql = "SELECT contact_person,contact_email,shop_address_line1,shop_address_line2,shop_address_city,"
                 . "shop_address_state,shop_address_pincode,"
-                . "concat(primary_contact_number, ',', alternate_conatct_number ) as phone_number, tin_number from bb_shop_address";
+                . "concat(primary_contact_number, ',', COALESCE(alternate_conatct_number, '')) as phone_number, tin_number from bb_shop_address"
+                . " WHERE bb_shop_address.active = 1";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
