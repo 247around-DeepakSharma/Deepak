@@ -123,14 +123,14 @@
                         </tr>
                         <tr>
                             <th>Rating: </th>
-                            <td><?php if (!empty($booking_history[0]['vendor_rating_stars'])) {
-                                echo $booking_history[0]['vendor_rating_stars'] . "/5";
+                            <td><?php if (!empty($booking_history[0]['rating_stars'])) {
+                                echo $booking_history[0]['rating_stars'] . "/5";
                             } ?></td>
                         </tr>
                         <tr>
                             <th>Rating Comment: </th>
-                            <td><?php if (!empty($booking_history[0]['vendor_rating_comments'])) {
-                                echo $booking_history[0]['vendor_rating_comments'] . "/5";
+                            <td><?php if (!empty($booking_history[0]['rating_comments'])) {
+                                echo $booking_history[0]['rating_comments'];
                             } ?></td>
                         </tr>
                     </table>
