@@ -4,6 +4,13 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
+
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 36000);
+
 class Buyback_process extends CI_Controller {
 
     /**
@@ -1010,5 +1017,102 @@ class Buyback_process extends CI_Controller {
             }
         }
     }
-   
+    
+    public function download_price_list_data() {
+        $service_id = $this->service_centre_charges_model->get_bb_charges(array('partner_id' => '247024'), 'service_id', true);
+        foreach ($service_id as $value) {
+            $where = array('service_id' => $value['service_id'], 'partner_id' => '247024');
+            $select = "category,brand, physical_condition, working_condition , city AS location , partner_total";
+            $data = $this->service_centre_charges_model->get_bb_charges($where, $select);
+            $excel_file[$value['service_id']] = $this->generate_bb_price_data($value['service_id'],$data);
+            unset($data);
+        }
+        $main_excel = $this->combined_excel_sheets($excel_file);
+
+        if ($main_excel) {
+            
+            foreach ($service_id as $value) {
+                unlink(TMP_FOLDER . $value['service_id'] . '.xlsx');
+            }
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($main_excel) . '"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($main_excel));
+            readfile($main_excel);
+            exit;
+        }
+        unlink($main_excel);
+    }
+    
+    private function generate_bb_price_data($service_id,$data){
+        $template = 'bb_Price_Quotes_Template.xlsx';
+        // directory
+        $templateDir = __DIR__ . "/../excel-templates/";
+
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        $R = new PHPReport($config);
+
+        $R->load(array(
+            array(
+                'id' => 'bb_price_data',
+                'repeat' => true,
+                'data' => $data,
+            )
+                )
+        );
+        
+        $output_file_excel = TMP_FOLDER . $service_id. ".xlsx";
+
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
+
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+
+        $R->render('excel', $output_file_excel);
+        
+        return $output_file_excel;
+    }
+    
+    function combined_excel_sheets($excel_file_list) {
+
+        $objPHPExcel1 = PHPExcel_IOFactory::load($excel_file_list['50']);
+        $objPHPExcel2 = PHPExcel_IOFactory::load($excel_file_list['46']);
+        $objPHPExcel3 = PHPExcel_IOFactory::load($excel_file_list['28']);
+        $objPHPExcel4 = PHPExcel_IOFactory::load($excel_file_list['37']);
+
+        foreach ($objPHPExcel2->getSheetNames() as $sheetName) {
+            $sheet = $objPHPExcel2->getSheetByName($sheetName);
+            $sheet->setTitle('TV');
+            $objPHPExcel1->addExternalSheet($sheet);
+        }
+        unset($objPHPExcel2);
+        foreach ($objPHPExcel3->getSheetNames() as $sheetName) {
+            $sheet = $objPHPExcel3->getSheetByName($sheetName);
+            $sheet->setTitle('Washing Machine');
+            $objPHPExcel1->addExternalSheet($sheet);
+        }
+        unset($objPHPExcel3);
+        foreach ($objPHPExcel4->getSheetNames() as $sheetName) {
+            $sheet = $objPHPExcel4->getSheetByName($sheetName);
+            $sheet->setTitle('Ref');
+            $objPHPExcel1->addExternalSheet($sheet);
+        }
+        unset($objPHPExcel4);
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, 'Excel2007');
+        $combined_excel = TMP_FOLDER.'AC-Wash-Ref-TV-Price Quotes Template.xlsx';
+        $objWriter->save($combined_excel);
+        
+        return $combined_excel;
+    }
+
 }
