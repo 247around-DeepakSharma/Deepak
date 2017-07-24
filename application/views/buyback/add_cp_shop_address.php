@@ -152,6 +152,16 @@
                                         </div>
                                         <span class="msg" ng-if="userForm.shop_address_city.$invalid" ng-show="userForm.shop_address_city.$dirty && userForm.shop_address_city.$invalid">City is required</span>
                                     </div>
+                                    <div class="item form-group">
+                                        <label class="control-label col-md-4 col-sm-3 col-xs-12" for="shop_address_region">Shop Region
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <select id="shop_address_region" required="required" class="optional form-control col-md-7 col-xs-12" name="shop_address_region" ng-model="tempData.shop_address_region">
+                                                <option disabled="" selected="">Select Region</option>
+                                            </select>
+                                        </div>
+                                        <span class="msg" ng-if="userForm.shop_address_region.$invalid" ng-show="userForm.shop_address_region.$dirty && userForm.shop_address_region.$invalid">Region is required</span>
+                                    </div>
 
                                     <div class="item form-group">
                                         <label class="control-label col-md-4 col-sm-3 col-xs-12" for="shop_address_state">Shop Address State
