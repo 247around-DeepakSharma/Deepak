@@ -212,7 +212,7 @@ class Penalty_model extends CI_Model {
         $sql = "SELECT SC.service_center_id AS assigned_vendor_id, CONCAT(  '', GROUP_CONCAT( DISTINCT (
 
                 BD.booking_id
-                ) ) ,  '' ) AS booking_group
+                ) ) ,  '' ) AS booking_group,SCS.non_working_days
                 FROM service_center_booking_action AS SC, booking_details AS BD, service_centres AS SCS
                 WHERE (
                 SC.current_status =  'Pending' AND BD.current_status IN ('Pending', 'Rescheduled')
@@ -228,36 +228,37 @@ class Penalty_model extends CI_Model {
                 ";
 
         $query = $this->db->query($sql);
-
+        
         if ($query->num_rows > 0) {
             $result = $query->result_array();
             foreach ($result as $value) {
-
-                $booking_id_array = explode(",", $value['booking_group']);
-
-                $booking_not_update = 0;
-                foreach ($booking_id_array as $booking_id) {
-                    $data = $this->check_any_update_in_state_change($booking_id, $value['assigned_vendor_id']);
-                    if (empty($data)) {
-                        $data1['agent_id'] = _247AROUND_DEFAULT_AGENT;
-                        $data1['remarks'] = 'Booking Not Updated On Time';
-                        $where = array('criteria' => BOOKING_NOT_UPDATED_BY_SERVICE_CENTER, 'active' => '1');
-                        $data1['booking_id'] = $booking_id;
-                        $data1['assigned_vendor_id'] = $value['assigned_vendor_id'];
-                        $this->get_data_penalty_on_booking($data1, $where);
-                        $booking_not_update++;
+                $non_wroking_days = explode(',', $value['non_working_days']);
+                if (!in_array(date('l'), $non_wroking_days)) {
+                    $booking_id_array = explode(",", $value['booking_group']);
+                    
+                    $booking_not_update = 0;
+                    foreach ($booking_id_array as $booking_id) {
+                        $data = $this->check_any_update_in_state_change($booking_id, $value['assigned_vendor_id']);
+                        if (empty($data)) {
+                            $data1['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                            $data1['remarks'] = 'Booking Not Updated On Time';
+                            $where = array('criteria' => BOOKING_NOT_UPDATED_BY_SERVICE_CENTER, 'active' => '1');
+                            $data1['booking_id'] = $booking_id;
+                            $data1['assigned_vendor_id'] = $value['assigned_vendor_id'];
+                            $this->get_data_penalty_on_booking($data1, $where);
+                            $booking_not_update++;
+                        }
                     }
+
+                    $sc_crimes['service_center_id'] = $value['assigned_vendor_id'];
+                    $sc_crimes['engineer_not_assigned'] = 0;
+                    $sc_crimes['booking_not_updated'] = $booking_not_update;
+                    $sc_crimes['total_pending_booking'] = count($booking_id_array);
+                    $sc_crimes['total_missed_target'] = $booking_not_update;
+                    $sc_crimes['update_date'] = date('Y-m-d H:i:s');
+                    $sc_crimes['create_date'] = date('Y-m-d H:i:s');
+                    $this->db->insert('sc_crimes', $sc_crimes);
                 }
-
-                $sc_crimes['service_center_id'] = $value['assigned_vendor_id'];
-                $sc_crimes['engineer_not_assigned'] = 0;
-                $sc_crimes['booking_not_updated'] = $booking_not_update;
-                $sc_crimes['total_pending_booking'] = count($booking_id_array);
-                $sc_crimes['total_missed_target'] = $booking_not_update;
-                $sc_crimes['update_date'] = date('Y-m-d H:i:s');
-                $sc_crimes['create_date'] = date('Y-m-d H:i:s');
-                $this->db->insert('sc_crimes', $sc_crimes);
-
             }
         } else {
             return FALSE;

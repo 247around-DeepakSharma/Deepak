@@ -15,7 +15,7 @@
                           
                         </h2>
                         <ul class="nav navbar-right panel_toolbox">
-                            <li>  <button class="btn btn-primary" onclick="download_excel()" >Download Current Page</button></li>
+                            <li>  <button class="btn btn-primary" onclick="download_excel()" >Download Orders List</button></li>
                         </ul>
                         <div class="clearfix"></div>
                         
@@ -39,7 +39,7 @@
                                             <select style="width:100%"  name="service_id" ui-select2  id="service_id" class="form-control" 
                                                 ng-model="tempData.service_id" 
                                                
-                                                data-placeholder="Select Alliance">
+                                                data-placeholder="Select Appliance">
                                                 <option value="" disabled="" ng-show="false"></option>
                                                  <option ng-repeat="y in service_list" value="{{y.id}}">{{y.services}}</option>
                                             </select>
