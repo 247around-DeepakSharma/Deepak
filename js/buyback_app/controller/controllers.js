@@ -1,3 +1,4 @@
+
 //order details file upload
 uploadfile.controller('uploadOrderDetailsFile', ['$scope', 'fileUpload', function ($scope, fileUpload) {
 
@@ -139,6 +140,8 @@ advanced_search.controller("advancedSearchController", function ($scope, $http) 
                 $scope.service_list = response.data.service;
                 $scope.city_list = response.data.city;
                 $scope.internal_status_list = response.data.internal_status;
+                $scope.cp_list = response.data.cp_list;
+                cp_list1 = response.data.cp_list;
                
                 $scope.current_status_list = response.data.current_status;
        });
