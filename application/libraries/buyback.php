@@ -191,40 +191,46 @@ class Buyback {
      * @return boolean
      */
 
-    function update_bb_order($order_data){
-        if($order_data[0]['current_status'] != "Delivered" || 
-                $order_data[0]['current_status'] != "Completed" || 
-                $order_data[0]['current_status'] != $this->POST_DATA['current_status']){
-            
-            $bb_order_details = array(
-                'current_status' => $this->POST_DATA['current_status'],
-                'internal_status' => $this->POST_DATA['current_status'],
-                'delivery_date' => (!empty($this->POST_DATA['delivery_date']) ? $this->POST_DATA['delivery_date'] : NULL)
-            );
-            if($this->POST_DATA['tracking_id'] != 0 ||$order_data[0]['partner_tracking_id'] != $this->POST_DATA['tracking_id']){
-                $bb_order_details['partner_tracking_id'] = $this->POST_DATA['tracking_id'];
-            }
-            if($this->POST_DATA['city'] != 0 || $order_data[0]['city'] != $this->POST_DATA['city']){
-                $bb_order_details['city'] = $this->POST_DATA['city'];
-            }
-            if($this->POST_DATA['partner_order_id'] != 0 || $order_data[0]['partner_order_id'] != $this->POST_DATA['partner_order_id']){
-                $bb_order_details['partner_order_id'] = $this->POST_DATA['partner_order_id'];
-            }
-            $where_bb_order = array('id' => $order_data[0]['id']);
-            $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
-            if ($is_status) {
-                $bb_unit_details = array(
-                    'order_status' => $this->POST_DATA['current_status']
-                );
-                $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $bb_unit_details);
-                $this->insert_bb_state_change($this->POST_DATA['partner_order_id'], $this->POST_DATA['current_status'], NULL, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
-                if ($this->POST_DATA['current_status'] == 'Delivered') {
-                    $this->My_CI->initialized_variable->delivered_count();
-                }
-                $this->My_CI->initialized_variable->total_updated();
-                return true;
-            } else {
+    function update_bb_order($order_data) {
+        if ($order_data[0]['current_status'] != "Delivered") {
+            if ($order_data[0]['current_status'] != "Completed") {
+                if ($order_data[0]['current_status'] != $this->POST_DATA['current_status']) {
 
+                    $bb_order_details = array(
+                        'current_status' => $this->POST_DATA['current_status'],
+                        'internal_status' => $this->POST_DATA['current_status'],
+                        'delivery_date' => (!empty($this->POST_DATA['delivery_date']) ? $this->POST_DATA['delivery_date'] : NULL)
+                    );
+                    if ($this->POST_DATA['tracking_id'] != 0 || $order_data[0]['partner_tracking_id'] != $this->POST_DATA['tracking_id']) {
+                        $bb_order_details['partner_tracking_id'] = $this->POST_DATA['tracking_id'];
+                    }
+                    if ($this->POST_DATA['city'] != 0 || $order_data[0]['city'] != $this->POST_DATA['city']) {
+                        $bb_order_details['city'] = $this->POST_DATA['city'];
+                    }
+                    if ($this->POST_DATA['partner_order_id'] != 0 || $order_data[0]['partner_order_id'] != $this->POST_DATA['partner_order_id']) {
+                        $bb_order_details['partner_order_id'] = $this->POST_DATA['partner_order_id'];
+                    }
+                    $where_bb_order = array('id' => $order_data[0]['id']);
+                    $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
+                    if ($is_status) {
+                        $bb_unit_details = array(
+                            'order_status' => $this->POST_DATA['current_status']
+                        );
+                        $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $bb_unit_details);
+                        $this->insert_bb_state_change($this->POST_DATA['partner_order_id'], $this->POST_DATA['current_status'], NULL, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
+                        if ($this->POST_DATA['current_status'] == 'Delivered') {
+                            $this->My_CI->initialized_variable->delivered_count();
+                        }
+                        $this->My_CI->initialized_variable->total_updated();
+                        return true;
+                    } else {
+
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
                 return false;
             }
         } else {
