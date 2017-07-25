@@ -37,7 +37,7 @@
                                     <th>Alt Mobile</th>
                                     <th>Shop Address1</th>
                                     <th>Shop Address2</th>
-                                    <th>City</th>
+                                    <th>Region</th>
                                   
                                     <th>Action</th>
                                     <th>Update</th>
@@ -143,9 +143,17 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="item form-group">
+                                <label class="control-label col-md-4 col-sm-3 col-xs-12" for="Region">Shop Region
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <select id="shop_address_region" name="shop_address_region" required="required" class="optional form-control col-md-7 col-xs-12">
+                                    </select>
+                                </div>
+                            </div>
                             
                             <div class="item form-group">
-                                <label class="control-label col-md-4 col-sm-3 col-xs-12" for="Pincode">Shop Address State
+                                <label class="control-label col-md-4 col-sm-3 col-xs-12" for="State">Shop Address State
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                     <input id="shop_address_state" type="text" name="shop_address_state" required="required" class="optional form-control col-md-7 col-xs-12">
@@ -247,6 +255,8 @@
             $(".modal-body #shop_address_line2").val( form_data.shop_address_line2 );
             var s_html = '<option selected value="'+form_data.shop_address_city+'">'+form_data.shop_address_city+'</option>';
             $(".modal-body #shop_address_city").html( s_html );
+            var r_html = '<option selected value="'+form_data.shop_address_region+'">'+form_data.shop_address_region+'</option>';
+            $(".modal-body #shop_address_region").html( r_html );
             $(".modal-body #shop_address_pincode").val( form_data.shop_address_pincode );
             $(".modal-body #shop_address_state").val( form_data.shop_address_state );
             check_pincode();
@@ -291,6 +301,7 @@
         function check_pincode(){
         var pincode = $("#shop_address_pincode").val();
         var city = $("#shop_address_city").val();
+        var region = $("#shop_address_region").val();
         
         if(pincode.length === 6){
             
@@ -301,16 +312,18 @@
                     $('#submit_form').attr('disabled', true); 
                 },
                 url:  '<?php echo base_url(); ?>buyback/collection_partner/get_city_for_cp/',
-                data:{city:city, pincode:pincode},
+                data:{city:city, pincode:pincode, region:region},
                 success: function (data) {
-                  console.log(data);
+                   
                     if(data === "Not Exist"){
                         $('#submit_form').attr('disabled', true); 
                         alert("Please check Pincode. It is not exist in the System.");
                         return false;
                     }  else {
-                        $("#shop_address_city").html(data);
-                         $('#submit_form').attr('disabled', false); 
+                         var data1 = JSON.parse(data);
+                        $("#shop_address_city").html(data1.city);
+                        $("#shop_address_region").html(data1.region);
+                        $('#submit_form').attr('disabled', false); 
                     } 
                 }
                  

@@ -1,3 +1,4 @@
+
 //order details file upload
 uploadfile.controller('uploadOrderDetailsFile', ['$scope', 'fileUpload', function ($scope, fileUpload) {
 
@@ -139,6 +140,8 @@ advanced_search.controller("advancedSearchController", function ($scope, $http) 
                 $scope.service_list = response.data.service;
                 $scope.city_list = response.data.city;
                 $scope.internal_status_list = response.data.internal_status;
+                $scope.cp_list = response.data.cp_list;
+                cp_list1 = response.data.cp_list;
                
                 $scope.current_status_list = response.data.current_status;
        });
@@ -210,9 +213,11 @@ addShopAddressDetails.controller("userController", function ($scope, $http) {
 
     $scope.getCity = function () {
         var data = $.param({
-            'pincode': $scope.tempData.shop_address_pincode,
-            'city': ''
+            pincode: $scope.tempData.shop_address_pincode,
+            city: '',
+            region:''
         });
+        
         var config = {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
@@ -222,8 +227,18 @@ addShopAddressDetails.controller("userController", function ($scope, $http) {
         var URL = baseUrl+"/buyback/collection_partner/get_city_for_cp";
 
         $http.post(URL, data, config).success(function (response) {
-            //console.log(response);
-            $('#shop_address_city').html(response);
+            
+            if(response === "Not Exist"){
+                 alert("Please check Pincode. It is not exist in the System.");
+                 var s_html = '<option selected value="">Select City</option>';
+                 var r_html = '<option selected value="">Select Region</option>';
+                 $('#shop_address_region').html(r_html);  
+                 $("shop_address_city").html( s_html );
+            } else {
+              
+                $('#shop_address_city').html(response.city);
+                $('#shop_address_region').html(response.region);  
+            }
         });
     };
 });

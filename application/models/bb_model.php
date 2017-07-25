@@ -59,11 +59,16 @@ class Bb_model extends CI_Model {
      * @param String $select
      * @return Arary
      */
-    function get_cp_shop_address_details($where, $select) {
+    function get_cp_shop_address_details($where, $select, $order_by = false) {
         $this->db->distinct();
         $this->db->select($select);
+        $this->db->from('bb_shop_address');
+        $this->db->join("service_centres", 'service_centres.id = cp_id');
         $this->db->where($where);
-        $query = $this->db->get("bb_shop_address");
+        if($order_by){
+            $this->db->order_by($order_by);
+        }
+        $query = $this->db->get();
         return $query->result_array();
     }
 
@@ -106,14 +111,16 @@ class Bb_model extends CI_Model {
      */
     public function _get_bb_order_list_query($post) {
         $this->db->from('bb_order_details');
-        $this->db->select('bb_unit_details.partner_order_id, services,city, order_date, '
+        $this->db->select('bb_unit_details.partner_order_id, services,city, order_date, internal_status, '
                 . 'delivery_date, bb_order_details.current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,'
                 . 'bb_unit_details.service_id,bb_order_details.assigned_cp_id,bb_unit_details.physical_condition,bb_unit_details.working_condition');
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
                 . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
        
         $this->db->join('services', 'services.id = bb_unit_details.service_id');
-        $this->db->where($post['where']);
+        if(!empty($post['where'])){
+            $this->db->where($post['where']);
+        }
         
         foreach ($post['where_in'] as $index => $value){
            
@@ -363,9 +370,10 @@ class Bb_model extends CI_Model {
     }
     
     function download_bb_shop_address_data(){
-        $sql = "SELECT cp_id,contact_person,contact_email,shop_address_line1,shop_address_line2,shop_address_city,"
+        $sql = "SELECT contact_person,contact_email,shop_address_line1,shop_address_line2,shop_address_city,"
                 . "shop_address_state,shop_address_pincode,"
-                . "concat(primary_contact_number, ',', alternate_conatct_number ) as phone_number, tin_number from bb_shop_address";
+                . "concat(primary_contact_number, ',', COALESCE(alternate_conatct_number, '')) as phone_number, tin_number from bb_shop_address"
+                . " WHERE bb_shop_address.active = 1";
         $query = $this->db->query($sql);
         return $query->result_array();
     }

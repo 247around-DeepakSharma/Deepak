@@ -141,14 +141,23 @@ class Buyback_process extends CI_Controller {
         
         $post = $this->get_bb_post_view_data();
         $date_range = $this->input->post("date_range");
-        $order_date = explode("-", $date_range);
+        $delivery_date = $this->input->post("delivery_date");
         $city = $this->input->post("city");
         $service_id = $this->input->post("service_id");
         $current_status = $this->input->post("current_status");
         $internal_status = $this->input->post("internal_status");
-       
-        $post['where'] = array('order_date >= ' => date("Y-m-d", strtotime(trim($order_date[0]))), 
-            'order_date < ' => date('Y-m-d', strtotime('+1 day', strtotime(trim($order_date[1])))) );
+        $cp_id = $this->input->post("cp_id");
+        $post['where'] = array();
+        if(!empty($date_range)){
+            $order_date = explode("-", $date_range);
+            $post['where']['order_date >= '] =  date("Y-m-d", strtotime(trim($order_date[0])));
+            $post['where']['order_date < '] = date('Y-m-d', strtotime('+1 day', strtotime(trim($order_date[1]))));
+        }
+        if(!empty($delivery_date)){
+            $d_date = explode("-", $delivery_date);
+            $post['where']['delivery_date >= '] =  date("Y-m-d", strtotime(trim($d_date[0])));
+            $post['where']['delivery_date < '] = date('Y-m-d', strtotime('+1 day', strtotime(trim($d_date[1]))));
+        }
         if(!empty($city)){
              $post['where']['city'] = $city;
         }
@@ -162,11 +171,15 @@ class Buyback_process extends CI_Controller {
         if(!empty($current_status)){
              $post['where']['current_status'] = $current_status;
         }
+        
+        if(!empty($cp_id)){
+             $post['where']['assigned_cp_id'] = $cp_id;
+        }
+        
         $post['where_in'] = array();
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
-      
         $data = array();
         $no = $post['start'];
         foreach ($list as $order_list) {
@@ -376,7 +389,7 @@ class Buyback_process extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->unassigned_table_data($order_list, $no);
+            $row =  $this->to_be_claimed_not_delivered($order_list, $no);
             $data[] = $row;
         }
         
@@ -510,6 +523,22 @@ class Buyback_process extends CI_Controller {
 
         return $row;
     }
+    
+    function to_be_claimed_not_delivered($order_list, $no){
+        log_message("info",__METHOD__);
+        $row = array();
+        $row[] = $no;
+        $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
+                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+        $row[] = $order_list->services;
+        $row[] = $order_list->city;
+        $row[] = $order_list->order_date;
+        $row[] = $order_list->internal_status;
+        $row[] = $order_list->partner_basic_charge;
+
+        return $row;
+    }
+
 
     /**
      * @desc Used to show the view of buyback order detailed list for review
@@ -862,21 +891,19 @@ class Buyback_process extends CI_Controller {
         $not_assigned = array();
         $select = 'bb_order_details.city, bb_order_details.partner_id, bb_order_details.partner_order_id, bb_order_details.current_status';
         $where = array("assigned_cp_id IS NULL" => NULL, 
-                       "current_status IN ('In-Transit', 'New Item In-transit', 'Attempted','Delivered')" => null
+                       "current_status NOT IN ('Cancelled', 'Rejected')" => null
                       );
         $unassigned_order_data = $this->bb_model->get_bb_order_details($where,$select);
         if(!empty($unassigned_order_data)){
             foreach ($unassigned_order_data as  $value){
-                
-                $array = array('shop_address_city' => $value['city'], 'active' => 1);
 
                 //Get CP id from shop address table.
-                $cp_shop_ddress = $this->bb_model->get_cp_shop_address_details($array, 'cp_id');
-                if(!empty($cp_shop_ddress)){
+                $cp_id = $this->buyback->get_cp_id_from_region($value['city']);
+                if(!empty($cp_id)){
                     //Get Charges list
                     $where_bb_charges = array('partner_id' => $value['partner_id'],
                                               'city' => $value['city'],
-                                              'cp_id' => $cp_shop_ddress[0]['cp_id']
+                                              'cp_id' => $cp_id
                                     );
                     $bb_charges = $this->service_centre_charges_model->get_bb_charges($where_bb_charges, '*');
                     if(!empty($bb_charges)){
@@ -897,7 +924,7 @@ class Buyback_process extends CI_Controller {
 
 
                         if ($update_unit_details) {
-                            $bb_order_details['assigned_cp_id'] = $cp_shop_ddress[0]['cp_id'];
+                            $bb_order_details['assigned_cp_id'] = $cp_id;
                             $is_status = $this->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
                             if($is_status){
                                 $this->buyback->insert_bb_state_change($value['partner_order_id'], ASSIGNED_VENDOR, 'Assigned CP Id From Our CRM', $this->session->userdata('id'), _247AROUND, NULL);
@@ -935,11 +962,16 @@ class Buyback_process extends CI_Controller {
     function get_advanced_search_optionlist(){
         log_message("info",__METHOD__);
        
-        //Get CP id from shop address table.
-        $data['city'] = $this->bb_model->get_cp_shop_address_details(array(), 'shop_address_city as district');
+        $data['city'] = $this->bb_model->get_bb_order(array('city !=' => ''),"city as district", "city");
         $data['service'] = $this->booking_model->selectservice();
         $data['current_status'] = $this->bb_model->get_bb_order(array(),"current_status", "current_status");
         $data['internal_status'] = $this->bb_model->get_bb_order(array(),"internal_status",  "internal_status");
+        $select = "cp_id, concat(name,'( ' ";
+       
+        $select .= ",shop_address_region ";
+        $select .= " ) as cp_name";
+        $data['cp_list'] = $this->bb_model->get_cp_shop_address_details(array(), $select, "name");
+      
         echo json_encode($data);
     }
     
@@ -953,9 +985,14 @@ class Buyback_process extends CI_Controller {
         $row[] = $order_list->services;
         $row[] = $order_list->city;
         $row[] = $order_list->order_date;
+        $row[] = $order_list->delivery_date;
         $row[] = $order_list->current_status;
         $row[] = $order_list->partner_basic_charge;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+        $row[] =  '<select  name="assign_cp_id['.$order_list->partner_order_id.']" ui-select2  class="assign_cp_id"  class="form-control" 
+                data-placeholder="Select CP" style="width:200px;">
+                <option value="" selected disabled>Select CP</option>   
+                </select>';
         
         return $row;
     }
