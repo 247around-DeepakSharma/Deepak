@@ -38,7 +38,7 @@ class Accounting extends CI_Controller {
             redirect(base_url() . "employee/login");
         }
     }
-    
+
     /**
      * @desc: This Function is used to show the challan upload form
      * @param: void
@@ -95,7 +95,7 @@ class Accounting extends CI_Controller {
             if (($_FILES['annexure_file']['error'] != 4) && !empty($_FILES['annexure_file']['tmp_name'])) {
 
                 $tmpFile = $_FILES['annexure_file']['tmp_name'];
-                $annexure_file = trim($this->input->post('cin_no')). '_annexure_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['annexure_file']['name'])[1];
+                $annexure_file = trim($this->input->post('cin_no')) . '_annexure_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['annexure_file']['name'])[1];
                 $_POST['annexure_file_name'] = $annexure_file;
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
@@ -231,17 +231,17 @@ class Accounting extends CI_Controller {
 
                 //prepare invoice id data to insert into table if invoice id exist in the vendor_partner_invoices table
                 $invoice_data = $this->prepare_invoice_data_to_mapped_challan_id($challan_id_value, $invoice_id_array, $existing_invoice_id_arr);
-                
-                if(!empty($invoice_data['exist_invoices_data'])) {
+
+                if (!empty($invoice_data['exist_invoices_data'])) {
                     //insert data into database in batch
                     $insert_id = $this->accounting_model->insert_invoice_challan_id_mapping_data($invoice_data['exist_invoices_data']);
-                    if($insert_id) {
+                    if ($insert_id) {
                         log_message('info', __METHOD__ . " : Invoice ID corresponding to challan ID = $challan_id_value inserted successfully");
                     } else {
                         log_message('info', __METHOD__ . " : Error in inserting Invoice ID corresponding to challan ID = $challan_id_value");
                     }
                 }
-                
+
                 if (!empty($invoice_data['non_exist_invoices_data'])) {
                     $str = implode(',', $invoice_data['non_exist_invoices_data']);
                     $non_existing_invoices_data .= $str . ',';
@@ -327,17 +327,17 @@ class Accounting extends CI_Controller {
         $report_type = $this->input->post('report_type');
         $is_challan_data = $this->input->post('is_challan_data');
         $invoice_data_by = $this->input->post('invoice_by');
-        
-        
-        $data = $this->accounting_model->get_payment_report_data($payment_type, $from_date, $new_to_date, $partner_vendor,$is_challan_data,$invoice_data_by,$report_type);
+
+
+        $data = $this->accounting_model->get_payment_report_data($payment_type, $from_date, $new_to_date, $partner_vendor, $is_challan_data, $invoice_data_by, $report_type);
         //echo "<pre>";print_r($data);exit();
         //echo $this->db->last_query();exit();
-        if(!empty($data)){
+        if (!empty($data)) {
             $data['partner_vendor'] = $partner_vendor;
             $data['payment_type'] = $payment_type;
             $data['report_type'] = $report_type;
             echo $this->load->view('employee/paymnet_history_table_view.php', $data);
-        }else{
+        } else {
             echo "error";
         }
     }
@@ -360,7 +360,7 @@ class Accounting extends CI_Controller {
     function search_invoice_id() {
         $invoice_id = trim($this->input->post('invoice_id'));
         $request_data = array('invoice_id' => $invoice_id);
-        $data['invoiceid_data'] = $this->invoices_model->getInvoicingData($request_data,true);
+        $data['invoiceid_data'] = $this->invoices_model->getInvoicingData($request_data, true);
         if (!empty($data['invoiceid_data'])) {
 
             echo $this->load->view('employee/invoiceid_details_data_table', $data);
@@ -381,49 +381,46 @@ class Accounting extends CI_Controller {
 
         //check if challan id is empty
         if (!empty($challan_id)) {
-            
+
             $non_updated_invoices = '';
-            
+
             //getting invoice id corresponding to challan id
             foreach ($challan_id as $challan_id_key => $challan_id_value) {
                 $invoice_id_array = explode(PHP_EOL, $invoice_id[$challan_id_key]);
-                
+
                 //update invoice id with corresponding challan id
                 foreach ($invoice_id_array as $value) {
                     if ($value !== 0 && $value !== '') {
-                        $update = $this->accounting_model->untag_challan_invoice_id($challan_id_value,$value);
+                        $update = $this->accounting_model->untag_challan_invoice_id($challan_id_value, $value);
                         if ($update) {
                             log_message('info', __METHOD__ . " : Invoice ID corresponding to challan ID = $challan_id_value updated successfully");
                         } else {
-                            $non_updated_invoices .= $value.',';
+                            $non_updated_invoices .= $value . ',';
                             log_message('info', __METHOD__ . " : Error in updating Invoice ID corresponding to challan ID = $challan_id_value");
                         }
-                        
                     }
                 }
             }
-            
-            if(!empty($non_updated_invoices)){
+
+            if (!empty($non_updated_invoices)) {
                 $msg = "Some invoice id successfully untag from challan id";
-                $msg .= " and these invoices are not updated : ". $non_updated_invoices;
-                
+                $msg .= " and these invoices are not updated : " . $non_updated_invoices;
+
                 $this->session->set_flashdata('error_msg', $msg);
                 redirect(base_url() . 'employee/accounting/get_challan_details');
-            }else{
+            } else {
                 $msg = "Invoices Id successfully untag from challan id";
-                
+
                 $this->session->set_flashdata('success_msg', $msg);
                 redirect(base_url() . 'employee/accounting/get_challan_details');
             }
-            
-            
         } else {
             $error_msg = "Empty field could't be updated";
             $this->session->set_flashdata('error_msg', $error_msg);
             redirect(base_url() . 'employee/accounting/get_challan_details');
         }
     }
-    
+
     /**
      * @desc: This Function is used to show the view for search the challan Id 
      * @param: void
@@ -433,7 +430,7 @@ class Accounting extends CI_Controller {
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/search_challan_id');
     }
-    
+
     /**
      * @desc: This Function is used to search the challan Id 
      * @param: void
@@ -450,20 +447,59 @@ class Accounting extends CI_Controller {
             echo "<div class='text-danger text-center'> <b>No Data Found <b></div>";
         }
     }
-    
-    
+
     /**
      * @desc: This Function is used to show invoices mapped with challan id
      * @param: $challan_id string
      * @return : void()
      */
-    function get_tagged_incoice_challan_data($challan_id){
+    function get_tagged_incoice_challan_data($challan_id) {
         $data['tagged_invoice_data'] = $this->accounting_model->get_tagged_invoice_challan_data($challan_id);
-        if(!empty($data['tagged_invoice_data'])){
+        if (!empty($data['tagged_invoice_data'])) {
             $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-            $this->load->view('employee/show_tagged_invoices_challan_data',$data);
-        }else{
+            $this->load->view('employee/show_tagged_invoices_challan_data', $data);
+        } else {
             "No Invoices tagged with this data";
+        }
+    }
+
+    /**
+     * @desc: This Function is used to search the transaction details from
+     * bank transaction table 
+     * @param: void()
+     * @return : void()
+     */
+    function search_bank_transaction() {
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/search_bank_transaction');
+    }
+
+    function process_search_bank_reansaction() {
+        $transaction_type = $this->input->post('transaction_type');
+        $transaction_date = $this->input->post('transaction_date');
+        $transaction_amount = $this->input->post('transaction_amount');
+
+        $modified_transaction_date = date('Y-m-d', strtotime($transaction_date));
+        $min_transaction_amount = $transaction_amount - 5;
+        $max_transaction_amount = $transaction_amount + 5;
+
+        if ($transaction_type === 'Credit') {
+            $where = array('credit_debit' => $transaction_type,
+                'transaction_date' => $modified_transaction_date,
+                "credit_amount >=" => $min_transaction_amount,
+                "credit_amount <=" => $max_transaction_amount);
+        } else if ($transaction_type === 'Debit') {
+            $where = array('credit_debit' => $transaction_type,
+                'transaction_date' => $modified_transaction_date,
+                "debit_amount >= " => $min_transaction_amount,
+                "debit_amount <= " => $max_transaction_amount);
+        }
+        $select = 'bank_transactions.* , employee.full_name as agent_name';
+        $data['transaction_details'] = $this->invoices_model->get_bank_transactions_details($select,$where,true);
+        if(!empty($data['transaction_details'])){
+            echo $this->load->view('employee/show_bank_transaction_details',$data);
+        }else{
+            echo "<div class='text-danger text-center'> <b> No Data Found <b></div>";
         }
     }
 
