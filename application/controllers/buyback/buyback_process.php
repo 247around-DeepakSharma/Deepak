@@ -905,7 +905,7 @@ class Buyback_process extends CI_Controller {
                                               'order_key' => $value->partner_order_id,
                                               'cp_id' => $cp_id
                                     );
-                   $status = $this->buyback->update_assign_cp_process($where_bb_charges, $value->partner_order_id, 1);
+                   $status = $this->buyback->update_assign_cp_process($where_bb_charges, $value->partner_order_id, 1, $value->internal_status);
                    if(!$status['status']){
                       array_push($not_assigned, array('order_id' =>$value->partner_order_id,"message" => "Charges Not Found"));
                    }
