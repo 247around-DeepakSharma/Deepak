@@ -32,7 +32,8 @@
                                      <div class="form-group">
                                         <label>Choose Files</label>
                                         <input type="file" class="form-control" name="partner_brand_logo[]" id ="partner_brand_logo_1" accept="image/*" required="" multiple/>
-                                    </div>
+                                        <br><span style="font-size: 12px; margin-top: 10px;" class="text-warning"> Upload Image Dimension Must Be 215*60 px</span>
+                                     </div>
                                 </th>
                                 <th style="width: 30%;">
                                     <div class="form-group">
