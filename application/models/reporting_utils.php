@@ -1786,7 +1786,7 @@ class Reporting_utils extends CI_Model {
                 FROM file_uploads AS p 
                 JOIN employee AS e ON p.agent_id = e.id 
                 WHERE file_type= '$file_type'
-                ORDER BY create_date DESC LIMIT 0,5";
+                ORDER BY p.create_date DESC LIMIT 0,5";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
