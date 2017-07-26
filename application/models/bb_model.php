@@ -378,5 +378,43 @@ class Bb_model extends CI_Model {
         return $query->result_array();
     }
     
+    /**
+     * @desc This function is used to get any data from bb_charges table
+     * @param void()
+     * @return void()
+     */
+    
+    function get_bb_price_data($select,$where,$is_distinct = false,$isjoin = false){
+        
+        if($is_distinct){
+            $this->db->distinct();
+        }
+       
+        $this->db->select($select);
+        $this->db->from('bb_charges');
+        $this->db->where('partner_id', '247024');
+        
+        if (isset($where['cp_id']) && $where['cp_id'] != NULL){
+            $this->db->where('cp_id', $where['cp_id']);
+        } 
+        if (isset($where['service_id']) && $where['service_id'] != NULL){
+            $this->db->where('service_id', $where['service_id']);
+        } 
+        if (isset($where['physical_condition']) && $where['physical_condition'] != NULL){
+            $this->db->where('physical_condition', $where['physical_condition']);
+        } 
+        if (isset($where['working_condition']) && $where['working_condition'] != NULL){
+            $this->db->where('working_condition', $where['working_condition']);
+        }
+        
+        if($isjoin){
+            $this->db->join('services as s', 'bb_charges.service_id = s.id');
+        }
+        
+        
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
 }
 
