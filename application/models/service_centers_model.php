@@ -618,15 +618,6 @@ class Service_centers_model extends CI_Model {
     
     
     /**
-     * @desc Used to insert  the  buyback updated data
-     * @param $data array
-     * @return $inser_id string
-     */
-    function insert_bb_order_status($data){
-        $insert_id = $this->db->insert('bb_cp_order_action',$data);
-        return $insert_id;
-    }
-    /**
      * @desc  Thsi is used to insert gst data in the gst sc gst table. Its inserted by SC
      * @param Array $data
      */

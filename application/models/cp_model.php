@@ -165,26 +165,31 @@ class Cp_model extends CI_Model {
         return $insert_id;
     }
     
-    
-    /**
-     * @desc Used to insert  the  buyback updated data
-     * @param $data array
-     * @return $inser_id string
-     */
-    function insert_bb_order_status($data){
-        $insert_id = $this->db->insert('bb_cp_order_action',$data);
-        return $insert_id;
-    }
-    
     function update_bb_cp_order_action($where,$data){
         $this->db->where($where);
         return $this->db->update('bb_cp_order_action', $data);
 
     }
     
+    function action_bb_cp_order_action($where,$data){
+        $is_exist = $this->get_cp_order_action($where,"*");
+        if(!empty($is_exist)){
+            $this->update_bb_cp_order_action($where,array('cp_id' =>$data['cp_id']));
+        } else {
+            $this->insert_bb_cp_order_action($data);
+        }
+    }
+    
     function insert_cp_shop_address($data){
         $this->db->insert('bb_shop_address',$data);
         return $this->db->insert_id();
+    }
+    
+    function get_cp_order_action($where, $select){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('bb_cp_order_action');
+        return $query->result_array();
     }
     
     

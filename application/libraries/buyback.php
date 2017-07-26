@@ -597,7 +597,7 @@ class Buyback {
      * @param Array $where_bb_charges
      * @return Array
      */
-    function update_assign_cp_process($where_bb_charges, $order_id, $agent) {
+    function update_assign_cp_process($where_bb_charges, $order_id, $agent, $internal_status) {
         $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges($where_bb_charges, '*');
         if (!empty($bb_charges)) {
             $unit_data = array('category' => $bb_charges[0]['category'],
@@ -618,7 +618,11 @@ class Buyback {
                 $bb_order_details['assigned_cp_id'] = $where_bb_charges['cp_id'];
                 $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
                 if ($is_status) {
-                    $this->My_CI->cp_model->update_bb_cp_order_action(array('partner_order_id' => $order_id), array('cp_id' => $where_bb_charges['cp_id']));
+                    $this->My_CI->cp_model->action_bb_cp_order_action(array('partner_order_id' => $order_id), 
+                            array('cp_id' => $where_bb_charges['cp_id'], "partner_order_id" => $order_id,
+                                "create_date" => date('Y-m-d H:i:s'), "current_status" => 'Pending', 
+                                "internal_status" => $internal_status));
+                   
                     $this->insert_bb_state_change($order_id, ASSIGNED_VENDOR, 'Assigned CP Agent ID', $agent, _247AROUND, NULL);
                 } else {
                     log_message('info', __METHOD__ . " Error In log for this partner_order_id: " . $order_id);
