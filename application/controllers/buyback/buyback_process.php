@@ -794,7 +794,7 @@ class Buyback_process extends CI_Controller {
     }
     function search_for_buyback(){
         log_message("info",__METHOD__);
-        $post['search_value'] = $this->input->post('search');
+        $post['search_value'] = trim($this->input->post('search'));
         $post['column_search'] = array('bb_order_details.partner_order_id', 'bb_order_details.partner_tracking_id');
         $post['where'] = array();
         $post['where_in'] = array();
@@ -802,7 +802,11 @@ class Buyback_process extends CI_Controller {
         $post['length'] = -1;
         
         $list['list'] = $this->bb_model->get_bb_order_list($post);
-        
+        $select = "bb_shop_address.id, concat(name,'( ' ";
+       
+        $select .= ",shop_address_region ";
+        $select .= " ) as cp_name";
+        $list['shop_list'] = $this->bb_model->get_cp_shop_address_details(array(), $select, "name");
         $this->load->view('buyback/bb_search_result', $list);
     }
     /**
@@ -887,69 +891,46 @@ class Buyback_process extends CI_Controller {
     }
     function assigned_bb_unassigned_data(){
         log_message("info",__METHOD__);
-       
+        $array['where'] = array('assigned_cp_id IS NULL' => NULL);
+        $array['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
+        $array['column_order'] = array();
+        $array['column_search'] = array();
+        $array['length'] = -1;
+        $array['search_value'] = "";
+        $unassigned_order_data = $this->bb_model->get_bb_order_list($array);
         $not_assigned = array();
-        $select = 'bb_order_details.city, bb_order_details.partner_id, bb_order_details.partner_order_id, bb_order_details.current_status';
-        $where = array("assigned_cp_id IS NULL" => NULL, 
-                       "current_status NOT IN ('Cancelled', 'Rejected')" => null
-                      );
-        $unassigned_order_data = $this->bb_model->get_bb_order_details($where,$select);
+       
         if(!empty($unassigned_order_data)){
             foreach ($unassigned_order_data as  $value){
 
                 //Get CP id from shop address table.
-                $cp_id = $this->buyback->get_cp_id_from_region($value['city']);
+                $cp_id = $this->buyback->get_cp_id_from_region($value->city);
                 if(!empty($cp_id)){
                     //Get Charges list
-                    $where_bb_charges = array('partner_id' => $value['partner_id'],
-                                              'city' => $value['city'],
+                    $where_bb_charges = array('partner_id' => $value->partner_id,
+                                              'city' => $value->city,
+                                              'order_key' => $value->order_key,
                                               'cp_id' => $cp_id
                                     );
-                    $bb_charges = $this->service_centre_charges_model->get_bb_charges($where_bb_charges, '*');
-                    if(!empty($bb_charges)){
-                        $unit_data = array('category' => $bb_charges[0]['category'],
-                                      'brand' => $bb_charges[0]['brand'],
-                                      'physical_condition' => $bb_charges[0]['physical_condition'],
-                                      'working_condition' => $bb_charges[0]['working_condition'],
-                                      'partner_basic_charge' => $bb_charges[0]['partner_basic'],
-                                      'partner_tax_charge' => $bb_charges[0]['partner_tax'],
-                                      'cp_basic_charge' => $bb_charges[0]['cp_basic'],
-                                      'cp_tax_charge' => $bb_charges[0]['cp_tax'],
-                                      'around_commision_basic_charge' => $bb_charges[0]['around_basic'],
-                                      'around_commision_tax' => $bb_charges[0]['around_tax']
-                                      );
-                    
-                        $where_bb_order = array('partner_order_id' => $value['partner_order_id'],'partner_id'=> $value['partner_id']);
-                        $update_unit_details = $this->bb_model->update_bb_unit_details($where_bb_order,$unit_data);
-
-
-                        if ($update_unit_details) {
-                            $bb_order_details['assigned_cp_id'] = $cp_id;
-                            $is_status = $this->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
-                            if($is_status){
-                                $this->buyback->insert_bb_state_change($value['partner_order_id'], ASSIGNED_VENDOR, 'Assigned CP Id From Our CRM', $this->session->userdata('id'), _247AROUND, NULL);
-                            }else{
-                                log_message('info', __METHOD__. " Error In assigning cp_id for this partner_order_id: ". $value['partner_order_id']);
-                            }
-                        } else {
-                           log_message('info', __METHOD__. " Error In assigning cp_id for this partner_order_id: ". $value['partner_order_id']);
-                        }
-                    }else{
-                        
-                        array_push($not_assigned, array("partner_id" => 
-                            $value['partner_order_id'], "message" => "Charges Not Found"));
-                    }
-                    
+                   $status = $this->buyback->update_assign_cp_process($where_bb_charges, $value->partner_order_id, 1, $value->internal_status);
+                   if(!$status['status']){
+                      array_push($not_assigned, array('order_id' =>$value->partner_order_id,"message" => "Charges Not Found"));
+                   }
+                 
                 }else{
-                    array_push($not_assigned, array("partner_id" => 
-                            $value['partner_order_id'], "message" => "City Not Found"));
+                    array_push($not_assigned, array("order_id" => 
+                            $value->partner_order_id, "message" => "City Not Found"));
                 }
             }
         }
+        if(!empty($not_assigned)){
+            $output = array('status' => -247, 'error' =>$not_assigned);
+        } else {
+            $output = array('status' => 247);
+        }
         
-        $data['not_assigned'] =  $not_assigned;
-
-        echo json_encode($data);
+        echo json_encode($output);
+     
     }  
         
     function bb_order_search(){
@@ -966,17 +947,18 @@ class Buyback_process extends CI_Controller {
         $data['service'] = $this->booking_model->selectservice();
         $data['current_status'] = $this->bb_model->get_bb_order(array(),"current_status", "current_status");
         $data['internal_status'] = $this->bb_model->get_bb_order(array(),"internal_status",  "internal_status");
-        $select = "cp_id, concat(name,'( ' ";
+        $select = "bb_shop_address.id, concat(name,'( ' ";
        
         $select .= ",shop_address_region ";
         $select .= " ) as cp_name";
-        $data['cp_list'] = $this->bb_model->get_cp_shop_address_details(array(), $select, "name");
+        $data['shop_list'] = $this->bb_model->get_cp_shop_address_details(array(), $select, "name");
+        $data['cp_list'] = $this->bb_model->get_cp_shop_address_details(array(), "cp_id, name as cp_name", "name");
       
         echo json_encode($data);
     }
     
      function search_table_data($order_list, $no){
-        log_message("info",__METHOD__);
+       // log_message("info",__METHOD__);
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
@@ -989,10 +971,11 @@ class Buyback_process extends CI_Controller {
         $row[] = $order_list->current_status;
         $row[] = $order_list->partner_basic_charge;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
-        $row[] =  '<select  name="assign_cp_id['.$order_list->partner_order_id.']" ui-select2  class="assign_cp_id"  class="form-control" 
+        $row[] =  '<select name="assign_cp_id['.$order_list->partner_order_id.']" ui-select2  class="assign_cp_id"  class="form-control" 
                 data-placeholder="Select CP" style="width:200px;">
                 <option value="" selected disabled>Select CP</option>   
                 </select>';
+        
         
         return $row;
     }
@@ -1263,5 +1246,5 @@ class Buyback_process extends CI_Controller {
         
         $this->load->view('buyback/show_bb_charges', $cp);
     }
-
+    
 }

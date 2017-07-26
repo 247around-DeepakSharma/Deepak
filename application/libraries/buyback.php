@@ -570,7 +570,7 @@ class Buyback {
     function get_cp_id_from_region($region){
         
         //Get CP id from shop address table.
-        $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details(array('shop_address_region' => $region), 'cp_id, active');
+        $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details(array('shop_address_region' => $region), 'cp_id, bb_shop_address.active');
         if(count($cp_shop_ddress) ==1){
             
             return $cp_shop_ddress[0]['cp_id'];
@@ -592,5 +592,53 @@ class Buyback {
         
         return false;
     }
-    
+    /**
+     * @desc This is used to update assign cp process
+     * @param Array $where_bb_charges
+     * @return Array
+     */
+    function update_assign_cp_process($where_bb_charges, $order_id, $agent, $internal_status) {
+        $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges($where_bb_charges, '*');
+        if (!empty($bb_charges)) {
+            $unit_data = array('category' => $bb_charges[0]['category'],
+                'brand' => $bb_charges[0]['brand'],
+                'physical_condition' => $bb_charges[0]['physical_condition'],
+                'working_condition' => $bb_charges[0]['working_condition'],
+                'cp_basic_charge' => $bb_charges[0]['cp_basic'],
+                'cp_tax_charge' => $bb_charges[0]['cp_tax'],
+                'around_commision_basic_charge' => $bb_charges[0]['around_basic'],
+                'around_commision_tax' => $bb_charges[0]['around_tax']
+            );
+
+            $where_bb_order = array('partner_order_id' => $order_id, 'partner_id' => $where_bb_charges['partner_id']);
+            $update_unit_details = $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $unit_data);
+
+
+            if ($update_unit_details) {
+                $bb_order_details['assigned_cp_id'] = $where_bb_charges['cp_id'];
+                $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
+                if ($is_status) {
+                    $this->My_CI->cp_model->action_bb_cp_order_action(array('partner_order_id' => $order_id), 
+                            array('cp_id' => $where_bb_charges['cp_id'], "partner_order_id" => $order_id,
+                                "create_date" => date('Y-m-d H:i:s'), "current_status" => 'Pending', 
+                                "internal_status" => $internal_status));
+                   
+                    $this->insert_bb_state_change($order_id, ASSIGNED_VENDOR, 'Assigned CP Agent ID', $agent, _247AROUND, NULL);
+                } else {
+                    log_message('info', __METHOD__ . " Error In log for this partner_order_id: " . $order_id);
+                    return array('status' => false, "msg" => " Error In assigning cp_id for this partner_order_id: " . $order_id);
+                }
+            } else {
+               
+                log_message('info', __METHOD__ . " Error In assigning cp_id for this partner_order_id: " . $order_id);
+                 return array('status' => false, "msg" => " Error In assigning cp_id for this partner_order_id: " .$order_id);
+            }
+        } else {
+            return array('status' => false, "msg" => 'Charges Not Found');
+            
+        }
+        
+         return array('status' => TRUE);
+    }
+
 }

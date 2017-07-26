@@ -18,6 +18,8 @@ class Collection_partner extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->model('cp_model');
         $this->load->model('vendor_model');
+        $this->load->model('bb_model');
+        $this->load->library('buyback');
 
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -253,6 +255,41 @@ class Collection_partner extends CI_Controller {
         $data['cp_history'] = $this->cp_model->get_cp_history($select,$where);
         
         echo $this->load->view('buyback/show_cp_history',$data);
+    }
+    /**
+     * @desc Process Assign CP & Shop Process
+     */
+    function process_assign_order(){
+        log_message("info", __METHOD__);
+        $assigned_cp_data = $this->input->post("assign_cp_id");
+        $error = array();
+        $agent = $this->session->userdata('id');
+        $array['where_in'] = array();$array['column_order'] = array();$array['column_search'] = array();$array['length'] = -1;$array['search_value'] = "";
+        foreach ($assigned_cp_data as $order_id => $shop_id) {
+            $cp_shop = $this->bb_model->get_cp_shop_address_details(array('bb_shop_address.id' => $shop_id), 'cp_id, shop_address_region');
+            
+            $array['where'] = array();
+            $array['where'] = array('bb_unit_details.partner_order_id' => $order_id);
+            
+            $bb_details = $this->bb_model->get_bb_order_list($array)[0];
+        
+            $where = array('cp_id' => $cp_shop[0]['cp_id'], 
+                'partner_id'=> $bb_details->partner_id, 
+                'order_key' => $bb_details->order_key,
+                'city' => $cp_shop[0]['shop_address_region']);
+            
+            $status = $this->buyback->update_assign_cp_process($where, $order_id, $agent, $bb_details->internal_status);
+            if(!$status['status']){
+                array_push($error, array('order_id' =>$order_id,"msg" => $status['msg']));
+            }
+        }
+        if(!empty($error)){
+            $output = array('status' => -247, 'error' =>$error);
+        } else {
+            $output = array('status' => 247);
+        }
+        
+        echo json_encode($output);
     }
 
 }
