@@ -568,7 +568,7 @@ class Service_centers extends CI_Controller {
 
         $data2['partner_vendor'] = "vendor";
         $data2['partner_vendor_id'] = $this->session->userdata('service_center_id');
-        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
+        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/invoice_summary', $invoice);
     }

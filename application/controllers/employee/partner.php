@@ -1260,7 +1260,7 @@ class Partner extends CI_Controller {
 
         $data2['partner_vendor'] = "partner";
         $data2['partner_vendor_id'] = $partner_id;
-        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
+        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
         $this->load->view('partner/header');
         $this->load->view('partner/invoice_summary', $invoice);
     }
@@ -3048,7 +3048,7 @@ class Partner extends CI_Controller {
 
         $data2['partner_vendor'] = "partner";
         $data2['partner_vendor_id'] = $partner_id;
-        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
+        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
         $this->load->view('partner/inactive_partner_header');
         $this->load->view('partner/invoice_summary', $invoice);
      }
