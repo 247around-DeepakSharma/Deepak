@@ -2929,3 +2929,8 @@ ADD `invoice_courier_phone_number` VARCHAR(20) NULL AFTER `invoice_courier_addre
 
 -- Abhay 19 July
 ALTER TABLE `service_centres` ADD `min_upcountry_distance` INT(100) NULL DEFAULT '25' AFTER `gst_file`;
+
+
+--Abhay 24 July
+ALTER TABLE `bb_shop_address` ADD `shop_address_region` VARCHAR(64) NULL DEFAULT NULL AFTER `shop_address_city`;
+

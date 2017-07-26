@@ -132,7 +132,7 @@
                                                                 <tbody>
                                                                     <tr ng-repeat="x in notFoundCity">
                                                                         <td>{{$index + 1}}</td>
-                                                                        <td>{{ x.partner_id }}</td>
+                                                                        <td>{{ x.order_id }}</td>
                                                                          <td>{{ x.message }}</td>
                                                                     </tr>
                                                                 </tbody>
@@ -200,8 +200,8 @@
             "columnDefs": [
                 {
                     "targets": [0,1,6,7], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "orderable": false //set not orderable
+                }
             ],
            "fnInitComplete": function (oSettings, response) {
             
@@ -279,8 +279,8 @@
             "columnDefs": [
                 {
                     "targets": [0,1], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "orderable": false //set not orderable
+                }
             ],
             "fnInitComplete": function (oSettings, response) {
            

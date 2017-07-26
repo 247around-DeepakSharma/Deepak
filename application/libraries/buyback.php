@@ -42,32 +42,30 @@ class Buyback {
      * @return boolean
      */
     function new_bb_order() {
-        $array = array('shop_address_city' => $this->POST_DATA['city'], 'active' => 1);
+        // Get CP Id
+        $cp_id = $this->get_cp_id_from_region( $this->POST_DATA['city']);
 
-        //Get CP id from shop address table.
-        $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details($array, '*');
         $bb_charges = array();
-        $cp_id = FALSE;
         $service_id = 0;
-        if (!empty($cp_shop_ddress)) {
+        if (!empty($cp_id)) {
             //Get Charges list
             $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges(array(
                 'partner_id' => $this->POST_DATA['partner_id'],
                 'city' => $this->POST_DATA['city'],
                 'order_key' => $this->POST_DATA['order_key'],
-                'cp_id' => $cp_shop_ddress[0]['cp_id']
+                'cp_id' => $cp_id
                     ), '*');
             if (!empty($bb_charges)) {
                 $cp_id = $bb_charges[0]['cp_id'];
                 $service_id = $bb_charges[0]['service_id'];
             }
+        } else {
+            $this->My_CI->initialized_variable->not_assigned_order();
         }
         if (empty($service_id)) {
             $service_id = $this->get_service_id_by_appliance();
         }
-        if (empty($cp_id)) {
-            $this->My_CI->initialized_variable->not_assigned_order();
-        }
+
         // Insert bb order details
         $is_insert = $this->insert_bb_order_details($cp_id);
         if ($is_insert) {
@@ -193,40 +191,46 @@ class Buyback {
      * @return boolean
      */
 
-    function update_bb_order($order_data){
-        if($order_data[0]['current_status'] != "Delivered" || 
-                $order_data[0]['current_status'] != "Completed" || 
-                $order_data[0]['current_status'] != $this->POST_DATA['current_status']){
-            
-            $bb_order_details = array(
-                'current_status' => $this->POST_DATA['current_status'],
-                'internal_status' => $this->POST_DATA['current_status'],
-                'delivery_date' => (!empty($this->POST_DATA['delivery_date']) ? $this->POST_DATA['delivery_date'] : NULL)
-            );
-            if($this->POST_DATA['tracking_id'] != 0 ||$order_data[0]['partner_tracking_id'] != $this->POST_DATA['tracking_id']){
-                $bb_order_details['partner_tracking_id'] = $this->POST_DATA['tracking_id'];
-            }
-            if($this->POST_DATA['city'] != 0 || $order_data[0]['city'] != $this->POST_DATA['city']){
-                $bb_order_details['city'] = $this->POST_DATA['city'];
-            }
-            if($this->POST_DATA['partner_order_id'] != 0 || $order_data[0]['partner_order_id'] != $this->POST_DATA['partner_order_id']){
-                $bb_order_details['partner_order_id'] = $this->POST_DATA['partner_order_id'];
-            }
-            $where_bb_order = array('id' => $order_data[0]['id']);
-            $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
-            if ($is_status) {
-                $bb_unit_details = array(
-                    'order_status' => $this->POST_DATA['current_status']
-                );
-                $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $bb_unit_details);
-                $this->insert_bb_state_change($this->POST_DATA['partner_order_id'], $this->POST_DATA['current_status'], NULL, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
-                if ($this->POST_DATA['current_status'] == 'Delivered') {
-                    $this->My_CI->initialized_variable->delivered_count();
-                }
-                $this->My_CI->initialized_variable->total_updated();
-                return true;
-            } else {
+    function update_bb_order($order_data) {
+        if ($order_data[0]['current_status'] != "Delivered") {
+            if ($order_data[0]['current_status'] != "Completed") {
+                if ($order_data[0]['current_status'] != $this->POST_DATA['current_status']) {
 
+                    $bb_order_details = array(
+                        'current_status' => $this->POST_DATA['current_status'],
+                        'internal_status' => $this->POST_DATA['current_status'],
+                        'delivery_date' => (!empty($this->POST_DATA['delivery_date']) ? $this->POST_DATA['delivery_date'] : NULL)
+                    );
+                    if ($this->POST_DATA['tracking_id'] != 0 || $order_data[0]['partner_tracking_id'] != $this->POST_DATA['tracking_id']) {
+                        $bb_order_details['partner_tracking_id'] = $this->POST_DATA['tracking_id'];
+                    }
+                    if ($this->POST_DATA['city'] != 0 || $order_data[0]['city'] != $this->POST_DATA['city']) {
+                        $bb_order_details['city'] = $this->POST_DATA['city'];
+                    }
+                    if ($this->POST_DATA['partner_order_id'] != 0 || $order_data[0]['partner_order_id'] != $this->POST_DATA['partner_order_id']) {
+                        $bb_order_details['partner_order_id'] = $this->POST_DATA['partner_order_id'];
+                    }
+                    $where_bb_order = array('id' => $order_data[0]['id']);
+                    $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
+                    if ($is_status) {
+                        $bb_unit_details = array(
+                            'order_status' => $this->POST_DATA['current_status']
+                        );
+                        $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $bb_unit_details);
+                        $this->insert_bb_state_change($this->POST_DATA['partner_order_id'], $this->POST_DATA['current_status'], NULL, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
+                        if ($this->POST_DATA['current_status'] == 'Delivered') {
+                            $this->My_CI->initialized_variable->delivered_count();
+                        }
+                        $this->My_CI->initialized_variable->total_updated();
+                        return true;
+                    } else {
+
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
                 return false;
             }
         } else {
@@ -553,8 +557,84 @@ class Buyback {
             $insert_file_data['cp_id'] = $this->POST_DATA['cp_id'];
             $insert_file_data['image_name'] = $file_name;
             $insert_file_data['tag'] = $tag;
-            $insert_id = $this->My_CI->cp_model->insert_bb_order_image($insert_file_data);
+            $this->My_CI->cp_model->insert_bb_order_image($insert_file_data);
         }
+    }
+    /**
+     * @desc. If in one region only one CP is present, return cp id,  DO NOT check for ACTIVE flag.
+     * If in one region two CPs are active or NOT active (basically in the same state), DO NOT return cp id.
+     * If in one region more than 1 CPs are there but ONLY one is active and the others are not active, return active cp
+     * @param String $region
+     * @return boolean|array
+     */
+    function get_cp_id_from_region($region){
+        
+        //Get CP id from shop address table.
+        $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details(array('shop_address_region' => $region), 'cp_id, bb_shop_address.active');
+        if(count($cp_shop_ddress) ==1){
+            
+            return $cp_shop_ddress[0]['cp_id'];
+            
+        } else if(count($cp_shop_ddress) > 1){
+            
+            $ac_cp = array();
+            foreach ($cp_shop_ddress as $value) {
+                if($value['active'] == 1){
+                    array_push($ac_cp, $value['cp_id']);
+                } 
+            }
+            
+            if(count($ac_cp) == 1){
+                return $ac_cp[0];
+                
+            } 
+        }
+        
+        return false;
+    }
+    /**
+     * @desc This is used to update assign cp process
+     * @param Array $where_bb_charges
+     * @return Array
+     */
+    function update_assign_cp_process($where_bb_charges, $order_id, $agent) {
+        $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges($where_bb_charges, '*');
+        if (!empty($bb_charges)) {
+            $unit_data = array('category' => $bb_charges[0]['category'],
+                'brand' => $bb_charges[0]['brand'],
+                'physical_condition' => $bb_charges[0]['physical_condition'],
+                'working_condition' => $bb_charges[0]['working_condition'],
+                'cp_basic_charge' => $bb_charges[0]['cp_basic'],
+                'cp_tax_charge' => $bb_charges[0]['cp_tax'],
+                'around_commision_basic_charge' => $bb_charges[0]['around_basic'],
+                'around_commision_tax' => $bb_charges[0]['around_tax']
+            );
+
+            $where_bb_order = array('partner_order_id' => $order_id, 'partner_id' => $where_bb_charges['partner_id']);
+            $update_unit_details = $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $unit_data);
+
+
+            if ($update_unit_details) {
+                $bb_order_details['assigned_cp_id'] = $where_bb_charges['cp_id'];
+                $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
+                if ($is_status) {
+                    $this->My_CI->cp_model->update_bb_cp_order_action(array('partner_order_id' => $order_id), array('cp_id' => $where_bb_charges['cp_id']));
+                    $this->insert_bb_state_change($order_id, ASSIGNED_VENDOR, 'Assigned CP Agent ID', $agent, _247AROUND, NULL);
+                } else {
+                    log_message('info', __METHOD__ . " Error In log for this partner_order_id: " . $order_id);
+                    return array('status' => false, "msg" => " Error In assigning cp_id for this partner_order_id: " . $order_id);
+                }
+            } else {
+               
+                log_message('info', __METHOD__ . " Error In assigning cp_id for this partner_order_id: " . $order_id);
+                 return array('status' => false, "msg" => " Error In assigning cp_id for this partner_order_id: " .$order_id);
+            }
+        } else {
+            return array('status' => false, "msg" => 'Charges Not Found');
+            
+        }
+        
+         return array('status' => TRUE);
     }
 
 }
