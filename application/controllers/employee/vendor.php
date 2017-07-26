@@ -4094,18 +4094,18 @@ class vendor extends CI_Controller {
      */
     function process_reassign_partner_form(){
         log_message('info',__FUNCTION__);
-        $booking_id = trim($this->input->post('booking_id'));
+        $booking_id = $this->input->post('booking_id');
         $partner = $this->input->post('partner');
-        if(sizeof($booking_id) === sizeof($partner)){
+        if(count($booking_id) === count($partner)){
             foreach($booking_id as $key=>$value){
                 
                 // update partner to corresponding booking id in booking_details table
                 $booking_details_data = array('partner_id'=>$partner[$key],);
-                $this->booking_model->update_booking($value, $booking_details_data);
+                $this->booking_model->update_booking(trim($value), $booking_details_data);
                 
                 // update partner to corresponding booking id in booking_unit_details table
                 $booking_unit_details_data = array('partner_id'=>$partner[$key],);
-                $this->booking_model->update_booking_unit_details($value, $booking_unit_details_data);
+                $this->booking_model->update_booking_unit_details(trim($value), $booking_unit_details_data);
                 
                 log_message('info', "Reassigned Partner For Booking_id: " . $value . "  By " .
                 $this->session->userdata('employee_id') . " and new Partner Id =" . $partner[$key]);

@@ -1018,7 +1018,7 @@
                                         ?>">
                                         <label for="bank_account" class="col-md-4">Bank Account</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control allownumericwithdecimal"  name="bank_account" value = "<?php
+                                            <input type="text" class="form-control allowNumericWithDecimal"  name="bank_account" value = "<?php
                                                 if (isset($query[0]['bank_account'])) {
                                                     echo $query[0]['bank_account'];
                                                 }
@@ -1548,10 +1548,19 @@
         return false;
     });  
     
-    $(".allownumericwithdecimal").on("keypress blur",function (event) {
-        $(this).val($(this).val().replace(/[^0-9\.]/g,''));
-        if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
-            event.preventDefault();
+    $(".allowNumericWithDecimal").keydown(function (e) {
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+             // Allow: Ctrl+A, Command+A
+            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) || 
+             // Allow: home, end, left, right, down, up
+            (e.keyCode >= 35 && e.keyCode <= 40) || e.ctrlKey) {
+                 // let it happen, don't do anything
+                 return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
         }
     });
     
