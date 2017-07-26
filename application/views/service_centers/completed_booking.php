@@ -18,6 +18,9 @@
                                     <th>Service Name</th> 
                                     <th>Closing Date</th>
                                     <th>Closing Remarks</th>
+                                    <?php if ($status == "Completed") { ?> 
+                                    <th>Rating</th>
+                                    <?php } ?>
                                     <th>View</th>
                                    
                                 </tr>
@@ -69,6 +72,11 @@
                                                    
                                                 
                                             </td>-->
+                                            <?php if ($status === "Completed") { ?> 
+                                                    <td><?php if(!empty($row['rating_stars'])) 
+                                                        { echo $row['rating_stars']."/<b>5</b>"; } 
+                                                        else { echo "Ratings Not Taken Yet";}?></td>
+                                            <?php } ?>
                                             
                                             <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
                 
