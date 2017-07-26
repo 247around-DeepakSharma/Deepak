@@ -909,7 +909,7 @@ class Buyback_process extends CI_Controller {
                     //Get Charges list
                     $where_bb_charges = array('partner_id' => $value->partner_id,
                                               'city' => $value->city,
-                                              'order_key' => $value->partner_order_id,
+                                              'order_key' => $value->order_key,
                                               'cp_id' => $cp_id
                                     );
                    $status = $this->buyback->update_assign_cp_process($where_bb_charges, $value->partner_order_id, 1, $value->internal_status);
@@ -1246,5 +1246,5 @@ class Buyback_process extends CI_Controller {
         
         $this->load->view('buyback/show_bb_charges', $cp);
     }
-
+    
 }
