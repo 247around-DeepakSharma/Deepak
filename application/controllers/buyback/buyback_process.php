@@ -1151,5 +1151,117 @@ class Buyback_process extends CI_Controller {
         
         return $combined_excel;
     }
+    
+    
+    /**
+     * @desc This function is used to show the view to get the charges list from bb_charges table
+     * @param void()
+     * @return void()
+     */
+    function filter_bb_price_list(){
+        
+        $select = "cp_id, concat(name,'( ' ";
+       
+        $select .= ",shop_address_region ";
+        $select .= " ) as cp_name";
+        $data['cp_list'] = $this->bb_model->get_cp_shop_address_details(array(), $select, "name");
+        //echo "<pre>";        print_r($data);exit();
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/filter_bb_price_list',$data);
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    
+    /**
+     * @desc This function is used to get appliance list from bb_charges table
+     * by cp_id
+     * @param void()
+     * @return void()
+     */
+    function get_bb_cp_appliance() {
+        $cp_id = $this->input->post('cp_id');
+        $select = 'service_id,s.services';
+        $where['cp_id'] = $cp_id;
+        $appliance_list = $this->bb_model->get_bb_price_data($select, $where, true, true);
+        $option = '<option selected disabled>Select Appliance</option>';
+
+        foreach ($appliance_list as $value) {
+            $option .= "<option value='" . $value['service_id'] . "'";
+            $option .= " > ";
+            $option .= $value['services'] . "</option>";
+        }
+
+        echo $option;
+    }
+    
+    /**
+     * @desc This function is used to get physical condition from bb_charges table
+     * by cp_id and service_id
+     * @param void()
+     * @return void()
+     */
+    function get_bb_charges_physical_condition(){
+        $cp_id = $this->input->post('cp_id');
+        $service_id = $this->input->post('service_id');
+        $select = 'physical_condition';
+        $where['cp_id'] = $cp_id;
+        $where['service_id'] = $service_id;
+        $physical_condition_list = $this->bb_model->get_bb_price_data($select, $where, true);
+        $option = '<option selected disabled>Select Physical Condition</option>';
+
+        foreach ($physical_condition_list as $value) {
+            $option .= "<option value='" . $value['physical_condition'] . "'";
+            $option .= " > ";
+            $option .= $value['physical_condition'] . "</option>";
+        }
+
+        echo $option;
+    }
+    
+    
+    /**
+     * @desc This function is used to get working condition from bb_charges table
+     * by cp_id and service_id
+     * @param void()
+     * @return void()
+     */
+    function get_bb_charges_working_condition(){
+        $cp_id = $this->input->post('cp_id');
+        $service_id = $this->input->post('service_id');
+        $physical_condition = $this->input->post('physical_condition');
+        $select = 'working_condition';
+        $where['cp_id'] = $cp_id;
+        $where['service_id'] = $service_id;
+        $where['physical_condition'] = $physical_condition;
+        $physical_condition_list = $this->bb_model->get_bb_price_data($select, $where, true);
+        $option = '<option selected disabled>Select Working Condition</option>';
+
+        foreach ($physical_condition_list as $value) {
+            $option .= "<option value='" . $value['working_condition'] . "'";
+            $option .= " > ";
+            $option .= $value['working_condition'] . "</option>";
+        }
+
+        echo $option;
+    }
+    
+    
+    /**
+     * @desc This function is used to the filtered charges data from bb_charges table
+     * @param void()
+     * @return void()
+     */
+    function get_bb_price_list(){
+        $where['cp_id'] = $this->input->post('cp_id');
+        $where['service_id'] = $this->input->post('service_id');
+        $where['physical_condition'] = $this->input->post('physical_condition');
+        $where['working_condition'] = $this->input->post('working_condition');
+        
+        $select = 'category , brand , city , partner_total , cp_total , around_total,visible_to_partner,visible_to_cp';
+        
+        $cp['charges_data'] = $this->bb_model->get_bb_price_data($select,$where);
+        
+        $this->load->view('buyback/show_bb_charges', $cp);
+    }
 
 }

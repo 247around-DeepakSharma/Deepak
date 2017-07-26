@@ -91,6 +91,7 @@
                                     </li>
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_review">Review Order</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/collection_partner/get_cp_shop_address">Shop Addresses</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/filter_bb_price_list">Charges List</a></li>
                                 </ul>
                             </li>
                             <!--                        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
