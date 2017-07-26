@@ -141,8 +141,7 @@ advanced_search.controller("advancedSearchController", function ($scope, $http) 
                 $scope.city_list = response.data.city;
                 $scope.internal_status_list = response.data.internal_status;
                 $scope.cp_list = response.data.cp_list;
-                cp_list1 = response.data.cp_list;
-               
+                shop_list_details = response.data.shop_list;
                 $scope.current_status_list = response.data.current_status;
        });
     
@@ -256,11 +255,23 @@ viewBBOrderList.controller('assignCP', function ($scope, $http) {
             },
             function(){
                 $scope.showLoader = true;
+                
                 $http.post(post_url).success(function (response) {
-                    //console.log(response);
-                    $scope.notFoundCity = response.not_assigned;
-                    $scope.showLoader = false;
-                    $('#invoiceDetailsModal').modal("show");
+                    console.log(response);
+                    if(response.status === 247){
+                       
+                        alert("Assigned CP Successfully");
+                        $scope.showLoader = false;
+
+                    } else if(response.status === -247){
+                        message = response.error;
+                        $scope.notFoundCity = message;
+                        $scope.showLoader = false;
+                        $('#invoiceDetailsModal').modal("show");
+                    } 
+                   
+                   
+                    
                     
                 });
             });
@@ -311,3 +322,51 @@ function notifyMe(msg) {
         });
     }
 }
+
+
+    function reAssign(){
+        var URL = baseUrl + "/buyback/collection_partner/process_assign_order";
+        var fd = new FormData(document.getElementById("reAssignForm"));
+        fd.append("label", "WEBUPLOAD");
+        $.ajax({
+            url: URL,
+            type: "POST",
+            data: fd,
+            processData: false,  // tell jQuery not to process the data
+            contentType: false,   // tell jQuery not to set contentType
+            beforeSend: function(){
+                    $('body').loadingModal({
+                    position: 'auto',
+                    text: 'Loading Please Wait...',
+                    color: '#fff',
+                    opacity: '0.7',
+                    backgroundColor: 'rgb(0,0,0)',
+                    animation: 'wave'
+                  });
+
+                }
+        }).done(function( response ) {
+          var data1 = jQuery.parseJSON(response);
+          if(data1.status === 247){
+              $('body').loadingModal('destroy');
+              $(".assign_cp_id option:selected").prop("selected", false);
+              alert("Assigned CP Successfully");
+             
+          } else if(data1.status === -247){
+               message = data1.error;
+               console.log(message);
+               var table_td = "";
+               for(i=0;i< message.length; i++){
+                   table_td += '<tr><td>'+(i+1)+'</td><td>'+message[i]['order_id']+'</td><td>'+message[i]['msg']+'</td></tr>';
+               }
+               $('body').loadingModal('destroy');
+               $("#error_td").html(table_td);
+               $('#myModal').modal("show");
+          } else {
+              alert("There is problem in Assign Vendor. Please Contact to 247Around Dev Team");
+          }
+          
+          //location.reload();
+
+        });
+    }
