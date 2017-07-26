@@ -112,7 +112,7 @@ class Bb_model extends CI_Model {
     public function _get_bb_order_list_query($post) {
         $this->db->from('bb_order_details');
         $this->db->select('bb_unit_details.partner_order_id,bb_order_details.partner_id, services,city, order_date, internal_status, '
-                . 'delivery_date, bb_order_details.current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,'
+                . 'delivery_date, bb_order_details.current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,bb_unit_details.order_key, '
                 . 'bb_unit_details.service_id,bb_order_details.assigned_cp_id,bb_unit_details.physical_condition,bb_unit_details.working_condition');
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
                 . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
