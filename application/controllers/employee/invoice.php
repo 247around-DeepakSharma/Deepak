@@ -92,7 +92,7 @@ class Invoice extends CI_Controller {
         //TODO: Fix the reversed names here & everywhere else as well
         $data2['partner_vendor'] = $this->input->post('source');
         $data2['partner_vendor_id'] = $this->input->post('vendor_partner_id');
-        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
+        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
 
         if ($data['vendor_partner'] == "vendor") {
             $invoice['vendor_details'] = $this->vendor_model->getVendorContact($data['vendor_partner_id']);
@@ -241,7 +241,7 @@ class Invoice extends CI_Controller {
      */
     function update_banktransaction($id) {
 
-        $details = $this->invoices_model->get_bank_transactions_details(array('id' => $id));
+        $details = $this->invoices_model->get_bank_transactions_details('*',array('id' => $id));
         if (!empty($details)) {
             $data['vendor_partner'] = $details[0]['partner_vendor'];
             $data['id'] = $details[0]['partner_vendor_id'];

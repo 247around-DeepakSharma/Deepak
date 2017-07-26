@@ -96,8 +96,12 @@ class invoices_model extends CI_Model {
         return $this->db->insert_id();
     }
 
-    function get_bank_transactions_details($data) {
+    function get_bank_transactions_details($select,$data, $join = '') {
+        $this->db->select($select);
         $this->db->where($data);
+        if($join != ''){
+            $this->db->join('employee','bank_transactions.agent_id = employee.id');
+        }
         $this->db->order_by('transaction_date DESC');
         $query = $this->db->get('bank_transactions');
         return $query->result_array();
@@ -669,7 +673,7 @@ class invoices_model extends CI_Model {
 
         $data2['partner_vendor'] = $vendor_partner_id;
         $data2['partner_vendor_id'] = $vendor_partner;
-        $bank_statement = $this->invoices_model->get_bank_transactions_details($data2);
+        $bank_statement = $this->invoices_model->get_bank_transactions_details('*',$data2);
 
         $amount_collected_paid = 0;
         $debit_amount = 0;
