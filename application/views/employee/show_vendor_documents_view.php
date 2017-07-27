@@ -40,6 +40,7 @@ select { width: 8.5em;height:2em; }
                         <th class="jumbotron" style="padding:1px;text-align: center">CST</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">TIN</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">SERVICE TAX</th>
+                        <th class="jumbotron" style="padding:1px;text-align: center">GST</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">ID PROOF 1</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">ID PROOF 2</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">CANCELLED CHEQUE</th>
@@ -54,6 +55,7 @@ select { width: 8.5em;height:2em; }
                     $contract =0;
                     $tin =0;
                     $service_tax =0;
+                    $gst = 0;
                     $id_1 =0;
                     $id_2 =0;
                     $cancelled_cheque =0;
@@ -98,6 +100,14 @@ select { width: 8.5em;height:2em; }
                                 
                                 </td>
                             <td style="text-align: center">
+                                <?php if(!empty($value['gst_file']) && $value['is_gst_doc'] == 1){
+                                    $gst++; ?>
+                                   <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php echo $value['gst_file']?>' target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
+                                <?php }
+                                ?>
+                                
+                                </td>
+                            <td style="text-align: center">
                                 <?php if(!empty($value['id_proof_1_file'])){
                                     $id_1++; ?>
                                     <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php echo $value['id_proof_1_file']?>' target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
@@ -132,6 +142,7 @@ select { width: 8.5em;height:2em; }
                             <td><?php echo $cst?></td>
                             <td><?php echo $tin?></td>
                             <td><?php echo $service_tax?></td>
+                            <td><?php echo $gst ?></td>
                             <td><?php echo $id_1?></td>
                             <td><?php echo $id_2?></td>
                             <td><?php echo $cancelled_cheque?></td>
