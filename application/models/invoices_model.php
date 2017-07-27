@@ -815,6 +815,8 @@ class invoices_model extends CI_Model {
 
         if (!empty($result)) {
             $meta['misc_charges'] = 0;
+            $meta['total_upcountry'] = 0; 
+            $meta['total_courier_charge'] = 0; 
             if ($upcountry_flag) {
                 $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
                 $courier = $this->get_partner_courier_charges($partner_id,$from_date,$to_date);
@@ -831,7 +833,7 @@ class invoices_model extends CI_Model {
                     $up_country[0]['p_rate'] = $upcountry_data[0]['partner_upcountry_rate'];
                     $up_country[0]['misc_charges'] = $upcountry_data[0]['total_upcountry_price'];
                     $meta['misc_charges'] += $upcountry_data[0]['total_upcountry_price'];
-
+                    $meta['total_upcountry'] += $upcountry_data[0]['total_upcountry_price'];
                     $result = array_merge($result, $up_country);
                 }
                 
@@ -846,6 +848,7 @@ class invoices_model extends CI_Model {
                     $c_data[0]['p_rate'] = '';
                     $c_data[0]['misc_charges'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
                     $meta['misc_charges'] += $c_data[0]['misc_charges'];
+                    $meta['total_courier_charge']  += $c_data[0]['misc_charges'];
                 }
             }
             $meta['total_part_cost'] = 0;
@@ -1385,10 +1388,11 @@ class invoices_model extends CI_Model {
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
                 AND `approved_defective_parts_by_partner` = 1
-                AND partner_invoice_id IS NOT NULL
+                AND partner_invoice_id IS NULL
                 AND courier_charges_by_sf > 0 ";
 
         $query = $this->db->query($sql);
+        
         return $query->result_array();
     }
             
