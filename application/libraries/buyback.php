@@ -446,7 +446,7 @@ class Buyback {
         //allowed only images
         $allowed_types = array('image/gif', 'image/jpg', 'image/png', 'image/jpeg');
         //process upload images
-        if (($_FILES['order_files']['error'] != 4) && !empty($_FILES['order_files']['tmp_name'])) {
+        if (($_FILES['damaged_order_files']['error'] !== 4) && !empty($_FILES['order_files']['tmp_name'])) {
                 $file_type = $_FILES['order_files']['type'];
                 if (in_array($file_type, $allowed_types)) {
                     $tmp_name = $_FILES['order_files']['tmp_name'];
@@ -460,7 +460,7 @@ class Buyback {
                 }
         }
 
-        if (($_FILES['damaged_order_files']['error'] != 4) && !empty($_FILES['damaged_order_files']['tmp_name'])) {
+        if (!empty($_FILES['damaged_order_files']['tmp_name'][0])) {
             $filesCount = count($_FILES['damaged_order_files']['name']);
             for ($i = 0; $i < $filesCount; $i++) {
                 $file_type = $_FILES['damaged_order_files']['type'][$i];

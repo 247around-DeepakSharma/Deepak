@@ -307,6 +307,10 @@
                             <a href="<?php echo base_url() ?>employee/invoice/show_purchase_brackets_credit_note_form"><i class="fa fa-fw fa-desktop "></i> <strong>Create Brackets Credit Note</strong></a>
                         </li>
                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/accounting/search_bank_transaction"><i class="fa fa-fw fa-desktop "></i> <strong>Search Bank Transaction</strong></a>
+                        </li>
+                        <li class="divider"></li>
                         <li class="dropdown dropdown-submenu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Partner</strong></a>
                             <ul class="dropdown-menu">
