@@ -94,7 +94,7 @@ class Buyback_process extends CI_Controller {
                 $data = $this->advanced_bb_search();
                 break;
             case 11:
-                $data = $this->get_not_received_data();
+                $data = $this->get_vendor_rejected_data();
                 break;
         }
         
@@ -374,12 +374,12 @@ class Buyback_process extends CI_Controller {
                 );
     }
     
-    function get_not_received_data(){
+    function get_vendor_rejected_data(){
         log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array('current_status' => array('Delivered'),
-            'internal_status' => array(_247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS));
+            'internal_status' => array(_247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS,_247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['where'] = array();
         $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
