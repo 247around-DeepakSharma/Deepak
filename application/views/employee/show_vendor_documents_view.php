@@ -30,17 +30,18 @@ select { width: 8.5em;height:2em; }
         </div>
         </div>
         <div class="panel-body">
-                <table class="table table-condensed table-bordered table-striped">
+                <table class="table table-condensed table-bordered table-striped table-responsive">
                 <thead>
                     <tr>
                         <th class="jumbotron">S.N.</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">SF NAME</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">CONTRACT</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">PAN</th>
-                        <th class="jumbotron" style="padding:1px;text-align: center">CST</th>
+<!--                        <th class="jumbotron" style="padding:1px;text-align: center">CST</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">TIN</th>
-                        <th class="jumbotron" style="padding:1px;text-align: center">SERVICE TAX</th>
+                        <th class="jumbotron" style="padding:1px;text-align: center">SERVICE TAX</th>-->
                         <th class="jumbotron" style="padding:1px;text-align: center">GST</th>
+                        <th class="jumbotron" style="padding:1px;text-align: center">Signature</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">ID PROOF 1</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">ID PROOF 2</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">CANCELLED CHEQUE</th>
@@ -51,11 +52,12 @@ select { width: 8.5em;height:2em; }
 
                     <?php 
                     $pan =0;
-                    $cst =0;
+                    //$cst =0;
                     $contract =0;
-                    $tin =0;
-                    $service_tax =0;
+                    //$tin =0;
+                    //$service_tax =0;
                     $gst = 0;
+                    $signature = 0;
                     $id_1 =0;
                     $id_2 =0;
                     $cancelled_cheque =0;
@@ -77,32 +79,40 @@ select { width: 8.5em;height:2em; }
                                 <?php }
                                 ?>
                             </td>
-                            <td style="text-align: center">
-                                <?php if(!empty($value['cst_file']) && $value['is_cst_doc'] == 1){ 
-                                    $cst++; ?>
-                                    <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php echo $value['cst_file']?>' target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
-                                <?php }
+<!--                            <td style="text-align: center">
+                                <?php //if(!empty($value['cst_file']) && $value['is_cst_doc'] == 1){ 
+                                    //$cst++; ?>
+                                    <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php //echo $value['cst_file']?>' target="_blank"><img src="<?php //echo base_url()?>images/ok.png" width="20" height="20"/></a>
+                                <?php //}
                                 ?>
                             </td>
                             <td style="text-align: center">
-                                <?php if(!empty($value['tin_file']) && $value['is_tin_doc'] == 1){ 
-                                    $tin++; ?>
-                                    <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php echo $value['tin_file']?>' target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
-                                <?php }
+                                <?php //if(!empty($value['tin_file']) && $value['is_tin_doc'] == 1){ 
+                                    //$tin++; ?>
+                                    <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php //echo $value['tin_file']?>' target="_blank"><img src="<?php //echo base_url()?>images/ok.png" width="20" height="20"/></a>
+                                <?php //}
                                 ?>
                             </td>
                             <td style="text-align: center">
-                                <?php if(!empty($value['service_tax_file']) && $value['is_st_doc'] == 1){
-                                    $service_tax++; ?>
-                                   <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php echo $value['service_tax_file']?>' target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
-                                <?php }
+                                <?php //if(!empty($value['service_tax_file']) && $value['is_st_doc'] == 1){
+                                    //$service_tax++; ?>
+                                   <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php //echo $value['service_tax_file']?>' target="_blank"><img src="<?php //echo base_url()?>images/ok.png" width="20" height="20"/></a>
+                                <?php// }
                                 ?>
                                 
-                                </td>
+                                </td>-->
                             <td style="text-align: center">
                                 <?php if(!empty($value['gst_file']) && $value['is_gst_doc'] == 1){
                                     $gst++; ?>
                                    <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php echo $value['gst_file']?>' target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
+                                <?php }
+                                ?>
+                                
+                                </td>
+                                <td style="text-align: center">
+                                <?php if(!empty($value['signature_file']) && $value['is_gst_doc'] == 1){
+                                    $signature++; ?>
+                                   <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php echo $value['signature_file']?>' target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
                                 <?php }
                                 ?>
                                 
@@ -139,10 +149,11 @@ select { width: 8.5em;height:2em; }
                             <td></td>
                             <td><?php echo $contract?></td>
                             <td><?php echo $pan?></td>
-                            <td><?php echo $cst?></td>
-                            <td><?php echo $tin?></td>
-                            <td><?php echo $service_tax?></td>
+<!--                            <td><?php //echo $cst?></td>
+                            <td><?php// echo $tin?></td>
+                            <td><?php// echo $service_tax?></td>-->
                             <td><?php echo $gst ?></td>
+                            <td><?php echo $signature ?></td>
                             <td><?php echo $id_1?></td>
                             <td><?php echo $id_2?></td>
                             <td><?php echo $cancelled_cheque?></td>
