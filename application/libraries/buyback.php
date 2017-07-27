@@ -443,39 +443,9 @@ class Buyback {
         $this->POST_DATA = $post_data;
         
         $order_id = $this->POST_DATA['order_id'];
-        //allowed only images
-        $allowed_types = array('image/gif', 'image/jpg', 'image/png', 'image/jpeg');
+        
         //process upload images
-        if (($_FILES['damaged_order_files']['error'] !== 4) && !empty($_FILES['order_files']['tmp_name'])) {
-                $file_type = $_FILES['order_files']['type'];
-                if (in_array($file_type, $allowed_types)) {
-                    $tmp_name = $_FILES['order_files']['tmp_name'];
-                    $file_name = str_replace(' ', '_', $_FILES['order_files']['name']);
-                    $upload_order_file_new_name = "Order_id_".$order_id . "_" . explode(".", $file_name)[0] . "_" . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $file_name)[1];
-                    $upload_image_id = $this->upload_bb_report_issue_file($tmp_name,$upload_order_file_new_name, _247AROUND_BB_ORDER_ID_IMAGE_TAG);
-                } else {
-                    $response['status'] = "error";
-                    $response['msg'] = "Please Upload valid image files only";
-                    return $response;
-                }
-        }
-
-        if (!empty($_FILES['damaged_order_files']['tmp_name'][0])) {
-            $filesCount = count($_FILES['damaged_order_files']['name']);
-            for ($i = 0; $i < $filesCount; $i++) {
-                $file_type = $_FILES['damaged_order_files']['type'][$i];
-                if (in_array($file_type, $allowed_types)) {
-                    $tmp_name = $_FILES['damaged_order_files']['tmp_name'][$i];
-                    $file_name = str_replace(' ', '_', $_FILES['damaged_order_files']['name'][$i]);
-                    $upload_order_file_new_name = "Damaged_file_".$order_id . "_" . explode(".", $file_name)[0] . "_" . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $file_name)[1];
-                    $upload_image_id = $this->upload_bb_report_issue_file($tmp_name,$upload_order_file_new_name, _247AROUND_BB_DAMAGED_ORDER_IMAGE_TAG);
-                } else {
-                    $response['status'] = "error";
-                    $response['msg'] = "Please Upload valid image files only";
-                    return $response;
-                }
-            }
-        }
+        $this->process_bb_report_issue_upload_image($order_id);
 
         $physical_condition = isset($this->POST_DATA['order_physical_condition'])?$this->POST_DATA['order_physical_condition']:'';
         if (!empty($physical_condition)) {
@@ -537,6 +507,51 @@ class Buyback {
         }
         
         return $response;
+    }
+    
+    /**
+     * @desc Process Upload Images of those order for which report issue was claimed by collection partner
+     * @param void()
+     * @return void()
+     */
+    
+    function process_bb_report_issue_upload_image($order_id){
+        
+        //allowed only images
+        $allowed_types = array('image/gif', 'image/jpg', 'image/png', 'image/jpeg');
+        
+        //upload order id image
+        if (($_FILES['damaged_order_files']['error'] !== 4) && !empty($_FILES['order_files']['tmp_name'])) {
+                $file_type = $_FILES['order_files']['type'];
+                if (in_array($file_type, $allowed_types)) {
+                    $tmp_name = $_FILES['order_files']['tmp_name'];
+                    $file_name = str_replace(' ', '_', $_FILES['order_files']['name']);
+                    $upload_order_file_new_name = "Order_id_".$order_id . "_" . explode(".", $file_name)[0] . "_" . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $file_name)[1];
+                    $upload_image_id = $this->upload_bb_report_issue_file($tmp_name,$upload_order_file_new_name, _247AROUND_BB_ORDER_ID_IMAGE_TAG);
+                } else {
+                    $response['status'] = "error";
+                    $response['msg'] = "Please Upload valid image files only";
+                    return $response;
+                }
+        }
+        
+        //upload damaged order images
+        if (!empty($_FILES['damaged_order_files']['tmp_name'][0])) {
+            $filesCount = count($_FILES['damaged_order_files']['name']);
+            for ($i = 0; $i < $filesCount; $i++) {
+                $file_type = $_FILES['damaged_order_files']['type'][$i];
+                if (in_array($file_type, $allowed_types)) {
+                    $tmp_name = $_FILES['damaged_order_files']['tmp_name'][$i];
+                    $file_name = str_replace(' ', '_', $_FILES['damaged_order_files']['name'][$i]);
+                    $upload_order_file_new_name = "Damaged_file_".$order_id . "_" . explode(".", $file_name)[0] . "_" . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $file_name)[1];
+                    $upload_image_id = $this->upload_bb_report_issue_file($tmp_name,$upload_order_file_new_name, _247AROUND_BB_DAMAGED_ORDER_IMAGE_TAG);
+                } else {
+                    $response['status'] = "error";
+                    $response['msg'] = "Please Upload valid image files only";
+                    return $response;
+                }
+            }
+        }
     }
     
     
