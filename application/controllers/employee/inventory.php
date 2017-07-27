@@ -159,7 +159,7 @@ class Inventory extends CI_Controller {
                         $email['pincode'] = $vendor_requested_to[0]['pincode'];
                         $email['primary_contact_phone_1'] = $vendor_requested_to[0]['primary_contact_phone_1'];
                         $email['owner_phone_1'] = $vendor_requested_to[0]['owner_phone_1'];
-                        $subject = "Brackets Requested by " . $vendor_requested_to[0]['company_name'];
+                        $subject = "Brackets Received by " . $vendor_requested_to[0]['company_name'];
 
                         $emailBody = vsprintf($template1[0], $email);
 
