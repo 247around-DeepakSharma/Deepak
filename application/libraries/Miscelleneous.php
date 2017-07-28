@@ -710,7 +710,9 @@ class Miscelleneous {
                     "where" => array('dealer_details.dealer_phone_number_1' => $dealer_phone_number));
            $select = " dealer_details.dealer_id";
            $dealer_mapping_status = $this->My_CI->dealer_model->get_dealer_mapping_details($condition, $select);
-           $dealer_id = $dealer_mapping_status[0]['dealer_id'];
+           if(!empty($dealer_mapping_status)){
+               $dealer_id = $dealer_mapping_status[0]['dealer_id'];
+           }
         }
         if (!empty($dealer_id)) {
             $condition = array(
