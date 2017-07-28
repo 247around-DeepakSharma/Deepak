@@ -718,7 +718,7 @@ class invoices_model extends CI_Model {
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
         // For Product
-        $sql = "SELECT DISTINCT (`partner_net_payable`) AS p_rate, '' AS upcountry_charges,  '' AS s_service_charge, '' AS s_total_service_charge,
+        $sql = "SELECT DISTINCT (`partner_net_payable`) AS p_rate, '' AS misc_charges,  '' AS s_service_charge, '' AS s_total_service_charge,
                 5.00 AS p_tax_rate, 
                 CASE 
                
@@ -766,7 +766,7 @@ class invoices_model extends CI_Model {
         $query = $this->db->query($sql);
         $product = $query->result_array();
 
-        $sql1 = "SELECT DISTINCT (`partner_net_payable`) AS s_service_charge, '' AS upcountry_charges, '' AS p_tax_rate, '' AS p_rate, ''AS p_part_cost,
+        $sql1 = "SELECT DISTINCT (`partner_net_payable`) AS s_service_charge, '' AS misc_charges, '' AS p_tax_rate, '' AS p_rate, ''AS p_part_cost,
                CASE 
                
                     WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
@@ -814,9 +814,12 @@ class invoices_model extends CI_Model {
         $result = array_merge($service, $product);
 
         if (!empty($result)) {
-            $meta['total_upcountry_charges'] = 0;
+            $meta['misc_charges'] = 0;
+            $meta['total_upcountry'] = 0; 
+            $meta['total_courier_charge'] = 0; 
             if ($upcountry_flag) {
                 $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
+                $courier = $this->get_partner_courier_charges($partner_id,$from_date,$to_date);
 
 
                 if (!empty($upcountry_data)) {
@@ -828,10 +831,24 @@ class invoices_model extends CI_Model {
                     $up_country[0]['qty'] = $upcountry_data[0]['total_booking'];
                     $up_country[0]['description'] = 'Upcountry Services';
                     $up_country[0]['p_rate'] = $upcountry_data[0]['partner_upcountry_rate'];
-                    $up_country[0]['upcountry_charges'] = $upcountry_data[0]['total_upcountry_price'];
-                    $meta['total_upcountry_charges'] = $upcountry_data[0]['total_upcountry_price'];
-
+                    $up_country[0]['misc_charges'] = $upcountry_data[0]['total_upcountry_price'];
+                    $meta['misc_charges'] += $upcountry_data[0]['total_upcountry_price'];
+                    $meta['total_upcountry'] += $upcountry_data[0]['total_upcountry_price'];
                     $result = array_merge($result, $up_country);
+                }
+                
+                if(!empty($courier)){
+                    $c_data =array();
+                    $c_data[0]['s_total_service_charge'] = '';
+                    $c_data[0]['p_tax_rate'] = '';
+                    $c_data[0]['p_part_cost'] = '';
+                    $c_data[0]['s_service_charge'] = '';
+                    $c_data[0]['qty'] = count($courier);
+                    $c_data[0]['description'] = 'Courier Charges';
+                    $c_data[0]['p_rate'] = '';
+                    $c_data[0]['misc_charges'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
+                    $meta['misc_charges'] += $c_data[0]['misc_charges'];
+                    $meta['total_courier_charge']  += $c_data[0]['misc_charges'];
                 }
             }
             $meta['total_part_cost'] = 0;
@@ -845,7 +862,7 @@ class invoices_model extends CI_Model {
             $meta['sub_service_cost'] = $meta['total_service_cost'] + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] * 2;
             $meta['part_cost_vat'] = ($meta['total_part_cost'] * 5.00) / 100;
             $meta['sub_part'] = $meta['total_part_cost'] + $meta['part_cost_vat'];
-            $meta['grand_part'] = round($meta['sub_part'] + $meta['sub_service_cost'] + $meta['total_upcountry_charges'], 0);
+            $meta['grand_part'] = round($meta['sub_part'] + $meta['sub_service_cost'] + $meta['misc_charges'], 0);
             $meta['price_inword'] = convert_number_to_words($meta['grand_part']);
 
 
@@ -1355,6 +1372,30 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
+    function get_partner_courier_charges($partner_id, $from_date, $to_date){
+      
+        
+        $sql = " SELECT bd.booking_id, courier_charges_by_sf 
+                FROM  booking_details as bd, booking_unit_details as ud,
+                spare_parts_details as sp
+                WHERE 
+                ud.booking_status =  'Completed'
+                AND bd.partner_id = '$partner_id'
+                AND ud.partner_id = '$partner_id'
+                AND status = 'Completed'
+                AND sp.booking_id = bd.booking_id
+                AND bd.booking_id = ud.booking_id
+                AND ud.ud_closed_date >=  '$from_date'
+                AND ud.ud_closed_date <  '$to_date'
+                AND `approved_defective_parts_by_partner` = 1
+                AND partner_invoice_id IS NULL
+                AND courier_charges_by_sf > 0 ";
+
+        $query = $this->db->query($sql);
+        
+        return $query->result_array();
+    }
+            
 
     function get_payment_history($where) {
         $this->db->select('*');

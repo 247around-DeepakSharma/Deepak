@@ -642,7 +642,7 @@
                                 <div class="col-md-3" style="margin-left:40px;">
                                     <div class="form-group">
                                         <!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
-                                        <input type="file" class="form-control blockspacialchar"  id="pan_file" name="pan_file" value = "<?php
+                                        <input type="file" class="form-control"  id="pan_file" name="pan_file" value = "<?php
                                             if (isset($query[0]['pan_file'])) {
                                                 echo $query[0]['pan_file'];
                                             }
@@ -751,7 +751,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="cst_file" class="col-md-4 blockspacialchar">CST File</label>
+                                        <label  for="cst_file" class="col-md-4">CST File</label>
                                         <div class="col-md-7">
                                             <input type="file" class="form-control"  name="cst_file" value = "<?php
                                                 if (isset($query[0]['cst_file'])) {
@@ -810,7 +810,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="tin_file" class="col-md-4 blockspacialchar">TIN/VAT File</label>
+                                        <label  for="tin_file" class="col-md-4">TIN/VAT File</label>
                                         <div class="col-md-7">
                                             <input type="file" class="form-control"  name="tin_file" value = "<?php
                                                 if (isset($query[0]['tin_file'])) {
@@ -869,7 +869,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="service_tax_no" class="col-md-4 blockspacialchar">Tax File</label>
+                                        <label for="service_tax_no" class="col-md-4">Tax File</label>
                                         <div class="col-md-7">
                                             <input type="file" class="form-control"  name="service_tax_file" value = "<?php
                                                 if (isset($query[0]['service_tax_file'])) {
@@ -929,7 +929,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="gst_file" class="col-md-4 blockspacialchar">Tax File</label>
+                                        <label for="gst_file" class="col-md-4">Tax File</label>
                                         <div class="col-md-7">
                                             <input type="file" class="form-control"  name="gst_file" value = "<?php
                                                 if (isset($query[0]['gst_file'])) {
