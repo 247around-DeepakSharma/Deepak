@@ -71,6 +71,8 @@
                             <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM</a>
                             <li><a href="<?php echo base_url(); ?>employee/dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
                             </li>
+                            <li><a href="<?php echo base_url(); ?>employee/dashboard/buyback_dashbord" target="_blank"><i class="fa fa-bar-chart-o"></i>Buyback DASHBOARD</a>
+                            </li>
                             <li><a href="<?php echo base_url();?>buyback/buyback_process/download_bb_shop_address" ><i class="fa fa-download"></i>Download Shop Address File</a></li>
                             <li>
                                 <a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
