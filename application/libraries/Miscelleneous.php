@@ -691,9 +691,22 @@ class Miscelleneous {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
         
         $result = curl_exec($ch);
+        // get HTTP response code
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-
-        return $result;
+        
+        if ($httpcode >= 200 && $httpcode < 300){
+            return $result;
+        }else{
+            $to = DEVELOPER_EMAIL;
+            $subject = "Stag01 Server Might Be Down";
+            $msg = "There are some issue while creating pdf from stag01 server. Please check the issue and fix it immediately";
+            $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $msg, "");
+        }
+        
+        exit();
+        
+        
     }
     /**
      * @desc Checl delaer process
