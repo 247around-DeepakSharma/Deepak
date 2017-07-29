@@ -127,7 +127,7 @@
                                         <tbody>
                                             <tr ng-repeat="x in uploadFileHistory">
                                                 <td>{{$index + 1}}</td>
-                                                <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/{{x.file_name}}'><div class="btn btn-success btn-sm">Download</div></a></td>
+                                                <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/{{x.file_name}}'><div>{{x.file_name}}</div></a></td>
                                                 <td>{{ x.agent_name }}</td>
                                                 <td>{{ x.upload_date }}</td>
                                             </tr>
