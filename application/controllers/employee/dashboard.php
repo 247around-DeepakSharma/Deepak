@@ -23,7 +23,10 @@ class Dashboard extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->model('reporting_utils');
         $this->load->model('employee_model');
+        $this->load->model('invoices_model');
         $this->load->model('dashboard_model');
+        $this->load->model('bb_model');
+        $this->load->library('table');
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
@@ -437,6 +440,49 @@ class Dashboard extends CI_Controller {
 
         echo json_encode($json_data);
         
+    }
+    
+    function buyback_dashbord(){
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/buyback_dashboard');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    function get_buyback_balanced_amount(){
+        $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1));
+        //$data = array();
+        $where['length'] = -1;
+        $template = array(
+        'table_open' => '<table  '
+            . ' class="table table-striped table-bordered jambo_table bulk_action">'
+        );
+
+        $this->table->set_template($template);
+        $this->table->set_heading(array('Name', 'Amt Paid', 'Amt of Material Delivered', 'Amt of Material Transit', 'Balance'));
+
+        foreach ($cp as  $value) {
+            $paid_amount = $this->invoices_model->get_invoices_details(array('type'=>'Buyback','type_code'=>'A', 'vendor_partner' => 'vendor', 
+                    'vendor_partner_id'=>$value['id']),
+                    'SUM( `amount_paid`) as paid_amount')[0]['paid_amount'];
+   
+            $where['where'] = array('assigned_cp_id' =>$value['id']);
+            $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));
+            
+            $cp_delivered_charge = $this->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_delivered_charge")[0]->cp_delivered_charge;
+            $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+            $cp_intransit = $this->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_intransit")[0]->cp_intransit;
+            $rest_balance = ($paid_amount -$cp_delivered_charge -$cp_intransit);
+            $class ="";
+            if($rest_balance > 0){
+                $class = ' <i class="success pull-right fa fa-long-arrow-up"></i>';
+            } else if($rest_balance < 0){
+               $class = ' <i class="error pull-right fa fa-long-arrow-down"></i>'; 
+            }
+            $this->table->add_row($value["name"],$paid_amount,$cp_delivered_charge,$cp_intransit,"Rs. ".$rest_balance.$class);
+           
+        }
+        
+       echo $this->table->generate();
     }
 
 }

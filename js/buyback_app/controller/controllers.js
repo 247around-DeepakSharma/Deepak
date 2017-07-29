@@ -281,6 +281,18 @@ viewBBOrderList.controller('assignCP', function ($scope, $http) {
     };
 });
 
+buyback_dashboard.controller('buyback_dashboardController', function ($scope, $http) {
+
+    var get_url = baseUrl + "/employee/dashboard/get_buyback_balanced_amount";
+    $http.get(get_url)
+        .then(function (response) {
+             console.log(response.data);
+            $("#table_data").html(response.data);
+       
+               
+    });
+});
+
 
 //desktop notification msg
 function notifyMe(msg) {
