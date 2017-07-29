@@ -380,7 +380,7 @@
                 $('#loader_gif1').attr('src', "");
                 $('#loader_gif1').css('display', 'none');
                 $('#chart_container').show();
-                chart = new Highcharts.Chart({
+                partner_booking_chart = new Highcharts.Chart({
                     chart: {
                         renderTo: 'chart_container',
                         type: 'column'
@@ -1153,13 +1153,15 @@
     }
 
     $(document).load(function(){
-        $('#preview').html(chart.getCSV());
-        $.each(['line', 'column', 'spline', 'area', 'areaspline', 'scatter', 'pie'], function (i, type) {
-            $('#' + type).click(function () {
-                chart.series[0].update({
-                    type: type
-                });
+        $('#preview').html(partner_booking_chart.getCSV());
+    });
+    
+    $.each(['line', 'column', 'spline', 'area', 'areaspline', 'scatter', 'pie'], function (i, type) {
+        $('#' + type).click(function () {
+            partner_booking_chart.series[0].update({
+                type: type
             });
         });
     });
+        
 </script>
