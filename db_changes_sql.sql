@@ -2916,3 +2916,6 @@ ALTER TABLE `service_centres` ADD `min_upcountry_distance` INT(100) NULL DEFAULT
 
 --Abhay 24 July
 ALTER TABLE `bb_shop_address` ADD `shop_address_region` VARCHAR(64) NULL DEFAULT NULL AFTER `shop_address_city`;
+
+--Abhay 29 Jul;y
+ALTER TABLE `partners` ADD `is_def_spare_required` INT(1) NOT NULL DEFAULT '0' AFTER `upcountry_r2`
