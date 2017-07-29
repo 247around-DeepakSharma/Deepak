@@ -134,6 +134,8 @@ class Service_centers extends CI_Controller {
         $data['booking_id'] = $booking_id;
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $data['bookng_unit_details'] = $this->booking_model->getunit_details($booking_id);
+        $data['is_spare_required'] = $this->partner_model->getpartner_details("is_def_spare_required", 
+                array('partners.id' => $data['booking_history'][0]['partner_id']))[0]['is_def_spare_required'];
          
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
