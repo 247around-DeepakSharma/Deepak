@@ -429,6 +429,9 @@ class vendor extends CI_Controller {
                         if(isset($attachment_gst)){
                             $this->email->attach($attachment_gst, 'attachment');
                         }
+                        if(isset($attachment_signature)){
+                            $this->email->attach($attachment_signature, 'attachment');
+                        }
 
                         if ($this->email->send()) {
                             log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
@@ -532,6 +535,10 @@ class vendor extends CI_Controller {
                         if(isset($attachment_gst)){
                             $this->email->attach($attachment_gst, 'attachment');
                         }
+                        if(isset($attachment_signature)){
+                            $this->email->attach($attachment_signature, 'attachment');
+                        }
+                        
 
                         if ($this->email->send()) {
                             log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
