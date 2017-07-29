@@ -702,10 +702,8 @@ class Miscelleneous {
             $subject = "Stag01 Server Might Be Down";
             $msg = "There are some issue while creating pdf from stag01 server. Please check the issue and fix it immediately";
             $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $msg, "");
+            return $result;
         }
-        
-        exit();
-        
         
     }
     /**
