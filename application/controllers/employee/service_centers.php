@@ -1596,7 +1596,7 @@ class Service_centers extends CI_Controller {
         //$this->check_BB_UserSession();
         $service_id = $this->input->post('service_id');
         $cp_id = $this->input->post('cp_id');
-        $where = array('cp_id'=>$cp_id,'service_id' => $service_id, 'brand != " "' => null);
+        $where = array('cp_id'=>$cp_id,'service_id' => $service_id, 'brand != " "' => null,'visible_to_cp' => '1');
         $select = "brand";
         $brands = $this->service_centre_charges_model->get_bb_charges($where,$select,TRUE);
         $option = '<option selected disabled>Select Brand</option>';
@@ -1630,7 +1630,7 @@ class Service_centers extends CI_Controller {
         $service_id = $this->input->post('service_id');
         $cp_id = $this->input->post('cp_id');
         $where = array('cp_id' => $cp_id,
-            'service_id' => $service_id, 'category' => $category, 'physical_condition != " " ' => null);
+            'service_id' => $service_id, 'category' => $category, 'physical_condition != " " ' => null,'visible_to_cp' => '1');
         $select = "physical_condition";
         $physical_condition = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
         
@@ -1662,9 +1662,9 @@ class Service_centers extends CI_Controller {
         $physical_condition = $this->input->post('physical_condition');
         $cp_id = $this->input->post('cp_id');
         if(!empty($physical_condition)){
-            $where = array('cp_id' => $cp_id, 'service_id' => $service_id, 'category' => $category,'physical_condition'=>$physical_condition);
+            $where = array('cp_id' => $cp_id, 'service_id' => $service_id, 'category' => $category,'physical_condition'=>$physical_condition,'visible_to_cp' => '1');
         }else{
-            $where = array('cp_id' => $cp_id, 'service_id' => $service_id, 'category' => $category);
+            $where = array('cp_id' => $cp_id, 'service_id' => $service_id, 'category' => $category,'visible_to_cp' => '1');
         }
         $select = "working_condition";
         $working_condition = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);

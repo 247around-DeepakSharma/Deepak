@@ -295,7 +295,7 @@ class Buyback {
 
         //get physical condition
         $where = array('cp_id' => $cp_id,
-            'service_id' => $service_id, 'category' => $data['category'], 'physical_condition != " " ' => null);
+            'service_id' => $service_id, 'category' => $data['category'], 'physical_condition != " " ' => null,'visible_to_cp' => '1');
         $select = "physical_condition";
         $physical_condition = $this->My_CI->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
         //if physical condition is empty then get working condition
@@ -303,7 +303,7 @@ class Buyback {
             $data['physical_condition'] = $physical_condition;
         } else {
             $data['physical_condition'] = '';
-            $where = array('cp_id' => $cp_id, 'service_id' => $service_id, 'category' => $data['category'], 'physical_condition' => $data['physical_condition']);
+            $where = array('cp_id' => $cp_id, 'service_id' => $service_id, 'category' => $data['category'], 'physical_condition' => $data['physical_condition'],'visible_to_cp' => '1');
             $select = "working_condition";
             $data['working_condition'] = $this->My_CI->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
         }
