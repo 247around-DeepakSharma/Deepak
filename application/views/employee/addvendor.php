@@ -908,7 +908,7 @@
                             <div class="col-md-12">
                                 <div class="col-md-4">
                                     <div class="form-group <?php
-                                        if (form_error('service_tax_no')) {
+                                        if (form_error('gst_no')) {
                                             echo 'has-error';
                                         }
                                         ?>">
@@ -964,6 +964,42 @@
                                     </div>
                                 </div>
                             </div>
+                                    
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('signature_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="signature_file" class="col-md-4">Signature File</label>
+                                        <div class="col-md-7">
+                                            <input type="file" class="form-control"  name="signature_file" id="signature_file" value = "<?php
+                                                if (isset($query[0]['signature_file'])) {
+                                                    echo $query[0]['signature_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('signature_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['signature_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['signature_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>        
+                                    
                         </div>
                     </div>
                     <div  class = "panel panel-info">

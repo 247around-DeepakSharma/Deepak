@@ -112,6 +112,13 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
+            
+            if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
+                $attachment_signature = $this->upload_signature_file($data);
+                if($attachment_signature){} else {
+                    return FALSE;
+                }
+            }
            
             //Start Processing CST File Upload
             if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
@@ -755,7 +762,10 @@ class vendor extends CI_Controller {
                 }
                 if(!empty($this->input->post('pan_file'))){
                     $vendor_data['pan_file'] = $this->input->post('pan_file');
-                }   
+                }  
+                if(!empty($this->input->post('signature_file'))){
+                    $vendor_data['signature_file'] = $this->input->post('signature_file');
+                }  
                 if(!empty($this->input->post('non_working_days'))){
                     $vendor_data['non_working_days'] = $this->input->post('non_working_days');
                 } 
@@ -4241,6 +4251,45 @@ class vendor extends CI_Controller {
             echo "Invalid Request";
         }
         
+    }
+    
+    function upload_signature_file() {
+        //Start Processing signature File Upload
+        if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
+            //Adding file validation
+            $checkfilevalidation = $this->file_input_validation('signature_file');
+            if ($checkfilevalidation) {
+                
+                //Making process for file upload
+                $tmpFile = $_FILES['signature_file']['tmp_name'];
+                $signature_file = implode("", explode(" ", $this->input->post('name'))) . '_signature_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['signature_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $signature_file);
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $signature_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $signature_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $_POST['signature_file'] = $signature_file;
+
+                $attachment_signature = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $signature_file;
+
+                //Logging success for file uppload
+                log_message('info', __CLASS__ . ' signature file is being uploaded sucessfully.');
+                return $attachment_signature;
+            } else {
+                //Redirect back to Form
+                $data = $this->input->post();
+                //Checking if form is for add or edit
+                if (!empty($_POST['id'])) {
+                    //Redirect to edit form for particular id
+                    $this->editvendor($data['id']);
+                } else {
+                    //Redirect to add vendor form
+                    $this->add_vendor();
+                }
+                return FALSE;
+            }
+        }
     }
 
 }
