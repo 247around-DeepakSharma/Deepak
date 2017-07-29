@@ -174,7 +174,7 @@ class Upload_buyback_process extends CI_Controller {
                         $message .= "Please check below orders, these were neither inserted nor updated: <br/><br/><br/>";
                         $message .= $this->table->generate();
 
-                        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                        $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
                         
                         $this->upload_file_to_S3($order_file, _247AROUND_BB_ORDER_LIST, $_FILES['file']['tmp_name']);
                         $response = array("code" => 247, "msg" => "File sucessfully processed.");
@@ -262,7 +262,7 @@ class Upload_buyback_process extends CI_Controller {
             $to = NITS_ANUJ_EMAIL_ID . "," . ADIL_EMAIL_ID;
             $cc = "abhaya@247around.com";
             $subject = "Failure! Buyback Order is uploaded by " . $this->session->userdata('employee_id');
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+            $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
             return false;
         } else {
             return true;

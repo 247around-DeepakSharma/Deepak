@@ -5,3 +5,4 @@ var addShopAddressDetails = angular.module('shopAddressAddApp', []);
 var addDealers = angular.module('addDealers', []);
 var viewBBOrderList = angular.module('viewBBOrder',[]);
 var advanced_search = angular.module('advanced_search', []);
+var buyback_dashboard = angular.module("buyback_dashboard", []);
