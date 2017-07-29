@@ -253,6 +253,35 @@ class InvoiceDashboard extends CI_Controller {
         $this->load->view('employee/sf_invoice_summary', array("date_range"=>1));
     }
     
+    function get_invoice_summary_for_partner(){
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/partner_invoice_summary', array("date_range"=>1));
+    }
+    
+    function process_invoice_summary_for_partner(){
+        $date_range = $this->input->post("date_range");
+        $explode_date_range = explode("-", $date_range);
+        $template = array(
+        'table_open' => '<table  '
+            . ' class="table  table-striped table-bordered">'
+        );
+
+        $this->table->set_template($template);
+
+        $this->table->set_heading(array('Name', 'Service Charge', 
+            'Service Tax','Parts Charge', 'Parts Tax', 'Upcountry Charge', 
+            'Courier Charge', 'Total Charge'));
+        $partner = $this->partner_model->get_all_partner_source();
+        foreach ($partner as $value) {
+            $invoices = $this->invoices_model->generate_partner_invoice($value['partner_id'], trim($explode_date_range[0]), trim($explode_date_range[1]))['meta'];
+            $this->table->add_row($value['source'], $invoices['total_service_cost'], 
+                    ($invoices['total_service_cost_14'] +$invoices['total_service_cost_5']*2), 
+                    $invoices['total_part_cost'], $invoices['part_cost_vat'],$invoices['total_upcountry'], 
+                    $invoices['total_courier_charge'], $invoices['grand_part']);
+          
+       }
+       echo $this->table->generate();
+    }
     
     
    
