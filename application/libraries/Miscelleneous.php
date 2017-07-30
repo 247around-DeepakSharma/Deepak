@@ -691,9 +691,20 @@ class Miscelleneous {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
         
         $result = curl_exec($ch);
+        // get HTTP response code
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-
-        return $result;
+        
+        if ($httpcode >= 200 && $httpcode < 300){
+            return $result;
+        }else{
+            $to = DEVELOPER_EMAIL;
+            $subject = "Stag01 Server Might Be Down";
+            $msg = "There are some issue while creating pdf from stag01 server. Please check the issue and fix it immediately";
+            $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $msg, "");
+            return $result;
+        }
+        
     }
     /**
      * @desc Checl delaer process
@@ -710,7 +721,9 @@ class Miscelleneous {
                     "where" => array('dealer_details.dealer_phone_number_1' => $dealer_phone_number));
            $select = " dealer_details.dealer_id";
            $dealer_mapping_status = $this->My_CI->dealer_model->get_dealer_mapping_details($condition, $select);
-           $dealer_id = $dealer_mapping_status[0]['dealer_id'];
+           if(!empty($dealer_mapping_status)){
+               $dealer_id = $dealer_mapping_status[0]['dealer_id'];
+           }
         }
         if (!empty($dealer_id)) {
             $condition = array(

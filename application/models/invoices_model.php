@@ -692,13 +692,14 @@ class invoices_model extends CI_Model {
 
     /**
      * @desc: This method returns count of invoice id
-     * @param String $temp_invoice_id
+     * @param String WHERE
      * @return Array
      */
-    function get_invoices_details($where) {
+    function get_invoices_details($where, $select = "*") {
 
-        $sql = "SELECT *  FROM `vendor_partner_invoices` WHERE $where ORDER BY `id` DESC";
-        $query = $this->db->query($sql);
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("vendor_partner_invoices");
         if ($query->num_rows > 0) {
             return $query->result_array();
         } else {

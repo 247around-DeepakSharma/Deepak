@@ -98,19 +98,19 @@
                         </div>
                     </div>
                     <!-- row End  -->
-                    <input type="hidden" name="spare_parts_required" value="<?php if(isset($booking_history['spare_parts'])){ 
-                        $flag = 0;                                                                                                                                                           
+                    <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php  $flag = 0;if($is_spare_required ==1){ if(isset($booking_history['spare_parts'])){ 
+                                                                                                                                                                                 
                         foreach ($booking_history['spare_parts'] as  $value) {
-                            if($value['status'] != "Completed" || $value['status'] != "Cancelled"){
-                                $flag = 1;
+                            if($value['status'] == "Completed" || $value['status'] == "Cancelled"){} else {
+                               $flag = 1; 
                             }
          
                         }
                         echo $flag;
                         
-                    } else { echo "0";
+                    } else { echo $flag;
                         
-                        }?>" />
+                    } } else { echo $flag; }?>" />
                     <?php $count = 0; foreach ($bookng_unit_details as $key => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <div class="panel-body">
@@ -412,11 +412,11 @@
      return false;
     
     }
-        
-        <?php if(isset($booking_history['spare_parts'])){ ?> 
-                alert("Ship Defective Spare Parts");
-        
-        <?php }?>
+    var is_sp_required = $("#spare_parts_required").val();   
+   
+    if(Number(is_sp_required) === 1){
+         alert("Ship Defective Spare Parts");
+    }
          
     if(Number(upcountry_flag) === 1) {
         var upcountry_charges = $("#upcountry_charges").val();
