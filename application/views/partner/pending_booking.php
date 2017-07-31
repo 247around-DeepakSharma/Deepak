@@ -62,7 +62,8 @@
                                     </td>
                                     
                                     <td>
-                                        <?php switch ($row->request_type){
+                                        <?php  echo $row->services."<br/>"; switch ($row->request_type){
+                                           
                                             case "Installation & Demo":
                                                 echo "Installation";
                                                  break;
