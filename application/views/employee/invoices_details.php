@@ -51,7 +51,7 @@
 </div>
       </div>
    </div>
-</div>
+
 <script type="text/javascript">
    $("#invoice_id").select2();
 

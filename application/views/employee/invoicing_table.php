@@ -27,6 +27,7 @@
          <th>Select</th>
          <th>ReGenerate</th>
          <th>Update</th>
+         <th>Invoice History</th>
       </tr>
    </thead>
    <tbody>
@@ -95,6 +96,7 @@
          <td>
              <a href="<?php echo base_url()?>employee/invoice/insert_update_invoice/<?php echo $invoice['vendor_partner'];?>/<?php echo $invoice['invoice_id'];?>" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?> class="btn btn-sm btn-info" >Update</a>
          </td>
+         <td><a href="javascript:void(0);" class="get_invoice_payment_history" data-id="<?php echo $invoice['invoice_id'];?>"><i class="fa fa-eye fa-2x" aria-hidden="true"></i></a></td>
 
           <?php  $count = $count+1;  ?>
 <!--         <td class="col-md-6">
@@ -131,11 +133,27 @@
          <td><input type="submit" class="form-control btn btn-sm btn-primary" value="Pay"></td>
           <td> </td>
          <td> </td>
+         <td> </td>
          
       </tr>
    </tbody>
    </tbody>
 </table>
+         <!--Invoice Payment History Modal-->
+    <div id="invoiceDetailsModal" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-body">
+                  <div id="open_model"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+      </div>
+        
+    </div>
+<!-- end Invoice Payment History Modal -->
 
       </form>
   <script type="text/javascript">
@@ -176,6 +194,24 @@
              // document.getElementById("final_tds_selected").innerHTML = total_tds.toFixed(2);
               
       }
+  </script>
+  
+  <script>
+      $('.get_invoice_payment_history').on('click',function(){
+          var invoice_id = $(this).attr('data-id');
+          if(invoice_id){
+              $.ajax({
+                  type:"POST",
+                  url: "<?php echo base_url(); ?>employee/invoice/get_invoice_payment_history",
+                  data: {'invoice_id':invoice_id},
+                  success:function(response){
+                      //console.log(response);
+                      $("#open_model").html(response);   
+                      $('#invoiceDetailsModal').modal('toggle');
+                  }
+              });
+          }
+      });
   </script>
 <?php }  ?>
   

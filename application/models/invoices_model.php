@@ -1398,9 +1398,12 @@ class invoices_model extends CI_Model {
     }
             
 
-    function get_payment_history($where) {
-        $this->db->select('*');
+    function get_payment_history($select,$where,$is_join=false) {
+        $this->db->select($select);
         $this->db->where($where);
+        if($is_join){
+            $this->db->join('employee','payment_history.agent_id = employee.id','left');
+        }
         $query = $this->db->get('payment_history');
         return $query->result_array();
     }
