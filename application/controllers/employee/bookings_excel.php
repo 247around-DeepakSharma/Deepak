@@ -140,31 +140,32 @@ class bookings_excel extends CI_Controller {
 	    //  Read a row of data into an array
 	    $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
 	    $rowData[0] = array_combine($headings_new[0], $rowData[0]);
-
+           
 	    //echo print_r($rowData[0], true), EOL;
-	    if ($rowData[0]['CustomerContactNo'] == "") {
+	    if ($rowData[0]['contact_number'] == "") {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
             
             //Sanitizing Brand Name
-            if(!empty($rowData[0]['Brand'])){
-                $rowData[0]['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['Brand']);
+            if(!empty($rowData[0]['brand'])){
+                $rowData[0]['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['brand']);
             }
 
 	    //Insert user if phone number doesn't exist
-	    $output = $this->user_model->search_user(trim($rowData[0]['CustomerContactNo']));
-            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($rowData[0]['CustomerPincode']));
+	    $output = $this->user_model->search_user(trim($rowData[0]['contact_number']));
+            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($rowData[0]['pincode']));
 
 	    if (empty($output)) {
 		//User doesn't exist
-                $user_name = $this->is_user_name_empty(trim($rowData[0]['CustomerName']),$rowData[0]['customer_email'],$rowData[0]['CustomerContactNo']);
+                $user_name = $this->is_user_name_empty(trim($rowData[0]['customer_firstname']." ".$rowData[0]['Customer_lastname']),
+                        $rowData[0]['customer_email'],$rowData[0]['contact_number']);
 		$user['name'] = $user_name;
-		$user['phone_number'] = $rowData[0]['CustomerContactNo'];
+		$user['phone_number'] = $rowData[0]['contact_number'];
 		$user['user_email'] = $rowData[0]['customer_email'];
-		$user['home_address'] = $rowData[0]['CustomerAddress1'] . " ," . $rowData[0]['CustomerAddress2'];
-		$user['pincode'] = $rowData[0]['CustomerPincode'];
-		$user['city'] = $rowData[0]['CustomerCity'];
+		$user['home_address'] = $rowData[0]['address'] . " ," . $rowData[0]['area'];
+		$user['pincode'] = $rowData[0]['pincode'];
+		$user['city'] = $rowData[0]['customer_city'];
 		$user['state'] = $distict_details['state'];
 		$user['is_verified'] = 1;
 
@@ -179,15 +180,15 @@ class bookings_excel extends CI_Controller {
 		}
 	    } else {
 		//User exists
-	    $user['name'] = $rowData[0]['CustomerName'];
-	    $user['user_email'] = $rowData[0]['customer_email'];
+	        $user['name'] = trim($rowData[0]['customer_firstname']." ".$rowData[0]['Customer_lastname']);
+	        $user['user_email'] = $rowData[0]['customer_email'];
 		$user_id = $output[0]['user_id'];
 	    }
             
-            $prod = trim($rowData[0]['ProductCategoryL3']);
+            $prod = trim($rowData[0]['category']);
                 
             //check if service_id already exist or not by using product description
-            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($rowData[0]['ProductName']));
+            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($rowData[0]['product_name']));
 
             if(!empty($service_appliance_data)){
                 log_message('info', __FUNCTION__ . "=> Appliance Dsecription found in table");
@@ -225,35 +226,35 @@ class bookings_excel extends CI_Controller {
 
             
             $service_id = isset($lead_details['service_id'])?$lead_details['service_id']:$this->booking_model->getServiceId($lead_details['Product']);
-            $data = $this->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $rowData[0]['Brand'], "SP");
+            $data = $this->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $rowData[0]['brand'], "SP");
 	    //Add this lead into the leads table
 	    //Check whether this is a new Lead or Not
 	    //Pass order id and partner source
-            $partner_booking = $this->partner_model->get_order_id_for_partner($data['partner_id'], $rowData[0]['OrderID']);
+            $partner_booking = $this->partner_model->get_order_id_for_partner($data['partner_id'], $rowData[0]['order_id']);
 	    if (is_null($partner_booking)) {
                 $booking['partner_id'] = $data['partner_id'];
                 $booking['source'] = $data['source'];
-		$booking['order_id'] = $rowData[0]['OrderID'];
+		$booking['order_id'] = $rowData[0]['order_id'];
 
 		//$lead_details['Unique_id'] = $rowData[0]['Item ID'];
 		//$dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Order Date']);
 		//$lead_details['DeliveryDate'] = $dateObj1->format('d/m/Y');
-		$appliance_details['brand'] = $unit_details['appliance_brand'] = $rowData[0]['Brand'];
+		$appliance_details['brand'] = $unit_details['appliance_brand'] = $rowData[0]['brand'];
 		$appliance_details['model_number'] = $unit_details['model_number'] = "";
-		$appliance_details['description'] = $unit_details['appliance_description'] = trim($rowData[0]['ProductName']);
+		$appliance_details['description'] = $unit_details['appliance_description'] = trim($rowData[0]['product_name']);
 
-		$booking['booking_address'] = $rowData[0]['CustomerAddress1'] . " ," . $rowData[0]['CustomerAddress2'];
-		$booking['booking_pincode'] = $rowData[0]['CustomerPincode'];
-		$booking['city'] = $rowData[0]['CustomerCity'];
+		$booking['booking_address'] = $rowData[0]['address'] . " ," . $rowData[0]['area'];
+		$booking['booking_pincode'] = $rowData[0]['pincode'];
+		$booking['city'] = $rowData[0]['customer_city'];
                 $booking['state'] = $distict_details['state'];
                 $booking['district'] = $distict_details['district'];
                 $booking['taluk'] = $distict_details['taluk'];
 
 		
 
-		$booking['booking_primary_contact_no'] = $rowData[0]['CustomerContactNo'];
+		$booking['booking_primary_contact_no'] = $rowData[0]['contact_number'];
 
-		$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['shippedDate']);
+		$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['shipped_date']);
 		$booking['shipped_date'] = date('Y-m-d H:i:s', strtotime($dateObj2->format('d-m-Y')));
 
 		$booking['current_status'] = "FollowUp";
