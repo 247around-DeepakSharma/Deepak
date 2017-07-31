@@ -41,10 +41,10 @@
                Upload Excel File
             </h1>
           <div id="show_both">
-              <form class="col-md-5" action="<?php echo base_url()?>employee/service_centre_charges/upload_service_price_from_excel" method="POST" enctype="multipart/form-data">
+              <form  action="<?php echo base_url()?>employee/service_centre_charges/upload_service_price_from_excel" method="POST" enctype="multipart/form-data">
                <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">
-                  <label for="excel" class="col-md-4">Upload Service Price List:</label>
-                  <div class="col-md-4">
+                  <label for="excel" class="col-md-3">Upload Service Price List:</label>
+                  <div class="col-md-3">
                      <input type="file" class="form-control"  name="file" >
                      <?php echo form_error('file'); ?>
                   </div>
@@ -53,17 +53,26 @@
                </div>
             </form>
               <a href="<?php echo base_url(); ?>BookingSummary/download_latest_file/price" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>
-              <div class="col-md-4">
+              <div class="col-md-12" style="margin-top:20px;">
+                  <h3> Service Price List History</h3>
                     <table class="table table-bordered table-hover table-responsive">
+                        <thead>
+                            <tr>
+                                <th>S.No.</th>
+                                <th>Download</th>
+                                <th>Uploaded By</th>
+                                <th>Uploaded Date</th>
+                            </tr>
+                        </thead>
                         <tbody>
+                            <?php $sn= 1;foreach ($SF_Price_List as $value){ ?>
                             <tr>
-                                <td><strong>Uploaded By</strong></td>
-                                <td><?php echo $latest_file[0]['full_name']?></td>
+                                <td><?php echo $sn; ?></td>
+                                <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/<?php echo $value['file_name']?>'><div><?php echo $value['file_name']?></div></a></td>
+                                <td><?php echo $value['agent_name']; ?></td>
+                                <td><?php echo $value['upload_date']; ?></td>
                             </tr>
-                            <tr>
-                                <td><strong>Upload Date</strong></td>
-                                <td><?php echo date('d-m-Y',  strtotime($latest_file[0]['upload_date']))?></td>
-                            </tr>
+                            <?php $sn++;} ?>
                         </tbody>
                     </table>
                 </div>
@@ -80,10 +89,10 @@
             </form>-->
           <div class="clear"></div>
           <hr style="margin-top:10px; margin-bottom:40px;">
-            <form class="col-md-5" action="<?php echo base_url()?>employee/service_centre_charges/upload_partner_appliance_details_excel" method="POST" enctype="multipart/form-data">
+            <form action="<?php echo base_url()?>employee/service_centre_charges/upload_partner_appliance_details_excel" method="POST" enctype="multipart/form-data">
                <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">
-                  <label for="excel" class="col-md-4">Upload Partner Appliance Details:</label>
-                  <div class="col-md-4">
+                  <label for="excel" class="col-md-3">Upload Partner Appliance Details:</label>
+                  <div class="col-md-3">
                      <input type="file" class="form-control"  name="file" >
                      <?php echo form_error('file'); ?>
                   </div>
@@ -92,21 +101,31 @@
                </div>
             </form>
           <a href="<?php echo base_url(); ?>BookingSummary/download_latest_file/appliance" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>
-          <div class="col-md-4">
+          <div class="col-md-12" style="margin-top:20px;">
+              <h3> Partner Appliance List History</h3>
               <table class="table table-bordered table-hover table-responsive">
+                  <thead>
+                      <tr>
+                          <th>S.No.</th>
+                          <th>Download</th>
+                          <th>Uploaded By</th>
+                          <th>Uploaded Date</th>
+                      </tr>
+                  </thead>
                   <tbody>
-                      <tr>
-                          <td><strong>Uploaded By</strong></td>
-                          <td><?php echo $latest_file[1]['full_name']?></td>
-                      </tr>
-                      <tr>
-                          <td><strong>Upload Date</strong></td>
-                          <td><?php echo date('d-m-Y',  strtotime($latest_file[1]['upload_date']))?></td>
-                      </tr>
+                      <?php $sn1 = 1;
+                      foreach ($Partner_Appliance_Details as $value) { ?>
+                          <tr>
+                              <td><?php echo $sn1; ?></td>
+                              <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/<?php echo $value['file_name']?>'><div><?php echo $value['file_name']?></div></a></td>
+                              <td><?php echo $value['agent_name']; ?></td>
+                              <td><?php echo $value['upload_date']; ?></td>
+                          </tr>
+                        <?php $sn1++;} ?>
                   </tbody>
               </table>
           </div>
-          
+
           </div>
       </div>
    </div>

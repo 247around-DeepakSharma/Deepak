@@ -161,9 +161,8 @@ class service_centre_charges extends CI_Controller {
      */
     function upload_excel_form($data = "") {
         $view['data'] = $data;
-        $file_type = "'SF-Price-List','Partner-Appliance-Details'";
-        $view['latest_file'] = $this->reporting_utils->get_all_latest_uploaded_file($file_type);
-//        echo "<pre>";print_r($view['latest_file']);exit();
+        $view['SF_Price_List'] = $this->reporting_utils->get_uploaded_file_history('SF-Price-List');
+        $view['Partner_Appliance_Details'] = $this->reporting_utils->get_uploaded_file_history('Partner-Appliance-Details');
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/upload_service_price', $view);
     }
