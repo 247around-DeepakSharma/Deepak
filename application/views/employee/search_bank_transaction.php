@@ -48,7 +48,7 @@
               </div>
             </div>
       </div>
-        .0
+        
     </div>
 <!-- end Invoice Details Modal -->
 </div>
