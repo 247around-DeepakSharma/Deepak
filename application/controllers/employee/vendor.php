@@ -3082,7 +3082,7 @@ class vendor extends CI_Controller {
         //$vendor  = $this->vendor_model->viewvendor('',1);
        
         $where = array('active' => '1','on_off' => '1');
-        $select = "service_centres.name, service_centres.id";
+        $select = "*";
         $vendor = $this->vendor_model->getVendorDetails($select, $where);
         log_message('info', __FUNCTION__);
 
