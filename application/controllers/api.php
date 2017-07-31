@@ -1233,110 +1233,92 @@ class Api extends CI_Controller {
     //Also, If user has given a missed call on 011-30017601 to confirm installation,
     //tag the booking accordingly.
     if ($callDetails['To'] == PARTNERS_MISSED_CALLED_NUMBER) {
-        //verify user phone no first
-        $this->apis->verifyUserNumber($num);
-            
+            //verify user phone no first
+            $this->apis->verifyUserNumber($num);
+
             //Check if call has been made from APP
-            $check_app = $this->user_model->get_user_device_id_by_phone($num);
-            if(empty($check_app[0]['device_id'])){
-            
-                    //Handling case when User is not being Found in DB, sending Installation and Request
-                    // welcome SMS to the corresponding user and adding the details in Partner Missed Calls table as well
-                    //1. Sending SMS to the user
-                    $sms['tag'] = "partner_missed_call_welcome_sms";
-                    $sms['phone_no'] = $num;
-                    $sms['smsData'] = '';
-                    $sms['booking_id'] = '';
-                    $sms['type'] = "user";
-                    $sms['type_id'] = '';
+            //Handling case when User is not being Found in DB, sending Installation and Request
+            // welcome SMS to the corresponding user and adding the details in Partner Missed Calls table as well
+            //1. Sending SMS to the user
+            $sms['tag'] = "partner_missed_call_welcome_sms";
+            $sms['phone_no'] = $num;
+            $sms['smsData'] = '';
+            $sms['booking_id'] = '';
+            $sms['type'] = "user";
+            $sms['type_id'] = '';
 
-                    $this->notify->send_sms_msg91($sms);
+            $this->notify->send_sms_msg91($sms);
+            //Logging
+            log_message('info', __FUNCTION__ . ' Partner Missed Call Welcome SMS has been sent to ' . $num);
+
+
+            //2. Now adding details in partner_missed_calls table
+            //Checking the Case when Number is already present in Table
+            //Getting FollowUp Leads
+            $leads_followUp = $this->partner_model->get_partner_leads_by_phone_status($num, 'FollowUp');
+            //Getting Completed Leads
+            $leads_completed = $this->partner_model->get_partner_leads_by_phone_status($num, 'Completed');
+            //Getting Cancelled Leads
+            $leads_cancelled = $this->partner_model->get_partner_leads_by_phone_status($num, 'Cancelled');
+            // a . First checking if FollowUp leads is Present
+            if (!empty($leads_followUp)) {
+
+                //Updating Previously present Row, by changing Dates when Phone is present in FollowUp state
+                $data['action_date'] = date('Y-m-d H:i:s');
+                $data['create_date'] = date('Y-m-d H:i:s');
+                $data['update_date'] = date('Y-m-d H:i:s');
+                $where = array('id' => $leads_followUp[0]['id']);
+                $inserted_id = $this->partner_model->update_partner_missed_calls($where, $data);
+                if ($inserted_id) {
                     //Logging
-                    log_message('info', __FUNCTION__ . ' Partner Missed Call Welcome SMS has been sent to ' . $num);
-
-
-                    //2. Now adding details in partner_missed_calls table
-                    //Checking the Case when Number is already present in Table
-                    //Getting FollowUp Leads
-                    $leads_followUp = $this->partner_model->get_partner_leads_by_phone_status($num, 'FollowUp');
-                    //Getting Completed Leads
-                    $leads_completed = $this->partner_model->get_partner_leads_by_phone_status($num, 'Completed');
-                    //Getting Cancelled Leads
-                    $leads_cancelled = $this->partner_model->get_partner_leads_by_phone_status($num, 'Cancelled');
-                    // a . First checking if FollowUp leads is Present
-                    if (!empty($leads_followUp)) {
-
-                        //Updating Previously present Row, by changing Dates when Phone is present in FollowUp state
-                        $data['action_date'] = date('Y-m-d H:i:s');
-                        $data['create_date'] = date('Y-m-d H:i:s');
-                        $data['update_date'] = date('Y-m-d H:i:s');
-                        $where = array('id' => $leads_followUp[0]['id']);
-                        $inserted_id = $this->partner_model->update_partner_missed_calls($where, $data);
-                        if ($inserted_id) {
-                            //Logging
-                            log_message('info', __FUNCTION__ . ' Previous Phone has been updated in partner_missed_calls table with no: ' . $num);
-                            //Adding details in Booking State Change
-                            $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_FOLLOWUP, "Lead Updated Phone: " . $num, 
-                                   _247AROUND_DEFAULT_AGENT, 
-                                    _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
-                        } else {
-                            //Logging
-                            log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
-                        }
-                    }
-                    // b. Checking case when leads is Completed or Cancelled
-                    else if (!empty($leads_cancelled) || !empty($leads_completed)) {
-
-                        // Adding a new Row in Partner missed calls details in case of completed or cancelled
-                        $data['phone'] = $num;
-                        $data['action_date'] = date('Y-m-d H:i:s');
-                        $data['create_date'] = date('Y-m-d H:i:s');
-                        $inserted_id = $this->partner_model->insert_partner_missed_calls_detail($data);
-                        if ($inserted_id) {
-                            //Logging
-                            log_message('info', __FUNCTION__ . ' New Entry for SAME PHONE has been added in partner_missed_calls table with no: ' . $num);
-                            //Adding details in Booking State Change
-                            $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num,
-                                    _247AROUND_DEFAULT_AGENT,_247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
-                        } else {
-                            //Logging
-                            log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
-                        }
-                    }
-                    // c. No leads is Present
-                    else {
-
-                        //Condition when Phone is Not Present - Insert New Row
-                        $data['phone'] = $num;
-                        $data['action_date'] = date('Y-m-d H:i:s');
-                        $data['create_date'] = date('Y-m-d H:i:s');
-                        $inserted_id = $this->partner_model->insert_partner_missed_calls_detail($data);
-                        if ($inserted_id) {
-                            //Logging
-                            log_message('info', __FUNCTION__ . ' New Phone has been added in partner_missed_calls table with no: ' . $num);
-                            //Adding details in Booking State Change
-                            $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, 
-                                    _247AROUND_DEFAULT_AGENT, 
-                                    _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
-                        } else {
-                            //Logging
-                            log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
-                        }
-                    }
-            }else{
-                //No bookings found, send sms asking him to call from his registered mobile no.
-                //Do not send this SMS now as it will also go to customer downloading our APP
-                //Check whether this customer has downloaded App and then decide
-                //$this->send_missed_call_booking_not_found_sms($num);
-                
-                //Adding details in Log File
-                log_message('info', __FUNCTION__ . ' Missed call given by customer from 247AROUND App - Number: ' . $num);
-                
+                    log_message('info', __FUNCTION__ . ' Previous Phone has been updated in partner_missed_calls table with no: ' . $num);
+                    //Adding details in Booking State Change
+                    $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_FOLLOWUP, "Lead Updated Phone: " . $num, _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                } else {
+                    //Logging
+                    log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
+                }
             }
-         
-        //Considering the case for Snapdeal Missed Calls
-    }
-        else if($callDetails['To'] == SNAPDEAL_MISSED_CALLED_NUMBER){
+            // b. Checking case when leads is Completed or Cancelled
+            else if (!empty($leads_cancelled) || !empty($leads_completed)) {
+
+                // Adding a new Row in Partner missed calls details in case of completed or cancelled
+                $data['phone'] = $num;
+                $data['action_date'] = date('Y-m-d H:i:s');
+                $data['create_date'] = date('Y-m-d H:i:s');
+                $inserted_id = $this->partner_model->insert_partner_missed_calls_detail($data);
+                if ($inserted_id) {
+                    //Logging
+                    log_message('info', __FUNCTION__ . ' New Entry for SAME PHONE has been added in partner_missed_calls table with no: ' . $num);
+                    //Adding details in Booking State Change
+                    $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                } else {
+                    //Logging
+                    log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
+                }
+            }
+            // c. No leads is Present
+            else {
+
+                //Condition when Phone is Not Present - Insert New Row
+                $data['phone'] = $num;
+                $data['action_date'] = date('Y-m-d H:i:s');
+                $data['create_date'] = date('Y-m-d H:i:s');
+                $inserted_id = $this->partner_model->insert_partner_missed_calls_detail($data);
+                if ($inserted_id) {
+                    //Logging
+                    log_message('info', __FUNCTION__ . ' New Phone has been added in partner_missed_calls table with no: ' . $num);
+                    //Adding details in Booking State Change
+                    $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
+                } else {
+                    //Logging
+                    log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
+                }
+            }
+
+
+            //Considering the case for Snapdeal Missed Calls
+        } else if($callDetails['To'] == SNAPDEAL_MISSED_CALLED_NUMBER){
             //Logging
             log_message('info', __FUNCTION__ . ' Missed call given by Snapdeal customer - Number: ' . $num);
             
