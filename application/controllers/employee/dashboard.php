@@ -26,6 +26,8 @@ class Dashboard extends CI_Controller {
         $this->load->model('invoices_model');
         $this->load->model('dashboard_model');
         $this->load->model('bb_model');
+        $this->load->model('cp_model');
+
         $this->load->library('table');
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -470,6 +472,31 @@ class Dashboard extends CI_Controller {
             
             $cp_delivered_charge = $this->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_delivered_charge")[0]->cp_delivered_charge;
             $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+            
+            $shop_data = $this->cp_model->get_cp_shop_address_list(array('where' => array('cp_id' => $value['id'])));
+            $star = "";
+            $name = "";
+            $name  = "<div class='dropdown'>
+                            <a class='dropdown-toggle' data-toggle='dropdown' data-hover='dropdown' style='cursor: pointer;'>".$value['name']."
+                           </a>
+                            <ul class='dropdown-menu' >
+                            <li role='presentation'><a  href='#' style='font-weight:bold; font-size:16px;'>Region</a></li>
+                           
+                            ";
+            
+            foreach ($shop_data as $shop){
+                if($shop->active == 1){
+                    $star .= '    <i class="fa fa-star" style="color:green;" aria-hidden="true"></i>';
+                    $name .= " <li role='presentation'><a href='#' style='color:green;font-size:16px;'>".$shop->shop_address_region."</a></li>";
+                } else{
+                    
+                   $star .= '    <i class="fa fa-star" style="color:red;" aria-hidden="true"></i>';
+                   $name .= " <li role='presentation'><a href='#' style='color:red;font-size:16px;'>".$shop->shop_address_region."</a></li>";
+
+                }
+               
+            }
+            $name .= "</ul></div>";
             $cp_intransit = $this->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_intransit")[0]->cp_intransit;
             $rest_balance = ($paid_amount -$cp_delivered_charge -$cp_intransit);
             $class ="";
@@ -478,7 +505,8 @@ class Dashboard extends CI_Controller {
             } else if($rest_balance < 0){
                $class = ' <i class="error pull-right fa fa-long-arrow-down"></i>'; 
             }
-            $this->table->add_row($value["name"],$paid_amount,$cp_delivered_charge,$cp_intransit,"Rs. ".$rest_balance.$class);
+            
+            $this->table->add_row($name .$star,$paid_amount,$cp_delivered_charge,$cp_intransit,"Rs. ".$rest_balance.$class);
            
         }
         

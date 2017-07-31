@@ -40,16 +40,16 @@ class Collection_partner extends CI_Controller {
        // log_message("info", print_r(json_encode($_POST, TRUE), TRUE));
        // $string  = '{"draw":"1","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"7","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"8","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"9","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"10","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"}}';
        //  $_POST = json_encode($string);
-        $length = $this->input->post('length');
-        $start = $this->input->post('start');
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
-        $search_value = $search['value'];
-        $order = $this->input->post('order');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
         $draw = $this->input->post('draw');
         
-        $list = $this->cp_model->get_cp_shop_address_list($length, $start, $search_value, $order);
+        $list = $this->cp_model->get_cp_shop_address_list($post);
         $data = array();
-        $no = $start;
+        $no = $post['start'];
         foreach ($list as $cp_address) {
 
             $no++;
@@ -84,7 +84,7 @@ class Collection_partner extends CI_Controller {
         $output = array(
             "draw" => $draw,
             "recordsTotal" => $this->cp_model->count_all_shop_address(),
-            "recordsFiltered" => $this->cp_model->count_filtered_shop_address($search_value, $order),
+            "recordsFiltered" => $this->cp_model->count_filtered_shop_address($post),
             "data" => $data,
         );
 
