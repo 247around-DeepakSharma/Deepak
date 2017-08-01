@@ -3011,7 +3011,7 @@ class Partner extends CI_Controller {
         $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         foreach ($partners as $partner) {
 
-            $select = "spare_parts_details.booking_id,spare_parts_details.defective_part_shipped_date";
+            $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.partner_id' => $partner['id'], 
                            'DATEDIFF(defective_part_shipped_date,now()) <= -7' => null,
                            "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
@@ -3029,13 +3029,16 @@ class Partner extends CI_Controller {
                 
                 //send email
                 $to = $partner['primary_contact_email'];
-                $cc = NITS_ANUJ_EMAIL_ID;
+                $cc = NITS_ANUJ_EMAIL_ID.', booking@247around.com';
                 $subject = "Defective Parts Acknowledge Report";
                 
-                $message = "Dear " . $partner['primary_contact_name'] . ",<br/><br/>";
-                $message .= "Below are the bookings for which defective parts are not shipped yet."
-                        . " Please do the required action on these bookings as soon as possible.<br><br>";
-                $message .= "$html_table";
+                $message = "Dear Partner,<br/><br/>";
+                $message .= "Defective parts for below bookings have been shipped by 247around "
+                        . "Service Centre but Delivery has not been acknowledged by your team till now: <br><br>";
+                $message .= "$html_table <br><br>";
+                $message .= "Please confirm / reject the delivery of these defective parts. "
+                        . "Post 14 days of shipment, 247around system will mark them Delivered automatically. <br><br>";
+                $message .= "Thanks. <br> 247around Team";
                 
                 $sendmail = $this->notify->sendEmail('booking@247around.com', $to, $cc, "", $subject, $message, "");
 

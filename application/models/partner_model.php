@@ -1324,7 +1324,7 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_spare_parts_by_any($select,$where,$is_join=false){
-        $this->db->select($select);
+        $this->db->select($select,FALSE);
         $this->db->where($where);
         $this->db->from('spare_parts_details');
         if($is_join){
