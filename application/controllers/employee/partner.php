@@ -1,10 +1,11 @@
 <?php
 
-if (!defined('BASEPATH')){
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
 class Partner extends CI_Controller {
+
     Private $OLD_BOOKING_STATE = "";
 
     /**
@@ -30,7 +31,7 @@ class Partner extends CI_Controller {
         $this->load->library('booking_utilities');
         $this->load->library('user_agent');
         $this->load->library("initialized_variable");
-        
+
         $this->load->library('table');
 
         $this->load->helper(array('form', 'url'));
@@ -43,30 +44,30 @@ class Partner extends CI_Controller {
      * @return: void
      */
     function index() {
-       $data['partner_logo'] = $this->booking_model->get_partner_logo();
-       $this->load->view('partner/partner_login',$data);
-
+        $data['partner_logo'] = $this->booking_model->get_partner_logo();
+        $this->load->view('partner/partner_login', $data);
     }
-   /**
-    * @desc: this is used to load pending booking
-    * @param: Offset and page no., all flag to get all data, Booking id
-    * @return: void
-    */
-    function pending_booking($offset = 0,$all = 0,$booking_id = '') {
-       $this->checkUserSession();
+
+    /**
+     * @desc: this is used to load pending booking
+     * @param: Offset and page no., all flag to get all data, Booking id
+     * @return: void
+     */
+    function pending_booking($offset = 0, $all = 0, $booking_id = '') {
+        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $config['base_url'] = base_url() . 'partner/pending_booking';
-        
-        if(!empty($booking_id)){
-            $total_rows = $this->partner_model->getPending_booking($partner_id,$booking_id);
-        }else{
+
+        if (!empty($booking_id)) {
+            $total_rows = $this->partner_model->getPending_booking($partner_id, $booking_id);
+        } else {
             $total_rows = $this->partner_model->getPending_booking($partner_id);
         }
         $config['total_rows'] = count($total_rows);
-        
-        if($all == 1){
+
+        if ($all == 1) {
             $config['per_page'] = count($total_rows);
-        }else{
+        } else {
             $config['per_page'] = 50;
         }
         $config['uri_segment'] = 3;
@@ -77,15 +78,15 @@ class Partner extends CI_Controller {
 
         $data['count'] = $config['total_rows'];
         $data['bookings'] = array_slice($total_rows, $offset, $config['per_page']);
-        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'partner', 'active'=> '1'));
-               
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
+
         if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
         }
-        
-        log_message('info', 'Partner View: Pending booking: Partner id: ' . $partner_id . ", Partner name: " . 
+
+        log_message('info', 'Partner View: Pending booking: Partner id: ' . $partner_id . ", Partner name: " .
                 $this->session->userdata('partner_name'));
-        
+
         $this->load->view('partner/header');
         $this->load->view('partner/pending_booking', $data);
     }
@@ -95,7 +96,7 @@ class Partner extends CI_Controller {
      * @param: Offset and page no.
      * @return: void
      */
-    function pending_queries($offset = 0){
+    function pending_queries($offset = 0) {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $config['base_url'] = base_url() . 'partner/pending_queries';
@@ -115,28 +116,26 @@ class Partner extends CI_Controller {
         if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
         }
-        
-        log_message('info', 'Partner View: Pending query: Partner id' . $partner_id . ", Partner name: " . 
+
+        log_message('info', 'Partner View: Pending query: Partner id' . $partner_id . ", Partner name: " .
                 $this->session->userdata('partner_name'));
-        
+
         $this->load->view('partner/header');
         $this->load->view('partner/pending_queries', $data);
-
     }
-
 
     /**
      * @desc: this is used to display completed booking for specific service center
      */
-    function closed_booking($state, $offset = 0, $booking_id = ""){
-       $this->checkUserSession();
+    function closed_booking($state, $offset = 0, $booking_id = "") {
+        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
 
-        $config['base_url'] = base_url() . 'partner/closed_booking/'.$state;
-        if(!empty($booking_id)){
-            $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state, $booking_id);
-        }else{
-            $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state);
+        $config['base_url'] = base_url() . 'partner/closed_booking/' . $state;
+        if (!empty($booking_id)) {
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $state, $booking_id);
+        } else {
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count", "", $partner_id, $state);
         }
 
         $config['per_page'] = 50;
@@ -147,9 +146,9 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        if(!empty($booking_id)){
-            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state,$booking_id);
-        }else{
+        if (!empty($booking_id)) {
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state, $booking_id);
+        } else {
             $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
         }
 
@@ -158,7 +157,7 @@ class Partner extends CI_Controller {
 
         $data['status'] = $state;
 
-        log_message('info', 'Partner view '.$state.' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
+        log_message('info', 'Partner view ' . $state . ' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name') . " data " . print_r($data, true));
 
         $this->load->view('partner/header');
         $this->load->view('partner/closed_booking', $data);
@@ -172,9 +171,9 @@ class Partner extends CI_Controller {
     function booking_details($booking_id) {
         $this->checkUserSession();
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
-        $unit_where = array('booking_id'=>$booking_id);
+        $unit_where = array('booking_id' => $booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
-        
+
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
 
         $this->load->view('partner/header');
@@ -187,7 +186,7 @@ class Partner extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') &&  !empty($this->session->userdata('partner_id')) && ($this->session->userdata('status') == 1)) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') && !empty($this->session->userdata('partner_id')) && ($this->session->userdata('status') == 1)) {
             return TRUE;
         } else {
             $this->session->sess_destroy();
@@ -203,7 +202,7 @@ class Partner extends CI_Controller {
     function logout() {
         $this->checkUserSession();
         log_message('info', 'Partner logout  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
-        
+
         //Saving Logout Details in Database
         $login_data['browser'] = $this->agent->browser();
         $login_data['agent_string'] = $this->agent->agent_string();
@@ -229,9 +228,9 @@ class Partner extends CI_Controller {
      * @desc: This method loads abb booking form
      * it gets user details(if exist), city, source, services
      */
-    function get_addbooking_form($phone_number = ""){
+    function get_addbooking_form($phone_number = "") {
         $this->checkUserSession();
-        if(!empty($phone_number)){
+        if (!empty($phone_number)) {
             $_POST['phone_number'] = $phone_number;
         }
         $this->form_validation->set_rules('phone_number', 'Phone Number', 'trim|required|regex_match[/^[7-9]{1}[0-9]{9}$/]');
@@ -240,29 +239,27 @@ class Partner extends CI_Controller {
             $output = "Please Enter Valid Mobile Number";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
-            redirect(base_url()."partner/home");
+            redirect(base_url() . "partner/home");
         } else {
             $phone_number = $this->input->post('phone_number');
             $data['user'] = $this->user_model->search_user($phone_number);
             $partner_id = $this->session->userdata('partner_id');
             $partner_data = $this->partner_model->get_partner_code($partner_id);
-            $partner_type = $partner_data[0]['partner_type']; 
+            $partner_type = $partner_data[0]['partner_type'];
             $data['partner_type'] = $partner_type;
-            
-            $data['partner_code'] = $partner_data[0]['code']; 
-            if($partner_type == OEM){
-                
+
+            $data['partner_code'] = $partner_data[0]['code'];
+            if ($partner_type == OEM) {
+
                 $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
-                
             } else {
                 $data['appliances'] = $services = $this->booking_model->selectservice();
             }
-            
+
             $data['phone_number'] = $phone_number;
             $this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
         }
-        
     }
 
     /**
@@ -270,18 +267,18 @@ class Partner extends CI_Controller {
      */
     function process_addbooking() {
         $this->checkUserSession();
-       
+
         $validate = $this->set_form_validation();
-        
+
         log_message('info', 'Partner initiate add booking' . $this->session->userdata('partner_name'));
 
         if ($validate) {
-           
+
             $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
             if ($authToken) {
                 $post = $this->get_booking_form_data();
                 $postData = json_encode($post, true);
-               
+
                 $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
                 curl_setopt_array($ch, array(
                     CURLOPT_POST => TRUE,
@@ -295,27 +292,26 @@ class Partner extends CI_Controller {
 
                 // Send the request
                 $response = curl_exec($ch);
-                
+
                 log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted error mgs" . print_r($response, true));
                 // Decode the response
                 $responseData = json_decode($response, TRUE);
-                
+
                 if (isset($responseData['data']['code'])) {
-                    
-                    if($responseData['data']['code'] == -1003){
-                        $output = "Order ID Already Exists, Booking ID: ".$responseData['data']['response']['247aroundBookingID'] ;
+
+                    if ($responseData['data']['code'] == -1003) {
+                        $output = "Order ID Already Exists, Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
 
                         redirect(base_url() . "partner/pending_booking");
                     } else if ($responseData['data']['code'] == 247) {
-                        $output = "Booking Inserted Successfully, Booking ID: ".$responseData['data']['response']['247aroundBookingID'];
+                        $output = "Booking Inserted Successfully, Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
 
                         log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking Inserted " . print_r($postData, true));
                         redirect(base_url() . "partner/pending_booking");
-                                                   
                     } else {
                         log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
                         $this->insertion_failure($postData);
@@ -323,7 +319,7 @@ class Partner extends CI_Controller {
                         $output = "Sorry, Booking Could Not be Inserted. Please Try Again.";
                         $userSession = array('error' => $output);
                         $this->session->set_userdata($userSession);
-                        redirect(base_url() . "partner/pending_booking");                        
+                        redirect(base_url() . "partner/pending_booking");
                     }
                 } else {
                     log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
@@ -333,7 +329,7 @@ class Partner extends CI_Controller {
                     $userSession = array('error' => $output);
                     $this->session->set_userdata($userSession);
 
-                   redirect(base_url() . "partner/pending_booking");
+                    redirect(base_url() . "partner/pending_booking");
                 }
             } else {
                 log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  Authentication failed");
@@ -346,9 +342,8 @@ class Partner extends CI_Controller {
             $this->get_addbooking_form();
         }
     }
-    
-    
-    function get_booking_form_data(){
+
+    function get_booking_form_data() {
         $booking_date = date('d-m-Y', strtotime($this->input->post('booking_date')));
         $post['partnerName'] = $this->session->userdata('partner_name');
         $post['partner_id'] = $this->session->userdata('partner_id');
@@ -387,20 +382,18 @@ class Partner extends CI_Controller {
         $post['dealer_phone_number'] = $this->input->post('dealer_phone_number');
         $post['dealer_id'] = $this->input->post('dealer_id');
         return $post;
-        
     }
 
-    function insertion_failure($post){
+    function insertion_failure($post) {
         $to = DEVELOPER_EMAIL;
         $cc = "";
         $bcc = "";
-        $subject = "Booking Insertion Failure By ".$this->session->userdata('partner_name');
+        $subject = "Booking Insertion Failure By " . $this->session->userdata('partner_name');
         $message = $post;
         $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-
     }
 
-    function set_form_validation(){
+    function set_form_validation() {
         $this->form_validation->set_rules('user_name', 'User Name', 'required|xss_clean');
         $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile Number', 'trim|required|exact_length[10]|xss_clean');
         $this->form_validation->set_rules('city', 'City', 'trim|required|xss_clean');
@@ -426,8 +419,7 @@ class Partner extends CI_Controller {
 
         if ($this->form_validation->run() == FALSE) {
             return FALSE;
-        }
-        else {
+        } else {
             return true;
         }
     }
@@ -443,12 +435,11 @@ class Partner extends CI_Controller {
         $results['services'] = $this->vendor_model->selectservice();
         $results['select_state'] = $this->vendor_model->getall_state();
         $partner_code = $this->partner_model->get_availiable_partner_code();
-        foreach($partner_code as $row)
-        {
+        foreach ($partner_code as $row) {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('results' => $results));
     }
 
@@ -461,7 +452,7 @@ class Partner extends CI_Controller {
      * @param : void
      * @return : void
      */
-    function process_add_edit_partner_form(){
+    function process_add_edit_partner_form() {
         //Check form validation
         $checkValidation = $this->check_partner_Validation();
         if ($checkValidation) {
@@ -471,117 +462,116 @@ class Partner extends CI_Controller {
                 //if vendor exists, details are edited
                 $partner_id = $this->input->post('id');
                 $edit_partner_data['partner'] = $this->get_partner_form_data();
-                
+
                 //Processing Contract File
-                if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
+                if (($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])) {
                     $tmpFile = $_FILES['contract_file']['tmp_name'];
-                    $contract_file = "Partner-".$this->input->post('public_name').'-Contract'.".".explode(".",$_FILES['contract_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
-                    
+                    $contract_file = "Partner-" . $this->input->post('public_name') . '-Contract' . "." . explode(".", $_FILES['contract_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$contract_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $contract_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $edit_partner_data['partner']['contract_file'] = $contract_file;
-                    
-                    $attachment_contract = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
-                    
+
+                    $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' CONTRACT FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' CONTRACT FILE is being uploaded sucessfully.');
                 }
-                
+
                 //Processing Pan File
-                if(($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])){
+                if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
                     $tmpFile = $_FILES['pan_file']['tmp_name'];
-                    $pan_file = "Partner-".$this->input->post('public_name').'-PAN'.".".explode(".",$_FILES['pan_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
-                    
+                    $pan_file = "Partner-" . $this->input->post('public_name') . '-PAN' . "." . explode(".", $_FILES['pan_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$pan_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $pan_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $edit_partner_data['partner']['pan_file'] = $pan_file;
-                    
-                    $attachment_pan = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$pan_file;
-                    
+
+                    $attachment_pan = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $pan_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' PAN FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' PAN FILE is being uploaded sucessfully.');
                 }
-                
+
                 //Processing Registration File
-                if(($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])){
+                if (($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])) {
                     $tmpFile = $_FILES['registration_file']['tmp_name'];
-                    $registration_file = "Partner-".$this->input->post('public_name').'-Registration'.".".explode(".",$_FILES['registration_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$registration_file);
-                    
+                    $registration_file = "Partner-" . $this->input->post('public_name') . '-Registration' . "." . explode(".", $_FILES['registration_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $registration_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$registration_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$registration_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $registration_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $registration_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $edit_partner_data['partner']['registration_file'] = $registration_file;
-                    
-                    $attachment_registration_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$registration_file;
-                    
+
+                    $attachment_registration_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $registration_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' Registration FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' Registration FILE is being uploaded sucessfully.');
                 }
-                
-                 //Processing TIN File
-                if(($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])){
+
+                //Processing TIN File
+                if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
                     $tmpFile = $_FILES['tin_file']['tmp_name'];
-                    $tin_file = "Partner-".$this->input->post('public_name').'-TIN'.".".explode(".",$_FILES['tin_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$tin_file);
-                    
+                    $tin_file = "Partner-" . $this->input->post('public_name') . '-TIN' . "." . explode(".", $_FILES['tin_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$tin_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $tin_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $return_data['partner']['tin_file'] = $tin_file;
-                    
-                    $attachment_tin_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$tin_file;
-                    
+
+                    $attachment_tin_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $tin_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' TIN FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' TIN FILE is being uploaded sucessfully.');
                 }
                 //Processing CST File
-                if(($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])){
+                if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
                     $tmpFile = $_FILES['cst_file']['tmp_name'];
-                    $cst_file = "Partner-".$this->input->post('public_name').'-CST'.".".explode(".",$_FILES['cst_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$cst_file);
-                    
+                    $cst_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['cst_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$cst_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $cst_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $return_data['partner']['cst_file'] = $cst_file;
-                    
-                    $attachment_cst_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cst_file;
-                    
+
+                    $attachment_cst_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $cst_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' CST FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' CST FILE is being uploaded sucessfully.');
                 }
                 //Processing Service Tax File
-                if(($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])){
+                if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
                     $tmpFile = $_FILES['service_tax_file']['tmp_name'];
-                    $service_tax_file = "Partner-".$this->input->post('public_name').'-CST'.".".explode(".",$_FILES['service_tax_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$service_tax_file);
-                    
+                    $service_tax_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$service_tax_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $service_tax_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $return_data['partner']['service_tax_file'] = $registration_file;
-                    
-                    $attachment_service_tax_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$service_tax_file;
-                    
+
+                    $attachment_service_tax_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $service_tax_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' Service Tax FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' Service Tax FILE is being uploaded sucessfully.');
                 }
-                
+
                 //Checking for Upcountry
                 $upcountry = $this->input->post('is_upcountry');
-                if(isset($upcountry) && $upcountry == 'on')
-                {
+                if (isset($upcountry) && $upcountry == 'on') {
                     //Setting Flag as 1
                     $edit_partner_data['partner']['is_upcountry'] = 1;
                     $edit_partner_data['partner']['upcountry_rate'] = $this->input->post('upcountry_rate');
@@ -591,8 +581,7 @@ class Partner extends CI_Controller {
                     $edit_partner_data['partner']['upcountry_mid_distance_threshold'] = $this->input->post('upcountry_mid_distance_threshold');
                     $edit_partner_data['partner']['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
                     $upcountry_approval = $this->input->post('upcountry_approval');
-                    $edit_partner_data['partner']['upcountry_approval'] = (!empty($upcountry_approval))? 1:0;
-                    
+                    $edit_partner_data['partner']['upcountry_approval'] = (!empty($upcountry_approval)) ? 1 : 0;
                 } else {
                     $edit_partner_data['partner']['is_upcountry'] = 0;
                     $edit_partner_data['partner']['upcountry_rate'] = 0;
@@ -603,149 +592,148 @@ class Partner extends CI_Controller {
                     $edit_partner_data['partner']['upcountry_approval_email'] = NULL;
                     $edit_partner_data['partner']['upcountry_approval'] = 0;
                 }
-                
+
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
-                
+
                 //Agreement End Date - Checking (If  Present or not)
-                if(!empty($this->input->post('agreement_end_date'))){
+                if (!empty($this->input->post('agreement_end_date'))) {
                     $edit_partner_data['partner']['agreement_end_date'] = $this->input->post('agreement_end_date');
                 }
-               
+
                 //Where Clause
-                $where = array('partner_id' =>$partner_id);
-                
+                $where = array('partner_id' => $partner_id);
+
                 //updating Partner code in Bookings_sources table
-                    $bookings_sources['source'] = $this->input->post('public_name');
-                    $bookings_sources['code'] = $this->input->post('partner_code');
-                   
-                    if($this->partner_model->update_partner_code($where,$bookings_sources)){
-                        log_message('info',' Parnter code has been Updated in Bookings_sources table '.print_r($bookings_sources,TRUE));
-                    }else{
-                        log_message('info',' Error in Updating Parnter code has been added in Bookings_sources table '.print_r($bookings_sources,TRUE));
-                    }
-                
+                $bookings_sources['source'] = $this->input->post('public_name');
+                $bookings_sources['code'] = $this->input->post('partner_code');
+
+                if ($this->partner_model->update_partner_code($where, $bookings_sources)) {
+                    log_message('info', ' Parnter code has been Updated in Bookings_sources table ' . print_r($bookings_sources, TRUE));
+                } else {
+                    log_message('info', ' Error in Updating Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
+                }
+
                 //Updating Partner Operation Region
                 //Processing Partner Operation Region
-                    $state_html = '';
-                    if (!empty($partner_operation_state)) {
-                        $all_flag = FALSE;
-                        foreach ($partner_operation_state as $key => $value) {
-                            foreach($value as $val){
-                                //Checking if ALL state has been selected
-                                if($val == 'all'){
-                                    $all_states = $this->vendor_model->getall_state();
-                                    foreach ($all_states as $value) {
-                                        $data['partner_id'] = $partner_id;
-                                        $data['service_id'] = $key;
-                                        $data['state'] = $value['state'];
-                                        $data['active'] = 1;
-                                        $data_final[] = $data;
-                                        $state_html .= "<li> Operating Service <b>".$key.'</b> In State =>';
-                                        $state_html .= " ".$value['state'].'</li>';
-                                    }
-                                    break;
+                $state_html = '';
+                if (!empty($partner_operation_state)) {
+                    $all_flag = FALSE;
+                    foreach ($partner_operation_state as $key => $value) {
+                        foreach ($value as $val) {
+                            //Checking if ALL state has been selected
+                            if ($val == 'all') {
+                                $all_states = $this->vendor_model->getall_state();
+                                foreach ($all_states as $value) {
+                                    $data['partner_id'] = $partner_id;
+                                    $data['service_id'] = $key;
+                                    $data['state'] = $value['state'];
+                                    $data['active'] = 1;
+                                    $data_final[] = $data;
+                                    $state_html .= "<li> Operating Service <b>" . $key . '</b> In State =>';
+                                    $state_html .= " " . $value['state'] . '</li>';
                                 }
-                                $data['partner_id'] = $partner_id;
-                                $data['service_id'] = $key;
-                                $data['state'] = $val;
-                                $data['active'] = 1;
-                                $data_final[] = $data;
-                                $state_html .= "<li>Operating Service <b>".$key.'</b> In State =>';
-                                $state_html .= " ".$val.'</li>';
+                                break;
                             }
+                            $data['partner_id'] = $partner_id;
+                            $data['service_id'] = $key;
+                            $data['state'] = $val;
+                            $data['active'] = 1;
+                            $data_final[] = $data;
+                            $state_html .= "<li>Operating Service <b>" . $key . '</b> In State =>';
+                            $state_html .= " " . $val . '</li>';
                         }
-                        
-                        //Deleting Previous Values
-                        $this->partner_model->delete_partner_operation_region($partner_id);
-                        
-                        //Inserting Array in batch in partner operation region
-                        $operation_update_flag = $this->partner_model->insert_batch_partner_operation_region($data_final,$where);
-                        if ($operation_update_flag) {
-                            //Loggin Success
-                            log_message('info', 'Parnter Operation Region has been added sucessfully for partner ' . print_r($partner_id));
-                        }
-                    } else {
-                        //Echoing message in Log file
-                        log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
                     }
-                $edit_partner_data['partner']['gst_number'] = $this->input->post('gst_number');  
+
+                    //Deleting Previous Values
+                    $this->partner_model->delete_partner_operation_region($partner_id);
+
+                    //Inserting Array in batch in partner operation region
+                    $operation_update_flag = $this->partner_model->insert_batch_partner_operation_region($data_final, $where);
+                    if ($operation_update_flag) {
+                        //Loggin Success
+                        log_message('info', 'Parnter Operation Region has been added sucessfully for partner ' . print_r($partner_id));
+                    }
+                } else {
+                    //Echoing message in Log file
+                    log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
+                }
+                $edit_partner_data['partner']['gst_number'] = $this->input->post('gst_number');
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
-                
+
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
-                
+
                 //Logging
-                log_message('info',__FUNCTION__.' Partner has been Updated : '.print_r($this->input->post(),TRUE));
+                log_message('info', __FUNCTION__ . ' Partner has been Updated : ' . print_r($this->input->post(), TRUE));
                 //Adding details in Booking State Change
-                $this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : '.$partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
-                
+                $this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+
                 //Sending Mail for Updated details
                 $html = "<p>Following Partner has been Updated :</p><ul>";
-                foreach($edit_partner_data['partner'] as $key=>$value){
-                    $html .= "<li><b>".$key.'</b> =>';
-                    $html .= " ".$value.'</li>';
+                foreach ($edit_partner_data['partner'] as $key => $value) {
+                    $html .= "<li><b>" . $key . '</b> =>';
+                    $html .= " " . $value . '</li>';
                 }
-                $html .="</ul>";
+                $html .= "</ul>";
                 $to = ANUJ_EMAIL_ID;
-                
+
                 $html .= $state_html;
 
                 //Cleaning Email Variables
-                        $this->email->clear(TRUE);
+                $this->email->clear(TRUE);
 
-                        //Send report via email
-                        $this->email->from('booking@247around.com', '247around Team');
-                        $this->email->to($to);
+                //Send report via email
+                $this->email->from('booking@247around.com', '247around Team');
+                $this->email->to($to);
 
-                        $this->email->subject("Partner Updated :  " . $this->input->post('public_name').' - By '.$logged_user_name);
-                        $this->email->message($html);
-                        
-                        if(isset($attachment_contract)){
-                        $this->email->attach($attachment_contract, 'attachment');
-                        }
-                        if(isset($attachment_pan)){
-                            $this->email->attach($attachment_pan, 'attachment');
-                        }
-                        if(isset($attachment_registration_file)){
-                            $this->email->attach($attachment_registration_file, 'attachment');
-                        }
-                        if(isset($attachment_tin_file)){
-                            $this->email->attach($attachment_tin_file, 'attachment');
-                        }
-                        if(isset($attachment_cst_file)){
-                            $this->email->attach($attachment_cst_file, 'attachment');
-                        }
-                        if(isset($attachment_service_tax_file)){
-                            $this->email->attach($attachment_service_tax_file, 'attachment');
-                        }
+                $this->email->subject("Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name);
+                $this->email->message($html);
 
-                        if ($this->email->send()) {
-                            log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
-                        } else {
-                            log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
-                        }
+                if (isset($attachment_contract)) {
+                    $this->email->attach($attachment_contract, 'attachment');
+                }
+                if (isset($attachment_pan)) {
+                    $this->email->attach($attachment_pan, 'attachment');
+                }
+                if (isset($attachment_registration_file)) {
+                    $this->email->attach($attachment_registration_file, 'attachment');
+                }
+                if (isset($attachment_tin_file)) {
+                    $this->email->attach($attachment_tin_file, 'attachment');
+                }
+                if (isset($attachment_cst_file)) {
+                    $this->email->attach($attachment_cst_file, 'attachment');
+                }
+                if (isset($attachment_service_tax_file)) {
+                    $this->email->attach($attachment_service_tax_file, 'attachment');
+                }
+
+                if ($this->email->send()) {
+                    log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
+                } else {
+                    log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+                }
 
                 redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
-            }else{
-                
+            } else {
+
                 //If Partner not present, Partner is being added
                 $return_data['partner'] = $this->get_partner_form_data();
                 $return_data['partner']['is_active'] = '1';
                 $return_data['partner']['is_verified'] = '1';
-                
+
                 //Temporary value
-                $return_data['partner']['auth_token'] = substr(md5($return_data['partner']['public_name'].rand(1,100)), 0, 16);
-                
+                $return_data['partner']['auth_token'] = substr(md5($return_data['partner']['public_name'] . rand(1, 100)), 0, 16);
+
                 //Agreement End Date - Checking (If Not Present don't insert)
-                if(!empty($this->input->post('agreement_end_date'))){
-                    $return_data['partner']['agreement_end_date']= $this->input->post('agreement_end_date');
+                if (!empty($this->input->post('agreement_end_date'))) {
+                    $return_data['partner']['agreement_end_date'] = $this->input->post('agreement_end_date');
                 }
-                
+
                 //Checking for Upcountry
                 $upcountry = $this->input->post('is_upcountry');
-                if(isset($upcountry) && $upcountry == 'on')
-                {
+                if (isset($upcountry) && $upcountry == 'on') {
                     //Setting Flag as 1
                     $return_data['partner']['is_upcountry'] = 1;
                     $return_data['partner']['upcountry_rate'] = $this->input->post('upcountry_rate');
@@ -755,8 +743,7 @@ class Partner extends CI_Controller {
                     $return_data['partner']['upcountry_mid_distance_threshold'] = $this->input->post('upcountry_mid_distance_threshold');
                     $return_data['partner']['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
                     $upcountry_approval = $this->input->post('upcountry_approval');
-                    $return_data['partner']['upcountry_approval'] = (!empty($upcountry_approval))? 1:0;
-                    
+                    $return_data['partner']['upcountry_approval'] = (!empty($upcountry_approval)) ? 1 : 0;
                 } else {
                     $return_data['partner']['is_upcountry'] = 0;
                     $return_data['partner']['upcountry_rate'] = 0;
@@ -767,192 +754,192 @@ class Partner extends CI_Controller {
                     $return_data['partner']['upcountry_approval_email'] = NULL;
                     $return_data['partner']['upcountry_approval'] = 0;
                 }
-                
+
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
-               
+
                 //Getting Partner code
                 $code = $this->input->post('partner_code');
-                
+
                 //Processing Contract File
-                if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
+                if (($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])) {
                     $tmpFile = $_FILES['contract_file']['tmp_name'];
-                    $contract_file = "Partner-".$this->input->post('public_name').'-Contract'.".".explode(".",$_FILES['contract_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
-                    
+                    $contract_file = "Partner-" . $this->input->post('public_name') . '-Contract' . "." . explode(".", $_FILES['contract_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$contract_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $contract_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $return_data['partner']['contract_file'] = $contract_file;
-                    
-                    $attachment_contract = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
-                    
+
+                    $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' CONTRACT FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' CONTRACT FILE is being uploaded sucessfully.');
                 }
-                
+
                 //Processing Pan File
-                if(($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])){
+                if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
                     $tmpFile = $_FILES['pan_file']['tmp_name'];
-                    $pan_file = "Partner-".$this->input->post('public_name').'-PAN'.".".explode(".",$_FILES['pan_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
-                    
+                    $pan_file = "Partner-" . $this->input->post('public_name') . '-PAN' . "." . explode(".", $_FILES['pan_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$pan_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $pan_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $return_data['partner']['pan_file'] = $pan_file;
-                    
-                    $attachment_pan = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$pan_file;
-                    
+
+                    $attachment_pan = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $pan_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' PAN FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' PAN FILE is being uploaded sucessfully.');
                 }
-                
+
                 //Processing Registration File
-                if(($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])){
+                if (($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])) {
                     $tmpFile = $_FILES['registration_file']['tmp_name'];
-                    $registration_file = "Partner-".$this->input->post('public_name').'-Registration'.".".explode(".",$_FILES['registration_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$registration_file);
-                    
+                    $registration_file = "Partner-" . $this->input->post('public_name') . '-Registration' . "." . explode(".", $_FILES['registration_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $registration_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$registration_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$registration_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $registration_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $registration_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $return_data['partner']['registration_file'] = $registration_file;
-                    
-                    $attachment_registration_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$registration_file;
-                    
+
+                    $attachment_registration_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $registration_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' Registration FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' Registration FILE is being uploaded sucessfully.');
                 }
                 //Processing TIN File
-                if(($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])){
+                if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
                     $tmpFile = $_FILES['tin_file']['tmp_name'];
-                    $tin_file = "Partner-".$this->input->post('public_name').'-TIN'.".".explode(".",$_FILES['tin_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$tin_file);
-                    
+                    $tin_file = "Partner-" . $this->input->post('public_name') . '-TIN' . "." . explode(".", $_FILES['tin_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$tin_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $tin_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $return_data['partner']['tin_file'] = $tin_file;
-                    
-                    $attachment_tin_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$tin_file;
-                    
+
+                    $attachment_tin_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $tin_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' TIN FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' TIN FILE is being uploaded sucessfully.');
                 }
                 //Processing CST File
-                if(($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])){
+                if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
                     $tmpFile = $_FILES['cst_file']['tmp_name'];
-                    $cst_file = "Partner-".$this->input->post('public_name').'-CST'.".".explode(".",$_FILES['cst_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$cst_file);
-                    
+                    $cst_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['cst_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$cst_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $cst_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $return_data['partner']['cst_file'] = $cst_file;
-                    
-                    $attachment_cst_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cst_file;
-                    
+
+                    $attachment_cst_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $cst_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' CST FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' CST FILE is being uploaded sucessfully.');
                 }
                 //Processing Service Tax File
-                if(($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])){
+                if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
                     $tmpFile = $_FILES['service_tax_file']['tmp_name'];
-                    $service_tax_file = "Partner-".$this->input->post('public_name').'-CST'.".".explode(".",$_FILES['service_tax_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$service_tax_file);
-                    
+                    $service_tax_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
+
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$service_tax_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $directory_xls = "vendor-partner-docs/" . $service_tax_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $return_data['partner']['service_tax_file'] = $registration_file;
-                    
-                    $attachment_service_tax_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$service_tax_file;
-                    
+
+                    $attachment_service_tax_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $service_tax_file;
+
                     //Logging success for file uppload
-                    log_message('info',__FUNCTION__.' Service Tax FILE is being uploaded sucessfully.');
+                    log_message('info', __FUNCTION__ . ' Service Tax FILE is being uploaded sucessfully.');
                 }
                 $return_data['partner']['gst_number'] = $this->input->post("gst_number");
-                
+
                 //Sending data array to Model
                 $partner_id = $this->partner_model->add_partner($return_data['partner']);
                 //Set Flashdata on success or on Error of Data insert in table
-                if(!empty($partner_id)){
-                    
+                if (!empty($partner_id)) {
+
                     $msg = "Partner added successfully.";
-                    $this->session->set_userdata('success',$msg);
-                    
+                    $this->session->set_userdata('success', $msg);
+
                     //Getting Logged Employee Full Name
                     $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
 
                     //Echoing inserted ID in Log file
-                    log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id." Done By " . $this->session->userdata('employee_id'));
-                    log_message('info',__FUNCTION__.' Partner Added Details : '.print_r($this->input->post(),TRUE));
-                    
+                    log_message('info', __FUNCTION__ . ' New Partner has been added with ID ' . $partner_id . " Done By " . $this->session->userdata('employee_id'));
+                    log_message('info', __FUNCTION__ . ' Partner Added Details : ' . print_r($this->input->post(), TRUE));
+
                     //Adding details in Booking State Change
-                    $this->notify->insert_state_change('', NEW_PARTNER_ADDED, NEW_PARTNER_ADDED, 'Partner ID : '.$partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
-                    
+                    $this->notify->insert_state_change('', NEW_PARTNER_ADDED, NEW_PARTNER_ADDED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+
                     //Sending Mail for Updated details
                     $html = "<p>Following Partner has been Added :</p><ul>";
-                    foreach($return_data['partner'] as $key=>$value){
-                        $html .= "<li><b>".$key.'</b> =>';
-                        $html .= " ".$value.'</li>';
+                    foreach ($return_data['partner'] as $key => $value) {
+                        $html .= "<li><b>" . $key . '</b> =>';
+                        $html .= " " . $value . '</li>';
                     }
-                    $html .="</ul>";
+                    $html .= "</ul>";
                     $to = ANUJ_EMAIL_ID;
-                    
+
                     //Cleaning Email Variables
-                        $this->email->clear(TRUE);
+                    $this->email->clear(TRUE);
 
-                        //Send report via email
-                        $this->email->from('booking@247around.com', '247around Team');
-                        $this->email->to($to);
+                    //Send report via email
+                    $this->email->from('booking@247around.com', '247around Team');
+                    $this->email->to($to);
 
-                        $this->email->subject("New Partner Added " . $this->input->post('public_name').' - By '.$logged_user_name);
-                        $this->email->message($html);
-                        
-                        if(isset($attachment_contract)){
+                    $this->email->subject("New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name);
+                    $this->email->message($html);
+
+                    if (isset($attachment_contract)) {
                         $this->email->attach($attachment_contract, 'attachment');
-                        }
-                        if(isset($attachment_pan)){
-                            $this->email->attach($attachment_pan, 'attachment');
-                        }
-                        if(isset($attachment_registration_file)){
-                            $this->email->attach($attachment_registration_file, 'attachment');
-                        }
+                    }
+                    if (isset($attachment_pan)) {
+                        $this->email->attach($attachment_pan, 'attachment');
+                    }
+                    if (isset($attachment_registration_file)) {
+                        $this->email->attach($attachment_registration_file, 'attachment');
+                    }
 
-                        if ($this->email->send()) {
-                            log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
-                        } else {
-                            log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
-                        }
-                    
+                    if ($this->email->send()) {
+                        log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
+                    } else {
+                        log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+                    }
+
                     //Adding Partner code in Bookings_sources table
                     $bookings_sources['source'] = $this->input->post('public_name');
                     $bookings_sources['code'] = $code;
                     $bookings_sources['partner_id'] = $partner_id;
-                    
+
                     $partner_code = $this->partner_model->add_partner_code($bookings_sources);
-                    if($partner_code){
-                        log_message('info',' Parnter code has been added in Bookings_sources table '.print_r($bookings_sources,TRUE));
-                    }else{
-                        log_message('info',' Error in adding Parnter code has been added in Bookings_sources table '.print_r($bookings_sources,TRUE));
+                    if ($partner_code) {
+                        log_message('info', ' Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
+                    } else {
+                        log_message('info', ' Error in adding Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
                     }
-                
-                    
+
+
                     //Processing Partner Operation Region
                     if (!empty($partner_operation_state)) {
                         $all_flag = FALSE;
                         foreach ($partner_operation_state as $key => $value) {
-                            foreach($value as $val){
+                            foreach ($value as $val) {
                                 //Checking if ALL state has been selected
-                                if($val == 'all'){
+                                if ($val == 'all') {
                                     $all_states = $this->vendor_model->getall_state();
                                     foreach ($all_states as $value) {
                                         $data['partner_id'] = $partner_id;
@@ -970,7 +957,7 @@ class Partner extends CI_Controller {
                                 $data_final[] = $data;
                             }
                         }
-                        
+
                         //Inserting Array in batch in partner operation region
                         $operation_insert_flag = $this->partner_model->insert_batch_partner_operation_region($data_final);
                         if ($operation_insert_flag) {
@@ -981,68 +968,65 @@ class Partner extends CI_Controller {
                         //Echoing message in Log file
                         log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
                     }
-                    
-                }else{
-                   
+                } else {
+
                     $msg = "Error in adding Partner.";
-                    $this->session->set_userdata('error',$msg);
+                    $this->session->set_userdata('error', $msg);
 
                     //Echoing message in Log file
-                    log_message('error',__FUNCTION__.' Error in adding Partner  '. print_r($this->input->post(),TRUE));
+                    log_message('error', __FUNCTION__ . ' Error in adding Partner  ' . print_r($this->input->post(), TRUE));
                 }
-                
-           redirect(base_url() . 'employee/partner/get_add_partner_form');
+
+                redirect(base_url() . 'employee/partner/get_add_partner_form');
             }
         } else {
             $this->get_add_partner_form();
         }
-
     }
-    
-    function get_partner_form_data(){
-        $return_data['company_name']=$this->input->post('company_name');
-        $return_data['company_type']=$this->input->post('company_type');
-        $return_data['public_name']=$this->input->post('public_name');
-        $return_data['address']=$this->input->post('address');
-        $return_data['landmark']=$this->input->post('landmark');
-        $return_data['state']=$this->input->post('state');
-        $return_data['district']=$this->input->post('district');
-        $return_data['pincode']=$this->input->post('pincode');
-        $return_data['primary_contact_name']=$this->input->post('primary_contact_name');
-        $return_data['primary_contact_email']=$this->input->post('primary_contact_email');
-        $return_data['primary_contact_phone_1']=$this->input->post('primary_contact_phone_1');
-        $return_data['primary_contact_phone_2']=$this->input->post('primary_contact_phone_2');
-        $return_data['owner_name']=$this->input->post('owner_name');
-        $return_data['owner_email']=$this->input->post('owner_email');
-        $return_data['owner_alternate_email']=$this->input->post('owner_alternate_email');
-        $return_data['owner_phone_1']=$this->input->post('owner_phone_1');
-        $return_data['owner_phone_2']=$this->input->post('owner_phone_2');
-        $return_data['summary_email_to']=$this->input->post('summary_email_to');
-        $return_data['summary_email_cc']=$this->input->post('summary_email_cc');
-        $return_data['invoice_email_to']=$this->input->post('invoice_email_to');
-        $return_data['invoice_email_cc']=$this->input->post('invoice_email_cc');
-        $return_data['invoice_courier_name']=$this->input->post('invoice_courier_name');
-        $return_data['invoice_courier_address']=$this->input->post('invoice_courier_address');
-        $return_data['invoice_courier_phone_number']=$this->input->post('invoice_courier_phone_number');
-        $return_data['pan']=$this->input->post('pan');
-        $return_data['registration_no']=$this->input->post('registration_no');
-        $return_data['tin']=$this->input->post('tin');
-        $return_data['cst_no']=$this->input->post('cst_no');
-        $return_data['service_tax']=$this->input->post('service_tax');
+
+    function get_partner_form_data() {
+        $return_data['company_name'] = $this->input->post('company_name');
+        $return_data['company_type'] = $this->input->post('company_type');
+        $return_data['public_name'] = $this->input->post('public_name');
+        $return_data['address'] = $this->input->post('address');
+        $return_data['landmark'] = $this->input->post('landmark');
+        $return_data['state'] = $this->input->post('state');
+        $return_data['district'] = $this->input->post('district');
+        $return_data['pincode'] = $this->input->post('pincode');
+        $return_data['primary_contact_name'] = $this->input->post('primary_contact_name');
+        $return_data['primary_contact_email'] = $this->input->post('primary_contact_email');
+        $return_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
+        $return_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
+        $return_data['owner_name'] = $this->input->post('owner_name');
+        $return_data['owner_email'] = $this->input->post('owner_email');
+        $return_data['owner_alternate_email'] = $this->input->post('owner_alternate_email');
+        $return_data['owner_phone_1'] = $this->input->post('owner_phone_1');
+        $return_data['owner_phone_2'] = $this->input->post('owner_phone_2');
+        $return_data['summary_email_to'] = $this->input->post('summary_email_to');
+        $return_data['summary_email_cc'] = $this->input->post('summary_email_cc');
+        $return_data['invoice_email_to'] = $this->input->post('invoice_email_to');
+        $return_data['invoice_email_cc'] = $this->input->post('invoice_email_cc');
+        $return_data['invoice_courier_name'] = $this->input->post('invoice_courier_name');
+        $return_data['invoice_courier_address'] = $this->input->post('invoice_courier_address');
+        $return_data['invoice_courier_phone_number'] = $this->input->post('invoice_courier_phone_number');
+        $return_data['pan'] = $this->input->post('pan');
+        $return_data['registration_no'] = $this->input->post('registration_no');
+        $return_data['tin'] = $this->input->post('tin');
+        $return_data['cst_no'] = $this->input->post('cst_no');
+        $return_data['service_tax'] = $this->input->post('service_tax');
         $partner_code = $this->input->post('partner_code');
-        
-        if(empty($partner_code)){
-           $return_data['is_active'] = 0;
+
+        if (empty($partner_code)) {
+            $return_data['is_active'] = 0;
         }
-       
-        if($this->input->post('is_reporting_mail') == 'on'){
-            $return_data['is_reporting_mail']= '1';
-        }else{
-            $return_data['is_reporting_mail']= '0';
+
+        if ($this->input->post('is_reporting_mail') == 'on') {
+            $return_data['is_reporting_mail'] = '1';
+        } else {
+            $return_data['is_reporting_mail'] = '0';
         }
 //        $partner_data_final['partner'] = $return_data;
         return $return_data;
-
     }
 
     /**
@@ -1058,7 +1042,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('district', 'District', 'trim|required');
         $this->form_validation->set_rules('partner_type', 'Partner Type', 'trim|required');
-        return $this->form_validation->run(); 
+        return $this->form_validation->run();
     }
 
     /**
@@ -1072,24 +1056,24 @@ class Partner extends CI_Controller {
     function viewpartner($partner_id = "") {
         $data = [];
         $query = $this->partner_model->get_partner_details_with_soucre_code($partner_id);
-        
-        foreach($query as $value){
+
+        foreach ($query as $value) {
             //Getting Appliances and Brands details for partner
             $service_brands[] = $this->partner_model->get_service_brands_for_partner($value['id']);
-            $login = $this->dealer_model->entity_login(array('entity'=> "partner", 'entity_id' => $value['id']));
+            $login = $this->dealer_model->entity_login(array('entity' => "partner", 'entity_id' => $value['id']));
             if (!empty($login)) {
-                 $value['user_name'] = $login[0]['user_id'];
-                 $value['clear_text'] = $login[0]['clear_password'];
+                $value['user_name'] = $login[0]['user_id'];
+                $value['clear_text'] = $login[0]['clear_password'];
             } else {
                 $value['user_name'] = '';
                 $value['clear_text'] = '';
             }
             $data[] = $value;
         }
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
-        $this->load->view('employee/viewpartner', array('query' => $data,'service_brands' =>$service_brands));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+
+        $this->load->view('employee/viewpartner', array('query' => $data, 'service_brands' => $service_brands));
     }
 
     /**
@@ -1103,7 +1087,7 @@ class Partner extends CI_Controller {
     function activate($id) {
         $this->partner_model->activate($id);
         //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
         redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
     }
 
@@ -1118,7 +1102,7 @@ class Partner extends CI_Controller {
     function deactivate($id) {
         $this->partner_model->deactivate($id);
         //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
         redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
     }
 
@@ -1132,15 +1116,14 @@ class Partner extends CI_Controller {
      * @return : array(of details) to view
      */
     function editpartner($id) {
-        log_message('info',__FUNCTION__.' partner_id:'.$id);
+        log_message('info', __FUNCTION__ . ' partner_id:' . $id);
         $query = $this->partner_model->viewpartner($id);
         $results['select_state'] = $this->vendor_model->getall_state();
         $results['services'] = $this->vendor_model->selectservice();
         //Getting Login Details for this partner
         $results['partner_code'] = $this->partner_model->get_partner_code($id);
         $partner_code = $this->partner_model->get_availiable_partner_code();
-        foreach($partner_code as $row)
-        {
+        foreach ($partner_code as $row) {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
@@ -1148,7 +1131,7 @@ class Partner extends CI_Controller {
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
 
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results));
     }
 
@@ -1174,8 +1157,7 @@ class Partner extends CI_Controller {
      * @param: offset, per page number and phone number
      * @return : print Booking on Booking Page
      */
-    
-     function finduser($offset = 0, $page = 0, $phone_number = '') {
+    function finduser($offset = 0, $page = 0, $phone_number = '') {
         $this->checkUserSession();
         $booking_id = trim($this->input->post('booking_id'));
         $order_id = trim($this->input->post('order_id'));
@@ -1184,10 +1166,10 @@ class Partner extends CI_Controller {
         if ($this->input->post('phone_number')) {
             $phone_number = $this->input->post('phone_number');
         }
-        
+
         if ($phone_number != "") {
             $page = 0;
-                
+
             if ($page == 0) {
                 $page = 50;
             }
@@ -1195,9 +1177,9 @@ class Partner extends CI_Controller {
             $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
 
             $config['base_url'] = base_url() . "employee/partner/finduser/" . $offset . "/" . $page . "/" . $phone_number;
-           
+
             $output_data = $this->user_model->search_by_partner($phone_number, $partner_id, $offset, $page);
-            if(!empty($output_data)){
+            if (!empty($output_data)) {
                 $config['per_page'] = $page;
                 $config['uri_segment'] = 7;
                 $config['first_link'] = 'First';
@@ -1211,25 +1193,23 @@ class Partner extends CI_Controller {
                 $this->load->view('partner/bookinghistory', $data);
             } else {
                 $msg = "User Not Exist.";
-                $this->session->set_userdata('error',$msg);
-                
+                $this->session->set_userdata('error', $msg);
+
                 redirect(base_url() . 'employee/partner/get_user_form');
             }
-
         } else if ($booking_id != "") {  //if booking id given and matched, will be displayed
             $where = array('booking_details.booking_id' => $booking_id);
-            $Bookings = $this->booking_model->search_bookings($where,$partner_id);
+            $Bookings = $this->booking_model->search_bookings($where, $partner_id);
             $data['data'] = json_decode(json_encode($Bookings), True);
             $this->load->view('partner/header');
-            $this->load->view('partner/bookinghistory',$data);
-            
-        } else if(!empty($order_id)) {
+            $this->load->view('partner/bookinghistory', $data);
+        } else if (!empty($order_id)) {
 
             $where = array('order_id' => $order_id);
             $Bookings = $this->booking_model->search_bookings($where, $partner_id);
             $data['data'] = json_decode(json_encode($Bookings), True);
             $this->load->view('partner/header');
-            $this->load->view('partner/bookinghistory',$data);
+            $this->load->view('partner/bookinghistory', $data);
         } else if (!empty($serial_no)) {
 
             $where = array('partner_serial_number' => $serial_no);
@@ -1237,14 +1217,13 @@ class Partner extends CI_Controller {
             $data['data'] = json_decode(json_encode($Bookings), True);
             $data['search'] = "Search";
             $this->load->view('partner/header');
-            $this->load->view('partner/bookinghistory',$data);
+            $this->load->view('partner/bookinghistory', $data);
         } else {
             $msg = "User Not Exist.";
-            $this->session->set_userdata('error',$msg);
-           
+            $this->session->set_userdata('error', $msg);
+
             redirect(base_url() . 'employee/partner/get_user_form');
         }
-        
     }
 
     /**
@@ -1260,7 +1239,7 @@ class Partner extends CI_Controller {
 
         $data2['partner_vendor'] = "partner";
         $data2['partner_vendor_id'] = $partner_id;
-        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
+        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*', $data2);
         $this->load->view('partner/header');
         $this->load->view('partner/invoice_summary', $invoice);
     }
@@ -1281,7 +1260,7 @@ class Partner extends CI_Controller {
      */
     function get_cancel_form($status, $booking_id) {
         $this->checkUserSession();
-        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id.' Status: '.$status);
+        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id . ' Status: ' . $status);
         $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
         if (!empty($data['user_and_booking_details'])) {
             $where = array('reason_of' => 'partner');
@@ -1304,20 +1283,20 @@ class Partner extends CI_Controller {
      */
     function process_cancel_form($booking_id, $status) {
         $this->checkUserSession();
-        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true). ' status: '.$status);
+        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true) . ' status: ' . $status);
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
         $data['current_status'] = _247AROUND_CANCELLED;
         $data['internal_status'] = $data['cancellation_reason'] = $this->input->post('cancellation_reason');
         $data['closing_remarks'] = $this->input->post('remarks');
-        
+
         //check partner status from partner_booking_status_mapping table  
         $partner_id = $this->input->post("partner_id");
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
-            if(!empty($partner_status)){
-                $data['partner_current_status'] = $partner_status[0];
-                $data['partner_internal_status'] = $partner_status[1];
-            }
-        
+        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+        if (!empty($partner_status)) {
+            $data['partner_current_status'] = $partner_status[0];
+            $data['partner_internal_status'] = $partner_status[1];
+        }
+
         $update_status = $this->booking_model->update_booking($booking_id, $data);
         if ($update_status) {
             //Update in booking uunit details
@@ -1336,20 +1315,16 @@ class Partner extends CI_Controller {
 
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, remarks, agent_id, partner  name, partner id
-            $this->notify->insert_state_change($booking_id, $data['current_status'],
-                    $status, $data['cancellation_reason'], 
-                    $this->session->userdata('agent_id'),
-                    $this->session->userdata('partner_name'),
-                    $this->session->userdata('partner_id'));
+            $this->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
 
             // this is used to send email or sms while booking cancelled
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $send['booking_id'] = $booking_id;
             $send['state'] = $data['current_status'];
             $this->asynchronous_lib->do_background_process($url, $send);
-            $msg = $booking_id." Booking Cancelled.";
-            $this->session->set_userdata('success',$msg);
-           
+            $msg = $booking_id . " Booking Cancelled.";
+            $this->session->set_userdata('success', $msg);
+
             redirect(base_url() . "partner/get_user_form");
         } else {
             // Booking isnot updated
@@ -1364,7 +1339,7 @@ class Partner extends CI_Controller {
     function update_price_while_cancel_booking($booking_id) {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $unit_details['booking_status'] = "Cancelled";
-        
+
         log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
         $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
     }
@@ -1407,27 +1382,21 @@ class Partner extends CI_Controller {
             $data['booking_date'] = date('d-m-Y', strtotime($booking_date));
             $data['current_status'] = 'Rescheduled';
             $data['internal_status'] = 'Rescheduled';
-            $data['update_date'] = date("Y-m-d H:i:s"); 
-            
+            $data['update_date'] = date("Y-m-d H:i:s");
+
             //check partner status from partner_booking_status_mapping table  
-            $partner_id=$this->input->post('partner_id');
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
-            if(!empty($partner_status)){
+            $partner_id = $this->input->post('partner_id');
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+            if (!empty($partner_status)) {
                 $data['partner_current_status'] = $partner_status[0];
                 $data['partner_internal_status'] = $partner_status[1];
             }
-            
+
             $update_status = $this->booking_model->update_booking($booking_id, $data);
             if ($update_status) {
-                $this->notify->insert_state_change($booking_id,
-                        _247AROUND_RESCHEDULED,
-                        _247AROUND_PENDING, 
-                        " Rescheduled Booking BY Partner ",
-                        $this->session->userdata('agent_id'), 
-                        $this->session->userdata('partner_name'), 
-                        $this->session->userdata('partner_id'));
+                $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, " Rescheduled Booking BY Partner ", $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
 
-               
+
                 $service_center_data['internal_status'] = "Pending";
                 $service_center_data['current_status'] = "Pending";
                 $service_center_data['update_date'] = date("Y-m-d H:i:s");
@@ -1435,80 +1404,79 @@ class Partner extends CI_Controller {
                 log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($service_center_data, true));
 
                 $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
-               
+
                 $send_data['booking_id'] = $booking_id;
                 $send_data['current_status'] = "Rescheduled";
                 $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                 $this->asynchronous_lib->do_background_process($url, $send_data);
-               
+
                 log_message('info', __FUNCTION__ . " Request to prepare Job Card  " . print_r($booking_id, true));
 
                 //Prepare job card
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
                 $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
-                $msg = $booking_id. " Booking Rescheduled.";
-                $this->session->set_userdata('success',$msg);
-                
+                $msg = $booking_id . " Booking Rescheduled.";
+                $this->session->set_userdata('success', $msg);
+
                 redirect(base_url() . "partner/get_user_form");
             } else {
                 log_message('info', __FUNCTION__ . " Booking is not updated  " . print_r($data, true));
             }
         }
     }
+
     /**
      * @desc: Load escalation form  in the partner panel. Partner esclates on booking.
      * That will send notification to 247Around.
      * @param String $booking_id
      */
-    function escalation_form($booking_id){
+    function escalation_form($booking_id) {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $this->checkUserSession();
-        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'partner', 'active'=> '1'));
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
         $data['booking_id'] = $booking_id;
 
         $this->load->view('partner/header');
         $this->load->view('partner/escalation_form', $data);
     }
+
     /**
      * @desc: This is used to insert escalation into escalation log table. 
      * Upadte escalation log table when mail sent
      * @param String $booking_id
      */
-    function process_escalation($booking_id){
-        log_message('info',__FUNCTION__.' booking_id: '.$booking_id);
+    function process_escalation($booking_id) {
+        log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id);
         $this->checkUserSession();
         $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'trim|required');
-        
+
         if ($this->form_validation->run() == FALSE) {
             $this->escalation_form($booking_id);
         } else {
-            
+
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
             $escalation_remarks = $this->input->post('escalation_remarks');
             $bookinghistory = $this->booking_model->getbooking_history($booking_id);
-            
-            $escalation_reason  = $this->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
-            if(!empty($escalation_remarks)){
-                $remarks = $escalation_reason[0]['escalation_reason']." -".
-                    $escalation_remarks;
+
+            $escalation_reason = $this->vendor_model->getEscalationReason(array('id' => $escalation['escalation_reason']));
+            if (!empty($escalation_remarks)) {
+                $remarks = $escalation_reason[0]['escalation_reason'] . " -" .
+                        $escalation_remarks;
             } else {
                 $remarks = $escalation_reason[0]['escalation_reason'];
             }
-            
+
             $escalation['booking_id'] = $booking_id;
             $escalation['booking_date'] = date('Y-m-d', strtotime($bookinghistory[0]['booking_date']));
             $escalation['booking_time'] = $bookinghistory[0]['booking_timeslot'];
-            
+
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
-          
+
             //inserts vendor escalation details
             $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
-            
-            $this->notify->insert_state_change($escalation['booking_id'], 
-                    "Escalation" , _247AROUND_PENDING , $remarks, 
-                    $this->session->userdata('agent_id'), $this->session->userdata('partner_name'),
-                    $this->session->userdata('partner_id'));
-            if($escalation_id){
+
+            $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
+            if ($escalation_id) {
                 log_message('info', __FUNCTION__ . " Escalation Inserted ");
                 $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
                 $bcc = "";
@@ -1526,69 +1494,66 @@ class Partner extends CI_Controller {
 
                 $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
             }
-            
+
             log_message('info', __FUNCTION__ . " Exiting");
-            
-       }
-        
+        }
     }
+
     /**
      * @desc: This is used to load update booking form
      * @param String $booking_id
-     */ 
-    function get_editbooking_form($booking_id){
+     */
+    function get_editbooking_form($booking_id) {
         log_message('info', __FUNCTION__ . " Booking Id: " . $booking_id);
         $this->checkUserSession();
 
         $booking_history = $this->booking_model->getbooking_history($booking_id);
-        
-        if(!empty($booking_history)){
+
+        if (!empty($booking_history)) {
             $data['booking_history'] = $booking_history;
             $partner_id = $this->session->userdata('partner_id');
             $partner_data = $this->partner_model->get_partner_code($partner_id);
-            $partner_type = $partner_data[0]['partner_type']; 
+            $partner_type = $partner_data[0]['partner_type'];
             $data['partner_type'] = $partner_type;
-            
-            $data['partner_code'] = $partner_data[0]['code']; 
-            if($partner_type == OEM){
-                
+
+            $data['partner_code'] = $partner_data[0]['code'];
+            if ($partner_type == OEM) {
+
                 $data['appliances'] = $this->partner_model->get_partner_specific_services($partner_id);
-                
             } else {
                 $data['appliances'] = $services = $this->booking_model->selectservice();
             }
-            
-            $unit_where = array('booking_id'=>$booking_id);
+
+            $unit_where = array('booking_id' => $booking_id);
             $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
             $price_tag = array();
-            foreach($data['unit_details'] as $unit){
+            foreach ($data['unit_details'] as $unit) {
                 array_push($price_tag, $unit['price_tags']);
             }
             $data['price_tags'] = implode(",", $price_tag);
-            
-            if(isset($booking_history[0]['dealer_id']) && !empty($booking_history[0]['dealer_id'])){
-               
+
+            if (isset($booking_history[0]['dealer_id']) && !empty($booking_history[0]['dealer_id'])) {
+
                 $condition = array(
-                            "where" => array('dealer_details.dealer_id' => $booking_history[0]['dealer_id']),
-                            "where_in" => array(),
-                            "search" => array(),
-                            "order_by" => "");
+                    "where" => array('dealer_details.dealer_id' => $booking_history[0]['dealer_id']),
+                    "where_in" => array(),
+                    "search" => array(),
+                    "order_by" => "");
                 $select = "dealer_details.dealer_id, dealer_name, dealer_phone_number_1";
                 $dealer_data = $this->dealer_model->get_dealer_mapping_details($condition, $select);
-                
-                if(!empty($dealer_data)){
+
+                if (!empty($dealer_data)) {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
-            
+
             $this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
-
         } else {
             echo "Booking Not Find";
         }
-        
     }
+
     /**
      * @desc: This method is used to update booking by Partner Panel
      * @param String $booking_id
@@ -1629,9 +1594,9 @@ class Partner extends CI_Controller {
             $booking_details['order_id'] = $post['orderID'];
             $booking_details['service_id'] = $post['service_id'];
             $booking_details['booking_remarks'] = $post['remarks'];
-            $booking_details['user_id'] = $user['user_id'];    
+            $booking_details['user_id'] = $user['user_id'];
             $upcountry_data = json_decode($post['upcountry_data'], TRUE);
-            
+
             $unit_details['service_id'] = $appliance_details['service_id'] = $booking_details['service_id'];
             $unit_details['appliance_brand'] = $appliance_details['brand'] = $post['brand'];
             $unit_details['appliance_description'] = $appliance_details['description'] = $post['productType'];
@@ -1643,33 +1608,33 @@ class Partner extends CI_Controller {
             $unit_details['purchase_year'] = $appliance_details['purchase_year'] = $post['purchase_year'];
             $unit_details['partner_id'] = $post['partner_id'];
             $unit_details['booking_id'] = $booking_details['booking_id'] = $booking_id;
-            if($post['product_type'] == "Delivered"){
+            if ($post['product_type'] == "Delivered") {
                 $booking_details['current_status'] = _247AROUND_PENDING;
                 $booking_details['internal_status'] = _247AROUND_PENDING;
                 $unit_details['booking_id'] = $booking_id;
                 $unit_details['booking_status'] = _247AROUND_PENDING;
                 $booking_details['type'] = "Booking";
-                if (strpos($booking_id, "Q-",0) !== FALSE) {
+                if (strpos($booking_id, "Q-", 0) !== FALSE) {
                     $booking_id_array = explode("Q-", $booking_id);
                     $unit_details['booking_id'] = $booking_details['booking_id'] = $booking_id_array[1];
-                } 
+                }
             } else {
                 $booking_details['current_status'] = _247AROUND_FOLLOWUP;
                 $booking_details['internal_status'] = _247AROUND_FOLLOWUP;
-                if (strpos($booking_id, "Q-",0) === FALSE) {
-                    $unit_details['booking_id'] = "Q-".$booking_id; 
-                    $booking_details['booking_id'] =  "Q-".$booking_id;
-                } 
-               
+                if (strpos($booking_id, "Q-", 0) === FALSE) {
+                    $unit_details['booking_id'] = "Q-" . $booking_id;
+                    $booking_details['booking_id'] = "Q-" . $booking_id;
+                }
+
                 $booking_details['type'] = "Query";
                 $unit_details['booking_status'] = _247AROUND_FOLLOWUP;
             }
-            
+
             /* check dealer exist or not in the database
-              * if dealer does not exist into the database then
-              * insert dealer details in dealer_details table and dealer_brand_mapping table 
-              */
-             if (isset($post['dealer_phone_number']) && !empty($post['dealer_phone_number'])) {
+             * if dealer does not exist into the database then
+             * insert dealer details in dealer_details table and dealer_brand_mapping table 
+             */
+            if (isset($post['dealer_phone_number']) && !empty($post['dealer_phone_number'])) {
                 $is_dealer_id = $this->miscelleneous->dealer_process($post, $this->session->userdata('partner_id'));
                 if (!empty($is_dealer_id)) {
                     $booking_details['dealer_id'] = $is_dealer_id;
@@ -1696,19 +1661,19 @@ class Partner extends CI_Controller {
             $customer_net_payable = 0;
             foreach ($post['requestType'] as $key => $sc) {
                 $explode = explode("_", $sc);
-                    
-                $unit_details['id'] =  $explode[0];
-                $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
+
+                $unit_details['id'] = $explode[0];
+                $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
                 $unit_details['partner_paid_basic_charges'] = $explode[2];
                 $unit_details['partner_net_payable'] = $explode[2];
                 $unit_details['ud_update_date'] = date('Y-m-d H:i:s');
                 $unit_details['booking_status'] = "Pending";
                 $customer_net_payable += ($explode[1] - $explode[2]);
-                    
-                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key);   
+
+                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key);
                 array_push($updated_unit_id, $result['unit_id']);
             }
-            
+
             if (!empty($updated_unit_id)) {
                 log_message('info', __METHOD__ . " UNIT ID: " . print_r($updated_unit_id, true));
                 $this->booking_model->check_price_tags_status($booking_id, $updated_unit_id);
@@ -1731,47 +1696,43 @@ class Partner extends CI_Controller {
                         break;
                 }
             }
-            if($post['product_type'] == "Delivered"){
-       
-                $this->insert_details_in_state_change($booking_id, _247AROUND_PENDING, $booking_details['booking_remarks']);    
-                if($this->OLD_BOOKING_STATE == _247AROUND_CANCELLED){
+            if ($post['product_type'] == "Delivered") {
+
+                $this->insert_details_in_state_change($booking_id, _247AROUND_PENDING, $booking_details['booking_remarks']);
+                if ($this->OLD_BOOKING_STATE == _247AROUND_CANCELLED) {
                     $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['internal_status'] = _247AROUND_PENDING;
                     $booking_details['cancellation_reason'] = NULL;
                     $booking_details['closed_date'] = NULL;
 
                     $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
-               }
-                
+                }
             } else {
                 // IN the Shipped Case
                 $price_array['is_upcountry'] = $booking_details['is_upcountry'];
                 $price_array['customer_net_payable'] = round($customer_net_payable, 0);
                 $this->initialized_variable->fetch_partner_data($post['partner_id']);
-                
+
                 $this->miscelleneous->check_upcountry($booking_details, $post['appliance_name'], $price_array, "shipped");
-                
-                $this->insert_details_in_state_change($booking_id, _247AROUND_FOLLOWUP, $booking_details['booking_remarks']);    
+
+                $this->insert_details_in_state_change($booking_id, _247AROUND_FOLLOWUP, $booking_details['booking_remarks']);
                 $booking_details['assigned_vendor_id'] = NULL;
-                
             }
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking_details['current_status'], $booking_details['internal_status'], 
-                    $this->session->userdata('partner_id'), $booking_id);
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking_details['current_status'], $booking_details['internal_status'], $this->session->userdata('partner_id'), $booking_id);
             if (!empty($partner_status)) {
                 $booking_details['partner_current_status'] = $partner_status[0];
                 $booking_details['partner_internal_status'] = $partner_status[1];
             }
             $this->booking_model->update_booking($booking_id, $booking_details);
-            $up_flag = 1;     
-            $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_details['booking_id'] . "/".$up_flag ;
+            $up_flag = 1;
+            $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_details['booking_id'] . "/" . $up_flag;
             $async_data['booking'] = array();
             $this->asynchronous_lib->do_background_process($url, $async_data);
-            
+
             $userSession = array('success' => 'Booking Updated');
             $this->session->set_userdata($userSession);
-            
-            redirect(base_url() . "partner/pending_booking"); 
 
+            redirect(base_url() . "partner/pending_booking");
         } else {
             $this->get_editbooking_form($booking_id);
         }
@@ -1780,20 +1741,20 @@ class Partner extends CI_Controller {
     /**
      * @desc: This is used to get those booking who has requested to spare parts by SF
      */
-    function get_spare_parts_booking($offset = 0,$all = 0){
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+    function get_spare_parts_booking($offset = 0, $all = 0) {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '".$partner_id."' AND status = '".SPARE_PARTS_REQUESTED."' "
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
-        
+
         $config['base_url'] = base_url() . 'partner/get_spare_parts_booking';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-        
-        if($all == 1){
+
+        if ($all == 1) {
             $config['per_page'] = $total_rows[0]['total_rows'];
-        }else{
+        } else {
             $config['per_page'] = 50;
         }
         $config['uri_segment'] = 3;
@@ -1804,67 +1765,69 @@ class Partner extends CI_Controller {
 
         $data['count'] = $config['total_rows'];
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
-        
+
         $this->load->view('partner/header');
         $this->load->view('partner/spare_parts_booking', $data);
     }
-   
+
     /**
      * @desc: This is used to insert details into insert change table
      * @param String $booking_id
      * @param String $new_state
      * @param String $remarks
      */
-    function insert_details_in_state_change($booking_id, $new_state, $remarks){
-           log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Booking ID: ". $booking_id. ' new_state: '.$new_state.' remarks: '.$remarks);
-           //Save state change
-            $state_change['booking_id'] = $booking_id;
-            $state_change['new_state'] =  $new_state;
-           
-            $booking_state_change = $this->booking_model->get_booking_state_change($state_change['booking_id']);
-            
-            if ($booking_state_change > 0) {
-                $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-                $this->OLD_BOOKING_STATE = $state_change['old_state'];
-            } else { //count($booking_state_change)
-                $state_change['old_state'] = "Pending";
-            }
-            $state_change['agent_id'] = $this->session->userdata('agent_id');
-            $state_change['partner_id'] = $this->session->userdata('partner_id');
-            $state_change['remarks'] = $remarks;
+    function insert_details_in_state_change($booking_id, $new_state, $remarks) {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
+        //Save state change
+        $state_change['booking_id'] = $booking_id;
+        $state_change['new_state'] = $new_state;
 
-            // Insert data into booking state change
-            $state_change_id = $this->booking_model->insert_booking_state_change($state_change);
-            if($state_change_id){} else {
-                log_message('info', __FUNCTION__ . '=> Booking details is not inserted into state change '. print_r($state_change, true));
-            }
+        $booking_state_change = $this->booking_model->get_booking_state_change($state_change['booking_id']);
+
+        if ($booking_state_change > 0) {
+            $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+            $this->OLD_BOOKING_STATE = $state_change['old_state'];
+        } else { //count($booking_state_change)
+            $state_change['old_state'] = "Pending";
+        }
+        $state_change['agent_id'] = $this->session->userdata('agent_id');
+        $state_change['partner_id'] = $this->session->userdata('partner_id');
+        $state_change['remarks'] = $remarks;
+
+        // Insert data into booking state change
+        $state_change_id = $this->booking_model->insert_booking_state_change($state_change);
+        if ($state_change_id) {
+            
+        } else {
+            log_message('info', __FUNCTION__ . '=> Booking details is not inserted into state change ' . print_r($state_change, true));
+        }
     }
-    
+
     /**
      * @desc: This method is used to load update form(spare parts).
      * @param String $id
      */
-    function update_spare_parts_form($id){
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Spare Parts ID: ". $id);
+    function update_spare_parts_form($id) {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Spare Parts ID: " . $id);
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        
-        $where = "spare_parts_details.partner_id = '".$partner_id."' AND status = '".SPARE_PARTS_REQUESTED."' "
-               . " AND spare_parts_details.id = '".$id."' "
-               . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+                . " AND spare_parts_details.id = '" . $id . "' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
-        
+
         $this->load->view('partner/header');
         $this->load->view('partner/update_spare_parts_form', $data);
     }
-    
+
     /**
      * @desc: This method is used to update spare parts. If gets input from form.
      * Insert data into booking state change and update sc action table
      * @param String $booking_id
      */
-    function process_update_spare_parts($booking_id, $id){
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id')." Spare id: ". $id);
+    function process_update_spare_parts($booking_id, $id) {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Spare id: " . $id);
         $this->checkUserSession();
         $this->form_validation->set_rules('shipped_parts_name', 'Parts Name', 'trim|required');
         $this->form_validation->set_rules('remarks_by_partner', 'Remarks', 'trim|required');
@@ -1872,8 +1835,8 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
 
         if ($this->form_validation->run() == FALSE) {
-             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner '. $this->session->userdata('partner_id').
-                        " Spare id ". $id. " Data". print_r($this->input->post(), true));
+            log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner ' . $this->session->userdata('partner_id') .
+                    " Spare id " . $id . " Data" . print_r($this->input->post(), true));
             $this->update_spare_parts_form($id);
         } else { // if ($this->form_validation->run() == FALSE) {
             $partner_id = $this->session->userdata('partner_id');
@@ -1882,164 +1845,158 @@ class Partner extends CI_Controller {
             $data['awb_by_partner'] = $this->input->post('awb');
             $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
             $data['shipped_date'] = $this->input->post('shipment_date');
-            
+
             $data['status'] = "Shipped";
-            $where  = array('id'=> $id, 'partner_id'=> $partner_id);
+            $where = array('id' => $id, 'partner_id' => $partner_id);
             $response = $this->service_centers_model->update_spare_parts($where, $data);
-            if($response){
-                
+            if ($response) {
+
                 $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts");
-               
+
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                
+
                 $userSession = array('success' => 'Parts Updated');
                 $this->session->set_userdata($userSession);
-                redirect(base_url()."partner/get_spare_parts_booking");
-                
+                redirect(base_url() . "partner/get_spare_parts_booking");
             } else { //if($response){
-                log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by Partner '. $this->session->userdata('partner_id').
-                        " booking id ". $booking_id. " Data". print_r($this->input->post(), true));
-                 $userSession = array('success' => 'Parts Not Updated');
+                log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by Partner ' . $this->session->userdata('partner_id') .
+                        " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
+                $userSession = array('success' => 'Parts Not Updated');
                 $this->session->set_userdata($userSession);
-                redirect(base_url()."partner/update_spare_parts_form/".$booking_id);
-                
+                redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
             }
         }
     }
-    
-    function download_spare_parts(){
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+
+    function download_spare_parts() {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '".$partner_id."' AND status = '".SPARE_PARTS_REQUESTED."' "
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
         $data = $this->partner_model->get_spare_parts_booking($where);
         $template = 'download_spare_parts.xlsx';
-	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/../excel-templates/";
+        //set absolute path to directory with template files
+        $templateDir = __DIR__ . "/../excel-templates/";
         $config = array(
-		'template' => $template,
-		'templateDir' => $templateDir
-            );
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
 
         //load template
         $R = new PHPReport($config);
-        
+
         $R->load(array(
-                array(
-                    'id' => 'booking',
-                    'repeat' => true,
-                    'data' => $data,
-                ),
-	    )
-	);
-        
-        $output_file_excel  = TMP_FOLDER."spare_parts-".date('Y-m-d').".xlsx";
+            array(
+                'id' => 'booking',
+                'repeat' => true,
+                'data' => $data,
+            ),
+                )
+        );
+
+        $output_file_excel = TMP_FOLDER . "spare_parts-" . date('Y-m-d') . ".xlsx";
         $R->render('excel', $output_file_excel);
         if (file_exists($output_file_excel)) {
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="'.basename($output_file_excel).'"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($output_file_excel));
-                readfile($output_file_excel);
-                exec("rm -rf " . escapeshellarg($output_file_excel));
-                exit;
-         }
-        
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($output_file_excel) . '"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($output_file_excel));
+            readfile($output_file_excel);
+            exec("rm -rf " . escapeshellarg($output_file_excel));
+            exit;
+        }
     }
-    
-    
+
     /**
      * @desc: This is used to show Booking Life Cycle of particular Booking
      * params: String Booking_ID
      * return: Array of Data for View
      */
-    function get_booking_life_cycle($booking_id){
+    function get_booking_life_cycle($booking_id) {
         $this->checkUserSession();
-        log_message('info', __FUNCTION__. " Booking_id". $booking_id);
+        log_message('info', __FUNCTION__ . " Booking_id" . $booking_id);
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
         // send empty beacuse there is no need to display sms to partner panel
         $data['sms_sent_details'] = array();
-       
+
         //$this->load->view('partner/header');
 
         $this->load->view('employee/show_booking_life_cycle', $data);
-
     }
+
     /**
      * @desc: This is used to print  address for selected booking
      * @param Array $booking_address
      */
-    function download_shippment_address($booking_address){
+    function download_shippment_address($booking_address) {
         $this->checkUserSession();
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
-       
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+
         $booking_history['details'] = array();
-        foreach ($booking_address as $key=> $value) {
-            $booking_history['details'][$key]  = $this->booking_model->getbooking_history($value, "join")[0];
+        foreach ($booking_address as $key => $value) {
+            $booking_history['details'][$key] = $this->booking_model->getbooking_history($value, "join")[0];
             $booking_history['details'][$key]['partner'] = $this->partner_model->getpartner($this->session->userdata('partner_id'))[0];
         }
-       
-        $this->load->view('partner/print_address',$booking_history);
-        
+
+        $this->load->view('partner/print_address', $booking_history);
     }
+
     /**
      * @desc: This is used to print courier manifest or address for selected booking
      */
-    function print_all(){
+    function print_all() {
         $this->checkUserSession();
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $booking_address = $this->input->post('download_address');
         $booking_manifest = $this->input->post('download_courier_manifest');
-    
-        if(!empty($booking_address)){
-            
-            $this->download_shippment_address($booking_address);
-            
-        } else if(!empty($booking_manifest)){
-            
-            $this->download_mainfest($booking_manifest);
 
-        } else if(empty($booking_address) && empty($booking_manifest)){
+        if (!empty($booking_address)) {
+
+            $this->download_shippment_address($booking_address);
+        } else if (!empty($booking_manifest)) {
+
+            $this->download_mainfest($booking_manifest);
+        } else if (empty($booking_address) && empty($booking_manifest)) {
             echo "Please Select Any Checkbox";
         }
- 
     }
+
     /**
      * @desc: This is used to print courier manifest for selected booking
      * @param type $booking_manifest
      */
-    function download_mainfest($booking_manifest){
+    function download_mainfest($booking_manifest) {
         $this->checkUserSession();
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $spare_parts_details['courier_manifest'] = array();
         foreach ($booking_manifest as $key => $value) {
-          
-            $where = "spare_parts_details.booking_id = '".$value."' AND status = '".SPARE_PARTS_REQUESTED."' "
-                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+
+            $where = "spare_parts_details.booking_id = '" . $value . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+                    . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
             $spare_parts_details['courier_manifest'][$key] = $this->partner_model->get_spare_parts_booking($where)[0];
-            $spare_parts_details['courier_manifest'][$key]['brand'] = $this->booking_model->get_unit_details(array('booking_id'=> $value))[0]['appliance_brand'];
+            $spare_parts_details['courier_manifest'][$key]['brand'] = $this->booking_model->get_unit_details(array('booking_id' => $value))[0]['appliance_brand'];
         }
-        
+
         $this->load->view('partner/courier_manifest', $spare_parts_details);
     }
-    
+
     /**
      * @desc: Display list of Shipped Parts in the Partner Panel
      */
-    function get_shipped_parts_list($offset= 0){
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+    function get_shipped_parts_list($offset = 0) {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '".$partner_id."' "
-                . " AND status IN ('Delivered', 'Shipped', '".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_SHIPPED."')  ";
-          
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
+                . " AND status IN ('Delivered', 'Shipped', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
+
         $config['base_url'] = base_url() . 'partner/get_shipped_parts_list';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
@@ -2053,28 +2010,29 @@ class Partner extends CI_Controller {
 
         $data['count'] = $config['total_rows'];
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
-        
-        
+
+
         $this->load->view('partner/header');
         $this->load->view('partner/shipped_spare_part_booking', $data);
     }
+
     /**
      * @desc: Pending Defective Parts list 
      */
-    function get_waiting_defective_parts($offset = 0,$all = 0){
-        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+    function get_waiting_defective_parts($offset = 0, $all = 0) {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '".$partner_id."' "
-                . " AND status IN ('".DEFECTIVE_PARTS_PENDING."','".DEFECTIVE_PARTS_SHIPPED ."')  ";
-          
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
+                . " AND status IN ('" . DEFECTIVE_PARTS_PENDING . "','" . DEFECTIVE_PARTS_SHIPPED . "')  ";
+
         $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-        
-        if($all == 1){
+
+        if ($all == 1) {
             $config['per_page'] = $total_rows[0]['total_rows'];
-        }else{
+        } else {
             $config['per_page'] = 50;
         }
         $config['uri_segment'] = 3;
@@ -2089,31 +2047,31 @@ class Partner extends CI_Controller {
         $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         $this->load->view('partner/header');
         $this->load->view('partner/waiting_defective_parts', $data);
-        
     }
+
     /**
      * @desc: Partner acknowledge to receive defective spare parts
      * @param String $booking_id
      */
     function acknowledge_received_defective_parts($booking_id, $id) {
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id.' id: '.$id);
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id . ' id: ' . $id);
         $this->checkUserSession();
         //$partner_id = $this->session->userdata('partner_id');
-      
+
         $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_RECEIVED,
-            'approved_defective_parts_by_partner'=> '1', 'remarks_defective_part_by_partner'=> DEFECTIVE_PARTS_RECEIVED,
+            'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         if ($response) {
 
-            log_message('info', __FUNCTION__ . " Received Defective Spare Parts ".$booking_id
-                    ." Partner Id". $this->session->userdata('partner_id'));
+            log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
+                    . " Partner Id" . $this->session->userdata('partner_id'));
             $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts");
 
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = _247AROUND_COMPLETED;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-            
+
             $userSession = array('success' => ' Received Defective Spare Parts');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
@@ -2125,27 +2083,28 @@ class Partner extends CI_Controller {
             redirect(base_url() . "partner/get_waiting_defective_parts");
         }
     }
+
     /**
      * @desc: Partner rejected Defective Parts with reason.
      * @param Sting $booking_id
      * @param Urlencoded $status (Rejection Reason)
      */
-    function reject_defective_part($booking_id,$id,$status){
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id.' status: '.$status);
+    function reject_defective_part($booking_id, $id, $status) {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id . ' status: ' . $status);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
 
-        $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_REJECTED, 
-            'remarks_defective_part_by_partner' => $rejection_reason, 
-            'approved_defective_parts_by_partner'=> '0',
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_REJECTED,
+            'remarks_defective_part_by_partner' => $rejection_reason,
+            'approved_defective_parts_by_partner' => '0',
             'defective_part_shipped' => NULL,
-            'defective_part_shipped_date' =>NULL,
-            'awb_by_sf'=> NULL,
-            'courier_name_by_sf'=> NULL,
-            'remarks_defective_part_by_sf'=> NULL));
+            'defective_part_shipped_date' => NULL,
+            'awb_by_sf' => NULL,
+            'courier_name_by_sf' => NULL,
+            'remarks_defective_part_by_sf' => NULL));
         if ($response) {
-            log_message('info', __FUNCTION__ . " Sucessfully updated Table ".$booking_id
-                    ." Partner Id". $this->session->userdata('partner_id'));
+            log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
+                    . " Partner Id" . $this->session->userdata('partner_id'));
             $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED);
 
             $sc_data['current_status'] = "InProcess";
@@ -2163,7 +2122,7 @@ class Partner extends CI_Controller {
             redirect(base_url() . "partner/get_waiting_defective_parts");
         }
     }
-    
+
     /**
      * @Desc: This function is used to get Brands for selected Services of particular Partner 
      *          This is being called from AJAX
@@ -2171,33 +2130,32 @@ class Partner extends CI_Controller {
      * @return: String
      * 
      */
-    function get_brands_from_service(){
+    function get_brands_from_service() {
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $appliace_brand = $this->input->post('brand');
         $partner_data = $this->partner_model->get_partner_code($partner_id);
-        $partner_type = $partner_data[0]['partner_type']; 
-        if($partner_type == OEM){
+        $partner_type = $partner_data[0]['partner_type'];
+        if ($partner_type == OEM) {
             //Getting Unique values of Brands for Particular Partner and service id
-            $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id);
+            $where = array('partner_id' => $partner_id, 'service_id' => $service_id);
             $data = $this->partner_model->get_partner_specific_details($where, "brand  As brand_name", "brand");
         } else {
             $data = $this->booking_model->getBrandForService($service_id);
         }
-       
+
         $option = "";
-        foreach($data as $value){
-            $option .="<option ";
-            if($appliace_brand == $value['brand_name']){
+        foreach ($data as $value) {
+            $option .= "<option ";
+            if ($appliace_brand == $value['brand_name']) {
                 $option .= " selected ";
             }
-            $option .=" value='".$value['brand_name']."'>".$value['brand_name']."</option>";
+            $option .= " value='" . $value['brand_name'] . "'>" . $value['brand_name'] . "</option>";
         }
-        
+
         echo $option;
-        
     }
-    
+
     /**
      * @Desc: This function is used to get Category Details for Partner
      *          This is being called from AJAX
@@ -2205,36 +2163,35 @@ class Partner extends CI_Controller {
      * @return: String
      * 
      */
-    function get_category_from_service(){
+    function get_category_from_service() {
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $category = $this->input->post('category');
         $brand = $this->input->post('brand');
         $partner_type = $this->input->post('partner_type');
-        
-        if($partner_type == OEM){
+
+        if ($partner_type == OEM) {
             //Getting Unique values of Category for Particular Partner ,service id and brand
-            $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand);
+            $where = array('partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand);
 
             $data = $this->partner_model->get_partner_specific_details($where, "category", "category");
         } else {
-             $data = $this->booking_model->getCategoryForService($service_id, $partner_id, "");
+            $data = $this->booking_model->getCategoryForService($service_id, $partner_id, "");
         }
-        
+
         $option = "";
-        foreach($data as $value){
-            $option .="<option ";
-            if($category === $value['category'] ){
+        foreach ($data as $value) {
+            $option .= "<option ";
+            if ($category === $value['category']) {
                 $option .= " selected ";
-            } else if(count($data) ==1){
+            } else if (count($data) == 1) {
                 $option .= " selected ";
             }
-            $option .= " value='".$value['category']."'>".$value['category']."</option>";
+            $option .= " value='" . $value['category'] . "'>" . $value['category'] . "</option>";
         }
         echo $option;
-        
     }
-    
+
     /**
      * @Desc: This function is used to get Capacity Model for Partner for particular Brand, service_id and category
      *      This is being called from AJAX
@@ -2242,39 +2199,38 @@ class Partner extends CI_Controller {
      * $return: Json
      * 
      */
-    function get_capacity_for_partner(){
+    function get_capacity_for_partner() {
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $brand = $this->input->post('brand');
         $category = $this->input->post('category');
         $appliance_capacity = $this->input->post('capacity');
         $partner_type = $this->input->post('partner_type');
-        
-        if($partner_type == OEM){
-             //Getting Unique values of Category for Particular Partner ,service id and brand
-            $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category);
+
+        if ($partner_type == OEM) {
+            //Getting Unique values of Category for Particular Partner ,service id and brand
+            $where = array('partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand, 'category' => $category);
             $select = "capacity";
             $data = $this->partner_model->get_partner_specific_details($where, $select, "capacity");
-            
         } else {
-             $data = $this->booking_model->getCapacityForCategory($service_id, $category, "", $partner_id);
+            $data = $this->booking_model->getCapacityForCategory($service_id, $category, "", $partner_id);
         }
-       
+
         $capacity = "";
-        foreach($data as $value){
-            
-            $capacity .="<option ";
-            if($appliance_capacity === $value['capacity'] ){
+        foreach ($data as $value) {
+
+            $capacity .= "<option ";
+            if ($appliance_capacity === $value['capacity']) {
                 $capacity .= " selected ";
-            } else if(count($data) ==1){
+            } else if (count($data) == 1) {
                 $capacity .= " selected ";
             }
-            $capacity .= " value='".$value['capacity']."'>".$value['capacity']."</option>";
+            $capacity .= " value='" . $value['capacity'] . "'>" . $value['capacity'] . "</option>";
         }
 
         echo $capacity;
     }
-    
+
     /**
      * @Desc: This function is used to get  Model for Partner for particular Brand, service_id, capacity and category
      *      This is being called from AJAX
@@ -2282,7 +2238,7 @@ class Partner extends CI_Controller {
      * $return: Json
      * 
      */
-    function get_model_for_partner(){
+    function get_model_for_partner() {
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $brand = $this->input->post('brand');
@@ -2290,63 +2246,62 @@ class Partner extends CI_Controller {
         $capacity = $this->input->post('capacity');
         $model_number = $this->input->post('model');
         $partner_type = $this->input->post('partner_type');
-       
-        if($partner_type == OEM){
+
+        if ($partner_type == OEM) {
             //Getting Unique values of Model for Particular Partner ,service id and brand
-            $where = array("partner_id" => $partner_id,'service_id'=>$service_id,'brand'=>$brand,'category'=>$category,'capacity'=>$capacity);
+            $where = array("partner_id" => $partner_id, 'service_id' => $service_id, 'brand' => $brand, 'category' => $category, 'capacity' => $capacity);
 
             $data = $this->partner_model->get_partner_specific_details($where, "model", "model");
-            
         } else {
             $data[0]['model'] = "";
         }
-        
-       
-        if(!empty($data[0]['model'])){
+
+
+        if (!empty($data[0]['model'])) {
             $model = "";
-            foreach($data as $value){
-                $model .="<option ";
-                if(trim($model_number) === trim($value['model']) ){
-                   $model .= " selected ";
-                } else if(count($data) ==1){
-                   $model .= " selected ";
+            foreach ($data as $value) {
+                $model .= "<option ";
+                if (trim($model_number) === trim($value['model'])) {
+                    $model .= " selected ";
+                } else if (count($data) == 1) {
+                    $model .= " selected ";
                 }
-                $model .=" value='".$value['model']."'>".$value['model']."</option>";
+                $model .= " value='" . $value['model'] . "'>" . $value['model'] . "</option>";
             }
             echo $model;
         } else {
             echo "Data Not Found";
         }
     }
-    
+
     /**
      * @Desc: This function is used to remove images from partner add/edit form
      *          It is being called using AJAX Request
      * params: partner id
      * return: Boolean
      */
-    function remove_contract_image(){
+    function remove_contract_image() {
         $partner['contract_file'] = '';
         //Making Database Entry as Empty for contract file
         $this->partner_model->edit_partner($partner, $this->input->post('id'));
-        
+
         //Logging 
-        log_message('info',__FUNCTION__.' Contract File has been removed sucessfully for partner id '.$this->input->post('id'));
+        log_message('info', __FUNCTION__ . ' Contract File has been removed sucessfully for partner id ' . $this->input->post('id'));
         echo TRUE;
     }
-    
+
     /**
      * @desc: This method is used to display list of booking which received by Partner
      * @param Integer $offset
      */
-    function get_approved_defective_parts_booking($offset = 0){
+    function get_approved_defective_parts_booking($offset = 0) {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
-        
+
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '".$partner_id."' "
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
                 . " AND approved_defective_parts_by_partner = '1' ";
-          
+
         $config['base_url'] = base_url() . 'partner/get_approved_defective_parts_booking';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
@@ -2360,27 +2315,26 @@ class Partner extends CI_Controller {
 
         $data['count'] = $config['total_rows'];
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
-        
+
         $this->load->view('partner/header');
         $this->load->view('partner/approved_defective_parts', $data);
     }
 
-    
     /**
      * @Desc: This function is used to remove images from partner add/edit form
      *          It is being called using AJAX Request
      * params: partner id
      * return: Boolean
      */
-    function remove_uploaded_image(){
+    function remove_uploaded_image() {
         $partner[$this->input->post('type')] = '';
         //Making Database Entry as Empty for selected file
         $this->partner_model->edit_partner($partner, $this->input->post('id'));
-        
+
         //Logging 
-        log_message('info',__FUNCTION__.$this->input->post('type').'  File has been removed sucessfully for partner id '.$this->input->post('id'));
+        log_message('info', __FUNCTION__ . $this->input->post('type') . '  File has been removed sucessfully for partner id ' . $this->input->post('id'));
         echo TRUE;
-}
+    }
 
     /**
      * @Desc: This function is used to open partner Add/Edit Login details form
@@ -2388,48 +2342,47 @@ class Partner extends CI_Controller {
      * @return: view
      * 
      */
-     function get_partner_login_details_form($partner_id){
-         //Getting details for Login for this Partner
-         $login = $this->dealer_model->entity_login(array('entity'=>'partner','entity_id' => $partner_id));
-         if(!empty($login)){
-             //setting flag for New Add
-             $login['add'] = TRUE;
-         }else{
-             //Setting flag for Update
-             $login['edit'] = TRUE;
-         }
-         $login['partner_id'] = $partner_id;
-         
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+    function get_partner_login_details_form($partner_id) {
+        //Getting details for Login for this Partner
+        $login = $this->dealer_model->entity_login(array('entity' => 'partner', 'entity_id' => $partner_id));
+        if (!empty($login)) {
+            //setting flag for New Add
+            $login['add'] = TRUE;
+        } else {
+            //Setting flag for Update
+            $login['edit'] = TRUE;
+        }
+        $login['partner_id'] = $partner_id;
+
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/partner_login_details_form', array('login' => $login));
-         
-     }
-     
-     /**
-      * @Desc: This function is used to process partner login add/edit form
-      * @params: POST Array
-      * @return: void
-      * 
-      */
-     function process_partner_login_details_form(){
+    }
+
+    /**
+     * @Desc: This function is used to process partner login add/edit form
+     * @params: POST Array
+     * @return: void
+     * 
+     */
+    function process_partner_login_details_form() {
         $choice = $this->input->post('choice');
         $partner_id = $this->input->post('partner_id');
         $login_id_array = $this->input->post('id');
         $password_array = $this->input->post('password');
         $retype_password_array = $this->input->post('retype_password');
-        $username_array =  $this->input->post('username');
+        $username_array = $this->input->post('username');
         if (!empty($choice)) {
             foreach ($choice as $key => $value) {
                 $password = $password_array[$key];
                 $retype_password = $retype_password_array[$key];
                 $username = $username_array[$key];
-              
+
                 //checking for password and retype password value
                 if (strcmp($password, $retype_password) == 0) {
                     if (!empty($login_id_array[$value])) {
-                         
+
                         //Checking for Already Present Username
-                        $check_username = $this->dealer_model->entity_login(array('entity'=>'partner','user_id'=>$username));
+                        $check_username = $this->dealer_model->entity_login(array('entity' => 'partner', 'user_id' => $username));
                         if (!empty($check_username)) {
 
                             //Updating values when password matches 
@@ -2448,9 +2401,9 @@ class Partner extends CI_Controller {
                         } else {
                             //Redirecting with Error message
                             //Setting error session data 
-                           
+
                             $userSession = array('login_error' => 'Username Already Exists');
-                            $this->session->set_userdata($userSession);      
+                            $this->session->set_userdata($userSession);
                             redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
                         }
                     } else {
@@ -2461,17 +2414,17 @@ class Partner extends CI_Controller {
                         $data['password'] = md5($password);
                         $data['clear_password'] = $password;
                         $data['active'] = 1;
-                        
-                        $check_username = $this->dealer_model->entity_login(array('entity'=>'partner','user_id'=>$username));
-                        
+
+                        $check_username = $this->dealer_model->entity_login(array('entity' => 'partner', 'user_id' => $username));
+
                         if (empty($check_username)) {
                             $p_where = array('id' => $partner_id);
                             //Getting name of Partner by Partner ID
                             $partner_details = $this->partner_model->get_all_partner($p_where);
                             $data['agent_name'] = $partner_details[0]['public_name'];
                             $data['entity_name'] = $partner_details[0]['public_name'];
-                            $s1 = $this->dealer_model->insert_entity_login($data); 
-                            if($s1) {
+                            $s1 = $this->dealer_model->insert_entity_login($data);
+                            if ($s1) {
                                 //Log Message
                                 log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
                             } else {
@@ -2481,18 +2434,18 @@ class Partner extends CI_Controller {
                         } else {
                             //Redirecting with Error message
                             //Setting error session data 
-                            
+
                             $userSession = array('login_error' => 'Username Already Exists ');
-                            $this->session->set_userdata($userSession);      
+                            $this->session->set_userdata($userSession);
                             redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
                         }
                     }
                 } else {
-                     
+
                     //When password dosen't matches
                     //Setting error session data 
                     $userSession = array('login_error' => 'Passwords does not match for Login ' . ($value + 1));
-                    $this->session->set_userdata($userSession);        
+                    $this->session->set_userdata($userSession);
 
                     redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
                 }
@@ -2500,43 +2453,43 @@ class Partner extends CI_Controller {
 
             //Setting success session data 
             $userSession = array('login_success' => 'Partner Login has been Added');
-            $this->session->set_userdata($userSession);        
+            $this->session->set_userdata($userSession);
 
             redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
         } else {
             //Setting error session data 
-           $userSession = array('login_error' => 'No Row has been selected for Add / Edit');
-           $this->session->set_userdata($userSession);        
-           redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
+            $userSession = array('login_error' => 'No Row has been selected for Add / Edit');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
         }
     }
-     
-     /**
-      * @Desc: This function is used to show default Partner Login Page
-      * @params: void
-      * @return: view
-      * 
-      */
-     function partner_default_page(){
+
+    /**
+     * @Desc: This function is used to show default Partner Login Page
+     * @params: void
+     * @return: view
+     * 
+     */
+    function partner_default_page() {
         $this->checkUserSession();
         //Getting Spare Parts Details
         $partner_id = $this->session->userdata('partner_id');
-        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'partner', 'active'=> '1'));
-        $where = "spare_parts_details.partner_id = '".$partner_id."' AND status = '".SPARE_PARTS_REQUESTED."' "
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
-        
+
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
-        
+
         $data['spare_parts'] = $total_rows[0]['total_rows'];
-        
+
         $this->load->view('partner/header');
-        $this->load->view('partner/partner_default_page',$data);
-     }
-     
-     /**
+        $this->load->view('partner/partner_default_page', $data);
+    }
+
+    /**
      * @desc: Partner search booking by Phone number or Booking id
      */
-    function search(){
+    function search() {
         log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $searched_text = trim($this->input->post('searched_text'));
@@ -2552,21 +2505,20 @@ class Partner extends CI_Controller {
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
             if (preg_match("/^[7-9]{1}[0-9]{9}$/", $searched_text)) {
-                redirect(base_url() . 'partner/booking_form/'.$searched_text);
-                
+                redirect(base_url() . 'partner/booking_form/' . $searched_text);
             } else {
                 redirect(base_url() . 'partner/home');
             }
         }
     }
-    
+
     /**
      * @desc: This is used to return customer net payable, Its called by Ajax
      */
-    function get_price_for_partner(){
+    function get_price_for_partner() {
         log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
-        $service_id  = $this->input->post('service_id');
+        $service_id = $this->input->post('service_id');
         $brand = $this->input->post('brand');
         $category = $this->input->post('category');
         $capacity = $this->input->post('capacity');
@@ -2574,54 +2526,53 @@ class Partner extends CI_Controller {
         $pincode = $this->input->post('pincode');
         $service_category = $this->input->post('service_category');
         $partner_id = $this->session->userdata('partner_id');
-        
+
         $partner_type = $this->input->post('partner_type');
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $result = array();
-       
-        if($partner_type == OEM){
-            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "",$brand);
+
+        if ($partner_type == OEM) {
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", $brand);
         } else {
-            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "",""); 
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", "");
         }
-        if(!empty($result)){
-            $p_where = array('id' =>$partner_id);
+        if (!empty($result)) {
+            $p_where = array('id' => $partner_id);
             $partner_details = $this->partner_model->get_all_partner($p_where);
             if (empty($assigned_vendor_id)) {
-                $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $partner_details, NULL);
+                $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode, $service_id, $partner_details, NULL);
             } else {
 
                 $vendor_data = array();
                 $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
                 $vendor_data[0]['city'] = $city;
-                $vendor_data[0]['min_upcountry_distance'] = $this->vendor_model->getVendorDetails("min_upcountry_distance", 
-                        array('id' =>$assigned_vendor_id))[0]['min_upcountry_distance'];
+                $vendor_data[0]['min_upcountry_distance'] = $this->vendor_model->getVendorDetails("min_upcountry_distance", array('id' => $assigned_vendor_id))[0]['min_upcountry_distance'];
                 $data = $this->upcountry_model->action_upcountry_booking($city, $pincode, $vendor_data, $partner_details);
             }
-            
+
             $html = "<table class='table priceList table-striped table-bordered'><thead><tr><th class='text-center'>Service Category</th>"
                     . "<th class='text-center'>Final Charges</th>"
                     . "<th class='text-center' id='selected_service'>Selected Services</th>"
                     . "</tr></thead><tbody>";
-	    $i = 0;
+            $i = 0;
             $explode = array();
-            if(!empty($service_category)){
+            if (!empty($service_category)) {
                 $explode = explode(",", $service_category);
             }
-	    foreach ($result as $prices) {
-                
-		$html .="<tr class='text-center'><td>" . $prices['service_category'] . "</td>";
-		$html .= "<td>" . $prices['customer_net_payable'] . "</td>";
-		$html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "' value ='".$prices['is_upcountry']."' /><input class='price_checkbox'";
-		$html .=" type='checkbox' id='checkbox_" . $i . "'";
-		$html .= "name='prices[]'";
-                if(in_array($prices['service_category'], $explode)){
-                     $html .= " checked ";
-                }
-		$html .= "  onclick='final_price(),set_upcountry()'" .
-		    "value=" . $prices['id'] . "_" . intval($prices['customer_total'])."_".intval($prices['partner_net_payable'])."_".$i . " ></td><tr>";
+            foreach ($result as $prices) {
 
-		$i++;
+                $html .= "<tr class='text-center'><td>" . $prices['service_category'] . "</td>";
+                $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
+                $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
+                $html .= " type='checkbox' id='checkbox_" . $i . "'";
+                $html .= "name='prices[]'";
+                if (in_array($prices['service_category'], $explode)) {
+                    $html .= " checked ";
+                }
+                $html .= "  onclick='final_price(),set_upcountry()'" .
+                        "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . intval($prices['partner_net_payable']) . "_" . $i . " ></td><tr>";
+
+                $i++;
             }
             $html .= "<tr class='text-center'><td>Upcountry Services</td>";
             $html .= "<td id='upcountry_charges'>0.00</td>";
@@ -2629,52 +2580,52 @@ class Partner extends CI_Controller {
                     . " name='upcountry_checkbox' value='upcountry_0_0' disabled ></td></tbody></table>";
             $form_data['table'] = $html;
             $form_data['upcountry_data'] = json_encode($data, TRUE);
-            
-            print_r(json_encode($form_data, TRUE));
 
-         } else {
-             echo "ERROR";
-         }
+            print_r(json_encode($form_data, TRUE));
+        } else {
+            echo "ERROR";
+        }
     }
-    
+
     /**
      * @desc: This is called by Ajax to return City
      * @param String $pincode
      */
-    function get_district_by_pincode($pincode, $service_id){
+    function get_district_by_pincode($pincode, $service_id) {
         $select = 'vendor_pincode_mapping.City as district';
         $post_city = $this->input->post('city');
         $where = array(
-            'service_centres.active' => 1, 
+            'service_centres.active' => 1,
             'service_centres.on_off' => 1,
             'vendor_pincode_mapping.Pincode' => $pincode,
             'vendor_pincode_mapping.Appliance_ID' => $service_id);
         $city = $this->vendor_model->get_vendor_mapping_data($where, $select);
-        if(!empty($city)){
+        if (!empty($city)) {
             $option = "";
-            foreach ($city as $district){
-                $option .= "<option value='".$district['district']."'";
-                if(count($district) == 1){
+            foreach ($city as $district) {
+                $option .= "<option value='" . $district['district'] . "'";
+                if (count($district) == 1) {
                     $option .= " selected ";
-                } else if(!empty($city)){
-                    if($post_city === $district['district']){
+                } else if (!empty($city)) {
+                    if ($post_city === $district['district']) {
                         $option .= "selected";
                     }
                 }
-                 $option .=  "  >".$district['district']."</option>";
+                $option .= "  >" . $district['district'] . "</option>";
             }
             echo $option;
         } else {
             echo 'ERROR';
         }
     }
+
     /**
      * @desc Approve Upcountry charges by Partner. $status o means call from mail 
      * @param String $booking_id
      * @param Integer $status (0 & 1)
      */
     function upcountry_charges_approval($booking_id, $status) {
-        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id . ' status: '.$status);
+        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id . ' status: ' . $status);
 
         $data = $this->upcountry_model->get_upcountry_service_center_id_by_booking($booking_id);
         if (!empty($data)) {
@@ -2715,7 +2666,7 @@ class Partner extends CI_Controller {
                 log_message('info', "Async Process to create Job card: " . $booking_id);
 
                 $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, UPCOUNTRY_CHARGES_APPROVED, "Service Center Id: " . $data[0]['service_center_id'], $agent_id, $agent_name, $partner_id);
-                
+
                 if ($status == 0) {
                     echo "<script>alert('Thanks For Approving Upcountry Charges');</script>";
                 } else {
@@ -2735,9 +2686,8 @@ class Partner extends CI_Controller {
         } else {
             $to = NITS_ANUJ_EMAIL_ID;
             $cc = "vijaya@247around.com";
-            $message = "Partner try to approve Booking Id ".$booking_id." but somehow it failed. <br/>Please check this booking.";
-            $this->notify->sendEmail('booking@247around.com', $to, $cc, '',
-                'UpCountry Approval Failed', $message, '');
+            $message = "Partner try to approve Booking Id " . $booking_id . " but somehow it failed. <br/>Please check this booking.";
+            $this->notify->sendEmail('booking@247around.com', $to, $cc, '', 'UpCountry Approval Failed', $message, '');
             if ($status == 0) {
                 echo "<script>alert('Thanks, Booking Has Been Already Approved.');</script>";
             } else {
@@ -2747,13 +2697,14 @@ class Partner extends CI_Controller {
             }
         }
     }
+
     /**
      * @desc This is uesd to reject Upcountry charges. $status o means reject from EMail
      * @param String $booking_id
      * @param String $status
-     */        
-    function reject_upcountry_charges($booking_id, $status){
-        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id.' status: '.$status);
+     */
+    function reject_upcountry_charges($booking_id, $status) {
+        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id . ' status: ' . $status);
         $data = $this->booking_model->getbooking_history($booking_id);
         if (is_null($data[0]['assigned_vendor_id']) && $data[0]['current_status'] != _247AROUND_CANCELLED) {
             $partner_current_status = "";
@@ -2763,26 +2714,23 @@ class Partner extends CI_Controller {
                 $partner_current_status = $partner_status[0];
                 $partner_internal_status = $partner_status[1];
             }
-            if($status == 0){// means request from mail
-                $agent_id  = _247AROUND_DEFAULT_AGENT;
+            if ($status == 0) {// means request from mail
+                $agent_id = _247AROUND_DEFAULT_AGENT;
                 $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
                 $partner_id = _247AROUND;
-                $type= " Email";
+                $type = " Email";
             } else {
-                $agent_id  = $this->session->userdata('agent_id');
+                $agent_id = $this->session->userdata('agent_id');
                 $agent_name = $this->session->userdata('partner_name');
                 $partner_id = $this->session->userdata('partner_id');
                 $type = "Panel";
-                
             }
             $this->booking_model->update_booking($booking_id, array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
                 'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
                 'partner_internal_status' => $partner_internal_status));
-            
-            $this->booking_model->update_booking_unit_details($booking_id, array('booking_status'=> 'Cancelled'));
-            $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, 
-                        "Upcountry Charges Rejected By Partner From ". $type, 
-                        $agent_id, $agent_name, $partner_id);
+
+            $this->booking_model->update_booking_unit_details($booking_id, array('booking_status' => 'Cancelled'));
+            $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, $agent_name, $partner_id);
             if ($status == 0) {
                 echo "<script>alert('Upcountry Charges Rejected Successfully');</script>";
             } else {
@@ -2790,7 +2738,6 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
             }
-            
         } else {
             log_message('info', __FUNCTION__ . " => Booking is not rejected. Booking Id" . $booking_id);
             if ($status == 0) {
@@ -2802,21 +2749,22 @@ class Partner extends CI_Controller {
             }
         }
     }
+
     /**
      * @desc: used to display list of waiting to approve upcountry charges
      */
-    function get_waiting_for_approval_upcountry_charges(){
-        log_message('info', __FUNCTION__ );
+    function get_waiting_for_approval_upcountry_charges() {
+        log_message('info', __FUNCTION__);
         $partner_id = $this->session->userdata('partner_id');
         $data['booking_details'] = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($partner_id);
         $this->load->view('partner/header');
         $this->load->view('partner/get_waiting_to_approval_upcountry', $data);
     }
-    
+
     /**
      * @desc: This method Cancelled those upcountry booking(3 days old) who has not approved by partner
      */
-    function auto_reject_upcountry_charges(){
+    function auto_reject_upcountry_charges() {
         log_message('info', __FUNCTION__);
         $data = $this->booking_model->get_booking_to_cancel_not_approved_upcountry();
         if (!empty($data)) {
@@ -2837,95 +2785,89 @@ class Partner extends CI_Controller {
                     'partner_internal_status' => $partner_internal_status));
 
                 $this->booking_model->update_booking_unit_details($value['bookng_id'], array('booking_status' => 'Cancelled'));
-                $this->notify->insert_state_change($value['booking_id'], UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected From " . "AUTO ", $agent_id, $agent_name, $partner_id);                
+                $this->notify->insert_state_change($value['booking_id'], UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected From " . "AUTO ", $agent_id, $agent_name, $partner_id);
             }
-            
+
             //Notify
-            $this->notify->sendEmail('booking@247around.com', ANUJ_EMAIL_ID, '', '',
-                'Upcountry Bookings Cancelled', print_r($data, TRUE), '');
+            $this->notify->sendEmail('booking@247around.com', ANUJ_EMAIL_ID, '', '', 'Upcountry Bookings Cancelled', print_r($data, TRUE), '');
         }
     }
-    
+
     /**
      * @desc: This method is used to show the partner brand logo upload from
      * @param: void
      * @return:void
      */
-    function upload_partner_brand_logo($id="",$name=""){
+    function upload_partner_brand_logo($id = "", $name = "") {
         $data['partner'] = array('partner_id' => $id,
-                                 'public_name'=> urldecode($name));
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-        $this->load->view('employee/upload_partner_brand_logo',$data);
+            'public_name' => urldecode($name));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/upload_partner_brand_logo', $data);
     }
-    
-     /**
+
+    /**
      * @desc: This method is used to insert the partner brand logo into database
      * @param: void
      * @return:void
      */
-    
-    function process_upload_partner_brand_logo(){
+    function process_upload_partner_brand_logo() {
         $partner_name = $this->input->post('partner_name');
-        $partner_id= $this->input->post('partner_id');
-        if(!empty($partner_name)&& !empty($partner_id)){
-            foreach($_FILES["partner_brand_logo"]["tmp_name"] as $key=>$tmp_name){
-                
+        $partner_id = $this->input->post('partner_id');
+        if (!empty($partner_name) && !empty($partner_id)) {
+            foreach ($_FILES["partner_brand_logo"]["tmp_name"] as $key => $tmp_name) {
+
                 $tmpFile = $_FILES['partner_brand_logo']['tmp_name'][$key];
-                $ext= explode('.', $_FILES["partner_brand_logo"]["name"][$key]);
-                $file_name = $partner_name.preg_replace("/[^a-zA-Z]+/", "", $_FILES["partner_brand_logo"]["name"][$key]).rand(10,100).".".end($ext);
-                if(!file_exists(FCPATH.'images/'.$file_name))
-                {
-                    move_uploaded_file($tmpFile,FCPATH.'images/'.$file_name);
+                $ext = explode('.', $_FILES["partner_brand_logo"]["name"][$key]);
+                $file_name = $partner_name . preg_replace("/[^a-zA-Z]+/", "", $_FILES["partner_brand_logo"]["name"][$key]) . rand(10, 100) . "." . end($ext);
+                if (!file_exists(FCPATH . 'images/' . $file_name)) {
+                    move_uploaded_file($tmpFile, FCPATH . 'images/' . $file_name);
                     //Uploading images to S3 
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory = "misc-images/" . $file_name;
-                    $this->s3->putObjectFile(TMP_FOLDER.$file_name, $bucket, $directory, S3::ACL_PUBLIC_READ);
-                    $data['partner_id']=$partner_id;
-                    $data['partner_logo'] = 'images/'.$file_name;
+                    $this->s3->putObjectFile(TMP_FOLDER . $file_name, $bucket, $directory, S3::ACL_PUBLIC_READ);
+                    $data['partner_id'] = $partner_id;
+                    $data['partner_logo'] = 'images/' . $file_name;
                     $data['alt_text'] = $partner_name;
 
                     //insert partner brand logo path into database
                     $res[$key] = $this->partner_model->upload_partner_brand_logo($data);
                 }
             }
-            if($res){
-                    $this->session->set_flashdata('success','Partner Logo has been inserted successfully');
-                    redirect(base_url() . "employee/partner/upload_partner_brand_logo/".$partner_id."/".$partner_name,'refresh');
-                }
-                else{
-                    $this->session->set_flashdata('failed','Error in Inserting Partner Logo. Please Try Again...');
-                    redirect(base_url() . "employee/partner/upload_partner_brand_logo/".$partner_id."/".$partner_name,'refresh');
-                }
-        }
-        else{
-            $this->session->set_flashdata('failed','Please Select Partner Name');
-            redirect(base_url() . "employee/partner/upload_partner_brand_logo".$partner_id."/".$partner_name,'refresh');
+            if ($res) {
+                $this->session->set_flashdata('success', 'Partner Logo has been inserted successfully');
+                redirect(base_url() . "employee/partner/upload_partner_brand_logo/" . $partner_id . "/" . $partner_name, 'refresh');
+            } else {
+                $this->session->set_flashdata('failed', 'Error in Inserting Partner Logo. Please Try Again...');
+                redirect(base_url() . "employee/partner/upload_partner_brand_logo/" . $partner_id . "/" . $partner_name, 'refresh');
+            }
+        } else {
+            $this->session->set_flashdata('failed', 'Please Select Partner Name');
+            redirect(base_url() . "employee/partner/upload_partner_brand_logo" . $partner_id . "/" . $partner_name, 'refresh');
         }
     }
-    
-    
+
     /**
      * @desc: This method is used to edit the partner details from partner CRM
      * @param: void
      * @return:void
      */
-    function show_partner_edit_details_form(){
+    function show_partner_edit_details_form() {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $data['partner_details'] = $this->partner_model->getpartner($partner_id);
         $this->load->view('partner/header');
         $this->load->view('partner/edit_partner_details', $data);
     }
-    
+
     /**
      * @desc: This method is used to process the edit form of the partner details from partner CRM
      * @param: void
      * @return:void
      */
     function process_partner_edit_details() {
-        log_message('info', __FUNCTION__.' partner_id: '. $this->session->userdata('partner_id'));
+        log_message('info', __FUNCTION__ . ' partner_id: ' . $this->session->userdata('partner_id'));
         $this->checkUserSession();
-        
+
         //store POST data into array
         $partner_data = array();
         $partner_id = $this->input->post('id');
@@ -2949,47 +2891,48 @@ class Partner extends CI_Controller {
         $partner_data['tin'] = $this->input->post('tin');
         $partner_data['registration_no'] = $this->input->post('registration_no');
         $partner_data['cst_no'] = $this->input->post('cst_no');
-        
-        if(!empty($partner_data) && !empty($partner_id)){
+
+        if (!empty($partner_data) && !empty($partner_id)) {
             $update_id = $this->partner_model->edit_partner($partner_data, $partner_id);
-            if($update_id){
-                log_message('info', __FUNCTION__ . 'Partner Details has been updated successfully'.$partner_id." ". print_r($partner_data,true));
-                
+            if ($update_id) {
+                log_message('info', __FUNCTION__ . 'Partner Details has been updated successfully' . $partner_id . " " . print_r($partner_data, true));
+
                 // send mail
                 $html = "";
                 foreach ($partner_data as $key => $value) {
-                    $html .= '<b>'.$key .'</b>'. " = ". $value.'<br>';
+                    $html .= '<b>' . $key . '</b>' . " = " . $value . '<br>';
                 }
-                
+
                 $to = ANUJ_EMAIL_ID;
-                $subject = $partner_data['public_name']. "  : Partner Details Has been Updated";
+                $subject = $partner_data['public_name'] . "  : Partner Details Has been Updated";
                 $message = "Following details has been updated by partner: " . $this->session->userdata('partner_name');
-                $message .= "<br>" .$html;
+                $message .= "<br>" . $html;
                 $sendmail = $this->notify->sendEmail('booking@247around.com', $to, " ", " ", $subject, $message, "");
-                
-                if($sendmail){
+
+                if ($sendmail) {
                     log_message('info', __FUNCTION__ . 'Mail Send successfully');
-                }else{
+                } else {
                     log_message('info', __FUNCTION__ . 'Error in Sending Mail');
                 }
-                
+
                 //redirect to details page
                 $success_msg = "Details has been updated successfully";
                 $this->session->set_flashdata('success_msg', $success_msg);
                 redirect(base_url() . 'employee/partner/show_partner_edit_details_form');
-            }else{
-                log_message('info', __FUNCTION__ . 'Error in updating partner details'.$partner_id." ".  print_r($partner_data,true));
+            } else {
+                log_message('info', __FUNCTION__ . 'Error in updating partner details' . $partner_id . " " . print_r($partner_data, true));
                 $error_msg = "Error!!! Please Try Again";
                 $this->session->set_flashdata('error_msg', $error_msg);
                 redirect(base_url() . 'employee/partner/show_partner_edit_details_form');
             }
-        }else{
-            log_message('info', __FUNCTION__ . 'Error in updating partner details'.$partner_id." ".  print_r($partner_data,true));
+        } else {
+            log_message('info', __FUNCTION__ . 'Error in updating partner details' . $partner_id . " " . print_r($partner_data, true));
             $error_msg = "Error!!! Please Try Again";
             $this->session->set_flashdata('error_msg', $error_msg);
             redirect(base_url() . 'employee/partner/show_partner_edit_details_form');
         }
     }
+
     /**
      * @desc Get upcountry details for partner booking
      * @param String $booking_id
@@ -3003,8 +2946,8 @@ class Partner extends CI_Controller {
 
         $this->load->view('service_centers/upcountry_booking_details', $data);
     }
-    
-    function get_dealer_details(){
+
+    function get_dealer_details() {
         $partner_id = $this->input->post('partner_id');
         $search_term = $this->input->post('search_term');
         $column = $this->input->post("dealer_field");
@@ -3014,33 +2957,31 @@ class Partner extends CI_Controller {
             "search" => array($column => $search_term),
             "order_by" => $column);
         $select = "dealer_name, dealer_details.dealer_id, dealer_phone_number_1";
-        $dealer_data = $this->dealer_model->get_dealer_mapping_details($condition,$select);
+        $dealer_data = $this->dealer_model->get_dealer_mapping_details($condition, $select);
         $response = "<ul id='dealer_list'>";
-        if(!empty($dealer_data)){
-            
-            foreach($dealer_data as $value){
+        if (!empty($dealer_data)) {
+
+            foreach ($dealer_data as $value) {
                 $response .= "<li onclick ='";
                 $response .= "selectDealer(";
-                $response .= '"'.$value['dealer_name'].'", "'.$value['dealer_phone_number_1'].'", "'.$value['dealer_id'].'"';
+                $response .= '"' . $value['dealer_name'] . '", "' . $value['dealer_phone_number_1'] . '", "' . $value['dealer_id'] . '"';
                 $response .= ")'> ";
-                $response .= $value['dealer_name']."(<b>".$value['dealer_phone_number_1']."</b>)";
-                $response  .= '</li>';
-               
-                
+                $response .= $value['dealer_name'] . "(<b>" . $value['dealer_phone_number_1'] . "</b>)";
+                $response .= '</li>';
             }
         }
         $response .= "</ul>";
         echo $response;
     }
-    
+
     /**
-      * @Desc: This function is used to show Partner Login Page for inactive partner
-      * @params: void
-      * @return: view
-      * 
-      */
-     function inactive_partner_default_page(){
-         
+     * @Desc: This function is used to show Partner Login Page for inactive partner
+     * @params: void
+     * @return: view
+     * 
+     */
+    function inactive_partner_default_page() {
+
         $partner_id = $this->session->userdata('partner_id');
         $data['vendor_partner'] = "partner";
         $data['vendor_partner_id'] = $partner_id;
@@ -3048,9 +2989,63 @@ class Partner extends CI_Controller {
 
         $data2['partner_vendor'] = "partner";
         $data2['partner_vendor_id'] = $partner_id;
-        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
+        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*', $data2);
         $this->load->view('partner/inactive_partner_header');
         $this->load->view('partner/invoice_summary', $invoice);
-     }
-   
+    }
+
+    
+    /**
+     * @Desc: This function is used to send the reminder email to partners
+     * for defective parts not shipped 
+     * @params: void()
+     * @return: void()
+     * 
+     */
+    function get_defective_parts_acknowledge_reminder_data() {
+        log_message('info', __FUNCTION__ . ' => Defctive Parts Acknowledge Reminder By Cron');
+
+        $where_get_partner = array('partners.is_active' => '1');
+        $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name";
+        //Get all Active partners
+        $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
+        foreach ($partners as $partner) {
+
+            $select = "spare_parts_details.booking_id,spare_parts_details.defective_part_shipped_date";
+            $where = array('spare_parts_details.partner_id' => $partner['id'], 
+                           'DATEDIFF(defective_part_shipped_date,now()) <= -7' => null,
+                           "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
+                           "booking_details.current_status IN ('Pending', 'Rescheduled')" => null );
+            $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where,true);
+
+            if (!empty($defective_parts_acknowledge_data)) {
+                $this->table->set_heading('Booking Id', 'Defective Part Shipped Date');
+                $template = array(
+                    'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+                );
+
+                $this->table->set_template($template);
+                $html_table = $this->table->generate($defective_parts_acknowledge_data);
+                
+                //send email
+                $to = $partner['primary_contact_email'];
+                $cc = NITS_ANUJ_EMAIL_ID;
+                $subject = "Defective Parts Acknowledge Report";
+                
+                $message = "Dear " . $partner['primary_contact_name'] . ",<br/><br/>";
+                $message .= "Below are the bookings for which defective parts are not shipped yet."
+                        . " Please do the required action on these bookings as soon as possible.<br><br>";
+                $message .= "$html_table";
+                
+                $sendmail = $this->notify->sendEmail('booking@247around.com', $to, $cc, "", $subject, $message, "");
+
+                if ($sendmail){
+                    log_message('info', __FUNCTION__ . 'Report Mail has been send to partner '.$partner['public_name'].' successfully');
+                } else {
+                    log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner '.$partner['public_name']);
+                }
+            }
+        }
+    }
+
 }
