@@ -1776,7 +1776,7 @@ class Partner extends CI_Controller {
      * @param String $new_state
      * @param String $remarks
      */
-    function insert_details_in_state_change($booking_id, $new_state, $remarks) {
+    function insert_details_in_state_change($booking_id, $new_state, $remarks,$is_cron="") {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
         //Save state change
         $state_change['booking_id'] = $booking_id;
@@ -1790,8 +1790,14 @@ class Partner extends CI_Controller {
         } else { //count($booking_state_change)
             $state_change['old_state'] = "Pending";
         }
-        $state_change['agent_id'] = $this->session->userdata('agent_id');
-        $state_change['partner_id'] = $this->session->userdata('partner_id');
+        
+        if(empty($is_cron)){
+            $state_change['agent_id'] = $this->session->userdata('agent_id');
+            $state_change['partner_id'] = $this->session->userdata('partner_id');
+        }else{
+            $state_change['agent_id'] = '1';
+            $state_change['partner_id'] = _247AROUND;
+        }
         $state_change['remarks'] = $remarks;
 
         // Insert data into booking state change
@@ -2053,9 +2059,12 @@ class Partner extends CI_Controller {
      * @desc: Partner acknowledge to receive defective spare parts
      * @param String $booking_id
      */
-    function acknowledge_received_defective_parts($booking_id, $id) {
+    function acknowledge_received_defective_parts($booking_id, $id, $is_cron = "") {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id . ' id: ' . $id);
-        $this->checkUserSession();
+        
+        if(empty($is_cron)){
+            $this->checkUserSession();
+        }
         //$partner_id = $this->session->userdata('partner_id');
 
         $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_RECEIVED,
@@ -2065,22 +2074,26 @@ class Partner extends CI_Controller {
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
-            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts");
+            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $is_cron);
 
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = _247AROUND_COMPLETED;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
-
-            $userSession = array('success' => ' Received Defective Spare Parts');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "partner/get_waiting_defective_parts");
+            
+            if(empty($is_cron)){
+                $userSession = array('success' => ' Received Defective Spare Parts');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "partner/get_waiting_defective_parts");
+            }
+            
         } else { //if($response){
             log_message('info', __FUNCTION__ . '=> Defective Spare Parts not udated  by Partner ' . $this->session->userdata('partner_id') .
                     " booking id " . $booking_id);
-            $userSession = array('success' => 'There is some error. Please try again.');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "partner/get_waiting_defective_parts");
+            if(empty($is_cron)){
+                $userSession = array('success' => 'There is some error. Please try again.');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "partner/get_waiting_defective_parts");
+            }
         }
     }
 
@@ -3029,7 +3042,7 @@ class Partner extends CI_Controller {
                 
                 //send email
                 $to = $partner['primary_contact_email'];
-                $cc = NITS_ANUJ_EMAIL_ID.', booking@247around.com';
+                $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com';
                 $subject = "Defective Parts Acknowledge Report";
                 
                 $message = "Dear Partner,<br/><br/>";
@@ -3038,6 +3051,66 @@ class Partner extends CI_Controller {
                 $message .= "$html_table <br><br>";
                 $message .= "Please confirm / reject the delivery of these defective parts. "
                         . "Post 14 days of shipment, 247around system will mark them Delivered automatically. <br><br>";
+                $message .= "Thanks. <br> 247around Team";
+                
+                $sendmail = $this->notify->sendEmail('booking@247around.com', $to, $cc, "", $subject, $message, "");
+
+                if ($sendmail){
+                    log_message('info', __FUNCTION__ . 'Report Mail has been send to partner '.$partner['public_name'].' successfully');
+                } else {
+                    log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner '.$partner['public_name']);
+                }
+            }
+        }
+    }
+    
+    
+    /**
+     * @Desc: This function is used to auto acknowledge the defective parts after 14 days 
+     * @params: void()
+     * @return: void()
+     * 
+     */
+    function auto_acknowledge_defective_parts(){
+        log_message('info', __FUNCTION__ . ' => Auto Acknowledge Defective Parts');
+
+        $where_get_partner = array('partners.is_active' => '1');
+        $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name";
+        //Get all Active partners
+        $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
+        foreach ($partners as $partner) {
+
+            $select = "spare_parts_details.id,spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
+            $where = array('spare_parts_details.partner_id' => $partner['id'], 
+                           'DATEDIFF(defective_part_shipped_date,now()) <= -14' => null,
+                           "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
+                           "booking_details.current_status IN ('Pending', 'Rescheduled')" => null );
+            $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where,true);
+            if(!empty($defective_parts_acknowledge_data)){
+                
+                //update acknowledge
+                foreach ($defective_parts_acknowledge_data as $value){
+                    $this->acknowledge_received_defective_parts($value['booking_id'], $value['id'], true);
+                }
+                
+                //send email
+                $this->table->set_heading('Booking Id', 'Defective Part Shipped Date');
+                $template = array(
+                    'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+                );
+
+                $this->table->set_template($template);
+                $html_table = $this->table->generate($defective_parts_acknowledge_data);
+                
+                //send email
+                $to = $partner['primary_contact_email'];
+                $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com';
+                $subject = "Auto Acknowledge Defective Parts Report";
+                
+                $message = "Dear Partner,<br/><br/>";
+                $message .= "Below are the bookings which are auto acknowledge by 247around as per the earlier mail: <br><br>";
+                $message .= "$html_table <br><br>";
+                $message .= "If you have any issue regarding this then please contact us.<br><br>";
                 $message .= "Thanks. <br> 247around Team";
                 
                 $sendmail = $this->notify->sendEmail('booking@247around.com', $to, $cc, "", $subject, $message, "");
