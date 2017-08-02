@@ -31,7 +31,7 @@ class Cp_model extends CI_Model {
         $this->db->select('bb_shop_address.id, name, contact_person, '
                 . 'shop_address_region,shop_address_city, primary_contact_number, alternate_conatct_number, shop_address_line1,'
                 . 'shop_address_line2, shop_address_pincode, bb_shop_address.active,'
-                . ' bb_shop_address.contact_email, tin_number, alternate_conatct_number2, shop_address_state');
+                . ' bb_shop_address.contact_email, tin_number, alternate_conatct_number2, shop_address_state,cp_capacity');
 
         $this->db->from('bb_shop_address');
         $this->db->join('service_centres', 'service_centres.id = bb_shop_address.cp_id ');

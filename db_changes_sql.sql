@@ -2919,3 +2919,6 @@ ALTER TABLE `bb_shop_address` ADD `shop_address_region` VARCHAR(64) NULL DEFAULT
 
 --Abhay 29 Jul;y
 ALTER TABLE `partners` ADD `is_def_spare_required` INT(1) NOT NULL DEFAULT '0' AFTER `upcountry_r2`
+
+-- Sachin 2 Aug
+ALTER TABLE `bb_shop_address` ADD `cp_capacity` VARCHAR(128) NULL DEFAULT NULL AFTER `tin_number`;
