@@ -227,7 +227,7 @@ class Invoice extends CI_Controller {
         $data['amount_collected'] = $this->input->post('amount_collected');
         $data['invoice_id_list'] = array();
         if (empty($vendor_partner)) {
-            $where = " amount_paid = 0 ";
+            $where = array('amount_paid' => '0');
             $data['invoice_id_list'] = $this->invoices_model->get_invoices_details($where);
         }
 
@@ -306,7 +306,7 @@ class Invoice extends CI_Controller {
             if (!empty($invoice_id)) {
                 $p_history = array();
                 $vp_details = array();
-                $where = " invoice_id = '" . $invoice_id . "' ";
+                $where = array('invoice_id' => $invoice_id);
                 $data = $this->invoices_model->get_invoices_details($where);
                 $credit_debit = $credit_debit_array[$key];
                 $p_history['invoice_id'] = $invoice_id;
@@ -1714,7 +1714,7 @@ class Invoice extends CI_Controller {
     function regenerate_invoice($invoice_id, $invoice_type) {
         log_message('info',__FUNCTION__.'Invoice_id: ' . $invoice_id.' Invoice_type: '.$invoice_type);
         
-        $where = " `invoice_id` = '$invoice_id'";
+        $where = array('invoice_id' => $invoice_id);
         //Get Invocie details from Vendor Partner Invoice Table
         $invoice_details = $this->invoices_model->get_invoices_details($where);
         if (!empty($invoice_details)) {
@@ -2847,7 +2847,7 @@ class Invoice extends CI_Controller {
     function insert_update_invoice($vendor_partner, $invoice_id = FALSE) {
         log_message('info', __FUNCTION__ . " Entering.... Invoice_id: " . $invoice_id. ' vendor_partner: '.$vendor_partner);
         if ($invoice_id) {
-            $where = " `invoice_id` = '$invoice_id'";
+            $where = array('invoice_id' => $invoice_id);
             //Get Invocie details from Vendor Partner Invoice Table
             $invoice_details['invoice_details'] = $this->invoices_model->get_invoices_details($where);
         }
@@ -3104,8 +3104,9 @@ class Invoice extends CI_Controller {
 
         //Make sure it is unique
         $invoice_id_tmp = $start_name . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date))."-";
-        $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
-        $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+        $like = "( invoice_id LIKE '%".$invoice_id_tmp."%' )";
+        //$where = array("invoice_id LIKE '".$invoice_id_tmp."'" => null);
+        $invoice_no_temp = $this->invoices_model->get_invoices_details($like);
         $invoice_no = 1;
         $int_invoice = array();
         if (!empty($invoice_no_temp)) {
