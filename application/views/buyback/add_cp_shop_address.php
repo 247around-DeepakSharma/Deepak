@@ -172,6 +172,17 @@
                                         <span class="msg" ng-show="userForm.shop_address_state.$dirty && userForm.shop_address_state.$error.required">State is required</span>
                                         <span class="msg"  ng-show="userForm.shop_address_state.$dirty && userForm.shop_address_state.$error.pattern">State Name is Invalid</span>
                                     </div>
+                                    
+                                    <div class="item form-group">
+                                        <label class="control-label col-md-4 col-sm-3 col-xs-12" for="cp_capacity">CP Capacity
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input id="cp_capacity" type="text" class="optional form-control col-md-7 col-xs-12" name="cp_capacity" ng-model="tempData.cp_capacity">
+                                        </div>
+<!--                                        <span class="msg" ng-show="userForm.cp_capacity.$dirty && userForm.cp_capacity.$error.required">State is required</span>-->
+<!--                                        <span class="msg"  ng-show="userForm.cp_capacity.$dirty && userForm.cp_capacity.$error.pattern">State Name is Invalid</span>-->
+                                    </div>
+                                    
                                     <div class="ln_solid"></div>
                                     <a href="javascript:void(0);" class="btn btn-success" ng-click="saveShopAddress()" ng-disabled="userForm.$invalid" >Add Shop Address</a>
                                 </form>
