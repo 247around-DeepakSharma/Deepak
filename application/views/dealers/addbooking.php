@@ -744,10 +744,11 @@
                  $("#checkbox_upcountry").val("upcountry_0_0"); 
                  document.getElementById("checkbox_upcountry").checked = false;
                  final_price();
-                alert("This is out station Booking, not allow to submit Booking/Query. Upcountry Distance "+ data1.upcountry_distance.toFixed(2) + " KM");
-            } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
-                alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " +data1.upcountry_distance.toFixed(2) + " KM");
+                 
+                alert("Out-Station Booking Not Allowed, Please Contact 247around.");
                 
+            } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
+                alert("This Is Out-Station Booking, Please Wait For Brand Approval.");
                  $("#upcountry_charges").text("0.00");
                  $("#checkbox_upcountry").val("upcountry_0_0"); 
                  document.getElementById("checkbox_upcountry").checked = false;
@@ -759,7 +760,6 @@
                  document.getElementById("checkbox_upcountry").checked = false;
                 $('#submitform').attr('disabled', false); 
             }
-
 
         } else {
             var data1 = jQuery.parseJSON(upcountry_data);
