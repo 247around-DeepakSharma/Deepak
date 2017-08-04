@@ -445,42 +445,20 @@ class invoices_model extends CI_Model {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
 
-        $sql1 = "SELECT booking_unit_details.id AS unit_id,`booking_details`.service_id, `booking_details`.booking_id, "
-                . " `booking_details`.reference_date,invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
+        $sql1 = "SELECT booking_unit_details.id AS unit_id, `booking_details`.booking_id, "
+                . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source,"
-                . " `booking_details`.city, `booking_unit_details`.ud_closed_date as closed_date, "
-                . "  price_tags, `partners`.company_name,partners.seller_code, "
-                . " `partners`.address as company_address, "
-                . " `booking_unit_details`.appliance_capacity, partners.state, partners.district, partners.pincode,"
+                . " `booking_details`.city, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
+                . " `booking_unit_details`.appliance_capacity, "
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name, "
-                . " '$from_date' as start_date,  "
-                . " '$to_date'  as end_date,
+                . " 
 
              (case when (`booking_unit_details`.product_or_services = 'Service' ) 
                  THEN (ROUND(partner_net_payable,2) ) 
                  ELSE 0 END) as installation_charge,
               (case when( order_id !='') THEN order_id when(booking_details.partner_id= '247010') 
-              THEN (partner_serial_number) ELSE '' END ) AS order_id,
-
-             (case when (`booking_unit_details`.product_or_services = 'Service' ) 
-             THEN (ROUND(partner_net_payable * 0.15,2) ) 
-             ELSE 0 END) as st,
-             
-            ( CASE WHEN (booking_unit_details.product_or_services = 'Service')
-            THEN (ROUND(partner_net_payable,2) +  Round(partner_net_payable *0.15, 2))
-            WHEN (booking_unit_details.product_or_services = 'Product') 
-            THEN ( Round(partner_net_payable,2) + Round(partner_net_payable * 0.05,2))
-            ELSE 0 END) AS partner_paid_basic_charges,
-             
-            
-             (case when (`booking_unit_details`.product_or_services = 'Product' )  
-             THEN (ROUND(partner_net_payable,2) ) 
-             ELSE 0 END) as stand,
-
-              (case when (`booking_unit_details`.product_or_services = 'Product' )  
-               THEN (ROUND(partner_net_payable * 0.05,2) ) 
-               ELSE 0 END) as vat
+              THEN (partner_serial_number) ELSE '' END ) AS order_id
 
               From booking_details, booking_unit_details, services, partners, users
                   WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id 
@@ -498,10 +476,7 @@ class invoices_model extends CI_Model {
 
 
         $query1 = $this->db->query($sql1);
-        $result1['main_invoice'] = $query1->result_array();
-        $result1['upcountry_invoice'] = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
-
-        return $result1;
+        return $query1->result_array();
     }
 
     function get_total_booking_for_check_invoices($vendor_id, $from_date, $to_date) {
@@ -706,21 +681,9 @@ class invoices_model extends CI_Model {
             return array();
         }
     }
-
-    /**
-     * @desc: This is used to generate Partner Main invoice. 
-     * @param String $partner_id
-     * @param String $from_date_tmp
-     * @param String $to_date
-     * @return Array
-     */
-    function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp, $upcountry_flag = true) {
-        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
-        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
-        log_message("info", $from_date . "- " . $to_date);
-        // For Product
-        $sql = "SELECT DISTINCT (`partner_net_payable`) AS p_rate, '' AS misc_charges,  '' AS s_service_charge, '' AS s_total_service_charge,
-                5.00 AS p_tax_rate, 
+    
+    function get_partner_invoice_data($partner_id, $from_date, $to_date) {
+        $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, '998715' AS hsn_code, 
                 CASE 
                
                     WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
@@ -747,14 +710,14 @@ class invoices_model extends CI_Model {
                 END AS description,
                   
                 COUNT( ud.`appliance_capacity` ) AS qty, 
-                (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS p_part_cost,
-                `partners`.company_name,
+                (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS taxable_value,
+                `partners`.company_name, product_or_services,
                 `partners`.address as company_address, partners.pincode, partners.district,
                 `partners`.state,
-                `partners`.seller_code
-                FROM  `booking_unit_details` AS ud, services, partners
-                WHERE  `product_or_services` =  'Product'
-                AND  `partner_net_payable` >0
+                `partners`.gst_number, state_code
+                FROM  `booking_unit_details` AS ud, services, partners,state_code
+                WHERE `partner_net_payable` >0
+                And state_code.state = partners.state
                 AND ud.partner_id =  '$partner_id'
                 AND ud.booking_status =  'Completed'
                 AND ud.ud_closed_date >=  '$from_date'
@@ -762,123 +725,120 @@ class invoices_model extends CI_Model {
                 AND ud.service_id = services.id
                 AND partners.id = ud.partner_id
                 AND partner_invoice_id IS NULL
-                GROUP BY  `partner_net_payable`, ud.service_id,price_tags   ";
+                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services   ";
 
         $query = $this->db->query($sql);
-        $product = $query->result_array();
+        $result['result'] = $query->result_array();
+        
+        if (!empty($result['result'])) {
+            $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
+            $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
+            $result['upcountry'] = array();
+            $result['courier'] = array();
+            if (!empty($upcountry_data)) {
+                $up_country = array();
+                $up_country[0]['description'] = 'Upcountry Charge';
+                $up_country[0]['hsn_code'] = '';
+                $up_country[0]['qty'] = '';
+                $up_country[0]['rate'] = '';
+                $up_country[0]['qty'] = '';
+                $up_country[0]['product_or_services'] = 'Upcountry';
+                $up_country[0]['taxable_value'] = $upcountry_data[0]['total_upcountry_price'];
+                $result['result'] = array_merge($result['result'], $up_country);
+                $result['upcountry'] = $upcountry_data;
+            }
 
-        $sql1 = "SELECT DISTINCT (`partner_net_payable`) AS s_service_charge, '' AS misc_charges, '' AS p_tax_rate, '' AS p_rate, ''AS p_part_cost,
-               CASE 
-               
-                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
-                    concat(services,' ', price_tags )
+            if (!empty($courier)) {
+                $c_data = array();
+                $c_data[0]['description'] = 'Courier Charges';
+                $c_data[0]['hsn_code'] = '';
+                $c_data[0]['qty'] = '';
+                $c_data[0]['rate'] = '';
+                $c_data[0]['qty'] = '';
+                $c_data[0]['product_or_services'] = 'Courier';
+                $c_data[0]['taxable_value'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
+                $result['result'] = array_merge($result['result'], $c_data);
+                $result['courier'] = $courier;
+            }
+            
+            return $result;
+        } else {
+            return false;
+        }
+    }
 
-                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
-                    concat(services,' ', price_tags,' (', 
-                    MAX( ud.`appliance_capacity` ),') ' )
+    /**
+     * @desc: This is used to generate Partner Main invoice. 
+     * @param String $partner_id
+     * @param String $from_date_tmp
+     * @param String $to_date_tmp
+     * @return Array
+     */
+    function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp) {
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        log_message("info", $from_date . "- " . $to_date);
+        $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date);
 
-                    WHEN MIN( ud.`appliance_capacity` ) = MAX( ud.`appliance_capacity` ) THEN 
-                    concat(services,' ', price_tags,' (', 
-                    MAX( ud.`appliance_capacity` ),') ' )
-
-
-                    WHEN MIN( ud.`appliance_capacity` ) != '' AND MAX( ud.`appliance_capacity` ) = '' THEN
-                     concat(services,' ', price_tags,' (', 
-                    MIN( ud.`appliance_capacity` ),') ' )
+        if (!empty($result_data['result'])) {
+            $result =  $result_data['result'];
+           
+            $c_s_gst =$this->check_gst_tax_type($result[0]['state']);
+            $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
+                    $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
+            $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
+            $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
+            foreach ($result as $key => $value) {
                 
-                ELSE 
-                    concat(services,' ', price_tags,' (', MIN( ud.`appliance_capacity` ),
-                '-',MAX( ud.`appliance_capacity` ),') ' )
-                
-                
-                END AS description, 
-                COUNT( ud.`appliance_capacity` ) AS qty, 
-                (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS  s_total_service_charge,
-                `partners`.company_name,
-                `partners`.address as company_address, partners.pincode, partners.district,
-                `partners`.state,
-                `partners`.seller_code
-                FROM  `booking_unit_details` AS ud, services, partners
-                WHERE  `product_or_services` =  'Service'
-                AND  `partner_net_payable` >0
-                AND ud.partner_id =  '$partner_id'
-                AND ud.booking_status =  'Completed'
-                AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <  '$to_date'
-                AND ud.service_id = services.id
-                AND partners.id = ud.partner_id
-                AND partner_invoice_id IS NULL
-                GROUP BY  `partner_net_payable`,ud.service_id,price_tags  ";
-
-        $query1 = $this->db->query($sql1);
-        $service = $query1->result_array();
-        $result = array_merge($service, $product);
-
-        if (!empty($result)) {
-            $meta['misc_charges'] = 0;
-            $meta['total_upcountry'] = 0; 
-            $meta['total_courier_charge'] = 0; 
-            if ($upcountry_flag) {
-                $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
-                $courier = $this->get_partner_courier_charges($partner_id,$from_date,$to_date);
-
-
-                if (!empty($upcountry_data)) {
-                    $up_country = array();
-                    $up_country[0]['s_total_service_charge'] = '';
-                    $up_country[0]['p_tax_rate'] = '';
-                    $up_country[0]['p_part_cost'] = '';
-                    $up_country[0]['s_service_charge'] = '';
-                    $up_country[0]['qty'] = $upcountry_data[0]['total_booking'];
-                    $up_country[0]['description'] = 'Upcountry Services';
-                    $up_country[0]['p_rate'] = $upcountry_data[0]['partner_upcountry_rate'];
-                    $up_country[0]['misc_charges'] = $upcountry_data[0]['total_upcountry_price'];
-                    $meta['misc_charges'] += $upcountry_data[0]['total_upcountry_price'];
-                    $meta['total_upcountry'] += $upcountry_data[0]['total_upcountry_price'];
-                    $result = array_merge($result, $up_country);
+                if($c_s_gst){
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
+                    $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = 9;
+                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09),0);
+                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09),0);
+                    $meta['cgst_total_tax_amount'] +=  $result[$key]['cgst_tax_amount'];
+                    $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
+                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
+                   
+                } else {
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter State.xlsx";
+                    $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = 18;
+                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),0);
+                    $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
                 }
                 
-                if(!empty($courier)){
-                    $c_data =array();
-                    $c_data[0]['s_total_service_charge'] = '';
-                    $c_data[0]['p_tax_rate'] = '';
-                    $c_data[0]['p_part_cost'] = '';
-                    $c_data[0]['s_service_charge'] = '';
-                    $c_data[0]['qty'] = count($courier);
-                    $c_data[0]['description'] = 'Courier Charges';
-                    $c_data[0]['p_rate'] = '';
-                    $c_data[0]['misc_charges'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
-                    $meta['misc_charges'] += $c_data[0]['misc_charges'];
-                    $meta['total_courier_charge']  += $c_data[0]['misc_charges'];
+                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),0);
+                $meta['total_qty'] += $value['qty'];
+                $meta['total_rate'] += $value['rate'];
+                $meta['total_taxable_value'] += round($value['taxable_value'],0);
+                $meta['sub_total_amount'] +=  round($result[$key]['toal_amount'],0);
+                if($value['product_or_services'] == "Service"){
+                    
+                    $meta['total_ins_charge'] += $value['taxable_value'];
+                    
+                } else if($value['product_or_services'] == "Product"){
+                    
+                    $meta['total_parts_charge'] += $value['taxable_value'];
                 }
             }
-            $meta['total_part_cost'] = 0;
-            $meta['total_service_cost'] = 0;
-            foreach ($result as $value) {
-                $meta['total_part_cost'] += $value['p_part_cost'];
-                $meta['total_service_cost'] += $value['s_total_service_charge'];
-            }
-            $meta['total_service_cost_14'] = round($meta['total_service_cost'] * .14, 2);
-            $meta['total_service_cost_5'] = round($meta['total_service_cost'] * .005, 2);
-            $meta['sub_service_cost'] = $meta['total_service_cost'] + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] * 2;
-            $meta['part_cost_vat'] = ($meta['total_part_cost'] * 5.00) / 100;
-            $meta['sub_part'] = $meta['total_part_cost'] + $meta['part_cost_vat'];
-            $meta['grand_part'] = round($meta['sub_part'] + $meta['sub_service_cost'] + $meta['misc_charges'], 0);
-            $meta['price_inword'] = convert_number_to_words($meta['grand_part']);
-
-
+            $meta['reverse_charge'] = 0;
+            $meta['reverse_charge_type'] = 'N';
+            $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
+            $meta['sd'] = date("jS M, Y", strtotime($from_date_tmp));
+            $meta['ed'] = date("jS M, Y", strtotime($to_date_tmp));
+            $meta['invoice_date'] = date("jS M, Y");
             $meta['company_name'] = $result[0]['company_name'];
             $meta['company_address'] = $result[0]['company_address'] . ", " .
                     $result[0]['district'] . ", Pincode -" . $result[0]['pincode'] . ", " . $result[0]['state'];
-            if (!empty($result[0]['seller_code'])) {
-                $meta['seller_code'] = "Seller Code: " . $result[0]['seller_code'];
-            } else {
-                $meta['seller_code'] = "";
-            }
-
-
+            $meta['reference_invoice_id'] = "";
+            $meta['gst_number'] = $result[0]['gst_number'];
+            $meta['state_code'] = $result[0]['state_code'];
+            $meta['state'] = $result[0]['state'];
+            
             $data['booking'] = $result;
             $data['meta'] = $meta;
+            $data['courier'] = $result_data['courier'];
+            $data['upcountry'] = $result_data['upcountry'];
+          
             return $data;
         } else {
             return FALSE;
@@ -1376,14 +1336,16 @@ class invoices_model extends CI_Model {
     function get_partner_courier_charges($partner_id, $from_date, $to_date){
       
         
-        $sql = " SELECT bd.booking_id, courier_charges_by_sf 
+        $sql = " SELECT bd.order_id, bd.booking_id,services,
+                courier_charges_by_sf, bd.city
                 FROM  booking_details as bd, booking_unit_details as ud,
-                spare_parts_details as sp
+                spare_parts_details as sp,services
                 WHERE 
                 ud.booking_status =  'Completed'
                 AND bd.partner_id = '$partner_id'
                 AND ud.partner_id = '$partner_id'
                 AND status = 'Completed'
+                AND services.id = ud.service_id
                 AND sp.booking_id = bd.booking_id
                 AND bd.booking_id = ud.booking_id
                 AND ud.ud_closed_date >=  '$from_date'
@@ -1407,4 +1369,17 @@ class invoices_model extends CI_Model {
         $query = $this->db->get('payment_history');
         return $query->result_array();
     }
+    
+    function check_gst_tax_type($state) {
+        if ((strcasecmp($state, "DELHI") == 0) ||
+                (strcasecmp($state, "New Delhi") == 0)) {
+            //If matched return 0;
+            // CGST & SGST
+            return TRUE;
+        } else {
+            //IGST
+            return FALSE;
+        }
+    }
+
 }

@@ -1314,5 +1314,6 @@ class Partner_model extends CI_Model {
         $query = $this->db->get('partner_login');
         return $query->result_array();
     }
+    
 }
 
