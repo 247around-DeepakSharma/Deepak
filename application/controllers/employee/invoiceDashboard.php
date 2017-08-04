@@ -73,7 +73,7 @@ class InvoiceDashboard extends CI_Controller {
     function get_main_invoice($partner_id){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $main_invoice = $this->invoices_model->generate_partner_invoice($partner_id, $explode_date_range[0],$explode_date_range[1], false);
+        $main_invoice = $this->invoices_model->generate_partner_invoice($partner_id, $explode_date_range[0],$explode_date_range[1]);
         $data = $main_invoice['booking'];
         print_r(json_encode($data, TRUE));
     }

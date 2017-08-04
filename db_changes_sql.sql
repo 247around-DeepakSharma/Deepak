@@ -2937,6 +2937,7 @@ ALTER TABLE `bb_shop_address` ADD `shop_address_region` VARCHAR(64) NULL DEFAULT
 --Abhay 29 Jul;y
 ALTER TABLE `partners` ADD `is_def_spare_required` INT(1) NOT NULL DEFAULT '0' AFTER `upcountry_r2`
 
+
 -- Sachin 2 Aug
 ALTER TABLE `bb_shop_address` ADD `cp_capacity` VARCHAR(128) NULL DEFAULT NULL AFTER `tin_number`;
 
@@ -2944,4 +2945,94 @@ ALTER TABLE `bb_shop_address` ADD `cp_capacity` VARCHAR(128) NULL DEFAULT NULL A
 ALTER TABLE `bb_cp_order_action` ADD `cp_claimed_price` DECIMAL(10,2) NOT NULL AFTER `order_key`;
 ALTER TABLE `bb_unit_details` ADD `cp_claimed_price` DECIMAL(10,2) NOT NULL AFTER `cp_invoice_id`;
 ALTER TABLE `bb_cp_order_action` ADD `admin_remarks` VARCHAR(256) NULL AFTER `cp_claimed_price`;
+
+
+
+--Abhay 1 Aug
+
+--booking unit details - 
+ALTER TABLE `booking_unit_details` ADD `rcm_tax` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `vendor_st_or_vat_basic_charges`;
+ALTER TABLE `booking_unit_details` ADD `tag_name` VARCHAR(64) NULL DEFAULT NULL AFTER `price_tags`;
+
+--Invoice
+ALTER TABLE `vendor_partner_invoices` ADD `reference_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `invoice_id`;
+--
+-- Table structure for table `hsn_code_details`
+--
+
+CREATE TABLE `hsn_code_details` (
+  `id` int(11) NOT NULL,
+  `hsn_code` varchar(10) NOT NULL,
+  `tag_name` varchar(32) NOT NULL,
+  `price_tag` varchar(32) NOT NULL,
+  `tax_rate` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `hsn_code_details`
+--
+ALTER TABLE `hsn_code_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `hsn_code_details`
+--
+ALTER TABLE `hsn_code_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--
+-- Table structure for table `invoice_details`
+--
+
+CREATE TABLE `invoice_details` (
+  `id` int(11) NOT NULL,
+  `description` varchar(256) DEFAULT NULL,
+  `hsn_code` varchar(10) DEFAULT NULL,
+  `uom` varchar(16) DEFAULT NULL,
+  `price_rate` int(11) NOT NULL,
+  `amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `tax_type` varchar(16) NOT NULL DEFAULT '0',
+  `tax_rate` int(11) NOT NULL DEFAULT '0',
+  `tax_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `total_amount` decimal(10,0) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `invoice_details`
+--
+ALTER TABLE `invoice_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `invoice_details`
+--
+ALTER TABLE `invoice_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+-- Abhay 4 Aug
+ALTER TABLE `vendor_partner_invoices` 
+ADD `cgst_tax_amount` DECIMAL NOT NULL DEFAULT '0' AFTER `amount_collected_paid`, 
+ADD `igst_tax_amount` DECIMAL NOT NULL DEFAULT '0' AFTER `cgst_tax_amount`, 
+ADD `sgst_tax_amount` DECIMAL NOT NULL DEFAULT '0' AFTER `igst_tax_amount`, 
+ADD `cgst_tax_rate` DECIMAL NOT NULL DEFAULT '0' AFTER `sgst_tax_amount`, 
+ADD `igst_tax_rate` DECIMAL NOT NULL DEFAULT '0' AFTER `cgst_tax_rate`, 
+ADD `sgst_tax_rate` DECIMAL NOT NULL DEFAULT '0' AFTER `igst_tax_rate`;
 

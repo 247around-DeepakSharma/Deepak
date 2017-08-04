@@ -495,148 +495,59 @@ class Invoice extends CI_Controller {
     /**
      * @desc: generate details partner Detailed invoices
      */
-    function create_partner_invoices_detailed($partner_id, $f_date, $t_date, $invoice_type, $invoice_id,$agent_id) {
+    function create_partner_invoices_detailed($partner_id, $f_date, $t_date, $invoice_type, $misc_data, $agent_id) {
         log_message('info', __METHOD__ . "=> " . $invoice_type . " Partner Id " . $partner_id. ' invoice_type: '. $invoice_type. ' agent_id: '.$agent_id);
-        $data1 = $this->invoices_model->getpartner_invoices($partner_id, $f_date, $t_date);
-        $data = $data1['main_invoice'];
-        $upcountry_invoice = $data1['upcountry_invoice'];
-
-        $file_names = array();
+        $data = $this->invoices_model->getpartner_invoices($partner_id, $f_date, $t_date);
+        $files = array();
         $template = 'Partner_invoice_detail_template-v2.xlsx';
-        //set absolute path to directory with template files
-        $templateDir = __DIR__ . "/../excel-templates/";
 
-
-        if (!empty($data)) {
-            //set config for report
-            $config = array(
-                'template' => $template,
-                'templateDir' => $templateDir
-            );
-
-            //load template
-            $R = new PHPReport($config);
-
-            $total_installation_charge = 0;
-            $total_service_tax = 0;
-            $total_stand_charge = 0;
-            $total_vat_charge = 0;
-            $total_charges = 0;
-
-            $unique_booking = array_unique(array_map(function ($k) {
+            $courier = $misc_data['courier'];
+            $meta = $misc_data['meta'];
+            $upcountry = $misc_data['upcountry'];
+            unset($misc_data);
+            $meta['total_courier_charge'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
+            $meta['total_upcountry_price'] = 0;
+            $total_upcountry_distance = $total_upcountry_booking =0;
+            $num_booking = count(array_unique(array_map(function ($k) {
                         return $k['booking_id'];
-                    }, $data));
+                    }, $data)));
+            
+            log_message('info', __FUNCTION__ . '=> Start Date: ' .$f_date . ', End Date: ' . $t_date);
+            
+            $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
 
-            $count = count($unique_booking);
+            $this->generate_invoice_excel($template, $meta, $data, $output_file_excel);
 
-            log_message('info', __FUNCTION__ . '=> Start Date: ' . $data[0]['start_date'] . ', End Date: ' . $data[0]['end_date']);
-
-            $start_date = date("jS M, Y", strtotime($f_date));
-            $end_date = date("jS M, Y", strtotime($t_date));
-
-            foreach ($data as $key => $value) {
+            // Generate Upcountry Excel
+            if (!empty($upcountry)) {
+                $meta['total_upcountry_price'] = $upcountry[0]['total_upcountry_price'];
+                $total_upcountry_booking = $upcountry[0]['total_booking'];
+                $total_upcountry_distance = $upcountry[0]['total_distance'];
+                $u_files_name = $this->generate_partner_upcountry_excel($upcountry, $meta);
+                array_push($files, $u_files_name);
                 
+               log_message('info', __METHOD__ . "=> File created " . $u_files_name);
 
-                $data[$key]['remarks'] = $value['price_tags'];
-                $data[$key]['closed_date'] = date("jS M, Y", strtotime($value['closed_date']));
-                $data[$key]['reference_date'] = date("jS M, Y", strtotime($value['reference_date']));
-
-                $total_installation_charge += round($value['installation_charge'], 2);
-                $total_service_tax += round($value['st'], 2);
-                $total_stand_charge += round($value['stand'], 2);
-                $total_vat_charge += round($value['vat'], 2);
-                $total_charges = round(($total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge), 0);
             }
-
-            $excel_data['invoice_id'] = $invoice_id;
-            $excel_data['today'] = date("jS M, Y");
-            $excel_data['company_name'] = $data[0]['company_name'];
-            $excel_data['company_address'] = $data[0]['company_address'] . ", " .
-                    $data[0]['district'] . ", Pincode - " . $data[0]['pincode'] . ", " . $data[0]['state'];
-            $excel_data['total_installation_charge'] = $total_installation_charge;
-            $excel_data['total_service_tax'] = $total_service_tax;
-            $excel_data['total_stand_charge'] = $total_stand_charge;
-            $excel_data['total_vat_charge'] = $total_vat_charge;
-            $excel_data['total_charges'] = $total_charges;
-            $excel_data['period'] = $start_date . " To " . $end_date;
-            if (!empty($data[0]['seller_code'])) {
-                $excel_data['seller_code'] = "Seller Code: " . $data[0]['seller_code'];
-            } else {
-                $excel_data['seller_code'] = '';
-            }
-
-            log_message('info', 'Excel data: ' . print_r($excel_data, true));
-
-            $files_name = $this->generate_pdf_with_data($excel_data, $data, $R);
             
-            $output_file_excel = "";
-            $total_upcountry_booking = 0;
-            $total_upcountry_distance = 0;
-            $excel_data['total_upcountry_price'] = 0;
-            if (!empty($upcountry_invoice)) {
-                $template1 = 'Partner_invoice_detail_template-v2-upcountry.xlsx';
-
-
-                //set config for report
-                $config1 = array(
-                    'template' => $template1,
-                    'templateDir' => $templateDir
-                );
-
-
-                //load template
-                $R1 = new PHPReport($config1);
-
-                $excel_data['total_upcountry_price'] = $upcountry_invoice[0]['total_upcountry_price'];
-                $total_upcountry_booking = $upcountry_invoice[0]['total_booking'];
-                $total_upcountry_distance = $upcountry_invoice[0]['total_distance'];
-
-
-
-                $R1->load(array(
-                    array(
-                        'id' => 'meta',
-                        'data' => $excel_data,
-                        'format' => array(
-                            'date' => array('datetime' => 'd/M/Y')
-                        )
-                    ),
-                    array(
-                        'id' => 'upcountry',
-                        'repeat' => true,
-                        'data' => $upcountry_invoice,
-                    ),
-                        )
-                );
-
-                //Get populated XLS with data
-                $output_file_dir = TMP_FOLDER;
-                $output_file = $excel_data['invoice_id'] . "-upcountry-detailed";
-                $output_file_excel = $output_file_dir . $output_file . ".xlsx";
-                $res1 = 0;
-                if (file_exists($output_file_excel)) {
-
-                    system(" chmod 777 " . $output_file_excel, $res1);
-                    unlink($output_file_excel);
-                }
-                //for xlsx: excel, for xls: excel2003
-                $R1->render('excel', $output_file_excel);
-                system(" chmod 777 " . $output_file_excel, $res1);
-                array_push($file_names, $output_file_excel);
-                $files_name = $this->combined_partner_invoice_sheet($files_name, $output_file_excel);
+            if(!empty($courier)){
+                $c_files_name = $this->generate_partner_courier_excel($courier, $meta);
+                array_push($files, $c_files_name);
+                log_message('info', __METHOD__ . "=> File created " . $c_files_name);
             }
-            system(" chmod 777 " . $files_name . ".xlsx", $res1);
-
-            log_message('info', __METHOD__ . "=> File created " . $files_name);
             
-            $excel_file_to_convert_in_pdf = TMP_FOLDER.$invoice_id.'-draft.xlsx';
-            $output_pdf_file_name = $invoice_id.'-draft.xlsx';
+            $files_name = $this->combined_partner_invoice_sheet($output_file_excel, $files);
+            array_push($files,$output_file_excel);
+            
+            $excel_file_to_convert_in_pdf = TMP_FOLDER.$meta['invoice_id'].'-draft.xlsx';
+            $output_pdf_file_name = $meta['invoice_id'].'-draft.xlsx';
             if ($invoice_type == "final") {
                //generate main invoice pdf
-               $excel_file_to_convert_in_pdf = TMP_FOLDER.$invoice_id.'.xlsx';
-               $output_pdf_file_name = $invoice_id.'.xlsx';
+               $excel_file_to_convert_in_pdf = TMP_FOLDER.$meta['invoice_id'].'.xlsx';
+               $output_pdf_file_name = $meta['invoice_id'].'.xlsx';
             } 
-            $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file_to_convert_in_pdf,$invoice_id, "invoices-excel");
+            
+            $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file_to_convert_in_pdf,$meta['invoice_id'], "invoices-excel");
             log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result,TRUE));
             $pdf_response = json_decode($json_result,TRUE);
            
@@ -648,19 +559,19 @@ class Invoice extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
             }
             
+            array_push($files, $output_pdf_file_name);
+            array_push($files, $excel_file_to_convert_in_pdf);
             
-            array_push($file_names, $files_name . ".xlsx");
-            array_push($file_names, $excel_file_to_convert_in_pdf);
-            //array_push($file_names, TMP_FOLDER . $invoice_id . ".pdf");
 
             if ($invoice_type == "final") {
                 log_message('info', __METHOD__ . "=> Final");
                 
                 //get email template from database
                 $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_DETAILED_EMAIL_TAG);
-                $subject = vsprintf($email_template[4], array($data[0]['company_name'],$f_date,$t_date));
+                $subject = vsprintf($email_template[4], array($meta['company_name'],$f_date,$t_date));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
+                
                 $to = $data[0]['invoice_email_to'];
                 $cc = $data[0]['invoice_email_cc'];
                 
@@ -671,7 +582,7 @@ class Invoice extends CI_Controller {
                 $this->email->cc($cc);
                 $this->email->subject($subject);
                 $this->email->message($message);
-                $this->email->attach($files_name . ".xlsx", 'attachment');
+                $this->email->attach($output_file_excel, 'attachment');
 
                 $pdf_attachement_url = 'https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$output_pdf_file_name;
                 $this->email->attach($pdf_attachement_url, 'attachment');
@@ -689,194 +600,122 @@ class Invoice extends CI_Controller {
 
                 $bucket = BITBUCKET_DIRECTORY;
 
-                $directory_xls = "invoices-excel/" . $invoice_id . ".xlsx";
+                $directory_xls = "invoices-excel/" . $meta['invoice_id'] . ".xlsx";
+                $directory_copy_xls = "invoices-excel/copy_" . $meta['invoice_id'] . ".xlsx";
                 //$directory_pdf = "invoices-excel/" . $invoice_id . ".pdf";
-                $directory_detailed = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
+                $directory_detailed = "invoices-excel/" . $meta['invoice_id'] . "-detailed.xlsx";
 
-                $this->s3->putObjectFile(TMP_FOLDER . $invoice_id . "-detailed.xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
-                $this->s3->putObjectFile(TMP_FOLDER . $invoice_id . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                //$this->s3->putObjectFile(TMP_FOLDER . $invoice_id . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
-                
-                if ($output_file_excel != "") {
-                    $directory_upcountry_xls = "invoices-excel/" . $invoice_id . "-upcountry-detailed.xlsx";
-                    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_upcountry_xls, S3::ACL_PUBLIC_READ);
-                }
-                $tds = 0;
+                $this->s3->putObjectFile(TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile(TMP_FOLDER . $meta['invoice_id'] . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile(TMP_FOLDER . "copy_".$meta['invoice_id'] . ".xlsx", $bucket, $directory_copy_xls, S3::ACL_PUBLIC_READ);
 
                 $invoice_details = array(
-                    'invoice_id' => $invoice_id,
+                    'invoice_id' => $meta['invoice_id'],
                     'type_code' => 'A',
                     'type' => 'Cash',
                     'vendor_partner' => 'partner',
                     'vendor_partner_id' => $data[0]['partner_id'],
                     'invoice_file_main' => $output_pdf_file_name,
-                    'invoice_file_excel' => $invoice_id . ".xlsx",
-                    'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
+                    'invoice_file_excel' => $meta['invoice_id'] . ".xlsx",
+                    'invoice_detailed_excel' => $meta['invoice_id'] . '-detailed.xlsx',
                     'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
                     'to_date' => date("Y-m-d", strtotime($t_date)),
-                    'num_bookings' => $count,
-                    'total_service_charge' => ($excel_data['total_installation_charge'] - $tds),
+                    'num_bookings' => $num_booking,
+                    'total_service_charge' => ($meta['total_ins_charge']),
                     'total_additional_service_charge' => 0.00,
-                    'service_tax' => $excel_data['total_service_tax'],
-                    'parts_cost' => $excel_data['total_stand_charge'],
-                    'vat' => $excel_data['total_vat_charge'],
-                    'total_amount_collected' => ($excel_data['total_charges'] - $tds + $excel_data['total_upcountry_price']),
-                    'tds_amount' => $tds,
-                    'tds_rate' => '0',
+                    'service_tax' => 0.00,
+                    'parts_cost' => $meta['total_parts_charge'],
+                    'vat' => 0.00,
+                    'total_amount_collected' => $meta['sub_total_amount'],
+                    'tds_amount' => 0,
+                    'tds_rate' => 0,
                     'upcountry_booking' => $total_upcountry_booking,
                     'upcountry_distance' => $total_upcountry_distance,
-                    'upcountry_price' => $excel_data['total_upcountry_price'],
+                    'upcountry_price' => $meta['total_upcountry_price'],
                     'rating' => 5,
                     'invoice_date' => date('Y-m-d'),
-                    'around_royalty' => $excel_data['total_charges'] + $excel_data['total_upcountry_price'],
+                    'around_royalty' => $meta['sub_total_amount'],
                     'due_date' => date("Y-m-d", strtotime($t_date . "+1 month")),
                     //Amount needs to be collected from Vendor
-                    'amount_collected_paid' => ($excel_data['total_charges'] + $excel_data['total_upcountry_price'] - $tds),
+                    'amount_collected_paid' => $meta['sub_total_amount'],
                     //add agent_id
-                    'agent_id' => $agent_id
+                    'agent_id' => $agent_id,
+                    "cgst_tax_rate" => $meta['cgst_tax_rate'],
+                    "sgst_tax_rate" => $meta['sgst_tax_rate'],
+                    "igst_tax_rate" => $meta['igst_tax_rate'],
+                    "igst_tax_amount" => $meta["igst_total_tax_amount"],
+                    "sgst_tax_amount" => $meta["sgst_total_tax_amount"],
+                    "cgst_tax_amount" => $meta["cgst_total_tax_amount"],
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
                 log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
 
-                foreach ($data as $key => $value1) {
+                foreach ($data as $value1) {
 
-                    log_message('info', __METHOD__ . "=> Invoice update in booking unit details unit id" . $value1['unit_id'] . " Invoice Id" . $invoice_id);
-                    $this->booking_model->update_booking_unit_details_by_any(array('id' => $value1['unit_id']), array('partner_invoice_id' => $invoice_id));
+                    log_message('info', __METHOD__ . "=> Invoice update in booking unit details unit id" . $value1['unit_id'] . " Invoice Id" . $meta['invoice_id']);
+                    $this->booking_model->update_booking_unit_details_by_any(array('id' => $value1['unit_id']), array('partner_invoice_id' => $meta['invoice_id']));
                 }
 
-                if (!empty($upcountry_invoice)) {
-                    foreach ($upcountry_invoice as $up_booking_details) {
-                        $this->booking_model->update_booking($up_booking_details['booking_id'], array('upcountry_partner_invoice_id' => $invoice_id));
+                if (!empty($upcountry)) {
+                    foreach ($upcountry as $up_booking_details) {
+                        $this->booking_model->update_booking($up_booking_details['booking_id'], array('upcountry_partner_invoice_id' => $meta['invoice_id']));
                     }
                 }
+                exec("rm -rf " . escapeshellarg(TMP_FOLDER."copy_".$meta['invoice_id'].".xlsx"));
             } else {
-                if (file_exists($files_name.".xlsx")) {
+               
+                if (file_exists($output_file_excel)) {
                     if(explode('.',$output_pdf_file_name)[1] === 'pdf'){
-                        $output_file_pdf = TMP_FOLDER.$invoice_id.'-draft.pdf';
+                        $output_file_pdf = TMP_FOLDER.$meta['invoice_id'].'-draft.pdf';
 
                         $cmd = "curl https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/" .$output_pdf_file_name . " -o " . $output_file_pdf;
                         exec($cmd);
                         
-                        system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER.$invoice_id.'-draft.xlsx'. ' ' . TMP_FOLDER.$invoice_id.'-draft.pdf'
-                           .' ' . $files_name.".xlsx");
+                        system('zip ' . TMP_FOLDER . $meta['invoice_id'] . '.zip ' . TMP_FOLDER.$meta['invoice_id'].'-draft.xlsx'. ' ' . TMP_FOLDER.$meta['invoice_id'].'-draft.pdf'
+                           .' ' . $output_file_excel);
+                        
+                         
                     }else{
-                        system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER.$invoice_id.'-draft.xlsx'.' ' . $files_name.".xlsx");
+                        system('zip ' . TMP_FOLDER . $meta['invoice_id'] . '.zip ' . TMP_FOLDER.$meta['invoice_id'].'-draft.xlsx'.' ' . $meta['invoice_id'].".xlsx");
                     }
                  
                     header('Content-Description: File Transfer');
                     header('Content-Type: application/octet-stream');
-                    header("Content-Disposition: attachment; filename=\"$invoice_id.zip\"");
-                    readfile(TMP_FOLDER . $invoice_id . '.zip');
+                    header("Content-Disposition: attachment; filename=\"$meta[invoice_id].zip\"");
+                    readfile(TMP_FOLDER . $meta['invoice_id'] . '.zip');
                     $res1 = 0;
-                    system(" chmod 777 " .TMP_FOLDER . $invoice_id . '.zip ', $res1);
-                    exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '.zip'));
-                    //exec("rm -rf " . escapeshellarg($output_file_pdf));
+                    system(" chmod 777 " .TMP_FOLDER . $meta['invoice_id'] . '.zip ', $res1);
+                    exec("rm -rf " . escapeshellarg(TMP_FOLDER . $meta['invoice_id'] . '.zip'));
+                    exec("rm -rf " . escapeshellarg(TMP_FOLDER."copy_".$meta['invoice_id']."-draft.xlsx"));
+                    exec("rm -rf " . escapeshellarg(TMP_FOLDER.$meta['invoice_id'].'-draft.pdf'));
                 }
             }
 
             //Delete XLS files now
-            foreach ($file_names as $file_name) {
+            foreach ($files as $file_name) {
                 exec("rm -rf " . escapeshellarg($file_name));
             }
+          
             return true;
-        } else {
-
-            log_message('info', __METHOD__ . "=> Data Not found" . $invoice_type . " Partner Id " . $partner_id);
-            return FALSE;
-        }
+        
     }
-
-    /**
-     * @desc: Generate Excel and Pdf File with invoices data and return file names
-     * @param: Array(Excel data), Array(Invoices data), Initiallized PHP report library and files name
-     * @return : File name
-     */
-    function generate_pdf_with_data($excel_data, $data, $R) {
-        log_message('info', __METHOD__);
-
-        $R->load(array(
-            array(
-                'id' => 'meta',
-                'data' => $excel_data,
-                'format' => array(
-                    'date' => array('datetime' => 'd/M/Y')
-                )
-            ),
-            array(
-                'id' => 'booking',
-                'repeat' => true,
-                'data' => $data,
-            //'minRows' => 2,
-            ),
-                )
-        );
-
-        //Get populated XLS with data
-        $output_file_dir = TMP_FOLDER;
-        $output_file = $excel_data['invoice_id'] . "-detailed";
-        $output_file_excel = $output_file_dir . $output_file . ".xlsx";
-        $res1 = 0;
-        if (file_exists($output_file_excel)) {
-
-            system(" chmod 777 " . $output_file_excel, $res1);
-            unlink($output_file_excel);
-        }
-        //for xlsx: excel, for xls: excel2003
-        $R->render('excel', $output_file_excel);
-
-        system(" chmod 777 " . $output_file_excel, $res1);
+    
+    function generate_partner_upcountry_excel($data, $meta) {
         
-        //convert excel to pdf
-//        $json_result = $this->miscelleneous->convert_excel_to_pdf($output_file_excel,$excel_data['invoice_id'] . "-detailed");
-//        log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . $json_result);
-//        $pdf_response = json_decode($json_result,true);
-//        if($pdf_response['response'] === 'Success'){
-//            log_message('info', __FUNCTION__ . 'PDF File Generated Successfully' . print_r($pdf_response,TRUE));
-//            $output_pdf_file_name = $pdf_response['output_pdf_file'];
-//        }else if($pdf_response['response'] === 'Error'){
-//            log_message('info', __FUNCTION__ . 'Error In Generating PDF');
-//            $output_pdf_file_name = '';
-//        }
-        
-        
-        //$output_file_pdf = $output_file_dir . $output_file . ".pdf";
-        //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
-        // putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        //$tmp_path = TMP_FOLDER;
-        //  $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
-        //  $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-        //          '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-        //         $output_file_excel . ' 2> ' . $tmp_output_file;
-        // $output = '';
-        // $result_var = '';
-        // exec($cmd, $output, $result_var);
-        // Dump data in a file as a Json
-//        $file = fopen(TMP_FOLDER . $output_file . ".txt", "w") or die("Unable to open file!");
-//        $res = 0;
-//        system(" chmod 777 " . TMP_FOLDER . $output_file . ".txt", $res);
-//        $json_data['excel_data'] = $excel_data;
-//        $json_data['invoice_data'] = $data;
-//        $contents = " Patner Invoice Json Data:\n";
-//        fwrite($file, $contents);
-//        fwrite($file, print_r(json_encode($json_data), TRUE));
-//        fclose($file);
-//        log_message('info', __METHOD__ . ": Json File Created");
+        $template = 'Partner_invoice_detail_template-upcountry-v2.xlsx';
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-upcountry-detailed.xlsx";
+        $this->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+        return $output_file_excel;
 
-//        $bucket = BITBUCKET_DIRECTORY;
-//        $directory_xls = "invoices-json/" . $output_file . ".txt";
-//        $json = $this->s3->putObjectFile(TMP_FOLDER . $output_file . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-//        if ($json) {
-//            log_message('info', __METHOD__ . ": Json File Uploded to S3");
-//        } else {
-//            log_message('info', __METHOD__ . ": Json File Not Uploded to S3");
-//        }
-
-
-        //Delete JSON files now
-        //exec("rm -rf " . escapeshellarg(TMP_FOLDER . $output_file . ".txt"));
+    }
+    
+    function generate_partner_courier_excel($data, $meta){
         
-        return $output_file_dir . $output_file;
+        $template = 'Partner_invoice_detail_template-v2-courier.xlsx';
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-courier-detailed.xlsx";
+        $this->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+        return $output_file_excel;
     }
 
     /**
@@ -1791,22 +1630,17 @@ class Invoice extends CI_Controller {
         $to_date = $custom_date[1];
 
         if ($partner_id == "All") {
-            $partner = $this->partner_model->get_all_partner_source();
-            foreach ($partner as $value) {
-                log_message('info', __FUNCTION__ . '=> Partner Id ' . $value['partner_id']);
-                $invoice_id = $this->create_partner_invoice($value['partner_id'], $from_date, $to_date, $invoice_type);
-                if ($invoice_id) {
-                    $this->create_partner_invoices_detailed($value['partner_id'], $from_date, $to_date, $invoice_type, $invoice_id,$agent_id);
-                }
-            }
+//            $partner = $this->partner_model->get_all_partner_source();
+//            foreach ($partner as $value) {
+//                log_message('info', __FUNCTION__ . '=> Partner Id ' . $value['partner_id']);
+//                 $this->create_partner_invoice($value['partner_id'], $from_date, $to_date, $invoice_type, $agent_id);
+//                
+//            }
+           return true;
         } else {
             log_message('info', __FUNCTION__ . '=> Partner Id ' . $partner_id);
-            $invoice_id = $this->create_partner_invoice($partner_id, $from_date, $to_date, $invoice_type);
-            if ($invoice_id) {
-                return $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoice_id,$agent_id);
-            } else {
-                return False;
-            }
+            return $this->create_partner_invoice($partner_id, $from_date, $to_date, $invoice_type, $agent_id);
+            
         }
 
         log_message('info', __FUNCTION__ . '=> Exiting...');
@@ -2353,112 +2187,92 @@ class Invoice extends CI_Controller {
      * @param type $invoice_type
      * @return string Invoice Id
      */
-    function create_partner_invoice($partner_id, $from_date, $to_date, $invoice_type) {
+    function create_partner_invoice($partner_id, $from_date, $to_date, $invoice_type, $agent_id) {
         log_message('info', __FUNCTION__ . ' Entering....... Partner_id:'.$partner_id.' invoice_type:'.$invoice_type.' from_date: '.$from_date.' to_date: '.$to_date);
         $invoices = $this->invoices_model->generate_partner_invoice($partner_id, $from_date, $to_date);
         if (!empty($invoices)) {
 
-            $template = 'partner_invoice_Main_v3.xlsx';
-            // directory
-            $templateDir = __DIR__ . "/../excel-templates/";
+            $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+            $invoices['meta']['recipient_type'] = "Original for Recipient";
 
-            $config = array(
+            log_message('info', __FUNCTION__ . ' Invoice id ' . $invoices['meta']['invoice_id']);
+            
+            $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . "-draft.xlsx";
+            $copy_output_file_excel = TMP_FOLDER . "copy_".$invoices['meta']['invoice_id'] . "-draft.xlsx";
+            if ($invoice_type == "final") {
+                $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".xlsx";
+                $copy_output_file_excel = TMP_FOLDER . "copy_".$invoices['meta']['invoice_id'] . ".xlsx";
+            }
+
+            $status = $this->generate_invoice_excel($invoices['meta']['invoice_template'],  $invoices['meta'], $invoices['booking'], $output_file_excel);
+            if($status){
+                
+                log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
+                $invoices['meta']['recipient_type'] = "Duplicate Recipient";
+               
+                $this->generate_invoice_excel($invoices['meta']['invoice_template'], $invoices['meta'], $invoices['booking'],$copy_output_file_excel);
+                unset($invoices['booking']);
+                $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoices,$agent_id);
+                return true;
+                
+            } else {
+                log_message('info', __FUNCTION__ . ' Invoice File is not created. invoice id' . $invoices['meta']['invoice_id']);
+                echo ' Invoice File is not created. invoice id'.PHP_EOL;
+                return false;
+            }
+
+        } else {
+            log_message('info', __FUNCTION__ . ' Data Not Found');
+            echo "Data Not found".PHP_EOL;
+            return FALSE;
+        }
+    }
+    
+    function generate_invoice_excel($template, $meta, $data, $output_file_excel) {
+       
+        // directory
+        $templateDir = __DIR__ . "/../excel-templates/";
+        $config = array(
                 'template' => $template,
                 'templateDir' => $templateDir
             );
-            $invoices['meta']['sd'] = date("jS M, Y", strtotime($from_date));
-            $invoices['meta']['ed'] = date('jS M, Y', strtotime($to_date));
-            $invoices['meta']['invoice_date'] = date("jS M, Y");
-            
-            $invoice_id_tmp = $this->create_invoice_id_to_insert($invoices['booking'], $from_date, "Around");
-            $invoices['meta']['invoice_type'] = $invoice_id_tmp['invoice_type'];
-                
-            $invoices['meta']['invoice_id'] = $invoice_id_tmp['invoice_id'];
 
-
-            log_message('info', __FUNCTION__ . ' Invoice id ' . $invoices['meta']['invoice_id']);
             //load template
-            $R = new PHPReport($config);
+        $R = new PHPReport($config);
+        $R->load(array(
+            array(
+                'id' => 'meta',
+                'repeat' => false,
+                'data' => $meta,
+                'format' => array(
+                    'date' => array('datetime' => 'd/M/Y')
+                )
+            ),
+            array(
+                'id' => 'booking',
+                'repeat' => true,
+                'data' => $data,
+            ),
+                )
+        );
+        
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
 
-            $R->load(array(
-                array(
-                    'id' => 'meta',
-                    'repeat' => false,
-                    'data' => $invoices['meta'],
-                    'format' => array(
-                        'date' => array('datetime' => 'd/M/Y')
-                    )
-                ),
-                array(
-                    'id' => 'booking',
-                    'repeat' => true,
-                    'data' => $invoices['booking'],
-                ),
-                    )
-            );
-            $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . "-draft.xlsx";
-            if($invoice_type == "final"){
-                $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".xlsx";
-            }
-            
-            $res1 = 0;
-            if (file_exists($output_file_excel)) {
-
-                system(" chmod 777 " . $output_file_excel, $res1);
-                unlink($output_file_excel);
-            }
-            $R->render('excel', $output_file_excel);
-            log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
             system(" chmod 777 " . $output_file_excel, $res1);
-            //convert excel to pdf
-            //$output_file_pdf = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".pdf";
+            unlink($output_file_excel);
+        }
+        
+        $R->render('excel', $output_file_excel);
+        
+        log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
+
+        if (file_exists($output_file_excel)) {
+            system(" chmod 777 " . $output_file_excel, $res1);
+            return true;
             
-//            $json_result = $this->miscelleneous->convert_excel_to_pdf($output_file_excel,$invoices['meta']['invoice_id']);
-//            log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . $json_result);
-//            $pdf_response = json_decode($json_result,true);
-//            if($pdf_response['response'] === 'Success'){
-//                $output_pdf_file_name = $pdf_response['output_pdf_file'];
-//                log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
-//            }else if($pdf_response['response'] === 'Error'){
-//                $output_pdf_file_name = '';
-//                log_message('info', __FUNCTION__ . ' Error In Generating PDF File');
-//            }
-//            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-//            $tmp_path = TMP_FOLDER;
-//            $tmp_output_file = TMP_FOLDER . 'output_' . __FUNCTION__ . '.txt';
-//            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-//                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-//                    $output_file_excel . ' 2> ' . $tmp_output_file;
-//            $output = '';
-//            $result_var = '';
-//            exec($cmd, $output, $result_var);
-
-//            $this->email->clear(TRUE);
-//            $this->email->from('billing@247around.com', '247around Team');
-//            $to = ANUJ_EMAIL_ID;
-//            $subject = "DRAFT INVOICE (SUMMARY) - 247around - " . $invoices['meta']['company_name'];
-//
-//            $this->email->to($to);
-//            $this->email->subject($subject);
-//            $this->email->attach($output_file_excel, 'attachment');
-//
-//            $mail_ret = $this->email->send();
-//
-//            if ($mail_ret) {
-//                log_message('info', __METHOD__ . ": Mail sent successfully");
-//                echo "Mail sent successfully..............." . PHP_EOL;
-//            } else {
-//                log_message('info', __METHOD__ . ": Mail could not be sent");
-//                echo "Mail could not be sent..............." . PHP_EOL;
-//            }
-
-
-            log_message('info', __FUNCTION__ . ' return with invoice id' . $invoices['meta']['invoice_id']);
-            return $invoices['meta']['invoice_id'];
         } else {
-            log_message('info', __FUNCTION__ . ' Data Not Found');
-            echo "Data Not found";
-            return FALSE;
+            return false;
         }
     }
 
@@ -3081,32 +2895,22 @@ class Invoice extends CI_Controller {
      * @param type $start_name
      * @return invoice id
      */
-    function create_invoice_id_to_insert($entity_details, $from_date, $start_name) {
+    function create_invoice_id_to_insert($start_name) {
         log_message('info', __FUNCTION__ . " Entering....");
-
-        if ((strcasecmp($entity_details[0]['state'], "DELHI") == 0) ||
-                (strcasecmp($entity_details[0]['state'], "New Delhi") == 0)) {
-
-            $invoice_version = "T";
-            $invoices['invoice_type'] = "TAX INVOICE";
-        } else {
-            $invoice_version = "R";
-            $invoices['invoice_type'] = "RETAIL INVOICE";
-        }
-
         $current_month = date('m');
         // 3 means March Month
         if ($current_month > 3) {
-            $financial = date('Y') . "-" . (date('y') + 1);
+            $financial = date('y') . "-" . (date('y') + 1);
         } else {
-            $financial = (date('Y') - 1) . "-" . date('y');
+            $financial = (date('y') - 1) . "-" . date('y');
         }
 
         //Make sure it is unique
-        $invoice_id_tmp = $start_name . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date))."-";
-        $like = "( invoice_id LIKE '%".$invoice_id_tmp."%' )";
-        //$where = array("invoice_id LIKE '".$invoice_id_tmp."'" => null);
-        $invoice_no_temp = $this->invoices_model->get_invoices_details($like);
+        $invoice_id_tmp = $start_name . "-"  . $financial . "-" ;
+        $where = "( invoice_id LIKE '%".$invoice_id_tmp."%' )";
+     
+        $invoice_no_temp = $this->invoices_model->get_invoices_details($where);
+
         $invoice_no = 1;
         $int_invoice = array();
         if (!empty($invoice_no_temp)) {
@@ -3118,8 +2922,8 @@ class Invoice extends CI_Controller {
             $invoice_no = $int_invoice[0];
         }
         log_message('info', __FUNCTION__ . " Exit....");
-        $invoices['invoice_id'] = $invoice_id_tmp . $invoice_no;
-        return $invoices;
+        return $invoice_id_tmp . $invoice_no;
+  
     }
 
     /**
@@ -3419,25 +3223,30 @@ class Invoice extends CI_Controller {
     /**
      * @desc Combined detailed and upcountry excell sheet in a Single sheet
      * @param String $details_excel
-     * @param String $upcountry_excel
+     * @param Array $files
      * @return String 
      */
-    function combined_partner_invoice_sheet($details_excel, $upcountry_excel) {
+    function combined_partner_invoice_sheet($details_excel, $files) {
 
         // Files are loaded to PHPExcel using the IOFactory load() method
-        $objPHPExcel1 = PHPExcel_IOFactory::load($details_excel . ".xlsx");
-        $objPHPExcel2 = PHPExcel_IOFactory::load($upcountry_excel);
+        
+        $objPHPExcel1 = PHPExcel_IOFactory::load($details_excel);
+        foreach($files as $file_path){
+            $objPHPExcel2 = PHPExcel_IOFactory::load($file_path);
 
-        // Copy worksheets from $objPHPExcel2 to $objPHPExcel1
-        foreach ($objPHPExcel2->getAllSheets() as $sheet) {
-            $objPHPExcel1->addExternalSheet($sheet);
+            // Copy worksheets from $objPHPExcel2 to $objPHPExcel1
+            foreach ($objPHPExcel2->getAllSheets() as $sheet) {
+                $objPHPExcel1->addExternalSheet($sheet);
+            }
+            
+            
         }
-
-        // Save $objPHPExcel1 to browser as an .xls file
+        
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, "Excel2007");
-
-        $objWriter->save($details_excel . ".xlsx");
-
+        // Save $objPHPExcel1 to browser as an .xls file
+        $objWriter->save($details_excel);
+        $res1 = 0;
+        system(" chmod 777 " . $details_excel, $res1);
         return $details_excel;
     }
 
