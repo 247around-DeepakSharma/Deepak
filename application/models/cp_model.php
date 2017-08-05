@@ -11,7 +11,7 @@ class Cp_model extends CI_Model {
     var $bb_select = 'bb_unit_details.partner_order_id,bb_order_details.partner_id, services,city, order_date, '
             . 'bb_cp_order_action.internal_status, delivery_date, bb_cp_order_action.current_status, partner_basic_charge, '
             . 'cp_basic_charge,cp_tax_charge,bb_unit_details.order_key, bb_unit_details.service_id,'
-            . 'bb_order_details.assigned_cp_id,bb_unit_details.physical_condition,bb_unit_details.working_condition,bb_cp_order_action.admin_remarks';
+            . 'bb_order_details.assigned_cp_id,bb_cp_order_action.admin_remarks,bb_unit_details.category';
 
     /**
      * @desc load both db
