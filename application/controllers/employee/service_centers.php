@@ -1582,6 +1582,8 @@ class Service_centers extends CI_Controller {
         $data['city'] = urldecode($city);
         $data['cp_id'] = urldecode($cp_id);
         $data['products'] = $this->booking_model->selectservice();
+        $data['cp_basic_charge'] = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id'=> $data['order_id']),'cp_basic_charge');
+        
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/update_bb_order_details',$data);
     }
@@ -1725,6 +1727,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('order_working_condition', 'Order Working Condition', 'trim|required');
         $this->form_validation->set_rules('category', 'Category', 'trim|required');
+        $this->form_validation->set_rules('claimed_price', 'Claimed Price', 'trim|required|callback_validate_claimed_price');
         
         if($this->form_validation->run() === false){
             $msg = "Please fill all required field";
@@ -1742,6 +1745,20 @@ class Service_centers extends CI_Controller {
             }
         }
         
+    }
+    
+    function validate_claimed_price(){
+        $cp_claimed_price = $this->input->post('claimed_price');
+        $cp_basic_charge = $this->input->post('cp_basic_charge');
+        $final_price = $cp_basic_charge * .30;
+        
+        if($cp_claimed_price < $final_price){
+            $flag = FALSE;
+        }else{
+            $flag = TRUE;
+        }
+        
+        return $flag;
     }
     
     
@@ -2045,7 +2062,7 @@ class Service_centers extends CI_Controller {
      * @desc Used to get data as requested and also search 
      */
     function get_bb_order_details() {
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $data = array();
         switch ($this->input->post('status')){
             case 0:
@@ -2053,6 +2070,9 @@ class Service_centers extends CI_Controller {
                 break;
             case 1:
                 $data = $this->get_pending_data();
+                break;
+            case 2:
+                $data = $this->get_acknowledge_data();
                 break;
         }
         
@@ -2075,7 +2095,7 @@ class Service_centers extends CI_Controller {
      * @return array
      */
     function get_delivered_data(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending', 'bb_cp_order_action.internal_status' => 'Delivered');
@@ -2107,7 +2127,7 @@ class Service_centers extends CI_Controller {
      * @return array
      */
     function get_pending_data(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending');
@@ -2132,6 +2152,36 @@ class Service_centers extends CI_Controller {
         
     }
     
+    /**
+     * @desc Used to get acknowledge buyback data
+     * @param void
+     * @return array
+     */
+    function get_acknowledge_data(){
+        $post = $this->get_bb_post_view_data();
+        $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
+        $post['where_in'] = array('bb_cp_order_action.current_status' => array('Delivered', 'InProcess', 'Not Delivered', 'Damaged'),
+                                  'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged'));
+        $post['column_order'] = array( NULL,'bb_cp_order_action.partner_order_id','services', 'city','physical_condition', 'working_condition',
+              'cp_basic_charge','bb_cp_order_action.current_status','delivery_date',NULL,NULL);
+        $post['column_search'] = array('bb_cp_order_action.partner_order_id', 'services', 'city',
+            'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
+        $list = $this->cp_model->get_bb_cp_order_list($post);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->get_acknowledge_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+    }
+    
     
     /**
      * @desc Used to get  delivered buyback data table
@@ -2140,7 +2190,7 @@ class Service_centers extends CI_Controller {
      * @return array
      */
     function get_delivered_table_data($order_list, $no) {
-        log_message("info", __METHOD__);
+        //log_message("info", __METHOD__);
         $row = array();
         $row[] = $no;
         $row[] = $order_list->partner_order_id;
@@ -2150,13 +2200,14 @@ class Service_centers extends CI_Controller {
         $row[] = $order_list->working_condition;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
         $row[] = $order_list->delivery_date;
+        $row[] = "<div class='truncate_text' data-toggle='popover' title='".$order_list->admin_remarks."'>$order_list->admin_remarks</div>";
         $row[] = "<div class='dropdown'>
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
                               <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Received</a></li>
                               <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_not_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Report Issue</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Damaged</a></li>
                             </ul>
                           </div>";
 
@@ -2171,7 +2222,7 @@ class Service_centers extends CI_Controller {
      * @return array
      */
     function get_pending_table_data($order_list, $no) {
-        log_message("info", __METHOD__);
+        //log_message("info", __METHOD__);
         $row = array();
         $row[] = $no;
         $row[] = $order_list->partner_order_id;
@@ -2181,15 +2232,42 @@ class Service_centers extends CI_Controller {
         $row[] = $order_list->working_condition;
          $row[] = $order_list->order_date;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
-        if ($order_list->current_status === 'In-Transit') {
-            $row[] = "<span class='label label-primary'>$order_list->current_status</span>";
-        } else if ($order_list->current_status === 'Attempted') {
-            $row[] = "<span class='label label-warning'>$order_list->current_status</span>";
-        } else if ($order_list->current_status === 'New Item In-transit') {
-            $row[] = "<span class='label label-info'>$order_list->current_status</span>";
+        if ($order_list->internal_status === 'In-Transit') {
+            $row[] = "<span class='label label-primary'>$order_list->internal_status</span>";
+        } else if ($order_list->internal_status === 'Attempted') {
+            $row[] = "<span class='label label-warning'>$order_list->internal_status</span>";
+        } else if ($order_list->internal_status === 'New Item In-transit') {
+            $row[] = "<span class='label label-info'>$order_list->internal_status</span>";
         }
+        $row[] = "<div class='dropdown'>
+                            <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
+                            <span class='caret'></span></button>
+                            <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Damaged</a></li>
+                            </ul>
+                          </div>";
        
         
+        return $row;
+    }
+    
+    /**
+     * @desc Used to get acknowledge buyback data table
+     * @param $order_list
+     * @param $no
+     * @return array
+     */
+    function get_acknowledge_table_data($order_list, $no) {
+        //log_message("info", __METHOD__);
+        $row = array();
+        $row[] = $no;
+        $row[] = $order_list->partner_order_id;
+        $row[] = $order_list->services;
+        $row[] = $order_list->order_date;
+        $row[] = $order_list->delivery_date;
+        $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+        $row[] = $order_list->current_status."<b> (".$order_list->internal_status." )</b>";
         return $row;
     }
     
@@ -2199,7 +2277,7 @@ class Service_centers extends CI_Controller {
      * @return $post array()
      */
     function get_bb_post_view_data(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
