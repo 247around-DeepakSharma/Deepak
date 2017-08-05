@@ -69,6 +69,7 @@
                                             <th>Status</th>
                                             <th>Exchange Value</th>
                                             <th>SF Charge</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -199,7 +200,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1,6,7], //first column / numbering column
+                    "targets": [0,1,6,7,8], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
