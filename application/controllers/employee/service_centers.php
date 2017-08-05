@@ -2095,8 +2095,8 @@ class Service_centers extends CI_Controller {
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending', 'bb_cp_order_action.internal_status' => 'Delivered');
         $post['where_in'] = array();
-        $post['column_order'] = array( NULL,'bb_cp_order_action.partner_order_id','services', 'city','physical_condition', 'working_condition',
-              'cp_basic_charge','bb_cp_order_action.current_status','delivery_date',NULL,NULL);
+        $post['column_order'] = array( NULL,'bb_cp_order_action.partner_order_id','services','category',
+              'cp_basic_charge','category','delivery_date',NULL,NULL);
         $post['column_search'] = array('bb_cp_order_action.partner_order_id', 'services', 'city',
             'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
@@ -2127,8 +2127,8 @@ class Service_centers extends CI_Controller {
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending');
         $post['where_in'] = array('bb_cp_order_action.internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
-        $post['column_order'] = array( NULL,'partner_order_id','services', 'city','physical_condition', 'working_condition',
-              'cp_basic_charge','bb_cp_order_action.current_status','delivery_date',NULL,NULL);
+        $post['column_order'] = array( NULL,'partner_order_id','services', 'category',
+              'order_date','cp_basic_charge',NULL,NULL);
         $post['column_search'] = array('partner_order_id', 'services', 'city','order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
         $data = array();
@@ -2157,8 +2157,8 @@ class Service_centers extends CI_Controller {
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
         $post['where_in'] = array('bb_cp_order_action.current_status' => array('Delivered', 'InProcess', 'Not Delivered', 'Damaged'),
                                   'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged'));
-        $post['column_order'] = array( NULL,'bb_cp_order_action.partner_order_id','services', 'city','physical_condition', 'working_condition',
-              'cp_basic_charge','bb_cp_order_action.current_status','delivery_date',NULL,NULL);
+        $post['column_order'] = array( NULL,'bb_cp_order_action.partner_order_id','services','category',
+                                'order_date','delivery_date','cp_basic_charge',NULL,NULL);
         $post['column_search'] = array('bb_cp_order_action.partner_order_id', 'services', 'city',
             'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
@@ -2190,10 +2190,9 @@ class Service_centers extends CI_Controller {
         $row[] = $no;
         $row[] = $order_list->partner_order_id;
         $row[] = $order_list->services;
-        $row[] = $order_list->city;
-        $row[] = $order_list->physical_condition;
-        $row[] = $order_list->working_condition;
+        $row[] = $order_list->category;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+        $row[] = $order_list->order_date;
         $row[] = $order_list->delivery_date;
         $row[] = "<div class='truncate_text' data-toggle='popover' title='".$order_list->admin_remarks."'>$order_list->admin_remarks</div>";
         $row[] = "<div class='dropdown'>
@@ -2222,10 +2221,8 @@ class Service_centers extends CI_Controller {
         $row[] = $no;
         $row[] = $order_list->partner_order_id;
         $row[] = $order_list->services;
-        $row[] = $order_list->city;
-        $row[] = $order_list->physical_condition;
-        $row[] = $order_list->working_condition;
-         $row[] = $order_list->order_date;
+        $row[] = $order_list->category;
+        $row[] = $order_list->order_date;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
         if ($order_list->internal_status === 'In-Transit') {
             $row[] = "<span class='label label-primary'>$order_list->internal_status</span>";
@@ -2259,6 +2256,7 @@ class Service_centers extends CI_Controller {
         $row[] = $no;
         $row[] = $order_list->partner_order_id;
         $row[] = $order_list->services;
+        $row[] = $order_list->category;
         $row[] = $order_list->order_date;
         $row[] = $order_list->delivery_date;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);

@@ -65,10 +65,7 @@
                             <th>No.</th>
                             <th>Order ID</th>
                             <th>Service Name</th>
-
-                            <th>City</th>
-                            <th>Physical Condition</th>
-                            <th>Working Condition</th>
+                            <th>Category</th>
                             <th>Order date</th>
                             <th>SF Charge</th>
                             <th>Status</th>
@@ -90,13 +87,9 @@
                                 <th>No.</th>
                                 <th>Order ID</th>
                                 <th>Service Name</th>
-
-                                <th>City</th>
-                                <th>Physical Condition</th>
-                                <th>Working Condition</th>
-                               
+                                <th>Category</th>
                                 <th>Charges</th>
-                               
+                                <th>Order date</th>
                                 <th>Delivery date</th>
                                 <th>Remarks</th>
                                 <th>Action</th>
@@ -117,6 +110,7 @@
                             <th>No.</th>
                             <th>Order ID</th>
                             <th>Service Name</th>
+                            <th>Category</th>
                             <th>Order date</th>
                             <th>Delivery date</th>
                             <th>SF Charge</th>
@@ -155,7 +149,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,3,7,8], //first column / numbering column
+                    "targets": [0,7,8], //first column / numbering column
                     "orderable": false, //set not orderable
                 },
             ],
@@ -180,7 +174,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,3,7,8,9], //first column / numbering column
+                    "targets": [0,6,7], //first column / numbering column
                     "orderable": false, //set not orderable
                 },
             ],
@@ -205,7 +199,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,5,6], //first column / numbering column
+                    "targets": [0,6,7], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
