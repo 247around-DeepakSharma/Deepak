@@ -378,7 +378,7 @@ class Buyback_process extends CI_Controller {
         log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
-        $post['where_in'] = array('current_status' => array('Delivered',_247AROUND_BB_TO_BE_CLAIMED),
+        $post['where_in'] = array('current_status' => array(_247AROUND_BB_DELIVERED,_247AROUND_BB_TO_BE_CLAIMED),
             'internal_status' => array(_247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS,_247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS,_247AROUND_BB_NOT_DELIVERED,_247AROUND_BB_ORDER_MISMATCH));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['where'] = array();
@@ -660,7 +660,7 @@ class Buyback_process extends CI_Controller {
                         
                        if($type === 'approved'){
                             //update buyback order details
-                            $order_details_data['current_status'] = _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS;
+                            $order_details_data['current_status'] = _247AROUND_BB_TO_BE_CLAIMED;
                             $order_details_data['internal_status'] = _247AROUND_BB_NOT_DELIVERED;
 
                             //update buyback cp order action
