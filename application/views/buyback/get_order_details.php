@@ -76,7 +76,7 @@
                                 </table>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="delivered-tab">
-                                <table id="datatable2" class="table table-striped table-bordered" style="width: 100%;">
+                                <table id="datatable2" class="table table-striped table-bordered" style="width: 100%; margin-bottom: 100px;">
                                     <thead>
                                         <tr>
                                             <th>No.</th>

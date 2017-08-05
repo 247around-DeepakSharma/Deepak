@@ -386,6 +386,12 @@ define('TO_BE_CLAIMED','To Be Claimed');
 define('CLAIM_SETTLED_BY_AMAZON','Claim Settled by Amazon');
 define('_247AROUND_BB_REPORT_ISSUE_IN_PROCESS','InProcess_Claimed_Raised_By_CP');
 define('_247AROUND_BB_NOT_DELIVERED_IN_PROCESS','InProcess_Not_delivered');
+define('_247AROUND_BB_247APPROVED_STATUS','Refunded');
+define('_247AROUND_BB_Damaged_STATUS','Damaged');
+define('_247AROUND_BB_NOT_DELIVERED','Not Delivered');
+define('_247AROUND_BB_TO_BE_CLAIMED','To Be Claimed');
+define('_247AROUND_BB_ORDER_MISMATCH','Product Mismatch');
+define('_247AROUND_BB_ORDER_REJECTED','Rejected');
 
 //new shop address added
 define('NEW_SHOP_ADDRESS_ADDED','New Shop Address Added');
