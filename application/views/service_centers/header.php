@@ -311,14 +311,14 @@
                         </li>
                         <?php } ?>
                         <?php } ?>
-                        <?php //if($this->session->userdata('is_cp') === '1'){ ?>
-<!--                        <li class="dropdown">
+                        <?php if($this->session->userdata('is_cp') === '1'){ ?>
+                        <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Buyback <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="<?php //echo base_url();?>service_center/bb_oder_details">Buyback Order Details</a></li>
+                                <li><a href="<?php echo base_url();?>service_center/bb_oder_details">Buyback Order Details</a></li>
                             </ul>
-                        </li>-->
-                        <?php //} ?>
+                        </li>
+                        <?php } ?>
                         <li>
                             <a href="<?php echo base_url();?>service_center/gst_details"  >GST</a>
                         </li>
