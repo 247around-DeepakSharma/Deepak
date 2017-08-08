@@ -145,7 +145,7 @@ class PHPReport {
     //PHPExcel objects
 	private $objReader;
 	private $objPHPExcel;
-	private $objWorksheet;
+	public $objWorksheet;
 	private $objWriter;
 
     /**
@@ -904,13 +904,13 @@ class PHPReport {
         //Apply style
 		$this->objWorksheet->getStyle("A1")->applyFromArray($this->_headingStyleArray);
     }
-
+    
     /**
      * Renders report as specified output file
      * @param string $type
      * @param string $filename
      */
-    public function render($type='html',$filename='')
+    public function render($type='html',$filename='', $cell = false, $imagePath = false )
     {
         //create or generate report
         if($this->_usingTemplate)
@@ -931,9 +931,9 @@ class PHPReport {
 		if(strtolower($type)=='html')
 			return $this->renderHtml();
 		elseif(strtolower($type)=='excel')
-			return $this->renderXlsx($filename);
+			return $this->renderXlsx($filename, $cell,$imagePath );
 		elseif(strtolower($type)=='excel2003')
-			return $this->renderXls($filename);
+			return $this->renderXls($filename, $cell,$imagePath);
 		elseif(strtolower($type)=='pdf')
 			return $this->renderPdf($filename);
 		else
@@ -965,13 +965,15 @@ class PHPReport {
     /**
      * Renders report as a XLSX file
 	 */
-	private function renderXlsx($filename)
+	private function renderXlsx($filename, $cell,$imagePath )
     {
         //header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         //	header('Content-Disposition: attachment;filename="'.$filename.'.xlsx"');
         //	header('Cache-Control: max-age=0');
 
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel2007');
+     
+        $this->insertImage($cell, $imagePath);
 
         $this->objWriter->save($filename);
 
@@ -983,17 +985,35 @@ class PHPReport {
 
         //exit();
     }
+    
+    function insertImage($cell =false, $imagePath = false){
+        if($imagePath){
+            $objDrawing = new PHPExcel_Worksheet_Drawing();
+            $objDrawing->setName('SC Signature');
+            $objDrawing->setDescription('Signature');
+            $objDrawing->setPath($imagePath);
+            $objDrawing->setOffsetX(120);                     //setOffsetX works properly
+            $objDrawing->setOffsetY(10);                     //setOffsetY works properly
+            $objDrawing->setCoordinates($cell);
+            $objDrawing->setWidth(100);  
+            $objDrawing->setHeight(70);  
+            $objDrawing->setWorksheet($this->objPHPExcel->getActiveSheet());
+        }
+
+    }
 
 	/**
      * Renders report as a XLS file
 	 */
-	private function renderXls($filename)
+	private function renderXls($filename, $cell,$imagePath)
     {
 //        header('Content-Type: application/vnd.ms-excel');
 //		header('Content-Disposition: attachment;filename="'.$filename.'.xls"');
 //		header('Cache-Control: max-age=0');
 
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel5');
+        
+         $this->insertImage($cell, $imagePath);
 
         //$this->objWriter->save('php://output');
         $this->objWriter->save($filename);
