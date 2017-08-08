@@ -2108,7 +2108,7 @@ class vendor extends CI_Controller {
            $where = array('id' => $value['service_center_id'] );
            $select = "service_centres.name, service_centres.id";
            $service_center = $this->vendor_model->getVendorDetails($select, $where);
-           $data['engineers'][$key]['service_center_name'] = $service_center[0]['name'];
+           $data['engineers'][$key]['service_center_name'] = isset($service_center[0]['name'])?$service_center[0]['name']:'';
            $service_id  = json_decode($value['appliance_id'],true);
            $appliances = array();
            if(!empty($service_id)){

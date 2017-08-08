@@ -678,7 +678,7 @@ class invoices_model extends CI_Model {
         if ($query->num_rows > 0) {
             return $query->result_array();
         } else {
-            return array();
+            return FALSE;
         }
     }
     

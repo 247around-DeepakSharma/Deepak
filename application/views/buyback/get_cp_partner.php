@@ -159,6 +159,15 @@
                                     <input id="shop_address_state" type="text" name="shop_address_state" required="required" class="optional form-control col-md-7 col-xs-12">
                                 </div>
                             </div>
+                            
+                            <div class="item form-group">
+                                <label class="control-label col-md-4 col-sm-3 col-xs-12" for="cp_capacity">CP Capacity
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <input id="cp_capacity" type="text" name="cp_capacity"  class="optional form-control col-md-7 col-xs-12">
+                                </div>
+                            </div>
+                            
                             <div class="ln_solid"></div>
                             
                         </form>
@@ -259,6 +268,7 @@
             $(".modal-body #shop_address_region").html( r_html );
             $(".modal-body #shop_address_pincode").val( form_data.shop_address_pincode );
             $(".modal-body #shop_address_state").val( form_data.shop_address_state );
+            $(".modal-body #cp_capacity").val( form_data.cp_capacity );
             check_pincode();
            
        });

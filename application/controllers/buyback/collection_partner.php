@@ -125,6 +125,7 @@ class Collection_partner extends CI_Controller {
         $data['shop_address_city'] = $this->input->post('shop_address_city');
         $data['shop_address_pincode'] = $this->input->post('shop_address_pincode');
         $data['shop_address_state'] = $this->input->post('shop_address_state');
+        $data['cp_capacity'] = $this->input->post('cp_capacity');
 
         $status = $this->cp_model->update_cp_shop_address(array('id' => $primary_id), $data);
         if ($status) {
@@ -202,7 +203,8 @@ class Collection_partner extends CI_Controller {
                     'alternate_conatct_number' => isset($this->input->post('data')['alt_phone_number_1'])?$this->input->post('data')['alt_phone_number_1']:'',
                     'alternate_conatct_number2' => isset($this->input->post('data')['alt_phone_number_2'])?$this->input->post('data')['alt_phone_number_2']:'',
                     'active' => '1',
-                    'tin_number' => $this->input->post('data')['tin_number'],
+                    'tin_number' => isset($this->input->post('data')['tin_number'])?$this->input->post('data')['tin_number']:'',
+                    'cp_capacity' => $this->input->post('data')['cp_capacity'],
                     'create_date' => date('Y-m-d H-i-s'),
                 );
                 $insert_id = $this->cp_model->insert_cp_shop_address($userData);

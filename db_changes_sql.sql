@@ -3008,3 +3008,7 @@ ADD `sgst_tax_amount` DECIMAL NOT NULL DEFAULT '0' AFTER `igst_tax_amount`,
 ADD `cgst_tax_rate` DECIMAL NOT NULL DEFAULT '0' AFTER `sgst_tax_amount`, 
 ADD `igst_tax_rate` DECIMAL NOT NULL DEFAULT '0' AFTER `cgst_tax_rate`, 
 ADD `sgst_tax_rate` DECIMAL NOT NULL DEFAULT '0' AFTER `igst_tax_rate`;
+
+-- Sachin 2 Aug
+ALTER TABLE `bb_shop_address` ADD `cp_capacity` VARCHAR(128) NULL DEFAULT NULL AFTER `tin_number`;
+

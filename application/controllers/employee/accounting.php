@@ -218,7 +218,7 @@ class Accounting extends CI_Controller {
         if (!empty($challan_id)) {
 
             //getting existing invoice id from vendor_partner_invoices_table 
-            $existing_invoice_id = $this->invoices_model->get_invoices_details(1);
+            $existing_invoice_id = $this->invoices_model->get_invoices_details(array());
             $existing_invoice_id_arr = [];
             $non_existing_invoices_data = '';
             foreach ($existing_invoice_id as $key => $value) {
@@ -250,7 +250,7 @@ class Accounting extends CI_Controller {
             $msg = "Mapping has been done successfully ";
 
             if (!empty($non_existing_invoices_data)) {
-                $msg .= "and these Invoices are not exist in the table : " . $non_existing_invoices_data;
+                $msg .= "and these Invoices are not exist in the table : " . rtrim($non_existing_invoices_data,',');
             }
             $this->session->set_flashdata('success_msg', $msg);
             redirect(base_url() . 'employee/accounting/get_challan_details');

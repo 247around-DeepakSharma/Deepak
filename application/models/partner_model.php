@@ -1315,5 +1315,23 @@ class Partner_model extends CI_Model {
         return $query->result_array();
     }
     
+    /**
+     * @Desc: This function is used to get the spare part details by any option
+     * @params: $select string
+     * @params: $where array
+     * @return: array()
+     * 
+     */
+    function get_spare_parts_by_any($select,$where,$is_join=false){
+        $this->db->select($select,FALSE);
+        $this->db->where($where);
+        $this->db->from('spare_parts_details');
+        if($is_join){
+            $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
+        }
+        $query = $this->db->get();
+        return $query->result_array();
+        
+    }
 }
 
