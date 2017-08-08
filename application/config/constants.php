@@ -398,5 +398,9 @@ define('NEW_SHOP_ADDRESS_ADDED','New Shop Address Added');
 define('SHOP_ADDRESS_DEACTIVATED','Shop Address De-Activated');
 define('SHOP_ADDRESS_ACTIVATED','Shop Address Activated');
 define('BB_CP_ADDRESS','CP_ADDRESS');
+
+define('CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER','Customer not visited to service center');
+define("HSN_CODE", "998715");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
