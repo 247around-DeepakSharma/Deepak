@@ -642,8 +642,15 @@ class invoices_model extends CI_Model {
                     $meta['total_parts_charge'] += $value['taxable_value'];
                 }
             }
-            $meta['reverse_charge'] = 0;
-            $meta['reverse_charge_type'] = 'N';
+            $meta['gst_number'] = $result[0]['gst_number'];
+            if(!empty($meta['gst_number'])){
+                $meta['reverse_charge_type'] = "N";
+                $meta['reverse_charge'] = '';
+            } else {
+                $meta['reverse_charge_type'] = "Y";
+                $meta['reverse_charge'] = ($meta['cgst_total_tax_amount']  + $meta['sgst_total_tax_amount'] + $meta['igst_total_tax_amount']);
+            }
+           
             $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
             $meta['sd'] = date("jS M, Y", strtotime($from_date_tmp));
             $meta['ed'] = date("jS M, Y", strtotime($to_date_tmp));
@@ -652,7 +659,7 @@ class invoices_model extends CI_Model {
             $meta['company_address'] = $result[0]['company_address'] . ", " .
                     $result[0]['district'] . ", Pincode -" . $result[0]['pincode'] . ", " . $result[0]['state'];
             $meta['reference_invoice_id'] = "";
-            $meta['gst_number'] = $result[0]['gst_number'];
+           
             $meta['state_code'] = $result[0]['state_code'];
             $meta['state'] = $result[0]['state'];
             
@@ -1195,12 +1202,18 @@ class invoices_model extends CI_Model {
                 $commission_charge[0]['igst_rate'] = $meta['igst_tax_rate'] = 18;
            
             }
-            
-            $meta['reverse_charge_type'] = "N";
+            if(!empty($meta['gst_number'])){
+                $meta['reverse_charge_type'] = "N";
+                $meta['reverse_charge'] = '';
+            } else {
+                $meta['reverse_charge_type'] = "Y";
+                $meta['reverse_charge'] = ($meta['cgst_total_tax_amount']  + $meta['sgst_total_tax_amount'] + $meta['igst_total_tax_amount']);
+            }
+           
             $meta['total_qty'] =  $meta['total_rate'] = $commission_charge[0]['hsn_code'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
             $meta['total_taxable_value'] = $commission_charge[0]['taxable_value'];
             $meta['sub_total_amount'] =  round($commission_charge[0]['toal_amount'],0);
-            $meta['reverse_charge'] = '';
+           
             $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
