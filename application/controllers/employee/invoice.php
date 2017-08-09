@@ -2883,7 +2883,7 @@ class Invoice extends CI_Controller {
 
 
         //send sms
-        $this->send_invoice_sms("stand", $vendor_details[0]['shipment_date'], $amount, $vendor_details[0]['owner_phone_1'], $vendor_details[0]['order_given_to']);
+        $this->send_invoice_sms("Stand", $vendor_details[0]['shipment_date'], $amount, $vendor_details[0]['owner_phone_1'], $vendor_details[0]['order_given_to']);
         
         //send email
         $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_details[0]['id']); 
