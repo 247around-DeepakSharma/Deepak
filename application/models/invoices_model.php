@@ -668,6 +668,106 @@ class invoices_model extends CI_Model {
     }
     
     /**
+     * @Desc: This function is used to get brackets details of vendor
+     *          whose brackets have been received successfully of particular month
+     * @params: $vendor_id
+     * @return: Array
+     * 
+     */
+    function get_vendor_bracket_invoices($vendor_id, $from_date, $to_date_temp) {
+        //Getting date range
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_temp)));
+        $sql = 'SELECT SUM(brackets.26_32_received) as _26_32_total,
+                    SUM(brackets.36_42_received) as _36_42_total,
+                    SUM(brackets.total_received) as total_received,
+                    sc.company_name as company_name,sc.state,sc.sc_code,
+                    CONCAT(  "", GROUP_CONCAT( DISTINCT (brackets.order_id) ) ,  "" ) AS order_id,
+                    brackets.order_received_from as vendor_id,
+                    sc.address as company_address, sc.owner_phone_1 as owner_phone_1,
+                    sc.state, state_code, gst_no as gst_number
+                    
+                    FROM brackets,service_centres as sc, state_code  WHERE brackets.received_date >= "' . $from_date . '" 
+                    AND brackets.received_date <= "' . $to_date . '" AND brackets.is_received= "1" 
+                    AND brackets.order_received_from = "' . $vendor_id . '" 
+                    AND invoice_id IS NULL
+                    AND state_code.state = sc.state
+                    AND sc.id = brackets.order_received_from GROUP BY brackets.order_received_from';
+        $query = $this->db->query($sql);
+
+        if ($query->num_rows > 0) {
+            $result1 = $query->result_array();
+            $meta = $result1[0];
+
+            $c_s_gst = $this->check_gst_tax_type($meta['state']);
+            $meta['total_qty'] = $meta['total_rate'] = $meta['total_taxable_value'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = $meta['igst_total_tax_amount'] = $meta['sub_total_amount'] = 0;
+            $meta['total_ins_charge'] = $meta['total_parts_charge'] = $meta['total_parts_tax'] = $meta['total_inst_tax'] = 0;
+            $meta['igst_tax_rate'] = $meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
+
+
+            $result = $this->get_bracket_line_item_data($meta);
+            foreach ($result as $key => $value) {
+
+                if ($c_s_gst) {
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
+                    $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = 9;
+                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09), 0);
+                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09), 0);
+                    $meta['cgst_total_tax_amount'] += $result[$key]['cgst_tax_amount'];
+                    $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
+                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
+                } else {
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter State.xlsx";
+                    $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = 18;
+                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18), 0);
+                    $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
+                }
+
+                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18), 0);
+                $meta['total_qty'] += $value['qty'];
+                $meta['total_rate'] += $value['rate'];
+                $meta['total_taxable_value'] += round($value['taxable_value'], 0);
+                $meta['sub_total_amount'] += round($result[$key]['toal_amount'], 0);
+            }
+
+
+            $meta['reverse_charge'] = 0;
+            $meta['reverse_charge_type'] = 'N';
+            $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'], 0));
+            $meta['sd'] = date("jS M, Y", strtotime($from_date));
+            $meta['ed'] = date("jS M, Y", strtotime($to_date_temp));
+            $meta['invoice_date'] = date("jS M, Y");
+            $meta['reference_invoice_id'] = "";
+
+            $data1['meta'] = $meta;
+            $data1['booking'] = $result;
+            return $data1;
+        } else {
+            return false;
+        }
+    }
+
+    function get_bracket_line_item_data($meta){
+        $data1 = array();
+       
+        $data['description'] = "Iron Stand – Less Than 32 Inches";
+        $data['rate'] = _247AROUND_BRACKETS_26_32_UNIT_PRICE;
+        $data['qty'] = $meta['_26_32_total'];
+        $data['taxable_value'] = round($data['rate'] * $data['qty'],0);
+        $data['hsn_code'] = HSN_CODE;
+        
+        array_push($data1, $data);
+        
+        $data2['description'] = "Iron Stand – Greater Than 32 Inches";
+        $data2['rate'] = _247AROUND_BRACKETS_36_42_UNIT_PRICE;
+        $data2['qty'] = $meta['_36_42_total'];
+        $data2['taxable_value'] = round($data2['rate'] * $data2['qty'],0);
+        $data2['hsn_code'] = HSN_CODE;
+        array_push($data1, $data2);
+        
+        return $data1;   
+    }
+      
+    /**
      * @desc : get all vendor invoice for previous month. it get both type A and type B invoice
      *
      * @param: void
