@@ -3018,3 +3018,11 @@ ALTER TABLE `bb_cp_order_action` ADD `cp_claimed_price` DECIMAL(10,2) NOT NULL A
 ALTER TABLE `bb_unit_details` ADD `cp_claimed_price` DECIMAL(10,2) NOT NULL AFTER `cp_invoice_id`;
 ALTER TABLE `bb_cp_order_action` ADD `admin_remarks` VARCHAR(256) NULL AFTER `cp_claimed_price`;
 
+
+--Abhay 10 Aug
+ALTER TABLE `vendor_partner_invoices` ADD `rcm` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `sgst_tax_rate`;
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_details_invoices_for_vendors', '247around - %s - Buyback Invoice for period: %s to %s', 'Dear Partner,<br/><br/>
+Please find attached Buyback invoice. 
+Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.
+<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
