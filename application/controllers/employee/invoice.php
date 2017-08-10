@@ -29,6 +29,7 @@ class Invoice extends CI_Controller {
         $this->load->model("upcountry_model");
         $this->load->model('penalty_model');
         $this->load->model("accounting_model");
+        $this->load->model("bb_model");
         $this->load->library("notify");
         $this->load->library("miscelleneous");
         $this->load->library('PHPReport');
@@ -829,7 +830,7 @@ class Invoice extends CI_Controller {
              * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
              */
 
-            //$this->update_invoice_id_in_unit_details($data, $meta['invoice_id'], $invoice_type, "vendor_cash_invoice_id");
+             $this->update_invoice_id_in_unit_details($data, $meta['invoice_id'], $invoice_type, "vendor_cash_invoice_id");
         } else {
             
             $this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_file_main);
@@ -888,6 +889,21 @@ class Invoice extends CI_Controller {
                     }
                 }
             }
+        }
+    }
+    
+    function update_invoice_id_in_buyback($invoices_data, $invoice_id, $invoice_type, $unit_column) {
+        log_message('info', __METHOD__ . ': Reset Invoice id ' . " invoice id " . $invoice_id.' and invoice_type: '.$invoice_type.' invoice_data: '.  print_r($invoices_data,true));
+
+        if ($invoice_type == "final") {
+            $this->bb_model->update_bb_unit_details(array($unit_column => $invoice_id), array($unit_column => NULL));
+
+            foreach ($invoices_data as $value) {
+               
+                log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
+                $this->bb_model->update_bb_unit_details(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
+                
+            } 
         }
     }
 
@@ -1062,7 +1078,8 @@ class Invoice extends CI_Controller {
                     "igst_tax_rate" => $invoice_data['meta']['igst_tax_rate'],
                     "igst_tax_amount" => $invoice_data['meta']["igst_total_tax_amount"],
                     "sgst_tax_amount" => $invoice_data['meta']["sgst_total_tax_amount"],
-                    "cgst_tax_amount" => $invoice_data['meta']["cgst_total_tax_amount"]
+                    "cgst_tax_amount" => $invoice_data['meta']["cgst_total_tax_amount"],
+                    "rcm" => $invoice_data['meta']['rcm']
                 );
 
                 // insert invoice details into vendor partner invoices table
@@ -1361,7 +1378,7 @@ class Invoice extends CI_Controller {
 
                 if ($details['vendor_partner_id'] == 'All') {
                     $select = "service_centres.name, service_centres.id";
-                    $vendor_details = $this->vendor_model->getVendorDetails($select);
+                    $vendor_details = $this->vendor_model->getVendorDetails($select, array('is_sf' => 1));
                     foreach ($vendor_details as $value) {
                         $details['vendor_partner_id'] = $value['id'];
 
@@ -1369,22 +1386,10 @@ class Invoice extends CI_Controller {
                         echo " Preparing CASH Invoice for Vendor: " . $details['vendor_partner_id'] . PHP_EOL;
 
                         //Prepare main invoice first
-                        $details = $this->generate_vendor_cash_invoice($details, $details['agent_id'], $is_regenerate);
-
-                        //Invoice made successfully
-                        if ($details) {
-                            log_message('info', 'Invoice made successfully, generating detailed annexure now');
-                            echo 'Invoice made successfully' . PHP_EOL;
-            
-                            //Generate detailed annexure now
-                           
-                        } else {
-
-                            echo " Data Not found for vendor: " . $details['vendor_partner_id'];
-
-                            log_message('info', __FUNCTION__ . " Data Not found for vendor: " . $details['vendor_partner_id']);
-                        }
+                        $this->generate_vendor_cash_invoice($details, $details['agent_id'], $is_regenerate);
+                        
                     }
+                    return true;
                 } else {
                     echo " Preparing CASH Invoice  Vendor: " . $details['vendor_partner_id'];
 
@@ -1410,14 +1415,15 @@ class Invoice extends CI_Controller {
 
                 if ($details['vendor_partner_id'] == 'All') {
                     $select = "service_centres.name, service_centres.id";
-                    $vendor_details = $this->vendor_model->getVendorDetails($select);
+                    $vendor_details = $this->vendor_model->getVendorDetails($select, array('is_sf' => 1));
                     echo " Preparing FOC Invoice  Vendor: " . $details['vendor_partner_id'];
                     foreach ($vendor_details as $value) {
                         $details['vendor_partner_id'] = $value['id'];
                         log_message('info', __FUNCTION__ . ": Preparing FOC Invoice Vendor Id: " . $details['vendor_partner_id']);
                         //Prepare main invoice first
-                        return $this->generate_vendor_foc_invoice($details, $is_regenerate);
+                        $this->generate_vendor_foc_invoice($details, $is_regenerate);
                     }
+                    return true;
                 } else {
                     //Prepare main invoice first
                     return $this->generate_vendor_foc_invoice($details, $is_regenerate);
@@ -1428,11 +1434,9 @@ class Invoice extends CI_Controller {
             case "brackets":
                 log_message('info', __FUNCTION__ . " Brackets");
                 //This constant is used to track all vendors selected to avoid sending mail when all vendor +draft is selected
-                $vendor_all_flag = 0;
                 if ($details['vendor_partner_id'] === 'All') {
-                    $vendor_all_flag = 1;
                     $select = "service_centres.name, service_centres.id";
-                    $vendor = $this->vendor_model->getVendorDetails($select);
+                    $vendor = $this->vendor_model->getVendorDetails($select, array('is_sf' => 1));
 
                     foreach ($vendor as $value) {
                         log_message('info', __FUNCTION__ . " Brackets Vendor Id: " . $value['id']);
@@ -1440,12 +1444,34 @@ class Invoice extends CI_Controller {
                         //Generating and sending invoice to vendors
                         $this->generate_brackets_invoices($details);
                     }
+                    return true;
                 } else {
                     log_message('info', __FUNCTION__ . " Brackets Vendor Id: " . $details['vendor_partner_id']);
                     //Generating and sending invoice to vendors
                     return $this->generate_brackets_invoices($details);
                 }
                 break;
+                
+                case "buyback":
+                    log_message('info', __FUNCTION__ . " Buyback");
+                                  
+                    if ($details['vendor_partner_id'] === 'All') {
+                        $select = "service_centres.name, service_centres.id";
+                        $vendor = $this->vendor_model->getVendorDetails($select, array('is_cp' => 1));
+                        foreach ($vendor as $value) {
+                            log_message('info', __FUNCTION__ . " Brackets Vendor Id: " . $value['id']);
+                            $details['vendor_partner_id'] = $value['id'];
+                            //Generating and sending invoice to vendors
+                            $this->generate_buyback_invoices($details, $is_regenerate);
+                        }
+                        
+                    } else {
+                       log_message('info', __FUNCTION__ . " Brackets Vendor Id: " . $details['vendor_partner_id']);
+                       //Generating and sending invoice to vendors
+                       return $this->generate_buyback_invoices($details, $is_regenerate); 
+                    }
+
+                    break;
         }
     }
 
@@ -1788,6 +1814,147 @@ class Invoice extends CI_Controller {
             return FALSE;
         }
     }
+    
+    function generate_buyback_invoices($details, $is_regenerate){
+        log_message('info', __FUNCTION__ . " Entering...." . print_r($details, true) . ' is_regenerate: ' . $is_regenerate);
+        $vendor_id = $details['vendor_partner_id'];
+        $custom_date = explode("-", $details['date_range']);
+        $from_date = $custom_date[0];
+        $to_date = $custom_date[1];
+        $invoice_type = $details['invoice_type'];
+        $invoices = $this->invoices_model->get_buyback_invoice_data($vendor_id, $from_date, $to_date, $is_regenerate);
+        
+        if($invoices){
+            if (isset($details['invoice_id'])) {
+                log_message('info', __FUNCTION__ . " Re-Generate Cash Invoice ID: " . $details['invoice_id']);
+                echo "Re-Generate Cash Invoice ID: " . $details['invoice_id'] . PHP_EOL;
+
+                $invoices['meta']['invoice_id'] = $details['invoice_id'];
+            } else {
+                $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+
+                log_message('info', __FUNCTION__ . " New Invoice ID Generated: " . $invoices['meta']['invoice_id']);
+                echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
+            }
+            
+            $status = $this->send_request_to_create_main_excel($invoices, $invoice_type);
+            if ($status) {
+
+                log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
+                $this->generate_buyback_detailed_invoices($vendor_id, $invoices['annexure_data'], $invoices['meta'], $invoice_type, $details['agent_id']);
+                return true;
+            } else {
+                
+                log_message('info', __FUNCTION__ . ' Invoice File is not created. invoice id' . $invoices['meta']['invoice_id']);
+                echo ' Invoice File is not created. invoice id' . $invoices['meta']['invoice_id']. PHP_EOL;
+                return false;
+            }
+        } else {
+            log_message('info', __FUNCTION__ . "=> Data Not Found for Cash Invoice" . print_r($details));
+
+            echo "Data Not Found for Cash Invoice" . PHP_EOL;
+
+            return FALSE;
+        }
+    }
+    
+    function generate_buyback_detailed_invoices($vendor_id, $data, $meta, $invoice_type, $agent_id){
+        log_message('info', __FUNCTION__ . " Entering...." );
+        $files = array();
+        // it stores all unique booking id which is completed by particular vendor id
+        $unique_booking = array_unique(array_map(function ($k) {
+                        return $k['partner_order_id'];
+                    }, $data));
+                    
+        $meta['count'] = count($unique_booking);
+        
+        $template = 'Buyback-Annexure-v1.xlsx';
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
+        $this->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+        array_push($files, $output_file_excel);
+        
+        $convert = $this->send_request_to_convert_excel_to_pdf($meta['invoice_id'], $invoice_type); 
+        $output_file_main = $convert['main_pdf_file_name'];
+        array_push($files, TMP_FOLDER.$convert['excel_file']);
+
+        log_message('info', 'Excel data: ' . print_r($meta, true));
+         if ($invoice_type === "final") {
+
+            $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+            $rem_email_id = "";
+            if (!empty($rm_details)) {
+                $rem_email_id = ", " . $rm_details[0]['official_email'];
+            }
+            $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
+            
+            $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id;
+            $cc = "";
+            $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
+                
+            //get email template from database
+            $email_template = $this->booking_model->get_booking_email_template(BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
+            $subject = vsprintf($email_template[4], array($meta['company_name'],$meta['sd'],$meta['ed']));
+            $message = $email_template[0];
+            $email_from = $email_template[2];
+                
+            $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement);
+
+            //Send SMS to PoC/Owner
+            $this->send_invoice_sms("Buyback",  $meta['sd'], $meta['sub_total_amount'], $meta['owner_phone_1'], $vendor_id);
+
+           //Upload Excel files to AWS
+            $this->upload_invoice_to_S3($meta['invoice_id']);
+
+            //Save this invoice info in table
+            $invoice_details = array(
+                'invoice_id' => $meta['invoice_id'],
+                'type' => 'Buyback',
+                'type_code' => 'A',
+                'vendor_partner' => 'vendor',
+                'vendor_partner_id' => $vendor_id,
+                'invoice_file_main' => $output_file_main,
+                'invoice_file_excel' => $meta['invoice_id'] . '.xlsx',
+                'invoice_detailed_excel' => $meta['invoice_id'] . '-detailed.xlsx',
+                'invoice_date' => date("Y-m-d"),
+                'from_date' => date("Y-m-d", strtotime($meta['sd'])),
+                'to_date' => date("Y-m-d", strtotime($meta['ed'])),
+                'num_bookings' =>  $meta['count'],
+                'total_service_charge' => $meta['sub_total_amount'],
+                'total_amount_collected' => $meta['sub_total_amount'],
+                'around_royalty' => $meta['sub_total_amount'],
+                'invoice_date' => date('Y-m-d'),
+                //Amount needs to be collected from Vendor
+                'amount_collected_paid' =>$meta['sub_total_amount'],
+                //Mail has not 
+                'mail_sent' => $mail_ret,
+                //SMS has been sent or not
+                'sms_sent' => 1,
+                //Add 1 month to end date to calculate due date
+                'due_date' => date("Y-m-d", strtotime($meta['ed'] . "+1 month")),
+                //add agent_id
+                'agent_id' => $agent_id,
+            );
+
+            $this->invoices_model->action_partner_invoice($invoice_details);
+            exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
+            log_message('info', __METHOD__ . ': Invoice ' . $meta['invoice_id'] . ' details  entered into invoices table');
+
+
+            $this->update_invoice_id_in_buyback($data, $meta['invoice_id'], $invoice_type, "cp_invoice_id");
+        } else {
+            
+            $this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_file_main);
+        }
+        
+        //Delete XLS files now
+        foreach ($files as $file_name) {
+            exec("rm -rf " . escapeshellarg($file_name));
+        }
+        unset($meta);
+        unset($invoice_details);
+        return true;
+
+    }
 
     function generate_invoice_excel($template, $meta, $data, $output_file_excel) {
        
@@ -1825,10 +1992,10 @@ class Invoice extends CI_Controller {
         }
         $cell = false;
         $sign_path = false;
-        if(isset($meta['sign_path'])){
-          $cell = $meta['cell'];
-          $sign_path = $meta['sign_path'];
-        }
+//        if(isset($meta['sign_path'])){
+//          $cell = $meta['cell'];
+//          $sign_path = $meta['sign_path'];
+//        }
         $R->render('excel', $output_file_excel,$cell, $sign_path);
         
         log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
