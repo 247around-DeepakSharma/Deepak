@@ -7,10 +7,8 @@
   <table class="table table-bordered  table-hover table-striped data"  >
    <thead>
       <tr >
-         <th>No #</th>
+         
          <th>Invoice Id</th>
-          <th>Main Invoice File</th>
-         <th>Detailed Invoice File</th>
          <th>Type</th>
          <th>Bookings</th>
          <th>Invoice Period</th>
@@ -18,8 +16,8 @@
          <th>Additional Service Charges</th>
          <th>Parts / Stands</th>
          <th>TDS Amount</th>
-         <th>Upcountry Charges</th>
-         <th>Courier Charges</th>
+         <th style="display:none;">Upcountry Charges</th>
+         <th style="display:none;">Courier Charges</th>
          <th>Penalty</th>
          <th>GST Amount</th>
          <th>Amount to be Paid By 247Around</th>
@@ -28,7 +26,7 @@
          <th>Select</th>
          <th>ReGenerate</th>
          <th>Update</th>
-         <th>Invoice History</th>
+        
       </tr>
    </thead>
    <tbody>
@@ -49,10 +47,16 @@
          foreach($invoice_array as $key =>$invoice) {?>
 
       <tr <?php if($invoice['settle_amount'] == 1){ ?> style="background-color: #90EE90; " <?php } ?>>
-         <td><?php echo $count;?></td>
-         <td><?php echo $invoice['invoice_id']; ?></td>
-         <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_file_main']; ?>"><?php echo $invoice['invoice_file_main']; ?></a></td>
-         <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_detailed_excel']; ?>"><?php echo $invoice['invoice_detailed_excel']; ?></a></td>
+         
+         <td><?php echo $invoice['invoice_id']; ?>
+             <p style="margin-top:15px;">
+                 <a  href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_file_main']; ?>">Main</a>
+             </p> <p style="margin-top:15px;">
+             <a  href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_detailed_excel']; ?>">Detail</a>
+             </p> <p style="margin-top:15px;">
+             <a  href="javascript:void(0);" class="get_invoice_payment_history" data-id="<?php echo $invoice['invoice_id'];?>">History</a>
+             </p>
+         </td>
         
          <td style="max-width: 56px; word-wrap:break-word;"><?php echo $invoice['type']; ?></td>
          <td ><?php echo $invoice['num_bookings']; ?></td>
@@ -62,8 +66,8 @@
          <td><?php echo round($invoice['total_additional_service_charge'],0); $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
          <td><?php echo (round(($invoice['parts_cost'] + $invoice['vat']),0)); $sum_total_parts_cost +=($invoice['parts_cost'] + $invoice['vat']); ?></td>
          <td id="<?php echo 'tds_'.$count; ?>"><?php echo round($invoice['tds_amount'],0); $sum_tds +=$invoice['tds_amount'];?></td>
-         <td id="<?php echo 'upcountry_'.$count; ?>"><?php if($invoice['type'] == "Cash" && $invoice['vendor_partner'] == "vendor") { echo "-".round($invoice['upcountry_price'],0);} else { echo round($invoice['upcountry_price'],0); } ?></td>
-         <td id="<?php echo 'courier_charges_'.$count; ?>"><?php echo round($invoice['courier_charges'],0); ?></td>
+         <td style="display:none;" id="<?php echo 'upcountry_'.$count; ?>"><?php if($invoice['type'] == "Cash" && $invoice['vendor_partner'] == "vendor") { echo "-".round($invoice['upcountry_price'],0);} else { echo round($invoice['upcountry_price'],0); } ?></td>
+         <td style="display:none;" id="<?php echo 'courier_charges_'.$count; ?>"><?php echo round($invoice['courier_charges'],0); ?></td>
          <td id="<?php echo 'penalty_'.$count; ?>"><?php echo "-".round($invoice['penalty_amount'],0); ?></td>
          <td id="<?php echo 'gst_'.$count; ?>"><?php echo round($invoice['igst_tax_amount'] + $invoice['cgst_tax_amount'] + $invoice['sgst_tax_amount'],0); ?></td>
          <td id="<?php echo 'pay_247'.$count; ?>" ><?php  if($invoice['amount_collected_paid'] < 0){ echo round($invoice['amount_collected_paid'],0); $pay_by_247 += ($invoice['amount_collected_paid'] );} else {echo "0.00"; } ?></td>
@@ -85,7 +89,7 @@
          <td>
              <?php if($invoice['vendor_partner'] == "vendor") { ?>
              <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?>>ReGenerate
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?>>Action
                 <span class="caret"></span></button>
                 <ul class="dropdown-menu">
                     <li><a href="<?php echo base_url();?>employee/invoice/regenerate_invoice/<?php echo $invoice['invoice_id'];?>/final">Final</a></li>
@@ -98,7 +102,7 @@
          <td>
              <a href="<?php echo base_url()?>employee/invoice/insert_update_invoice/<?php echo $invoice['vendor_partner'];?>/<?php echo $invoice['invoice_id'];?>" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?> class="btn btn-sm btn-info" >Update</a>
          </td>
-         <td><a href="javascript:void(0);" class="get_invoice_payment_history" data-id="<?php echo $invoice['invoice_id'];?>"><i class="fa fa-eye fa-2x" aria-hidden="true"></i></a></td>
+         
 
           <?php  $count = $count+1;  ?>
 <!--         <td class="col-md-6">
@@ -117,9 +121,6 @@
       <tr>
          <td><b>Total</b></td>
          <td></td>
-          <td></td>
-         <td></td>
-         <td></td>
          <td></td>
          <td></td>
          <td><?php echo round($sum_of_total_service_charges,0); ?></td>
@@ -134,8 +135,8 @@
          <td id="final_amount_selected"></td>
          <td><input type="submit" class="form-control btn btn-sm btn-primary" value="Pay"></td>
           <td> </td>
-         <td> </td>
-         <td> </td>
+        
+       
          
       </tr>
    </tbody>
