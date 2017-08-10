@@ -684,7 +684,7 @@ class Invoice extends CI_Controller {
         $json_result = $this->miscelleneous->convert_excel_to_pdf(TMP_FOLDER.$excel_file_to_convert_in_pdf,$invoice_id, "invoices-excel");
         log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result,TRUE));
         $pdf_response = json_decode($json_result,TRUE);
-           
+        $output_pdf_file_name = $excel_file_to_convert_in_pdf;
         if($pdf_response['response'] === 'Success'){
             $output_pdf_file_name = $pdf_response['output_pdf_file'];
             log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
@@ -2305,7 +2305,7 @@ class Invoice extends CI_Controller {
         }
         log_message('info', __FUNCTION__ . " Exit....");
    
-        return $invoice_id_tmp . sprintf("%'.04d\n", $invoice_no);
+        return trim($invoice_id_tmp . sprintf("%'.04d\n", $invoice_no));
   
     }
 
