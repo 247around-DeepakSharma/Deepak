@@ -2282,9 +2282,9 @@ class Invoice extends CI_Controller {
         $current_month = date('m');
         // 3 means March Month
         if ($current_month > 3) {
-            $financial = date('y') . "-" . (date('y') + 1);
+            $financial = date('y'). (date('y') + 1);
         } else {
-            $financial = (date('y') - 1) . "-" . date('y');
+            $financial = (date('y') - 1) .  date('y');
         }
 
         //Make sure it is unique
@@ -2304,7 +2304,8 @@ class Invoice extends CI_Controller {
             $invoice_no = $int_invoice[0];
         }
         log_message('info', __FUNCTION__ . " Exit....");
-        return $invoice_id_tmp . $invoice_no;
+   
+        return $invoice_id_tmp . sprintf("%'.04d\n", $invoice_no);
   
     }
 
