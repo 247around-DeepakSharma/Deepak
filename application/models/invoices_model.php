@@ -1252,6 +1252,7 @@ class invoices_model extends CI_Model {
             $meta['company_address'] = $data[0]['company_address'];
             $meta['state'] = $data[0]['state'];
             $meta['state_code'] = $data[0]['state_code'];
+            $meta['gst_number'] = $data[0]['gst_no'];
             
             $data1['meta'] = $meta;
             $data1['booking'] = $commission_charge;
@@ -1269,7 +1270,7 @@ class invoices_model extends CI_Model {
                 $is_foc_null = " AND cp_invoice_id IS NULL ";
         }
         $sql = "SELECT bb_unit_details.id AS unit_id, order_date, services, bb_order_details.partner_order_id,
-                city, partner_tracking_id, order_key,owner_phone_1, delivery_date, order_date,
+                city, partner_tracking_id, order_key,owner_phone_1, delivery_date, order_date,gst_no,
                 sc.company_name, sc.address as company_address, sc.state,state_code,
                 CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_invoice_id) 
