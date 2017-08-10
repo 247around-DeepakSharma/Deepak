@@ -1235,8 +1235,14 @@ class invoices_model extends CI_Model {
             $commission_charge = array();
             $commission_charge[0]['description'] = "E-Gift Vouchers";
             $commission_charge[0]['taxable_value'] = $meta['sub_total_amount'] = (array_sum(array_column($data, 'cp_charge')));
-            $commission_charge[0]['hsn_code'] = $meta['total_qty'] =  $commission_charge[0]['qty'] = $commission_charge[0]['rate'] ='';
+            $commission_charge[0]['hsn_code'] =  '';
             $meta['invoice_template'] = "Buyback-v1.xlsx";
+            $unique_booking = array_unique(array_map(function ($k) {
+                        return $k['partner_order_id'];
+                    }, $data));
+                    
+            $commission_charge[0]['qty'] = $meta['total_qty']  = count($unique_booking);
+            $commission_charge[0]['rate'] = $meta['sub_total_amount']/$meta['total_qty'];
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
             $meta['invoice_date'] = date("jS M, Y");

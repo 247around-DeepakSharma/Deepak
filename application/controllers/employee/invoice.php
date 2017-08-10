@@ -1861,13 +1861,7 @@ class Invoice extends CI_Controller {
     function generate_buyback_detailed_invoices($vendor_id, $data, $meta, $invoice_type, $agent_id){
         log_message('info', __FUNCTION__ . " Entering...." );
         $files = array();
-        // it stores all unique booking id which is completed by particular vendor id
-        $unique_booking = array_unique(array_map(function ($k) {
-                        return $k['partner_order_id'];
-                    }, $data));
-                    
-        $meta['count'] = count($unique_booking);
-        
+
         $template = 'Buyback-Annexure-v1.xlsx';
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
         $this->generate_invoice_excel($template, $meta, $data, $output_file_excel);
