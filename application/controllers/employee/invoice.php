@@ -1048,12 +1048,12 @@ class Invoice extends CI_Controller {
                     'service_tax' => 0,
                     'parts_cost' => $total_stand_charge,
                     'vat' => 0.00,
-                    'total_amount_collected' => ($t_vp_w_tds + $invoice_data['meta']['tds']),
+                    'total_amount_collected' => ($invoice_data['meta']['sub_total_amount']),
                     'tds_amount' => $invoice_data['meta']['tds'],
                     'rating' => $invoice_data['meta']['t_rating'],
                     'around_royalty' => 0,
                     //Amount needs to be Paid to Vendor
-                    'amount_collected_paid' => (0 - $t_vp_w_tds),
+                    'amount_collected_paid' => (0 - ($invoice_data['meta']['sub_total_amount'] - $invoice_data['meta']['tds'])),
                     //Mail has not sent
                     'mail_sent' => $mail_ret,
                     'tds_rate' => $invoice_data['meta']['tds_tax_rate'],
