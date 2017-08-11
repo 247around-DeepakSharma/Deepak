@@ -610,7 +610,12 @@ class Invoice extends CI_Controller {
 
             if (!empty($upcountry)) {
                 foreach ($upcountry as $up_booking_details) {
-                    $this->booking_model->update_booking($up_booking_details['booking_id'], array('upcountry_partner_invoice_id' => $meta['invoice_id']));
+                    $up_b = explode(",", $up_booking_details['booking_id']);
+                    for($i=0; $i < count($up_b); $i++){
+                        
+                        $this->booking_model->update_booking(trim($up_b[$i]), array('upcountry_partner_invoice_id' => $meta['invoice_id']));
+                    }
+
                 }
             }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
