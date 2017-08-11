@@ -120,7 +120,6 @@
                         <input type="hidden" name="city" value="<?php echo $city; ?>">
                         <input type="hidden" name="partner_order_key" value="" id="partner_order_key">
                         <input type="hidden" name="cp_id" value="<?php echo $cp_id; ?>" id="cp_id">
-                        <input type="hidden" value="<?php echo $cp_id; ?>" id="cp_id">
                         <input type="hidden" name = "cp_basic_charge" value="<?php echo round($cp_basic_charge[0]['cp_basic_charge']); ?>" id="cp_basic_charge">
                         <input type="submit" class="btn btn-success" id="submit" value="Submit">
                     </div>
