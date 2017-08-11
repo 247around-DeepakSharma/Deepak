@@ -252,33 +252,6 @@ class Inventory_model extends CI_Model {
     }
     
     /**
-     * @Desc: This function is used to get brackets details of vendor
-     *          whose brackets have been received successfully of particular month
-     * @params: $vendor_id
-     * @return: Array
-     * 
-     */
-    function get_vendor_bracket_invoices($vendor_id,$from_date,$to_date){
-       //Getting date range
-     
-        $sql = 'SELECT SUM(brackets.19_24_received) as _19_24_total, SUM(brackets.26_32_received) as _26_32_total,
-                    SUM(brackets.36_42_received) as _36_42_total,SUM(brackets.43_received) as _43_total,
-                    SUM(brackets.total_received) as total_received,
-                    sc.name as vendor_name,sc.state,sc.sc_code,
-                    CONCAT(  "", GROUP_CONCAT( DISTINCT (brackets.order_id) ) ,  "" ) AS order_id,
-                    brackets.order_received_from as vendor_id,
-                    sc.address as vendor_address, sc.owner_phone_1 as owner_phone_1,
-                    sc.state
-                    
-                    FROM brackets,service_centres as sc WHERE brackets.received_date >= "'.$from_date.'" 
-                    AND brackets.received_date <= "'.$to_date.'" AND brackets.is_received= "1" 
-                    AND brackets.order_received_from = "'.$vendor_id.'" 
-                    AND sc.id = brackets.order_received_from GROUP BY brackets.order_received_from';
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
-    
-    /**
      * @Desc: This function is used to get order id from previously entered order values
      * @params: void
      * @return: void

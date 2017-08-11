@@ -1315,7 +1315,6 @@ class Partner_model extends CI_Model {
         return $query->result_array();
     }
     
-    
     /**
      * @Desc: This function is used to get the spare part details by any option
      * @params: $select string

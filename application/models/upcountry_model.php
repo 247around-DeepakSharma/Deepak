@@ -380,17 +380,7 @@ class Upcountry_model extends CI_Model {
                 . " round((customer_paid_upcountry_charges * 0.30 ),2) AS service_charges,"
                 . " ud.appliance_category, ud.appliance_capacity, "
                 . " date_format(bd.closed_date,'%d/%m/%Y') as closed_date,"
-                . " 'Upcountry Services' as price_tags, '' AS around_net_payable, "
-                . " '' AS parts_cost, customer_paid_upcountry_charges as amount_paid, rating_stars, "
-                . " '' AS additional_charges, "
-                . " sc.state, sc.service_tax_no, sc.company_name,
-                    sc.address as vendor_address, sc_code,
-                    sc.primary_contact_email, sc.owner_email,
-                   (case when (sc.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin,
-                    sc.beneficiary_name, sc.id, sc.owner_phone_1,
-                    sc.bank_account, 
-                    sc.bank_name,
-		    sc.ifsc_code, sc.address "
+                . " 'Upcountry Services' as price_tags "
                 . " FROM `booking_details` AS bd, booking_unit_details AS ud, service_centres as sc, services "
                 . " WHERE ud.booking_id = bd.booking_id "
                 . " AND bd.assigned_vendor_id = '$vendor_id' "

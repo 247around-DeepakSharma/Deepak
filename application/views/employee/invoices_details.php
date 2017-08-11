@@ -85,7 +85,7 @@
           url: '<?php echo base_url(); ?>employee/invoice/delete_banktransaction/'+ transactional_id,
           
           success: function (data) {
-            if(data =="success"){
+            if(data ==="success"){
                getInvoicingData("vendor");
             }
          
