@@ -82,6 +82,15 @@
                 <div class="row">
                     <div class="remarks">
                         <div class="form-group form-inline">
+                            <label for="remarks" class="col-md-2">Claimed Price:</label>
+                            <input class="col-md-4 form-control"  id="claimed_price" name="claimed_price" onkeypress="return isNumberKey(event)" required>
+                            <span id="claimed_price_error" class="text-danger text-center col-md-6" style="display:none;"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="remarks">
+                        <div class="form-group form-inline">
                             <label for="remarks" class="col-md-2">Remarks:</label>
                             <textarea class="col-md-8" rows="3" id="remarks" name="remarks" required></textarea>
                         </div>
@@ -111,6 +120,8 @@
                         <input type="hidden" name="city" value="<?php echo $city; ?>">
                         <input type="hidden" name="partner_order_key" value="" id="partner_order_key">
                         <input type="hidden" name="cp_id" value="<?php echo $cp_id; ?>" id="cp_id">
+                        <input type="hidden" value="<?php echo $cp_id; ?>" id="cp_id">
+                        <input type="hidden" name = "cp_basic_charge" value="<?php echo round($cp_basic_charge[0]['cp_basic_charge']); ?>" id="cp_basic_charge">
                         <input type="submit" class="btn btn-success" id="submit" value="Submit">
                     </div>
                 </div>
@@ -253,6 +264,33 @@
                 }); 
             }
         });
+        
+        
+        $("#claimed_price").blur(function() {
+            var claimed_price = $(this).val();
+            var final_claimed_price = Math.round(($('#cp_basic_charge').val() * .30),0);
+            var alert_msg = 'Price You Entered Is Too Low. We can not accept entered amount for this order.Please Enter an amount greater than or equal to <b>Rs.' + final_claimed_price + '</b>';
+            if(claimed_price < final_claimed_price){
+                //alert(alert_msg);
+                $('#claimed_price_error').html(alert_msg).show();
+                $(this).css({'border-color' : '#a94442'});
+                $('#submit').attr('disabled','disabled');
+            }else{
+                $('#claimed_price_error').html('').hide();
+                $(this).css({'border-color' : '#ccc'});
+                $('#submit').removeAttr('disabled');
+            }
+        });
+        
+        function isNumberKey(evt)
+        {
+           var charCode = (evt.which) ? evt.which : evt.keyCode;
+           if (charCode !== 46 && charCode > 31 
+             && (charCode < 48 || charCode > 57))
+              return false;
+
+           return true;
+        }
         
 </script>
 <?php 

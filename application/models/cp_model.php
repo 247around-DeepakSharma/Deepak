@@ -7,6 +7,11 @@ class Cp_model extends CI_Model {
     var $column_search = array('name', 'contact_person',
         'shop_address_region', 'primary_contact_number', 'shop_address_line1'); //set column field database for datatable searchable 
     var $order = array('name,bb_shop_address.shop_address_region ' => 'asc'); // default order 
+    
+    var $bb_select = 'bb_unit_details.partner_order_id,bb_order_details.partner_id, services,city, order_date, '
+            . 'bb_cp_order_action.internal_status, delivery_date, bb_cp_order_action.current_status, partner_basic_charge, '
+            . 'cp_basic_charge,cp_tax_charge,bb_unit_details.order_key, bb_unit_details.service_id,'
+            . 'bb_order_details.assigned_cp_id,bb_cp_order_action.admin_remarks,bb_unit_details.category';
 
     /**
      * @desc load both db
@@ -31,7 +36,7 @@ class Cp_model extends CI_Model {
         $this->db->select('bb_shop_address.id, name, contact_person, '
                 . 'shop_address_region,shop_address_city, primary_contact_number, alternate_conatct_number, shop_address_line1,'
                 . 'shop_address_line2, shop_address_pincode, bb_shop_address.active,'
-                . ' bb_shop_address.contact_email, tin_number, alternate_conatct_number2, shop_address_state');
+                . ' bb_shop_address.contact_email, tin_number, alternate_conatct_number2, shop_address_state,cp_capacity');
 
         $this->db->from('bb_shop_address');
         $this->db->join('service_centres', 'service_centres.id = bb_shop_address.cp_id ');
@@ -98,7 +103,7 @@ class Cp_model extends CI_Model {
      */
     function get_bb_cp_order_list($post) {
        
-        $this->bb_model->_get_bb_order_list_query($post);
+        $this->bb_model->_get_bb_order_list_query($post,$this->bb_select);
         $this->db->join('bb_cp_order_action', 'bb_cp_order_action.partner_order_id = bb_unit_details.partner_order_id '
                 . 'AND bb_order_details.assigned_cp_id = bb_cp_order_action.cp_id');
 
@@ -116,7 +121,7 @@ class Cp_model extends CI_Model {
      * @return Number of rows
      */
     function cp_order_list_count_filtered($post) {
-        $this->bb_model->_get_bb_order_list_query($post);
+        $this->bb_model->_get_bb_order_list_query($post,$this->bb_select);
         $this->db->join('bb_cp_order_action', 'bb_cp_order_action.partner_order_id = bb_unit_details.partner_order_id '
                 . 'AND bb_order_details.assigned_cp_id = bb_cp_order_action.cp_id');
 

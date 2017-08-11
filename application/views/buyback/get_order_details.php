@@ -69,6 +69,7 @@
                                             <th>Status</th>
                                             <th>Exchange Value</th>
                                             <th>SF Charge</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -76,7 +77,7 @@
                                 </table>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="delivered-tab">
-                                <table id="datatable2" class="table table-striped table-bordered" style="width: 100%;">
+                                <table id="datatable2" class="table table-striped table-bordered" style="width: 100%; margin-bottom: 100px;">
                                     <thead>
                                         <tr>
                                             <th>No.</th>
@@ -199,7 +200,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1,6,7], //first column / numbering column
+                    "targets": [0,1,6,7,8], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],

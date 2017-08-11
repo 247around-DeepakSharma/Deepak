@@ -59,132 +59,139 @@ class Upload_buyback_process extends CI_Controller {
         if (!empty($_FILES['file']['name'])) {
             $order_file = $_FILES["file"]["name"];
             $pathinfo = pathinfo($_FILES["file"]["name"]);
-            if (($pathinfo['extension'] == 'xlsx' || $pathinfo['extension'] == 'xls') && $_FILES['file']['size'] > 0) {
-                $inputFileName = $_FILES['file']['tmp_name'];
-                if ($pathinfo['extension'] == 'xlsx') {
-                    $inputFileExtn = 'Excel2007';
-                } else {
-                    $inputFileExtn = 'Excel5';
-                }
-
-                $template = array(
-                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                );
-
-                $this->table->set_template($template);
-
-                $this->table->set_heading(array('Order ID'));
-
-                try {
-//                    $notify['notification'] = "Please Wait. File is under process.";
-//                    $this->load->view('notification', $notify, FALSE);
-
-                    $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
-                    $objPHPExcel = $objReader->load($inputFileName);
-
-                    $sheet = $objPHPExcel->getSheet(0);
-                    $highestRow = $sheet->getHighestRow();
-                    $highestColumn = $sheet->getHighestColumn();
-
-                    $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
-
-                    $headings_new = array();
-                    foreach ($headings as $heading) {
-                        $heading = str_replace(array("/", "(", ")", " ", "."), "", $heading);
-                        array_push($headings_new, str_replace(array(" "), "_", $heading));
+            $MB = 1048576;
+            if (($pathinfo['extension'] == 'xlsx' || $pathinfo['extension'] == 'xls')) {
+                if($_FILES['file']['size'] > 0 && $_FILES['file']['size'] < 2*$MB){
+                    $inputFileName = $_FILES['file']['tmp_name'];
+                    if ($pathinfo['extension'] == 'xlsx') {
+                        $inputFileExtn = 'Excel2007';
+                    } else {
+                        $inputFileExtn = 'Excel5';
                     }
-                    $message = "";
-                    $error = false;
-                    for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
-                        //  Read a row of data into an array
-                        $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
-                        $rowData11 = array_combine($headings_new[0], $rowData[0]);
-                        $rowData1 = array_change_key_case($rowData11);
-                        $this->Columfailed = "";
-                        $status = $this->check_column_exist($rowData1);
-                        if ($status) {
-                            //Change index in lower case
-                            $this->initialized_variable->set_post_buyback_order_details(array());
 
-                            $rowData1['partner_id'] = 247024;
-                            $rowData1['partner_name'] = "Amazon";
-                            $rowData1['partner_charge'] = $rowData1['discount_value'];
-                            $dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['order_day']);
-                            $rowData1['order_date'] = $dateObj1->format('Y-m-d');
-                            $rowData1['order_key'] = $rowData1['usediteminfo'];
-                            $rowData1['current_status'] = $rowData1['orderstatus'];
-                            $rowData1['partner_sweetner_charges'] = $rowData1['sweetenervalue'];
-                            $rowData1['partner_order_id'] = $rowData1['order_id'];
-                            $rowData1['partner_basic_charge'] = $rowData1['discount_value'];
-                            $rowData1['delivery_date'] = "";
-                            if ($rowData1['city'] == '0') {
-                                $rowData1['city'] = "";
-                            }
-                            if (!empty($rowData1['old_item_del_date'])) {
-                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['old_item_del_date']);
-                                $rowData1['delivery_date'] = $dateObj2->format('Y-m-d');
-                            }
+                    $template = array(
+                        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                    );
 
-                            unset($rowData1['order_id']);
-                            unset($rowData1['discount_value']);
-                            unset($rowData1['order_day']);
-                            unset($rowData1['usediteminfo']);
-                            unset($rowData1['orderstatus']);
-                            unset($rowData1['sweetnervalue']);
-                            unset($rowData1['old_item_del_date']);
+                    $this->table->set_template($template);
 
-                            //set file data into global variable
-                            $this->initialized_variable->set_post_buyback_order_details($rowData1);
+                    $this->table->set_heading(array('Order ID'));
 
-                            //Insert/Update BB order details
-                            $status1 = $this->buyback->check_action_order_details();
-                            $this->initialized_variable->set_post_buyback_order_details(array());
-                            if ($status1) {
-                                
+                    try {
+    //                    $notify['notification'] = "Please Wait. File is under process.";
+    //                    $this->load->view('notification', $notify, FALSE);
+
+                        $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
+                        $objPHPExcel = $objReader->load($inputFileName);
+
+                        $sheet = $objPHPExcel->getSheet(0);
+                        $highestRow = $sheet->getHighestRow();
+                        $highestColumn = $sheet->getHighestColumn();
+
+                        $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+
+                        $headings_new = array();
+                        foreach ($headings as $heading) {
+                            $heading = str_replace(array("/", "(", ")", " ", "."), "", $heading);
+                            array_push($headings_new, str_replace(array(" "), "_", $heading));
+                        }
+                        $message = "";
+                        $error = false;
+                        for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
+                            //  Read a row of data into an array
+                            $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
+                            $rowData11 = array_combine($headings_new[0], $rowData[0]);
+                            $rowData1 = array_change_key_case($rowData11);
+                            $this->Columfailed = "";
+                            $status = $this->check_column_exist($rowData1);
+                            if ($status) {
+                                //Change index in lower case
+                                $this->initialized_variable->set_post_buyback_order_details(array());
+
+                                $rowData1['partner_id'] = 247024;
+                                $rowData1['partner_name'] = "Amazon";
+                                $rowData1['partner_charge'] = $rowData1['discount_value'];
+                                $dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['order_day']);
+                                $rowData1['order_date'] = $dateObj1->format('Y-m-d');
+                                $rowData1['order_key'] = $rowData1['usediteminfo'];
+                                $rowData1['current_status'] = $rowData1['orderstatus'];
+                                $rowData1['partner_sweetner_charges'] = $rowData1['sweetenervalue'];
+                                $rowData1['partner_order_id'] = $rowData1['order_id'];
+                                $rowData1['partner_basic_charge'] = $rowData1['discount_value'];
+                                $rowData1['delivery_date'] = "";
+                                if ($rowData1['city'] == '0') {
+                                    $rowData1['city'] = "";
+                                }
+                                if (!empty($rowData1['old_item_del_date'])) {
+                                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['old_item_del_date']);
+                                    $rowData1['delivery_date'] = $dateObj2->format('Y-m-d');
+                                }
+
+                                unset($rowData1['order_id']);
+                                unset($rowData1['discount_value']);
+                                unset($rowData1['order_day']);
+                                unset($rowData1['usediteminfo']);
+                                unset($rowData1['orderstatus']);
+                                unset($rowData1['sweetnervalue']);
+                                unset($rowData1['old_item_del_date']);
+
+                                //set file data into global variable
+                                $this->initialized_variable->set_post_buyback_order_details($rowData1);
+
+                                //Insert/Update BB order details
+                                $status1 = $this->buyback->check_action_order_details();
+                                $this->initialized_variable->set_post_buyback_order_details(array());
+                                if ($status1) {
+
+                                } else {
+
+                                    $this->table->add_row($rowData1['partner_order_id']);
+                                }
                             } else {
 
-                                $this->table->add_row($rowData1['partner_order_id']);
+                                $error = true;
+                                break;
                             }
+                        }
+                        $total_lead = $i;
+
+                        if ($error) {
+                            $response = array("code" => -247, "msg" => $this->Columfailed);
+                            echo json_encode($response);
                         } else {
 
-                            $error = true;
-                            break;
+                            $to = NITS_ANUJ_EMAIL_ID . "," . ADIL_EMAIL_ID;
+                            $cc = "abhaya@247around.com";
+
+
+                            $subject = "Buyback Order is uploaded by " . $this->session->userdata('employee_id');
+
+                            $message .= "Order File Name ----".$order_file."<br/><br/>";
+                            $message .= "Total lead  ----" . $total_lead . "<br/><br/>";
+
+                            $message .= "Total Delivered ----" . ($this->initialized_variable->delivered_count()) . "<br/><br/>";
+                            $message .= "Total Inserted ----" . ($this->initialized_variable->total_inserted()) . "<br/><br/>";
+                            $message .= "Total Updated ----" . ($this->initialized_variable->total_updated()) . "<br/><br/>";
+                            $message .= "Total Not Assigned ----" . ($this->initialized_variable->not_assigned_order()) . "<br/><br/>";
+                            $message .= "Please check below orders, these were neither inserted nor updated: <br/><br/><br/>";
+                            $message .= $this->table->generate();
+
+                            $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
+
+                            $this->upload_file_to_S3($order_file, _247AROUND_BB_ORDER_LIST, $_FILES['file']['tmp_name']);
+                            $response = array("code" => 247, "msg" => "File sucessfully processed.");
+                            echo json_encode($response);
                         }
+                    } catch (Exception $e) {
+                        die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
                     }
-                    $total_lead = $i;
-                    
-                    if ($error) {
-                        $response = array("code" => -247, "msg" => $this->Columfailed);
-                        echo json_encode($response);
-                    } else {
-
-                        $to = NITS_ANUJ_EMAIL_ID . "," . ADIL_EMAIL_ID;
-                        $cc = "abhaya@247around.com";
-
-
-                        $subject = "Buyback Order is uploaded by " . $this->session->userdata('employee_id');
-
-                        $message .= "Order File Name ----".$order_file."<br/><br/>";
-                        $message .= "Total lead  ----" . $total_lead . "<br/><br/>";
-
-                        $message .= "Total Delivered ----" . ($this->initialized_variable->delivered_count()) . "<br/><br/>";
-                        $message .= "Total Inserted ----" . ($this->initialized_variable->total_inserted()) . "<br/><br/>";
-                        $message .= "Total Updated ----" . ($this->initialized_variable->total_updated()) . "<br/><br/>";
-                        $message .= "Total Not Assigned ----" . ($this->initialized_variable->not_assigned_order()) . "<br/><br/>";
-                        $message .= "Please check below orders, these were neither inserted nor updated: <br/><br/><br/>";
-                        $message .= $this->table->generate();
-
-                        $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
-                        
-                        $this->upload_file_to_S3($order_file, _247AROUND_BB_ORDER_LIST, $_FILES['file']['tmp_name']);
-                        $response = array("code" => 247, "msg" => "File sucessfully processed.");
-                        echo json_encode($response);
-                    }
-                } catch (Exception $e) {
-                    die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
+                } else {
+                    $response = array("code" => -247, "msg" => "Upload file size must be less than 2mb.");
+                    echo json_encode($response);
                 }
             } else {
-                echo json_decode("Error", "File format is not correct. Only XLS or XLSX files are allowed.");
+                $response = array("code" => -247, "msg" => "File Format Is Incorrct. Please Upload Only xlsx Or xlx file");
+                echo json_encode($response);
             }
         }
     }

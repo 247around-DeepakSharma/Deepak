@@ -21,6 +21,7 @@
          <th>Upcountry Charges</th>
          <th>Courier Charges</th>
          <th>Penalty</th>
+         <th>GST Amount</th>
          <th>Amount to be Paid By 247Around</th>
          <th>Amount to be Paid By Partner</th>
          <th>Amount Paid</th> 
@@ -64,6 +65,7 @@
          <td id="<?php echo 'upcountry_'.$count; ?>"><?php if($invoice['type'] == "Cash" && $invoice['vendor_partner'] == "vendor") { echo "-".round($invoice['upcountry_price'],0);} else { echo round($invoice['upcountry_price'],0); } ?></td>
          <td id="<?php echo 'courier_charges_'.$count; ?>"><?php echo round($invoice['courier_charges'],0); ?></td>
          <td id="<?php echo 'penalty_'.$count; ?>"><?php echo "-".round($invoice['penalty_amount'],0); ?></td>
+         <td id="<?php echo 'gst_'.$count; ?>"><?php echo round($invoice['igst_tax_amount'] + $invoice['cgst_tax_amount'] + $invoice['sgst_tax_amount'],0); ?></td>
          <td id="<?php echo 'pay_247'.$count; ?>" ><?php  if($invoice['amount_collected_paid'] < 0){ echo round($invoice['amount_collected_paid'],0); $pay_by_247 += ($invoice['amount_collected_paid'] );} else {echo "0.00"; } ?></td>
          <td id="<?php echo 'pay_partner'.$count; ?>"><?php if($invoice['amount_collected_paid'] > 0){ echo round($invoice['amount_collected_paid'],0); $pay_by_partner += $invoice['amount_collected_paid'];} else {echo "0.00";} ?></td>
         

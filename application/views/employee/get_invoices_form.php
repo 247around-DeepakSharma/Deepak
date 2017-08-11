@@ -155,7 +155,7 @@ color: red;
 		      <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		  </div>
               </div>
-              <center><img id="loader_gif" src=""></center>
+              <img id="loader_gif" src="" class="col-md-offset-2" style="width:50px;">
 
              <div class="form-group ">
               <label for="name" class="col-md-2">Company Name</label>

@@ -6,6 +6,12 @@
         padding: 2px 5px;
         font-size: 10px;
     }
+    .select2-container{
+        width: 100%!important;
+    }
+    .form-inline .form-control{
+        width: 100%;
+    }
 </style>
 <div class="right_col" role="main">
     <div class="clearfix"></div>
@@ -31,11 +37,12 @@
                        </div>';
                         }
                         ?>
-                     <form action="<?php echo base_url();?>buyback/buyback_process/process_report_issue_bb_order_details" method="post" id="bb_order_update" role='form' enctype="multipart/form-data">    
-                        <div class="update_bb_order_details">
-                            <form action="<?php echo base_url(); ?>buyback/buyback_process/process_received_bb_order_update" method="post" id="bb_order_update" role='form'>
+                        <form class="form-horizontal" action="<?php echo base_url(); ?>buyback/buyback_process/process_report_issue_bb_order_details" method="post" id="bb_order_update" role='form' enctype="multipart/form-data">    
+                            <div class="update_bb_order_details">
                                 <div class="row">
-                                        <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                    <div class="form-group form-inline">
+                                        <label for="order_services" class="col-md-4">Select Product</label>
+                                        <div class="col-md-6">
                                             <select class="form-control" id="order_services" name="services">
                                                 <option selected disabled>Select Product</option>
                                                 <?php foreach ($products as $value) { ?> 
@@ -43,33 +50,67 @@
                                                 <?php } ?>
                                             </select>
                                         </div>
-                                        <div class="form-group col-md-6 col-sm-12 col-xs-12">
-                                            <select class="form-control " id="order_category" name="category">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group form-inline">
+                                        <label for="order_category" class="col-md-4">Select Category</label>
+                                        <div class="col-md-6">
+                                            <select class="col-md-6 form-control" id="order_category" name="category">
                                                 <option selected disabled>Select Category</option>
                                             </select>
                                         </div>
-                                        <div class="form-group col-md-6 col-sm-12 col-xs-12" id="phy_con">
-                                            <select class="form-control " id="order_physical_condition" name="order_physical_condition">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group form-inline" id="phy_con">
+                                        <label for="order_physical_condition" class="col-md-4">Select Physical Condition</label>
+                                        <div class="col-md-6">
+                                            <select class="col-md-6 form-control" id="order_physical_condition" name="order_physical_condition">
                                                 <option selected disabled>Select Physical Condition</option>
                                             </select>
                                         </div>
-                                        <div class="form-group col-md-6 col-sm-12 col-xs-12">
-                                            <select class="form-control " id="order_working_condition" name="order_working_condition">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group form-inline">
+                                        <label for="order_working_condition" class="col-md-4">Select Working Condition</label>
+                                        <div class="col-md-6">
+                                            <select class="col-md-6 form-control" id="order_working_condition" name="order_working_condition">
                                                 <option selected disabled>Select Working Condition</option>
                                             </select>
                                         </div>
-                                        <div class="form-group col-md-6 col-sm-12 col-xs-12">
-                                            <select class="form-control " id="order_brand" name="order_brand">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group form-inline">
+                                        <label for="order_brand" class="col-md-4">Select Brand</label>
+                                        <div class="col-md-6">
+                                            <select class="col-md-6 form-control" id="order_brand" name="order_brand">
                                                 <option selected disabled>Select Brand</option>
                                             </select>
                                         </div>
+                                    </div>
                                 </div>
                                 <hr>
+                                <div class="row">
+                                    <div class="claimed_price">
+                                        <div class="form-group form-inline">
+                                            <label for="claimed_price" class="col-md-4">Claimed Price:</label>
+                                            <div class="col-md-6">
+                                                <input class="form-control"  id="claimed_price" name="claimed_price" onkeypress="return isNumberKey(event)" required>
+                                                <span id="claimed_price_error" class="text-danger text-center" style="display:none;"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="row">
                                     <div class="remarks">
                                         <div class="form-group form-inline">
                                             <label for="remarks" class="col-md-4">Remarks:</label>
-                                            <textarea class="col-md-8" rows="3" id="remarks" name="remarks" required></textarea>
+                                            <div class="col-md-6">
+                                                <textarea  class="form-control" rows="3" id="remarks" name="remarks" required></textarea>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -78,7 +119,9 @@
                                     <div class="order_upload_file">
                                         <div class="form-group form-inline">
                                             <label for="order_files" class="col-md-4 info_tooltip">Upload Order Id Image:</label>
-                                            <input type="file" class="form-control col-md-8" id="order_files" name="order_files" accept="image/*" ></textarea>
+                                            <div class="col-md-6">
+                                                <input type="file" class="form-control" id="order_files" name="order_files" accept="image/*" >
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -86,7 +129,9 @@
                                     <div class="order_upload_file">
                                         <div class="form-group form-inline">
                                             <label for="damaged_order_files" class="col-md-4 info_tooltip"><i class="fa fa-info info-labal text-info fa_custom" data-toggle="tooltip" title="You can upload multiple images"></i> &nbsp;Upload Damaged Product Images:</label>
-                                            <input type="file" class="form-control col-md-8" id="damaged_order_files" name="damaged_order_files[]" accept="image/*" multiple ></textarea>
+                                            <div class="col-md-6">
+                                                <input type="file" class="form-control" id="damaged_order_files" name="damaged_order_files[]" accept="image/*" multiple >
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -97,7 +142,7 @@
                                         <input type="hidden" name="service_id" value="<?php echo $service_id; ?>">
                                         <input type="hidden" name="city" value="<?php echo $city; ?>">
                                         <input type="hidden" name="partner_order_key" value="" id="partner_order_key">
-                                        <input type="hidden" name="cp_id" value="<?php echo $cp_id; ?>" id="cp_id">
+                                        <input type="hidden" name = "cp_basic_charge" value="<?php echo round($cp_basic_charge[0]['cp_basic_charge']); ?>" id="cp_basic_charge">
                                         <input type="submit" class="btn btn-success" id="submit" value="Submit">
                                     </div>
                                 </div>
@@ -243,6 +288,32 @@
                 }); 
             }
         });
+        
+        $("#claimed_price").blur(function() {
+            var claimed_price = $(this).val();
+            var final_claimed_price = Math.round(($('#cp_basic_charge').val() * .30),0);
+            var alert_msg = 'Price You Entered Is Too Low. We can not accept entered amount for this order.Please Enter an amount greater than or equal to <b>Rs.' + final_claimed_price + '</b>';
+            if(claimed_price < final_claimed_price){
+                //alert(alert_msg);
+                $('#claimed_price_error').html(alert_msg).show();
+                $(this).css({'border-color' : '#a94442'});
+                $('#submit').attr('disabled','disabled');
+            }else{
+                $('#claimed_price_error').html('').hide();
+                $(this).css({'border-color' : '#ccc'});
+                $('#submit').removeAttr('disabled');
+            }
+        });
+        
+        function isNumberKey(evt)
+        {
+           var charCode = (evt.which) ? evt.which : evt.keyCode;
+           if (charCode !== 46 && charCode > 31 
+             && (charCode < 48 || charCode > 57))
+              return false;
+
+           return true;
+        }
         
 </script>
 <?php

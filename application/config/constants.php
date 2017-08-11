@@ -358,6 +358,7 @@ define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_2','booking_not_exist_promotional_sms_2
 //invoice email tag
 define('PARTNER_INVOICE_DETAILED_EMAIL_TAG','partner_invoice_detailed');
 define('CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG','cash_details_invoices_for_vendors');
+define("BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG", "buyback_details_invoices_for_vendors");
 define('FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG','foc_details_invoices_for_vendors');
 define('BRACKETS_INVOICE_EMAIL_TAG','send_brackets_invoice_mail');
 define('DRAFT_BRACKETS_INVOICE_EMAIL_TAG','send_draft_brackets_invoice_mail');
@@ -386,11 +387,21 @@ define('TO_BE_CLAIMED','To Be Claimed');
 define('CLAIM_SETTLED_BY_AMAZON','Claim Settled by Amazon');
 define('_247AROUND_BB_REPORT_ISSUE_IN_PROCESS','InProcess_Claimed_Raised_By_CP');
 define('_247AROUND_BB_NOT_DELIVERED_IN_PROCESS','InProcess_Not_delivered');
+define('_247AROUND_BB_247APPROVED_STATUS','Refunded');
+define('_247AROUND_BB_Damaged_STATUS','Damaged');
+define('_247AROUND_BB_NOT_DELIVERED','Not Delivered');
+define('_247AROUND_BB_TO_BE_CLAIMED','To Be Claimed');
+define('_247AROUND_BB_ORDER_MISMATCH','Product Mismatch');
+define('_247AROUND_BB_ORDER_REJECTED','Rejected');
 
 //new shop address added
 define('NEW_SHOP_ADDRESS_ADDED','New Shop Address Added');
 define('SHOP_ADDRESS_DEACTIVATED','Shop Address De-Activated');
 define('SHOP_ADDRESS_ACTIVATED','Shop Address Activated');
 define('BB_CP_ADDRESS','CP_ADDRESS');
+
+define('CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER','Customer not visited to service center');
+define("HSN_CODE", "998715");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
