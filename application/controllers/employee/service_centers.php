@@ -1727,12 +1727,13 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('order_working_condition', 'Order Working Condition', 'trim|required');
         $this->form_validation->set_rules('category', 'Category', 'trim|required');
+        $this->form_validation->set_rules('cp_id', 'Collection Partner Id', 'trim|required');
         $this->form_validation->set_rules('claimed_price', 'Claimed Price', 'trim|required|callback_validate_claimed_price');
         
         if($this->form_validation->run() === false){
             $msg = "Please fill all required field";
             $this->session->set_userdata('error',$msg);
-            redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city'));
+            redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
         }else {
             
             $response = $this->buyback->process_bb_order_report_issue_update($this->input->post());
@@ -1741,7 +1742,7 @@ class Service_centers extends CI_Controller {
                 redirect(base_url().'service_center/bb_oder_details');
             } else if ($response['status'] === 'error') {
                 $this->session->set_userdata('error', $response['msg']);
-                redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city'));
+                redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
             }
         }
         
@@ -2132,9 +2133,9 @@ class Service_centers extends CI_Controller {
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending');
         $post['where_in'] = array('bb_cp_order_action.internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
-        $post['column_order'] = array( NULL,'partner_order_id','services', 'category',
+        $post['column_order'] = array( NULL,'bb_cp_order_action.partner_order_id','services', 'category',
               'order_date','cp_basic_charge',NULL,NULL);
-        $post['column_search'] = array('partner_order_id', 'services', 'city','order_date', 'delivery_date', 'bb_cp_order_action.current_status');
+        $post['column_search'] = array('bb_cp_order_action.partner_order_id', 'services', 'bb_unit_details.category','order_date', 'cp_basic_charge');
         $list = $this->cp_model->get_bb_cp_order_list($post);
         $data = array();
         $no = $post['start'];

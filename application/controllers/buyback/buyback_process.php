@@ -596,7 +596,12 @@ class Buyback_process extends CI_Controller {
                 $row[] = "<span class='label label-danger'>$order_list->internal_status</span>";
             }
             $row[] = $order_list->remarks;
-            $row[] = "<a class='btn btn-info btn-sm' target='_blank' href='".base_url()."buyback/buyback_process/get_bb_order_image_link/".$order_list->partner_order_id."/".$order_list->cp_id."'><i class='fa fa-camera'></i></a>";
+            
+            if($order_list->internal_status === _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS){
+                $row[] = "<a class='btn btn-info btn-sm' target='_blank' href='".base_url()."buyback/buyback_process/get_bb_order_image_link/".$order_list->partner_order_id."/".$order_list->cp_id."' disabled><i class='fa fa-camera'></i></a>";
+            }else if($order_list->internal_status === _247AROUND_BB_Damaged_STATUS){
+                $row[] = "<a class='btn btn-info btn-sm' target='_blank' href='".base_url()."buyback/buyback_process/get_bb_order_image_link/".$order_list->partner_order_id."/".$order_list->cp_id."'><i class='fa fa-camera'></i></a>";
+            }
             $row[] = "<label><input type='checkbox' class='flat check_single_row' id='approved_data' data-id='".$order_list->partner_order_id."' data-status='".$order_list->internal_status."' data-cp_claimed_price='".$order_list->cp_claimed_price."'></label>";
             $a = "<a class='btn btn-danger btn-sm' href='javascript:void(0)' onclick='";
             $a .= "open_reject_model(".'"'.$order_list->partner_order_id.'"';
@@ -643,22 +648,22 @@ class Buyback_process extends CI_Controller {
      * @param void
      * @return string
      */
-    function approve_reject_bb_order(){
-        log_message("info",__METHOD__);
+    function approve_reject_bb_order() {
+        log_message("info", __METHOD__);
         if ($this->input->post()) {
             $flag = FALSE;
             $order_ids = explode(',', $this->input->post('order_ids'));
-            $status = explode(',',$this->input->post('status'));
+            $status = explode(',', $this->input->post('status'));
             $type = $this->input->post('type');
             $cp_claimed_price = explode(',', $this->input->post('cp_claimed_price'));
             $remarks = $this->input->post('remarks');
             $order_details_data = array();
             $update_cp_claimed_price = '';
-            foreach($order_ids as $key => $value){
-                switch ($status[$key]){
-                    case _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS:
-                        
-                       if($type === 'approved'){
+            if ($type === 'approved') {
+                foreach ($order_ids as $key => $value) {
+                    switch ($status[$key]) {
+                        case _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS:
+
                             //update buyback order details
                             $order_details_data['current_status'] = _247AROUND_BB_TO_BE_CLAIMED;
                             $order_details_data['internal_status'] = _247AROUND_BB_NOT_DELIVERED;
@@ -666,20 +671,11 @@ class Buyback_process extends CI_Controller {
                             //update buyback cp order action
                             $bb_cp_order_details_data['current_status'] = _247AROUND_BB_NOT_DELIVERED;
                             $bb_cp_order_details_data['internal_status'] = _247AROUND_BB_247APPROVED_STATUS;
-            
-                       }else if($type === 'rejected'){
 
-                            //update buyback cp order action
-                            $bb_cp_order_details_data['current_status'] = _247AROUND_PENDING;
-                            $bb_cp_order_details_data['internal_status'] = _247AROUND_BB_DELIVERED;
-                            $bb_cp_order_details_data['admin_remarks'] = $remarks;
-                       }
-                        
-                        break;
+                            break;
 
-                    case _247AROUND_BB_Damaged_STATUS:
-                        
-                        if($type === 'approved'){
+                        case _247AROUND_BB_Damaged_STATUS:
+
                             //update buyback order details
                             $order_details_data['current_status'] = _247AROUND_BB_TO_BE_CLAIMED;
                             $order_details_data['internal_status'] = _247AROUND_BB_ORDER_MISMATCH;
@@ -687,31 +683,29 @@ class Buyback_process extends CI_Controller {
                             //update buyback cp order action
                             $bb_cp_order_details_data['current_status'] = _247AROUND_BB_Damaged_STATUS;
                             $bb_cp_order_details_data['internal_status'] = _247AROUND_BB_247APPROVED_STATUS;
-                            
+
                             //insert cp_claimed_price in bb_unit_details
                             $update_cp_claimed_price = $cp_claimed_price[$key];
-                        }else if($type === 'rejected'){
 
-                            //update buyback cp order action
-                            $bb_cp_order_details_data['current_status'] = _247AROUND_PENDING;
-                            $bb_cp_order_details_data['internal_status'] = _247AROUND_BB_DELIVERED;
-                            $bb_cp_order_details_data['admin_remarks'] = $remarks;
-                       }
-                        
-                        break;
-                        
+                            break;
+                    }
+
+                    $flag = $this->process_approve_reject_bb_order($order_details_data, $bb_cp_order_details_data, $value, $update_cp_claimed_price);
                 }
+            } else if ($type === 'rejected') {
+                $bb_cp_order_details_data['current_status'] = _247AROUND_PENDING;
+                $bb_cp_order_details_data['internal_status'] = _247AROUND_BB_DELIVERED;
+                $bb_cp_order_details_data['admin_remarks'] = $remarks;
                 
-                $flag = $this->process_approve_reject_bb_order($order_details_data,$bb_cp_order_details_data,$value,$update_cp_claimed_price);
+                $flag = $this->process_approve_reject_bb_order($order_details_data, $bb_cp_order_details_data, $order_ids[0], $update_cp_claimed_price);
             }
-            
-            echo $flag;
 
+            echo $flag;
         } else {
             echo "Invalid Request";
         }
     }
-    
+
     function process_approve_reject_bb_order($order_details_data,$bb_cp_order_details_data,$partner_order_id,$update_cp_claimed_price) {
         
         $flag = FALSE;
