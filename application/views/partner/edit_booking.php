@@ -773,6 +773,7 @@
                         });
                        
                          $('#submitform').prop('disabled', false);
+                         getPrice();
                         
                     } else {
                         alert("Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
