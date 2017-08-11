@@ -512,5 +512,35 @@ class Dashboard extends CI_Controller {
         
        echo $this->table->generate();
     }
+    
+    
+    /**
+     * @desc: This function is used to get partner completed and cancelled bookings data 
+     * @param string
+     * @return array
+     */
+    function get_partners_booking_report_chart(){
+        $sDate = $this->input->post('sDate');
+        $eDate = $this->input->post('eDate');
+        $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
+        $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
+        $data = $this->dashboard_model->get_partners_booking_data($startDate,$endDate);
+        $partners_id = [];
+        $partners_name = [];
+        $completed_bookings = [];
+        $cancelled_bookings = [];
+        foreach( $data as $bookings){
+            $partners_id[$bookings['public_name']] = $bookings['partner_id'];
+            array_push($partners_name, $bookings['public_name']);
+            array_push($completed_bookings, $bookings['Completed']);
+            array_push($cancelled_bookings, $bookings['Cancelled']);
+        }
+        $json_data['partner_id'] = $partners_id;
+        $json_data['partner_name'] = implode(",", $partners_name);
+        $json_data['completed_bookings_count'] = implode(",", $completed_bookings);
+        $json_data['cancelled_bookings_count'] = implode(",", $cancelled_bookings);
+
+        echo json_encode($json_data);
+    }
 
 }
