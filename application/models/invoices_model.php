@@ -75,7 +75,7 @@ class invoices_model extends CI_Model {
             
             $return_data[0]['vendor_partner_name'] = $details[0]['vendor_partner_name'];
         }
-
+        
         return $return_data;
     }
 
