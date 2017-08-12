@@ -370,74 +370,14 @@ class vendor extends CI_Controller {
                 $vendor_data = $this->get_vendor_form_data();
 
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
-                
-                 //Getting Logged Employee Full Name
-                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
-                
+      
                 //Log Message
                 log_message('info', __FUNCTION__.' SF has been updated :'.print_r($vendor_data,TRUE));
                 
                 //Adding details in Booking State Change
                 $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
                 
-                //Sending Mail for Updated details
-                    $html = "<p>Following SF has been Updated :</p><ul>";
-                    foreach($vendor_data as $key=>$value){
-                        $html .= "<li><b>".$key.'</b> =>';
-                        $html .= " ".$value.'</li>';
-                    }
-                    $html .="</ul>";
-                    $to = ANUJ_EMAIL_ID.','.$rm_official_email;
-                    
-                    //Cleaning Email Variables
-                        $this->email->clear(TRUE);
-
-                        //Send report via email
-                        $this->email->from('booking@247around.com', '247around Team');
-                        $this->email->to($to);
-
-                        $this->email->subject("Vendor Updated : " . $_POST['name'].' - By '.$logged_user_name);
-                        $this->email->message($html);
-                        
-                        if(isset($attachment_pan)){
-                        $this->email->attach($attachment_pan, 'attachment');
-                        }
-                        if(isset($attachment_cst)){
-                            $this->email->attach($attachment_cst, 'attachment');
-                        }
-                        if(isset($attachment_tin)){
-                            $this->email->attach($attachment_tin, 'attachment');
-                        }
-                        if(isset($attachment_service_tax)){
-                            $this->email->attach($attachment_service_tax, 'attachment');
-                        }
-                        if(isset($attachment_address_proof)){
-                            $this->email->attach($attachment_address_proof, 'attachment');
-                        }
-                        if(isset($attachment_cancelled_cheque)){
-                            $this->email->attach($attachment_cancelled_cheque, 'attachment');
-                        }
-                        if(isset($attachment_id_proof_1)){
-                            $this->email->attach($attachment_id_proof_1, 'attachment');
-                        }
-                        if(isset($attachment_id_proof_2)){
-                            $this->email->attach($attachment_id_proof_2, 'attachment');
-                        }
-                        if(isset($attachment_contract)){
-                            $this->email->attach($attachment_contract, 'attachment');
-                        }
-                        if(isset($attachment_gst)){
-                            $this->email->attach($attachment_gst, 'attachment');
-                        }
-                        if(isset($attachment_signature)){
-                            $this->email->attach($attachment_signature, 'attachment');
-                        }
-
-                        if ($this->email->send()) {
-                            log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
-                        } else {
-                            log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
-                        }
+                $send_email = $this->send_update_sf_mail($_POST['id'],$rm_official_email);
 
                 //Updating details of SF in employee_relation table
                 $check_update_sf_rm_relation = $this->vendor_model->update_rm_to_sf_relation($rm, $_POST['id']);
@@ -471,9 +411,6 @@ class vendor extends CI_Controller {
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
                 
-                //Getting Logged Employee Full Name
-                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
-                
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
                 $log = array(
@@ -487,64 +424,7 @@ class vendor extends CI_Controller {
                 $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
                 
                 //Sending Mail for Added details
-                    $html = "<p>Following SF has been Added :</p><ul>";
-                    foreach($vendor_data as $key=>$value){
-                        $html .= "<li><b>".$key.'</b> =>';
-                        $html .= " ".$value.'</li>';
-                    }
-                    $html .="</ul>";
-                    $to = ANUJ_EMAIL_ID;
-                    
-                    //Cleaning Email Variables
-                        $this->email->clear(TRUE);
-
-                        //Send report via email
-                        $this->email->from('booking@247around.com', '247around Team');
-                        $this->email->to($to);
-
-                        $this->email->subject("Vendor Added : " . $this->input->post('name').' - By '.$logged_user_name);
-                        $this->email->message($html);
-                        
-                        if(isset($attachment_pan)){
-                        $this->email->attach($attachment_pan, 'attachment');
-                        }
-                        if(isset($attachment_cst)){
-                            $this->email->attach($attachment_cst, 'attachment');
-                        }
-                        if(isset($attachment_tin)){
-                            $this->email->attach($attachment_tin, 'attachment');
-                        }
-                        if(isset($attachment_service_tax)){
-                            $this->email->attach($attachment_service_tax, 'attachment');
-                        }
-                        if(isset($attachment_address_proof)){
-                            $this->email->attach($attachment_address_proof, 'attachment');
-                        }
-                        if(isset($attachment_cancelled_cheque)){
-                            $this->email->attach($attachment_cancelled_cheque, 'attachment');
-                        }
-                        if(isset($attachment_id_proof_1)){
-                            $this->email->attach($attachment_id_proof_1, 'attachment');
-                        }
-                        if(isset($attachment_id_proof_2)){
-                            $this->email->attach($attachment_id_proof_2, 'attachment');
-                        }
-                        if(isset($attachment_contract)){
-                            $this->email->attach($attachment_contract, 'attachment');
-                        }
-                        if(isset($attachment_gst)){
-                            $this->email->attach($attachment_gst, 'attachment');
-                        }
-                        if(isset($attachment_signature)){
-                            $this->email->attach($attachment_signature, 'attachment');
-                        }
-                        
-
-                        if ($this->email->send()) {
-                            log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
-                        } else {
-                            log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
-                        }
+                $send_email = $this->send_update_sf_mail($sc_id,$rm_official_email);
 
                 //Adding values in admin groups present in employee_relation table
                 $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
@@ -788,6 +668,201 @@ class vendor extends CI_Controller {
                    
             
             return $vendor_data;
+    }
+    
+    function send_update_sf_mail($sf_id,$rm_email) {
+        
+        $s3_url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/";
+        
+        //Getting Logged Employee Full Name
+        $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+        
+        $updated_vendor_details = $this->vendor_model->getVendorContact($sf_id);
+
+        //Sending Mail for Updated details
+        if($this->input->post('id') !== null && !empty($this->input->post('id'))){
+            $html = "<p>Following SF has been Updated :</p><ul>";
+        }else{
+            $html = "<p>New Sf Added :</p><ul>";
+        }
+        
+        $html .= "<li><b>" . 'SF Name' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['name'] . '</li>';
+        $html .= "<li><b>" . 'Company Name' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['company_name'] . '</li>';
+        $html .= "<li><b>" . 'Address' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['address'] . '</li>';
+        $html .= "<li><b>" . 'Pincode' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['pincode'] . '</li>';
+        $html .= "<li><b>" . 'State' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['state'] . '</li>';
+        $html .= "<li><b>" . 'District' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['district'] . '</li>';
+        $html .= "<li><b>" . 'Landmark' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['landmark'] . '</li>';
+        $html .= "<li><b>" . 'Registration Number' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['registration_number'] . '</li>';
+        $html .= "<li><b>" . 'Address Proof File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['address_proof_file'] . '</li>';
+        $html .= "<li><b>" . 'Location' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['location'] . '</li>';
+        $html .= "<li><b>" . 'Phone 1' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['phone_1'] . '</li>';
+        $html .= "<li><b>" . 'Phone 2' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['phone_2'] . '</li>';
+        $html .= "<li><b>" . 'Email' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['email'] . '</li>';
+        $html .= "<li><b>" . 'Appliances' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['appliances'] . '</li>';
+        $html .= "<li><b>" . 'Brands' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['brands'] . '</li>';
+        $html .= "<li><b>" . 'Name On Pan' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['name_on_pan'] . '</li>';
+        $html .= "<li><b>" . 'Pan Number' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['pan_no'] . '</li>';
+        $html .= "<li><b>" . 'Pan File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['pan_file'] . '</li>';
+        $html .= "<li><b>" . 'is_pan_doc' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['is_pan_doc'] . '</li>';
+        $html .= "<li><b>" . 'CST Number' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['cst_no'] . '</li>';
+        $html .= "<li><b>" . 'CST File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['cst_file'] . '</li>';
+        $html .= "<li><b>" . 'is_cst_doc' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['is_cst_doc'] . '</li>';
+        $html .= "<li><b>" . 'Tin Number' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['tin_no'] . '</li>';
+        $html .= "<li><b>" . 'Tin File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['tin_file'] . '</li>';
+        $html .= "<li><b>" . 'Service Tax Number' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['service_tax_no'] . '</li>';
+        $html .= "<li><b>" . 'Service Tax File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['service_tax_file'] . '</li>';
+        $html .= "<li><b>" . 'is_st_doc' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['is_st_doc'] . '</li>';
+        $html .= "<li><b>" . 'Account Type' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['account_type'] . '</li>';
+        $html .= "<li><b>" . 'Company Type' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['company_type'] . '</li>';
+        $html .= "<li><b>" . 'ID Proof 1 File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['id_proof_1_file'] . '</li>';
+        $html .= "<li><b>" . 'ID Proof 2 File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['id_proof_2_file'] . '</li>';
+        $html .= "<li><b>" . 'Contract File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['contract_file'] . '</li>';
+        $html .= "<li><b>" . 'Primary Contact Name' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['primary_contact_name'] . '</li>';
+        $html .= "<li><b>" . 'Primary Contact Email' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['primary_contact_email'] . '</li>';
+        $html .= "<li><b>" . 'Primary Contact Phone_1' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['primary_contact_phone_1'] . '</li>';
+        $html .= "<li><b>" . 'Primary Contact Phone_1' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['primary_contact_phone_2'] . '</li>';
+        $html .= "<li><b>" . 'Owner Name' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['owner_name'] . '</li>';
+        $html .= "<li><b>" . 'Owner Email' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['owner_email'] . '</li>';
+        $html .= "<li><b>" . 'Owner Phone_1' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['owner_phone_1'] . '</li>';
+        $html .= "<li><b>" . 'Owner Phone_2' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['owner_phone_2'] . '</li>';
+        $html .= "<li><b>" . 'Bank Name' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['bank_name'] . '</li>';
+        $html .= "<li><b>" . 'Bank Account' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['bank_account'] . '</li>';
+        $html .= "<li><b>" . 'IFSC Code' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['ifsc_code'] . '</li>';
+        $html .= "<li><b>" . 'Beneficiary Name' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['beneficiary_name'] . '</li>';
+        $html .= "<li><b>" . 'Cancelled Cheque File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['cancelled_cheque_file'] . '</li>';
+        $html .= "<li><b>" . 'is_verified' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['is_verified'] . '</li>';
+        $html .= "<li><b>" . 'Non Working Days' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['non_working_days'] . '</li>';
+        $html .= "<li><b>" . 'is_sf' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['is_sf'] . '</li>';
+        $html .= "<li><b>" . 'is_cp' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['is_cp'] . '</li>';
+        $html .= "<li><b>" . 'is_cst_doc' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['is_cst_doc'] . '</li>';
+        $html .= "<li><b>" . 'is_gst_doc' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['is_gst_doc'] . '</li>';
+        $html .= "<li><b>" . 'GST Number' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['gst_no'] . '</li>';
+        $html .= "<li><b>" . 'GST File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['gst_file'] . '</li>';
+        $html .= "<li><b>" . 'Min Upcountry Distance' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['min_upcountry_distance'] . '</li>';
+        $html .= "<li><b>" . 'Signature File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['signature_file'] . '</li>';
+        $html .= "<li><b>" . 'is_signature_doc' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['is_signature_doc'] . '</li>';
+        $html .= "</ul>";
+        
+        $to = ANUJ_EMAIL_ID . ',' . $rm_email;
+
+        //Cleaning Email Variables
+        $this->email->clear(TRUE);
+
+        //Send report via email
+        $this->email->from('booking@247around.com', '247around Team');
+        $this->email->to($to);
+        
+        if($this->input->post('id') !== null && !empty($this->input->post('id'))){
+           
+            $this->email->subject("Vendor Updated : " . $_POST['name'] . ' - By ' . $logged_user_name);
+        
+        }else{
+            
+            $this->email->subject("New Vendor Added : " . $_POST['name'] . ' - By ' . $logged_user_name);
+        }
+        
+        $this->email->message($html);
+
+        if (!empty($updated_vendor_details[0]['address_proof_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['address_proof_file'], 'attachment');
+        }
+        if (!empty($updated_vendor_details[0]['pan_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['pan_file'], 'attachment');
+        }
+        if (!empty($updated_vendor_details[0]['cst_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['cst_file'], 'attachment');
+        }
+        if (!empty($updated_vendor_details[0]['tin_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['tin_file'], 'attachment');
+        }
+        if (!empty($updated_vendor_details[0]['id_proof_1_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['id_proof_1_file'], 'attachment');
+        }
+        if (!empty($updated_vendor_details[0]['id_proof_2_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['id_proof_2_file'], 'attachment');
+        }
+        if (!empty($updated_vendor_details[0]['contract_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['contract_file'], 'attachment');
+        }
+        if (!empty($updated_vendor_details[0]['cancelled_cheque_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['cancelled_cheque_file'], 'attachment');
+        }
+        if (!empty($updated_vendor_details[0]['gst_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['gst_file'], 'attachment');
+        }
+        if (!empty($updated_vendor_details[0]['signature_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['signature_file'], 'attachment');
+        }
+        if (!empty($updated_vendor_details[0]['address_proof_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['address_proof_file'], 'attachment');
+        }
+
+        if ($this->email->send()) {
+            log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
+            $flag = TRUE;
+        } else {
+            log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+            $flag = FALSE;
+        }
+
+        return $flag;
     }
 
     /**
