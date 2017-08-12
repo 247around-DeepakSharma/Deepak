@@ -8,9 +8,9 @@
          </div>
       </div>
       <div class="row" >
-         <div class="form-group">
-            <label for="state" class="col-sm-1">Select</label>
-            <div class="col-md-4">
+         <div class="form-group col-md-6">
+            <label for="state" class="col-sm-2">Select</label>
+            <div class="col-md-10">
                 <?php if(isset($service_center)){ ?>
                <select class="form-control" name ="service_center" id="invoice_id" onChange="getInvoicingData('vendor')">
                   <option disabled selected >Service Center</option>
@@ -41,6 +41,15 @@
                 <?php }?>
             </div>
          </div>
+          <div class="form-group col-md-6">
+            <label for="invoice_period" class="col-sm-4">Select Invoice Period</label>
+            <div class="col-md-8">
+                <select class="form-control" id="invoice_period" onchange="getInvoicingData('<?php echo $vendor_partner; ?>')">
+                    <option value="cur_fin_year">Current Financial Year</option>
+                    <option value="all">All</option>
+                </select>
+            </div>
+         </div>
       </div>
        <div class="col-md-12 col-md-offset-3"><img src="" id="loader_gif" /></div>
       <div class="row" style="margin-top: 20px;">
@@ -54,7 +63,7 @@
 
 <script type="text/javascript">
    $("#invoice_id").select2();
-
+   
    $(document).ready(function () {
   
   getInvoicingData('<?php echo $vendor_partner; ?>');
@@ -62,14 +71,15 @@
 
    
    function getInvoicingData(source){
-    
+       
        $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loader.gif');
     var vendor_partner_id = $('#invoice_id').val();
+    var invoice_period = $('#invoice_period').val();
     $('#overall_summary').css('display', 'none');
     $.ajax({
           type: 'POST',
           url: '<?php echo base_url(); ?>employee/invoice/getInvoicingData',
-          data: {vendor_partner_id: vendor_partner_id, source: source},
+          data: {vendor_partner_id: vendor_partner_id, source: source,invoice_period:invoice_period},
           success: function (data) {
             
             $('#loader_gif').attr('src', '');
