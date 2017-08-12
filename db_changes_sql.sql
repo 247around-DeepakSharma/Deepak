@@ -3026,3 +3026,7 @@ Please find attached Buyback invoice.
 Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.
 <br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
 
+
+--Abhay 11 aug
+ALTER TABLE `booking_details` ADD `upcountry_vendor_invoice_id` VARCHAR(100) NULL DEFAULT NULL AFTER `upcountry_partner_invoice_id`;
+

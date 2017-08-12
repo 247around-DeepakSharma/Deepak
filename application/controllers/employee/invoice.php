@@ -418,11 +418,13 @@ class Invoice extends CI_Controller {
     function getPartnerOrVendor($par_ven) {
         $vendor_partner_id = $this->input->post('vendor_partner_id');
         $flag = $this->input->post('invoice_flag');
-
+        echo "<option value='' selected disabled>Select Enity</option>";
+        if ($flag == 1) {
+            echo "<option value='All'>All</option>";
+        }
         if ($par_ven == 'partner') {
-            if ($flag == 1) {
-                echo "<option value='All'>All</option>";
-            }
+            
+            
             $all_partners = $this->partner_model->get_all_partner_source("0");
             foreach ($all_partners as $p_name) {
                 $option = "<option value='" . $p_name['partner_id'] . "'";
@@ -435,9 +437,7 @@ class Invoice extends CI_Controller {
                 echo $option;
             }
         } else {
-            if ($flag == 1) {
-                echo "<option value='All'>All</option>";
-            }
+           
             $select = "service_centres.name, service_centres.id";
             $all_vendors = $this->vendor_model->getVendorDetails($select);
             foreach ($all_vendors as $v_name) {
@@ -610,7 +610,12 @@ class Invoice extends CI_Controller {
 
             if (!empty($upcountry)) {
                 foreach ($upcountry as $up_booking_details) {
-                    $this->booking_model->update_booking($up_booking_details['booking_id'], array('upcountry_partner_invoice_id' => $meta['invoice_id']));
+                    $up_b = explode(",", $up_booking_details['booking_id']);
+                    for($i=0; $i < count($up_b); $i++){
+                        
+                        $this->booking_model->update_booking(trim($up_b[$i]), array('upcountry_partner_invoice_id' => $meta['invoice_id']));
+                    }
+
                 }
             }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
@@ -1087,6 +1092,17 @@ class Invoice extends CI_Controller {
                 //Update Penalty Amount
                 foreach ($invoice_data['d_penalty'] as $value) {
                     $this->penalty_model->update_penalty_any(array('booking_id' => $value['booking_id']), array('foc_invoice_id' => $invoice_data['meta']['invoice_id']));
+                }
+                
+                if (!empty($invoice_data['upcountry'])) {
+                    foreach ($invoice_data['upcountry'] as $up_booking_details) {
+                        $up_b = explode(",", $up_booking_details['booking_id']);
+                        for($i=0; $i < count($up_b); $i++){
+
+                            $this->booking_model->update_booking(trim($up_b[$i]), array('upcountry_partner_invoice_id' => $invoice_data['meta']['invoice_id']));
+                        }
+
+                    }
                 }
 
                 log_message('info', __METHOD__ . ': Invoice ' . $invoice_data['meta']['invoice_id'] . ' details  entered into invoices table');
@@ -2072,23 +2088,26 @@ class Invoice extends CI_Controller {
         $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner', 'required|trim|xss_clean');
         $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|trim|xss_clean');
         $this->form_validation->set_rules('around_type', 'Around Type', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('gst_rate', 'GST Rate', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('type_code', 'Type', 'required|trim|xss_clean');
         if ($this->form_validation->run()) {
-
-            $sms_sent = $this->input->post('sms_sent');
-            $mail_sent = $this->input->post('mail_sent');
+            exit();
+            $invoice_id = $this->input->post('invoice_id');
 
             $data['type'] = $this->input->post('type');
             $data['vendor_partner'] = $vendor_partner;
             $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
-            $data['from_date'] = $this->input->post('from_date');
-            $data['to_date'] = $this->input->post('to_date');
+            $date_range = $this->input->post('from_date');
+            $date_explode = explode("-", $date_range);
+            $data['from_date'] = trim($date_explode[0]);
+            $data['to_date'] = trim($date_explode[1]);
             $data['num_bookings'] = $this->input->post('num_bookings');
-            $invoice_id = $this->input->post('invoice_id');
+            
             $data['total_service_charge'] = $this->input->post('total_service_charge');
             $data['total_additional_service_charge'] = $this->input->post('total_additional_service_charge');
-            $data['service_tax'] = $this->input->post('service_tax');
+           
             $data['parts_cost'] = $this->input->post('parts_cost');
-            $data['vat'] = $this->input->post('vat');
+            
             $data['penalty_amount'] = $this->input->post("penalty_amount");
             $data['upcountry_booking'] = $this->input->post("upcountry_booking");
             $data['upcountry_distance'] = $this->input->post("upcountry_distance");
@@ -2404,32 +2423,26 @@ class Invoice extends CI_Controller {
      * @param String $from_date
      * @param String $type_code
      */
-    function fetch_invoice_id($vendor_partner_id, $vendor_partner_type, $from_date, $type_code) {
+    function fetch_invoice_id($vendor_partner_id, $vendor_partner_type, $type_code) {
         $entity_details = array();
-        if ($vendor_partner_type == "vendor") {
 
-            $entity_details = $this->vendor_model->viewvendor($vendor_partner_id);
-        } else {
-            $entity_details = $this->partner_model->getpartner($vendor_partner_id);
-        }
-
-        if (!empty($entity_details)) {
+        if (!empty($vendor_partner_id) && !empty($type_code)) {
             switch ($type_code) {
 
                 case 'A':
 
-                    $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
-                    echo $invoice_id['invoice_id'];
+                    echo $this->create_invoice_id_to_insert("Around");
+                   
                     break;
 
                 case 'B':
                     
                     if ($vendor_partner_type == "vendor") {
-                        $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, $entity_details[0]['sc_code']);
-                        echo $invoice_id['invoice_id'];
+                        $entity_details = $this->vendor_model->viewvendor($vendor_partner_id);
+                        echo $this->create_invoice_id_to_insert($entity_details[0]['sc_code']);
+                       
                     } else {
-                        $invoice_id = $this->create_invoice_id_to_insert($entity_details, $from_date, "Around");
-                        echo $invoice_id['invoice_id'];
+                        echo $this->create_invoice_id_to_insert("Around");
                     }
                 
                     

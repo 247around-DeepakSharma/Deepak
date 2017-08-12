@@ -775,8 +775,8 @@ class invoices_model extends CI_Model {
      * @param: void
      * @return : array
      */
-    function generate_vendor_foc_detailed_invoices($vendor_id, $from_date, $to_date_tmp, $is_regenerate) {
-
+    function generate_vendor_foc_detailed_invoices($vendor_id, $from_date_tmp, $to_date_tmp, $is_regenerate) {
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
        
         $is_invoice_null = "";
@@ -827,7 +827,8 @@ class invoices_model extends CI_Model {
 
     }
     
-    function get_foc_invoice_data($vendor_id, $from_date, $to_date, $is_regenerate){
+    function get_foc_invoice_data($vendor_id, $from_date_tmp, $to_date, $is_regenerate){
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $is_invoice_null = "";
         if($is_regenerate == 0){
             $is_invoice_null = " AND vendor_foc_invoice_id IS NULL ";
@@ -888,7 +889,7 @@ class invoices_model extends CI_Model {
             $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
             $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "distinct", $is_regenerate);
             $courier = $this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
-            $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, "distinct" );
+            $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date_tmp, "distinct" );
             if (!empty($upcountry_data)) {
                 $up_country = array();
                 $up_country[0]['description'] = 'Upcountry Charge';
@@ -1055,8 +1056,8 @@ class invoices_model extends CI_Model {
     
    
     
-    function get_vendor_cash_detailed($vendor_id, $from_date, $to_date_tmp, $is_regenerate) {
-      
+    function get_vendor_cash_detailed($vendor_id, $from_date_tmp, $to_date_tmp, $is_regenerate) {
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $where = "";
         for ($i = 0; $i < 2; $i++) {
@@ -1103,8 +1104,8 @@ class invoices_model extends CI_Model {
        return $result;
     }
     
-    function get_vendor_cash_invoice_data($vendor_id, $from_date, $to_date, $is_regenerate) {
-       
+    function get_vendor_cash_invoice_data($vendor_id, $from_date_tmp, $to_date, $is_regenerate) {
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         for ($i = 0; $i < 2; $i++) {
             if ($i == 0) {
                 $select = "SUM(`around_comm_basic_charges` + `around_st_or_vat_basic_charges` "
@@ -1172,8 +1173,8 @@ class invoices_model extends CI_Model {
             $meta['upcountry_charge'] =  $meta['upcountry_booking'] = $meta['upcountry_distance'] =  $meta['total_sgst_tax_amount'] =  
                      $meta['total_cgst_tax_amount'] = $meta['total_igst_tax_amount'] = $meta['igst_tax_rate'] = 
                      $meta['sgst_tax_rate'] = $meta['sgst_tax_rate'] =  0;
-            
-            $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date, $to_date);
+            $from_date_tmp = date('Y-m-d', strtotime('-1 months', strtotime($from_date)));
+            $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date_tmp, $to_date);
             if (!empty($upcountry_data)) {
                   $commission_charge[0]['toal_amount'] += $upcountry_data[0]['total_upcountry_price'];
                   $meta['upcountry_charge'] = $upcountry_data[0]['total_upcountry_price'];
@@ -1338,6 +1339,7 @@ class invoices_model extends CI_Model {
                 AND bd.booking_id = ud.booking_id
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
+                AND vendor_foc_invoice_id IS NULL 
                 AND pay_to_sf = '1'
                 AND `approved_defective_parts_by_partner` = 1
                 $invoice_check

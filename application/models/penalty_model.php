@@ -383,7 +383,7 @@ class Penalty_model extends CI_Model {
 
                 ELSE (COUNT(p.booking_id) * p.penalty_amount) END  AS p_amount, p.penalty_amount
 
-                FROM `penalty_on_booking` AS p, penalty_details, booking_details 
+                FROM `penalty_on_booking` AS p, penalty_details, booking_details, booking_unit_details 
                 WHERE criteria_id IN (".BOOKING_IS_NOT_UPDATED_BY_SERVICE_CENTER_ID.", ".INCENTIVE_CUT_RESCHEDULED_WITHOUT_REASON_ID.",
                     ".BOOKING_RESCHEDULED_WITHOUT_REASON_ID.", ".PENALTY_FAKE_COMPLETED_CUSTOMER_WANT_INSTALLATION_ID.", ".PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT.") 
                 AND criteria_id = penalty_details.id 
@@ -392,7 +392,8 @@ class Penalty_model extends CI_Model {
                 AND  closed_date >= '".$from_date."'
                 AND closed_date < '".$to_date."'
                 AND service_center_id = '".$vendor_id."'
-                
+                AND booking_unit_details.booking_id = booking_details.booking_id
+                AND (vendor_foc_invoice_id IS NULL && vendor_cash_invoice_id IS NULL)
                 AND booking_details.booking_id = p.booking_id $where
                 GROUP BY p.booking_id, criteria_id";           
             
