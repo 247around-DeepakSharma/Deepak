@@ -804,19 +804,7 @@ class invoices_model extends CI_Model {
 		     `service_centres`.owner_phone_1,
 		     `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_paid_basic_charges as around_net_payable,
 		     (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, 
-
-                     /* get sum of vat charges if product_or_services is product else sum of vat is zero  */
-
-                     (case when (`booking_unit_details`.product_or_services = 'Product' AND (service_centres.gst_no IS NOT NULL OR service_centres.gst_no !='' )  )  THEN ( round(vendor_st_or_vat_basic_charges,0)) ELSE 0 END) as vendor_vat,
-                    
-                     /* get sum of st charges if product_or_services is Service else sum of vat is zero  */
-
-                     (case when (`booking_unit_details`.product_or_services = 'Service'  AND (service_centres.gst_no IS NOT NULL OR service_centres.gst_no !='' ) )  THEN (round(vendor_st_or_vat_basic_charges,0)) ELSE 0 END) as vendor_st,
-                    
-                     /* get installation charge if product_or_services is Service else installation_charge is zero
-                      * installation charge is the sum of around_comm_basic_charge and vendor_basic_charge
-                      */
- 
+  
                      (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (round(vendor_basic_charges,0)) ELSE 0 END) as vendor_installation_charge,
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (round(vendor_basic_charges,0)) ELSE 0 END) as vendor_stand
 
@@ -881,7 +869,7 @@ class invoices_model extends CI_Model {
 
         $query = $this->db->query($sql);
         $result['booking'] = $query->result_array();
-        if(!empty($result)){
+        if(!empty($result['booking'])){
             $result['upcountry'] =  $result['courier'] = $result['c_penalty'] = array();
             $result['d_penalty'] = $result['c_penalty'] = array();
             // Calculate Upcountry booking details
@@ -924,7 +912,7 @@ class invoices_model extends CI_Model {
                 $c_data[0]['qty'] = '';
                 $c_data[0]['product_or_services'] = 'Courier';
                 $c_data[0]['taxable_value'] = (array_sum(array_column($courier, 'courier_charges_by_sf')));
-                $result['booking'] = array_merge($result['result'], $c_data);
+                $result['booking'] = array_merge($result['booking'], $c_data);
                 $result['courier'] = $courier;
             }
             
@@ -1036,6 +1024,7 @@ class invoices_model extends CI_Model {
 //                $meta['sign_path'] = $path1;
 //                $meta['cell'] = "K".(26 + count($data['booking']));
 //            }
+           
             if ($meta['sub_total_amount'] >= 0) {
                
                 $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
