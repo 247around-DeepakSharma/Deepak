@@ -18,7 +18,7 @@
             <td><?php echo $value['credit_debit_amount']; ?></td>
             <td><?php echo $value['tds_amount']; ?></td>
             <td><?php echo $value['full_name']; ?></td>
-            <td><?php echo date('m-F-Y', strtotime($value['create_date'])); ?></td>
+            <td><?php echo date('d-F-Y', strtotime($value['create_date'])); ?></td>
         </tr>
         <?php $sn++;} ?>
     </tbody>
