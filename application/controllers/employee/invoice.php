@@ -656,7 +656,8 @@ class Invoice extends CI_Controller {
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '.zip'));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $invoice_id . "-draft.xlsx"));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.pdf'));
-        }
+            exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.xlsx'));
+        }                                              
     }
 
     function upload_invoice_to_S3($invoice_id, $detailed = true){
@@ -941,16 +942,16 @@ class Invoice extends CI_Controller {
             // Calculate charges
             for ($j = 0; $j < count($invoice_details); $j++) {
                 $total_inst_charge += $invoice_details[$j]['vendor_installation_charge'];
-                $total_st_charge += $invoice_details[$j]['vendor_st'];
+               
                 $total_stand_charge += $invoice_details[$j]['vendor_stand'];
-                $total_vat_charge += $invoice_details[$j]['vendor_vat'];
-                $invoice_details[$j]['amount_paid'] = round(($invoice_details[$j]['vendor_installation_charge'] + $invoice_details[$j]['vendor_st'] + 
-                        $invoice_details[$j]['vendor_stand'] + $invoice_details[$j]['vendor_vat']), 0);
+               
+                $invoice_details[$j]['amount_paid'] = round(($invoice_details[$j]['vendor_installation_charge'] + 
+                        $invoice_details[$j]['vendor_stand']), 0);
                 $rating += $invoice_details[$j]['rating_stars'];
             }
            
             
-            $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
+            $t_total = $total_inst_charge + $total_stand_charge;
             
             $tds = $this->check_tds_sc($invoice_data['booking'][0], $total_inst_charge);
 
@@ -965,10 +966,10 @@ class Invoice extends CI_Controller {
             $invoice_data['meta']['tds_rate'] = $tds['tds_rate'];
             $invoice_data['meta']['tds_tax_rate'] = $tds['tds_per_rate'];
             $invoice_data['meta']['t_ic'] =round($total_inst_charge,0);
-            $invoice_data['meta']['t_st'] = round($total_st_charge,0);
             $invoice_data['meta']['t_stand'] = round($total_stand_charge,0);
-            $invoice_data['meta']['t_vat'] =  round($total_vat_charge,0);
             $invoice_data['meta']['t_total'] =  round($t_total,0);
+            $invoice_data['meta']['total_gst_amount'] =  round($invoice_data['meta']["cgst_total_tax_amount"] + $invoice_data['meta']["sgst_total_tax_amount"] +
+                    $invoice_data['meta']["igst_total_tax_amount"],0);
             $invoice_data['meta']['t_rating'] = $rating/$j;
             $invoice_data['meta']['t_vp_w_tds'] = round($t_total - $invoice_data['meta']['tds'], 0);
             $invoice_data['meta']['cr_total_penalty_amount'] = round((array_sum(array_column($invoice_data['c_penalty'], 'p_amount'))),0);
@@ -978,17 +979,12 @@ class Invoice extends CI_Controller {
                 
             $t_vp_w_tds =  $invoice_data['meta']['t_vp_w_tds'] +  $invoice_data['meta']['total_upcountry_price'] + 
                     $invoice_data['meta']['cr_total_penalty_amount'] +  $invoice_data['meta']['total_courier_charges'] + $invoice_data['meta']['total_penalty_amount'];
-           
-            if ($t_vp_w_tds >= 0) {
-                 $invoice_data['meta']['t_vp_w_tds'] = $t_vp_w_tds;
-            } else if ($t_vp_w_tds < 0) {
-                 $invoice_data['meta']['t_vp_w_tds'] = abs($t_vp_w_tds) . "(DR)";
-            }
-
-
+            
+            $invoice_data['meta']['t_vp_w_tds'] = $t_vp_w_tds;
+            
             $invoice_data['meta']['msg'] = 'Thanks 247around Partner for your support, we completed ' .  $invoice_data['meta']['count'] .
                     ' bookings with you from ' .  $invoice_data['meta']['sd'] . ' to ' .  $invoice_data['meta']['ed'] .
-                    '. Total transaction value for the bookings was Rs. ' . round( $invoice_data['meta']['t_vp_w_tds'], 0) .
+                    '. Total transaction value for the bookings was Rs. ' . round( ($invoice_data['meta']['sub_total_amount'] - $invoice_data['meta']['tds']), 0) .
                     '. Your rating for completed bookings is ' . round( $invoice_data['meta']['t_rating'], 0) .
                     '. We look forward to your continued support in future. As next step, 247around will pay you remaining amount as per our agreement.';
 
@@ -1083,8 +1079,8 @@ class Invoice extends CI_Controller {
                     "igst_tax_rate" => $invoice_data['meta']['igst_tax_rate'],
                     "igst_tax_amount" => $invoice_data['meta']["igst_total_tax_amount"],
                     "sgst_tax_amount" => $invoice_data['meta']["sgst_total_tax_amount"],
-                    "cgst_tax_amount" => $invoice_data['meta']["cgst_total_tax_amount"],
-                    "rcm" => $invoice_data['meta']['rcm']
+                    "cgst_tax_amount" => $invoice_data['meta']["cgst_total_tax_amount"]
+                   
                 );
 
                 // insert invoice details into vendor partner invoices table
@@ -1118,10 +1114,12 @@ class Invoice extends CI_Controller {
                  $this->download_invoice_files($invoice_data['meta']['invoice_id'], $output_file_excel, $output_file_main);
             }
         
+           
         //Delete XLS files now
         foreach ($files as $file_name) {
             exec("rm -rf " . escapeshellarg($file_name));
         }
+            exit();
         return true;
 
     }
@@ -2031,6 +2029,7 @@ class Invoice extends CI_Controller {
         $to_date = $custom_date[1];
         $invoice_type = $details['invoice_type'];
         $invoices = $this->invoices_model->get_vendor_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
+        
         if (!empty($invoices['booking'])) {
             
             if (isset($details['invoice_id'])) {
@@ -2050,6 +2049,7 @@ class Invoice extends CI_Controller {
              
                 $in_detailed = $this->invoices_model->generate_vendor_foc_detailed_invoices($vendor_id, $from_date, $to_date, $is_regenerate);
                 return $this->generate_foc_details_invoices_for_vendors($in_detailed, $invoices,$vendor_id, $invoice_type, $details['agent_id']);
+               
             } else {
                 log_message('info', __FUNCTION__ . ' Invoice File did not create. invoice id' . $invoices['meta']['invoice_id']);
                 return FALSE;
