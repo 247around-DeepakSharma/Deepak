@@ -1584,7 +1584,7 @@ class Apis extends CI_Model {
         $query = $this->db->get("around_messages");
 
         $result = (bool) ($this->db->affected_rows() > 0);
-        log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
+//        log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
 
         return $query->result_array();
     }
@@ -1613,7 +1613,7 @@ class Apis extends CI_Model {
         $this->db->update('booking_details', $data);
 
         $result = (bool) ($this->db->affected_rows() > 0);
-        log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
+//        log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
 
         //Return updated booking object
         $this->db->select('*');
@@ -1700,7 +1700,7 @@ class Apis extends CI_Model {
      * appliance first
      */
     function addApplianceFromBooking($appliance_details) {
-        log_message('info', __METHOD__ . "-> " . print_r($appliance_details, TRUE));
+//        log_message('info', __METHOD__ . "-> " . print_r($appliance_details, TRUE));
 
         $sql = "INSERT INTO appliance_details "
             . "(`user_id`, `service_id`, `brand`, `category`, `capacity`, `tag`)"
@@ -1709,7 +1709,7 @@ class Apis extends CI_Model {
         $this->db->query($sql, $appliance_details);
 
         $result = (bool) ($this->db->affected_rows() > 0);
-        log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
+//        log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
 
         $id = $this->db->insert_id();
 
@@ -1814,7 +1814,7 @@ class Apis extends CI_Model {
     }
 
     function addSampleAppliances($user_id, $count) {
-        log_message('info', "Entering: " . __METHOD__);
+//        log_message('info', "Entering: " . __METHOD__);
 
         $sql1 = "SELECT * FROM sample_appliances";
         $query = $this->db->query($sql1);
