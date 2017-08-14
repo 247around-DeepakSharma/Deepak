@@ -189,7 +189,11 @@
         var status = $('#order_status').val();
         var cp_claimed_price = $('#order_cp_claimed_price').val();
         var remarks = $('#reject_remarks').val();
-        ajax_call(partner_order_id,status,cp_claimed_price,'rejected',remarks);
+        if(remarks){
+            ajax_call(partner_order_id,status,cp_claimed_price,'rejected',remarks);
+        }else{
+            alert('Please Enter Remarks');
+        }
     }
     
     function ajax_call(order_id,status,cp_claimed_price,type,remarks){

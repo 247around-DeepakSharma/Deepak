@@ -86,10 +86,18 @@ class Invoice extends CI_Controller {
      * @return: void
      */
     function getInvoicingData() {
-        $data['vendor_partner'] = $this->input->post('source');
-        $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
+        $invoice_period = $this->input->post('invoice_period');
+        if($invoice_period === 'all'){
+            $data = array('vendor_partner' => $this->input->post('source'),
+                      'vendor_partner_id' => $this->input->post('vendor_partner_id'));
+        }else if($invoice_period === 'cur_fin_year'){
+            $data = array('vendor_partner' => $this->input->post('source'),
+                      'vendor_partner_id' => $this->input->post('vendor_partner_id'),
+                      'MONTH(from_date) >= 4 AND YEAR(from_date) >=  YEAR(CURDATE()) ' => NULL);
+        }
+        
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
-
+        $invoice['total_amount'] = $this->invoices_model->get_invoices_details(array('vendor_partner'=>$data['vendor_partner'],'vendor_partner_id'=>$data['vendor_partner_id']),"SUM(amount_collected_paid) as total_amount")[0]['total_amount'];
         //TODO: Fix the reversed names here & everywhere else as well
         $data2['partner_vendor'] = $this->input->post('source');
         $data2['partner_vendor_id'] = $this->input->post('vendor_partner_id');
@@ -610,7 +618,12 @@ class Invoice extends CI_Controller {
 
             if (!empty($upcountry)) {
                 foreach ($upcountry as $up_booking_details) {
-                    $this->booking_model->update_booking($up_booking_details['booking_id'], array('upcountry_partner_invoice_id' => $meta['invoice_id']));
+                    $up_b = explode(",", $up_booking_details['booking_id']);
+                    for($i=0; $i < count($up_b); $i++){
+                        
+                        $this->booking_model->update_booking(trim($up_b[$i]), array('upcountry_partner_invoice_id' => $meta['invoice_id']));
+                    }
+
                 }
             }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));

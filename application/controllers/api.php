@@ -490,12 +490,12 @@ class Api extends CI_Controller {
 
                 //Send SMS to Vendor
                 $message = "AROUND के ग्राहक $user_number ने संपर्ककिया, अधिककाम के लिए rating कराएं 011-39595200";
-                $notify = $this->sendTransactionalSms($phone_number, $message);
+                $this->notify->sendTransactionalSmsMsg91($phone_number, $message);
 
-                if ($notify == "Sms Sent") {
-                    $this->jsonResponseString['response'] = $user_number;
-                    $this->sendJsonResponse(array('0000', 'success'));
-                }
+     
+                $this->jsonResponseString['response'] = $user_number;
+                $this->sendJsonResponse(array('0000', 'success'));
+                
             } else {
                 //TODO: Handle error here
                 //log_message ('info', __METHOD__ . ": Handyman not found, invalid extension");
@@ -511,12 +511,11 @@ class Api extends CI_Controller {
 
             //Send SMS to Vendor
             $message = "AROUND के ग्राहक $user_number ने संपर्ककिया, अधिककाम के लिए rating कराएं। 011-39595200";
-            $notify = $this->sendTransactionalSms($extn, $message);
+            $this->notify->sendTransactionalSmsMsg91($extn, $message);
 
-            if ($notify == "Sms Sent") {
-                $this->jsonResponseString['response'] = $user_number;
-                $this->sendJsonResponse(array('0000', 'success'));
-            }
+            $this->jsonResponseString['response'] = $user_number;
+            $this->sendJsonResponse(array('0000', 'success'));
+            
         }
     }
 
@@ -593,7 +592,7 @@ class Api extends CI_Controller {
         //$message = "AROUND ke grahak $user_number ka pata $address samay pe pahuncho";
         //log_message ('info', "SMS message for address: " . $message);
         //Send Address to Handyman thru SMS
-        $result = $this->sendTransactionalSms($handyman_phone, $message);
+        $this->notify->sendTransactionalSmsMsg91($handyman_phone, $message);
 
         $this->jsonResponseString['response'] = 'notify';
         $this->sendJsonResponse(array('000012', 'success'));
@@ -785,22 +784,22 @@ class Api extends CI_Controller {
 
         if ($userResult) {
             //Confirm user about number verification
-            $notify = $this->sendTransactionalSms($phone_number, $message);
+            $this->notify->sendTransactionalSmsMsg91($phone_number, $message);
             $name = $userResult[0]['name'];
             $email = $userResult[0]['user_email'];
             $user_id = $userResult[0]['user_id'];
 
             //Inform Admin as well about the new user
-            if ($notify == "Sms Sent") {
-                if (!in_array($phone_number, $developer_phone)) {
-                    /*
-                      $this->sendMail("New User Added", $name . " with phone number " . $phone_number
-                      . " and email " . $email . " joi`ned Around !!!", false);
-                     */
+           
+            if (!in_array($phone_number, $developer_phone)) {
+                /*
+                  $this->sendMail("New User Added", $name . " with phone number " . $phone_number
+                  . " and email " . $email . " joi`ned Around !!!", false);
+                 */
 
-                    $this->sendNewUserEmail($userResult);
-                }
+                $this->sendNewUserEmail($userResult);
             }
+            
 
             //Create sample wallet if required
             //Check no of appliances in User's wallet
@@ -2211,13 +2210,12 @@ class Api extends CI_Controller {
 
 //        log_message('info', "SMS text: " . $message);
 
-        $notify = $this->sendTransactionalSms($user_phone, $message);
+        $this->notify->sendTransactionalSmsMsg91($user_phone, $message);
         //$notify = "Sms Sent";
 
-        if ($notify == "Sms Sent") {
-            $this->jsonResponseString['response'] = "done";
-            $this->sendJsonResponse(array('0000', 'success'));
-        }
+        $this->jsonResponseString['response'] = "done";
+        $this->sendJsonResponse(array('0000', 'success'));
+        
     }
 
     /**
@@ -2270,13 +2268,12 @@ class Api extends CI_Controller {
 
         //log_message('info', "SMS text: " . $message);
 
-        $notify = $this->sendTransactionalSms($user_phone, $message);
+        $this->notify->sendTransactionalSmsMsg91($user_phone, $message);
         //$notify = "Sms Sent";
 
-        if ($notify == "Sms Sent") {
-            $this->jsonResponseString['response'] = "done";
-            $this->sendJsonResponse(array('0000', 'success'));
-        }
+        $this->jsonResponseString['response'] = "done";
+        $this->sendJsonResponse(array('0000', 'success'));
+        
     }
 
     /**
@@ -3841,53 +3838,6 @@ class Api extends CI_Controller {
         return ((float) $usec + (float) $sec);
     }
 
-    /**
-     * @description: Function to send SMS
-     * @param : Phone number and message
-     * @return : Success message: "Sms Sent"
-     */
-    function sendTransactionalSms($phone_number, $body) {
-        log_message('info', "Entering: " . __METHOD__ . ": Phone num: " . $phone_number);
-
-        //$developer_phone = array('8826423424', '9810872244', '8130572244', '9899296372');
-        //$developer_phone = array('8826423424', '9810872244', '8130572244', '9899296372', '8447142491');
-        $developer_phone = array('');
-
-        $post_data = array(
-            // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
-            // For promotional, this will be ignored by the SMS gateway
-            'From' => PARTNERS_MISSED_CALLED_NUMBER,
-            'To' => $phone_number,
-            'Body' => $body,
-        );
-
-        $exotel_sid = "aroundhomz";
-        $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
-
-        $url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Sms/send";
-
-        if (!in_array($phone_number, $developer_phone)) {
-            $ch = curl_init();
-
-            curl_setopt($ch, CURLOPT_VERBOSE, 1);
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_FAILONERROR, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
-
-            $http_result = curl_exec($ch);
-            $error = curl_error($ch);
-            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            curl_close($ch);
-        }
-        log_message('info', "SMS Sent successfully");
-
-        $message = "Sms Sent";
-        return $message;
-    }
 
     /**
      * @description: Function to send New User notification email to Admin
