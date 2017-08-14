@@ -334,7 +334,7 @@
     <br>
     <?php 
  
-        $final_settlement = $pay_by_247 + $pay_by_partner + $debit_amount - $credit_amount;
+        $final_settlement = $total_amount + $debit_amount - $credit_amount;
     ?>
     <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo round($final_settlement,0);} else { echo 0;} ?></h4></p>
     <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(round($final_settlement,0));} else {echo 0;} ?></h4></p>

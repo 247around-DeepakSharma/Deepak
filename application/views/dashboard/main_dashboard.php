@@ -24,16 +24,16 @@
                 <div class="row x_title">
                     <div class="col-md-6">
                         <h3>Partner Booking Status &nbsp;&nbsp;&nbsp;
-                            <small>
+<!--                            <small>
                                 <select class="form-control" style="width:30%; display: inline-block;" id="booking_status">
                                     <option selected>Completed</option>
                                     <option>Cancelled</option>
-<!--                                    <option>FollowUp</option>
+                                    <option>FollowUp</option>
                                     <option>Pending</option>
-                                    <option>Rescheduled</option>-->
+                                    <option>Rescheduled</option>
                                     <option>ALL</option>
                                 </select>
-                            </small>
+                            </small>-->
                         </h3>
                     </div>
                     <div class="col-md-6">
@@ -43,7 +43,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="change_chart_type" >
+<!--                <div class="change_chart_type" >
                     <button id="column" class="btn btn-sm" style="margin-left: 2em; background-color:#ba68c8; color: #000;">Column</button>
                     <button id="line" class="btn btn-sm" style="background-color:#7986cb; color: #000;">Line</button>
                     <button id="spline" class="btn btn-sm" style="background-color:#4dd0e1; color: #000;">Spline</button>
@@ -51,7 +51,7 @@
                     <button id="areaspline" class="btn btn-sm" style="background-color:#dce775; color: #000;">Areaspline</button>
                     <button id="scatter" class="btn btn-sm" style="background-color:#69f0ae; color: #000;">Scatter</button>
                     <button id="pie" class="btn btn-sm" style="background-color:#ffb74d; color: #000;">Pie</button>
-                </div>
+                </div>-->
                 <div class="col-md-12"><center><img id="loader_gif1" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div id="chart_container" class="chart_container"></div>
@@ -349,10 +349,10 @@
        
     });
     partner_booking_status(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
-   // partner_booking_status (start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+    
     function partner_booking_status (startDate,endDate){
-        var booking_status = $('#booking_status').val();
-        var url =  '<?php echo base_url(); ?>BookingSummary/get_partners_booking_report_chart';
+        //var booking_status = $('#booking_status').val();
+        var url =  '<?php echo base_url(); ?>employee/dashboard/get_partners_booking_report_chart';
         $('#loader_gif1').css('display', 'inherit');
         $('#loader_gif1').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
         $('#chart_container').hide();
@@ -360,85 +360,172 @@
         $.ajax({
             type: 'POST',
             url: url,
-            data: {sDate: startDate, eDate: endDate, booking_status: booking_status},
+            data: {sDate: startDate, eDate: endDate},
             success: function (response) {
-                var partners = [];
-                var bookings = [];
-                var partnerid = [];
-                var chart_ajax_data = [];
-                $.each(JSON.parse(response), function (key, value) {
-                    partners.push(value.public_name);
-                    bookings.push(parseInt(value.count));
-                    partnerid[value.public_name] = parseInt(value.partner_id);
-                    var arr = {
-                        name: value.public_name,
-                        y: parseInt(value.count)
-                    };
-                    chart_ajax_data.push(arr);
-
-                });
+                
+                var data = JSON.parse(response);
+                var partners_id = data.partner_id;
+                var partners = data.partner_name.split(',');
+                var completed_bookings_count = JSON.parse("[" + data.completed_bookings_count + "]");
+                var cancelled_bookings_count = JSON.parse("[" + data.cancelled_bookings_count + "]");
                 $('#loader_gif1').attr('src', "");
                 $('#loader_gif1').css('display', 'none');
                 $('#chart_container').show();
                 partner_booking_chart = new Highcharts.Chart({
-                    chart: {
-                        renderTo: 'chart_container',
-                        type: 'column'
-                    },
-                    title: {
-                        text: '',
-                        x: -20 //center
-                    },
-                    xAxis: {
-                        categories: partners
-                    },
-                    yAxis: {
-                        title: {
-                            text: 'Count'
-                        },
-                        plotLines: [{
-                                value: 0, width: 1,
-                                color: '#808080'
-                            }]
-                    },
-                    plotOptions: {
-                        column: {
-                            dataLabels: {
-                                enabled: true,
-                                crop: false,
-                                overflow: 'none'
-                            }
-                        },
-                        pie: {
-                            plotBorderWidth: 0,
-                            allowPointSelect: true,
-                            cursor: 'pointer',
-                            size: '100%',
-                            dataLabels: {
-                                enabled: true,
-                                format: '{point.name}: <b>{point.y}</b>'
-                            },
-                            showInLegend: true
-                        }
-                    },
-                    series: [
-                        {
-                            name: booking_status,
-                            data: chart_ajax_data,
-                            cursor: 'pointer',
-                            point: {
-                                events: {
-                                    click: function (event) {
-                                        var get_date = $('#reportrange span').text().split('-');
-                                        var startdate = Date.parse(get_date[0]).toString('dd-MMM-yyyy');
-                                        var enddate = Date.parse(get_date[1]).toString('dd-MMM-yyyy');
-                                        var booking_status = $('#booking_status').val();
-                                        window.open(baseUrl + '/employee/dashboard/partner_reports/' + this.name + '/' + partnerid[this.name] + '/' + booking_status + '/' + encodeURI(startdate) + '/' + encodeURI(enddate), '_blank');
-                                    }
-                                }
-                            }
-                        }]
-                });
+                                    chart: {
+                                        renderTo: 'chart_container',
+                                        type: 'column',
+                                        events: {
+                                            load: Highcharts.drawTable
+                                        },
+                                    },
+                                    title: {
+                                        text: '',
+                                        x: -20 //center
+                                    },
+                                    xAxis: {
+                                        categories: partners,
+                                        labels: {
+                                            style: {
+                                                fontSize:'13px'
+                                            }
+                                        }
+                                    },
+                                    yAxis: {
+                                        title: {
+                                            text: 'Count'
+                                        },
+                                        plotLines: [{
+                                                value: 0,
+                                                width: 1,
+                                                color: '#808080'
+                                            }]
+                                    },
+                                    plotOptions: {
+                                        column: {
+                                            dataLabels: {
+                                                enabled: true,
+                                                crop: false,
+                                                overflow: 'none'
+                                            }
+                                        }
+                                    },
+                                    legend: {
+                                        layout: 'vertical',
+                                        align: 'right',
+                                        verticalAlign: 'middle',
+                                        borderWidth: 0
+                                    },
+                                    series: [
+                                        {
+                                            name: 'Completed Bookings',
+                                            data: completed_bookings_count,
+                                            cursor: 'pointer',
+                                            point: {
+                                                events: {
+                                                    click: function (event) {
+                                                        var get_date = $('#reportrange span').text().split('-');
+                                                        var startdate = Date.parse(get_date[0]).toString('dd-MMM-yyyy');
+                                                        var enddate = Date.parse(get_date[1]).toString('dd-MMM-yyyy');
+                                                        window.open(baseUrl + '/employee/dashboard/partner_reports/' + this.category + '/' + partners_id[this.category] + '/' + 'Completed' + '/' + encodeURI(startdate) + '/' + encodeURI(enddate), '_blank');
+
+                                                    }
+                                                }
+                                            }
+                                        }, {
+                                            name: 'Cancelled Bookings',
+                                            data: cancelled_bookings_count,
+                                            cursor: 'pointer',
+                                            point: {
+                                                events: {
+                                                    click: function (event) {
+                                                        var get_date = $('#reportrange span').text().split('-');
+                                                        var startdate = Date.parse(get_date[0]).toString('dd-MMM-yyyy');
+                                                        var enddate = Date.parse(get_date[1]).toString('dd-MMM-yyyy');
+                                                        window.open(baseUrl + '/employee/dashboard/partner_reports/' + this.category + '/' + partners_id[this.category] + '/' + 'Cancelled' + '/' + encodeURI(startdate) + '/' + encodeURI(enddate), '_blank');
+
+                                                    }
+                                                }
+                                            }
+                                        }]
+                                });
+//                var partners = [];
+//                var bookings = [];
+//                var partnerid = [];
+//                var chart_ajax_data = [];
+//                $.each(JSON.parse(response), function (key, value) {
+//                    partners.push(value.public_name);
+//                    bookings.push(parseInt(value.count));
+//                    partnerid[value.public_name] = parseInt(value.partner_id);
+//                    var arr = {
+//                        name: value.public_name,
+//                        y: parseInt(value.count)
+//                    };
+//                    chart_ajax_data.push(arr);
+//
+//                });
+//                $('#loader_gif1').attr('src', "");
+//                $('#loader_gif1').css('display', 'none');
+//                $('#chart_container').show();
+//                partner_booking_chart = new Highcharts.Chart({
+//                    chart: {
+//                        renderTo: 'chart_container',
+//                        type: 'column'
+//                    },
+//                    title: {
+//                        text: '',
+//                        x: -20 //center
+//                    },
+//                    xAxis: {
+//                        categories: partners
+//                    },
+//                    yAxis: {
+//                        title: {
+//                            text: 'Count'
+//                        },
+//                        plotLines: [{
+//                                value: 0, width: 1,
+//                                color: '#808080'
+//                            }]
+//                    },
+//                    plotOptions: {
+//                        column: {
+//                            dataLabels: {
+//                                enabled: true,
+//                                crop: false,
+//                                overflow: 'none'
+//                            }
+//                        },
+//                        pie: {
+//                            plotBorderWidth: 0,
+//                            allowPointSelect: true,
+//                            cursor: 'pointer',
+//                            size: '100%',
+//                            dataLabels: {
+//                                enabled: true,
+//                                format: '{point.name}: <b>{point.y}</b>'
+//                            },
+//                            showInLegend: true
+//                        }
+//                    },
+//                    series: [
+//                        {
+//                            name: booking_status,
+//                            data: chart_ajax_data,
+//                            cursor: 'pointer',
+//                            point: {
+//                                events: {
+//                                    click: function (event) {
+//                                        var get_date = $('#reportrange span').text().split('-');
+//                                        var startdate = Date.parse(get_date[0]).toString('dd-MMM-yyyy');
+//                                        var enddate = Date.parse(get_date[1]).toString('dd-MMM-yyyy');
+//                                        var booking_status = $('#booking_status').val();
+//                                        window.open(baseUrl + '/employee/dashboard/partner_reports/' + this.name + '/' + partnerid[this.name] + '/' + booking_status + '/' + encodeURI(startdate) + '/' + encodeURI(enddate), '_blank');
+//                                    }
+//                                }
+//                            }
+//                        }]
+//                });
             }
         });
     }
@@ -496,9 +583,11 @@
                             }]
                     },
                     plotOptions: {
-                        bar: {
-                            dataLabels: {
-                                enabled: true
+                        column: {
+                                dataLabels: {
+                                enabled: true,
+                                crop: false,
+                                overflow: 'none'
                             }
                         }
                     },
@@ -1156,12 +1245,12 @@
         $('#preview').html(partner_booking_chart.getCSV());
     });
     
-    $.each(['line', 'column', 'spline', 'area', 'areaspline', 'scatter', 'pie'], function (i, type) {
-        $('#' + type).click(function () {
-            partner_booking_chart.series[0].update({
-                type: type
-            });
-        });
-    });
+//    $.each(['line', 'column', 'spline', 'area', 'areaspline', 'scatter', 'pie'], function (i, type) {
+//        $('#' + type).click(function () {
+//            partner_booking_chart.series[0].update({
+//                type: type
+//            });
+//        });
+//    });
         
 </script>

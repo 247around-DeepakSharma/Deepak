@@ -784,9 +784,11 @@
 //                        $("#booking_city").select2({
 //                           tags: true
 //                        });
+                          
                        
                          $('#submitform').prop('disabled', false);
-                        $("#not_visible").val('1');
+                         $("#not_visible").val('1');
+                        getPrice();
                     } else {
                         alert("Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
                         $('#submitform').prop('disabled', true);

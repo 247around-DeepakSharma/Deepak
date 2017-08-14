@@ -75,7 +75,7 @@ class invoices_model extends CI_Model {
             
             $return_data[0]['vendor_partner_name'] = $details[0]['vendor_partner_name'];
         }
-
+        
         return $return_data;
     }
 
@@ -1028,16 +1028,6 @@ class invoices_model extends CI_Model {
             $meta['bank_name'] = $data['booking'][0]['bank_name'];
             $meta['ifsc_code'] = $data['booking'][0]['ifsc_code'];
             $meta['owner_phone_1'] = $data['booking'][0]['owner_phone_1'];
-           
-            if ($meta['sub_total_amount'] >= 0) {
-               
-                $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
-            }else if ($meta['sub_total_amount'] < 0){
-
-                $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0))."(DR)";
-                
-            }
-           
 //            if(!empty($data['booking'][0]['signature_file'])){
 //                $path1  = TMP_FOLDER.$data['booking'][0]['signature_file'];
 //                $cmd = "curl https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" .$data['booking'][0]['signature_file'] . " -o " . $path1;
@@ -1046,6 +1036,14 @@ class invoices_model extends CI_Model {
 //                $meta['sign_path'] = $path1;
 //                $meta['cell'] = "K".(26 + count($data['booking']));
 //            }
+            if ($meta['sub_total_amount'] >= 0) {
+               
+                $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
+            }else if ($meta['sub_total_amount'] < 0){
+
+                return FALSE;
+                
+            }
             
             $data['meta'] = $meta;
 

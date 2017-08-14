@@ -490,12 +490,12 @@ class Api extends CI_Controller {
 
                 //Send SMS to Vendor
                 $message = "AROUND के ग्राहक $user_number ने संपर्ककिया, अधिककाम के लिए rating कराएं 011-39595200";
-                $notify = $this->sendTransactionalSms($phone_number, $message);
+                $this->notify->sendTransactionalSmsMsg91($phone_number, $message);
 
-                if ($notify == "Sms Sent") {
-                    $this->jsonResponseString['response'] = $user_number;
-                    $this->sendJsonResponse(array('0000', 'success'));
-                }
+     
+                $this->jsonResponseString['response'] = $user_number;
+                $this->sendJsonResponse(array('0000', 'success'));
+                
             } else {
                 //TODO: Handle error here
                 //log_message ('info', __METHOD__ . ": Handyman not found, invalid extension");
@@ -511,12 +511,11 @@ class Api extends CI_Controller {
 
             //Send SMS to Vendor
             $message = "AROUND के ग्राहक $user_number ने संपर्ककिया, अधिककाम के लिए rating कराएं। 011-39595200";
-            $notify = $this->sendTransactionalSms($extn, $message);
+            $this->notify->sendTransactionalSmsMsg91($extn, $message);
 
-            if ($notify == "Sms Sent") {
-                $this->jsonResponseString['response'] = $user_number;
-                $this->sendJsonResponse(array('0000', 'success'));
-            }
+            $this->jsonResponseString['response'] = $user_number;
+            $this->sendJsonResponse(array('0000', 'success'));
+            
         }
     }
 
@@ -593,7 +592,7 @@ class Api extends CI_Controller {
         //$message = "AROUND ke grahak $user_number ka pata $address samay pe pahuncho";
         //log_message ('info', "SMS message for address: " . $message);
         //Send Address to Handyman thru SMS
-        $result = $this->sendTransactionalSms($handyman_phone, $message);
+        $this->notify->sendTransactionalSmsMsg91($handyman_phone, $message);
 
         $this->jsonResponseString['response'] = 'notify';
         $this->sendJsonResponse(array('000012', 'success'));
@@ -785,27 +784,27 @@ class Api extends CI_Controller {
 
         if ($userResult) {
             //Confirm user about number verification
-            $notify = $this->sendTransactionalSms($phone_number, $message);
+            $this->notify->sendTransactionalSmsMsg91($phone_number, $message);
             $name = $userResult[0]['name'];
             $email = $userResult[0]['user_email'];
             $user_id = $userResult[0]['user_id'];
 
             //Inform Admin as well about the new user
-            if ($notify == "Sms Sent") {
-                if (!in_array($phone_number, $developer_phone)) {
-                    /*
-                      $this->sendMail("New User Added", $name . " with phone number " . $phone_number
-                      . " and email " . $email . " joi`ned Around !!!", false);
-                     */
+           
+            if (!in_array($phone_number, $developer_phone)) {
+                /*
+                  $this->sendMail("New User Added", $name . " with phone number " . $phone_number
+                  . " and email " . $email . " joi`ned Around !!!", false);
+                 */
 
-                    $this->sendNewUserEmail($userResult);
-                }
+                $this->sendNewUserEmail($userResult);
             }
+            
 
             //Create sample wallet if required
             //Check no of appliances in User's wallet
             $count = $this->apis->getApplianceCountByUser($user_id);
-            log_message('info', "Appliance Count: " . $count);
+            //log_message('info', "Appliance Count: " . $count);
             //Add sample appliances if user has < 5 appliances in wallet
             if ($count < 5) {
                 $this->apis->addSampleAppliances($user_id, 5 - intval($count));
@@ -1655,11 +1654,11 @@ class Api extends CI_Controller {
             $this->email->attach($file, 'attachment', 'booking-snapshot.jpg');
 
         if ($this->email->send()) {
-            log_message('info', __METHOD__ . ": Mail sent successfully");
+//            log_message('info', __METHOD__ . ": Mail sent successfully");
 
             return "Success";
         } else {
-            log_message('error', __METHOD__ . ": Mail could not be sent");
+//            log_message('error', __METHOD__ . ": Mail could not be sent");
 
             return "Fail";
         }
@@ -1858,7 +1857,7 @@ class Api extends CI_Controller {
             $booking['taluk'] = $distict_details['taluk'];
 
             $unit_details = $requestData["unit_details"];
-            log_message('info', "Unit details: " . print_r($unit_details, TRUE));
+//            log_message('info', "Unit details: " . print_r($unit_details, TRUE));
 
             $units = json_decode($unit_details, true);
             $booking['quantity'] = count($units);
@@ -1872,7 +1871,7 @@ class Api extends CI_Controller {
             $booking['booking_id'] = $booking_id;
             $booking['partner_id'] = "247001";
             $booking['partner_source'] = "AndroidApp";
-            log_message('info', "Booking ID (generated): " . $booking_id);
+//            log_message('info', "Booking ID (generated): " . $booking_id);
 
             $appliance_id = $requestData["appliance_id"];
 
@@ -1888,7 +1887,7 @@ class Api extends CI_Controller {
             $booking['booking_alternate_contact_no'] = "";
             $booking['service_id'] = $searched_service_id;
 
-            log_message('info', $user_name . $user_email . $user_phone);
+//            log_message('info', $user_name . $user_email . $user_phone);
 
             //check whether booking image file is there
             if (isset($_FILES['bookingPic']['name'])) {
@@ -1914,9 +1913,9 @@ class Api extends CI_Controller {
             $booking['current_status'] = 'Pending';
             $booking['internal_status'] = 'Scheduled';
 
-            log_message('info', "User ID:" . $user_id . ", service: " . $searched_service
-                    . ", date: " . $booking['booking_date'] . ", Address: " . $booking['booking_address']
-                    . ", Pincode: " . $booking['booking_pincode'] . ", time: " . $booking['booking_timeslot']);
+//            log_message('info', "User ID:" . $user_id . ", service: " . $searched_service
+//                    . ", date: " . $booking['booking_date'] . ", Address: " . $booking['booking_address']
+//                    . ", Pincode: " . $booking['booking_pincode'] . ", time: " . $booking['booking_timeslot']);
 
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking_id);
             if (!empty($partner_status)) {
@@ -1926,7 +1925,7 @@ class Api extends CI_Controller {
 
             //Save Booking
             $status = $this->booking_model->addbooking($booking);
-            log_message('info', "Booking ID Returned (with appl, from wallet): " . $status);
+//            log_message('info', "Booking ID Returned (with appl, from wallet): " . $status);
 
 
             $add_appliance = $requestData["add_appliance"];
@@ -1946,11 +1945,11 @@ class Api extends CI_Controller {
                     for ($c = 1; $c < $count; $c++) {
                         $appl = array($user_id, $searched_service_id,
                             $units[$c]['brand'], $units[$c]['category'], $units[$c]['capacity'], $units[$c]['applianceTag']);
-                        log_message('info', "Appliance details from simple booking (wallet): " . print_r($appl, true));
+//                        log_message('info', "Appliance details from simple booking (wallet): " . print_r($appl, true));
 
                         $r = $this->apis->addApplianceFromBooking($appl);
                         $inserted_appliance = $r[0];
-                        log_message('info', "Inserted Appliance ID (wallet):" . $inserted_appliance['id']);
+//                        log_message('info', "Inserted Appliance ID (wallet):" . $inserted_appliance['id']);
 
                         array_push($inserted_appliance_array, $inserted_appliance);
                     }
@@ -1963,11 +1962,11 @@ class Api extends CI_Controller {
 
                     $appl = array($user_id, $searched_service_id,
                         $units[0]['brand'], $units[0]['category'], $units[0]['capacity'], $units[0]['applianceTag']);
-                    log_message('info', "Appliance details from simple booking: " . print_r($appl, true));
+//                    log_message('info', "Appliance details from simple booking: " . print_r($appl, true));
 
                     $r = $this->apis->addApplianceFromBooking($appl);
                     $inserted_appliance = $r[0];
-                    log_message('info', "Inserted Appliance:" . print_r($inserted_appliance, TRUE));
+//                    log_message('info', "Inserted Appliance:" . print_r($inserted_appliance, TRUE));
 
                     array_push($inserted_appliance_array, $inserted_appliance);
 
@@ -1979,11 +1978,11 @@ class Api extends CI_Controller {
                     for ($c = 1; $c < count($units); $c++) {
                         $appl = array($user_id, $searched_service_id,
                             $units[$c]['brand'], $units[$c]['category'], $units[$c]['capacity'], $units[$c]['applianceTag']);
-                        log_message('info', "Appliance details from simple booking: " . print_r($appl, true));
+//                        log_message('info', "Appliance details from simple booking: " . print_r($appl, true));
 
                         $r = $this->apis->addApplianceFromBooking($appl);
                         $inserted_appliance = $r[0];
-                        log_message('info', "Inserted Appliance ID (extra units):" . $inserted_appliance['id']);
+//                        log_message('info', "Inserted Appliance ID (extra units):" . $inserted_appliance['id']);
 
                         array_push($inserted_appliance_array, $inserted_appliance);
                     }
@@ -2051,7 +2050,7 @@ class Api extends CI_Controller {
         //log_message('info', "Unit Inserted: " . $id_returned);
         }
 
-        log_message('info', "No of Units: " . $count);
+//        log_message('info', "No of Units: " . $count);
         return $count;
     }
 
@@ -2184,7 +2183,7 @@ class Api extends CI_Controller {
         );
 
         $result = $this->apis->updateBooking($booking_id, $cancel_details);
-        log_message('info', print_r($result, TRUE));
+//        log_message('info', print_r($result, TRUE));
         $this->notify->insert_state_change($booking_id, "AndroidApp", _247AROUND_CANCELLED, $cancellation_reason, 
                                    _247AROUND_DEFAULT_AGENT, 
                                     _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
@@ -2195,7 +2194,7 @@ class Api extends CI_Controller {
         $user_phone = $user_profile[0]['phone_number'];
 
         $booking_date_formatted = date("d M, Y", strtotime($result['booking_date']));
-        log_message('info', "Formatted date: " . $booking_date_formatted);
+//        log_message('info', "Formatted date: " . $booking_date_formatted);
 
         $booking_date_strings = explode(",", $booking_date_formatted);
         $booking_time_strings = explode("-", $result['booking_timeslot']);
@@ -2209,15 +2208,14 @@ class Api extends CI_Controller {
 
         $message = "Request for $searched_service Repair for $booking_date_strings[0], $booking_time_by cancelled. Hope to serve next time. 247Around Indias 1st Appliance repair App goo.gl/m0iAcS 9555000247";
 
-        log_message('info', "SMS text: " . $message);
+//        log_message('info', "SMS text: " . $message);
 
-        $notify = $this->sendTransactionalSms($user_phone, $message);
+        $this->notify->sendTransactionalSmsMsg91($user_phone, $message);
         //$notify = "Sms Sent";
 
-        if ($notify == "Sms Sent") {
-            $this->jsonResponseString['response'] = "done";
-            $this->sendJsonResponse(array('0000', 'success'));
-        }
+        $this->jsonResponseString['response'] = "done";
+        $this->sendJsonResponse(array('0000', 'success'));
+        
     }
 
     /**
@@ -2240,7 +2238,7 @@ class Api extends CI_Controller {
         $booking_time = $requestData['booking_time'];
         $reschedule_date = date('Y-m-d H:i:s');
 
-        log_message('info', "Booking ID: " . $booking_id);
+//        log_message('info', "Booking ID: " . $booking_id);
 
         $reschedule_details = array(
             'current_status' => 'Rescheduled',
@@ -2250,7 +2248,7 @@ class Api extends CI_Controller {
         );
 
         $result = $this->apis->updateBooking($booking_id, $reschedule_details);
-        log_message('info', print_r($result, TRUE));
+//        log_message('info', print_r($result, TRUE));
 
         //Send message to User
         $user_profile = $this->apis->getuserProfileid($result['user_id']);
@@ -2270,13 +2268,12 @@ class Api extends CI_Controller {
 
         //log_message('info', "SMS text: " . $message);
 
-        $notify = $this->sendTransactionalSms($user_phone, $message);
+        $this->notify->sendTransactionalSmsMsg91($user_phone, $message);
         //$notify = "Sms Sent";
 
-        if ($notify == "Sms Sent") {
-            $this->jsonResponseString['response'] = "done";
-            $this->sendJsonResponse(array('0000', 'success'));
-        }
+        $this->jsonResponseString['response'] = "done";
+        $this->sendJsonResponse(array('0000', 'success'));
+        
     }
 
     /**
@@ -2668,7 +2665,7 @@ class Api extends CI_Controller {
      * @output:
      */
     function processGetAppDataForAppliances() {
-        log_message('info', "Entering: " . __METHOD__);
+//        log_message('info', "Entering: " . __METHOD__);
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
@@ -2679,10 +2676,10 @@ class Api extends CI_Controller {
         //$user_id = $requestData['username'];
 
         $user_id = $requestData['user_id'];
-        log_message('info', "User ID: " . $user_id);
+//        log_message('info', "User ID: " . $user_id);
 
         $user_appliances = $this->apis->getApplianceByUser($user_id);
-        log_message('info', count($user_appliances) . " appliances found");
+//        log_message('info', count($user_appliances) . " appliances found");
 
         $services = $this->apis->getAppliancesList();
 
@@ -2723,7 +2720,7 @@ class Api extends CI_Controller {
             "popularKeywords" => $popular_keywords,
             "snack_bar_msgs" => $snack_bar_msgs
         ); //$appData;
-        log_message('info'," Appliance ". print_r($user_appliances, true));
+//        log_message('info'," Appliance ". print_r($user_appliances, true));
         $this->sendJsonResponse(array('0000', 'success'));
     }
 
@@ -3841,53 +3838,6 @@ class Api extends CI_Controller {
         return ((float) $usec + (float) $sec);
     }
 
-    /**
-     * @description: Function to send SMS
-     * @param : Phone number and message
-     * @return : Success message: "Sms Sent"
-     */
-    function sendTransactionalSms($phone_number, $body) {
-        log_message('info', "Entering: " . __METHOD__ . ": Phone num: " . $phone_number);
-
-        //$developer_phone = array('8826423424', '9810872244', '8130572244', '9899296372');
-        //$developer_phone = array('8826423424', '9810872244', '8130572244', '9899296372', '8447142491');
-        $developer_phone = array('');
-
-        $post_data = array(
-            // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
-            // For promotional, this will be ignored by the SMS gateway
-            'From' => PARTNERS_MISSED_CALLED_NUMBER,
-            'To' => $phone_number,
-            'Body' => $body,
-        );
-
-        $exotel_sid = "aroundhomz";
-        $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
-
-        $url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Sms/send";
-
-        if (!in_array($phone_number, $developer_phone)) {
-            $ch = curl_init();
-
-            curl_setopt($ch, CURLOPT_VERBOSE, 1);
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_FAILONERROR, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
-
-            $http_result = curl_exec($ch);
-            $error = curl_error($ch);
-            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            curl_close($ch);
-        }
-        log_message('info', "SMS Sent successfully");
-
-        $message = "Sms Sent";
-        return $message;
-    }
 
     /**
      * @description: Function to send New User notification email to Admin
@@ -3957,7 +3907,7 @@ class Api extends CI_Controller {
         $name = $user['name'];
        // $user_email = $user['user_email'];
         $phone_number = $user['phone_number'];
-        log_message('info', "Name: " . $name  . ", Phone: " . $phone_number);
+//        log_message('info', "Name: " . $name  . ", Phone: " . $phone_number);
 
         //Booking details
        // $service_id = $booking['service_id'];
@@ -3972,7 +3922,7 @@ class Api extends CI_Controller {
         $discount = $booking['discount_amount'];
         $amount_due = $booking['amount_due'];
 
-        log_message('info', print_r($booking, TRUE));
+//        log_message('info', print_r($booking, TRUE));
 
         //TEMP: Need to use template for sending email to user
         $user_email = "anuj@247around.com, abhaya@247around.com";
@@ -3989,7 +3939,7 @@ class Api extends CI_Controller {
         $message .= "Discount: " . $discount . "<br/>";
         $message .= "<br/>Total amount due: Rs. " . $amount_due . "<br/>";
 
-        log_message('info', "Booking message: " . $message);
+//        log_message('info', "Booking message: " . $message);
 
         $this->sendBookingMailToUser($user_email, $subject, $message, "", FALSE);
     }

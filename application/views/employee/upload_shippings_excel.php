@@ -46,6 +46,31 @@
                </div>
 
             </form>
+             
+             <div class="col-md-12" style="margin-top:20px;">
+              <h3>File Upload History</h3>
+              <table class="table table-bordered table-hover table-responsive">
+                  <thead>
+                      <tr>
+                          <th>S.No.</th>
+                          <th>Download</th>
+                          <th>Uploaded By</th>
+                          <th>Uploaded Date</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <?php $sn1 = 1;
+                      foreach ($snapdeal_shipped as $value) { ?>
+                          <tr>
+                              <td><?php echo $sn1; ?></td>
+                              <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/<?php echo $value['file_name']?>'><div><?php echo $value['file_name']?></div></a></td>
+                              <td><?php echo $value['agent_name']; ?></td>
+                              <td><?php echo date('d-F-Y' , strtotime($value['upload_date'])); ?></td>
+                          </tr>
+                        <?php $sn1++;} ?>
+                  </tbody>
+              </table>
+          </div>
 
          </div>
       </div>
