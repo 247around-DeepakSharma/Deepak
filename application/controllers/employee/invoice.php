@@ -711,7 +711,7 @@ class Invoice extends CI_Controller {
     
     function generate_partner_upcountry_excel($data, $meta) {
         
-        $template = 'Partner_invoice_detail_template-upcountry-v2.xlsx';
+        $template = 'Partner_invoice_detail_template-v2-upcountry.xlsx';
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-upcountry-detailed.xlsx";
         $this->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
