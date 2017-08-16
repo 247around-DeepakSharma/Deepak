@@ -1,3 +1,21 @@
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+<script type="text/javascript">
+    $(function() {
+        $('input[name="from_date"]').daterangepicker({
+            locale: {
+               format: 'YYYY/MM/DD'
+            },
+            <?php if (isset($invoice_details[0]['from_date'])) { ?>
+                startDate: '<?php if (isset($invoice_details[0]['from_date'])) { echo $invoice_details[0]['from_date'];}  ?>',
+                endDate: '<?php if (isset($invoice_details[0]['from_date'])) { echo $invoice_details[0]['to_date'];} ?>'
+            <?php } ?>
+            
+        });
+    
+    });
+</script>
 <div class='container' style="margin-top:20px;">
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -8,55 +26,48 @@
                 <div class="row">
                     <div class="col-md-12 col-md-offset-3">
                         <div class="form-group">
-            <label class="col-md-3 control-label" for="Around Type">247Around is</label>
-            <div class="col-md-9">
-                <label class="radio-inline">
-                    <input onchange="control_type_code(1)" <?php if (isset($invoice_details[0]['type_code'])) {
-                        if($invoice_details[0]['type_code'] == "B"){ echo "checked";}
-                        } ?> data-val="true" data-val-required="247Around Type is required." id="around_type" name="around_type" type="radio" value="B" required>
-                    Buyer
-                </label>
-                <label class="radio-inline">
-                    <input onchange="control_type_code(1)" <?php if (isset($invoice_details[0]['type_code'])) {
-                        if($invoice_details[0]['type_code'] == "A"){ echo "checked";}
-                    } ?> id="around_type" name="around_type" type="radio" value="A">
-                     Seller
-                </label>
-              	
-            </div>
-        </div>
+                            <label class="col-md-3 control-label" for="Around Type">247Around is</label>
+                            <div class="col-md-9">
+                                <label class="radio-inline">
+                                <input onchange="control_type_code(1)" <?php if (isset($invoice_details[0]['type_code'])) {
+                                    if($invoice_details[0]['type_code'] == "B"){ echo "checked";}
+                                    } ?> data-val="true" data-val-required="247Around Type is required." id="around_type" name="around_type" type="radio" value="B" required>
+                                Buyer
+                                </label>
+                                <label class="radio-inline">
+                                <input onchange="control_type_code(1)" <?php if (isset($invoice_details[0]['type_code'])) {
+                                    if($invoice_details[0]['type_code'] == "A"){ echo "checked";}
+                                    } ?> id="around_type" name="around_type" type="radio" value="A">
+                                Seller
+                                </label>
+                            </div>
+                        </div>
+                       
                     </div>
-                  
                     <div class="col-md-12" style="margin-top: 20px;">
                         <div class="col-md-6 <?php if( form_error('invoice_id') ) { echo 'has-error';} ?>">
-                            
                             <div class="form-group">
-                               <label for="Vendor Partner" class="col-md-4">Invoice ID</label>
-                               <div class="col-md-6">
-                                   <input type="text" class="form-control" name="invoice_id" id="invoice_id_gen" value="<?php if (isset($invoice_details[0]['invoice_id'])) {
-                               echo $invoice_details[0]['invoice_id'];
-                               } ?>" placeholder="Invoice ID" <?php if (isset($invoice_details[0]['invoice_id'])) { echo "readonly";;} ?> required/>
-                               </div>
-                            <?php echo form_error('invoice_id'); ?>
-                           </div>
-                           
-                            <div class="form-group">
+                                <label for="Vendor Partner" class="col-md-4">Invoice ID</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" name="invoice_id" id="invoice_id_gen" value="<?php if (isset($invoice_details[0]['invoice_id'])) {
+                                        echo $invoice_details[0]['invoice_id'];
+                                        } ?>" placeholder="Invoice ID" <?php if (isset($invoice_details[0]['invoice_id'])) { echo "readonly";} ?> required/>
+                                </div>
+                                <?php echo form_error('invoice_id'); ?>
+                            </div>
+                            <div class="form-group <?php if( form_error('vendor_partner_id') ) { echo 'has-error';} ?>">
                                 <label for="Vendor Partner" class="col-md-4">Entity</label>
                                 <div class="col-md-6">
                                     <select type="text" class="form-control"  id="vendor_partner_id" name="vendor_partner_id"  required>
                                     </select>
-
                                 </div>
+                                 <?php echo form_error('vendor_partner_id'); ?>
                             </div>
-                            
-                            
                             <div class="form-group" >
-                                <label for="From Date" class="col-md-4">From Date</label>
+                                <label for="From Date" class="col-md-4">Period</label>
                                 <div class="col-md-6">
                                     <div class="input-group input-append date">
-                                        <input id="from_date" class="form-control" placeholder="Select Date" name="from_date" type="text" required readonly='true' style="background-color:#fff;" value="<?php if (isset($invoice_details[0]['from_date'])) {
-                                            echo $invoice_details[0]['from_date'];
-                                            } ?>">
+                                        <input id="from_date" class="form-control" placeholder="Select Date" name="from_date" type="text" required readonly='true' style="background-color:#fff;" value="">
                                         <span class="input-group-addon add-on" onclick="from_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                 </div>
@@ -70,14 +81,6 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="total additional service charges" class="col-md-4">Additional Charge*</label>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="total_additional_service_charge" value = "<?php if (isset($invoice_details[0]['total_additional_service_charge'])) {
-                                        echo $invoice_details[0]['total_additional_service_charge'];
-                                        } ?>" placeholder="Total Addtional Service Charge" >
-                                </div>
-                            </div>
-                            <div class="form-group">
                                 <label for="Parts Cost" class="col-md-4">Parts Cost *</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control"  name="parts_cost" value = "<?php if (isset($invoice_details[0]['parts_cost'])) {
@@ -85,12 +88,20 @@
                                         } ?>" placeholder="Parts Cost" >
                                 </div>
                             </div>
-                             <div class="form-group">
-                                <label for="Parts Cost" class="col-md-4">Total Upcountry Booking *</label>
+                            <div class="form-group">
+                                <label for="vat" class="col-md-4">Debit Penalty Amount *</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="upcountry_booking" value = "<?php if (isset($invoice_details[0]['upcountry_booking'])) {
-                                        echo $invoice_details[0]['upcountry_booking'];
-                                        } ?>" placeholder="Total Upcountry Booking" >
+                                    <input type="text" class="form-control"  name="penalty_amount" value = "<?php if (isset($invoice_details[0]['penalty_amount'])) {
+                                        echo $invoice_details[0]['penalty_amount'];
+                                        } ?>" placeholder="Penalty Amount" >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="vat" class="col-md-4">credit Penalty Amount *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="credit_penalty_amount" value = "<?php if (isset($invoice_details[0]['credit_penalty_amount'])) {
+                                        echo $invoice_details[0]['credit_penalty_amount'];
+                                        } ?>" placeholder="Credit Penalty Amount" >
                                 </div>
                             </div>
                             <div class="form-group">
@@ -102,15 +113,24 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="Parts Cost" class="col-md-4">Total Penalty Booking *</label>
+                                <label for="vat" class="col-md-4">Upcountry Distance *</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="penalty_bookings_count" value = "<?php if (isset($invoice_details[0]['penalty_bookings_count'])) {
-                                        echo $invoice_details[0]['penalty_bookings_count'];
-                                        } ?>" placeholder="Penalty Bookings Count" >
+                                    <input type="text" class="form-control"  name="upcountry_distance" value = "<?php if (isset($invoice_details[0]['upcountry_distance'])) {
+                                        echo $invoice_details[0]['upcountry_distance'];
+                                        } ?>" placeholder="Upcountry Distance" >
                                 </div>
                             </div>
+                            <div class="form-group <?php if( form_error('gst_rate') ) { echo 'has-error';} ?>">
+                                <label for="Parts Cost" class="col-md-4">GST Rate *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="gst_rate" value = "<?php if (isset($invoice_details[0]['parts_cost'])) {
+                                        echo $invoice_details[0]['cgst_tax_rate'] + $invoice_details[0]['sgst_tax_rate'] + $invoice_details[0]['igst_tax_rate'];
+                                        } ?>" placeholder="GST Rate" >
+                                </div>
+                                 <?php echo form_error('gst_rate'); ?>
+                            </div>
                             <div class="form-group">
-                                <label for="invoice_file_main" class="col-md-4">Main Invoice Excel</label>
+                                <label for="invoice_file_main" class="col-md-4">Main Invoice</label>
                                 <div class="col-md-6">
                                     <input type="file" class="form-control"  name="invoice_file_main" >
                                 </div>
@@ -129,10 +149,10 @@
                                         ?>
                                 </div>
                             </div>
-                             <div class="form-group">
+                            <div class="form-group">
                                 <label for="remarks" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
-                                    <textarea class="form-control" cols="50" rows="5" id="remarks" name="remarks" placeholder="remarks"><?php if (isset($invoice_details[0]['remarks'])){echo $invoice_details[0]['remarks'];}?></textarea>
+                                    <textarea class="form-control" cols="50" rows="4" id="remarks" name="remarks" placeholder="remarks"><?php if (isset($invoice_details[0]['remarks'])){echo $invoice_details[0]['remarks'];}?></textarea>
                                 </div>
                             </div>
                         </div>
@@ -148,11 +168,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="Type Code" class="col-md-4">Type Code</label>
+                            <div class="form-group <?php if( form_error('type') ) { echo 'has-error';} ?>">
+                                <label for="Type Code" class="col-md-4">Type</label>
                                 <div class="col-md-6">
                                     <select name="type" class="form-control" id="type_code">
-                                        <option value="" disabled selected>Select Type Code</option>
+                                        <option value="" disabled selected>Select Type</option>
                                         <option  value="Cash" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "Cash"){ echo "selected";}
                                             } ?>>Cash</option>
@@ -165,7 +185,7 @@
                                         <option value="FOC" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "FOC"){ echo "selected";}
                                             } ?>>FOC</option>
-                                         <option value="Buyback" <?php if (isset($invoice_details[0]['type'])) {
+                                        <option value="Buyback" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "Buyback"){ echo "selected";}
                                             } ?>>Buyback</option>
                                         <option value="Stand" <?php if (isset($invoice_details[0]['type'])) {
@@ -176,26 +196,7 @@
                                             } ?>>Parts</option>
                                     </select>
                                 </div>
-                            </div>
-                            
-                            <div class="form-group" >
-                                <label for="From Date" class="col-md-4">To Date</label>
-                                <div class="col-md-6">
-                                    <div class="input-group input-append date">
-                                        <input id="to_date" class="form-control" placeholder="Select Date" name="to_date" type="text" required readonly='true' style="background-color:#fff;cursor: pointer;" value="<?php if (isset($invoice_details[0]['to_date'])) {
-                                            echo $invoice_details[0]['to_date'];
-                                            } ?>">
-                                        <span class="input-group-addon add-on" onclick="from_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="Service Tax" class="col-md-4">Service Tax*</label>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control" name="service_tax" value = "<?php if (isset($invoice_details[0]['service_tax'])) {
-                                        echo $invoice_details[0]['service_tax'];
-                                        } ?>" placeholder="Service Tax">
-                                </div>
+                                <?php echo form_error('type'); ?>
                             </div>
                             <div class="form-group">
                                 <label for="Number of Booking" class="col-md-4">Number of Booking</label>
@@ -206,19 +207,11 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="vat" class="col-md-4">VAT*</label>
+                                <label for="total additional service charges" class="col-md-4">Additional Charge*</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="vat" value = "<?php if (isset($invoice_details[0]['vat'])) {
-                                        echo $invoice_details[0]['vat'];
-                                        } ?>" placeholder="VAT" >
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="vat" class="col-md-4">Upcountry Distance *</label>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="upcountry_distance" value = "<?php if (isset($invoice_details[0]['upcountry_distance'])) {
-                                        echo $invoice_details[0]['upcountry_distance'];
-                                        } ?>" placeholder="Upcountry Distance" >
+                                    <input type="text" class="form-control"  name="total_additional_service_charge" value = "<?php if (isset($invoice_details[0]['total_additional_service_charge'])) {
+                                        echo $invoice_details[0]['total_additional_service_charge'];
+                                        } ?>" placeholder="Total Addtional Service Charge" >
                                 </div>
                             </div>
                             <div class="form-group">
@@ -230,11 +223,54 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="vat" class="col-md-4">Penalty Amount *</label>
+                                <label for="Parts Cost" class="col-md-4">Debit Penalty Booking Count *</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="penalty_amount" value = "<?php if (isset($invoice_details[0]['penalty_amount'])) {
-                                        echo $invoice_details[0]['penalty_amount'];
-                                        } ?>" placeholder="Penalty Amount" >
+                                    <input type="text" class="form-control"  name="penalty_bookings_count" value = "<?php if (isset($invoice_details[0]['penalty_bookings_count'])) {
+                                        echo $invoice_details[0]['penalty_bookings_count'];
+                                        } ?>" placeholder="Penalty Bookings Count" >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="Parts Cost" class="col-md-4">Credit Penalty Booking Count *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="credit_penalty_bookings_count" value = "<?php if (isset($invoice_details[0]['credit_penalty_bookings_count'])) {
+                                        echo $invoice_details[0]['credit_penalty_bookings_count'];
+                                        } ?>" placeholder="Credit Penalty Bookings Count" >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="Parts Cost" class="col-md-4">Upcountry Booking Count*</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="upcountry_booking" value = "<?php if (isset($invoice_details[0]['upcountry_booking'])) {
+                                        echo $invoice_details[0]['upcountry_booking'];
+                                        } ?>" placeholder="Total Upcountry Booking" >
+                                </div>
+                            </div>
+                            <div class="form-group <?php if( form_error('hsn_code') ) { echo 'has-error';} ?>">
+                                <label for="HSN CODE" class="col-md-4">HSN Code</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="hsn_code" value = "<?php if (isset($invoice_details[0]['hsn_code'])) { echo $invoice_details[0]['hsn_code']; } ?>" placeholder="HSN Code" >
+                                </div>
+                                 <?php echo form_error('hsn_code'); ?>
+                            </div>
+                            <div class="form-group">
+                                <label for="invoice_file_excel" class="col-md-4">Main Invoice Excel</label>
+                                <div class="col-md-6">
+                                    <input type="file" class="form-control"  name="invoice_file_excel" >
+                                </div>
+                                <div class="col-md-2">
+                                    <?php
+                                        if (isset($invoice_details[0]['invoice_file_excel'])) {
+                                            if (!is_null($invoice_details[0]['invoice_file_excel'])) {
+                                        
+                                                if (isset($invoice_details[0]['invoice_file_excel']) && !empty($invoice_details[0]['invoice_file_excel'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/" . $invoice_details[0]['invoice_file_excel']; ?>
+                                    <a href="<?php echo $src ?>" target="_blank">click Here</a>
+                                    <?php }
+                                        }
+                                        }
+                                        ?>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -257,24 +293,12 @@
                                         ?>
                                 </div>
                             </div>
-                            <div class="col-md-offset-4">
-                                <label class="checkbox-inline">
-                                <input type="checkbox" checked data-toggle="toggle" name="sms_sent"> SMS Sent
-                              </label>
-                              <label class="checkbox-inline">
-                                <input type="checkbox" data-toggle="toggle" name="mail_sent"> Mail Sent
-                              </label>
-                             
-                                        
-                                    </div>
                         </div>
                         <div class="clearfix" ></div>
-                        
                         <div class="col-md-offset-5" style ="margin-top: 40px; margin-bottom: 20px;">
                             <?php if (isset($invoice_details[0]['invoice_id'])) {} else {?> <a href="javascript:void(0)" onclick="fetch_invoice_id()" class="btn btn-md btn-success" >Fetch Invoice ID</a><?php  } ?>
-                       
                             <input type="submit" value="<?php if (isset($invoice_details[0]['invoice_id'])) { echo "Update Invoice"; } else { echo "Insert Invoice";}?>" class="btn btn-md btn-primary" />
-                         </div>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -325,14 +349,20 @@
             
             var vendor_partner_type = '<?php echo $vendor_partner; ?>';
             var vendor_partner_id =  $("#vendor_partner_id").val();
-            var from_date = $("#from_date").val();
             var type_code = $("input[name='around_type']:checked").val();
             
-            if(from_date !==""){
+            if(vendor_partner_id === null){ 
+                alert("Please Select Entity");
+                return false;
+                
+            } else if(type_code === undefined){ 
+                alert("Please Select Buyer/Seller");
+                return false;
+            } else {
                 $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/invoice/fetch_invoice_id/' + vendor_partner_id 
-                        + '/' + vendor_partner_type + '/' + from_date + '/' + type_code,
+                        + '/' + vendor_partner_type + '/' + type_code,
                     success: function (data) {
                         alert(data);
                         $(".panel-title").html(data);
@@ -341,9 +371,7 @@
                     }
                 });
                 
-            }
-        
-        
+            } 
        }
        
     function control_type_code(is_value){
