@@ -37,13 +37,7 @@
             <?php } ?>
     <div class="col-md-4 col-sm-6 col-xs-12 pull-right">
         <div class="input-group" style="margin: 20px 0;">
-            <input type="text" class="form-control" placeholder="Search order id" id="order_id" 
-                   onkeydown="return ( event.ctrlKey || event.altKey 
-                    || (47<event.keyCode && event.keyCode<58 && event.shiftKey==false) 
-                    || (95<event.keyCode && event.keyCode<106)
-                    || (event.keyCode==8) || (event.keyCode==9) 
-                    || (event.keyCode>34 && event.keyCode<40) 
-                    || (event.keyCode==46) )">
+            <input type="text" class="form-control" placeholder="Search order id" id="order_id" onkeypress="return event.charCode > 47 && event.charCode < 58;">
             <div class="input-group-btn">
                 <button class="btn btn-default" id="search">
                 <i class="glyphicon glyphicon-search"></i>
