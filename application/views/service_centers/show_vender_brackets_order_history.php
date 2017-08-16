@@ -11,7 +11,7 @@
            
             <div class="clear"></div>
             <div class="row" style="margin-top: 10px;">
-                <div class="col-md-4 form-group" >
+                <div class="col-md-2 form-group" >
                 <label style="font-size:100%;">Order ID</label>
                 <div class="clear"></div>
                 <input type="text" disabled="" class="form-control" value="<?php echo $order_id ?>"/>
@@ -21,10 +21,10 @@
                     <div class="clear"></div>
                     <input type="text" disabled="" class="form-control" value="<?php echo isset($order_received_from)?$order_received_from:'' ?>"/>
                 </div>
-                <div class="col-md-4 form-group">
-                    <label style="font-size:100%;">Given To</label>
+                <div class="col-md-6 form-group">
+                    <label style="font-size:100%;">Address</label>
                     <div class="clear"></div>
-                    <input type="text" disabled="" class="form-control" value="<?php echo isset($order_given_to)?$order_given_to:'' ?>"/>
+                    <input type="text" disabled="" class="form-control" value="<?php echo isset($order_received_from_address)?$order_received_from_address:'' ?>"/>
                 </div>
             </div>
             <div class="clear"></div>

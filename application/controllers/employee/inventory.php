@@ -119,7 +119,7 @@ class Inventory extends CI_Controller {
                     $email_order_received_from = array();
                     //Getting template from Database
                     $template = $this->booking_model->get_booking_email_template("brackets_order_received_from_vendor");
-               
+                    
                     if (!empty($template)) {
                         $email_order_received_from['order_id'] = $order_id;
 //                        $email_order_received_from['19_24_requested'] = $data_post['19_24_requested'];
@@ -127,7 +127,7 @@ class Inventory extends CI_Controller {
                         $email_order_received_from['36_42_requested'] = $data_post['36_42_requested'];
 //                        $email_order_received_from['43_requested'] = $data_post['43_requested'];
                         $email_order_received_from['total_requested'] = $data_post['total_requested'];
-                        $subject = "Brackets Requested by " . $vendor_requested[0]['company_name'];
+                        $subject = $template[4];
                         $emailBody = vsprintf($template[0], $email_order_received_from);
                         
                         $this->notify->sendEmail($template[2], $to, $template[3] . ',' . $this->get_rm_email($data_post['order_received_from']), '', $subject, $emailBody, "");
@@ -151,22 +151,22 @@ class Inventory extends CI_Controller {
                         $email['36_42_requested'] = $data_post['36_42_requested'];
 //                        $email['43_requested'] = $data_post['43_requested'];
                         $email['total_requested'] = $data_post['total_requested'];
-                        $email['owner_name'] = $vendor_requested_to[0]['owner_name'];
-                        $email['company_name'] = $vendor_requested_to[0]['company_name'];
-                        $email['address'] = $vendor_requested_to[0]['address'];
-                        $email['district'] = $vendor_requested_to[0]['district'];
-                        $email['state'] = $vendor_requested_to[0]['state'];
-                        $email['pincode'] = $vendor_requested_to[0]['pincode'];
-                        $email['primary_contact_phone_1'] = $vendor_requested_to[0]['primary_contact_phone_1'];
-                        $email['owner_phone_1'] = $vendor_requested_to[0]['owner_phone_1'];
-                        $subject = "Brackets Received by " . $vendor_requested_to[0]['company_name'];
+                        $email['owner_name'] = $vendor_requested[0]['owner_name'];
+                        $email['company_name'] = $vendor_requested[0]['company_name'];
+                        $email['address'] = $vendor_requested[0]['address'];
+                        $email['district'] = $vendor_requested[0]['district'];
+                        $email['state'] = $vendor_requested[0]['state'];
+                        $email['pincode'] = $vendor_requested[0]['pincode'];
+                        $email['primary_contact_phone_1'] = $vendor_requested[0]['primary_contact_phone_1'];
+                        $email['owner_phone_1'] = $vendor_requested[0]['owner_phone_1'];
+                        $subject = vsprintf($template1[4], $vendor_requested[0]['company_name']);
 
                         $emailBody = vsprintf($template1[0], $email);
 
                         $this->notify->sendEmail($template1[2], $to, $template1[3] . ',' . $this->get_rm_email($data_post['order_given_to']), '', $subject, $emailBody, "");
                     }
                     //Logging Email Send to order sent to vendor
-                    log_message('info', __FUNCTION__ . ' Email has been sent to order_sent_to vendor ' . $vendor_requested_to['company_name']);
+                    log_message('info', __FUNCTION__ . ' Email has been sent to order_sent_to vendor ' . $vendor_requested_to[0]['company_name']);
                 } else {
                     //Logging Error
                     log_message('info', __FUNCTION__ . ' Err in adding Brackets ' . print_r($data_post, TRUE));
@@ -274,6 +274,7 @@ class Inventory extends CI_Controller {
         }
         $order_id = $this->input->post('order_id');
         $order_received_from = $this->input->post('order_received_from');
+        $order_given_to = $this->input->post('order_given_to');
 //        $data['19_24_shipped'] = $this->input->post('19_24_shipped');
         $data['19_24_shipped'] = '0';
         $data['26_32_shipped'] = $this->input->post('26_32_shipped');
@@ -315,14 +316,34 @@ class Inventory extends CI_Controller {
                    
                    if(!empty($template)){
                         $email['order_id'] = $order_id;
-                        $subject = "Brackets Shipped To ".$order_received_from_email[0]['company_name'];
+                        $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
                         $emailBody = vsprintf($template[0], $email);
                         
                         $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, $attachment);
-                   }
-            
-            //Loggin send mail success
+                   
+                        //Loggin send mail success
             log_message('info',__FUNCTION__.' Shipped mail has been sent to order_received_from vendor '. $emailBody);
+                        
+                   }
+                   
+                   //2. Sending mail to order_given_to vendor
+            $order_given_to_email_to = $this->vendor_model->getVendorContact($order_given_to);
+            $to = $order_given_to_email_to[0]['primary_contact_email'].','.$order_given_to_email_to[0]['owner_email'];
+            $order_given_to_email = array();
+                   //Getting template from Database
+                   $template1 = $this->booking_model->get_booking_email_template("brackets_shipment_mail_to_order_given_to");
+                   
+                   if(!empty($template)){
+                        $order_given_to_email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
+                        $order_given_to_email['order_id'] = $order_id;
+                        $subject = vsprintf($template1[4], $order_received_from_email[0]['company_name']);
+                        $emailBody = vsprintf($template1[0], $order_given_to_email);
+                        
+                        $this->notify->sendEmail($template1[2], $to , $template1[3].','.$this->get_rm_email($order_given_to), '', $subject , $emailBody, '');
+                   
+                        //Loggin send mail success
+                        log_message('info',__FUNCTION__.' Shipped mail has been sent to order_given_to vendor '. $emailBody);
+                   }
             
             //Setting success session data 
             $this->session->set_userdata('brackets_update_success', 'Brackets Shipped updated Successfully');
@@ -404,7 +425,7 @@ class Inventory extends CI_Controller {
                    
                    if(!empty($template)){
                         $email['order_id'] = $order_id;
-                        $subject = "Brackets Received by ".$order_received_from_email[0]['company_name'];
+                        $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail($template[2], $order_received_from_email_to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, '');
                    }
@@ -421,7 +442,7 @@ class Inventory extends CI_Controller {
                    if(!empty($template)){
                         $email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
                         $email['order_id'] = $order_id;
-                        $subject = "Brackets Received by ".$order_received_from_email[0]['company_name'];
+                        $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
                         $emailBody = vsprintf($template[0], $email);
                         
                         $this->notify->sendEmail($template[2], $order_given_to_email_to , $template[3].','.$this->get_rm_email($order_given_to), '', $subject , $emailBody, '');
