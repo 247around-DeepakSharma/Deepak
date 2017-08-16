@@ -2094,8 +2094,8 @@ class Invoice extends CI_Controller {
             $total_amount_collected = ($data['total_service_charge'] +
                 $data['total_additional_service_charge'] +
                 $data['parts_cost'] + $data['courier_charges'] + $data['upcountry_price'] + $data['credit_penalty_amount'] - $data['penalty_amount']);
-
-            $gst_amount = $total_amount_collected * ($data['gst_rate'] / 100);
+            $gst_rate = $this->input->post('gst_rate');
+            $gst_amount = $total_amount_collected * ($gst_rate / 100);
             $data['total_amount_collected'] = round(($total_amount_collected + $gst_amount), 0);
            
             $entity_details = array();
@@ -2109,13 +2109,13 @@ class Invoice extends CI_Controller {
             }
             $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
             if($c_s_gst){
-                $data['sgst_total_tax_amount'] = $data['cgst_total_tax_amount'] = $gst_amount/2;
-                $data['cgst_tax_rate'] =  $data['sgst_tax_rate'] = $data['gst_rate']/2;
+                $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $gst_amount/2;
+                $data['cgst_tax_rate'] =  $data['sgst_tax_rate'] = $gst_rate/2;
 
                 
             } else {
-                $data['igst_total_tax_amount'] = $gst_amount;
-                $data['igst_tax_rate'] = $data['gst_rate'];
+                $data['igst_tax_amount'] = $gst_amount;
+                $data['igst_tax_rate'] = $gst_rate;
             }
 
             switch ($data['type_code']) {
@@ -2244,7 +2244,7 @@ class Invoice extends CI_Controller {
         $data['total_service_charge'] = $this->input->post('total_service_charge');
         $data['total_additional_service_charge'] = $this->input->post('total_additional_service_charge');
         $data['parts_cost'] = $this->input->post('parts_cost');
-        $data['gst_rate'] = $this->input->post('gst_rate');
+       
         $data['penalty_amount'] = $this->input->post("penalty_amount");
         $data['credit_penalty_amount'] = $this->input->post("credit_penalty_amount");
         $data['penalty_bookings_count'] = $this->input->post("penalty_bookings_count");
