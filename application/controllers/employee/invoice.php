@@ -590,6 +590,7 @@ class Invoice extends CI_Controller {
                 'tds_rate' => 0,
                 'upcountry_booking' => $total_upcountry_booking,
                 'upcountry_distance' => $total_upcountry_distance,
+                'courier_charges' =>  $meta['total_courier_charge'],
                 'upcountry_price' => $meta['total_upcountry_price'],
                 'rating' => 5,
                 'invoice_date' => date('Y-m-d'),
