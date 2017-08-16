@@ -245,7 +245,7 @@ class bookings_excel extends CI_Controller {
 		//$lead_details['Unique_id'] = $rowData[0]['Item ID'];
 		//$dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Order Date']);
 		//$lead_details['DeliveryDate'] = $dateObj1->format('d/m/Y');
-		$appliance_details['brand'] = $unit_details['appliance_brand'] = $rowData[0]['brand'];
+		$appliance_details['brand'] = $unit_details['appliance_brand'] = isset( $lead_details['service_appliance_data']['brand'])? $lead_details['service_appliance_data']['brand']:$rowData[0]['brand'];
 		$appliance_details['model_number'] = $unit_details['model_number'] = "";
 		$appliance_details['description'] = $unit_details['appliance_description'] = trim($rowData[0]['product_name']);
 
@@ -274,7 +274,7 @@ class bookings_excel extends CI_Controller {
 		log_message('info', __FUNCTION__ . "=> Service ID: " . $booking['service_id']);
 
 		$booking['booking_alternate_contact_no'] = '';
-
+                
 		$yy = date("y");
 		$mm = date("m");
 		$dd = date("d");
@@ -290,7 +290,7 @@ class bookings_excel extends CI_Controller {
 
 		$unit_details['partner_id'] = $booking['partner_id'];
 		$booking['quantity'] = '1';
-		$appliance_details['category'] = $unit_details['appliance_category'] = isset( $lead_details['service_appliance_data']['category'])? $lead_details['service_appliance_data']['category']:'';
+		$appliance_details['category'] = $unit_details['appliance_category'] = isset( $lead_details['service_appliance_data']['category'])? $lead_details['service_appliance_data']['category']:$rowData[0]['category'];
 		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset( $lead_details['service_appliance_data']['capacity'])? $lead_details['service_appliance_data']['capacity']:'';
 		$appliance_details['tag'] = $unit_details['appliance_brand'] . " " . $unit_details['appliance_description'];
 		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
