@@ -44,9 +44,9 @@
         </div>
         <div class="row">
             <div class="col-md-4">
-                <label for="state" class="col-sm-2">Select</label>
+                <label for="state" class="col-md-12 col-sm-12">Select Service Center</label>
                 <div class="form-group">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <?php if (isset($service_center)) { ?>
                         <select class="form-control" name ="service_center" id="invoice_id" onChange="getInvoicingData('vendor')">
                             <option disabled selected >Service Center</option>
@@ -74,11 +74,10 @@
                 </div>
             </div>
             
-            <div class="col-md-8">
-                <div class="col-sm-7">
+                <div class="col-md-4">
                      <?php if(isset($service_center)){ $label = 'Select Service Center Type';}else{ $label = 'Select Partner Type' ;} ?>
-                        <label for="sf_type" class="col-sm-5"><?php echo $label;?></label>
-                        <div class="form-group col-sm-6">
+                        <label for="sf_type" class="col-md-12 col-sm-12"><?php echo $label;?></label>
+                        <div class="form-group col-md-12 col-sm-12">
                             <select class="form-control" id="sf_type" onchange="getVendor()">
                                 <option value="1" selected>Active</option>
                                 <option value="0">Disabled</option>
@@ -86,9 +85,10 @@
                             </select>
                         </div>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-md-4">
                     <?php if(isset($service_center)) { ?>
-                    <div class="form-group col-sm-12">
+                    <label for="sf_cp" class="col-md-12 col-sm-12">Select SF/CP</label>
+                    <div class="form-group col-md-12 col-sm-12">
                         <select class="form-control" id="sf_cp" onchange="getVendor()">
                             <option value='<?php echo json_encode(array("is_sf" => 1));?>' selected>Service Center</option>
                             <option value='<?php echo json_encode(array("is_cp" => 1));?>'>Collection Partner</option>
@@ -98,7 +98,6 @@
                     <input type="hidden" id="sf_cp" value="<?php echo json_encode(array())?>" />
                    <?php } ?>
                 </div>
-            </div>
         </div>
         <?php }?>
         <div class="col-md-12 col-md-offset-3"><img src="" id="loader_gif" /></div>
@@ -298,12 +297,13 @@ if(isset($_SESSION['file_error'])){
     function getInvoicingData(source) {
         $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loader.gif');
         var vendor_partner_id = $('#invoice_id').val();
+        var invoice_period = 'all';
         $('#overall_summary').css('display', 'none');
         $("#invoicing_table").show();
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/invoice/getInvoicingData',
-            data: {vendor_partner_id: vendor_partner_id, source: source},
+            data: {vendor_partner_id: vendor_partner_id, source: source,invoice_period:invoice_period},
             success: function (data) {
                 //console.log(data);
                 $('#loader_gif').attr('src', '');
