@@ -1378,7 +1378,7 @@ class invoices_model extends CI_Model {
     function check_gst_tax_type($state) {
         if ((strcasecmp($state, "DELHI") == 0) ||
                 (strcasecmp($state, "New Delhi") == 0)) {
-            //If matched return 0;
+            //If matched return true;
             // CGST & SGST
             return TRUE;
         } else {
