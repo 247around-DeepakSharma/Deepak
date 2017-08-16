@@ -529,22 +529,23 @@ class Notify {
      * @return string free or ''
      */
     function get_product_free_not($appliance, $category) {
-	$status = '';
+	//$status = '';
+        $status = 'To be Paid';
         
-	switch ($appliance) {            
-
-            case 'Television':
-            case 'Microwave':
-            case 'Refrigerator':
-	    case 'Washing Machine':
-            case 'Water Purifier':
-	    case 'Air Conditioner':
-            case 'Chimney': 
-            case 'Geyser': 
-                $status = 'To be Paid';
-                break;
-         
-	}
+//	switch ($appliance) {            
+//
+//            case 'Television':
+//            case 'Microwave':
+//            case 'Refrigerator':
+//	    case 'Washing Machine':
+//            case 'Water Purifier':
+//	    case 'Air Conditioner':
+//            case 'Chimney': 
+//            case 'Geyser': 
+//               
+//                break;
+//         
+//	}
         
 	return $status;
     }
