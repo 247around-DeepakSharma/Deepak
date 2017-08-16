@@ -537,9 +537,6 @@ class Notify {
             case 'Microwave':
             case 'Refrigerator':
 	    case 'Washing Machine':
-            
-		$status = 'FREE';
-		break;
             case 'Water Purifier':
 	    case 'Air Conditioner':
             case 'Chimney': 
