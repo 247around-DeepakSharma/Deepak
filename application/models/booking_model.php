@@ -1546,7 +1546,7 @@ class Booking_model extends CI_Model {
 	log_message('info', __FUNCTION__);
 	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
-        log_message('info', __METHOD__ . " Get Price with Taxes" . print_r($data, true));
+//        log_message('info', __METHOD__ . " Get Price with Taxes" . print_r($data, true));
 
         $result = array_merge($data[0], $services_details);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
@@ -1563,7 +1563,7 @@ class Booking_model extends CI_Model {
         $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
           
      
-        log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
+//        log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
 	$this->db->insert('booking_unit_details', $result);
        // $result['id'] = $this->db->insert_id();
         //Update request type If price tags is installation OR repair
