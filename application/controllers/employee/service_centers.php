@@ -1425,7 +1425,9 @@ class Service_centers extends CI_Controller {
         $data['data'] = $this->inventory_model->get_brackets_by_order_id($order_id);
         $data['order_id'] = $order_id;
         $data['brackets'] = $this->inventory_model->get_brackets_by_id($order_id);
-        $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
+        $order_received_from_vendor_details = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from']);
+        $data['order_received_from'] = $order_received_from_vendor_details[0]['name'];
+        $data['order_received_from_address'] = $order_received_from_vendor_details[0]['address'].','.$order_received_from_vendor_details[0]['district'].','.$order_received_from_vendor_details[0]['state'].','.$order_received_from_vendor_details[0]['pincode'];
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         
         $this->load->view('service_centers/header');
@@ -1901,7 +1903,7 @@ class Service_centers extends CI_Controller {
 
         $this->form_validation->set_rules('company_name', 'Company Name', 'trim|required');
         $this->form_validation->set_rules('company_address', 'Company Address', 'trim|required');
-        $this->form_validation->set_rules('pan_number', 'PAN NUmber', 'trim|min_length[10]|max_length[10]');
+        $this->form_validation->set_rules('pan_number', 'PAN NUmber', 'required|trim|min_length[10]|max_length[10]');
         $this->form_validation->set_rules('is_gst', 'Have You GST No.', 'required');
         $this->form_validation->set_rules('signature_file', 'Signature file', 'callback_upload_signature');
 
@@ -1914,7 +1916,7 @@ class Service_centers extends CI_Controller {
             $is_gst_number = NULL;
             $gst_file_name = NULL;
             if ($is_gst == 1) {
-                $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|min_length[15]|max_length[15]');
+                $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|trim|min_length[15]|max_length[15]');
                 $this->form_validation->set_rules('file', 'Company GST File', 'callback_upload_gst_certificate_file');
 
                 if ($this->form_validation->run() === false) {

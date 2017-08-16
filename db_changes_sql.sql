@@ -3054,3 +3054,22 @@ Please find attached Buyback invoice.
 Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.
 <br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
 
+--Abhay 11 aug
+ALTER TABLE `booking_details` ADD `upcountry_vendor_invoice_id` VARCHAR(100) NULL DEFAULT NULL AFTER `upcountry_partner_invoice_id`;
+
+-- Sachin 14 Aug
+
+UPDATE `email_template` SET `subject` = 'NEW Brackets Requested' WHERE `email_template`.`id` = 11;
+
+UPDATE `email_template` SET `subject` = 'New Brackets Requested From %s' WHERE `email_template`.`id` = 10;
+
+UPDATE `email_template` SET `subject` = 'Brackets Shipped To %s' WHERE `email_template`.`id` = 14;
+
+UPDATE `email_template` SET `subject` = 'Brackets Received by %s' WHERE `email_template`.`id` = 15;
+
+UPDATE `email_template` SET `subject` = 'Brackets Received by %s' WHERE `email_template`.`id` = 16;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'brackets_shipment_mail_to_order_given_to', 'Brackets Shipped To %s', 
+'Dear Partner, Brackets have been shipped successfully to <b> %s </b> for the Order ID<b> %s </b>.
+<br><br> Regards, <br> 247Around Team', 'booking@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
