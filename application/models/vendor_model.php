@@ -1552,9 +1552,9 @@ class vendor_model extends CI_Model {
      * @param type $booking_id
      * @return Array
      */
-    function is_tax_for_booking($booking_id, $where){
-        $sql = " SELECT service_centres.id FROM booking_details, service_centres WHERE booking_id = '$booking_id' "
-                . " AND  service_centres.id = booking_details.assigned_vendor_id AND $where";
+    function is_tax_for_booking($booking_id){
+        $sql = " SELECT service_centres.id,gst_no FROM booking_details, service_centres WHERE booking_id = '$booking_id' "
+                . " AND  service_centres.id = booking_details.assigned_vendor_id ";
         $query = $this->db->query($sql);
         if($query->num_rows > 0){
             return TRUE;

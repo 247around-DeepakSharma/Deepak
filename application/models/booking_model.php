@@ -1384,23 +1384,14 @@ class Booking_model extends CI_Model {
         $data['around_comm_parts'] =  $total_around_parts_charge - $data['around_st_parts'];
         $data['vendor_parts'] = $total_vendor_parts_charge - $data['vendor_st_parts'] ;
         // Check vendor has service tax for the service
-        if($unit_details[0]['product_or_services'] == 'Service' && $data['customer_paid_basic_charges'] == 0){
-            $st_where = 'service_centres.service_tax_no IS NOT NULL '; 
-            $is_service_tax = $this->vendor_model->is_tax_for_booking($unit_details[0]['booking_id'], $st_where);
-            if(!$is_service_tax ){
-                $vendor_total_basic_charges =  $vendor_total_basic_charges - $data['vendor_st_or_vat_basic_charges'];
+        if($data['customer_paid_basic_charges'] == 0){
+           
+            $is_gst = $this->vendor_model->is_tax_for_booking($unit_details[0]['booking_id']);
+            if(empty($is_gst[0]['gst_no']) ){
+                $vendor_total_basic_charges =  $data['vendor_basic_charges'];
                 $data['vendor_st_or_vat_basic_charges'] = 0;
             } 
-            // Check vendor has tin OR cst for the product
-        } else if($unit_details[0]['product_or_services'] == 'Product' && $data['customer_paid_basic_charges'] == 0){
-            $vat_where = ' (service_centres.tin_no IS NOT NULL OR service_centres.cst_no IS NOT NULL ) '; 
-            $is_vat_tax = $this->vendor_model->is_tax_for_booking($unit_details[0]['booking_id'], $vat_where);
-            
-            if(!$is_vat_tax ){
-                $vendor_total_basic_charges =  $vendor_total_basic_charges - $data['vendor_st_or_vat_basic_charges'];
-                $data['vendor_st_or_vat_basic_charges'] = 0;
-            } 
-        }
+        } 
 
         $vendor_around_charge = ($data['customer_paid_basic_charges'] + $data['customer_paid_parts'] + $data['customer_paid_extra_charges']) - ($vendor_total_basic_charges + $total_vendor_addition_charge + $total_vendor_parts_charge );
 
