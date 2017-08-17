@@ -590,6 +590,7 @@ class Invoice extends CI_Controller {
                 'tds_rate' => 0,
                 'upcountry_booking' => $total_upcountry_booking,
                 'upcountry_distance' => $total_upcountry_distance,
+                'courier_charges' =>  $meta['total_courier_charge'],
                 'upcountry_price' => $meta['total_upcountry_price'],
                 'rating' => 5,
                 'invoice_date' => date('Y-m-d'),
@@ -2085,62 +2086,48 @@ class Invoice extends CI_Controller {
         $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner', 'required|trim|xss_clean');
         $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|trim|xss_clean');
         $this->form_validation->set_rules('around_type', 'Around Type', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('gst_rate', 'GST Rate', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('type', 'Type', 'required|trim|xss_clean');
         if ($this->form_validation->run()) {
-
-            $sms_sent = $this->input->post('sms_sent');
-            $mail_sent = $this->input->post('mail_sent');
-
-            $data['type'] = $this->input->post('type');
-            $data['vendor_partner'] = $vendor_partner;
-            $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
-            $data['from_date'] = $this->input->post('from_date');
-            $data['to_date'] = $this->input->post('to_date');
-            $data['num_bookings'] = $this->input->post('num_bookings');
-            $invoice_id = $this->input->post('invoice_id');
-            $data['total_service_charge'] = $this->input->post('total_service_charge');
-            $data['total_additional_service_charge'] = $this->input->post('total_additional_service_charge');
-            $data['service_tax'] = $this->input->post('service_tax');
-            $data['parts_cost'] = $this->input->post('parts_cost');
-            $data['vat'] = $this->input->post('vat');
-            $data['penalty_amount'] = $this->input->post("penalty_amount");
-            $data['upcountry_booking'] = $this->input->post("upcountry_booking");
-            $data['upcountry_distance'] = $this->input->post("upcountry_distance");
-            $data['courier_charges'] = $this->input->post("courier_charges");
-            $data['upcountry_price'] = $this->input->post("upcountry_price");
-            $data['remarks'] = $this->input->post("remarks");
-            $data['penalty_bookings_count'] = $this->input->post("penalty_bookings_count");
-            $data['total_amount_collected'] = round(($data['total_service_charge'] +
-                    $data['total_additional_service_charge'] +
-                    $data['parts_cost'] + $data['vat'] +
-                    $data['service_tax'] + $data['courier_charges'] +$data['upcountry_price'] - $data['penalty_amount']), 0);
-
-            $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
-            $invoice_date = $this->input->post('invoice_date');
-            $data['invoice_date'] = date('Y-m-d', strtotime($invoice_date));
-            $data['type_code'] = $this->input->post('around_type');
-
+            $data = $this->get_create_update_invoice_input($vendor_partner);
+            $total_amount_collected = ($data['total_service_charge'] +
+                $data['total_additional_service_charge'] +
+                $data['parts_cost'] + $data['courier_charges'] + $data['upcountry_price'] + $data['credit_penalty_amount'] - $data['penalty_amount']);
+            $gst_rate = $this->input->post('gst_rate');
+            $gst_amount = $total_amount_collected * ($gst_rate / 100);
+            $data['total_amount_collected'] = round(($total_amount_collected + $gst_amount), 0);
+           
             $entity_details = array();
-            $main_invoice_file = "";
-            $detailed_invoice_file = "";
-            $sms = array();
+
             if ($data['vendor_partner'] == "vendor") {
                 $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
+               
+            } else {
+                
+                 $entity_details = $this->partner_model->getpartner_details($data['vendor_partner_id']);
             }
-            if (!empty($invoice_id)) {
-                $data['invoice_id'] = $invoice_id;
+            $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
+            if($c_s_gst){
+                $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $gst_amount/2;
+                $data['cgst_tax_rate'] =  $data['sgst_tax_rate'] = $gst_rate/2;
+
+                
+            } else {
+                $data['igst_tax_amount'] = $gst_amount;
+                $data['igst_tax_rate'] = $gst_rate;
             }
 
             switch ($data['type_code']) {
                 case 'A':
                     log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
-                    $data['total_amount_collected'] = ($data['total_amount_collected']);
                     $data['around_royalty'] = round($data['total_amount_collected'], 0);
                     $data['amount_collected_paid'] = round($data['total_amount_collected'], 0);
 
                     break;
                 case 'B':
                     log_message('info', __FUNCTION__ . " .. type code:- " . $data['type']);
-                    $data['total_amount_collected'] = ($data['total_amount_collected'] );
+                   
                     $tds['tds'] = 0;
                     $tds['tds_rate'] = 0;
                     if ($data['type'] == 'FOC') {
@@ -2163,55 +2150,22 @@ class Invoice extends CI_Controller {
                     $data['tds_rate'] = $tds['tds_rate'];
                     break;
             }
-
-            if (!empty($_FILES["invoice_file_main"]['tmp_name'])) {
-                $temp = explode(".", $_FILES["invoice_file_main"]["name"]);
-                $extension = end($temp);
-                // Uploading to S3
-                $bucket = BITBUCKET_DIRECTORY;
-                $directory = "invoices-excel/" . $data['invoice_id'] . "." . $extension;
-                $is_s3 = $this->s3->putObjectFile($_FILES["invoice_file_main"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
-                echo $is_s3;
-                if ($is_s3) {
-                    log_message('info', __FUNCTION__ . " Main Invoice upload");
-                    $data['invoice_file_main'] = $data['invoice_id'] . "." . $extension;
-                    $main_invoice_file = $data['invoice_file_main'];
-                } else {
-                    log_message('info', __FUNCTION__ . " Main Invoice upload failed");
-                }
-            }
-            if (!empty($_FILES["invoice_detailed_excel"]['tmp_name'])) {
-                $temp1 = explode(".", $_FILES["invoice_detailed_excel"]["name"]);
-                $extension1 = end($temp1);
-                // Uploading to S3
-                $bucket = BITBUCKET_DIRECTORY;
-                $directory = "invoices-excel/" . $data['invoice_id'] . "-detailed." . $extension1;
-                $is_s3 = $this->s3->putObjectFile($_FILES["invoice_detailed_excel"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
-
-                if ($is_s3) {
-                    log_message('info', __FUNCTION__ . " Main Invoice upload");
-                    $data['invoice_detailed_excel'] = $data['invoice_id'] . "-detailed." . $extension1;
-                    $detailed_invoice_file = $data['invoice_detailed_excel'];
-                } else {
-                    log_message('info', __FUNCTION__ . " Main Invoice upload failed");
-                }
-            }
-
+            
+            $file = $this->upload_create_update_invoice_to_s3($data['invoice_id']);
+            if(isset($file['invoice_file_main'])){
+                $data['invoice_file_main'] = $file['invoice_file_main'];
+            } 
+            if(isset($file['invoice_detailed_excel'])){
+                $data['invoice_detailed_excel'] = $file['invoice_detailed_excel'];
+            } 
+            if(isset($file['invoice_file_excel'])){
+                $data['invoice_file_excel'] = $file['invoice_file_excel'];
+            } 
             $status = $this->invoices_model->action_partner_invoice($data);
 
             if ($status) {
                 log_message('info', __METHOD__ . ' Invoice details inserted ' . $data['invoice_id']);
-                if ($sms_sent && $data['vendor_partner'] === 'vendor') {
-                    $this-> send_invoice_sms($data['type'], $data['from_date'], $data['amount_collected_paid'], 
-                            $entity_details[0]['owner_phone_1'], $data['vendor_partner_id']); 
-                }
-
-                if ($mail_sent) {
-
-                    if ($main_invoice_file != "") {
-                        $this->send_attach_email_to_sf($entity_details, $data['type'], $data['from_date'], $data['to_date'], $main_invoice_file, $detailed_invoice_file);
-                    }
-                }
+                
             } else {
 
                 log_message('info', __METHOD__ . ' Invoice details not inserted ' . $data['invoice_id']);
@@ -2221,6 +2175,90 @@ class Invoice extends CI_Controller {
         } else {
             $this->insert_update_invoice($vendor_partner);
         }
+    }
+    
+    function upload_create_update_invoice_to_s3($invoice_id) {
+        $bucket = BITBUCKET_DIRECTORY;
+        $data = array();
+        if (!empty($_FILES["invoice_file_main"]['tmp_name'])) {
+            $temp = explode(".", $_FILES["invoice_file_main"]["name"]);
+            $extension = end($temp);
+            // Uploading to S3
+           
+            $directory = "invoices-excel/" . $invoice_id . "." . $extension;
+            $is_s3 = $this->s3->putObjectFile($_FILES["invoice_file_main"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+            if ($is_s3) {
+                log_message('info', __FUNCTION__ . " Main Invoice upload");
+                $data['invoice_file_main'] = $data['invoice_id'] . "." . $extension;
+               
+            } else {
+                log_message('info', __FUNCTION__ . " Main Invoice upload failed");
+            }
+        }
+        if (!empty($_FILES["invoice_detailed_excel"]['tmp_name'])) {
+            $temp1 = explode(".", $_FILES["invoice_detailed_excel"]["name"]);
+            $extension1 = end($temp1);
+            // Uploading to S3
+            
+            $directory = "invoices-excel/" . $invoice_id . "-detailed." . $extension1;
+            $is_s3 = $this->s3->putObjectFile($_FILES["invoice_detailed_excel"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+            if ($is_s3) {
+                log_message('info', __FUNCTION__ . " Main Invoice upload");
+                $data['invoice_detailed_excel'] = $data['invoice_id'] . "-detailed." . $extension1;
+            } else {
+                log_message('info', __FUNCTION__ . " Main Invoice upload failed");
+            }
+        }
+        
+         if (!empty($_FILES["invoice_file_excel"]['tmp_name'])) {
+            $temp1 = explode(".", $_FILES["invoice_file_excel"]["name"]);
+            $extension1 = end($temp1);
+            // Uploading to S3
+            $directory = "invoices-excel/" . $invoice_id . "." . $extension1;
+            $is_s3 = $this->s3->putObjectFile($_FILES["invoice_file_excel"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+            if ($is_s3) {
+                log_message('info', __FUNCTION__ . " Main Excel Invoice upload");
+                $data['invoice_file_excel'] = $data['invoice_id'] . "." . $extension1;
+            } else {
+                log_message('info', __FUNCTION__ . " Main Excel Invoice upload failed");
+            }
+        }
+        
+        return $data;
+    }
+
+    function get_create_update_invoice_input($vendor_partner) {
+        $data['invoice_id'] = $this->input->post('invoice_id');
+        $data['type'] = $this->input->post('type');
+        $data['vendor_partner'] = $vendor_partner;
+        $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
+        $date_range = $this->input->post('from_date');
+        $date_explode = explode("-", $date_range);
+        $data['from_date'] = trim($date_explode[0]);
+        $data['to_date'] = trim($date_explode[1]);
+        $data['num_bookings'] = $this->input->post('num_bookings');
+        $data['hsn_code'] = $this->input->post('hsn_code');
+        $data['total_service_charge'] = $this->input->post('total_service_charge');
+        $data['total_additional_service_charge'] = $this->input->post('total_additional_service_charge');
+        $data['parts_cost'] = $this->input->post('parts_cost');
+       
+        $data['penalty_amount'] = $this->input->post("penalty_amount");
+        $data['credit_penalty_amount'] = $this->input->post("credit_penalty_amount");
+        $data['penalty_bookings_count'] = $this->input->post("penalty_bookings_count");
+        $data['credit_penalty_bookings_count'] = $this->input->post("credit_penalty_bookings_count");
+        $data['upcountry_booking'] = $this->input->post("upcountry_booking");
+        $data['upcountry_distance'] = $this->input->post("upcountry_distance");
+        $data['courier_charges'] = $this->input->post("courier_charges");
+        $data['upcountry_price'] = $this->input->post("upcountry_price");
+        $data['remarks'] = $this->input->post("remarks");
+        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+        $data['invoice_date'] = date('Y-m-d', strtotime($this->input->post('invoice_date')));
+        $data['type_code'] = $this->input->post('around_type');
+        
+        return $data;
     }
 
     /**
@@ -2245,7 +2283,6 @@ class Invoice extends CI_Controller {
         } else {
             switch ($sc_details['company_type']) {
                 case 'Proprietorship Firm':
-                    if (!empty($sc_details['pan_no'])) {
                         $_4th_char = substr($sc_details['pan_no'], 3, 1);
                         if (strcasecmp($_4th_char, "F") == 0) {
                             $tds = ($total_sc_details) * .02;
@@ -2256,11 +2293,7 @@ class Invoice extends CI_Controller {
                             $tds_tax_rate = 1;
                             $tds_per_rate = "1%";
                         }
-                    } else {
-                        $tds = ($total_sc_details) * .01;
-                        $tds_tax_rate = 1;
-                        $tds_per_rate = "1%";
-                    }
+                    
                     break;
                 case "Individual":
                     $tds = ($total_sc_details) * .01;

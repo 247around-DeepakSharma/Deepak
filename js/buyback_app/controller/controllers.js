@@ -24,21 +24,21 @@ uploadfile.controller('uploadPriceChargesFile', ['$scope', 'fileUpload', functio
     }]);
 
 
-uploadfile.controller('uploadFileHistory', function ($scope, $http) {
-    var get_url = baseUrl + "/buyback/upload_buyback_process/upload_file_history/BB-Price-List";
-    $http.get(get_url)
-            .then(function (response) {
-                $scope.uploadFileHistory = response.data;
-            });
-});
-
-uploadfile.controller('getOrderFileHistory', function ($scope, $http) {
-    var get_url = baseUrl + "/buyback/upload_buyback_process/upload_file_history/BB-Order-List";
-    $http.get(get_url)
-            .then(function (response) {
-                $scope.getOrderFileHistory = response.data;
-            });
-});
+//uploadfile.controller('uploadFileHistory', function ($scope, $http) {
+//    var get_url = baseUrl + "/buyback/upload_buyback_process/upload_file_history/BB-Price-List";
+//    $http.get(get_url)
+//            .then(function (response) {
+//                $scope.uploadFileHistory = response.data;
+//            });
+//});
+//
+//uploadfile.controller('getOrderFileHistory', function ($scope, $http) {
+//    var get_url = baseUrl + "/buyback/upload_buyback_process/upload_file_history/BB-Order-List";
+//    $http.get(get_url)
+//            .then(function (response) {
+//                $scope.getOrderFileHistory = response.data;
+//            });
+//});
 
 orderDetails.controller('viewOrderDetails', function ($scope, $http) {
 

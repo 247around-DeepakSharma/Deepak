@@ -1233,4 +1233,54 @@ class Upload_booking_file extends CI_Controller {
         return $user_name;
     }
     
+    
+    /**
+     * @Desc: This function is used to get the upload file history
+     * @params: void
+     * @return: void
+     * 
+     */
+    public function get_upload_file_history()
+    {
+        $post_data = array('length' =>$this->input->post('length'),
+                           'start' =>$this->input->post('start'),
+                           'file_type' =>$this->input->post('file_type'));
+        $list = $this->reporting_utils->get_uploaded_file_history($post_data);
+        $table_data = array();
+        $no = $post_data['start'];
+        foreach ($list as $file_list) {
+            $no++;
+            $row =  $this->upload_file_table_data($file_list, $no);
+            $table_data[] = $row;
+        }
+        
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => '',
+            "recordsFiltered" =>  '',
+            "data" => $table_data,
+        );
+        unset($post_data);
+        echo json_encode($output);
+    }
+    
+    
+    /**
+     * @Desc: This function is used to make the table data for upload file history
+     * @params: void
+     * @return: void
+     * 
+     */
+    private function upload_file_table_data($file_list, $no)
+    {
+        $row = array();
+        $row[] = $no;
+        $row[] = "<a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".
+                $file_list->file_name."'>$file_list->file_name</a>";
+        $row[] = $file_list->agent_name;
+        $row[] = $file_list->upload_date;
+        
+        return $row;
+    }
+    
 }

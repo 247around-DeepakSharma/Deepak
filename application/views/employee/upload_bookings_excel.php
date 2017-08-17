@@ -1,3 +1,8 @@
+<style>
+    #datatable1_filter,#datatable1_length,#datatable1_info{
+        display: none;
+    }
+</style>
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
@@ -48,30 +53,21 @@
 
             </form>
              
-             <div class="col-md-12" style="margin-top:20px;">
-              <h3>File Upload History</h3>
-              <table class="table table-bordered table-hover table-responsive">
-                  <thead>
-                      <tr>
-                          <th>S.No.</th>
-                          <th>Download</th>
-                          <th>Uploaded By</th>
-                          <th>Uploaded Date</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <?php $sn1 = 1;
-                      foreach ($snapdeal_delivered as $value) { ?>
-                          <tr>
-                              <td><?php echo $sn1; ?></td>
-                              <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/<?php echo $value['file_name']?>'><div><?php echo $value['file_name']?></div></a></td>
-                              <td><?php echo $value['agent_name']; ?></td>
-                              <td><?php echo date('d-F-Y' , strtotime($value['upload_date'])); ?></td>
-                          </tr>
-                        <?php $sn1++;} ?>
-                  </tbody>
-              </table>
-          </div>
+            <div class="col-md-12" style="margin-top:20px;">
+                <h3>File Upload History</h3>
+                <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>Download</th>
+                            <th>Uploaded By</th>
+                            <th>Uploaded Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
 
          </div>
       </div>
@@ -100,72 +96,30 @@ function submitForm() {
     //return false;
   //window.open('<?php echo base_url(); ?>employee/user');
 }
+
+var table;
+
+        $(document).ready(function () {
+
+            //datatables
+            table = $('#datatable1').DataTable({
+                processing: true, //Feature control the processing indicator.
+                serverSide: true, //Feature control DataTables' server-side processing mode.
+                order: [], //Initial no order.
+                pageLength: 5,
+                // Load data for the table's content from an Ajax source
+                ajax: {
+                    url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+                    type: "POST",
+                    data: {file_type: '<?php echo _247AROUND_SNAPDEAL_DELIVERED; ?>'}
+                },
+                //Set column definition initialisation properties.
+                columnDefs: [
+                    {
+                        "targets": [0,1,2,3], //first column / numbering column
+                        "orderable": false //set not orderable
+                    }
+                ]
+            });
+        });
 </script>
-<!--
-<div class="chat-box">
-    <input type="checkbox" />
-    <label data-expanded="Close Notification" data-collapsed="Open Notification"></label>
-    <div class="chat-box-content"><p id="notification"></p>
-        <br/>
-        <br/>
-
-
-  <style type="text/css">
-
-.chat-box {
-  height: 300;
-  font:normal normal 11px/1.4 Tahoma,Verdana,Sans-Serif;
-  color:#333;
-  width:100%; /* Chatbox width */
-  border:1px solid #344150;
-  border-bottom:none;
-  background-color:white;
-  position:fixed;
-
-  bottom:0;
-  z-index:9999;
-  -webkit-box-shadow:1px 1px 5px rgba(0,0,0,.2);
-  -moz-box-shadow:1px 1px 5px rgba(0,0,0,.2);
-  box-shadow:1px 1px 5px rgba(0,0,0,.2);
-}
-
-.chat-box > input[type="checkbox"] {
-  display:block;
-  margin:0 0;
-  padding:0 0;
-  position:absolute;
-  top:0;
-  right:0;
-  left:0;
-  width:100%;
-  height:26px;
-  z-index:4;
-  cursor:pointer;
-  opacity:0;
-  filter:alpha(opacity=0);
-}
-
-.chat-box > label {
-  display:block;
-  height:24px;
-  line-height:24px;
-  background-color:#344150;
-  color:white;
-  font-weight:bold;
-  padding:0 1em 1px;
-}
-
-.chat-box > label:before {content:attr(data-collapsed)}
-
-.chat-box .chat-box-content {
-  padding:10px;
-  display:none;
-}
-
-/* hover state */
-.chat-box > input[type="checkbox"]:hover + label {background-color:#404D5A}
-
-/* checked state */
-.chat-box > input[type="checkbox"]:checked + label {background-color:#212A35}
-.chat-box > input[type="checkbox"]:checked + label:before {content:attr(data-expanded)}
-.chat-box > input[type="checkbox"]:checked ~ .chat-box-content {display:block}</style> -->

@@ -43,8 +43,8 @@
                                     <label class="col-sm-2" for="type">Type:</label>
                                     <div class="col-sm-3">
                                         <select class="form-control" id="type">
-                                            <option value="sales">Sales</option>
-                                            <option value="purchase">Purchase</option>
+                                            <option value="A">Sales</option>
+                                            <option value="B">Purchase</option>
                                             <option value="tds">TDS</option>
                                         </select>
                                     </div>
@@ -54,8 +54,6 @@
                                         <select class="form-control" id="partner_vendor">
                                             <option value="partner">Partner</option>
                                             <option value="vendor">Vendor</option>
-                                            <option value="stand">Stand</option>
-                                            <option value="buyback">Buyback</option>
                                         </select>
                                     </div>    
                                   </div>
@@ -180,17 +178,17 @@
         var partner_vendor = $('#partner_vendor').val();
         var report_type = $('#report_type').val();
         var time = moment().format('D-MMM-YYYY');
-        if (type === 'sales' && partner_vendor === 'partner') {
+        if (type === 'A' && partner_vendor === 'partner') {
             filename = 'partner_sales_report_' + time;
-        } else if (type === 'sales' && partner_vendor === 'vendor') {
+        } else if (type === 'A' && partner_vendor === 'vendor') {
             filename = 'vendor_sales_report_' + time;
-        } else if (type === 'sales' && partner_vendor === 'stand') {
+        } else if (type === 'A' && partner_vendor === 'stand') {
             filename = 'stand_sales_report_' + time;
-        } else if (type === 'purchase' && partner_vendor === 'partner') {
+        } else if (type === 'B' && partner_vendor === 'partner') {
             filename = 'partner_purchase_report_' + time;
-        } else if (type === 'purchase' && partner_vendor === 'vendor') {
+        } else if (type === 'B' && partner_vendor === 'vendor') {
             filename = 'vendor_purchase_report_' + time;
-        } else if (type === 'purchase' && partner_vendor === 'stand') {
+        } else if (type === 'B' && partner_vendor === 'stand') {
             filename = 'stand_purchase_report_' + time;
         } else if (type === 'tds' && partner_vendor === 'partner') {
             filename = 'partner_tds_report_' + time;

@@ -104,8 +104,8 @@ class Service_centers_model extends CI_Model {
                  . " THEN (bd.upcountry_distance * bd.sf_upcountry_rate) "
                  . " ELSE 0 END AS upcountry_price, "
                     
-                . " CASE WHEN (s.tin_no IS NOT NULL 
-                        OR s.cst_no IS NOT NULL )
+                . " CASE WHEN (s.gst_no IS NOT NULL 
+                        OR s.gst_no != '' )
                        
                         THEN (
 

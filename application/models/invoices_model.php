@@ -506,13 +506,12 @@ class invoices_model extends CI_Model {
     function get_partner_invoice_data($partner_id, $from_date, $to_date) {
         $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, ".HSN_CODE." AS hsn_code, 
                 CASE 
-                
+                   WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
+                   concat(services,' ', price_tags )
+                    
                    WHEN (MIN( ud.`appliance_capacity` ) = MAX( ud.`appliance_capacity` ) ) THEN 
                    concat(services,' ', price_tags,' (', 
                    MAX( ud.`appliance_capacity` ),') ' )
-               
-                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
-                    concat(services,' ', price_tags )
 
                     WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
                     concat(services,' ', price_tags,' (', 
@@ -557,7 +556,7 @@ class invoices_model extends CI_Model {
             $result['courier'] = array();
             if (!empty($upcountry_data)) {
                 $up_country = array();
-                $up_country[0]['description'] = 'Upcountry Charge';
+                $up_country[0]['description'] = 'Upcountry Charges';
                 $up_country[0]['hsn_code'] = '';
                 $up_country[0]['qty'] = '';
                 $up_country[0]['rate'] = '';
@@ -823,8 +822,10 @@ class invoices_model extends CI_Model {
         $sql = "SELECT DISTINCT round((`vendor_basic_charges`),0) AS rate,product_or_services,
                 sc.gst_no as gst_number, ".HSN_CODE." AS hsn_code,
                CASE 
-               
-                WHEN (MIN( ud.`appliance_capacity` ) = MAX( ud.`appliance_capacity` ) ) THEN 
+                WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
+                concat(services,' ', price_tags )
+                
+                WHEN (MIN( ud.`appliance_capacity` ) = MAX( ud.`appliance_capacity` ) )  THEN 
                 concat(services,' ', price_tags,' (', 
                 MAX( ud.`appliance_capacity` ),') ' )
                       
@@ -836,8 +837,6 @@ class invoices_model extends CI_Model {
                  concat(services,' ', price_tags,' (', 
                 MIN( ud.`appliance_capacity` ),') ' )
                 
-                WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
-                concat(services,' ', price_tags )
                 ELSE 
                 concat(services,' ', price_tags,' (', MIN( ud.`appliance_capacity` ),
                 '-',MAX( ud.`appliance_capacity` ),') ' )
@@ -879,7 +878,7 @@ class invoices_model extends CI_Model {
             $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, "distinct" );
             if (!empty($upcountry_data)) {
                 $up_country = array();
-                $up_country[0]['description'] = 'Upcountry Charge';
+                $up_country[0]['description'] = 'Upcountry Charges';
                 $up_country[0]['hsn_code'] = '';
                 $up_country[0]['qty'] = '';
                 $up_country[0]['rate'] = '';
@@ -1376,7 +1375,7 @@ class invoices_model extends CI_Model {
     function check_gst_tax_type($state) {
         if ((strcasecmp($state, "DELHI") == 0) ||
                 (strcasecmp($state, "New Delhi") == 0)) {
-            //If matched return 0;
+            //If matched return true;
             // CGST & SGST
             return TRUE;
         } else {
