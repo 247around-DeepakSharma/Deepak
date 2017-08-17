@@ -113,7 +113,7 @@ class Upload_buyback_process extends CI_Controller {
                                 $rowData1['partner_charge'] = $rowData1['discount_value'];
                                 $dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['order_day']);
                                 $rowData1['order_date'] = $dateObj1->format('Y-m-d');
-                                $rowData1['order_key'] = $rowData1['usediteminfo'];
+                                $rowData1['order_key'] = $rowData1['buyback_details'];
                                 $rowData1['current_status'] = $rowData1['orderstatus'];
                                 $rowData1['partner_sweetner_charges'] = $rowData1['sweetenervalue'];
                                 $rowData1['partner_order_id'] = $rowData1['order_id'];
@@ -219,9 +219,9 @@ class Upload_buyback_process extends CI_Controller {
         $message = "";
         $error = false;
         
-        if (!array_key_exists('usediteminfo', $rowData1)) {
-            $message .= " Used Item Info Column does not exist.<br/><br/>";
-            $this->Columfailed .= " Used Item Info, ";
+        if (!array_key_exists('buyback_details', $rowData1)) {
+            $message .= " BuyBack Details Column does not exist.<br/><br/>";
+            $this->Columfailed .= " Buyback, ";
             $error = true;
         }
 
