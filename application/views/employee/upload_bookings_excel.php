@@ -102,7 +102,7 @@ var table;
         $(document).ready(function () {
 
             //datatables
-            table1 = $('#datatable1').DataTable({
+            table = $('#datatable1').DataTable({
                 processing: true, //Feature control the processing indicator.
                 serverSide: true, //Feature control DataTables' server-side processing mode.
                 order: [], //Initial no order.
