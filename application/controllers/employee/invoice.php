@@ -1806,7 +1806,7 @@ class Invoice extends CI_Controller {
                     $invoices['meta']['r_sc'] += $value['service_charges'];
                     $invoices['meta']['r_asc'] += $value['additional_charges'];
                     $invoices['meta']['r_pc'] += $value['parts_cost'];
-                    $invoices['meta']['r_pc'] += $value['parts_cost'];
+                   
                     $total_amount_paid += $value['amount_paid'];
 
                     if (!is_null($value['rating_stars']) || $value['rating_stars'] != '') {

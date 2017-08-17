@@ -377,7 +377,7 @@ class Upcountry_model extends CI_Model {
         $sql = "SELECT DISTINCT ( bd.booking_id) As booking_id, "
                 . " upcountry_distance, bd.city, services, "
                 . " assigned_vendor_id, "
-                . " round((customer_paid_upcountry_charges * 0.30 ),2) AS service_charges,"
+                . " round((customer_paid_upcountry_charges * 0.30 ),2) AS service_charges "
                 . " FROM `booking_details` AS bd, service_centres as sc, services "
                 . " WHERE "
                 . " bd.assigned_vendor_id = '$vendor_id' "
