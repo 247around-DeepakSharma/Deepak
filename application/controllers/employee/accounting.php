@@ -329,14 +329,13 @@ class Accounting extends CI_Controller {
         $invoice_data_by = $this->input->post('invoice_by');
 
 
-        $data = $this->accounting_model->get_payment_report_data($payment_type, $from_date, $new_to_date, $partner_vendor, $is_challan_data, $invoice_data_by, $report_type);
-        //echo "<pre>";print_r($data);exit();
-        //echo $this->db->last_query();exit();
-        if (!empty($data)) {
+        $data['invoice_data'] = $this->accounting_model->get_account_report_data($payment_type, $from_date, $new_to_date, $partner_vendor, $is_challan_data, $invoice_data_by, $report_type);
+
+        if (!empty($data['invoice_data'])) {
             $data['partner_vendor'] = $partner_vendor;
             $data['payment_type'] = $payment_type;
             $data['report_type'] = $report_type;
-            echo $this->load->view('employee/paymnet_history_table_view.php', $data);
+            echo $this->load->view('employee/paymnet_history_table_view', $data);
         } else {
             echo "error";
         }
@@ -502,5 +501,5 @@ class Accounting extends CI_Controller {
             echo "<div class='text-danger text-center'> <b> No Data Found <b></div>";
         }
     }
-
+    
 }

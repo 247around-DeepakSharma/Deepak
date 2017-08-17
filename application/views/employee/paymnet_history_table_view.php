@@ -1,5 +1,17 @@
-<?php if ($payment_type == 'sales') { ?>
-    <?php if ($partner_vendor == 'partner') { ?> 
+<?php $flag =0; if ($payment_type != 'tds') { 
+    
+    if($payment_type == "B"){
+        $flag = 1;
+        
+    } else if($payment_type == "A"){
+        if($partner_vendor == "vendor"){
+            $flag = 0;
+        } else if($partner_vendor == "partner"){
+            $flag = 1;
+        }
+    }
+    ?>
+    <?php if ($flag == 1 ) { ?> 
         <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
             <thead>
                 <tr>
@@ -17,33 +29,44 @@
                     <th>VAT</th>
                     <th>Conveyance Charge</th>
                     <th>Courier</th>
-                    <th>Total Amount Collected</th>
+                    <th>CGST Tax Amount</th>
+                    <th>SGST Tax Amount</th>
+                    <th>IGST Tax Amount</th>
+                    <th>GST Rate</th>
                     <th>Vat %</th>
+                    <th>Total Amount Collected</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (isset($invoice_data)) { ?> 
                     <?php
-                    $sn = 1;
+                    $sn = 1; $total_sc = $total_pc = $total_asc = $total_st = 
+                            $total_vat = $total_up_cc = $total_courier_charges = 
+                            $grand_total_amount_collected = 0;
                     foreach ($invoice_data as $key => $value) {
                         ?>
                         <tr>
                             <td><?php echo $sn; ?></td>
-                            <td><?php echo $value['InvoiceNo']; ?></td>
-                            <td><?php echo $value['CompanyName']; ?></td>
-                            <td><?php echo $value['State']; ?></td>
-                            <td><?php echo $value['InvoiceDate']; ?></td>
-                            <td><?php echo $value['FromDate']; ?></td>
-                            <td><?php echo $value['ToDate']; ?></td>
-                            <td><?php echo round($value['TotalServiceCharge'],0); ?></td>
-                            <td><?php echo round($value['total_additional_service_charge'],0); ?></td>
-                            <td><?php echo round($value['ServiceTax'],0); ?></td>
-                            <td><?php echo round($value['Parts'],0); ?></td>
-                            <td><?php echo round($value['VAT'],0); ?></td>
-                            <td><?php echo round($value['ConveyanceCharges'],0); ?></td>
-                            <td><?php echo round($value['Courier'],0); ?></td>
-                            <td><?php echo round($value['TotalAmountCollected'],0); ?></td>
-                            <td><?php echo round($value['VAT Rate'],0); ?></td>
+                            <td><?php echo $value['invoice_id']; ?></td>
+                            <td><?php echo $value['company_name']; ?></td>
+                            <td><?php echo $value['state']; ?></td>
+                            <td><?php echo $value['invoice_date']; ?></td>
+                            <td><?php echo $value['from_date']; ?></td>
+                            <td><?php echo $value['to_date']; ?></td>
+                            <td><?php echo round($value['total_service_charge'],0); $total_sc +=$value['total_service_charge']; ?></td>
+                            <td><?php echo round($value['total_additional_service_charge'],0); $total_asc += $value['total_additional_service_charge']; ?></td>
+                            <td><?php echo round($value['service_tax'],0); $total_st +=$value['service_tax']; ?></td>
+                            <td><?php echo round($value['parts_cost'],0); $total_pc += $value['parts_cost'];?></td>
+                            <td><?php echo round($value['vat'],0); $total_vat += $value['vat']; ?></td>
+                            <td><?php echo round($value['upcountry_price'],0); $total_up_cc += $value['upcountry_price'];?></td>
+                            <td><?php echo round($value['courier_charges'],0); $total_courier_charges += $value['courier_charges']; ?></td>
+                           
+                            <td><?php echo round($value['cgst_tax_amount'],0); ?></td>
+                            <td><?php echo round($value['sgst_tax_amount'],0); ?></td>
+                            <td><?php echo round($value['igst_tax_amount'],0); ?></td>
+                            <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
+                            <td><?php if($value['parts_cost'] != 0) { echo round(($value['vat']*100)/$value['parts_cost'],0); } ?></td>
+                             <td><?php echo round($value['total_amount_collected'] + $value['tds_amount'],0); $grand_total_amount_collected += ($value['total_amount_collected'] + $value['tds_amount']);?></td>
                         </tr>
                         <?php $sn++;
                     }
@@ -56,20 +79,22 @@
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td><b><?php echo round($invoice_total[0]['total_sc'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_asc'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_st'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_pc'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_vat'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_up_cc'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_courier_charges'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['grand_total_amount_collected'],0); ?></b></td>
+                            <td><b><?php echo round($total_sc,0); ?></b></td>
+                            <td><b><?php echo round($total_asc,0); ?></b></td>
+                            <td><b><?php echo round($total_st,0); ?></b></td>
+                            <td><b><?php echo round($total_pc,0); ?></b></td>
+                            <td><b><?php echo round($total_vat,0); ?></b></td>
+                            <td><b><?php echo round($total_up_cc,0); ?></b></td>
+                            <td><b><?php echo round($total_courier_charges,0); ?></b></td>
+                             <td></td>
+                              <td></td> <td></td> <td></td> <td></td>
+                            <td><b><?php echo round($grand_total_amount_collected,0); ?></b></td>
                             <td></td>
                         </tr>
         <?php } ?>
             </tbody>
         </table>
-    <?php } else if ($partner_vendor == 'vendor' || $partner_vendor == 'buyback') { ?> 
+    <?php } else if ($flag == 0 ) { ?> 
         <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
             <thead>
                 <tr>
@@ -82,26 +107,34 @@
                     <th>To Date</th>
                     <th>Around Royalty</th>
                     <th>Service Tax</th>
+                    <th>CGST Tax Amount</th>
+                    <th>SGST Tax Amount</th>
+                    <th>IGST Tax Amount</th>
+                    <th>GST Rate</th>
                     <th>Total Amount Collected</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (isset($invoice_data)) { ?> 
                     <?php
-                    $sn = 1;
+                    $sn = 1; $t_ar = $t_ac = $t_sc =0;
                     foreach ($invoice_data as $key => $value) {
                         ?>
                         <tr>
                             <td><?php echo $sn; ?></td>
-                            <td><?php echo $value['InvoiceNo']; ?></td>
-                            <td><?php echo $value['CompanyName']; ?></td>
-                            <td><?php echo $value['State']; ?></td>
-                            <td><?php echo $value['InvoiceDate']; ?></td>
-                            <td><?php echo $value['FromDate']; ?></td>
-                            <td><?php echo $value['ToDate']; ?></td>
-                            <td><?php echo round($value['AroundRoyalty'],0); ?></td>
-                            <td><?php echo round($value['ServiceTax'],0); ?></td>
-                            <td><?php echo round($value['TotalAmountCollected'],0); ?></td>
+                            <td><?php echo $value['invoice_id']; ?></td>
+                            <td><?php echo $value['company_name']; ?></td>
+                            <td><?php echo $value['state']; ?></td>
+                            <td><?php echo $value['invoice_date']; ?></td>
+                            <td><?php echo $value['from_date']; ?></td>
+                            <td><?php echo $value['to_date']; ?></td>
+                            <td><?php echo round($value['around_royalty'],0); $t_ar += $value['around_royalty'];?></td>
+                            <td><?php echo round($value['service_tax'],0); $t_sc += $value['service_tax']; ?></td>
+                            <td><?php echo round($value['cgst_tax_amount'],0); ?></td>
+                            <td><?php echo round($value['sgst_tax_amount'],0); ?></td>
+                            <td><?php echo round($value['igst_tax_amount'],0); ?></td>
+                            <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
+                            <td><?php echo round($value['total_amount_collected'],0); $t_ac += $value['total_amount_collected']; ?></td>
                         </tr>
                         <?php $sn++;
                     }
@@ -114,200 +147,10 @@
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td><b><?php echo round($invoice_total[0]['total_AroundRoyalty'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_ServiceTax'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['grand_TotalAmountCollected'],0); ?></b></td>
-                        </tr>
-        <?php } ?>
-            </tbody>
-        </table>
-    <?php } else if ($partner_vendor == 'stand') { ?> 
-        <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
-            <thead>
-                <tr>
-                    <th>S.No.</th>
-                    <th>Invoice No</th>
-                    <th>Company Name</th>
-                    <th>TIN</th>
-                    <th>Invoice Date</th>
-                    <th>From Date</th>
-                    <th>To Date</th>
-                    <th>Parts</th>
-                    <th>VAT</th>
-                    <th>Total Amount</th>
-                    <th>VAT %</th>
-<!--                    <th>Item</th>-->
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (isset($invoice_data)) { ?> 
-                    <?php
-                    $sn = 1;
-                    foreach ($invoice_data as $key => $value) {
-                        ?>
-                        <tr>
-                            <td><?php echo $sn; ?></td>
-                            <td><?php echo $value['InvoiceNo']; ?></td>
-                            <td><?php echo $value['CompanyName']; ?></td>
-                            <td><?php echo $value['TINNo']; ?></td>
-                            <td><?php echo $value['InvoiceDate']; ?></td>
-                            <td><?php echo $value['FromDate']; ?></td>
-                            <td><?php echo $value['ToDate']; ?></td>
-                            <td><?php echo round($value['Parts'],0); ?></td>
-                            <td><?php echo round($value['VAT'],0); ?></td>
-                            <td><?php echo round($value['TotalAmount'],0); ?></td>
-                            <td><?php echo round($value['VATRate'],0); ?></td>
-<!--                            <td><?php //echo $value['Item']; ?></td>-->
-                        </tr>
-                        <?php $sn++;
-                    }
-                    ?>
-                        <tr>
-                            <td><b>Total</b></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td><b><?php echo round($invoice_total[0]['total_Parts'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_VAT'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['grand_TotalAmount'],0); ?></b></td>
-                            <td></td>
-                        </tr>
-        <?php } ?>
-            </tbody>
-        </table>
-    <?php } ?>
-
-<?php } else if ($payment_type == 'purchase') { ?> 
-    <?php if ($partner_vendor == 'partner' || $partner_vendor == 'vendor' || $partner_vendor == 'buyback') { ?> 
-        <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
-            <thead>
-                <tr>
-                    <th>S.No.</th>
-                    <th>Invoice No</th>
-                    <th>Company Name</th>
-                    <th>State</th>
-                    <th>Service Tax No</th>
-                    <th>TIN</th>
-                    <th>Invoice Date</th>
-                    <th>From Date</th>
-                    <th>To Date</th>
-                    <th>Service Charge</th>
-                    <th>Additional Service Charge</th>
-                    <th>Service Tax</th>
-                    <th>Parts</th>
-                    <th>VAT</th>
-                    <th>Conveyance Charge</th>
-                    <th>Courier</th>
-                    <th>Misc Debit</th>
-                    <th>Misc Credit</th>
-                    <th>Total Amount</th>
-                    <th>VAT %</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (isset($invoice_data)) { ?> 
-                    <?php
-                    $sn = 1;
-                    foreach ($invoice_data as $key => $value) {
-                        ?>
-                        <tr>
-                            <td><?php echo $sn; ?></td>
-                            <td><?php echo $value['InvoiceNo']; ?></td>
-                            <td><?php echo $value['CompanyName']; ?></td>
-                            <td><?php echo $value['State']; ?></td>
-                            <td><?php echo $value['ServiceTaxNo']; ?></td>
-                            <td><?php echo $value['TINNo']; ?></td>
-                            <td><?php echo $value['InvoiceDate']; ?></td>
-                            <td><?php echo $value['FromDate']; ?></td>
-                            <td><?php echo $value['ToDate']; ?></td>
-                            <td><?php echo round($value['ServiceCharges'],0); ?></td>
-                            <td><?php echo round($value['total_additional_service_charge'],0); ?></td>
-                            <td><?php echo round($value['ServiceTax'],0); ?></td>
-                            <td><?php echo round($value['Parts'],0); ?></td>
-                            <td><?php echo round($value['VAT'],0); ?></td>
-                            <td><?php echo round($value['ConveyanceCharges'],0); ?></td>
-                            <td><?php echo round($value['Courier'],0); ?></td>
-                            <td><?php echo round($value['MiscDebit'],0); ?></td>
-                            <td><?php echo round($value['MiscCredit'],0); ?></td>
-                            <td><?php echo round($value['TotalAmount'],0); ?></td>
-                            <td><?php echo round($value['VATRate'],0); ?></td>
-                        </tr>
-                <?php $sn++;
-            }
-            ?>
-                        <tr>
-                            <td><b>Total</b></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td><b><?php echo round($invoice_total[0]['total_ServiceCharges'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_ac'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_ServiceTax'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_Parts'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_VAT'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_ConveyanceCharges'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_Courier'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_MiscDebit'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_MiscCredit'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['grand_TotalAmount'],0); ?></b></td>
-                            <td></td>
-                        </tr>
-        <?php } ?>
-            </tbody>
-        </table>
-    <?php } else if ($partner_vendor == 'stand') { ?>
-        <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
-            <thead>
-                <tr>
-                    <th>S.No.</th>
-                    <th>Invoice No</th>
-                    <th>Company Name</th>
-                    <th>Service Tax No</th>
-                    <th>TIN</th>
-                    <th>Invoice Date</th>
-                    <th>Parts</th>
-                    <th>Total Amount</th>
-                    <th>VAT</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (isset($invoice_data)) { ?> 
-            <?php
-            $sn = 1;
-            foreach ($invoice_data as $key => $value) {
-                ?>
-                        <tr>
-                            <td><?php echo $sn; ?></td>
-                            <td><?php echo $value['InvoiceNo']; ?></td>
-                            <td><?php echo $value['CompanyName']; ?></td>
-                            <td><?php echo $value['ServiceTaxNo']; ?></td>
-                            <td><?php echo $value['TINNo']; ?></td>
-                            <td><?php echo $value['InvoiceDate']; ?></td>
-                            <td><?php echo round($value['Parts'],0); ?></td>
-                            <td><?php echo round($value['TotalAmount'],0); ?></td>
-                            <td><?php echo round($value['VAT'],0); ?></td>
-                        </tr>
-                <?php $sn++;
-            }
-            ?>
-                        <tr>
-                            <td><b>Total</b></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td><b><?php echo round($invoice_total[0]['total_Parts'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['grand_TotalAmount'],0); ?></b></td>
-                            <td><b><?php echo round($invoice_total[0]['total_VAT'],0); ?></b></td>
+                            <td><b><?php echo round($t_ar,0); ?></b></td>
+                            <td><b><?php echo round($t_sc,0); ?></b></td>
+                             <td></td> <td></td> <td></td> <td></td>
+                            <td><b><?php echo round($t_ac,0); ?></b></td>
                         </tr>
         <?php } ?>
             </tbody>
@@ -315,7 +158,7 @@
     <?php } ?>
 
 <?php } else if ($payment_type == 'tds') { ?> 
-    <?php if ($partner_vendor == 'vendor' || $partner_vendor == 'buyback') { ?>
+    <?php if ($partner_vendor == 'vendor') { ?>
         <?php if ($report_type == 'draft') { ?>
             <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
                 <thead>
@@ -325,8 +168,6 @@
                         <th>Type</th>
                         <th>Invoice ID</th>
                         <th>Invoice Date</th>
-                        <th>Type</th>
-                        <th>Type Code</th>
                         <th>Name on PAN</th>
                         <th>PAN</th>
                         <th>Owner Name</th>
@@ -343,7 +184,7 @@
                 <tbody>
             <?php if (isset($invoice_data)) { ?> 
                 <?php
-                $sn = 1;
+                $sn = 1; $total_sc = $total_asc = $total_st = $grand_tac = $total_net_amount = $total_tds_amount = $amount_collected_paid = 0;
                 foreach ($invoice_data as $key => $value) {
                     ?>
                             <tr>
@@ -352,25 +193,24 @@
                                 <td><?php echo $value['company_type']; ?></td>
                                 <td><?php echo $value['invoice_id']; ?></td>
                                 <td><?php echo $value['invoice_date']; ?></td>
-                                <td><?php echo $value['type']; ?></td>
-                                <td><?php echo $value['type_code']; ?></td>
                                 <td><?php echo $value['name_on_pan']; ?></td>
                                 <td><?php echo $value['pan_no']; ?></td>
                                 <td><?php echo $value['owner_name']; ?></td>
-                                <td><?php echo round($value['total_service_charge'],0); ?></td>
-                                <td><?php echo round($value['total_additional_service_charge'],0); ?></td>
-                                <td><?php echo round($value['service_tax'],0); ?></td>
-                                <td><?php echo round($value['total_amount_collected'],0); ?></td>
-                                <td><?php echo round($value['net_amount'],0); ?></td>
-                                <td><?php echo round($value['tds_amount'],0); ?></td>
-                                <td><?php echo round($value['tds_rate'],0); ?></td>
-                                <td><?php echo round($value['amount_collected_paid'],0); ?></td>
+                                <td><?php echo round($value['total_service_charge'],0); $total_sc += $value['total_service_charge']; ?></td>
+                                <td><?php echo round($value['total_additional_service_charge'],0); $total_asc += $value['total_additional_service_charge']; ?></td>
+                                <td><?php echo round($value['service_tax'],0); $total_st += $value['service_tax']; ?></td>
+                                <td><?php echo round($value['total_amount_collected'],0); $grand_tac += $value['total_amount_collected']; ?></td>
+                                <td><?php echo round($value['net_amount'],0); $total_net_amount += $value['net_amount']; ?></td>
+                                <td><?php echo round($value['tds_amount'],0); $total_tds_amount += $value['tds_amount']; ?></td>
+                                <td><?php echo round($value['tds_rate'],0);  ?></td>
+                                <td><?php echo round($value['amount_collected_paid'],0); $amount_collected_paid += $value['amount_collected_paid']; ?></td>
                             </tr>
                     <?php $sn++;
                 }
                 ?>
                             <tr>
                                 <td><b>Total</b></td>
+                               
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -378,16 +218,14 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
+                                <td><b><?php echo round($total_sc,0); ?></b></td>
+                                <td><b><?php echo round($total_asc,0); ?></b></td>
+                                <td><b><?php echo round($total_st,0); ?></b></td>
+                                <td><b><?php echo round($grand_tac,0); ?></b></td>
+                                <td><b><?php echo round($total_net_amount,0); ?></b></td>
+                                <td><b><?php echo round($total_tds_amount,0); ?></b></td>
                                 <td></td>
-                                <td></td>
-                                <td><b><?php echo round($invoice_total[0]['total_sc'],0); ?></b></td>
-                                <td><b><?php echo round($invoice_total[0]['total_asc'],0); ?></b></td>
-                                <td><b><?php echo round($invoice_total[0]['total_st'],0); ?></b></td>
-                                <td><b><?php echo round($invoice_total[0]['grand_tac'],0); ?></b></td>
-                                <td><b><?php echo round($invoice_total[0]['total_net_amount'],0); ?></b></td>
-                                <td><b><?php echo round($invoice_total[0]['total_tds_amount'],0); ?></b></td>
-                                <td></td>
-                                <td><b><?php echo round($invoice_total[0]['total_amount_collected_paid'],0); ?></b></td>
+                                <td><b><?php echo round($amount_collected_paid,0); ?></b></td>
                             </tr>
             <?php } ?>
                 </tbody>
