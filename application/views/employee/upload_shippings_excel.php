@@ -1,3 +1,8 @@
+<style>
+    #datatable1_filter,#datatable1_length,#datatable1_info{
+        display: none;
+    }
+</style>
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
@@ -47,30 +52,21 @@
 
             </form>
              
-             <div class="col-md-12" style="margin-top:20px;">
-              <h3>File Upload History</h3>
-              <table class="table table-bordered table-hover table-responsive">
-                  <thead>
-                      <tr>
-                          <th>S.No.</th>
-                          <th>Download</th>
-                          <th>Uploaded By</th>
-                          <th>Uploaded Date</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <?php $sn1 = 1;
-                      foreach ($snapdeal_shipped as $value) { ?>
-                          <tr>
-                              <td><?php echo $sn1; ?></td>
-                              <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/<?php echo $value['file_name']?>'><div><?php echo $value['file_name']?></div></a></td>
-                              <td><?php echo $value['agent_name']; ?></td>
-                              <td><?php echo date('d-F-Y' , strtotime($value['upload_date'])); ?></td>
-                          </tr>
-                        <?php $sn1++;} ?>
-                  </tbody>
-              </table>
-          </div>
+            <div class="col-md-12" style="margin-top:20px;">
+                <h3>File Upload History</h3>
+                <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>Download</th>
+                            <th>Uploaded By</th>
+                            <th>Uploaded Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
 
          </div>
       </div>
@@ -105,5 +101,31 @@ function submitForm() {
   //window.open('<?php echo base_url(); ?>employee/user');
 
 }
+
+var table;
+
+        $(document).ready(function () {
+
+            //datatables
+            table = $('#datatable1').DataTable({
+                processing: true, //Feature control the processing indicator.
+                serverSide: true, //Feature control DataTables' server-side processing mode.
+                order: [], //Initial no order.
+                pageLength: 5,
+                // Load data for the table's content from an Ajax source
+                ajax: {
+                    url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+                    type: "POST",
+                    data: {file_type: '<?php echo _247AROUND_SNAPDEAL_SHIPPED; ?>'}
+                },
+                //Set column definition initialisation properties.
+                columnDefs: [
+                    {
+                        "targets": [0,1,2,3], //first column / numbering column
+                        "orderable": false //set not orderable
+                    }
+                ]
+            });
+        });
 </script>
 <?php $this->session->unset_userdata('file_error'); ?>

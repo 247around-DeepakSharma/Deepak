@@ -50,6 +50,10 @@
             -webkit-transform: scaleY(1.0);
         }
     }
+    
+    #datatable1_filter,#datatable1_length,#datatable1_info{
+        display: none;
+    }
 </style>
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
 <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
@@ -115,22 +119,18 @@
                                     </div>
                                 </div>
                                 
-                                <div ng-controller="uploadFileHistory" style="margin-top:30px;">
-                                    <h2>File History</h2>
-                                    <table class="table table-bordered table-hover table-responsive">
+                                <div style="margin-top:20px;">
+                                    <h3>File Upload History</h3>
+                                    <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
                                         <thead>
-                                            <th>S.No.</th>
-                                            <th>Download</th>
-                                            <th>Uploaded By</th>
-                                            <th>Uploaded Date</th>    
+                                            <tr>
+                                                <th>S.No.</th>
+                                                <th>Download</th>
+                                                <th>Uploaded By</th>
+                                                <th>Uploaded Date</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
-                                            <tr ng-repeat="x in uploadFileHistory">
-                                                <td>{{$index + 1}}</td>
-                                                <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/{{x.file_name}}'><div>{{x.file_name}}</div></a></td>
-                                                <td>{{ x.agent_name }}</td>
-                                                <td>{{ x.upload_date }}</td>
-                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -141,62 +141,33 @@
                 </div>
             </div>
         </div>
-
-<!--        <div class="shop_address_file">
-            <div class="page-title">
-                <div class="title_left">
-                    <h3>Upload Shop Address File</h3>
-                </div>
-            </div>
-            <div class="clearfix"></div>
-            <div class="row">
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                    <div class="x_panel" style="height: auto;">
-                        <div class="x_title">
-                            <h2>Shop Address File</h2>
-                            <ul class="nav navbar-right panel_toolbox">
-                                <li><a class="collapse-link"><i class="fa fa-chevron-down"></i></a>
-                                </li>
-                                </li>
-                            </ul>
-                            <div class="clearfix"></div>
-                        </div>
-                        <div class="x_content" style="display:none;">
-                            <br />
-                            <div id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
-
-                                <div ng-controller="uploadShopAddressFile">
-                                    <div class="form-group" >
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <input type="file" file-model="myFile" id="order_details_file" required="required" class="form-control col-md-7 col-xs-12">
-                                        </div>
-
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="spinner" ng-if="ShowSpinnerStatus">
-                                                <div class="rect1" style="background-color:#db3236"></div>
-                                                <div class="rect2" style="background-color:#4885ed"></div>
-                                                <div class="rect3" style="background-color:#f4c20d"></div>
-                                                <div class="rect4" style="background-color:#3cba54"></div>
-                                            </div>
-                                            <div ng-if="successMsg" class="alert alert-success">{{msg}}</div>
-                                            <div ng-if="errorMsg" class="alert alert-danger">{{msg}}</div>
-                                        </div>
-                                    </div>
-                                    <div class="ln_solid"></div>
-                                    <div class="form-group">
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <button ng-click="uploadFile()" class="btn btn-success">Upload</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>-->
-
-
     </div>
 </div>
+
+<script>
+    var table;
+
+        $(document).ready(function () {
+
+            //datatables
+            table = $('#datatable1').DataTable({
+                processing: true, //Feature control the processing indicator.
+                serverSide: true, //Feature control DataTables' server-side processing mode.
+                order: [], //Initial no order.
+                pageLength: 5,
+                // Load data for the table's content from an Ajax source
+                ajax: {
+                    url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+                    type: "POST",
+                    data: {file_type: '<?php echo _247AROUND_BB_PRICE_LIST; ?>'}
+                },
+                //Set column definition initialisation properties.
+                columnDefs: [
+                    {
+                        "targets": [0,1,2,3], //first column / numbering column
+                        "orderable": false //set not orderable
+                    }
+                ]
+            });
+        });
+</script>

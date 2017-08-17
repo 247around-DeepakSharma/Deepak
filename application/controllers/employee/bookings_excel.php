@@ -52,9 +52,8 @@ class bookings_excel extends CI_Controller {
 
     public function index() {
         
-        $data['snapdeal_delivered'] = $this->reporting_utils->get_uploaded_file_history(_247AROUND_SNAPDEAL_DELIVERED);
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
-	$this->load->view('employee/upload_bookings_excel',$data);
+	$this->load->view('employee/upload_bookings_excel');
     }
 
     /*
@@ -65,9 +64,8 @@ class bookings_excel extends CI_Controller {
 
     public function upload_shipped_products_excel() {
         
-        $data['snapdeal_shipped'] = $this->reporting_utils->get_uploaded_file_history(_247AROUND_SNAPDEAL_SHIPPED);
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
-	$this->load->view('employee/upload_shippings_excel',$data);
+	$this->load->view('employee/upload_shippings_excel');
     }
 
     /*
@@ -77,10 +75,9 @@ class bookings_excel extends CI_Controller {
      */
 
     public function upload_delivered_products_for_paytm_excel() {
-        
-        $data['paytm_delivered'] = $this->reporting_utils->get_uploaded_file_history(_247AROUND_PAYTM_DELIVERED);
+       
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
-	$this->load->view('employee/upload_delivered_excel',$data);
+	$this->load->view('employee/upload_delivered_excel');
     }
 
     /*
