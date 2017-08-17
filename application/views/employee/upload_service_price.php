@@ -1,3 +1,9 @@
+<style>
+    #datatable1_filter,#datatable1_length,#datatable1_info,
+    #datatable2_filter,#datatable2_length,#datatable2_info{
+        display: none;
+    }
+</style>
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
@@ -53,9 +59,9 @@
                </div>
             </form>
               <a href="<?php echo base_url(); ?>BookingSummary/download_latest_file/price" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>
-              <div class="col-md-12" style="margin-top:20px;">
-                  <h3> Service Price List History</h3>
-                    <table class="table table-bordered table-hover table-responsive">
+                <div class="col-md-12" style="margin-top:20px;">
+                    <h3>File Upload History</h3>
+                    <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
                         <thead>
                             <tr>
                                 <th>S.No.</th>
@@ -65,14 +71,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $sn= 1;foreach ($SF_Price_List as $value){ ?>
-                            <tr>
-                                <td><?php echo $sn; ?></td>
-                                <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/<?php echo $value['file_name']?>'><div><?php echo $value['file_name']?></div></a></td>
-                                <td><?php echo $value['agent_name']; ?></td>
-                                <td><?php echo $value['upload_date']; ?></td>
-                            </tr>
-                            <?php $sn++;} ?>
                         </tbody>
                     </table>
                 </div>
@@ -101,34 +99,78 @@
                </div>
             </form>
           <a href="<?php echo base_url(); ?>BookingSummary/download_latest_file/appliance" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>
-          <div class="col-md-12" style="margin-top:20px;">
-              <h3> Partner Appliance List History</h3>
-              <table class="table table-bordered table-hover table-responsive">
-                  <thead>
-                      <tr>
-                          <th>S.No.</th>
-                          <th>Download</th>
-                          <th>Uploaded By</th>
-                          <th>Uploaded Date</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <?php $sn1 = 1;
-                      foreach ($Partner_Appliance_Details as $value) { ?>
-                          <tr>
-                              <td><?php echo $sn1; ?></td>
-                              <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/<?php echo $value['file_name']?>'><div><?php echo $value['file_name']?></div></a></td>
-                              <td><?php echo $value['agent_name']; ?></td>
-                              <td><?php echo $value['upload_date']; ?></td>
-                          </tr>
-                        <?php $sn1++;} ?>
-                  </tbody>
-              </table>
-          </div>
+            <div class="col-md-12" style="margin-top:20px;">
+                <h3>File Upload History</h3>
+                <table id="datatable2" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>Download</th>
+                            <th>Uploaded By</th>
+                            <th>Uploaded Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
 
           </div>
       </div>
    </div>
 </div>
+<script>
+    var table;
+
+        $(document).ready(function () {
+
+            //datatables
+            table = $('#datatable1').DataTable({
+                processing: true, //Feature control the processing indicator.
+                serverSide: true, //Feature control DataTables' server-side processing mode.
+                order: [], //Initial no order.
+                pageLength: 5,
+                // Load data for the table's content from an Ajax source
+                ajax: {
+                    url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+                    type: "POST",
+                    data: {file_type: '<?php echo _247AROUND_SF_PRICE_LIST; ?>'}
+                },
+                //Set column definition initialisation properties.
+                columnDefs: [
+                    {
+                        "targets": [0,1,2,3], //first column / numbering column
+                        "orderable": false //set not orderable
+                    }
+                ]
+            });
+        });
+        
+        var table1;
+
+        $(document).ready(function () {
+
+            //datatables
+            table1 = $('#datatable2').DataTable({
+                processing: true, //Feature control the processing indicator.
+                serverSide: true, //Feature control DataTables' server-side processing mode.
+                order: [], //Initial no order.
+                pageLength: 5,
+                // Load data for the table's content from an Ajax source
+                ajax: {
+                    url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+                    type: "POST",
+                    data: {file_type: '<?php echo _247AROUND_PARTNER_APPLIANCE_DETAILS; ?>'}
+                },
+                //Set column definition initialisation properties.
+                columnDefs: [
+                    {
+                        "targets": [0,1,2,3], //first column / numbering column
+                        "orderable": false //set not orderable
+                    }
+                ]
+            });
+        });
+</script>
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('file_error'); ?>

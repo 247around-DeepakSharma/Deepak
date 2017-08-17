@@ -40,6 +40,11 @@
             min-height: 80px;
             }
         </style>
+        <script src="<?php echo base_url()?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
+        <script src="<?php echo base_url()?>assest/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+
+        <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+        <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
     </head>
     <body>
         <?php $CI =& get_instance(); 

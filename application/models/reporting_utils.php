@@ -1781,14 +1781,16 @@ class Reporting_utils extends CI_Model {
         return $query->result_array();
     }
     
-    function get_uploaded_file_history($file_type){
+    function get_uploaded_file_history($post_data)
+    {
+      
         $sql = "SELECT e.full_name as agent_name,p.file_name,DATE(p.create_date) AS upload_date
                 FROM file_uploads AS p 
                 JOIN employee AS e ON p.agent_id = e.id 
-                WHERE file_type= '$file_type'
-                ORDER BY p.create_date DESC LIMIT 0,10";
+                WHERE file_type= '".$post_data['file_type']."'
+                ORDER BY p.create_date DESC LIMIT ".$post_data['start'].",".$post_data['length'];
         $query = $this->db->query($sql);
-        return $query->result_array();
+        return $query->result();
     }
 
 }

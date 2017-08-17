@@ -50,6 +50,10 @@
             -webkit-transform: scaleY(1.0);
         }
     }
+
+    #datatable1_filter,#datatable1_length,#datatable1_info{
+        display: none;
+    }
 </style>
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
 <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
@@ -107,22 +111,18 @@
                                     </div>
                                     
                                 </div>
-                                <div ng-controller="getOrderFileHistory" style="margin-top:30px;">
-                                    <h2>File History</h2>
-                                    <table class="table table-bordered table-hover table-responsive">
+                                <div style="margin-top:20px;">
+                                    <h3>File Upload History</h3>
+                                    <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
                                         <thead>
-                                            <th>S.No.</th>
-                                            <th>Download</th>
-                                            <th>Uploaded By</th>
-                                            <th>Uploaded Date</th>    
+                                            <tr>
+                                                <th>S.No.</th>
+                                                <th>Download</th>
+                                                <th>Uploaded By</th>
+                                                <th>Uploaded Date</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
-                                            <tr ng-repeat="x in getOrderFileHistory">
-                                                <td>{{$index + 1}}</td>
-                                                <td><a href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/{{x.file_name}}'><div class="btn btn-success btn-sm">{{x.file_name}}</div></a></td>
-                                                <td>{{ x.agent_name }}</td>
-                                                <td>{{ x.upload_date }}</td>
-                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -134,3 +134,31 @@
         </div>
     </div>
 </div>
+
+<script>
+    var table;
+
+        $(document).ready(function () {
+
+            //datatables
+            table = $('#datatable1').DataTable({
+                processing: true, //Feature control the processing indicator.
+                serverSide: true, //Feature control DataTables' server-side processing mode.
+                order: [], //Initial no order.
+                pageLength: 5,
+                // Load data for the table's content from an Ajax source
+                ajax: {
+                    url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+                    type: "POST",
+                    data: {file_type: '<?php echo _247AROUND_BB_ORDER_LIST; ?>'}
+                },
+                //Set column definition initialisation properties.
+                columnDefs: [
+                    {
+                        "targets": [0,1,2,3], //first column / numbering column
+                        "orderable": false //set not orderable
+                    }
+                ]
+            });
+        });
+</script>
