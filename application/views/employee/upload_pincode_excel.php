@@ -1,4 +1,9 @@
-<div id="page-wrapper">
+<style>
+    #datatable1_filter,#datatable1_length,#datatable1_info{
+        display: none;
+    }
+</style>
+<div>
     <div class="container-fluid">
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">
@@ -55,40 +60,37 @@
                                 </div>
                                
                                 <div class="form-group">
-                                    <div class="col-md-12 col-md-offset-2">
-                                        <center>
-                                            <input type= "submit"  class="btn btn-danger btn-md" value ="Upload" >
-
-                                            <a href="<?php if(!empty($pincode_mapping_file_list)){echo base_url()?>employee/vendor/download_pincode_latest_file/<?php echo $pincode_mapping_file_list[0]['file_name'];}else{echo "javascript:void()"; } ?>" class="btn btn-primary btn-md">Download latest File</a> 
-                                            <a href="<?php echo base_url()?>employee/vendor/download_unique_pincode_excel" class="btn btn-primary btn-md">Get Unique Pincode</a> 
+                                    <div class="col-md-12 col-md-offset-4">
+                                        <input type= "submit"  class="btn btn-danger btn-md" value ="Upload" >
+                                        <a href="<?php echo base_url()?>employee/vendor/download_unique_pincode_excel" class="btn btn-primary btn-md">Get Unique Pincode</a> 
                                             
-                                        </center>
                                     </div>
                                 </div>
                                 <div class="info_text"><p class="alert alert-danger"><i class="fa fa-info-circle" aria-hidden="true"></i>  Zipped CSV file Must Be name as  <strong>vendor_pincode_mapping.csv</strong></p></div>
                             </div>
                             
                             <div class='col-md-6'>
-                                <div class="col-md-6">
-                                    Total Pincode&nbsp;:&nbsp;&nbsp;<b><?php echo $total_pincode?></b>
+<!--                                <div class="col-md-12">
+                                    Total Pincode&nbsp;:&nbsp;&nbsp;<b><?php //echo $total_pincode?></b>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <table class="table table-bordered table-hover table-responsive">
                                         <tbody>
                                             <tr>
                                                 <td><strong>Uploaded By</strong></td>
-                                                <td><?php if(!empty($pincode_mapping_file_list)){echo $pincode_mapping_file_list[0]['agent_name'];} ?></td>
+                                                <td><?php //if(!empty($pincode_mapping_file_list)){echo $pincode_mapping_file_list[0]['agent_name'];} ?></td>
                                             </tr>
                                             <tr>
                                                 <td><strong>Upload Date</strong></td>
-                                                <td><?php if(!empty($pincode_mapping_file_list)){echo date('d-m-Y',  strtotime($pincode_mapping_file_list[0]['upload_date']));} ?></td>
+                                                <td><?php //if(!empty($pincode_mapping_file_list)){echo date('d-m-Y',  strtotime($pincode_mapping_file_list[0]['upload_date']));} ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
-                                <br><br>
+                                <br><br>-->
                                 <div class='col-md-12'>
                                     <b><i>Last Pincode Added</i></b>
+                                    <div class="pull-right">Total Pincode&nbsp;:&nbsp;&nbsp;<b><?php echo $total_pincode?></b></div>
                                 </div><hr>
                                 <div class="col-md-12">
                                     <table class='table table-condensed table-bordered'>
@@ -116,9 +118,9 @@
                             </div>
                         </form>
                     
-                    <div class="col-xs-12 file_upload_history">
+                    <div class="col-md-12" style="margin-top:20px;">
                         <h3>File Upload History</h3>
-                        <table class="table table-bordered table-hover table-responsive">
+                        <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
                             <thead>
                                 <tr>
                                     <th>S.No.</th>
@@ -128,14 +130,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php  $sn = 1; foreach($pincode_mapping_file_list as $value) { ?>
-                                <tr>
-                                    <td><?php echo $sn; ?></td>
-                                    <td><a href="<?php echo base_url()?>employee/vendor/download_pincode_latest_file/<?php echo $value['file_name']; ?>"><div class="btn btn-success btn-sm">Download</div></a></td>
-                                    <td><?php echo $value['agent_name']; ?></td>
-                                    <td><?php echo date('d-m-Y',  strtotime($value['upload_date'])); ?></td>
-                                </tr>
-                                <?php  $sn++;}?>
                             </tbody>
                         </table>
                     </div>
@@ -144,6 +138,33 @@
         </div>
     </div>
 </div>
+<script>
+    var table;
+
+        $(document).ready(function () {
+
+            //datatables
+            table = $('#datatable1').DataTable({
+                processing: true, //Feature control the processing indicator.
+                serverSide: true, //Feature control DataTables' server-side processing mode.
+                order: [], //Initial no order.
+                pageLength: 5,
+                // Load data for the table's content from an Ajax source
+                ajax: {
+                    url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+                    type: "POST",
+                    data: {file_type: '<?php echo _247AROUND_VENDOR_PINCODE; ?>'}
+                },
+                //Set column definition initialisation properties.
+                columnDefs: [
+                    {
+                        "targets": [0,1,2,3], //first column / numbering column
+                        "orderable": false //set not orderable
+                    }
+                ]
+            });
+        });
+</script>
 <?php $this->session->unset_userdata('file_error'); ?>
 <?php $this->session->unset_userdata('success_msg'); ?>
 
