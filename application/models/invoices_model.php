@@ -879,7 +879,7 @@ class invoices_model extends CI_Model {
             $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date_tmp, "distinct" );
             if (!empty($upcountry_data)) {
                 $up_country = array();
-                $up_country[0]['description'] = 'Upcountry Charge';
+                $up_country[0]['description'] = 'Upcountry Charges';
                 $up_country[0]['hsn_code'] = '';
                 $up_country[0]['qty'] = '';
                 $up_country[0]['rate'] = '';
