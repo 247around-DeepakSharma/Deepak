@@ -129,9 +129,9 @@
          <td><?php echo round($sum_tds,0); ?></td>
          <td></td>
          <td></td>
-         <td></td>
          <td><?php echo round($pay_by_247,0); ?></td>
          <td><?php echo round($pay_by_partner,0); ?></td>
+         <td></td>
          <td id="final_amount_selected"></td>
          <td><input type="submit" class="form-control btn btn-sm btn-primary" value="Pay"></td>
           <td> </td>
