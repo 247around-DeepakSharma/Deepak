@@ -32,7 +32,7 @@
                <b> Upload Delivered Products for paytm Excel</b>
             </h1>
             
-            <form class="form-horizontal" action="<?php echo base_url()?>employee/bookings_excel/upload_booking_for_paytm" method="POST" enctype="multipart/form-data">
+            <form class="form-horizontal" id="fileinfo" onsubmit="return submitForm();" name="file"  method="POST" enctype="multipart/form-data">
                 <div class="form-group  <?php if( form_error('excel') ) { echo 'has-error';} ?>">
                   <label for="excel" class="col-md-1">Delivered Products For Paytm</label>
                   <div class="col-md-4">
@@ -69,6 +69,29 @@
 //$("input").tagsinput('services');
 </script>
 <script type="text/javascript">
+
+function submitForm() {
+
+  var fd = new FormData(document.getElementById("fileinfo"));
+  fd.append("label", "WEBUPLOAD");
+  $.ajax({
+      url: "<?php echo base_url()?>employee/bookings_excel/upload_booking_for_paytm",
+      type: "POST",
+      data: fd,
+      processData: false,  // tell jQuery not to process the data
+      contentType: false   // tell jQuery not to set contentType
+  }).done(function( data ) {
+     //console.log(data);
+    alert(data);
+    //location.reload();
+
+  });
+    alert('File upload will continue in the background...');
+    //return false;
+  //window.open('<?php //echo base_url(); ?>employee/user');
+}
+
+
 
         var table;
 
