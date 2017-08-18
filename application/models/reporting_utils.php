@@ -1724,11 +1724,11 @@ class Reporting_utils extends CI_Model {
     function get_partners_booking_unit_report_chart_data($startDate,$endDate,$bookingStatus) {
         $where="";
         if($bookingStatus == 'ALL'){
-            $where .= "bu.create_date >=". "'$startDate'" . " AND bu.create_date <=" ."'$endDate'";
+            $where .= "bu.create_date >=". "'$startDate'" . " AND bu.create_date <=" ."'$endDate' AND p.is_active= '1' ";
         }else if($bookingStatus == 'Completed' || $bookingStatus == 'Cancelled'){
-            $where .= "bu.booking_status = '$bookingStatus' AND bu.ud_closed_date >=". "'$startDate'" . " AND bu.ud_closed_date <=" ."'$endDate'";
+            $where .= "bu.booking_status = '$bookingStatus' AND bu.ud_closed_date >=". "'$startDate'" . " AND bu.ud_closed_date <=" ."'$endDate' AND p.is_active= '1' ";
         }else if ( $bookingStatus == 'Pending' ){
-            $where .= "bu.booking_status = '$bookingStatus' AND bu.create_date >=". "'$startDate'" . " AND bu.create_date <=" ."'$endDate'";
+            $where .= "bu.booking_status = '$bookingStatus' AND bu.create_date >=". "'$startDate'" . " AND bu.create_date <=" ."'$endDate' AND p.is_active= '1' ";
         }
 
         $this->db->select('bu.partner_id,p.public_name,count(*) as count');

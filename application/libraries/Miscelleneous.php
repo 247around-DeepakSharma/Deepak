@@ -700,8 +700,8 @@ class Miscelleneous {
         }else{
             $to = DEVELOPER_EMAIL;
             $subject = "Stag01 Server Might Be Down";
-            $msg = "There are some issue while creating pdf from stag01 server. Please check the issue and fix it immediately";
-            $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $msg, "");
+            $msg = "There are some issue while creating pdf for booking_id/invoice_id $id from stag01 server. Check the issue and fix it immediately";
+            $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $msg, $output_file_excel);
             return $result;
         }
         
