@@ -1344,5 +1344,4 @@ class Buyback_process extends CI_Controller {
         
         $this->load->view('buyback/show_bb_charges', $cp);
     }
-        
 }

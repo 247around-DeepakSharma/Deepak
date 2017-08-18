@@ -285,7 +285,8 @@ class dashboard_model extends CI_Model {
                     SUM(IF(current_status ='Cancelled' && closed_date >= '$startDate' && closed_date <= '$endDate' , 1, 0)) AS Cancelled,
                 public_name,booking_details.partner_id
                 FROM booking_details 
-                JOIN partners ON booking_details.partner_id = partners.id 
+                JOIN partners ON booking_details.partner_id = partners.id
+                WHERE partners.is_active = '1'
                 GROUP BY booking_details.partner_id";
         $query = $this->db->query($sql);
         $data = $query->result_array();
