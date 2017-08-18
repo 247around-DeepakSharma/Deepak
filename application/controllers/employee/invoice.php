@@ -1104,7 +1104,7 @@ class Invoice extends CI_Controller {
                         $up_b = explode(",", $up_booking_details['booking_id']);
                         for($i=0; $i < count($up_b); $i++){
 
-                            $this->booking_model->update_booking(trim($up_b[$i]), array('upcountry_partner_invoice_id' => $invoice_data['meta']['invoice_id']));
+                            $this->booking_model->update_booking(trim($up_b[$i]), array('upcountry_vendor_invoice_id' => $invoice_data['meta']['invoice_id']));
                         }
 
                     }

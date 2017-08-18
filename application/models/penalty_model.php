@@ -393,7 +393,7 @@ class Penalty_model extends CI_Model {
                 AND closed_date < '".$to_date."'
                 AND service_center_id = '".$vendor_id."'
                 AND booking_unit_details.booking_id = booking_details.booking_id
-                AND (vendor_foc_invoice_id IS NULL && vendor_cash_invoice_id IS NULL)
+                AND vendor_foc_invoice_id IS NOT NULL
                 AND booking_details.booking_id = p.booking_id $where
                 GROUP BY p.booking_id, criteria_id";           
             

@@ -3042,7 +3042,7 @@ class Partner extends CI_Controller {
                 
                 //send email
                 $to = $partner['primary_contact_email'];
-                $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com';
+                $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com, abhaya@247around.com';
                 $subject = "Defective Parts Acknowledge Report";
                 
                 $message = "Dear Partner,<br/><br/>";
@@ -3104,7 +3104,7 @@ class Partner extends CI_Controller {
                 
                 //send email
                 $to = $partner['primary_contact_email'];
-                $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com';
+                $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com, abhaya@247around.com';
                 $subject = "Auto Acknowledge Defective Parts Report";
                 
                 $message = "Dear Partner,<br/><br/>";
