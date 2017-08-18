@@ -14,6 +14,7 @@ var shop_list_details = [];
     <div class="row" ng-controller="advancedSearchController">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel" style="height: auto;">
+                <form method="post" action="<?php echo base_url();?>buyback/buyback_process/download_order_snapshot">
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_title">
                         <h2>
@@ -21,7 +22,7 @@ var shop_list_details = [];
                           
                         </h2>
                         <ul class="nav navbar-right panel_toolbox">
-                            <li>  <button class="btn btn-primary" onclick="download_excel()" >Download Orders List</button></li>
+                            <li>  <input type="submit" class="btn btn-primary" value="Download Orders List" ></li>
                         </ul>
                         <div class="clearfix"></div>
                         
@@ -37,9 +38,10 @@ var shop_list_details = [];
                                         <td style="width: 22%;"><input type="text" placeholder="Delivery Date" class="form-control" id="delivery_date" name="delivery_date"/></td>
                                         <td style="width: 22%;">
                                             <select style="width:100%"  name="city" ui-select2 id="city"  class="form-control data_change" ng-model="tempData.city"
-                                                ng-options="option.district as option.district for option in city_list" 
+                                                
                                                 data-placeholder="Select City">
                                                 <option value="" disabled="" ng-show="false"></option>
+                                                <option ng-repeat="y in city_list" value="{{y.district}}">{{y.district}}</option>
                                                 
                                             </select>
                                         </td>
@@ -64,16 +66,17 @@ var shop_list_details = [];
                                         <td>
                                             <select style="width:100%"  name="current_status" ui-select2  id="current_status" class="form-control data_change" 
                                                 ng-model="tempData.current_status" 
-                                                ng-options="option1.current_status as option1.current_status for option1 in current_status_list" 
                                                 data-placeholder="Select Status1">
                                             <option value="" disabled="" ng-show="false"></option>
+                                            <option ng-repeat="y in current_status_list" value="{{y.current_status}}">{{y.current_status}}</option>
                                         </td>
                                         <td>
                                             <select style="width:100%"  name="internal_status" ui-select2  id="internal_status" class="form-control data_change" 
                                                 ng-model="tempData.internal_status" 
-                                                ng-options="option2.internal_status as option2.internal_status for option2 in internal_status_list" 
+                                               
                                                 data-placeholder="Select Status2">
                                             <option value="" disabled="" ng-show="false"></option>
+                                            <option ng-repeat="y in internal_status_list" value="{{y.internal_status}}">{{y.internal_status}}</option>
                                         </td>
                                     </tr>
                                 </thead>
@@ -81,6 +84,7 @@ var shop_list_details = [];
                                 </tbody>
                             </table>
                         </div>
+                       
                         <form action="#" method="POST" id="reAssignForm" name="reAssignForm">
                             <table id="datatable1" class="table table-striped table-bordered">
                                 <thead>
@@ -108,6 +112,7 @@ var shop_list_details = [];
                     </div>
                    
                 </div>
+            </form>
             </div>
         </div>
     </div>
@@ -145,6 +150,7 @@ var shop_list_details = [];
     var ad_table;
    
     $(document).ready(function () {
+        
         $('input[name="order_date"]').daterangepicker({
             locale: {
                 format: 'YYYY/MM/DD',
@@ -232,6 +238,7 @@ var shop_list_details = [];
             ],
             "fnInitComplete": function (oSettings, response) {
                //$("#count_total_order").text(response.recordsTotal);
+               $('input[type="search"]').attr("name", "search_value");
                create_dropdown();
                
             }
@@ -271,14 +278,14 @@ var shop_list_details = [];
     }
     
     function download_excel(){
-        var data_type = 'data:application/vnd.ms-excel';
-        var table_div = document.getElementById('datatable1');
-        var table_html = table_div.outerHTML.replace(/ /g, '%20');
-
-        var a = document.createElement('a');
-        a.href = data_type + ', ' + table_html;
-        a.download =   '<?php echo date("d-m-Y");?>-searchedData.xls';
-        a.click();
+//        var data_type = 'data:application/vnd.ms-excel';
+//        var table_div = document.getElementById('datatable1');
+//        var table_html = table_div.outerHTML.replace(/ /g, '%20');
+//
+//        var a = document.createElement('a');
+//        a.href = data_type + ', ' + table_html;
+//        a.download =   '<?php //echo date("d-m-Y");?>-searchedData.xls';
+//        a.click();
     }
     
      
