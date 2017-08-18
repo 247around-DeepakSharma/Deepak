@@ -544,7 +544,7 @@
          $.ajax({
             type: 'POST',
             url: url,
-            data: {sDate: startDate, eDate: endDate, current_status: $("#booking_status").val()},
+            data: {sDate: startDate, eDate: endDate},
             success: function (response) {
                 $('#loader_gif_unit').attr('src', "");
                 $('#loader_gif_unit').css('display', 'none');
@@ -599,7 +599,7 @@
                     },
                     series: [
                         {
-                            name: $("#booking_status").val(),
+                            name: 'Completed',
                             data: data['data']
                         }]
                 });

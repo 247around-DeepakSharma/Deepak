@@ -401,8 +401,8 @@ class bookings_excel extends CI_Controller {
             $this->session->set_userdata($userSession);
             redirect(base_url() . "employee/bookings_excel/upload_delivered_products_for_paytm_excel");
         }else{
-            $to = NITS_ANUJ_EMAIL_ID;
-            $cc = "abhaya@247around.com";
+            $to = NITS_ANUJ_EMAIL_ID.', sales@247around.com';
+            $cc = "abhaya@247around.com,sachinj@247around.com";
             $subject = "Paytm File is uploaded by " . $this->session->userdata('employee_id');
             $message = "Paytm File Uploaded Successfully <br/><br/>";
             $message .= "Total Booking Inserted = $total_bookings";
@@ -656,8 +656,8 @@ class bookings_excel extends CI_Controller {
         if ($error) {
             $message .= " Please check and upload again.";
             $this->Columfailed .= " column does not exist.";
-            $to = NITS_ANUJ_EMAIL_ID;
-            $cc = "abhaya@247around.com";
+            $to = NITS_ANUJ_EMAIL_ID.', sales@247around.com';
+            $cc = "abhaya@247around.com,sachinj@247around.com";
             $subject = "Failure! Paytm File is uploaded by " . $this->session->userdata('employee_id');
             $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
             return false;
@@ -665,5 +665,5 @@ class bookings_excel extends CI_Controller {
             return true;
         }
     }
-
+    
 }
