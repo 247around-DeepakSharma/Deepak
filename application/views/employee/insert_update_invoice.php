@@ -125,7 +125,7 @@
                                 <div class="col-md-6">
                                     <input type="text" class="form-control"  name="gst_rate" value = "<?php if (isset($invoice_details[0]['parts_cost'])) {
                                         echo $invoice_details[0]['cgst_tax_rate'] + $invoice_details[0]['sgst_tax_rate'] + $invoice_details[0]['igst_tax_rate'];
-                                        } ?>" placeholder="GST Rate" >
+                                        } ?>" placeholder="GST Rate" required >
                                 </div>
                                  <?php echo form_error('gst_rate'); ?>
                             </div>

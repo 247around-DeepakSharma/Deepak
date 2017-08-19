@@ -2116,7 +2116,7 @@ class Invoice extends CI_Controller {
                
             } else {
                 
-                 $entity_details = $this->partner_model->getpartner_details($data['vendor_partner_id']);
+                 $entity_details = $this->partner_model->getpartner_details("state",array('partners.id' => $data['vendor_partner_id']));
             }
             $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
             if($c_s_gst){
