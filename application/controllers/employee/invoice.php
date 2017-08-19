@@ -346,7 +346,7 @@ class Invoice extends CI_Controller {
                 } else {
                     //partner Pay to 247Around
                     if ($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Credit' && $data[0]['tds_amount'] == 0) {
-                        $per_tds = ($tds_amount_array[$key] * 100) / $data[0]['amount_collected_paid'];
+                        $per_tds = ($tds_amount_array[$key] * 100) / $data[0]['total_service_charge'];
                         $vp_details['tds_amount'] = $tds_amount_array[$key];
                         $vp_details['tds_rate'] = $per_tds;
                         $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
@@ -2116,7 +2116,7 @@ class Invoice extends CI_Controller {
                
             } else {
                 
-                 $entity_details = $this->partner_model->getpartner_details($data['vendor_partner_id']);
+                 $entity_details = $this->partner_model->getpartner_details("state",array('partners.id' => $data['vendor_partner_id']));
             }
             $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
             if($c_s_gst){
@@ -2149,7 +2149,7 @@ class Invoice extends CI_Controller {
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;
                         }
-                    } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand') {
+                    } else if ($data['type'] == 'CreditNote' || $data['type'] == 'Buyback' || $data['type'] == 'Stand' || $data['type'] == "Parts") {
 
                         $tds['tds'] = 0;
                         $tds['tds_rate'] = 0;
@@ -2201,7 +2201,7 @@ class Invoice extends CI_Controller {
 
             if ($is_s3) {
                 log_message('info', __FUNCTION__ . " Main Invoice upload");
-                $data['invoice_file_main'] = $data['invoice_id'] . "." . $extension;
+                $data['invoice_file_main'] = $invoice_id . "." . $extension;
                
             } else {
                 log_message('info', __FUNCTION__ . " Main Invoice upload failed");
@@ -2232,7 +2232,7 @@ class Invoice extends CI_Controller {
 
             if ($is_s3) {
                 log_message('info', __FUNCTION__ . " Main Excel Invoice upload");
-                $data['invoice_file_excel'] = $data['invoice_id'] . "." . $extension1;
+                $data['invoice_file_excel'] = $invoice_id . "." . $extension1;
             } else {
                 log_message('info', __FUNCTION__ . " Main Excel Invoice upload failed");
             }
