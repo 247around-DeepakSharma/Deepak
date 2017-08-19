@@ -139,7 +139,24 @@ class Buyback_process extends CI_Controller {
     function advanced_bb_search(){
        // log_message("info",__METHOD__.json_encode($_POST, TRUE));
         
-        $post = $this->get_bb_post_view_data();
+        $post1 = $this->get_bb_post_view_data();
+        $post = $this->_advanced_bb_search($post1);
+        $list = $this->bb_model->get_bb_order_list($post);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->search_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+                );
+    }
+    
+    function _advanced_bb_search($post){
         $date_range = $this->input->post("date_range");
         $delivery_date = $this->input->post("delivery_date");
         $city = $this->input->post("city");
@@ -179,19 +196,8 @@ class Buyback_process extends CI_Controller {
         $post['where_in'] = array();
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
-        $list = $this->bb_model->get_bb_order_list($post);
-        $data = array();
-        $no = $post['start'];
-        foreach ($list as $order_list) {
-            $no++;
-            $row =  $this->search_table_data($order_list, $no);
-            $data[] = $row;
-        }
         
-        return array(
-                'data' => $data,
-                'post' => $post
-                );
+        return $post;
     }
     
     function process_delivered(){
@@ -1344,4 +1350,58 @@ class Buyback_process extends CI_Controller {
         
         $this->load->view('buyback/show_bb_charges', $cp);
     }
+    
+    function download_order_snapshot() {
+
+        $post = $this->get_bb_post_view_data();
+
+        $post['length'] = -1;
+        $post['search_value'] = $this->input->post('search_value');
+        $post['order'] = "";
+        $select = "partner_order_id, services, city, order_date, delivery_date, current_status, internal_status, partner_basic_charge, cp_basic_charge";
+        $post1 = $this->_advanced_bb_search($post, $select);
+
+        $list = $this->bb_model->get_bb_order_list($post1);
+        $list1 = json_decode(json_encode($list, true), true);
+        $template = "BuybackOrderSnapshot.xlsx";
+        $templateDir = __DIR__ . "/../excel-templates/";
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        $R = new PHPReport($config);
+
+        $R->load(array(
+            array(
+                'id' => 'order',
+                'repeat' => true,
+                'data' => $list1
+            ),
+                )
+        );
+        $output_file_excel = TMP_FOLDER . "BuybackOrderSnaphot.xlsx";
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
+
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+        $R->render('excel', $output_file_excel);
+        if (file_exists($output_file_excel)) {
+            system(" chmod 777 " . $output_file_excel, $res1);
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="BuybackOrderSnaphot.xlsx"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($output_file_excel));
+            readfile($output_file_excel);
+            exec("rm -rf " . escapeshellarg($output_file_excel));
+            exit;
+        }
+    }
+
 }
