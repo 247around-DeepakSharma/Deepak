@@ -3016,7 +3016,7 @@ class Partner extends CI_Controller {
      * 
      */
     function get_defective_parts_acknowledge_reminder_data() {
-        log_message('info', __FUNCTION__ . ' => Defctive Parts Acknowledge Reminder By Cron');
+        log_message('info', __FUNCTION__ . ' => Defective Parts Acknowledge Reminder By Cron');
 
         $where_get_partner = array('partners.is_active' => '1');
         $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name";
@@ -3024,6 +3024,7 @@ class Partner extends CI_Controller {
         $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         foreach ($partners as $partner) {
 
+            //fetch spare parts sent 7 days or more ago
             $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.partner_id' => $partner['id'], 
                            'DATEDIFF(defective_part_shipped_date,now()) <= -7' => null,
@@ -3043,10 +3044,10 @@ class Partner extends CI_Controller {
                 //send email
                 $to = $partner['primary_contact_email'];
                 $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com, abhaya@247around.com';
-                $subject = "Defective Parts Acknowledge Report";
+                $subject = "Defective Spares Yet to be Acknowledged";
                 
                 $message = "Dear Partner,<br/><br/>";
-                $message .= "Defective parts for below bookings have been shipped by 247around "
+                $message .= "Defective spare parts for below bookings have been shipped by 247around "
                         . "Service Centre but Delivery has not been acknowledged by your team till now: <br><br>";
                 $message .= "$html_table <br><br>";
                 $message .= "Please confirm / reject the delivery of these defective parts. "
@@ -3056,9 +3057,9 @@ class Partner extends CI_Controller {
                 $sendmail = $this->notify->sendEmail('booking@247around.com', $to, $cc, "", $subject, $message, "");
 
                 if ($sendmail){
-                    log_message('info', __FUNCTION__ . 'Report Mail has been send to partner '.$partner['public_name'].' successfully');
+                    log_message('info', __FUNCTION__ . 'Defective Spares Yet to be Acknowledged Mail has been sent to partner '.$partner['public_name'].' successfully');
                 } else {
-                    log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner '.$partner['public_name']);
+                    log_message('info', __FUNCTION__ . 'Error in Sending Defective Spares Yet to be Acknowledged Mail to partner '.$partner['public_name']);
                 }
             }
         }
@@ -3105,12 +3106,12 @@ class Partner extends CI_Controller {
                 //send email
                 $to = $partner['primary_contact_email'];
                 $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com, abhaya@247around.com';
-                $subject = "Auto Acknowledge Defective Parts Report";
+                $subject = "Defective Spares Auto Acknowledged";
                 
                 $message = "Dear Partner,<br/><br/>";
-                $message .= "Below are the bookings which are auto acknowledge by 247around as per the earlier mail: <br><br>";
+                $message .= "Below are the bookings which are auto acknowledged by 247around as per the earlier mail: <br><br>";
                 $message .= "$html_table <br><br>";
-                $message .= "If you have any issue regarding this then please contact us.<br><br>";
+                $message .= "If you have any issues regarding this, please contact us.<br><br>";
                 $message .= "Thanks. <br> 247around Team";
                 
                 $sendmail = $this->notify->sendEmail('booking@247around.com', $to, $cc, "", $subject, $message, "");
