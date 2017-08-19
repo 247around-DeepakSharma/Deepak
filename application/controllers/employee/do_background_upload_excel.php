@@ -120,7 +120,7 @@ class Do_background_upload_excel extends CI_Controller {
 	//  Get worksheet dimensions
 	$sheet = $objPHPExcel->getSheet(0);
 	$highestRow = $sheet->getHighestRow();
-	$highestColumn = $sheet->getHighestColumn();
+	$highestColumn = $sheet->getHighestDataColumn();
         
         //Validation for Empty File
         if($highestRow <=1){
