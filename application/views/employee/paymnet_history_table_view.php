@@ -66,7 +66,7 @@
                             <td><?php echo round($value['igst_tax_amount'],0); ?></td>
                             <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
                             <td><?php if($value['parts_cost'] != 0) { echo round(($value['vat']*100)/$value['parts_cost'],0); } ?></td>
-                             <td><?php echo round($value['total_amount_collected'] + $value['tds_amount'],0); $grand_total_amount_collected += ($value['total_amount_collected'] + $value['tds_amount']);?></td>
+                             <td><?php echo round($value['total_amount_collected'] - $value['tds_amount'],0); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
                         </tr>
                         <?php $sn++;
                     }
