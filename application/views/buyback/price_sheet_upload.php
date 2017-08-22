@@ -100,7 +100,7 @@
                                             <input type="file" file-model="myFile" id="order_details_file" required="required" class="form-control col-md-7 col-xs-12">
                                         </div>
 
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-md-6 col-sm-6 col-xs-12" ng-cloak="">
                                             <div class="spinner" ng-if="ShowSpinnerStatus">
                                                 <div class="rect1" style="background-color:#db3236"></div>
                                                 <div class="rect2" style="background-color:#4885ed"></div>

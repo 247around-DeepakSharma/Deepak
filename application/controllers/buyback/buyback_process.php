@@ -84,17 +84,35 @@ class Buyback_process extends CI_Controller {
                 break;
             
              case 8:
-                $data = $this->process_30_days_tat_breech_claim_submitted();
+                $data = $this->process_30_days_tat_breech_claimed_data(CLAIM_SUBMITTED);
                 break;
             
              case 9:
-                $data = $this->process_30_days_tat_breech_claim_settled();
+                $data = $this->process_30_days_tat_breech_claimed_data(CLAIM_SETTLED);
                 break;
              case 10:
                 $data = $this->advanced_bb_search();
                 break;
             case 11:
                 $data = $this->get_vendor_rejected_data();
+                break;
+            case 12:
+                $data = $this->get_vendor_rejected_order_claimed_data(CLAIM_SUBMITTED);
+                break;
+            case 13:
+                $data = $this->get_vendor_rejected_order_claimed_data(CLAIM_APPROVED);
+                break;
+            case 14:
+                $data = $this->get_vendor_rejected_order_claimed_data(CLAIM_REJECTED);
+                break;
+            case 15:
+                $data = $this->get_vendor_rejected_order_claimed_data(CLAIM_SETTLED);
+                break;
+            case 16:
+                $data = $this->process_30_days_tat_breech_claimed_data(CLAIM_APPROVED);
+                break;
+            case 17:
+                $data = $this->process_30_days_tat_breech_claimed_data(CLAIM_REJECTED);
                 break;
         }
         
@@ -194,8 +212,8 @@ class Buyback_process extends CI_Controller {
         }
         
         $post['where_in'] = array();
-        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $post['column_order'] = array( NULL, NULL,'services','category', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','category','services', 'city','order_date','current_status');
         
         return $post;
     }
@@ -406,14 +424,35 @@ class Buyback_process extends CI_Controller {
                 );
     }
     
-    function process_30_days_tat_breech_claim_submitted(){
+    function process_30_days_tat_breech_claimed_data($claimed_type){
         log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
-       
-        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
-            'internal_status' => array(CLAIM_SUBMITTED));
+        
+        switch ($claimed_type){
+            case CLAIM_SUBMITTED:
+                $post['where_in'] = array('current_status' => array(CLAIM_SUBMITTED),
+                                          'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH));
+                $post['where'] = array();
+                break;
+            case CLAIM_APPROVED:
+                $post['where_in'] = array('current_status' => array(CLAIM_APPROVED),
+                    'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH));
+                $post['where'] = array();
+                break;
+            case CLAIM_REJECTED:
+                $post['where_in'] = array('current_status' => array(CLAIM_REJECTED),
+                    'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH));
+                $post['where'] = array();
+                break;
+            case CLAIM_SETTLED:
+                $post['where_in'] = array('current_status' => array(CLAIM_SETTLED),
+                    'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH));
+                $post['where'] = array();
+                break;
+                
+        }
+    
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['where'] = array();
         $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         
@@ -1053,6 +1092,7 @@ class Buyback_process extends CI_Controller {
                 $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
 
         $row[] = $order_list->services;
+        $row[] = $order_list->category;
         $row[] = $order_list->city;
         $row[] = $order_list->order_date;
         $row[] = $order_list->delivery_date;
@@ -1358,7 +1398,7 @@ class Buyback_process extends CI_Controller {
         $post['length'] = -1;
         $post['search_value'] = $this->input->post('search_value');
         $post['order'] = "";
-        $select = "partner_order_id, services, city, order_date, delivery_date, current_status, internal_status, partner_basic_charge, cp_basic_charge";
+        $select = "partner_order_id, services, category,city, order_date, delivery_date, current_status, internal_status, partner_basic_charge, cp_basic_charge";
         $post1 = $this->_advanced_bb_search($post, $select);
 
         $list = $this->bb_model->get_bb_order_list($post1);
@@ -1402,6 +1442,185 @@ class Buyback_process extends CI_Controller {
             exec("rm -rf " . escapeshellarg($output_file_excel));
             exit;
         }
+    }
+    
+    
+    /**
+     * @desc This function is used to show the view for tagging/untagging buyback orders
+     * @param void()
+     * @return void()
+     */
+    function tag_untag_bb_orders(){
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/tag_untag_bb_orders');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    
+    /**
+     * @desc This function is used to process the tagging untagging buyback orders
+     * @param void()
+     * @return json
+     */
+    function process_tagging_untagging_bb_orders() {
+        if (!empty($this->input->post('data'))) {
+            $action_type = $this->input->post('data')['action_type'];
+            $tag_untag_type = $this->input->post('data')['tag_untag_type'];
+            $order_id = explode(PHP_EOL, $this->input->post('data')['order_id']);
+
+            if (!empty($tag_untag_type) && !empty($order_id) && !empty($action_type)) {
+                switch ($action_type) {
+                    case 'tag':
+                        $res = $this->tag_bb_order_id($tag_untag_type, $order_id);
+                        break;
+                    case 'untag':
+                        $res = '';
+                }
+                
+                if($res['flag']){
+                    $data['status'] = 'OK';
+                    $data['msg'] = 'Order Details Has Been Updated Successfully';
+                }else{
+                    $data['status'] = 'ERR';
+                    $data['msg'] = "Error In Updating Following Order Id's ".implode(',', $res['not_updated_order_id']);
+                }
+                
+            } else {
+                $data['status'] = 'ERR';
+                $data['msg'] = 'Please Select All Field';
+            }
+        } else {
+            $data['status'] = 'ERR';
+            $data['msg'] = 'Invalid Request';
+        }
+        echo json_encode($data);
+    }
+
+    /**
+     * @desc This function is used to process the tagging buyback orders
+     * @param void()
+     * @return $return_data array()
+     */
+    private function tag_bb_order_id($tag_untag_type,$order_id){
+        
+        //initialize variables
+        $flag = FALSE;
+        $order_details = [];
+        $cp_action_details = []; 
+        $not_updated_order_id = [];
+        
+        //process the tagging
+        switch ($tag_untag_type){
+            case 'claimed_submitted_not_delivered':
+                //order details status
+                    $order_details['current_status'] = CLAIM_SUBMITTED;
+                    $order_details['internal_status'] = _247AROUND_BB_TAG_CLAIMED_SUBMITTED_NOT_DELIVERED;
+                break;
+            case 'claimed_submitted_broken':
+                //order details status
+                    $order_details['current_status'] = CLAIM_SUBMITTED;
+                    $order_details['internal_status'] = _247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN;
+                break;
+            case 'claimed_submitted_tat_breach':
+                //order details status
+                    $order_details['current_status'] = CLAIM_SUBMITTED;
+                    $order_details['internal_status'] = _247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH;
+                    
+                    //cp_action status
+                    $cp_action_details['current_status'] = _247AROUND_BB_NOT_DELIVERED;
+                    $cp_action_details['internal_status'] = _247AROUND_BB_247APPROVED_STATUS;
+                break;
+            case 'claimed_approved_by_amazon':
+                //order details status
+                    $order_details['current_status'] = CLAIM_APPROVED;
+                break;
+            case 'claimed_rejected_by_amazon':
+                //order details status
+                    $order_details['current_status'] = CLAIM_REJECTED;
+                break;
+            case 'claimed_settled_by_amazon':
+                //order details status
+                    $order_details['current_status'] = CLAIM_SETTLED;
+                break;
+        }
+        
+        foreach($order_id as $val){
+            $partner_order_id = trim($val);
+            //update order details table
+            if(!empty($order_details)){
+                $update_id = $this->bb_model->update_bb_order_details(array('partner_order_id' => $partner_order_id), $order_details);
+                if(!empty($update_id)){
+                    if(!empty($cp_action_details)){
+                        $update_cp_order_action = $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $partner_order_id), $cp_action_details);
+                        log_message('info','CP Order Action Updated For Order Id = '.$update_cp_order_action);
+                    }
+                    
+                    $this->buyback->insert_bb_state_change($partner_order_id, $order_details['current_status'], $order_details['current_status'], $this->session->userdata('id'), _247AROUND, NULL);
+                    $flag = TRUE;
+                    }else{
+                        array_push($not_updated_order_id, $partner_order_id);
+                        $flag = FALSE;
+                    }
+            }else{
+                array_push($not_updated_order_id, $partner_order_id);
+                $flag = FALSE;
+            }
+        }
+        
+        $return_data['flag'] = $flag;
+        $return_data['not_updated_order_id'] = $not_updated_order_id;
+        return $return_data;
+    }
+    
+    /**
+     * @desc This function is used to get those rejected data for which claim submit to amazon
+     * @param void()
+     * @return array()
+     */
+    function get_vendor_rejected_order_claimed_data($claimed_type){
+        $post = $this->get_bb_post_view_data();
+        
+        switch ($claimed_type){
+            case CLAIM_SUBMITTED:
+                $post['where_in'] = array('current_status' => array(CLAIM_SUBMITTED),
+                    'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_NOT_DELIVERED,_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN));
+                $post['where'] = array();
+                break;
+            case CLAIM_APPROVED:
+                $post['where_in'] = array('current_status' => array(CLAIM_APPROVED),
+                    'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_NOT_DELIVERED,_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN));
+                $post['where'] = array();
+                break;
+            case CLAIM_REJECTED:
+                $post['where_in'] = array('current_status' => array(CLAIM_REJECTED),
+                    'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_NOT_DELIVERED,_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN));
+                $post['where'] = array();
+                break;
+            case CLAIM_SETTLED:
+                $post['where_in'] = array('current_status' => array(CLAIM_SETTLED),
+                    'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_NOT_DELIVERED,_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN));
+                $post['where'] = array();
+                break;
+                
+        }
+        
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $list = $this->bb_model->get_bb_order_list($post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->unassigned_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
     }
 
 }

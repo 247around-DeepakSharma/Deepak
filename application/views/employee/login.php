@@ -68,18 +68,30 @@
                         <img src="<?php echo base_url()?>images/logo.jpg" style="display: inline;">
                         <p style="display: inline; color: #fff;margin-left:33px;font-size: 22px; ">Welcome to  247around CRM</p>
                         <div class="tab-pane fade in active">
-                            <form class="home_form" action="<?php echo base_url(); ?>employee/login" style="margin-top:45px;" method="post" id="login_form">
-                                <div class="form-group col-md-offset-2" style="margin-bottom: 39px;">
-                                    <div class="col-sm-11">
+                            <?php
+                            if ($this->session->userdata('error')) {
+                                echo '<div class="col-sm-offset-1 col-sm-10 col-sm-offset-2 alert alert-danger alert-dismissible" role="alert">
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <strong>' . $this->session->userdata('error') . '</strong>
+                                    </div>';
+                            }
+                            ?>
+                            <form class="form-horizontal" action="<?php echo base_url(); ?>employee/login" style="margin-top:45px;" method="post" id="login_form">
+                                <div class="form-group">
+                                    <div class="col-sm-offset-1 col-sm-10 col-sm-offset-1">
                                         <div class = "input-group">
                                             <span class = "input-group-addon"><i class="fa fa-user" aria-hidden="true"></i></span>
                                             <input type = "text" class = "form-control" name="employee_id" placeholder = "User Name">
                                         </div>
                                     </div>
                                     &nbsp;<span id="errmsg"></span>
+
                                 </div>
-                                <div class="form-group col-md-offset-2">
-                                    <div class="col-sm-11">
+
+                                <div class="form-group">
+                                    <div class="col-sm-offset-1 col-sm-10 col-sm-offset-1">
                                         <div class = "input-group">
                                             <span class = "input-group-addon"><i class="fa fa-key" aria-hidden="true"></i></span>
                                             <input type = "password" class = "form-control" name="employee_password" placeholder = "Password">
@@ -87,9 +99,10 @@
                                     </div>
                                     &nbsp;<span id="errmsg1"></span>
                                 </div>
+                                <!--<a href="#" class="pull-right" style="color: #fff;margin-right: 77px;">Forgot password</a>-->
                                 <div class="form-group">
-                                    <div class="col-sm-offset-2 col-sm-9" style="margin-top: 53px; margin-bottom: 36px;">
-                                        <button type="submit" class="login_btn" style="padding: 6px 50px;">Sign in</button>
+                                    <div class="col-sm-12">
+                                        <button type="submit" class="login_btn">Sign in</button>
                                     </div>
                                 </div>
                             </form>
@@ -280,7 +293,7 @@
 </div>
 
 </div>
-
+<?php $this->session->unset_userdata('error'); ?>
 
 
 </body>
