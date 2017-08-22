@@ -51,7 +51,7 @@
                             <div class="formcontainer" ng-controller="userController">
                                 <div class=" text-center alert alert-danger none"><p></p></div>
                                 <div class="text-center alert alert-success none"><p></p></div>
-                                <form class="form-horizontal form-label-left " name="userForm" novalidate autocomplete="off">
+                                <form class="form-horizontal form-label-left " name="userForm" novalidate autocomplete="off" ng-cloak="">
                                     <div class="item form-group">
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="cp_id">Select Collection Partner <span class="required">*</span>
                                         </label>
@@ -147,7 +147,7 @@
                                         </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <select id="shop_address_city" required="required" class="optional form-control col-md-7 col-xs-12" name="shop_address_city" ng-model="tempData.shop_address_city">
-                                                <option disabled="" selected="">Enter Pincode First</option>
+                                                <option value="" selected="" disabled="">Enter Pincode First</option>
                                             </select>
                                         </div>
                                         <span class="msg" ng-if="userForm.shop_address_city.$invalid" ng-show="userForm.shop_address_city.$dirty && userForm.shop_address_city.$invalid">City is required</span>
@@ -157,7 +157,7 @@
                                         </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <select id="shop_address_region" required="required" class="optional form-control col-md-7 col-xs-12" name="shop_address_region" ng-model="tempData.shop_address_region">
-                                                <option disabled="" selected="">Select Region</option>
+                                                <option value="" selected="" disabled="">Select Region</option>
                                             </select>
                                         </div>
                                         <span class="msg" ng-if="userForm.shop_address_region.$invalid" ng-show="userForm.shop_address_region.$dirty && userForm.shop_address_region.$invalid">Region is required</span>

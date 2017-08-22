@@ -42,6 +42,11 @@
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
         <!-- sweet Alert JS -->
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+        <style>
+             [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+                display: none !important;
+            }
+        </style>
     </head>
     <body class="nav-md">
         <div class="container body">
@@ -94,6 +99,7 @@
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_review">Review Order</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/collection_partner/get_cp_shop_address">Shop Addresses</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/filter_bb_price_list">Charges List</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/tag_untag_bb_orders">Claimed Process</a></li>
                                 </ul>
                             </li>
                             <!--                        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">

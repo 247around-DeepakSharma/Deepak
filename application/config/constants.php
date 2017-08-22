@@ -403,5 +403,11 @@ define('BB_CP_ADDRESS','CP_ADDRESS');
 define('CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER','Customer not visited to service center');
 define("HSN_CODE", "998715");
 
+define('_247AROUND_BB_TAG_CLAIMED_SUBMITTED_NOT_DELIVERED', 'Not Delivered');
+define('_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN', 'Broken');
+define('_247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH', 'Tat Breach');
+define('CLAIM_APPROVED','Claim Approved');
+define('CLAIM_REJECTED','Claim Rejected');
+define('CLAIM_SETTLED','Claim Settled');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
