@@ -23,18 +23,7 @@
 
                 <div class="row x_title">
                     <div class="col-md-6">
-                        <h3>Partner Booking Status &nbsp;&nbsp;&nbsp;
-<!--                            <small>
-                                <select class="form-control" style="width:30%; display: inline-block;" id="booking_status">
-                                    <option selected>Completed</option>
-                                    <option>Cancelled</option>
-                                    <option>FollowUp</option>
-                                    <option>Pending</option>
-                                    <option>Rescheduled</option>
-                                    <option>ALL</option>
-                                </select>
-                            </small>-->
-                        </h3>
+                        <h3>Partner Booking Status &nbsp;&nbsp;&nbsp;</h3>
                     </div>
                     <div class="col-md-6">
                         <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
@@ -43,15 +32,7 @@
                         </div>
                     </div>
                 </div>
-<!--                <div class="change_chart_type" >
-                    <button id="column" class="btn btn-sm" style="margin-left: 2em; background-color:#ba68c8; color: #000;">Column</button>
-                    <button id="line" class="btn btn-sm" style="background-color:#7986cb; color: #000;">Line</button>
-                    <button id="spline" class="btn btn-sm" style="background-color:#4dd0e1; color: #000;">Spline</button>
-                    <button id="area" class="btn btn-sm" style="background-color:#4db6ac; color: #000;">Area</button>
-                    <button id="areaspline" class="btn btn-sm" style="background-color:#dce775; color: #000;">Areaspline</button>
-                    <button id="scatter" class="btn btn-sm" style="background-color:#69f0ae; color: #000;">Scatter</button>
-                    <button id="pie" class="btn btn-sm" style="background-color:#ffb74d; color: #000;">Pie</button>
-                </div>-->
+                
                 <div class="col-md-12"><center><img id="loader_gif1" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div id="chart_container" class="chart_container"></div>
@@ -62,7 +43,8 @@
         </div>
 
     </div>
-       <div class="row">
+    <br>
+    <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="dashboard_graph">
 
@@ -91,6 +73,7 @@
         </div>
 
     </div>
+    <br>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="dashboard_graph">
@@ -109,15 +92,7 @@
                         </div>
                     </div>
                 </div>
-<!--                <div class="change_chart_type" >
-                    <button id="column" class="btn btn-sm" style="margin-left: 2em; background-color:#ba68c8; color: #000;">Column</button>
-                    <button id="line" class="btn btn-sm" style="background-color:#7986cb; color: #000;">Line</button>
-                    <button id="spline" class="btn btn-sm" style="background-color:#4dd0e1; color: #000;">Spline</button>
-                    <button id="area" class="btn btn-sm" style="background-color:#4db6ac; color: #000;">Area</button>
-                    <button id="areaspline" class="btn btn-sm" style="background-color:#dce775; color: #000;">Areaspline</button>
-                    <button id="scatter" class="btn btn-sm" style="background-color:#69f0ae; color: #000;">Scatter</button>
-                    <button id="pie" class="btn btn-sm" style="background-color:#ffb74d; color: #000;">Pie</button>
-                </div>-->
+                
                 <div class="col-md-12"><center><img id="loader_gif7" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div id="inflow_chart_container" class="chart_container" style="height:600px;"></div>
@@ -126,9 +101,9 @@
                 <div class="clearfix"></div>
             </div>
         </div>
-
+        
     </div>
-    <br/>
+    <br>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="dashboard_graph">
@@ -155,7 +130,7 @@
         </div>
 
     </div>
-    <br/>
+    <br>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="dashboard_graph">
@@ -192,9 +167,37 @@
         </div>
 
     </div>
-
-    <div class="col-md-12"><center><img id="loader_gif5" src="" style="display: none;"></center></div>
+    
+    
     <div class="load_data_onScroll" style="display:none;">
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Monthly Booking Status <small>Completed</small></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="col-md-12"><center><img id="loader_gif8" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
+                    <div class="x_content">
+                        <div id="monthly_booking_chart" style="width:100%; height:400px;" ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Monthly Booking Unit Status <small>Completed</small></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="col-md-12"><center><img id="loader_gif9" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
+                    <div class="x_content">
+                        <div id="monthly_unit_booking_chart" style="width:100%; height:400px;" ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row" style="margin-top:10px;">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
@@ -1035,6 +1038,8 @@
     function load_contents() {
         if (loading == false) {
             loading = true;  //set loading flag on
+            $('#loader_gif8').css('display', 'inherit');
+            $('#loader_gif8').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
             $('#loader_gif5').css('display', 'inherit');
             $('#loader_gif5').attr('src', "<?php echo base_url(); ?>images/loadring.gif");
             $.ajax({
@@ -1052,6 +1057,32 @@
                 url: '<?php echo base_url(); ?>employee/dashboard/get_booking_data_by_region',
                 success: function (data) {
                     create_chart_based_on_bookings_state(data);
+                }
+            });
+            
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/dashboard/get_bookings_data_by_month',
+                data: {partner_id:''},
+                success: function (response) {
+                    
+                    $('#loader_gif8').attr('src', "");
+                    $('#loader_gif8').css('display', 'none');
+                    
+                    get_mothly_booking_status(response,'1');
+                }
+            });
+            
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/dashboard/get_bookings_unit_data_by_month',
+                data: {partner_id:''},
+                success: function (response) {
+                    
+                    $('#loader_gif8').attr('src', "");
+                    $('#loader_gif8').css('display', 'none');
+                    
+                    get_mothly_booking_status(response,'2');
                 }
             });
 
@@ -1252,5 +1283,54 @@
 //            });
 //        });
 //    });
+
+    function get_mothly_booking_status(response,chart_render_to){
+        
+        if(chart_render_to === '1'){
+            render_div = 'monthly_booking_chart';
+        }else{
+            render_div = 'monthly_unit_booking_chart';
+        }
+        var data = JSON.parse(response);
+        var month = data.month.split(',');
+        var completed_booking = JSON.parse("[" + data.completed_booking + "]");
+        chart = new Highcharts.Chart({
+            chart: {
+                renderTo: render_div,
+                type: 'column'
+            },
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            xAxis: {
+                categories: month
+            },
+            yAxis: {
+                title: {
+                    text: 'Count'
+                },
+                plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Completed Bookings',
+                    data: completed_booking
+                }]
+        });
+    }
         
 </script>
