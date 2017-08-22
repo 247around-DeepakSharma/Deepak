@@ -19,6 +19,7 @@
                                 <th>No.</th>
                                 <th>Order ID</th>
                                 <th>Appliance</th>
+                                <th>Category/Size</th>
                                 <th>City</th>
                                 <th>Order Date</th>
                                 <th>Delivery Date</th>
@@ -38,6 +39,7 @@
                                     <?php echo $value->partner_order_id;?></a>
                                 </td>
                                 <td><?php echo $value->services;?></td>
+                                <td><?php echo $value->category;?></td>
                                 <td><?php echo $value->city;?></td>
                                 <td><?php echo $value->order_date;?></td>
                                 <td><?php echo $value->delivery_date;?></td>
