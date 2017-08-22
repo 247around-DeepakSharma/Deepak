@@ -382,3 +382,62 @@ function notifyMe(msg) {
 
         });
     }
+    
+    
+//tag untag buyback orders
+taggingUntaggingBbOrders.controller("tagUntagController", function ($scope, $http) {
+    $scope.tempData = {};
+    $scope.buttonText = "Submit";
+    // function to insert or update user data to the database
+    $scope.processTagUntagOrderId = function (type) {
+        var data = $.param({
+            'data': $scope.tempData,
+            'type': type
+        });
+        var config = {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+            }
+        };
+        var URL = baseUrl + "/buyback/buyback_process/process_tagging_untagging_bb_orders";
+        $http.post(URL, data, config).success(function (response) {
+             //console.log(response);
+            if (response.status === 'OK') {
+                $scope.form.$setPristine();
+                $scope.tempData = {};
+                $scope.buttonText = "Submit";
+                $scope.messageSuccess(response.msg);
+
+            } else {
+                //console.log('ssss');
+                $scope.buttonText = "Submit";
+                $scope.messageError(response.msg);
+            }
+        });
+    };
+
+    // function to process tagging untagging
+    $scope.tagUntagOrderId = function () {
+        $scope.buttonText = "Processing...";
+        $scope.processTagUntagOrderId('add');
+    };
+
+    // function to display success message
+    $scope.messageSuccess = function (msg) {
+        //console.log(msg);
+        $('.alert-success > p').html(msg);
+        $('.alert-success').show();
+        $('.alert-success').delay(5000).slideUp(function () {
+            $('.alert-success > p').html('');
+        });
+    };
+
+    // function to display error message
+    $scope.messageError = function (msg) {
+        $('.alert-danger > p').html(msg);
+        $('.alert-danger').show();
+        $('.alert-danger').delay(5000).slideUp(function () {
+            $('.alert-danger > p').html('');
+        });
+    };
+});    
