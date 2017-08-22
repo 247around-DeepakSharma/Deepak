@@ -818,7 +818,7 @@
             });
             $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/dashboard/get_partner_monthly_bookings_data',
+                url: '<?php echo base_url(); ?>employee/dashboard/get_bookings_data_by_month',
                 data: {partner_id:partner_id},
                 success: function (data) {
                     create_montly_booking_chart(data);

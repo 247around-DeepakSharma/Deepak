@@ -401,9 +401,9 @@ class Dashboard extends CI_Controller {
      * @param string
      * @return array
      */
-    function get_partner_monthly_bookings_data(){
+    function get_bookings_data_by_month(){
         $partner_id = $this->input->post('partner_id');
-        $data = $this->dashboard_model->get_partner_monthly_bookings($partner_id);
+        $data = $this->dashboard_model->get_bookings_data_by_month($partner_id);
         $month = [];
         $year = [];
         $completed_booking = [];
@@ -540,6 +540,29 @@ class Dashboard extends CI_Controller {
         $json_data['completed_bookings_count'] = implode(",", $completed_bookings);
         $json_data['cancelled_bookings_count'] = implode(",", $cancelled_bookings);
 
+        echo json_encode($json_data);
+    }
+    
+    /**
+     * @desc: This function is used to get partner completed booking unit data 
+     * based on month
+     * @param void
+     * @return json
+     */
+    function get_bookings_unit_data_by_month(){
+        $partner_id = $this->input->post('partner_id');
+        $data = $this->dashboard_model->get_bookings_unit_data_by_month($partner_id);
+        $month = [];
+        $year = [];
+        $completed_booking = [];
+        foreach ($data as $key => $value){
+            $temp_str = $value['month']."(".$value['year'].")";
+            array_push($month, $temp_str);
+            array_push($year, $value['year']);
+            array_push($completed_booking, $value['completed_booking']);
+        }
+        $json_data['month'] = implode(",", $month);
+        $json_data['completed_booking'] = implode(",", $completed_booking);
         echo json_encode($json_data);
     }
 
