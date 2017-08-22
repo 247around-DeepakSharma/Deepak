@@ -16,9 +16,13 @@
                             <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
                                 <li role="presentation" class="active"><a href="#tab_content1" role="tab" id="auto-settle-tab" data-toggle="tab" aria-expanded="false">30 Days TAT Breach ( <span style="font-weight: bold;" id="tat_record">0</span> )</a>
                                 </li>
-                                <li role="presentation" class=""><a href="#tab_content2" id="claim_submitted" role="tab" data-toggle="tab" aria-expanded="true">Claim Submitted ( <span style="font-weight: bold;" id="claimed_record">0</span> )</a>
+                                <li role="presentation" class=""><a href="#tab_content2" id="claim_submitted" role="tab" data-toggle="tab" aria-expanded="false">Claim Submitted ( <span style="font-weight: bold;" id="claimed_record">0</span> )</a>
                                 </li>
-                                <li role="presentation" class=""><a href="#tab_content3" role="tab" id="cliam_settle" data-toggle="tab" aria-expanded="false">Claim Settled ( <span style="font-weight: bold;" id="claim_settle_record">0</span> )</a>
+                                <li role="presentation" class=""><a href="#tab_content3" role="tab" id="cliam_approved" data-toggle="tab" aria-expanded="false">Claim Approved ( <span style="font-weight: bold;" id="claim_approved_record">0</span> )</a>
+                                </li>
+                                <li role="presentation" class=""><a href="#tab_content4" role="tab" id="cliam_reject" data-toggle="tab" aria-expanded="false">Claim Rejected ( <span style="font-weight: bold;" id="claim_reject_record">0</span> )</a>
+                                </li>
+                                <li role="presentation" class=""><a href="#tab_content5" role="tab" id="cliam_settle" data-toggle="tab" aria-expanded="false">Claim Settled ( <span style="font-weight: bold;" id="claim_settle_record">0</span> )</a>
                                 </li>
                             </ul>
                             <div id="myTabContent" class="tab-content">
@@ -55,8 +59,40 @@
                                         <tbody>
                                     </table>
                                 </div>
-                                <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="cliam_settle"  >
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="cliam_approved"  >
                                     <table id="datatable3" class="table table-striped table-bordered" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>No.</th>
+                                                <th>Order ID</th>
+                                                <th>Services</th>
+                                                <th>City</th>
+                                                <th>Order Date</th>
+                                                <th>Status</th>
+                                                <th>Exchange Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                    </table>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="cliam_reject"  >
+                                    <table id="datatable4" class="table table-striped table-bordered" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>No.</th>
+                                                <th>Order ID</th>
+                                                <th>Services</th>
+                                                <th>City</th>
+                                                <th>Order Date</th>
+                                                <th>Status</th>
+                                                <th>Exchange Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                    </table>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="cliam_settle"  >
+                                    <table id="datatable5" class="table table-striped table-bordered" style="width: 100%;">
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
@@ -141,7 +177,61 @@
             
         });
         
-        claim_settled = $('#datatable3').DataTable({
+        claim_approved = $('#datatable3').DataTable({
+            "processing": true, //Feature control the processing indicator.
+            "serverSide": true, //Feature control DataTables' server-side processing mode.
+            "order": [], //Initial no order.
+            "pageLength": 50,
+            // Load data for the table's content from an Ajax source
+            "ajax": {
+                "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
+                "type": "POST",
+                "data": {"status": 16},
+                
+            },
+            
+            //Set column definition initialisation properties.
+            "columnDefs": [
+                {
+                    "targets": [0,1], //first column / numbering column
+                    "orderable": false, //set not orderable
+                },
+            ],
+           "fnInitComplete": function (oSettings, response) {
+            
+            $("#claim_approved_record").text(response.recordsTotal);
+          }
+            
+        });
+        
+        claim_rejected = $('#datatable4').DataTable({
+            "processing": true, //Feature control the processing indicator.
+            "serverSide": true, //Feature control DataTables' server-side processing mode.
+            "order": [], //Initial no order.
+            "pageLength": 50,
+            // Load data for the table's content from an Ajax source
+            "ajax": {
+                "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
+                "type": "POST",
+                "data": {"status": 17},
+                
+            },
+            
+            //Set column definition initialisation properties.
+            "columnDefs": [
+                {
+                    "targets": [0,1], //first column / numbering column
+                    "orderable": false, //set not orderable
+                },
+            ],
+           "fnInitComplete": function (oSettings, response) {
+            
+            $("#claim_reject_record").text(response.recordsTotal);
+          }
+            
+        });
+        
+        claim_settled = $('#datatable5').DataTable({
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
