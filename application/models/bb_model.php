@@ -10,7 +10,7 @@ class Bb_model extends CI_Model {
                                     
     var $cp_action_column_default_order = array('cp_action.id' => 'asc'); // default order 
     
-    var $bb_select = 'bb_unit_details.partner_order_id,bb_order_details.partner_id, services,city, order_date, internal_status, delivery_date, bb_order_details.current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,bb_unit_details.order_key, bb_unit_details.service_id,bb_order_details.assigned_cp_id,bb_unit_details.physical_condition,bb_unit_details.working_condition';
+    var $bb_select = 'bb_unit_details.category,bb_unit_details.partner_order_id,bb_order_details.partner_id, services,city, order_date, internal_status, delivery_date, bb_order_details.current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,bb_unit_details.order_key, bb_unit_details.service_id,bb_order_details.assigned_cp_id,bb_unit_details.physical_condition,bb_unit_details.working_condition';
 
     /**
      * @desc load both db

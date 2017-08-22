@@ -212,8 +212,8 @@ class Buyback_process extends CI_Controller {
         }
         
         $post['where_in'] = array();
-        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $post['column_order'] = array( NULL, NULL,'services','category', 'city','order_date', 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','category','services', 'city','order_date','current_status');
         
         return $post;
     }
@@ -1092,6 +1092,7 @@ class Buyback_process extends CI_Controller {
                 $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
 
         $row[] = $order_list->services;
+        $row[] = $order_list->category;
         $row[] = $order_list->city;
         $row[] = $order_list->order_date;
         $row[] = $order_list->delivery_date;
@@ -1397,7 +1398,7 @@ class Buyback_process extends CI_Controller {
         $post['length'] = -1;
         $post['search_value'] = $this->input->post('search_value');
         $post['order'] = "";
-        $select = "partner_order_id, services, city, order_date, delivery_date, current_status, internal_status, partner_basic_charge, cp_basic_charge";
+        $select = "partner_order_id, services, category,city, order_date, delivery_date, current_status, internal_status, partner_basic_charge, cp_basic_charge";
         $post1 = $this->_advanced_bb_search($post, $select);
 
         $list = $this->bb_model->get_bb_order_list($post1);
