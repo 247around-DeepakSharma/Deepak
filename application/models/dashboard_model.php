@@ -249,11 +249,16 @@ class dashboard_model extends CI_Model {
      * @param string
      * @return array
      */
-    function get_partner_monthly_bookings($partner_id){
-        $status = 'Completed';
+    function get_bookings_data_by_month($partner_id = ""){
+        
+        if(!empty($partner_id)){
+            $where = "current_status = 'Completed' AND partner_id = '$partner_id'";
+        }else{
+            $where = "current_status = 'Completed'";
+        }
         $sql = "SELECT DATE_FORMAT(closed_date, '%b') AS month,DATE_FORMAT(closed_date, '%Y') AS year, COUNT(*) as completed_booking
                 FROM booking_details
-                WHERE current_status = '$status' AND partner_id = '$partner_id'
+                WHERE $where
                 AND closed_date >= (NOW() - INTERVAL 11 MONTH)
                 GROUP BY DATE_FORMAT(closed_date, '%m-%Y') 
                 ORDER BY YEAR(closed_date),MONTH(closed_date)";
@@ -291,5 +296,29 @@ class dashboard_model extends CI_Model {
         $query = $this->db->query($sql);
         $data = $query->result_array();
         return $data;
+    }
+    
+    /**
+     * @desc: This function is used to get partner completed booking unit data
+     * based on month
+     * @param string
+     * @return array
+     */
+    function get_bookings_unit_data_by_month($partner_id = ""){
+        
+        if(!empty($partner_id)){
+            $where = "booking_status = 'Completed' AND partner_id = '$partner_id'";
+        }else{
+            $where = "booking_status = 'Completed'";
+        }
+        $sql = "SELECT DATE_FORMAT(ud_closed_date, '%b') AS month,DATE_FORMAT(ud_closed_date, '%Y') AS year, COUNT(*) as completed_booking
+                FROM booking_unit_details
+                WHERE $where
+                AND ud_closed_date >= (NOW() - INTERVAL 11 MONTH)
+                GROUP BY DATE_FORMAT(ud_closed_date, '%m-%Y') 
+                ORDER BY YEAR(ud_closed_date),MONTH(ud_closed_date)";
+        $query = $this->db->query($sql);
+        $completed_booking = $query->result_array();
+        return $completed_booking;
     }
 }

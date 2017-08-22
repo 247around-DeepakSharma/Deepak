@@ -76,8 +76,9 @@ class Login extends CI_Controller {
                
                 $this->dashboard();
             } else {
-                $output = "Employee Name/ID or password is incorrect.";
-                $this->loadView($output);
+                $userSession = array('error' => 'Username/Password is incorrect');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/login");
             }
         } else {
             $data['partner_logo'] = $this->booking_model->get_partner_logo();
@@ -106,6 +107,7 @@ class Login extends CI_Controller {
      *  @return : Error on Admin Login Page
      */
     function loadView($output) {
+        $data['partner_logo'] = $this->booking_model->get_partner_logo();
         $data['error'] = $output;
         $this->load->view('employee/login', $data);
     }

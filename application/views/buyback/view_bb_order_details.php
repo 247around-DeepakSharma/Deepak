@@ -35,7 +35,7 @@
                                 <div ng-controller="viewOrderDetails">
                                     <div class="row">
                                         <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <table class="table table-bordered table-hover table-responsive">
+                                            <table class="table table-bordered table-hover table-responsive" ng-cloak="">
                                                 <thead>
                                                     <tr>
                                                         <td>
@@ -139,7 +139,7 @@
                                 <div ng-controller="viewOrderAppLianceDetails">
                                     <div class="row">
                                         <div class="order_history">
-                                            <table class="table table-bordered table-hover table-responsive">
+                                            <table class="table table-bordered table-hover table-responsive" ng-cloak="">
                                                 <thead>
                                                     <tr>
                                                         <th>S.No.</th>
@@ -191,7 +191,7 @@
                                 <div ng-controller="viewOrderHistory">
                                     <div class="row">
                                         <div class="order_history">
-                                            <table class="table table-bordered table-hover table-responsive">
+                                            <table class="table table-bordered table-hover table-responsive" ng-cloak="">
                                                 <thead>
                                                     <tr>
                                                         <th>S.No.</th>
