@@ -55,7 +55,7 @@ class Login extends CI_Controller {
             $login = $this->employeelogin->login($employee_id, md5($employee_password));
             if ($login) {
                 $this->session->sess_create();
-                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email']);
+                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name']);
                 
                 //Saving Login Details in Database
                 $data['browser'] = $this->agent->browser();
@@ -96,7 +96,9 @@ class Login extends CI_Controller {
 
         if($this->session->userdata('user_group') === 'admin') {
             redirect(base_url() . 'employee/dashboard');
-        } else {
+        } else if($this->session->userdata('user_group') === 'regionalmanager'){
+            redirect(base_url() . 'employee/dashboard/buyback_dashboard');
+        }else{
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
         }
     }
@@ -117,7 +119,7 @@ class Login extends CI_Controller {
      *  @param : employee_id- id of employee for whom session is created
      *  @return : void
      */
-    function setSession($employee_id, $id, $phone,$official_email) {
+    function setSession($employee_id, $id, $phone,$official_email,$emp_name) {
         // Getting values for Groups of particular employee
         $groups = $this->employeelogin->get_employee_group_name($employee_id);
         if($groups){
@@ -130,7 +132,8 @@ class Login extends CI_Controller {
             'loggedIn' => TRUE,
                 'userType' => 'employee',
                 'user_group'=> $groups,
-            'official_email'=>$official_email
+            'official_email'=>$official_email,
+            'emp_name' => $emp_name
         );
         }
         else{
