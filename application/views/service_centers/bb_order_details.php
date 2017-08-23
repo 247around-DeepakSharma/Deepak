@@ -18,6 +18,9 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    .dropdown-menu{
+        left: -60px;
+    }
 </style>
 
 <div class="bb_order_details" style="margin: 20px 20px 10px 10px;">
