@@ -720,7 +720,7 @@ class vendor_model extends CI_Model {
      */
     function getVendorDetails($select, $where ="") {
         
-        $this->db->select($select);
+        $this->db->select($select,FALSE);
         if(!empty($where)){
            $this->db->where($where);
         }

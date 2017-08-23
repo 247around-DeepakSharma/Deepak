@@ -664,4 +664,79 @@ class Around_scheduler extends CI_Controller {
         
     }
     
+    function send_mail_for_pan_notification() {
+        log_message('info', __METHOD__ . '=> Entering...');
+
+        $select = "id,name,CONCAT(primary_contact_email,',',owner_email) as email";
+        $where = array("(pan_no IS Null OR pan_no = '')" => null, 'active' => 1);
+        $data = $this->vendor_model->getVendorDetails($select, $where);
+        if (!empty($data)) {
+            foreach ($data as $val) {
+                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id'])[0]['official_email'];
+
+                $template = $this->booking_model->get_booking_email_template("pan_notification");
+                $body = $template[0];
+                $to = $val['email'];
+                $from = $template[2];
+                $cc = $template[3] . ',' . $rm_mail;
+                $subject = vsprintf($template[4], $val['name']);
+                
+                $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "");
+            }
+        }
+    }
+    
+    function send_mail_for_bank_details_notification() {
+        log_message('info', __METHOD__ . '=> Entering...');
+
+        $select = "id,name,CONCAT(primary_contact_email,',',owner_email) as email";
+        $where = array("(bank_name IS Null OR bank_name = ''
+                         OR bank_account IS Null OR bank_account = '' 
+                         OR ifsc_code IS Null OR ifsc_code = ''
+                         OR cancelled_cheque_file IS Null OR cancelled_cheque_file = ''  )" => null, 'active' => 1);
+        $data = $this->vendor_model->getVendorDetails($select, $where);
+        if (!empty($data)) {
+            foreach ($data as $val) {
+                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id'])[0]['official_email'];
+
+                $template = $this->booking_model->get_booking_email_template("bank_details_notification");
+                $body = $template[0];
+                $to = $val['email'];
+                $from = $template[2];
+                $cc = $template[3] . ',' . $rm_mail;
+                $subject = vsprintf($template[4], $val['name']);
+                
+                $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "");
+            }
+        }
+    }
+    
+    function send_mail_for_bank_details_not_verified_notification() {
+        log_message('info', __METHOD__ . '=> Entering...');
+
+        $select = "id,name";
+        $where = array("(bank_name IS NOT NULL AND bank_name <> ''
+                         AND bank_account IS NOT NULL AND bank_account <> '' 
+                         AND ifsc_code IS NOT NULL AND ifsc_code <> ''
+                         AND cancelled_cheque_file IS NOT NULL AND cancelled_cheque_file <> ''  
+                         AND is_verified = 0 )" => null, 'active' => 1);
+        $data = $this->vendor_model->getVendorDetails($select, $where);
+        if (!empty($data)) {
+            
+            $table_template = array(
+                    'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+                );
+           
+            $this->table->set_template($table_template);
+            $this->table->set_heading(array('ID','SF Name'));
+            $table = $this->table->generate($data);
+            $template = $this->booking_model->get_booking_email_template("bank_details_not_verified_notification");
+            $body = vsprintf($template[0], $table);
+            $to = $template[1];;
+            $from = $template[2];
+            $subject = $template[4];
+                
+            $this->notify->sendEmail($from, $to, '', '', $subject, $body, "");
+        }
+    }
 }
