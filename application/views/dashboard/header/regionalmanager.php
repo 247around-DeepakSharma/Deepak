@@ -74,7 +74,6 @@
                     <div class="menu_section">
                         <ul class="nav side-menu">
                             <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM</a>
-                            <li><a href="<?php echo base_url(); ?>employee/dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
                             </li>
                             <li><a href="<?php echo base_url(); ?>employee/dashboard/buyback_dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>Buyback DASHBOARD</a>
                             </li>

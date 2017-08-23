@@ -444,14 +444,20 @@ class Dashboard extends CI_Controller {
         
     }
     
-    function buyback_dashbord(){
+    function buyback_dashboard(){
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('dashboard/buyback_dashboard');
         $this->load->view('dashboard/dashboard_footer');
     }
     
     function get_buyback_balanced_amount(){
-        $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1));
+        
+        if($this->session->userdata('user_group') === 'regionalmanager'){
+            $sf_id = $this->vendor_model->get_employee_relation($this->session->userdata('id'))[0]['service_centres_id'];
+            $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1, "id IN ($sf_id)" => null));
+        }else{
+            $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1));
+        }
         //$data = array();
         $where['length'] = -1;
         $template = array(
@@ -460,7 +466,7 @@ class Dashboard extends CI_Controller {
         );
 
         $this->table->set_template($template);
-        $this->table->set_heading(array('Name', 'Amt Paid', 'Amt of Material Delivered', 'Amt of Material Transit', 'Balance'));
+        $this->table->set_heading(array('Name', 'Ledger Summary (Rs)', 'Delivered (Rs)', 'In-transit (Rs)', 'Total (Rs)','Balance (Rs)'));
 
         foreach ($cp as  $value) {
             $paid_amount = $this->invoices_model->get_invoices_details(array('type'=>'Buyback','type_code'=>'A', 'vendor_partner' => 'vendor', 
@@ -498,15 +504,16 @@ class Dashboard extends CI_Controller {
             }
             $name .= "</ul></div>";
             $cp_intransit = $this->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_intransit")[0]->cp_intransit;
-            $rest_balance = ($paid_amount -$cp_delivered_charge -$cp_intransit);
+            $total_balance = $cp_delivered_charge + $cp_intransit;
+            $rest_balance = ($paid_amount - $total_balance);
             $class ="";
             if($rest_balance > 0){
-                $class = ' <i class="success pull-right fa fa-long-arrow-up"></i>';
+                $class = ' <i class="success pull-right fa fa-caret-up fa-2x text-success"></i>';
             } else if($rest_balance < 0){
-               $class = ' <i class="error pull-right fa fa-long-arrow-down"></i>'; 
+               $class = ' <i class="error pull-right fa fa-caret-down fa-2x text-danger"></i>'; 
             }
             
-            $this->table->add_row($name .$star,$paid_amount,$cp_delivered_charge,$cp_intransit,"Rs. ".$rest_balance.$class);
+            $this->table->add_row($name .$star,$paid_amount,$cp_delivered_charge,$cp_intransit,$total_balance,$rest_balance.$class);
            
         }
         

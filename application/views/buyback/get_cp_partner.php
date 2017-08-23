@@ -21,6 +21,8 @@
                             </li>-->
                             <a  href="<?php echo base_url();?>buyback/collection_partner/add_cp_shop_address"><li class="btn btn-sm btn-primary">Add Shop Address
                             </li></a>
+                            <a  href="<?php echo base_url();?>buyback/buyback_process/download_bb_shop_address"><li class="btn btn-sm btn-primary">Download Shop Address File
+                            </li></a>
                             
                         </ul>
                         <div class="clearfix"></div>
