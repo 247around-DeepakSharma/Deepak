@@ -296,7 +296,7 @@ class Miscelleneous {
                     $this->My_CI->booking_model->update_booking($booking_id, $booking);
 
                     $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com";
-                    $cc = "";
+                    $cc = "sachinj@247around.com";
                     $message1 = "Upcountry did not calculate for " . $booking_id;
                     $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Failed', $message1, "");
 
