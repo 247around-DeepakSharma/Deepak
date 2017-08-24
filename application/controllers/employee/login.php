@@ -422,7 +422,7 @@ class Login extends CI_Controller {
             //Setting logging vendor session details
             $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['company_name'], 
                     $agent[0]['id'], $sc_details[0]['is_update'], 
-                    $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp']);
+                    $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'],TRUE);
            
             if ($this->session->userdata('is_sf') === '1') {
                 echo "service_center/pending_booking";
@@ -440,7 +440,7 @@ class Login extends CI_Controller {
      * @param: is update
      * @return: void
      */
-    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp) {
+    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$is_gst_doc) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
@@ -452,7 +452,8 @@ class Login extends CI_Controller {
 	    'loggedIn' => TRUE,
 	    'userType' => 'service_center',
             'is_sf' => $sf,
-            'is_cp' => $cp
+            'is_cp' => $cp,
+            'is_gst_exist' => $is_gst_doc
 	);
 
         $this->session->set_userdata($userSession);
@@ -491,10 +492,16 @@ class Login extends CI_Controller {
             //get sc details now
             $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
             if (!empty($sc_details)) {
+                if(is_null($sc_details[0]['is_gst_doc'])){
+                    $is_gst_exist = FALSE;
+                }else{
+                    $is_gst_exist = TRUE;
+                }
                 $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['company_name'], 
                         $agent['id'], $sc_details[0]['is_update'], 
                         $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], 
-                        $sc_details[0]['is_cp']);
+                        $sc_details[0]['is_cp'],
+                        $is_gst_exist);
                 
                 if($this->session->userdata('is_sf') === '1'){
                     redirect(base_url() . "service_center/pending_booking");
