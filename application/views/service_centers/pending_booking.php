@@ -392,5 +392,28 @@ span.stars span {
 });
     
 </script>
+
+<!-- show alert message if GST is not updated -->
+<?php if(!$this->session->userdata('is_gst_exist')) { ?> 
+<script src="<?php echo base_url(); ?>js/around_notify.js"></script>
+<script>
+    
+    $(document).ready(function(){
+        $.notify({
+            message: '<?php echo SF_NOTIFICATION_MSG ?>'
+
+            },{
+                type: 'danger',
+                url_target: '<?php echo base_url(); ?>service_center/gst_details',
+                placement: {
+			from: "bottom",
+			align: "right"
+		},
+            }
+        );
+    });
+</script>
+<?php } ?>
+<!-- end alert message -->
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>

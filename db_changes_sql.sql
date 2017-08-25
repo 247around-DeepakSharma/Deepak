@@ -3050,3 +3050,30 @@ VALUES (NULL, 'brackets_shipment_mail_to_order_given_to', 'Brackets Shipped To %
 
 ---Abhay 25 Aug
 ALTER TABLE  `spare_parts_details` ADD  `defective_courier_receipt` VARCHAR( 64 ) NULL DEFAULT NULL AFTER `courier_charges_by_sf` ;
+
+--sachin 23 AUG
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'pan_notification', 'Request for PAN Number | %s', 'Respected Sir/Madam,<br><br>
+Greetings from 247around!<br>
+Please Update Your PAN Details<br><br>
+If already Updated, please ignore<br><br>
+Regards<br>
+Team 247around', 'billing@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'bank_details_notification', 'Request for Bank Details | %s', 'Respected Sir/Madam,<br><br>
+Greetings from 247around!<br>
+Please Update Your Bank Details<br><br>
+If already Updated, please ignore<br><br>
+Regards<br>
+Team 247around', 'billing@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'bank_details_not_verified_notification', 'Bank Details Not Verified', 'Greetings from 247around!<br>
+Below are the sf for which bank details exist but they are not verified yet.<br><br>
+%s  <br><br>
+Please Verifiy bank details of above sf.<br><br>
+If already Updated, please ignore<br><br>
+Regards<br>
+Team 247around', 'billing@247around.com', 'anuj@247around.com', '', '', '1', CURRENT_TIMESTAMP);
+

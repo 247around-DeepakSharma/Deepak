@@ -81,7 +81,7 @@
                                         <input type="hidden" name="category" value="<?php echo $category; ?>" id="order_category">
                                         <input type="hidden" name="brand" value="<?php echo $brand; ?>">
                                         <input type="hidden" name="cp_id" value="<?php echo $cp_id; ?>" id="cp_id">
-                                        <input type="submit" class="btn btn-success" id="submit" value="Submit" disabled="">
+                                        <input type="submit" class="btn btn-success" id="submit" value="Submit">
                                     </div>
                                 </div>
                             </form>    

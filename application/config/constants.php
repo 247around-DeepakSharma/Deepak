@@ -409,5 +409,7 @@ define('_247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH', 'Tat Breach');
 define('CLAIM_APPROVED','Claim Approved');
 define('CLAIM_REJECTED','Claim Rejected');
 define('CLAIM_SETTLED','Claim Settled');
+
+define('SF_NOTIFICATION_MSG','set notification msg here');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

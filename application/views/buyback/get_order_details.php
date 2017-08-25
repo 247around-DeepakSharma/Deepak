@@ -2,6 +2,12 @@
 <script>
     var unassigned;
 </script>
+<style>
+    .dropdown-menu{
+        font-size: 13px;
+        left:-60px;
+    }
+</style>
 <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
@@ -47,18 +53,18 @@
                     
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-                            <li role="presentation" class="active"><a href="#tab_content1" role="tab" id="intransit-tab" data-toggle="tab" aria-expanded="false">In-Transit( <span style="font-weight: bold;" id="in_tranist_record">0</span> )</a>
+                            <li role="presentation" class="active"><a href="#tab_content1" role="tab" id="intransit-tab" data-toggle="tab" aria-expanded="true">In-Transit( <span style="font-weight: bold;" id="in_tranist_record">0</span> )</a>
                             </li>
                             <li role="presentation" class=""><a href="#tab_content2" id="delivered-tab" role="tab" data-toggle="tab" aria-expanded="true">Delivered ( <span style="font-weight: bold;" id="in_delivered_record">0</span> )</a>
                             </li>
-                            <li role="presentation" class=""><a href="#tab_content3" role="tab" id="unassigned" data-toggle="tab" aria-expanded="false">Un-Assigned Order ( <span style="font-weight: bold;" id="in_unassigned_record">0</span> )</a>
+                            <li role="presentation" class=""><a href="#tab_content3" role="tab" id="unassigned" data-toggle="tab" aria-expanded="true">Un-Assigned Order ( <span style="font-weight: bold;" id="in_unassigned_record">0</span> )</a>
                             </li>
-                            <li role="presentation" class=""><a href="#tab_content4" role="tab" id="others" data-toggle="tab" aria-expanded="false">Others ( <span style="font-weight: bold;" id="in_others_record">0</span> )</a>
+                            <li role="presentation" class=""><a href="#tab_content4" role="tab" id="others" data-toggle="tab" aria-expanded="true">Others ( <span style="font-weight: bold;" id="in_others_record">0</span> )</a>
                             </li>
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="intransit-tab">
-                                <table id="datatable1" class="table table-striped table-bordered">
+                                <table id="datatable1" class="table table-striped table-bordered" style="width: 100%; margin-bottom: 100px;">
                                     <thead>
                                         <tr>
                                             <th>No.</th>

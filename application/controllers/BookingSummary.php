@@ -1220,7 +1220,7 @@ EOD;
         $data['data'] = $this->reporting_utils->get_agent_daily_reports($flag);
 
         //print_r($data);
-        $this->load->view('employee/header/admin');
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/agent_working_details', $data);
 
         //echo json_encode($data);
