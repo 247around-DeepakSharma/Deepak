@@ -45,9 +45,6 @@
                                 <label for="order_working_condition" class="col-md-3 col-sm-12 col-xs-12">Working Condition:</label>
                                 <select class="form-control col-md-4 col-sm-12 col-xs-12" id="order_working_condition" name="order_working_condition">
                                     <option selected disabled>Select Working Condition</option>
-                                    <?php foreach ($working_condition as $value) { ?> 
-                                    <option value="<?php echo $value['working_condition']; ?>"><?php echo $value['working_condition']; ?></option>
-                                    <?php } ?>
                                 </select>
                             </div>
                         </div>

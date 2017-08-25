@@ -796,8 +796,6 @@ class vendor extends CI_Controller {
         $html .= " " . $updated_vendor_details[0]['min_upcountry_distance'] . '</li>';
         $html .= "<li><b>" . 'Signature File' . '</b> =>';
         $html .= " " . $updated_vendor_details[0]['signature_file'] . '</li>';
-        $html .= "<li><b>" . 'is_signature_doc' . '</b> =>';
-        $html .= " " . $updated_vendor_details[0]['is_signature_doc'] . '</li>';
         $html .= "</ul>";
         
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
