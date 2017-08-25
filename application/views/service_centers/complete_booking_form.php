@@ -98,19 +98,23 @@
                         </div>
                     </div>
                     <!-- row End  -->
-                    <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php  $flag = 0;if($is_spare_required ==1){ if(isset($booking_history['spare_parts'])){ 
+                    <?php $required_sp_id = array(); ?>
+                    <?php  $flag = 0; if(isset($booking_history['spare_parts'])){ 
                                                                                                                                                                                  
                         foreach ($booking_history['spare_parts'] as  $value) {
                             if($value['status'] == "Completed" || $value['status'] == "Cancelled"){} else {
-                               $flag = 1; 
+                                if($value['defective_part_required'] == 1){
+                                    $flag = 1; 
+                                    array_push($required_sp_id, $value['id']);
+                                }
                             }
          
                         }
-                        echo $flag;
                         
-                    } else { echo $flag;
-                        
-                    } } else { echo $flag; }?>" />
+                    }?>
+                    <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
+                    <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
+                   
                     <?php $count = 0; foreach ($bookng_unit_details as $key => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <div class="panel-body">

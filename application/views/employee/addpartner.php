@@ -429,6 +429,23 @@ if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
                         </div>
                     </div>
                 </div>
+                 <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><b>Spare Parts</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-6">
+                                <div class="form-group ">
+                                    <label for="is required Def parts" class="col-md-4">Is Spare Parts Required</label>
+                                    <div class="col-md-1">
+                                        <input  type="checkbox" class="form-control"  name="is_def_spare_required" value = "1" <?php if (isset($query)) {
+                                            if($query[0]['is_def_spare_required'] == '1'){ echo "checked"; }
+                                        } ?> >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading"><b>Owner Details</b></div>

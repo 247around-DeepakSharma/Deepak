@@ -3099,3 +3099,8 @@ Please Verifiy bank details of above sf.<br><br>
 If already Updated, please ignore<br><br>
 Regards<br>
 Team 247around', 'billing@247around.com', 'anuj@247around.com', '', '', '1', CURRENT_TIMESTAMP);
+
+
+---Abhay 25 Aug
+ALTER TABLE  `spare_parts_details` ADD  `defective_courier_receipt` VARCHAR( 64 ) NULL DEFAULT NULL AFTER `courier_charges_by_sf` ;
+
