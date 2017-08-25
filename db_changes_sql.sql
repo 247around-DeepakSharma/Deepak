@@ -3046,3 +3046,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 VALUES (NULL, 'brackets_shipment_mail_to_order_given_to', 'Brackets Shipped To %s', 
 'Dear Partner, Brackets have been shipped successfully to <b> %s </b> for the Order ID<b> %s </b>.
 <br><br> Regards, <br> 247Around Team', 'booking@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+
+---Abhay 25 Aug
+ALTER TABLE  `spare_parts_details` ADD  `defective_courier_receipt` VARCHAR( 64 ) NULL DEFAULT NULL AFTER `courier_charges_by_sf` ;

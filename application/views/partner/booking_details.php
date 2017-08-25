@@ -262,6 +262,7 @@
                                         <th >Serial Number </th>
                                         <th >Acknowledge Date BY SF </th>
                                         <th >Remarks By SC </th>
+                                        <th >Status</th>
                                     </tr>
                                 </thead>
 
@@ -292,6 +293,7 @@
                                             <td><?php echo $sp['serial_number']; ?></td>
                                             <td><?php echo $sp['acknowledge_date']; ?></td>
                                             <td><?php echo $sp['remarks_by_sc']; ?></td>
+                                            <td><?php echo $sp['status']; ?></td>
                                         </tr>
     <?php } ?>
                                 </tbody>
@@ -313,6 +315,7 @@
                                             <th >Shipped date </th>
                                             <th >EDD </th>
                                             <th >Remarks By Partner</th>
+                                            <th >Status</th>
                                         </tr>
 
                                     </thead>
@@ -325,6 +328,7 @@
                                                 <td><?php echo $sp['shipped_date']; ?></td>
                                                 <td><?php echo $sp['edd']; ?></td>
                                                 <td><?php echo $sp['remarks_by_partner']; ?></td>
+                                                 <td><?php echo $sp['status']; ?></td>
 
                                             </tr>
         <?php } ?>
@@ -346,6 +350,7 @@
                                             <th >Shipped date </th>
                                             <th >Remarks By SF </th>
                                             <th >Remarks By Partner </th>
+                                            <th >Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -358,6 +363,7 @@
                                                 <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                                 <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                                 <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
+                                                <td><?php echo $sp['status']; ?></td>
                                             </tr>
         <?php } ?>
                                     </tbody>

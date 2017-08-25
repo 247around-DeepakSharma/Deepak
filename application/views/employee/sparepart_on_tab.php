@@ -20,6 +20,7 @@
                                         <th class="text-center" data-orderable="false">Booking Status</th>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <th class="text-center" data-orderable="false">Reject</th>
+                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -42,6 +43,10 @@
                                         <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
                                         
                                         <td class="text-center"><button type="button" id="<?php echo $value['booking_id'];?>" data-id="<?php echo base_url(); ?>employee/inventory/cancel_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Reject</button></td>
+                                        <td>
+                                          
+                                            <a class="btn btn-md <?php if($value['defective_part_required'] == '0'){ echo 'btn-primary';} else{ echo 'btn-danger'; }?>" href="<?php echo base_url();?>employee/inventory/update_is_defective_parts_rquired/<?php if($value['defective_part_required'] == '0'){ echo '1';} else{ echo '0'; }?>/<?php echo $value['id'];?>/<?php echo $value['booking_id'];?>"><?php if($value['defective_part_required'] == '0'){ echo "Def. Part Required";} else{ echo "Def. Part Not Required"; }?></a>
+                                        </td>
                                    </tr>
                              
                                     <?php }}?>
@@ -96,6 +101,7 @@
 										<th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Booking Status</th>
+                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -116,6 +122,10 @@
 										<td class="text-center"><?php echo $value['defective_part_shipped'];?></td>
                                         <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
+                                        <td>
+                                          
+                                            <a class="btn btn-md <?php if($value['defective_part_required'] == '0'){ echo 'btn-primary';} else{ echo 'btn-danger'; }?>" href="<?php echo base_url();?>employee/inventory/update_is_defective_parts_rquired/<?php if($value['defective_part_required'] == '0'){ echo '1';} else{ echo '0'; }?>/<?php echo $value['id'];?>/<?php echo $value['booking_id'];?>"><?php if($value['defective_part_required'] == '0'){ echo "Def. Part Required";} else{ echo "Def. Part Not Required"; }?></a>
+                                        </td>
                                    </tr>
                              
                                     <?php $sn_no++; }}?>
@@ -150,6 +160,7 @@
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Booking Status</th>
+                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -169,6 +180,10 @@
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
                                         <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
+                                        <td>
+                                          
+                                            <a class="btn btn-md <?php if($value['defective_part_required'] == '0'){ echo 'btn-primary';} else{ echo 'btn-danger'; }?>" href="<?php echo base_url();?>employee/inventory/update_is_defective_parts_rquired/<?php if($value['defective_part_required'] == '0'){ echo '1';} else{ echo '0'; }?>/<?php echo $value['id'];?>/<?php echo $value['booking_id'];?>"><?php if($value['defective_part_required'] == '0'){ echo "Spare Def Required";} else{ echo "Def. Part Not Required"; }?></a>
+                                        </td>
                                    </tr>
                              
                                     <?php $sn_no++; }}?>
@@ -203,6 +218,7 @@
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Status</th>
                                         <th class="text-center" data-orderable="false">Update</th>
+                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -224,7 +240,11 @@
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
 
                                         <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
-                                   </tr>
+                                        <td>
+                                          
+                                            <a class="btn btn-md <?php if($value['defective_part_required'] == '0'){ echo 'btn-primary';} else{ echo 'btn-danger'; }?>" href="<?php echo base_url();?>employee/inventory/update_is_defective_parts_rquired/<?php if($value['defective_part_required'] == '0'){ echo '1';} else{ echo '0'; }?>/<?php echo $value['id'];?>/<?php echo $value['booking_id'];?>"><?php if($value['defective_part_required'] == '0'){ echo "Def. Part Required";} else{ echo "Def. Part Not Required"; }?></a>
+                                        </td>
+                                    </tr>
                              
                                         <?php $sn_no++; }}?>
                                 </tbody>
@@ -257,6 +277,7 @@
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Status</th>
+                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -276,6 +297,10 @@
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
+                                        <td>
+                                          
+                                            <a class="btn btn-md <?php if($value['defective_part_required'] == '0'){ echo 'btn-primary';} else{ echo 'btn-danger'; }?>" href="<?php echo base_url();?>employee/inventory/update_is_defective_parts_rquired/<?php if($value['defective_part_required'] == '0'){ echo '1';} else{ echo '0'; }?>/<?php echo $value['id'];?>/<?php echo $value['booking_id'];?>"><?php if($value['defective_part_required'] == '0'){ echo "Def. Part Required";} else{ echo "Def. Part Not Required"; }?></a>
+                                        </td>
                                    </tr>
                              
                                         <?php $sn_no++; }}?>
