@@ -1204,7 +1204,7 @@ class Booking extends CI_Controller {
             }
         }
 
-        redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
+        redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
     }
 
     /**
@@ -1953,7 +1953,7 @@ class Booking extends CI_Controller {
             $this->partner_cb->partner_callback($booking_id);
             redirect(base_url() . 'employee/booking/view');
         } else {
-            redirect(base_url() . 'employee/booking/viewclosedbooking/' . $internal_status);
+            redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
         }
     }
 
@@ -2590,6 +2590,209 @@ class Booking extends CI_Controller {
         $data['missed_call_rating_data'] = $this->booking_model->get_missed_call_rating_not_taken_booking_data();
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/show_missed_call_rating_data', $data);
+    }
+    
+    
+    /**
+     *  @desc : This function is used to show view for booking based on booking status type
+     *  @param : $status string
+     *  @param : $booking_id string
+     *  @return : void();
+     */
+    public function view_bookings_by_status($status,$booking_id=""){
+        $data['booking_status'] = trim($status);
+        $data['booking_id'] = trim($booking_id);
+        $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',array('is_active'=> '1'));
+        $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/view_bookings_by_status', $data);
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get bookings based on booking status type
+     *  @param : $status string
+     *  @return : $output JSON
+     */
+    public function get_bookings_by_status($status){
+        
+        $booking_status = trim($status);
+        $data = $this->get_bookings_data_by_status($booking_status);
+        
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->booking_model->count_all_bookings_by_status($post),
+            "recordsFiltered" =>  $this->booking_model->count_filtered_bookings_by_status($post),
+            "data" => $data['data'],
+        );
+        
+        echo json_encode($output);
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get bookings based on booking status type
+     *  @param : $booking_status string
+     *  @return : $output Array()
+     */
+    private function get_bookings_data_by_status($booking_status) {
+        $post = $this->get_post_data();
+        $new_post = $this->get_filterd_post_data($post,$booking_status);
+        
+        $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
+            users.phone_number, booking_details.*, service_centres.name as service_centre_name,
+            service_centres.district as city, service_centres.primary_contact_name,
+            service_centres.primary_contact_phone_1";
+        
+        $list = $this->booking_model->get_bookings_by_status($new_post,$select);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row = $this->get_bookings_table_by_status($order_list, $no,$booking_status);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $new_post
+        );
+    }
+    
+    
+    /**
+     *  @desc : This function is used to make filter logic for booking based on status type
+     *  @param : $post string
+     *  @param : $booking_status string
+     *  @return : $post Array()
+     */
+    private function get_filterd_post_data($post,$booking_status){
+        $partner_id = $this->input->post('partner_id');
+        $sf_id = $this->input->post('sf_id');
+        $date_range = $this->input->post('booking_date_range');
+        $booking_id = $this->input->post('booking_id');
+        $ratings = $this->input->post('ratings');
+        
+        $post['where']  = array('current_status' => $booking_status,"booking_details.booking_id NOT LIKE '%Q-%'" => null);
+        $post['where']['current_status'] = $booking_status;
+        
+        if(!empty($booking_id)){
+            $post['where']['booking_details.booking_id'] =  $booking_id;
+        }
+        if(!empty($partner_id)){
+            $post['where']['booking_details.partner_id'] =  $partner_id;
+        }
+        if(!empty($sf_id)){
+            $post['where']['booking_details.assigned_vendor_id'] =  $sf_id;
+        }
+        if(!empty($date_range)){
+            $booking_closed_date = explode("-", $date_range);
+            $post['where']['booking_details.closed_date >= '] =  date("Y-m-d", strtotime(trim($booking_closed_date[0])));
+            $post['where']['booking_details.closed_date < '] = date('Y-m-d', strtotime('+1 day', strtotime(trim($booking_closed_date[1]))));
+        }
+        if(!empty($ratings)){
+            switch ($ratings){
+                case 'a':
+                    $post['where']['rating_stars IS NOT NULL'] = NULL;
+                    break;
+                case 'b':
+                    $post['where']['rating_stars IS NULL'] = NULL;
+                    break;
+                case 'c':
+                    '';
+                    break;
+            }
+        }
+        
+        $post['column_order'] = "";
+        $post['column_search'] = array('booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date');
+        
+        return $post;
+    }
+
+    /**
+     *  @desc : This function is used to get the post data for booking by status
+     *  @param : void()
+     *  @return : $post Array()
+     */
+    private function get_post_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+
+        return $post;
+    }
+    
+    /**
+     *  @desc : This function is used to make the table for bookings by status
+     *  @param : $order_list string
+     *  @param : $no string
+     *  @param : $booking_status string
+     *  @return : $row Array()
+     */
+    private function get_bookings_table_by_status($order_list, $no, $booking_status){
+        $row = array();
+        if($order_list->is_upcountry === '1'){
+            $sn = "<i class='fa fa-road' aria-hidden='true' onclick='";
+            $sn .= "open_upcountry_model(".'"'.$order_list->assigned_vendor_id.'"';
+            $sn .= ', "'.$order_list->booking_id.'"';
+            $sn .= ', "'.$order_list->amount_due.'"';
+            $sn .= ")' style='color:red; font-size:20px;'></i>";
+        }else{
+            $sn = "";
+        }
+        
+        $call_btn = "<button type='button' class='btn btn-sm btn-info' onclick='";
+        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
+        $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+        
+        if ($order_list->current_status == 'Completed' && empty($order_list->rating_stars )){
+            $rating_btn_disabled = "";
+        }else{
+            $rating_btn_disabled = "disabled";
+        }
+        
+        if(empty($order_list->penalty_active)){
+            $penalty_row = "<a class='btn btn-sm col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='background:#FFEB3B;margin-top:10px;cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+        }else if($order_list->penalty_active === '1'){
+            $penalty_modal = "onclick='";
+            $penalty_modal .= "get_penalty_details(".'"'.$order_list->booking_id.'"';
+            $penalty_modal .= ', "'.$booking_status.'"';
+            $penalty_modal .= ")' ";
+            $penalty_row = "<a class='btn btn-sm col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='background:#FFEB3B;margin-top:10px;' $penalty_modal><i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+        }
+        
+        
+        $row[] = $no.$sn;
+        $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
+        $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser/0/0/".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
+        $row[] = $order_list->services;
+        $row[] = "<a href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$order_list->service_centre_name</a>";
+        $row[] = $order_list->city;
+        $row[] = date("d-m-Y", strtotime($order_list->closed_date));
+        $row[] = $call_btn;
+        if($booking_status === _247AROUND_COMPLETED){
+            $row[] = "<a id='edit' class='btn btn-sm btn-success' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+            $row[] = "<a id='cancel' class='btn btn-sm btn-danger' href='".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>";
+        }else if($booking_status === _247AROUND_CANCELLED){
+            $row[] = "<a id='edit' class='btn btn-sm btn-success' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+        }
+        
+        $row[] = "<a id='open' class='btn btn-sm btn-warning' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+        $row[] = "<a id='view' class='btn btn-sm btn-primary' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title='view' target='_blank'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+        
+        if($booking_status === _247AROUND_COMPLETED){
+            $row[] = "<a class='btn btn-sm btn-danger' href='".base_url()."employee/booking/get_rating_form/".$order_list->booking_id."/".$booking_status."' title='Rating' target='_blank' $rating_btn_disabled><i class='fa fa-star-o' aria-hidden='true' ></i></a>";
+        }
+        
+        $row[] = "<a class='btn btn-sm col-md-12' href='".base_url()."employee/vendor/get_escalate_booking_form/".$order_list->booking_id."/".$booking_status."' title='Add Penalty' target='_blank' style='background:#D81B60;'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
+        
+        
+        return $row;
     }
 
 }
