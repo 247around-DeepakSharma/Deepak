@@ -1011,6 +1011,7 @@ class Partner extends CI_Controller {
         $return_data['invoice_courier_phone_number'] = $this->input->post('invoice_courier_phone_number');
         $return_data['pan'] = $this->input->post('pan');
         $return_data['registration_no'] = $this->input->post('registration_no');
+        $return_data['is_def_spare_required'] = $this->input->post('is_def_spare_required');
         $return_data['tin'] = $this->input->post('tin');
         $return_data['cst_no'] = $this->input->post('cst_no');
         $return_data['service_tax'] = $this->input->post('service_tax');
@@ -2030,7 +2031,8 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
-                . " AND status IN ('" . DEFECTIVE_PARTS_PENDING . "','" . DEFECTIVE_PARTS_SHIPPED . "')  ";
+                . " AND status IN ('" . DEFECTIVE_PARTS_PENDING . "','" . DEFECTIVE_PARTS_SHIPPED . "') "
+                . " AND spare_parts_details.defective_part_required = 1 ";
 
         $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
@@ -2065,7 +2067,6 @@ class Partner extends CI_Controller {
         if(empty($is_cron)){
             $this->checkUserSession();
         }
-        //$partner_id = $this->session->userdata('partner_id');
 
         $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
@@ -2075,10 +2076,17 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
             $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $is_cron);
-
-            $sc_data['current_status'] = "InProcess";
-            $sc_data['internal_status'] = _247AROUND_COMPLETED;
-            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+            
+                
+            $where = "spare_parts_details.defective_part_required = 1 AND spare_parts_details.booking_id = '".$booking_id."' "
+                . " AND spare_parts_details.id NOT In ('$id')";
+                
+            $is_spare = $this->partner_model->get_spare_parts_booking($where);
+            if(empty($is_spare)){
+                $sc_data['current_status'] = "InProcess";
+                $sc_data['internal_status'] = _247AROUND_COMPLETED;
+                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+            }
             
             if(empty($is_cron)){
                 $userSession = array('success' => ' Received Defective Spare Parts');

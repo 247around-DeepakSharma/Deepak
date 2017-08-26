@@ -710,16 +710,16 @@ class invoices_model extends CI_Model {
 
                 if ($c_s_gst) {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
-                    $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = 9;
-                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09), 0);
-                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09), 0);
+                    $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = 14;
+                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 0);
+                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 0);
                     $meta['cgst_total_tax_amount'] += $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
-                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
+                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 14;
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter State.xlsx";
-                    $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = 18;
-                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18), 0);
+                    $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = 28;
+                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.28), 0);
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
@@ -754,7 +754,7 @@ class invoices_model extends CI_Model {
         $data['rate'] = _247AROUND_BRACKETS_26_32_UNIT_PRICE;
         $data['qty'] = $meta['_26_32_total'];
         $data['taxable_value'] = round($data['rate'] * $data['qty'],0);
-        $data['hsn_code'] = HSN_CODE;
+        $data['hsn_code'] = STAND_HSN_CODE;
         
         array_push($data1, $data);
         
@@ -762,7 +762,7 @@ class invoices_model extends CI_Model {
         $data2['rate'] = _247AROUND_BRACKETS_36_42_UNIT_PRICE;
         $data2['qty'] = $meta['_36_42_total'];
         $data2['taxable_value'] = round($data2['rate'] * $data2['qty'],0);
-        $data2['hsn_code'] = HSN_CODE;
+        $data2['hsn_code'] = STAND_HSN_CODE;
         array_push($data1, $data2);
         
         return $data1;   

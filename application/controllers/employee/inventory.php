@@ -1037,6 +1037,7 @@ class Inventory extends CI_Controller {
     
     function spare_part_booking_on_tab(){
         log_message('info', __FUNCTION__. "Entering... ");
+         $this->checkUserSession();
 	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
         $total_rows =  $this->booking_model->get_spare_parts_booking(0, "All");
         
@@ -1051,6 +1052,7 @@ class Inventory extends CI_Controller {
      */
     function cancel_spare_parts($id, $booking_id){
         log_message('info', __FUNCTION__. "Entering... id ". $id." Booking ID ". $booking_id);
+         $this->checkUserSession();
         if(!empty($id)){
             $remarks = $this->input->post("remarks");
             $this->service_centers_model->update_spare_parts(array('id' => $id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), array('status' => "Cancelled"));
@@ -1169,6 +1171,33 @@ class Inventory extends CI_Controller {
         }
         
         return $response;
+    }
+    
+    function update_is_defective_parts_rquired($is_required, $sp_id, $booking_id){
+        log_message('info', __FUNCTION__. "Entering... id ". $sp_id." Booking ID ". $booking_id);
+         $this->checkUserSession();
+        if(!empty($sp_id)){
+          
+            $this->service_centers_model->update_spare_parts(array('id' => $sp_id ), array('defective_part_required' => $is_required));
+            if($is_required =='1'){
+                $this->notify->insert_state_change($booking_id,"Spare Parts Required To Partner","Spare Parts Requested", "", 
+                      $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            } else{
+                $this->notify->insert_state_change($booking_id,"Spare Parts Not Required To Partner","Spare Parts Requested", "", 
+                      $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            }
+            
+            $this->load->view('notification', array('notification' => 'Spare Parts Updated'));
+  
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view('employee/get_spare_parts');
+            
+        } else {
+           
+            $this->load->view('notification', array('notification' => 'Please Refresh Page And Again Try To Update'));
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view('employee/get_spare_parts');
+        }
     }
 
 }

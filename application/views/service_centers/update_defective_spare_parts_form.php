@@ -70,7 +70,8 @@
                <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Update Defective Spare Parts </h2>
             </div>
             <div class="panel-body">
-                <form action="<?php echo base_url(); ?>service_center/process_update_defective_parts/<?php echo $spare_parts[0]['booking_id']; ?>/<?php echo $spare_parts[0]['id']; ?>" class ="form-horizontal" id="update_form"  method="POST">
+                <form action="<?php echo base_url(); ?>service_center/process_update_defective_parts/<?php echo $spare_parts[0]['booking_id']; ?>/<?php echo $spare_parts[0]['id']; ?>" class ="form-horizontal" 
+                      id="update_form"  method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-6">
                              <div class="form-group ">
@@ -118,6 +119,13 @@
                                     <input id="defective_part_shipped_date" class="form-control"  name="defective_part_shipped_date" type="date" value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>" required readonly='true' style="background-color:#fff;pointer-events:cursor">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
+                                </div>
+                            </div>
+                            
+                             <div class="form-group ">
+                                <label for="AWS Receipt" class="col-md-4">Courier Receipt</label>
+                                <div class="col-md-6">
+                                    <input id="aws_receipt" class="form-control"  name="defective_courier_receipt" type="file" required  style="background-color:#fff;pointer-events:cursor">
                                 </div>
                             </div>
 
@@ -172,15 +180,17 @@
                 courier_name_by_sf:"required",
                 awb_by_sf: "required",
                 defective_part_shipped_date: "required",
-                courier_charges_by_sf: "customNumber"
+                courier_charges_by_sf: "customNumber",
+                defective_courier_receipt:"required"
                 },
                 messages: {
                 defective_part_shipped: "Please Enter Shipped Parts",
                 remarks_defective_part: "Please Enter Remarks",
-                courier_name_by_sf: "Please Courier Name",
+                courier_name_by_sf: "Please Enter Courier Name",
                 awb_by_sf: "Please Enter Valid AWB",
                 defective_part_shipped_date:"Please Select Shipped Date",
-                courier_charges_by_sf: "Please Enter Valid Courier Charges"
+                courier_charges_by_sf: "Please Enter Valid Courier Charges",
+                defective_courier_receipt:"Please Select Courier Receipt"
               
                 },
                 submitHandler: function (form) {

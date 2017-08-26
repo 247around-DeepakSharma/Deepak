@@ -2118,7 +2118,7 @@ class Invoice extends CI_Controller {
                 $gst_number = $entity_details[0]['gst_no'];
             } else {
 
-                $entity_details = $this->partner_model->getpartner_details("state", array('partners.id' => $data['vendor_partner_id']));
+                $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
                 $gst_number = $entity_details[0]['gst_number'];
             }
 
