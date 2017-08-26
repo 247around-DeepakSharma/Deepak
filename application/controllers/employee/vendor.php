@@ -4014,7 +4014,7 @@ class vendor extends CI_Controller {
                     log_message('info', " Error in Getting Email Template for Penalty Report Mail");
                 }
 
-                redirect(base_url().'employee/booking/viewclosedbooking/'.$status);
+                redirect(base_url().'employee/booking/view_bookings_by_status/'.$status);
            
         } else {
             $this->get_escalate_booking_form($escalation['booking_id'], $status);
@@ -4093,7 +4093,7 @@ class vendor extends CI_Controller {
     if($status === 'Pending' || $status === 'Rescheduled'){
         redirect(base_url() . 'employee/booking/view');
     }else{
-        redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
+        redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
     }
     }
     

@@ -99,11 +99,11 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>Completed Booking</strong></a>
+                            <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>Completed Booking</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong>Cancelled Booking</strong></a>
+                            <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong>Cancelled Booking</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
