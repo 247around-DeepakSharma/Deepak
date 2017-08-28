@@ -169,7 +169,7 @@
     
     var booking_status = '<?php echo $booking_status;?>';
     var booking_id = '<?php echo $booking_id;?>';
-    var datatable1 = "";
+    var datatable1;
     
     $('#partner_id').select2();
     $('#sf_id').select2();
@@ -187,13 +187,13 @@
             datatable1.ajax.reload();
         });
         
-        $('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
+        $('#closed_date').on('cancel.daterangepicker', function(ev, picker) {
             $(this).val('');
             datatable1.ajax.reload();
         });
         
         
-        var datatable1 = $('#datatable1').DataTable({
+        datatable1 = $('#datatable1').DataTable({
             "processing": true, 
             "serverSide": true, 
             "order": [], 
