@@ -101,7 +101,7 @@
             </table>
 
             <center>
-                <input type="submit" id="submitform" class="btn btn-info " value="Save"/>
+                <input type="submit" id="submitform" class="btn btn-info " value="Save">
             </center>
             </form>   
         </div>
@@ -142,6 +142,13 @@ $this->session->unset_userdata('brackets_error');
         } else {
             if ($('#_26_32_' + id[3]).val().match(numbers)) {
                 _26_32 = parseInt($('#_26_32_' + id[3]).val());
+                if(_26_32 > 5){
+                    alert('Only 5 or less than 5 brackets can be order');
+                    $('#_26_32_' + id[3]).css({'border-color' : 'red'});
+                    $('#submitform').attr('disabled', true);
+                }else{
+                    $('#_26_32_' + id[3]).css({'border-color' : '#ccc'});
+                }
             } else {
                 alert('Please add number in 26 to 32 inch');
             }
@@ -152,6 +159,13 @@ $this->session->unset_userdata('brackets_error');
         } else {
             if ($('#_36_42_' + id[3]).val().match(numbers)) {
                 _36_42 = parseInt($('#_36_42_' + id[3]).val());
+                if(_36_42 > 10){
+                    alert('Only 10 or less than 10 brackets can be order');
+                    $('#_36_42_' + id[3]).css({'border-color' : 'red'});
+                    $('#submitform').attr('disabled', true);
+                }else{
+                    $('#_36_42_' + id[3]).css({'border-color' : '#ccc'});
+                }
             } else {
                 alert('Please add number in 36 to 42 inch');
             }
@@ -169,6 +183,12 @@ $this->session->unset_userdata('brackets_error');
 //        }
 
         $('#total_' + id[3]).val( _26_32 + _36_42);
+        
+        if($('#_26_32_' + id[3]).val() <= 5 && $('#_36_42_' + id[3]).val() <= 10 && $('#total_' + id[3]).val() <= 15){
+           $('#submitform').attr('disabled', false);
+        }else{
+            $('#submitform').attr('disabled', true);
+        }
     }
 
     function validate(id) {
