@@ -3050,19 +3050,13 @@ class Partner extends CI_Controller {
                 $html_table = $this->table->generate($defective_parts_acknowledge_data);
                 
                 //send email
+                $email_template = $this->booking_model->get_booking_email_template("defective_parts_acknowledge_reminder");
                 $to = $partner['primary_contact_email'];
-                $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com, abhaya@247around.com';
-                $subject = "Defective Spares Yet to be Acknowledged";
+                $cc = $email_template[3];
+                $subject = $email_template[4];
+                $message = vsprintf($email_template[0], $html_table);
                 
-                $message = "Dear Partner,<br/><br/>";
-                $message .= "Defective spare parts for below bookings have been shipped by 247around "
-                        . "Service Centre but Delivery has not been acknowledged by your team till now: <br><br>";
-                $message .= "$html_table <br><br>";
-                $message .= "Please confirm / reject the delivery of these defective parts. "
-                        . "Post 14 days of shipment, 247around system will mark them Delivered automatically. <br><br>";
-                $message .= "Thanks. <br> 247around Team";
-                
-                $sendmail = $this->notify->sendEmail('booking@247around.com', $to, $cc, "", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
 
                 if ($sendmail){
                     log_message('info', __FUNCTION__ . 'Defective Spares Yet to be Acknowledged Mail has been sent to partner '.$partner['public_name'].' successfully');
@@ -3089,7 +3083,7 @@ class Partner extends CI_Controller {
         $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         foreach ($partners as $partner) {
 
-            $select = "spare_parts_details.id,spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
+            $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.partner_id' => $partner['id'], 
                            'DATEDIFF(defective_part_shipped_date,now()) <= -14' => null,
                            "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
@@ -3102,7 +3096,6 @@ class Partner extends CI_Controller {
                     $this->acknowledge_received_defective_parts($value['booking_id'], $value['id'], true);
                 }
                 
-                //send email
                 $this->table->set_heading('Booking Id', 'Defective Part Shipped Date');
                 $template = array(
                     'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
@@ -3111,18 +3104,15 @@ class Partner extends CI_Controller {
                 $this->table->set_template($template);
                 $html_table = $this->table->generate($defective_parts_acknowledge_data);
                 
+                
                 //send email
+                $email_template = $this->booking_model->get_booking_email_template("auto_acknowledge_defective_parts");
                 $to = $partner['primary_contact_email'];
-                $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com, abhaya@247around.com';
-                $subject = "Defective Spares Auto Acknowledged";
+                $cc = $email_template[3];
+                $subject = $email_template[4];
+                $message = vsprintf($email_template[0], $html_table);
                 
-                $message = "Dear Partner,<br/><br/>";
-                $message .= "Below are the bookings which are auto acknowledged by 247around as per the earlier mail: <br><br>";
-                $message .= "$html_table <br><br>";
-                $message .= "If you have any issues regarding this, please contact us.<br><br>";
-                $message .= "Thanks. <br> 247around Team";
-                
-                $sendmail = $this->notify->sendEmail('booking@247around.com', $to, $cc, "", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
 
                 if ($sendmail){
                     log_message('info', __FUNCTION__ . 'Report Mail has been send to partner '.$partner['public_name'].' successfully');

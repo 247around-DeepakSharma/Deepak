@@ -1509,6 +1509,7 @@ class Service_centers extends CI_Controller {
         }
         $order_id = $this->input->post('order_id');
         $order_received_from = $this->input->post('order_received_from');
+        $order_given_to = $this->input->post('order_given_to');
 //        $data['19_24_shipped'] = $this->input->post('19_24_shipped');
         $data['19_24_shipped'] = '0';
         $data['26_32_shipped'] = $this->input->post('26_32_shipped');
@@ -1551,10 +1552,28 @@ class Service_centers extends CI_Controller {
                    
                    if(!empty($template)){
                         $email['order_id'] = $order_id;
-                        $subject = "Brackets Shipped by ".$order_received_from_email[0]['company_name'];
+                        $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, $attachment);
                    }
+            //2. Sending mail to order_given_to vendor
+            $order_given_to_email_to = $this->vendor_model->getVendorContact($order_given_to);
+            $to = $order_given_to_email_to[0]['primary_contact_email'].','.$order_given_to_email_to[0]['owner_email'];
+            $order_given_to_email = array();
+                   //Getting template from Database
+                   $template1 = $this->booking_model->get_booking_email_template("brackets_shipment_mail_to_order_given_to");
+                   
+                   if(!empty($template)){
+                        $order_given_to_email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
+                        $order_given_to_email['order_id'] = $order_id;
+                        $subject = vsprintf($template1[4], $order_received_from_email[0]['company_name']);
+                        $emailBody = vsprintf($template1[0], $order_given_to_email);
+                        
+                        $this->notify->sendEmail($template1[2], $to , $template1[3].','.$this->get_rm_email($order_given_to), '', $subject , $emailBody, '');
+                   
+                        //Loggin send mail success
+                        log_message('info',__FUNCTION__.' Shipped mail has been sent to order_given_to vendor '. $emailBody);
+                   }       
             
             //Loggin send mail success
             log_message('info',__FUNCTION__.' Shipped mail has been sent to order_received_from vendor '. $emailBody);
