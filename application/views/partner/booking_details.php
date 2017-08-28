@@ -59,6 +59,11 @@
                 <div class="hidden-xs">Booking History</div>
             </button>
         </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default" href="#tab5" data-toggle="tab">
+                <div class="hidden-xs">SF Details</div>
+            </button>
+        </div>
     </div>
     <div class="well">
         <div class="tab-content">
@@ -380,6 +385,29 @@
 
 
             <div class="tab-pane fade in" id="tab4">
+
+            </div>
+             <div class="tab-pane fade in" id="tab5">
+                  <div class="row">
+                      <div class="col-md-12">
+                        <div class="col-md-6 col-md-offset-3">
+                            <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
+                            <table class="table  table-striped table-bordered" >
+                                <tr>
+                                <th>Back Office Person</th>
+                                <th>Mobile</th>
+                                </tr>
+                                <tbody>
+                                    <tr>
+                                        <td><?php echo $booking_history[0]['primary_contact_name'];?></td>
+                                        <td><?php echo $booking_history[0]['primary_contact_phone_1'];?></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <?php } else { ?><b>SF Not Assign</b><?php }?>
+                        </div>
+                      </div>
+                  </div>
 
             </div>
         </div>
