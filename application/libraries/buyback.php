@@ -322,35 +322,9 @@ class Buyback {
         $this->POST_DATA = $post_data;
 
         $order_id = $this->POST_DATA['order_id'];
-        $physical_condition = $this->POST_DATA['order_physical_condition'];
-        if (!empty($physical_condition)) {
-            $physical_condition = $this->POST_DATA['order_physical_condition'];
-        } else {
-            $physical_condition = '';
-        }
-        //get order key
-        $where = array('cp_id' => $this->POST_DATA['cp_id'],
-            'service_id' => $this->POST_DATA['service_id'],
-            'category' => $this->POST_DATA['category'],
-            'physical_condition' => $physical_condition,
-            'working_condition' => $this->POST_DATA['order_working_condition'],
-            'brand' => $this->POST_DATA['brand'],
-            'city' => $this->POST_DATA['city']);
-        $select = "order_key";
-        $order_key_data = $this->My_CI->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
-        if (!empty($order_key_data)) {
-            $order_key = $order_key_data[0]['order_key'];
-        } else {
-            $order_key = '';
-        }
-        $data = array('category' => $this->POST_DATA['category'],
-            'physical_condition' => $physical_condition,
-            'working_condition' => $this->POST_DATA['order_working_condition'],
-            'remarks' => $this->POST_DATA['remarks'],
-            'brand' => $this->POST_DATA['brand'],
-            'current_status' => _247AROUND_BB_DELIVERED,
+        
+        $data = array('current_status' => _247AROUND_BB_DELIVERED,
             'internal_status' => _247AROUND_BB_DELIVERED,
-            'order_key' => $order_key,
             'create_date' => date('Y-m-d H:i:s'));
 
         $update_where = array('partner_order_id' => $order_id,
@@ -366,9 +340,9 @@ class Buyback {
             if ($order_details_update_id) {
                 // Insert state change
                 if (!empty($this->My_CI->session->userdata('service_center_id'))) {
-                    $this->insert_bb_state_change($order_id, _247AROUND_COMPLETED, $this->POST_DATA['remarks'], $this->POST_DATA['cp_id'], Null, $this->POST_DATA['cp_id']);
+                    $this->insert_bb_state_change($order_id, _247AROUND_COMPLETED, '', $this->POST_DATA['cp_id'], Null, $this->POST_DATA['cp_id']);
                 } else {
-                    $this->insert_bb_state_change($order_id, _247AROUND_COMPLETED, $this->POST_DATA['remarks'], $this->My_CI->session->userdata('id'), _247AROUND, Null);
+                    $this->insert_bb_state_change($order_id, _247AROUND_COMPLETED, '', $this->My_CI->session->userdata('id'), _247AROUND, Null);
                 }
 
                 $response['status'] = "success";
