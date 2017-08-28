@@ -527,7 +527,7 @@ class Buyback_process extends CI_Controller {
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('" . base_url() . "buyback/buyback_process/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Received</a></li>
                               <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
@@ -553,7 +553,7 @@ class Buyback_process extends CI_Controller {
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('" . base_url() . "buyback/buyback_process/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Received</a></li>
                               <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('".base_url()."buyback/buyback_process/update_not_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."')>Not Received</a></li>
                               <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Broken/Wrong Product</a></li>
                             </ul>
@@ -946,21 +946,25 @@ class Buyback_process extends CI_Controller {
      * @return void();
      */
     
-    function update_received_bb_order($order_id,$service_id,$city,$cp_id){
-        log_message("info",__METHOD__);
+    function update_received_bb_order($order_id, $service_id, $city, $cp_id) {
+        log_message("info", __METHOD__);
+        
         $data['order_id'] = urldecode($order_id);
         $data['service_id'] = urldecode($service_id);
         $data['city'] = urldecode($city);
         $data['cp_id'] = urldecode($cp_id);
-        
-        $return_data = $this->buyback->get_bb_physical_working_condition($data['order_id'],$data['service_id'],$data['cp_id']);
-        $response_data = array_merge($data,$return_data);
-        
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        $this->load->view('buyback/update_received_bb_order_details',$response_data);
-        $this->load->view('dashboard/dashboard_footer');
+
+        $response = $this->buyback->process_update_received_bb_order_details($data);
+
+        if ($response['status'] === 'success') {
+            $this->session->set_userdata('success', $response['msg']);
+            redirect(base_url() . 'buyback/buyback_process/view_bb_order_details');
+        } else if ($response['status'] === 'error') {
+            $this->session->set_userdata('error', $response['msg']);
+            redirect(base_url() . 'buyback/buyback_process/view_bb_order_details');
+        }
     }
-    
+
     /**
      * @desc This function is used to update the buyback order when order received by
      *       the collection partner.
