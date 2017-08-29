@@ -1536,6 +1536,7 @@ class Service_centers extends CI_Controller {
         }
         $order_id = $this->input->post('order_id');
         $order_received_from = $this->input->post('order_received_from');
+        $order_given_to = $this->input->post('order_given_to');
 //        $data['19_24_shipped'] = $this->input->post('19_24_shipped');
         $data['19_24_shipped'] = '0';
         $data['26_32_shipped'] = $this->input->post('26_32_shipped');
@@ -1578,10 +1579,28 @@ class Service_centers extends CI_Controller {
                    
                    if(!empty($template)){
                         $email['order_id'] = $order_id;
-                        $subject = "Brackets Shipped by ".$order_received_from_email[0]['company_name'];
+                        $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, $attachment);
                    }
+            //2. Sending mail to order_given_to vendor
+            $order_given_to_email_to = $this->vendor_model->getVendorContact($order_given_to);
+            $to = $order_given_to_email_to[0]['primary_contact_email'].','.$order_given_to_email_to[0]['owner_email'];
+            $order_given_to_email = array();
+                   //Getting template from Database
+                   $template1 = $this->booking_model->get_booking_email_template("brackets_shipment_mail_to_order_given_to");
+                   
+                   if(!empty($template)){
+                        $order_given_to_email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
+                        $order_given_to_email['order_id'] = $order_id;
+                        $subject = vsprintf($template1[4], $order_received_from_email[0]['company_name']);
+                        $emailBody = vsprintf($template1[0], $order_given_to_email);
+                        
+                        $this->notify->sendEmail($template1[2], $to , $template1[3].','.$this->get_rm_email($order_given_to), '', $subject , $emailBody, '');
+                   
+                        //Loggin send mail success
+                        log_message('info',__FUNCTION__.' Shipped mail has been sent to order_given_to vendor '. $emailBody);
+                   }       
             
             //Loggin send mail success
             log_message('info',__FUNCTION__.' Shipped mail has been sent to order_received_from vendor '. $emailBody);
@@ -1857,21 +1876,26 @@ class Service_centers extends CI_Controller {
      * @param $cp_id string
      * @return void
      */
-    function update_received_bb_order($order_id,$service_id,$city,$cp_id){
+    function update_received_bb_order($order_id, $service_id, $city, $cp_id) {
         $this->check_BB_UserSession();
-        
+
         $data['order_id'] = urldecode($order_id);
         $data['service_id'] = urldecode($service_id);
         $data['city'] = urldecode($city);
         $data['cp_id'] = urldecode($cp_id);
         
-        $return_data = $this->buyback->get_bb_physical_working_condition($data['order_id'],$data['service_id'],$data['cp_id']);
-        $response_data = array_merge($data,$return_data);
-        $this->load->view('service_centers/header');
-        $this->load->view('service_centers/update_received_bb_order_details',$response_data);
+        $response = $this->buyback->process_update_received_bb_order_details($data);
+        
+        if ($response['status'] === 'success') {
+            $this->session->set_userdata('success', $response['msg']);
+            redirect(base_url() . 'service_center/bb_oder_details');
+        } else if ($response['status'] === 'error') {
+            $this->session->set_userdata('error', $response['msg']);
+            redirect(base_url() . 'service_center/bb_oder_details');
+        }
+        
     }
-    
-    
+
     /**
      * @desc Used to process the  buyback update order form
      * @param void
@@ -2158,9 +2182,9 @@ class Service_centers extends CI_Controller {
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending', 'bb_cp_order_action.internal_status' => 'Delivered');
         $post['where_in'] = array();
-        $post['column_order'] = array( NULL,'bb_cp_order_action.partner_order_id','services','category',
+        $post['column_order'] = array( NULL,'bb_order_details.partner_tracking_id','services','category',
               'cp_basic_charge','category','delivery_date',NULL,NULL);
-        $post['column_search'] = array('bb_cp_order_action.partner_order_id', 'services', 'city',
+        $post['column_search'] = array('bb_order_details.partner_tracking_id', 'services', 'city',
             'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
         $data = array();
@@ -2190,9 +2214,9 @@ class Service_centers extends CI_Controller {
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending');
         $post['where_in'] = array('bb_cp_order_action.internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
-        $post['column_order'] = array( NULL,'bb_cp_order_action.partner_order_id','services', 'category',
+        $post['column_order'] = array( NULL,'bb_order_details.partner_tracking_id','services', 'category',
               'order_date','cp_basic_charge',NULL,NULL);
-        $post['column_search'] = array('bb_cp_order_action.partner_order_id', 'services', 'bb_unit_details.category','order_date', 'cp_basic_charge');
+        $post['column_search'] = array('bb_order_details.partner_tracking_id', 'services', 'bb_unit_details.category','order_date', 'cp_basic_charge');
         $list = $this->cp_model->get_bb_cp_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -2220,9 +2244,9 @@ class Service_centers extends CI_Controller {
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
         $post['where_in'] = array('bb_cp_order_action.current_status' => array('Delivered', 'InProcess', 'Not Delivered', 'Damaged'),
                                   'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged'));
-        $post['column_order'] = array( NULL,'bb_cp_order_action.partner_order_id','services','category',
+        $post['column_order'] = array( NULL,'bb_order_details.partner_tracking_id','services','category',
                                 'order_date','delivery_date','cp_basic_charge',NULL,NULL);
-        $post['column_search'] = array('bb_cp_order_action.partner_order_id', 'services', 'city',
+        $post['column_search'] = array('bb_order_details.partner_tracking_id', 'services', 'city',
             'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
         $data = array();
@@ -2251,7 +2275,7 @@ class Service_centers extends CI_Controller {
         //log_message("info", __METHOD__);
         $row = array();
         $row[] = $no;
-        $row[] = $order_list->partner_order_id;
+        $row[] = $order_list->partner_tracking_id;
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
@@ -2262,7 +2286,7 @@ class Service_centers extends CI_Controller {
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Received</a></li>
                               <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_not_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>
                               <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
                             </ul>
@@ -2282,23 +2306,16 @@ class Service_centers extends CI_Controller {
         //log_message("info", __METHOD__);
         $row = array();
         $row[] = $no;
-        $row[] = $order_list->partner_order_id;
+        $row[] = $order_list->partner_tracking_id;
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = $order_list->order_date;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
-        if ($order_list->internal_status === 'In-Transit') {
-            $row[] = "<span class='label label-primary'>$order_list->internal_status</span>";
-        } else if ($order_list->internal_status === 'Attempted') {
-            $row[] = "<span class='label label-warning'>$order_list->internal_status</span>";
-        } else if ($order_list->internal_status === 'New Item In-transit') {
-            $row[] = "<span class='label label-info'>$order_list->internal_status</span>";
-        }
         $row[] = "<div class='dropdown'>
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Received</a></li>
                               <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
@@ -2317,7 +2334,7 @@ class Service_centers extends CI_Controller {
         //log_message("info", __METHOD__);
         $row = array();
         $row[] = $no;
-        $row[] = $order_list->partner_order_id;
+        $row[] = $order_list->partner_tracking_id;
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = $order_list->order_date;

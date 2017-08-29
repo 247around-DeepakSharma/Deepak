@@ -64,12 +64,11 @@
                     <thead>
                         <tr>
                             <th>No.</th>
-                            <th>Order ID</th>
+                            <th>Order Tracking ID</th>
                             <th>Service Name</th>
                             <th>Category</th>
                             <th>Order date</th>
                             <th>SF Charge</th>
-                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -86,10 +85,10 @@
                         <thead>
                             <tr>
                                 <th>No.</th>
-                                <th>Order ID</th>
+                                <th>Order Tracking ID</th>
                                 <th>Service Name</th>
                                 <th>Category</th>
-                                <th>Charges</th>
+                                <th>SF Charge</th>
                                 <th>Order date</th>
                                 <th>Delivery date</th>
                                 <th>Remarks</th>
@@ -109,7 +108,7 @@
                     <thead>
                         <tr>
                             <th>No.</th>
-                            <th>Order ID</th>
+                            <th>Order Tracking ID</th>
                             <th>Service Name</th>
                             <th>Category</th>
                             <th>Order date</th>
@@ -175,7 +174,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,6,7], //first column / numbering column
+                    "targets": [0,6], //first column / numbering column
                     "orderable": false, //set not orderable
                 },
             ],

@@ -2619,11 +2619,10 @@ class Booking extends CI_Controller {
         $booking_status = trim($status);
         $data = $this->get_bookings_data_by_status($booking_status);
         
-        $post = $data['post'];
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => $this->booking_model->count_all_bookings_by_status($post),
-            "recordsFiltered" =>  $this->booking_model->count_filtered_bookings_by_status($post),
+            "recordsTotal" => $data['count'],
+            "recordsFiltered" =>  $data['count'],
             "data" => $data['data'],
         );
         
@@ -2656,7 +2655,8 @@ class Booking extends CI_Controller {
 
         return array(
             'data' => $data,
-            'post' => $new_post
+            'count' => count($list)
+            
         );
     }
     

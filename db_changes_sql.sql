@@ -3077,3 +3077,20 @@ If already Updated, please ignore<br><br>
 Regards<br>
 Team 247around', 'billing@247around.com', 'anuj@247around.com', '', '', '1', CURRENT_TIMESTAMP);
 
+--sachin 28 aug
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'defective_parts_acknowledge_reminder', 'Defective Parts Acknowledge Report', 'Dear Partner,<br>
+Defective parts for below bookings have been shipped by 247around Service Centre but Delivery has not been acknowledged by your team till now: <br><br>
+%s  <br><br>
+Please confirm / reject the delivery of these defective parts. Post 14 days of shipment, 247around system will mark them Delivered automatically. <br><br>
+Thanks. <br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,booking@247around.com, abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'auto_acknowledge_defective_parts', 'Auto Acknowledge Defective Parts Report', 'Dear Partner,<br>
+Below are the bookings which are auto acknowledge by 247around as per the earlier mail: <br><br>
+%s  <br><br>
+If you have any issue regarding this then please contact us. <br><br>
+Thanks. <br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,booking@247around.com, abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+
