@@ -199,7 +199,7 @@ class Dealers extends CI_Controller {
         $partner_id= $this->input->post('partner_id');
 
         $where = array('service_id' => $service_id, "brand" => $brand,"category" => $category, 'capacity' =>$capacity,
-            'product_or_services' => 'Service', 'partner_net_payable > 0' => NULL, 'partner_id' => $partner_id);
+            'product_or_services' => 'Service', 'partner_net_payable > 0' => NULL, 'partner_id' => $partner_id, "service_category LIKE '%installation%' " => NULL);
         $select = "id, service_category, partner_id, is_upcountry, customer_total,partner_net_payable"; $order_by = "service_category";
         $result = $this->service_centre_charges_model->get_service_charge_details($where, $select, $order_by);
         if(!empty($result)){
