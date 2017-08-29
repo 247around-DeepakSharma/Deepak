@@ -8,12 +8,8 @@ class Cp_model extends CI_Model {
         'shop_address_region', 'primary_contact_number', 'shop_address_line1'); //set column field database for datatable searchable 
     var $order = array('name,bb_shop_address.shop_address_region ' => 'asc'); // default order 
     
-    var $bb_select = 'bb_unit_details.partner_order_id,bb_order_details.partner_id, services,city, order_date, '
-            . 'bb_cp_order_action.internal_status, delivery_date, bb_cp_order_action.current_status, '
-            . 'partner_basic_charge, cp_basic_charge,cp_tax_charge,bb_unit_details.order_key, '
-            . 'bb_unit_details.service_id, bb_order_details.assigned_cp_id,bb_cp_order_action.admin_remarks,'
-            . 'bb_unit_details.category,bb_order_details.partner_tracking_id';
-
+    var $bb_select = 'bb_unit_details.partner_order_id,bb_order_details.partner_id, services,city, order_date, bb_cp_order_action.internal_status, delivery_date, bb_cp_order_action.current_status, partner_basic_charge, cp_basic_charge,cp_tax_charge,bb_unit_details.order_key, bb_unit_details.service_id, bb_order_details.assigned_cp_id,bb_cp_order_action.admin_remarks, bb_unit_details.category,bb_order_details.partner_tracking_id';
+    
     /**
      * @desc load both db
      */
