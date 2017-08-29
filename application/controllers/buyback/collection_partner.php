@@ -55,17 +55,18 @@ class Collection_partner extends CI_Controller {
             $no++;
             $row = array();
             $row[] = $no;
+            $json_data = json_encode($cp_address);
            
-            $a = "<a href='javascript:void(0)' onclick='";
+            $a = "<a href='javascript:void(0)' class='btn btn-info btn-sm' onclick='";
             $a .= "get_cp_history(".$cp_address->id;
             $a .= ', "'.$cp_address->name.'"';
-            $a .= ")' >".$cp_address->name."</a>";
-            $row[] = $a;
+            $a .= ")' ><span><i class='fa fa-eye'></i></span></a>";
+            
+            $row[] = "<a  href='javascript:void(0)' class='open-AddBookDialog' data-id='$json_data' data-toggle='modal' data-target='#update_form'> "
+                    . "$cp_address->name</a>";
             $row[] = $cp_address->contact_person;
-            $row[] = $cp_address->primary_contact_number;
-            $row[] = $cp_address->alternate_conatct_number;
-            $row[] = $cp_address->shop_address_line1;
-            $row[] = $cp_address->shop_address_line2;
+            $row[] = "<b>".$cp_address->primary_contact_number."</b><br> <br> ".$cp_address->alternate_conatct_number."</b>";
+            $row[] = "<b>".$cp_address->shop_address_line1."</b><br> <br>".$cp_address->shop_address_line2;
             $row[] = $cp_address->shop_address_region;
 
             if($cp_address->active == 1){
@@ -73,9 +74,7 @@ class Collection_partner extends CI_Controller {
             } else {
                  $row[] = "<button  class='btn btn-sm btn-success' onclick='activate_deactivate($cp_address->id,1)' >Activate</button>";
             }
-            $json_data = json_encode($cp_address);
-            $row[] = "<button type='button' class='btn btn-info btn-md open-AddBookDialog' data-id='$json_data' data-toggle='modal' data-target='#update_form'> "
-                    . "<span class='glyphicon glyphicon-edit' aria-hidden='true'></span></button>";
+            $row[] = $a;
             
 
             $data[] = $row;
