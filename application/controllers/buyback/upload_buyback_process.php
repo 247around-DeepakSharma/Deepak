@@ -166,13 +166,13 @@ class Upload_buyback_process extends CI_Controller {
 
                             $subject = "Buyback Order is uploaded by " . $this->session->userdata('employee_id');
 
-                            $message .= "Order File Name ----".$order_file."<br/><br/>";
-                            $message .= "Total lead  ----" . $total_lead . "<br/><br/>";
+                            $message .= "Order File Name ---->".$order_file."<br/><br/>";
+                            $message .= "Total lead  ---->" . $total_lead . "<br/><br/>";
 
-                            $message .= "Total Delivered ----" . ($this->initialized_variable->delivered_count()) . "<br/><br/>";
-                            $message .= "Total Inserted ----" . ($this->initialized_variable->total_inserted()) . "<br/><br/>";
-                            $message .= "Total Updated ----" . ($this->initialized_variable->total_updated()) . "<br/><br/>";
-                            $message .= "Total Not Assigned ----" . ($this->initialized_variable->not_assigned_order()) . "<br/><br/>";
+                            $message .= "Total Delivered ---->" . ($this->initialized_variable->delivered_count()) . "<br/><br/>";
+                            $message .= "Total Inserted ---->" . ($this->initialized_variable->total_inserted()) . "<br/><br/>";
+                            $message .= "Total Updated ---->" . ($this->initialized_variable->total_updated()) . "<br/><br/>";
+                            $message .= "Total Not Assigned ---->" . ($this->initialized_variable->not_assigned_order()) . "<br/><br/>";
                             $message .= "Please check below orders, these were neither inserted nor updated: <br/><br/><br/>";
                             $message .= $this->table->generate();
 
