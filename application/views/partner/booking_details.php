@@ -59,6 +59,11 @@
                 <div class="hidden-xs">Booking History</div>
             </button>
         </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default" href="#tab5" data-toggle="tab">
+                <div class="hidden-xs">SF Details</div>
+            </button>
+        </div>
     </div>
     <div class="well">
         <div class="tab-content">
@@ -262,7 +267,7 @@
                                         <th >Serial Number </th>
                                         <th >Acknowledge Date BY SF </th>
                                         <th >Remarks By SC </th>
-                                        <th >Status</th>
+                                        <th >Current Status</th>
                                     </tr>
                                 </thead>
 
@@ -315,7 +320,7 @@
                                             <th >Shipped date </th>
                                             <th >EDD </th>
                                             <th >Remarks By Partner</th>
-                                            <th >Status</th>
+                                            
                                         </tr>
 
                                     </thead>
@@ -328,7 +333,7 @@
                                                 <td><?php echo $sp['shipped_date']; ?></td>
                                                 <td><?php echo $sp['edd']; ?></td>
                                                 <td><?php echo $sp['remarks_by_partner']; ?></td>
-                                                 <td><?php echo $sp['status']; ?></td>
+                                                
 
                                             </tr>
         <?php } ?>
@@ -347,10 +352,11 @@
                                             <th >Courier Name </th>
                                             <th >AWB </th>
                                             <th >Courier Charge </th>
+                                            <th> Courier Invoice</th>
                                             <th >Shipped date </th>
                                             <th >Remarks By SF </th>
                                             <th >Remarks By Partner </th>
-                                            <th >Status</th>
+                                           
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -360,6 +366,7 @@
                                                 <td><?php echo $sp['courier_name_by_sf']; ?></td>
                                                 <td><?php echo $sp['awb_by_sf']; ?></td>
                                                 <td><?php echo $sp['courier_charges_by_sf']; ?></td>
+                                                <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                                 <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                                 <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                                 <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
@@ -380,6 +387,29 @@
 
 
             <div class="tab-pane fade in" id="tab4">
+
+            </div>
+             <div class="tab-pane fade in" id="tab5">
+                  <div class="row">
+                      <div class="col-md-12">
+                        <div class="col-md-6 col-md-offset-3">
+                            <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
+                            <table class="table  table-striped table-bordered" >
+                                <tr>
+                                <th>Back Office Person</th>
+                                <th>Mobile</th>
+                                </tr>
+                                <tbody>
+                                    <tr>
+                                        <td><?php echo $booking_history[0]['primary_contact_name'];?></td>
+                                        <td><?php echo $booking_history[0]['primary_contact_phone_1'];?></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <?php } else { ?><b>SF Not Assign</b><?php }?>
+                        </div>
+                      </div>
+                  </div>
 
             </div>
         </div>

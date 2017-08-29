@@ -404,6 +404,7 @@
                                      <th >Shipped date </th>
                                      <th >Remarks By SF </th>
                                      <th >Remarks By Partner</th>
+                                     <th>Courier Invoice</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -416,6 +417,7 @@
                                         <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
+                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                     </tr>
                     <?php } } ?>
                                 </tbody>

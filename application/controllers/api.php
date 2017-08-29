@@ -4029,6 +4029,9 @@ class Api extends CI_Controller {
         log_message('info', "Booking message: " . $message);
 
         $this->sendBookingMailToUser($user_email, $subject, $message, "", FALSE);
+       
+        $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, "Booking Rescheduled By Customer From App", 
+               _247AROUND_DEFAULT_AGENT, "247Around", _247AROUND);
     }
     
     /**

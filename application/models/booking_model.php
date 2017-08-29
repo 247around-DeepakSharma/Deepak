@@ -2029,5 +2029,86 @@ class Booking_model extends CI_Model {
         $query = $this->db->get('sms_sent_details');
         return $query->result_array();
     }
+    
+    /**
+     *  @desc : This function is used to get bookings based on booking status type
+     *  @param : $post string
+     *  @param : $select string
+     *  @return : $output Array()
+     */
+    function _get_bookings_by_status($post, $select = "") {
+        $this->db->from('booking_details');
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->distinct();
+        $this->db->select($select,FALSE);
+        $this->db->join('users', 'users.user_id = booking_details.user_id ');
+        $this->db->join('services', 'services.id = booking_details.service_id');
+        $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
+        $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
+        
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('closed_date','DESC');
+        }
+    }
+    
+    /**
+     *  @desc : This function is used to get bookings based on booking status type
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_bookings_by_status($post, $select = "") {
+        $this->_get_bookings_by_status($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    /**
+     *  @desc : This function is used to get total bookings based on booking status type
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_bookings_by_status($post) {
+        $this->_get_bookings_by_status($post, 'count(distinct(booking_details.booking_id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }  
+    
+    /**
+     *  @desc : This function is used to get total filtered bookings based on booking status type
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_bookings_by_status($post){
+        $this->_get_bookings_by_status($post,'count(distinct(booking_details.booking_id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
 
 }

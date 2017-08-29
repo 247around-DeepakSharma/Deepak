@@ -2030,16 +2030,25 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
-                . " AND status IN ('" . DEFECTIVE_PARTS_PENDING . "','" . DEFECTIVE_PARTS_SHIPPED . "') "
-                . " AND spare_parts_details.defective_part_required = 1 ";
+        
+         $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.partner_id" => $partner_id,
+            "status IN ('Delivered', '".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_SHIPPED."')  " => NULL
+            
+        );
+        
+        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
+                . " spare_parts_details.booking_id, name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf";
+        
+        $group_by = "spare_parts_details.booking_id";
+        $order_by = "spare_parts_details.defective_part_shipped_date ASC";
 
         $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
-        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
-        $config['total_rows'] = $total_rows[0]['total_rows'];
+        $config['total_rows'] =  $this->service_centers_model->count_spare_parts_booking($where, $select);
 
         if ($all == 1) {
-            $config['per_page'] = $total_rows[0]['total_rows'];
+            $config['per_page'] = $config['total_rows'];
         } else {
             $config['per_page'] = 50;
         }
@@ -2050,7 +2059,7 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        $data['spare_parts'] =  $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
         $where_internal_status = array("page" => "defective_parts", "active" => '1');
         $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         $this->load->view('partner/header');
@@ -2061,14 +2070,14 @@ class Partner extends CI_Controller {
      * @desc: Partner acknowledge to receive defective spare parts
      * @param String $booking_id
      */
-    function acknowledge_received_defective_parts($booking_id, $id, $is_cron = "") {
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id . ' id: ' . $id);
+    function acknowledge_received_defective_parts($booking_id, $is_cron = "") {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id);
         
         if(empty($is_cron)){
             $this->checkUserSession();
         }
 
-        $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_RECEIVED,
+        $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         if ($response) {
@@ -2076,17 +2085,10 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
             $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $is_cron);
-            
-                
-            $where = "spare_parts_details.defective_part_required = 1 AND spare_parts_details.booking_id = '".$booking_id."' "
-                . " AND spare_parts_details.id NOT In ('$id')";
-                
-            $is_spare = $this->partner_model->get_spare_parts_booking($where);
-            if(empty($is_spare)){
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-            }
+
+            $sc_data['current_status'] = "InProcess";
+            $sc_data['internal_status'] = _247AROUND_COMPLETED;
+            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
             
             if(empty($is_cron)){
                 $userSession = array('success' => ' Received Defective Spare Parts');
@@ -2110,12 +2112,12 @@ class Partner extends CI_Controller {
      * @param Sting $booking_id
      * @param Urlencoded $status (Rejection Reason)
      */
-    function reject_defective_part($booking_id, $id, $status) {
+    function reject_defective_part($booking_id, $status) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id . ' status: ' . $status);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
 
-        $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_REJECTED,
+        $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => DEFECTIVE_PARTS_REJECTED,
             'remarks_defective_part_by_partner' => $rejection_reason,
             'approved_defective_parts_by_partner' => '0',
             'defective_part_shipped' => NULL,
@@ -3050,19 +3052,13 @@ class Partner extends CI_Controller {
                 $html_table = $this->table->generate($defective_parts_acknowledge_data);
                 
                 //send email
+                $email_template = $this->booking_model->get_booking_email_template("defective_parts_acknowledge_reminder");
                 $to = $partner['primary_contact_email'];
-                $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com, abhaya@247around.com';
-                $subject = "Defective Spares Yet to be Acknowledged";
+                $cc = $email_template[3];
+                $subject = $email_template[4];
+                $message = vsprintf($email_template[0], $html_table);
                 
-                $message = "Dear Partner,<br/><br/>";
-                $message .= "Defective spare parts for below bookings have been shipped by 247around "
-                        . "Service Centre but Delivery has not been acknowledged by your team till now: <br><br>";
-                $message .= "$html_table <br><br>";
-                $message .= "Please confirm / reject the delivery of these defective parts. "
-                        . "Post 14 days of shipment, 247around system will mark them Delivered automatically. <br><br>";
-                $message .= "Thanks. <br> 247around Team";
-                
-                $sendmail = $this->notify->sendEmail('booking@247around.com', $to, $cc, "", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
 
                 if ($sendmail){
                     log_message('info', __FUNCTION__ . 'Defective Spares Yet to be Acknowledged Mail has been sent to partner '.$partner['public_name'].' successfully');
@@ -3089,7 +3085,7 @@ class Partner extends CI_Controller {
         $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         foreach ($partners as $partner) {
 
-            $select = "spare_parts_details.id,spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
+            $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.partner_id' => $partner['id'], 
                            'DATEDIFF(defective_part_shipped_date,now()) <= -14' => null,
                            "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
@@ -3099,10 +3095,9 @@ class Partner extends CI_Controller {
                 
                 //update acknowledge
                 foreach ($defective_parts_acknowledge_data as $value){
-                    $this->acknowledge_received_defective_parts($value['booking_id'], $value['id'], true);
+                    $this->acknowledge_received_defective_parts($value['booking_id'], true);
                 }
                 
-                //send email
                 $this->table->set_heading('Booking Id', 'Defective Part Shipped Date');
                 $template = array(
                     'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
@@ -3111,18 +3106,15 @@ class Partner extends CI_Controller {
                 $this->table->set_template($template);
                 $html_table = $this->table->generate($defective_parts_acknowledge_data);
                 
+                
                 //send email
+                $email_template = $this->booking_model->get_booking_email_template("auto_acknowledge_defective_parts");
                 $to = $partner['primary_contact_email'];
-                $cc = NITS_ANUJ_EMAIL_ID.','.'booking@247around.com, abhaya@247around.com';
-                $subject = "Defective Spares Auto Acknowledged";
+                $cc = $email_template[3];
+                $subject = $email_template[4];
+                $message = vsprintf($email_template[0], $html_table);
                 
-                $message = "Dear Partner,<br/><br/>";
-                $message .= "Below are the bookings which are auto acknowledged by 247around as per the earlier mail: <br><br>";
-                $message .= "$html_table <br><br>";
-                $message .= "If you have any issues regarding this, please contact us.<br><br>";
-                $message .= "Thanks. <br> 247around Team";
-                
-                $sendmail = $this->notify->sendEmail('booking@247around.com', $to, $cc, "", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
 
                 if ($sendmail){
                     log_message('info', __FUNCTION__ . 'Report Mail has been send to partner '.$partner['public_name'].' successfully');
