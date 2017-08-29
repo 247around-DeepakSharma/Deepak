@@ -39,6 +39,15 @@
     <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
     <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
     
+    <script src='https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js'></script>
+        <script src='//cdn.datatables.net/buttons/1.2.1/js/buttons.flash.min.js'></script>
+        <script src='//cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js'></script>
+        <script src='//cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js'></script>
+        <script src='//cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js'></script>
+        <script src='//cdn.datatables.net/buttons/1.2.1/js/buttons.html5.min.js'></script>
+        <script src='//cdn.datatables.net/buttons/1.2.1/js/buttons.print.min.js'></script>
+        <script src='https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js'></script>
+    
     <!-- Custom Theme Scripts -->
     <script src="<?php echo base_url()?>js/base_url.js"></script>
     <script src="<?php echo base_url()?>js/dashboard_custom.js"></script>

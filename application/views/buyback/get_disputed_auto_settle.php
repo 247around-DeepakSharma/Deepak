@@ -83,6 +83,7 @@
     var auto_settle;
     var claim_submitted;
     var claim_settled;
+    var datatable_length_option = [[25, 50, 100, 250, -1], [25, 50, 100, 250, "All"]];
     $(document).ready(function () {
         
         //datatables
@@ -91,6 +92,7 @@
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            "lengthMenu": datatable_length_option,
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
@@ -119,6 +121,7 @@
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            "lengthMenu": datatable_length_option,
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
@@ -146,6 +149,7 @@
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            "lengthMenu": datatable_length_option,
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",

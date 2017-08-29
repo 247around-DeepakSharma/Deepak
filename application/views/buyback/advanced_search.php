@@ -153,18 +153,18 @@ var shop_list_details = [];
     $(document).ready(function () {
         
         $('input[name="order_date"]').daterangepicker({
+            autoUpdateInput: false,
             locale: {
                 format: 'YYYY/MM/DD',
                  cancelLabel: 'Clear'
-            },
-            startDate: '<?php echo date("Y/m/01") ?>',
-            endDate: '<?php echo date("Y/m/t") ?>'
+            }
         });
         $('input[name="order_date"]').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));    
             ad_table.ajax.reload( function ( json ) {
-               create_dropdown();
-             } );
-            
+                   create_dropdown();
+                 } );
+
         });
         
         $('input[name="order_date"]').on('cancel.daterangepicker', function (ev, picker) {
@@ -213,6 +213,7 @@ var shop_list_details = [];
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            "deferLoading": 0,
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
