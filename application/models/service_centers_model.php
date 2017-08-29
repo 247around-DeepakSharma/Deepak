@@ -313,11 +313,36 @@ class Service_centers_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_spare_parts_booking($where, $select){
-        $this->db->select($select);
-        $this->db->where($where);
-        $query = $this->db->get("spare_parts_details");
+    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false){
+        $this->_spare_parts_booking_query($where, $select);
+        if($group_by){
+            $this->db->group_by($group_by);
+        }
+        
+        if($order_by){
+            $this->db->order_by($order_by, FALSE);
+        }
+        if($limit){
+            $this->db->limit($limit, $offset);
+        }
+        $query = $this->db->get();
         return $query->result_array();
+    }
+    
+    function _spare_parts_booking_query($where, $select){
+        $this->db->select($select, false);
+        $this->db->from('spare_parts_details');
+        $this->db->join('booking_details','booking_details.booking_id = spare_parts_details.booking_id');
+        $this->db->join('users', 'users.user_id =  booking_details.user_id');
+        $this->db->where($where, false);  
+    }
+    
+    function count_spare_parts_booking($where, $select){
+        $this->_spare_parts_booking_query($where, $select);
+        $query = $this->db->get();
+
+        return $query->num_rows();
+
     }
     
     /**

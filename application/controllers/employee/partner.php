@@ -2030,16 +2030,25 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
-                . " AND status IN ('" . DEFECTIVE_PARTS_PENDING . "','" . DEFECTIVE_PARTS_SHIPPED . "') "
-                . " AND spare_parts_details.defective_part_required = 1 ";
+        
+         $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.partner_id" => $partner_id,
+            "status IN ('Delivered', '".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_SHIPPED."')  " => NULL
+            
+        );
+        
+        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
+                . " spare_parts_details.booking_id, name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf";
+        
+        $group_by = "spare_parts_details.booking_id";
+        $order_by = "spare_parts_details.defective_part_shipped_date ASC";
 
         $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
-        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
-        $config['total_rows'] = $total_rows[0]['total_rows'];
+        $config['total_rows'] =  $this->service_centers_model->count_spare_parts_booking($where, $select);
 
         if ($all == 1) {
-            $config['per_page'] = $total_rows[0]['total_rows'];
+            $config['per_page'] = $config['total_rows'];
         } else {
             $config['per_page'] = 50;
         }
@@ -2050,7 +2059,7 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        $data['spare_parts'] =  $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
         $where_internal_status = array("page" => "defective_parts", "active" => '1');
         $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         $this->load->view('partner/header');
@@ -2061,14 +2070,14 @@ class Partner extends CI_Controller {
      * @desc: Partner acknowledge to receive defective spare parts
      * @param String $booking_id
      */
-    function acknowledge_received_defective_parts($booking_id, $id, $is_cron = "") {
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id . ' id: ' . $id);
+    function acknowledge_received_defective_parts($booking_id, $is_cron = "") {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id);
         
         if(empty($is_cron)){
             $this->checkUserSession();
         }
 
-        $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_RECEIVED,
+        $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         if ($response) {
@@ -2076,17 +2085,10 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
             $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $is_cron);
-            
-                
-            $where = "spare_parts_details.defective_part_required = 1 AND spare_parts_details.booking_id = '".$booking_id."' "
-                . " AND spare_parts_details.id NOT In ('$id')";
-                
-            $is_spare = $this->partner_model->get_spare_parts_booking($where);
-            if(empty($is_spare)){
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-            }
+
+            $sc_data['current_status'] = "InProcess";
+            $sc_data['internal_status'] = _247AROUND_COMPLETED;
+            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
             
             if(empty($is_cron)){
                 $userSession = array('success' => ' Received Defective Spare Parts');
@@ -2110,12 +2112,12 @@ class Partner extends CI_Controller {
      * @param Sting $booking_id
      * @param Urlencoded $status (Rejection Reason)
      */
-    function reject_defective_part($booking_id, $id, $status) {
+    function reject_defective_part($booking_id, $status) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id . ' status: ' . $status);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
 
-        $response = $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_REJECTED,
+        $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => DEFECTIVE_PARTS_REJECTED,
             'remarks_defective_part_by_partner' => $rejection_reason,
             'approved_defective_parts_by_partner' => '0',
             'defective_part_shipped' => NULL,
@@ -3098,7 +3100,7 @@ class Partner extends CI_Controller {
                 
                 //update acknowledge
                 foreach ($defective_parts_acknowledge_data as $value){
-                    $this->acknowledge_received_defective_parts($value['booking_id'], $value['id'], true);
+                    $this->acknowledge_received_defective_parts($value['booking_id'], true);
                 }
                 
                 //send email

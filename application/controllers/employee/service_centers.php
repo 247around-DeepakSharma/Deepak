@@ -931,6 +931,7 @@ class Service_centers extends CI_Controller {
 		if ($file["error"] > 0) {
 		    $this->form_validation->set_message('upload_spare_pic', $file["error"]);
 		} else {
+                   
 		    $pic = str_replace(' ', '-', $this->input->post('booking_id'));
 		    $picName = $type. rand(10,100).$pic . "." . $extension;
 		    $bucket = BITBUCKET_DIRECTORY;
@@ -1216,12 +1217,25 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $service_center_id = $this->session->userdata('service_center_id');
-        $where = "spare_parts_details.defective_part_required = 1 AND spare_parts_details.service_center_id = '".$service_center_id."' "
-                . " AND status IN ('Delivered', '".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  ";
+
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status IN ('Delivered', '".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            
+        );
+        
+        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as parts_shipped, "
+                . " spare_parts_details.booking_id, name, "
+                . "CONCAT( '', GROUP_CONCAT((remarks_defective_part_by_partner ) ) , '' ) as remarks_defective_part_by_partner, "
+                . "CONCAT( '', GROUP_CONCAT((remarks_by_partner ) ) , '' ) as remarks_by_partner, booking_details.partner_id";
+        
+        $group_by = "spare_parts_details.booking_id";
+        $order_by = "status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC";
+       
           
         $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
-        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
-        $config['total_rows'] = $total_rows[0]['total_rows'];
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
                 
         $config['per_page'] = 50;
         $config['uri_segment'] = 3;
@@ -1231,7 +1245,7 @@ class Service_centers extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
        
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/defective_parts', $data);
@@ -1269,14 +1283,15 @@ class Service_centers extends CI_Controller {
      * @desc: This method is used to load update form(defective shipped parts)
      * @param String $id
      */
-    function update_defective_parts($id) {
+    function update_defective_parts($booking_id) {
         $this->checkUserSession();
-        if (!empty($id) || $id != '' || $id != 0) {
+        if (!empty($booking_id) || $booking_id != '' || $booking_id != 0) {
             log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
+           
             $service_center_id = $this->session->userdata('service_center_id');
 
             $where = "spare_parts_details.service_center_id = '" . $service_center_id . "'  "
-                    . " AND spare_parts_details.id = '" . $id . "' ";
+                    . " AND spare_parts_details.booking_id = '" . $booking_id . "' ";
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
             if (!empty($data['spare_parts'])) {
                 $this->load->view('service_centers/header');
@@ -1293,11 +1308,11 @@ class Service_centers extends CI_Controller {
      * @desc: Process to update defective spare parts
      * @param type $booking_id
      */
-    function process_update_defective_parts($booking_id, $id) {
-        log_message('info', __FUNCTION__ . ' sf_id: ' . $this->session->userdata('service_center_id') . " booking id " . $booking_id . " ID " . $id);
+    function process_update_defective_parts($booking_id) {
+        log_message('info', __FUNCTION__ . ' sf_id: ' . $this->session->userdata('service_center_id') . " booking id " . $booking_id );
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
-        $this->form_validation->set_rules('defective_part_shipped', 'Parts Name', 'trim|required');
+        
         $this->form_validation->set_rules('remarks_defective_part', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('courier_name_by_sf', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb_by_sf', 'AWB', 'trim|required');
@@ -1307,55 +1322,67 @@ class Service_centers extends CI_Controller {
 
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center ' . $this->session->userdata('service_center_name') .
-                    " booking id " . $booking_id . " ID " . $id . " Data" . print_r($this->input->post(), true));
-            $this->update_defective_parts($id);
+                    " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
+            $this->update_defective_parts($booking_id);
         } else {
+            
             $defective_courier_receipt = "";
             if (isset($_FILES["defective_courier_receipt"])) {
                 $defective_courier_receipt = $this->upload_spare_pic($_FILES["defective_courier_receipt"], "defective_courier_receipt");
                 if (empty($defective_courier_receipt)) {
-                   $this->update_defective_parts($id);
+                  $this->update_defective_parts($booking_id);
                 }
             } else {
                 $this->form_validation->set_message('upload_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
                         . 'Maximum file size is 2 MB.');
-                $this->update_defective_parts($id);
+                $this->update_defective_parts($booking_id);
             }
 
-            if (empty($defective_courier_receipt)) {
+            if (!empty($defective_courier_receipt)) {
                 $data['defective_courier_receipt'] = $defective_courier_receipt;
-                //$service_center_id = $this->session->userdata('service_center_id');
-                $data['defective_part_shipped'] = $this->input->post('defective_part_shipped');
+                $service_center_id = $this->session->userdata('service_center_id');
+                $defective_part_shipped = $this->input->post('defective_part_shipped');
                 $data['remarks_defective_part_by_sf'] = $this->input->post('remarks_defective_part');
-                $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                 $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
-                $data['awb_by_sf'] = $this->input->post('awb_by_sf');
-                $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
                 $data['status'] = DEFECTIVE_PARTS_SHIPPED;
-                $where = array('id' => $id);
-                $response = $this->service_centers_model->update_spare_parts($where, $data);
-                if ($response) {
-
-                    $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf']);
-
-                    $where = "spare_parts_details.defective_part_required = 1 AND spare_parts_details.booking_id = '" . $booking_id . "' "
-                            . " AND status IN ('Delivered', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED . "')  "
-                            . " AND spare_parts_details.id NOT In ('$id')";
-
-                    $is_spare = $this->partner_model->get_spare_parts_booking($where);
-                    if (empty($is_spare)) {
-                        $sc_data['current_status'] = "InProcess";
-                        $sc_data['update_date'] = date('Y-m-d H:i:s');
-                        $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
-                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                        $userSession = array('success' => 'Parts Updated. Please Also Update Another Part.');
+                $k =0;
+                foreach ($defective_part_shipped as $id => $value) {
+                    if($k ==0){
+                        $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
+                        
                     } else {
-                        $userSession = array('success' => 'Parts Updated.');
+                        $data['courier_charges_by_sf'] = 0;
+                        
                     }
-
-                    $this->session->set_userdata($userSession);
-                    redirect(base_url() . "service_center/get_defective_parts_booking");
+                    $data['awb_by_sf'] = $this->input->post('awb_by_sf');
+                    $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
+                    $data['defective_part_shipped'] = $value;
+                   
+                    $where = array('id' => $id);
+                    $this->service_centers_model->update_spare_parts($where, $data);
+                    $k++;
                 }
+
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf']);
+                $sc_data['current_status'] = "InProcess";
+                $sc_data['update_date'] = date('Y-m-d H:i:s');
+                $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
+                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                $rm_email = $this->get_rm_email($service_center_id);
+                $from = "booking@247around.com";
+
+                $to = "anuj@247around.com, booking@247around.com";
+                $cc= $rm_email.", nits@247around.com";
+               
+                $subject = $this->session->userdata('service_center_name')." Updated Courier Details for Booking ID ".$booking_id;
+                $message = "Please Find Courier Invoice Attachment";
+                $attachment = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$defective_courier_receipt;
+                $this->notify->sendEmail($from, $to, $cc, "", $subject, $message, $attachment);
+                $userSession = array('success' => 'Parts Updated.');
+
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/get_defective_parts_booking");
+
             } else {
                 log_message('info', __FUNCTION__ . '=> Defective Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_name') .
                         " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
