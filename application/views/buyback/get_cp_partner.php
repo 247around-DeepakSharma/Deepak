@@ -34,15 +34,13 @@
                                     <th>No.</th>
                                     
                                     <th>CP Name</th>
-                                    <th>Contact Person</th>
-                                    <th>Mobile</th>
-                                    <th>Alt Mobile</th>
-                                    <th>Shop Address1</th>
-                                    <th>Shop Address2</th>
+                                    <th>Owner Name</th>
+                                    <th>Primary Mobile Number / Alternate Mobile Number</th>
+                                    <th>Shop Address1 / Shop Address2</th>
                                     <th>Region</th>
                                   
                                     <th>Action</th>
-                                    <th>Update</th>
+                                    <th>View Update History</th>
 
                                 </tr>
                             </thead>
@@ -219,6 +217,7 @@
                 "serverSide": true, //Feature control DataTables' server-side processing mode.
                 "order": [], //Initial no order.
                 "pageLength": 50,
+                "ordering": false,
                 // Load data for the table's content from an Ajax source
                 "ajax": {
                     "url": "<?php echo base_url(); ?>buyback/collection_partner/get_cp_shop_address_data",
@@ -228,7 +227,7 @@
                 //Set column definition initialisation properties.
                 "columnDefs": [
                     {
-                        "targets": [0,4,6,8,9], //first column / numbering column
+                        "targets": [0], //first column / numbering column
                         "orderable": false, //set not orderable
                     },
                 ],

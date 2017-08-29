@@ -1,4 +1,34 @@
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
+<style>
+    .dataTables_info {
+        width: 100%;
+        float: left;
+    }
+    a.dt-button {
+        position: relative;
+        display: inline-block;
+        box-sizing: border-box;
+        margin-right: 0.333em;
+        padding: 0.5em 1em;
+        font-size: inherit;
+        border: 1px solid #2e6da4;
+        border-radius: 2px;
+        cursor: pointer;
+        color: #f9f9f9;
+        white-space: nowrap;
+        overflow: hidden;
+        background-color: #337ab7;
+        background-image: none;
+    }
+    a.dt-button:hover:not(.disabled),a.dt-button.active:not(.disabled) {
+        border: 1px solid #2e6da4;
+        background-color: #143958!important;
+        background-image: none!important;
+    }
+    div.dt-button-background{
+        position: inherit;
+    }
+</style>
 <div class="right_col" role="main">
     <div class="clearfix"></div>
     <div class="row" >
@@ -37,6 +67,7 @@
                                                 <th>Order Date</th>
                                                 <th>Status</th>
                                                 <th>Exchange Value</th>
+                                                <th>Select</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -54,6 +85,7 @@
                                                 <th>Order Date</th>
                                                 <th>Status</th>
                                                 <th>Exchange Value</th>
+                                                <th>Select</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -70,6 +102,7 @@
                                                 <th>Order Date</th>
                                                 <th>Status</th>
                                                 <th>Exchange Value</th>
+                                                <th>Select</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -86,6 +119,7 @@
                                                 <th>Order Date</th>
                                                 <th>Status</th>
                                                 <th>Exchange Value</th>
+                                                <th>Select</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -102,6 +136,7 @@
                                                 <th>Order Date</th>
                                                 <th>Status</th>
                                                 <th>Exchange Value</th>
+                                                <th>Select</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -115,20 +150,49 @@
         </div>
     </div>
 </div>
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript">
     var vendor_rejected;
     var claim_submitted;
     var claim_approved;
     var claim_rejected;
     var claim_settled;
+    var datatable_length_option = [[25, 50, 100, 250, -1], [25, 50, 100, 250, "All"]];
+    var time = moment().format('D-MMM-YYYY');
     $(document).ready(function () {
         
         //datatables
         vendor_rejected = $('#datatable1').DataTable({
-            "processing": true, //Feature control the processing indicator.
-            "serverSide": true, //Feature control DataTables' server-side processing mode.
-            "order": [], //Initial no order.
             "pageLength": 50,
+            "processing": true, 
+            "serverSide": true, 
+            "order": [], 
+            dom: 'Bfrtip',
+            lengthMenu: datatable_length_option,
+            buttons: [
+                'pageLength',
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export All',
+                    exportOptions: {
+                        columns: ':visible:not(.not-exported)'
+                    },
+                   title: 'Vendor_Rejected_All_Data_'+time
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export selected',
+                    exportOptions: {
+                        modifier: {
+                            selected: true
+                        }
+                    },
+                    title: 'Vendor_Rejected_Selected_Data_'+time
+                }
+            ],
+            select: {
+                style: 'multi'
+            },
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
@@ -153,10 +217,36 @@
         
          //datatables
         claim_submitted = $('#datatable2').DataTable({
-            "processing": true, //Feature control the processing indicator.
-            "serverSide": true, //Feature control DataTables' server-side processing mode.
-            "order": [], //Initial no order.
             "pageLength": 50,
+            "processing": true, 
+            "serverSide": true, 
+            "order": [], 
+            dom: 'Bfrtip',
+            lengthMenu: datatable_length_option,
+            buttons: [
+                'pageLength',
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export All',
+                    exportOptions: {
+                        columns: ':visible:not(.not-exported)'
+                    },
+                   title: 'Vendor_Rejected_All_Claim_Submitted_Data_'+time
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export selected',
+                    exportOptions: {
+                        modifier: {
+                            selected: true
+                        }
+                    },
+                    title: 'Vendor_Rejected_Selected__Claim_Submitted_Data_'+time
+                }
+            ],
+            select: {
+                style: 'multi'
+            },
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
@@ -180,10 +270,36 @@
         });
         
         claim_approved = $('#datatable3').DataTable({
-            "processing": true, //Feature control the processing indicator.
-            "serverSide": true, //Feature control DataTables' server-side processing mode.
-            "order": [], //Initial no order.
             "pageLength": 50,
+            "processing": true, 
+            "serverSide": true, 
+            "order": [], 
+            dom: 'Bfrtip',
+            lengthMenu: datatable_length_option,
+            buttons: [
+                'pageLength',
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export All',
+                    exportOptions: {
+                        columns: ':visible:not(.not-exported)'
+                    },
+                   title: 'Vendor_Rejected_All_Claim_Approved_Data_'+time
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export selected',
+                    exportOptions: {
+                        modifier: {
+                            selected: true
+                        }
+                    },
+                    title: 'Vendor_Rejected_Selected__Claim_Approved_Data_'+time
+                }
+            ],
+            select: {
+                style: 'multi'
+            },
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
@@ -207,15 +323,41 @@
         });
         
         claim_rejected = $('#datatable4').DataTable({
-            "processing": true, //Feature control the processing indicator.
-            "serverSide": true, //Feature control DataTables' server-side processing mode.
-            "order": [], //Initial no order.
             "pageLength": 50,
+            "processing": true, 
+            "serverSide": true, 
+            "order": [], 
+            dom: 'Bfrtip',
+            lengthMenu: datatable_length_option,
+            buttons: [
+                'pageLength',
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export All',
+                    exportOptions: {
+                        columns: ':visible:not(.not-exported)'
+                    },
+                   title: 'Vendor_Claim_Rejected_All_Data_'+time
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export selected',
+                    exportOptions: {
+                        modifier: {
+                            selected: true
+                        }
+                    },
+                    title: 'Vendor_Claim_Rejected_Selected_Data_'+time
+                }
+            ],
+            select: {
+                style: 'multi'
+            },
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
                 "type": "POST",
-                "data": {"status": 14},
+                "data": {"status": 14}
                 
             },
             
@@ -223,8 +365,8 @@
             "columnDefs": [
                 {
                     "targets": [0,1], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "orderable": false //set not orderable
+                }
             ],
            "fnInitComplete": function (oSettings, response) {
             
@@ -234,15 +376,41 @@
         });
         
         claim_settled = $('#datatable5').DataTable({
-            "processing": true, //Feature control the processing indicator.
-            "serverSide": true, //Feature control DataTables' server-side processing mode.
-            "order": [], //Initial no order.
             "pageLength": 50,
+            "processing": true, 
+            "serverSide": true, 
+            "order": [], 
+            dom: 'Bfrtip',
+            lengthMenu: datatable_length_option,
+            buttons: [
+                'pageLength',
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export All',
+                    exportOptions: {
+                        columns: ':visible:not(.not-exported)'
+                    },
+                   title: 'Vendor_Rejected_All_Claim_Settled_Data_'+time
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export selected',
+                    exportOptions: {
+                        modifier: {
+                            selected: true
+                        }
+                    },
+                    title: 'Vendor_Rejected_Selected_Claim_Settled_Data_'+time
+                }
+            ],
+            select: {
+                style: 'multi'
+            },
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
                 "type": "POST",
-                "data": {"status": 15},
+                "data": {"status": 15}
                 
             },
             
@@ -250,8 +418,8 @@
             "columnDefs": [
                 {
                     "targets": [0,1], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "orderable": false //set not orderable
+                }
             ],
            "fnInitComplete": function (oSettings, response) {
             

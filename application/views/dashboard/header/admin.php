@@ -24,6 +24,7 @@
         <!-- Sweet Alert Css -->
         <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
         <!-- jQuery -->
+        <link href="https://cdn.datatables.net/buttons/1.4.0/css/buttons.dataTables.min.css" rel="stylesheet">
         <script src="<?php echo base_url() ?>js/jquery.min.js"></script>
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
          <link href="<?php echo base_url()?>css/select2.min.css" rel="stylesheet" />
@@ -81,11 +82,11 @@
                             <li>
                                 <a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
                                 <ul class="nav child_menu">
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_search">Orders Snapshot</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload Order File</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process/price_sheet_upload">Upload Price Sheet</a></li>
-
+                                    
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/view_bb_order_details">Pending Orders</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload Order File</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/collection_partner/get_cp_shop_address">Shop Addresses</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_review">Review Order</a></li>
                                     <li>
                                         <a>Disputed Orders <span class="fa fa-chevron-down"></span></a>
                                         <ul class="nav child_menu">
@@ -95,10 +96,10 @@
                                             <li><a href="<?php echo base_url();?>buyback/buyback_process/vendor_rejected">Rejected By CP</a></li>
                                         </ul>
                                     </li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_review">Review Order</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/collection_partner/get_cp_shop_address">Shop Addresses</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/filter_bb_price_list">Charges List</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/tag_untag_bb_orders">Claimed Process</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/filter_bb_price_list">Charges List</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process/price_sheet_upload">Upload Price Sheet</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_search">Advance Search</a></li>
                                 </ul>
                             </li>
                         </ul>
