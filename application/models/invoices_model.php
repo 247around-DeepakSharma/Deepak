@@ -892,7 +892,7 @@ class invoices_model extends CI_Model {
             
             if(!empty($debit_penalty)){
                 $d_penalty = array();
-                $d_penalty[0]['description'] = 'Deduction- Bookings Penalty';
+                $d_penalty[0]['description'] = 'Discount (Bookings not updated)';
                 $d_penalty[0]['hsn_code'] = '';
                 $d_penalty[0]['qty'] = '';
                 $d_penalty[0]['rate'] = '';
@@ -1005,7 +1005,9 @@ class invoices_model extends CI_Model {
             $meta['ed'] = date("jS M, Y", strtotime($to_date_tmp));
             $meta['invoice_date'] = date("jS M, Y");
             $meta['company_name'] = $meta['vendor_name'] = $data['booking'][0]['company_name'];
-            $meta['company_address'] = $meta['vendor_address'] = $data['booking'][0]['company_address'];
+            $meta['company_address'] = $meta['vendor_address'] = $data['booking'][0]['company_address'] . "," 
+                    . $data['booking'][0]['district'] . "," . $data['booking'][0]['state'] . ", Pincode: "
+                    . $data['booking'][0]['pincode'];
             $meta['reference_invoice_id'] = "";
             $meta['gst_number'] = $data['booking'][0]['gst_number'];
             $meta['sc_code'] = $data['booking'][0]['sc_code'];

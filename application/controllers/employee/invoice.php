@@ -989,7 +989,7 @@ class Invoice extends CI_Controller {
             $t_vp_w_tds =  $invoice_data['meta']['t_vp_w_tds'] +  $invoice_data['meta']['total_upcountry_price'] + 
                     $invoice_data['meta']['cr_total_penalty_amount'] +  $invoice_data['meta']['total_courier_charges'] + $invoice_data['meta']['total_penalty_amount'];
             
-            $invoice_data['meta']['t_vp_w_tds'] = $t_vp_w_tds;
+            $invoice_data['meta']['t_vp_w_tds'] = $t_vp_w_tds + $invoice_data['meta']['total_gst_amount'];
             
             $invoice_data['meta']['msg'] = 'Thanks 247around Partner for your support, we completed ' .  $invoice_data['meta']['count'] .
                     ' bookings with you from ' .  $invoice_data['meta']['sd'] . ' to ' .  $invoice_data['meta']['ed'] .
@@ -1063,7 +1063,7 @@ class Invoice extends CI_Controller {
                     'rating' => $invoice_data['meta']['t_rating'],
                     'around_royalty' => 0,
                     //Amount needs to be Paid to Vendor
-                    'amount_collected_paid' => (0 - ($invoice_data['meta']['sub_total_amount'] - $invoice_data['meta']['tds'])),
+                    'amount_collected_paid' => (0 - $invoice_data['meta']['t_vp_w_tds']),
                     //Mail has not sent
                     'mail_sent' => $mail_ret,
                     'tds_rate' => $invoice_data['meta']['tds_tax_rate'],
@@ -1743,7 +1743,7 @@ class Invoice extends CI_Controller {
     }
     
     function send_request_to_create_main_excel($invoices, $invoice_type){
-        $invoices['meta']['recipient_type'] = "Original for Recipient";
+        $invoices['meta']['recipient_type'] = "Original Copy";
         $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . "-draft.xlsx";
         $copy_output_file_excel = TMP_FOLDER . "copy_".$invoices['meta']['invoice_id'] . "-draft.xlsx";
         if ($invoice_type == "final") {
@@ -1753,7 +1753,7 @@ class Invoice extends CI_Controller {
 
         $status = $this->generate_invoice_excel($invoices['meta']['invoice_template'],  $invoices['meta'], $invoices['booking'], $output_file_excel);
         if($status){
-             $invoices['meta']['recipient_type'] = "Duplicate Recipient";
+             $invoices['meta']['recipient_type'] = "Duplicate Copy";
              $this->generate_invoice_excel($invoices['meta']['invoice_template'], $invoices['meta'], $invoices['booking'],$copy_output_file_excel);
              return TRUE;
         } else{
