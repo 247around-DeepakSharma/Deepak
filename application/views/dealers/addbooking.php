@@ -593,7 +593,7 @@
                    
                      if(data === "ERROR"){
                         
-                         // alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
+                         //alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
 
                      } else { 
                           var data1 = jQuery.parseJSON(data);

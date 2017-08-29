@@ -267,7 +267,7 @@
                                         <th >Serial Number </th>
                                         <th >Acknowledge Date BY SF </th>
                                         <th >Remarks By SC </th>
-                                        <th >Status</th>
+                                        <th >Current Status</th>
                                     </tr>
                                 </thead>
 
@@ -320,7 +320,7 @@
                                             <th >Shipped date </th>
                                             <th >EDD </th>
                                             <th >Remarks By Partner</th>
-                                            <th >Status</th>
+                                            
                                         </tr>
 
                                     </thead>
@@ -333,7 +333,7 @@
                                                 <td><?php echo $sp['shipped_date']; ?></td>
                                                 <td><?php echo $sp['edd']; ?></td>
                                                 <td><?php echo $sp['remarks_by_partner']; ?></td>
-                                                 <td><?php echo $sp['status']; ?></td>
+                                                
 
                                             </tr>
         <?php } ?>
@@ -352,10 +352,11 @@
                                             <th >Courier Name </th>
                                             <th >AWB </th>
                                             <th >Courier Charge </th>
+                                            <th> Courier Invoice</th>
                                             <th >Shipped date </th>
                                             <th >Remarks By SF </th>
                                             <th >Remarks By Partner </th>
-                                            <th >Status</th>
+                                           
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -365,6 +366,7 @@
                                                 <td><?php echo $sp['courier_name_by_sf']; ?></td>
                                                 <td><?php echo $sp['awb_by_sf']; ?></td>
                                                 <td><?php echo $sp['courier_charges_by_sf']; ?></td>
+                                                <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                                 <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                                 <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                                 <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
