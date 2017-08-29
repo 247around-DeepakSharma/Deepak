@@ -427,7 +427,7 @@ class Login extends CI_Controller {
             if ($this->session->userdata('is_sf') === '1') {
                 echo "service_center/pending_booking";
             } else if ($this->session->userdata('is_cp') === '1') {
-                echo "service_centers/bb_oder_details";
+                echo "service_center/bb_oder_details";
             }
         }
     }
