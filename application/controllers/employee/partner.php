@@ -1547,11 +1547,11 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
-
+            
             $this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
         } else {
-            echo "Booking Not Find";
+            echo "Booking Not Found";
         }
     }
 
