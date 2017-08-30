@@ -28,6 +28,17 @@
     div.dt-button-background{
         position: inherit;
     }
+    .x_content .badge {
+        font-size: 10px;
+        font-weight: 400;
+        line-height: 13px;
+        padding: 2px 6px;
+        position: absolute;
+        right: -5px;
+        top: -8px;
+        background: #2a3f54!important;
+        border-color: #172d44!important;
+    }
 </style>
 <div class="right_col" role="main">
     <div class="clearfix"></div>
@@ -44,15 +55,17 @@
                     <div class="x_content">
                         <div class="" role="tabpanel" data-example-id="togglable-tabs">
                             <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-                                <li role="presentation" class="active"><a href="#tab_content1" role="tab" id="vendor_rejected" data-toggle="tab" aria-expanded="false">Vendor Rejected( <span style="font-weight: bold;" id="vendor_rejected_record">0</span> )</a>
+                                <li role="presentation" class="active"><a href="#tab_content1" role="tab" id="vendor_rejected" data-toggle="tab" aria-expanded="false">Vendor Rejected<span style="font-weight: bold;" class="badge bg-green" id="vendor_rejected_record">0</span></a>
                                 </li>
-                                <li role="presentation" class=""><a href="#tab_content2" id="claim_submitted" role="tab" data-toggle="tab" aria-expanded="false">Claim Submitted ( <span style="font-weight: bold;" id="claimed_record">0</span> )</a>
+                                <li role="presentation" class=""><a href="#tab_content2" id="claim_submitted" role="tab" data-toggle="tab" aria-expanded="false">Claim Submitted<span style="font-weight: bold;" class="badge bg-green" id="claimed_record">0</span></a>
                                 </li>
-                                <li role="presentation" class=""><a href="#tab_content3" role="tab" id="claim_approved" data-toggle="tab" aria-expanded="false">Claim Approved ( <span style="font-weight: bold;" id="claim_approved_record">0</span> )</a>
+                                <li role="presentation" class=""><a href="#tab_content3" role="tab" id="claim_approved" data-toggle="tab" aria-expanded="false">Claim Approved<span style="font-weight: bold;" class="badge bg-green" id="claim_approved_record">0</span></a>
                                 </li>
-                                <li role="presentation" class=""><a href="#tab_content4" role="tab" id="claim_reject" data-toggle="tab" aria-expanded="false">Claim Rejected ( <span style="font-weight: bold;" id="claim_reject_record">0</span> )</a>
+                                <li role="presentation" class=""><a href="#tab_content4" role="tab" id="claim_reject" data-toggle="tab" aria-expanded="false">Claim Rejected<span style="font-weight: bold;" class="badge bg-green" id="claim_reject_record">0</span></a>
                                 </li>
-                                <li role="presentation" class=""><a href="#tab_content5" role="tab" id="cliam_settle" data-toggle="tab" aria-expanded="false">Claim Settled ( <span style="font-weight: bold;" id="claim_settle_record">0</span> )</a>
+                                <li role="presentation" class=""><a href="#tab_content5" role="tab" id="claim_debit_note_raised" data-toggle="tab" aria-expanded="false">Claim Waiting<span style="font-weight: bold;" class="badge bg-green"  id="claim_debit_note_raised_record">0</span></a>
+                                </li>
+                                <li role="presentation" class=""><a href="#tab_content6" role="tab" id="cliam_settle" data-toggle="tab" aria-expanded="false">Claim Settled<span style="font-weight: bold;" class="badge bg-green" id="claim_settle_record">0</span></a>
                                 </li>
                             </ul>
                             <div id="myTabContent" class="tab-content">
@@ -125,8 +138,25 @@
                                         <tbody>
                                     </table>
                                 </div>
-                                <div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="cliam_settle"  >
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="claim_debit_note_raised"  >
                                     <table id="datatable5" class="table table-striped table-bordered" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>No.</th>
+                                                <th>Order ID</th>
+                                                <th>Services</th>
+                                                <th>City</th>
+                                                <th>Order Date</th>
+                                                <th>Status</th>
+                                                <th>Exchange Value</th>
+                                                <th>Select</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                    </table>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="cliam_settle"  >
+                                    <table id="datatable6" class="table table-striped table-bordered" style="width: 100%;">
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
@@ -157,6 +187,7 @@
     var claim_approved;
     var claim_rejected;
     var claim_settled;
+    var claim_debit_note_raised;
     var datatable_length_option = [[25, 50, 100, 250, -1], [25, 50, 100, 250, "All"]];
     var time = moment().format('D-MMM-YYYY');
     $(document).ready(function () {
@@ -204,9 +235,9 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "targets": [0,1,6,7], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
             ],
            "fnInitComplete": function (oSettings, response) {
             
@@ -251,16 +282,16 @@
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
                 "type": "POST",
-                "data": {"status": 12},
+                "data": {"status": 12}
                 
             },
             
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "targets": [0,1,6,7], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
             ],
            "fnInitComplete": function (oSettings, response) {
             
@@ -311,9 +342,9 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "targets": [0,1,6,7], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
             ],
            "fnInitComplete": function (oSettings, response) {
             
@@ -364,7 +395,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1], //first column / numbering column
+                    "targets": [0,1,6,7], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -375,7 +406,60 @@
             
         });
         
-        claim_settled = $('#datatable5').DataTable({
+        claim_debit_note_raised = $('#datatable5').DataTable({
+            "pageLength": 50,
+            "processing": true, 
+            "serverSide": true, 
+            "order": [], 
+            dom: 'Bfrtip',
+            lengthMenu: datatable_length_option,
+            buttons: [
+                'pageLength',
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export All',
+                    exportOptions: {
+                        columns: ':visible:not(.not-exported)'
+                    },
+                   title: 'Vendor_Rejected_All_Claim_Debit_Note_Data_'+time
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export selected',
+                    exportOptions: {
+                        modifier: {
+                            selected: true
+                        }
+                    },
+                    title: 'Vendor_Rejected_Selected_Claim_Debit_Note_Data_'+time
+                }
+            ],
+            select: {
+                style: 'multi'
+            },
+            // Load data for the table's content from an Ajax source
+            "ajax": {
+                "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
+                "type": "POST",
+                "data": {"status": 19}
+                
+            },
+            
+            //Set column definition initialisation properties.
+            "columnDefs": [
+                {
+                    "targets": [0,1,6,7], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],
+           "fnInitComplete": function (oSettings, response) {
+            
+            $("#claim_debit_note_raised_record").text(response.recordsTotal);
+          }
+            
+        });
+        
+        claim_settled = $('#datatable6').DataTable({
             "pageLength": 50,
             "processing": true, 
             "serverSide": true, 
@@ -417,7 +501,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1], //first column / numbering column
+                    "targets": [0,1,6,7], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],

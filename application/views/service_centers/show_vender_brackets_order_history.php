@@ -10,34 +10,36 @@
             </div>
            
             <div class="clear"></div>
-            <div class="row" style="margin-top: 10px;">
-                <div class="col-md-2 form-group" >
-                <label style="font-size:100%;">Order ID</label>
-                <div class="clear"></div>
-                <input type="text" disabled="" class="form-control" value="<?php echo $order_id ?>"/>
-                </div>
-                <div class="col-md-4 form-group" >
-                    <label style="font-size:100%;">Received From</label>
-                    <div class="clear"></div>
-                    <input type="text" disabled="" class="form-control" value="<?php echo isset($order_received_from)?$order_received_from:'' ?>"/>
-                </div>
-                <div class="col-md-6 form-group">
-                    <label style="font-size:100%;">Address</label>
-                    <div class="clear"></div>
-                    <input type="text" disabled="" class="form-control" value="<?php echo isset($order_received_from_address)?$order_received_from_address:'' ?>"/>
-                </div>
-            </div>
+            <table class="table table-rsponsive" style="margin-top: 10px;">
+                <tr>
+                    <td><b>Order ID</b></td>
+                    <td><?php echo $order_id ?></td>
+                </tr>
+                <tr>
+                    <td><b>Received From</b></td>
+                    <td><?php echo isset($order_received_from)?$order_received_from:'' ?></td>
+                </tr>
+                <tr>
+                    <td><b>Name</b></td>
+                    <td><?php echo isset($primary_contact_name)?$primary_contact_name:'' ?></td>
+                </tr>
+                <tr>
+                    <td><b>Contact Number</b></td>
+                    <td><?php echo isset($phone_number)?$phone_number:'' ?></td>
+                </tr>
+                <tr>
+                    <td><b>Address</b></td>
+                    <td><?php echo isset($order_received_from_address)?$order_received_from_address:'' ?></td>
+                </tr>
+            </table>
             <div class="clear"></div>
             <table class="table table-condensed table-bordered">
                 <thead>
                     <tr>
                         <th class="jumbotron">Action</th>
-                        <th class="jumbotron">19 to 24 inch</th>
-                        <th class="jumbotron">26 to 32 inch</th>
-                        <th class="jumbotron">36 to 42 inch</th>
+                        <th class="jumbotron">Less Than 32 Inch</th>
+                        <th class="jumbotron">32 Inch & Above</th>
                         <th class="jumbotron">Total</th>
-                        <th class="jumbotron">Agent</th>
-                        <th class="jumbotron">Partner</th>
                         <th class="jumbotron">Order Date</th>
                     </tr>
                 </thead>
@@ -49,12 +51,9 @@
                             ?>	
                             <tr>
                                 <td><strong>Requested</strong></td>
-                                <td><?php echo $value['19_24_requested'] ?></td>
-                                <td><?php echo $value['26_32_requested'] ?></td>
-                                <td><?php echo $value['36_42_requested'] ?></td>
+                                <td><?php echo ($value['26_32_requested'] + $value['19_24_requested']); ?></td>
+                                <td><?php echo ($value['36_42_requested'] + $value['43_requested']); ?></td>
                                 <td><?php echo $value['total_requested'] ?></td>
-                                <td><?php echo $value['agent_name'] ?></td>
-                                <td><?php echo $value['partner_name'] ?></td>
                                 <td><?php 
                                     $old_date = $value['order_date'];
                                     $old_date_timestamp = strtotime($old_date);
@@ -66,12 +65,9 @@
                         <?php } elseif ($value['new_state'] == 'Brackets_Shipped') { ?>
                             <tr>
                                 <td><strong>Shipped</strong></td>
-                                <td><?php echo $value['19_24_shipped'] ?></td>
-                                <td><?php echo $value['26_32_shipped'] ?></td>
-                                <td><?php echo $value['36_42_shipped'] ?></td>
+                                <td><?php echo ($value['26_32_shipped'] + $value['19_24_shipped']); ?></td>
+                                <td><?php echo ($value['36_42_shipped'] + $value['43_shipped']); ?></td>
                                 <td><?php echo $value['total_shipped'] ?></td>
-                                <td><?php echo $value['agent_name'] ?></td>
-                                <td><?php echo $value['partner_name'] ?></td>
                                 <td><?php 
                                     $old_date = $value['shipment_date'];
                                     $old_date_timestamp = strtotime($old_date);
@@ -85,12 +81,9 @@
 
                             <tr>
                                 <td><strong>Received</strong></td>
-                                <td><?php echo $value['19_24_received'] ?></td>
-                                <td><?php echo $value['26_32_received'] ?></td>
-                                <td><?php echo $value['36_42_received'] ?></td>
+                                <td><?php echo ($value['26_32_received'] + $value['19_24_received']); ?></td>
+                                <td><?php echo ($value['36_42_received'] + $value['43_received']); ?></td>
                                 <td><?php echo $value['total_received'] ?></td>
-                                <td><?php echo $value['agent_name'] ?></td>
-                                <td><?php echo $value['partner_name'] ?></td>
                                 <td>
                                     <?php 
                                     $old_date = $value['received_date'];

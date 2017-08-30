@@ -1490,6 +1490,8 @@ class Service_centers extends CI_Controller {
         $data['order_received_from'] = $order_received_from_vendor_details[0]['name'];
         $data['order_received_from_address'] = $order_received_from_vendor_details[0]['address'].','.$order_received_from_vendor_details[0]['district'].','.$order_received_from_vendor_details[0]['state'].','.$order_received_from_vendor_details[0]['pincode'];
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
+        $data['primary_contact_name'] = $order_received_from_vendor_details[0]['primary_contact_name'];
+        $data['phone_number'] = $order_received_from_vendor_details[0]['primary_contact_phone_1'].", ".$order_received_from_vendor_details[0]['primary_contact_phone_2'];
         
         $this->load->view('service_centers/header');
         $this->load->view("service_centers/show_vender_brackets_order_history", $data);

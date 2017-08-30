@@ -67,6 +67,7 @@ class Collection_partner extends CI_Controller {
             $row[] = $cp_address->contact_person;
             $row[] = "<b>".$cp_address->primary_contact_number."</b><br> <br> ".$cp_address->alternate_conatct_number."</b>";
             $row[] = "<b>".$cp_address->shop_address_line1."</b><br> <br>".$cp_address->shop_address_line2;
+            $row[] = $cp_address->shop_address_pincode;
             $row[] = $cp_address->shop_address_region;
 
             if($cp_address->active == 1){
