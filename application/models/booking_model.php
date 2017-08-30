@@ -2086,7 +2086,6 @@ class Booking_model extends CI_Model {
             $this->db->limit($post['length'], $post['start']);
         }
         $query = $this->db->get();
-        log_message('info',$this->db->last_query());
         return $query->result();
     }
     
@@ -2098,7 +2097,6 @@ class Booking_model extends CI_Model {
     public function count_all_bookings_by_status($post) {
         $this->_get_bookings_by_status($post, 'count(distinct(booking_details.booking_id)) as numrows');
         $query = $this->db->get();
-        log_message('info', $this->db->last_query());
         return $query->result_array()[0]['numrows'];
     }  
     
@@ -2110,7 +2108,6 @@ class Booking_model extends CI_Model {
     function count_filtered_bookings_by_status($post){
         $this->_get_bookings_by_status($post,'count(distinct(booking_details.booking_id)) as numrows');
         $query = $this->db->get();
-        log_message('info', $this->db->last_query());
         return $query->result_array()[0]['numrows'];
     }
 
