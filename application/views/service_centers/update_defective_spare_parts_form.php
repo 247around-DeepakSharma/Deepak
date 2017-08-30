@@ -64,33 +64,38 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group ">
+                                <div class="form-group <?php if (form_error('awb_by_sf')) { echo 'has-error';} ?>">
                                     <label for="awb" class="col-md-4">AWB</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="awb_by_sf" name="awb_by_sf" value = "" placeholder="Please Enter AWB"  required>
+                                        <input type="text" class="form-control" id="awb_by_sf" name="awb_by_sf" value = "<?php echo set_value("awb_by_sf");?>" placeholder="Please Enter AWB"  required>
                                     </div>
+                                    <?php echo form_error('awb_by_sf'); ?>
+
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group <?php if (form_error('courier_charges_by_sf')) { echo 'has-error';} ?>">
                                     <label for="courier_charges_by_sf" class="col-md-4">Courier Charges</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value = "" placeholder="Please Enter Courier Charges"  required>
+                                        <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value = "<?php echo set_value("courier_charges_by_sf");?>" placeholder="Please Enter Courier Charges"  required>
                                     </div>
+                                    <?php echo form_error('courier_charges_by_sf'); ?>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group <?php if (form_error('defective_courier_receipt')) { echo 'has-error';} ?>">
                                     <label for="AWS Receipt" class="col-md-4">Courier Invoice</label>
                                     <div class="col-md-6">
                                         <input id="aws_receipt" class="form-control"  name="defective_courier_receipt" type="file" required  style="background-color:#fff;pointer-events:cursor">
                                     </div>
+                                     <?php echo form_error('defective_courier_receipt'); ?>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group ">
+                                <div class="form-group <?php if (form_error('courier_name_by_sf')) { echo 'has-error';} ?>">
                                     <label for="courier" class="col-md-4">Courier Name</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" value = "" placeholder="Please Enter Courier Name"  required>
+                                        <input type="text" class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" value = "<?php echo set_value("courier_name_by_sf");?>" placeholder="Please Enter Courier Name"  required>
                                     </div>
+                                     <?php echo form_error('courier_name_by_sf'); ?>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group <?php if (form_error('defective_part_shipped_date')) { echo 'has-error';} ?>">
                                     <label for="shipment_date" class="col-md-4">Shipment Date</label>
                                     <div class="col-md-6">
                                         <div class="input-group input-append date">
@@ -98,12 +103,14 @@
                                             <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                         </div>
                                     </div>
+                                     <?php echo form_error('defective_part_shipped_date'); ?>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group <?php if (form_error('remarks_defective_part')) { echo 'has-error';} ?>">
                                <label for="remarks_defective_part" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
-                                    <textarea type="text" class="form-control" id="remarks" name="remarks_defective_part" placeholder="Please Enter Remarks"  required></textarea>
+                                    <textarea type="text" class="form-control" id="remarks" name="remarks_defective_part" placeholder="Please Enter Remarks"  required><?php echo set_value("remarks_defective_part");?></textarea>
                                 </div>  
+                                <?php echo form_error('remarks_defective_part'); ?>
                             </div>
                             </div>
                         </div>
