@@ -2042,10 +2042,10 @@ class Partner extends CI_Controller {
                 . " spare_parts_details.booking_id, name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf";
         
         $group_by = "spare_parts_details.booking_id";
-        $order_by = "spare_parts_details.defective_part_shipped_date ASC";
+        $order_by = "spare_parts_details.defective_part_shipped_date DESC";
 
         $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
-        $config['total_rows'] =  $this->service_centers_model->count_spare_parts_booking($where, $select);
+        $config['total_rows'] =  $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by);
 
         if ($all == 1) {
             $config['per_page'] = $config['total_rows'];
