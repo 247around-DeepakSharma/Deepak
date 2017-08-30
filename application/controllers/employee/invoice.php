@@ -97,18 +97,14 @@ class Invoice extends CI_Controller {
         }
         
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
-        $invoice['total_amount'] = $this->invoices_model->get_invoices_details(array('vendor_partner'=>$data['vendor_partner'],'vendor_partner_id'=>$data['vendor_partner_id']),"SUM(amount_collected_paid) as total_amount")[0]['total_amount'];
+        $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
+       
         //TODO: Fix the reversed names here & everywhere else as well
         $data2['partner_vendor'] = $this->input->post('source');
         $data2['partner_vendor_id'] = $this->input->post('vendor_partner_id');
         $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
-
         if ($data['vendor_partner'] == "vendor") {
-            $invoice['vendor_details'] = $this->vendor_model->getVendorContact($data['vendor_partner_id']);
-            $where = "service_center_id = '" . $data['vendor_partner_id'] . "' AND approved_defective_parts_by_partner = '0' "
-                    . " AND parts_shipped IS NOT NULL ";
-
-            $invoice['count_spare_parts'] = count($this->partner_model->get_spare_parts_booking($where));
+    
             if (!empty($invoice['invoice_array'])) {
                 $to_date = $invoice['invoice_array'][count($invoice['invoice_array']) - 1]['to_date'];
             } else {
@@ -2424,12 +2420,25 @@ class Invoice extends CI_Controller {
     function download_invoice_summary() {
         log_message('info', __FUNCTION__ . " Entering....");
         $data = $this->input->post('amount_service_center');
+        $defective_parts = $this->input->post("defective_parts");
         $payment_data = array();
-
+                
         if (!empty($data)) {
+            $sc_details['debit_acc_no'] = "Debit Account No";
+            $sc_details['bank_account'] = "SF Bank Account";
+            $sc_details['beneficiary_name'] = "Beneficiary Name";
+            $sc_details['final_amount'] = "Amount";
+            $sc_details['amount_type'] = "Type";
+            $sc_details['payment_mode'] = "Payment Mode";
+            $sc_details['payment_date'] = "Payment Date";
+            $sc_details['ifsc_code'] = "IFSC Code";
+            $sc_details['defective_parts'] = "No Of Defective Parts";
+            $sc_details['is_verified'] = "Bank Account Verified";
+            $sc_details['remarks'] = "Remarks";
+            array_push($payment_data, $sc_details);
             foreach ($data as $service_center_id => $amount) {
                 $sc = $this->vendor_model->viewvendor($service_center_id)[0];
-
+               
                 $sc_details['debit_acc_no'] = '102405500277';
                 $sc_details['bank_account'] = trim($sc['bank_account']);
                 $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
@@ -2449,8 +2458,10 @@ class Invoice extends CI_Controller {
 
                 $sc_details['payment_date'] = date("d-M-Y");
                 $sc_details['ifsc_code'] = trim($sc['ifsc_code']);
+                $sc_details['defective_parts'] = $defective_parts[$service_center_id];
+                $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
-
+               
                 array_push($payment_data, $sc_details);
             }
 
@@ -2722,6 +2733,7 @@ class Invoice extends CI_Controller {
         $amount = $this->input->post("amount");
         if ($data['credit_debit'] == "Credit") {
             $data['credit_amount'] = $amount;
+            $data['is_advance'] = 1;
         } else if ($data['credit_debit'] == "Debit") {
             $data['debit_amount'] = $amount;
         }
@@ -2732,7 +2744,9 @@ class Invoice extends CI_Controller {
         $data['description'] = $this->input->post("description");
         $data['agent_id'] = $this->session->userdata('id');
         $data['create_date'] = date("Y-m-d H:i:s");
+       
         $status = $this->invoices_model->bankAccountTransaction($data);
+        
         if ($status) {
 
             $userSession = array('success' => "Bank Transaction Added");

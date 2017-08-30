@@ -912,6 +912,17 @@ class Service_centers extends CI_Controller {
 
         log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));
     }
+    
+    function upload_defective_spare_pic(){
+        $defective_courier_receipt = $this->upload_spare_pic($_FILES["defective_courier_receipt"], "defective_courier_receipt");
+        if($defective_courier_receipt){
+           return true;
+        } else {
+            $this->form_validation->set_message('upload_defective_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+		    . 'Maximum file size is 2 MB.');
+            return false;
+        }
+    }
 
     /**
      * @esc: This method upload invoice image OR panel image to S3
@@ -934,6 +945,7 @@ class Service_centers extends CI_Controller {
                    
 		    $pic = str_replace(' ', '-', $this->input->post('booking_id'));
 		    $picName = $type. rand(10,100).$pic . "." . $extension;
+                    $_POST['sp_parts'] = $picName;
 		    $bucket = BITBUCKET_DIRECTORY;
                     
 		    $directory = "misc-images/" . $picName;
@@ -1318,28 +1330,17 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('awb_by_sf', 'AWB', 'trim|required');
         $this->form_validation->set_rules('defective_part_shipped_date', 'AWB', 'trim|required');
         $this->form_validation->set_rules('courier_charges_by_sf', 'Courier Charges', 'trim|required');
-        $this->form_validation->set_rules('defective_courier_receipt', 'AWS Receipt', 'callback_');
+        $this->form_validation->set_rules('defective_courier_receipt', 'AWS Receipt', 'callback_upload_defective_spare_pic');
 
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center ' . $this->session->userdata('service_center_name') .
                     " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
             $this->update_defective_parts($booking_id);
         } else {
-            
-            $defective_courier_receipt = "";
-            if (isset($_FILES["defective_courier_receipt"])) {
-                $defective_courier_receipt = $this->upload_spare_pic($_FILES["defective_courier_receipt"], "defective_courier_receipt");
-                if (empty($defective_courier_receipt)) {
-                  $this->update_defective_parts($booking_id);
-                }
-            } else {
-                $this->form_validation->set_message('upload_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-                        . 'Maximum file size is 2 MB.');
-                $this->update_defective_parts($booking_id);
-            }
-
+            $defective_courier_receipt = $this->input->post("sp_parts");
+           
             if (!empty($defective_courier_receipt)) {
-                $data['defective_courier_receipt'] = $defective_courier_receipt;
+                $data['defective_courier_receipt'] = $this->input->post("sp_parts");
                 $service_center_id = $this->session->userdata('service_center_id');
                 $defective_part_shipped = $this->input->post('defective_part_shipped');
                 $data['remarks_defective_part_by_sf'] = $this->input->post('remarks_defective_part');
@@ -1376,6 +1377,10 @@ class Service_centers extends CI_Controller {
                
                 $subject = $this->session->userdata('service_center_name')." Updated Courier Details for Booking ID ".$booking_id;
                 $message = "Please Find Courier Invoice Attachment";
+                $message .= "AWB ".$data['awb_by_sf']."<br/>";
+                $message .= "Courier Name ".$data['courier_name_by_sf']."<br/>";
+                $message .= "Courier Charge ".$this->input->post('courier_charges_by_sf')."<br/>";
+                $message .= "Shipped Date ".$data['defective_part_shipped_date']."<br/>";
                 $attachment = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$defective_courier_receipt;
                 $this->notify->sendEmail($from, $to, $cc, "", $subject, $message, $attachment);
                 $userSession = array('success' => 'Parts Updated.');
@@ -1386,7 +1391,7 @@ class Service_centers extends CI_Controller {
             } else {
                 log_message('info', __FUNCTION__ . '=> Defective Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_name') .
                         " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
-                $userSession = array('success' => 'Parts Not Updated');
+                $userSession = array('success' => 'Parts Not Updated. Please Upload Less Than 2 MB File.');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/get_defective_parts_booking");
             }

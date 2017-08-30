@@ -170,7 +170,7 @@ class invoices_model extends CI_Model {
     function getbank_transaction_summary($vendor_partner, $partner_vendor_id) {
         $sql = " SELECT COALESCE(SUM(`credit_amount`),0) as credit_amount, COALESCE(SUM(`debit_amount`),0) as debit_amount  "
                 . "from bank_transactions where partner_vendor = '$vendor_partner' AND "
-                . "partner_vendor_id = '$partner_vendor_id' ";
+                . "partner_vendor_id = '$partner_vendor_id' AND is_advance = 0 ";
         $data = $this->db->query($sql);
         return $data->result_array();
     }
@@ -184,7 +184,7 @@ class invoices_model extends CI_Model {
         $array = array();
 
         if ($vendor_partner == "vendor") {
-            $select = "service_centres.name, service_centres.id, on_off, active, is_verified";
+            $select = "service_centres.name, service_centres.id, on_off, active, is_verified, pan_no, service_tax_no, tin_no, cst_no, contract_file";
             $data = $this->vendor_model->getVendorDetails($select, $where);
             $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
             
@@ -211,7 +211,7 @@ class invoices_model extends CI_Model {
 
             $data = $this->db->query($sql);
             $result = $data->result_array();
-           
+            
             $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $value['id']);
 
             $result[0]['vendor_partner'] = $vendor_partner;
@@ -221,10 +221,12 @@ class invoices_model extends CI_Model {
                 $result[0]['on_off'] = $value['on_off'];
                 $result[0]['active'] = $value['active'];
                 $result[0]['is_verified'] = $value['is_verified'];
-                $where = "service_center_id = '" . $value['id'] . "' AND approved_defective_parts_by_partner = '0' "
-                        . " AND parts_shipped IS NOT NULL ";
-
-                $result[0]['count_spare_part'] = count($this->partner_model->get_spare_parts_booking($where));
+                $result[0]['pan_no'] = $value['pan_no'];
+                $result[0]['service_tax_no'] = $value['service_tax_no'];
+                $result[0]['tin_no'] = $value['tin_no'];
+                $result[0]['cst_no'] = $value['cst_no'];
+                $result[0]['contract_file'] = $value['contract_file'];
+                $result[0]['count_spare_part'] = $this->get_pending_defective_parts($value['id'])[0]['count'];
             } else if (isset($value['public_name'])) {
                 $result[0]['name'] = $value['public_name'];
                 $result[0]['address'] = $value['address'];
@@ -244,6 +246,20 @@ class invoices_model extends CI_Model {
         }
 
         return $array;
+    }
+    
+    function get_pending_defective_parts($service_center_id){
+        $this->db->select('count(sp.id) as count');
+        $this->db->from('spare_parts_details as sp');
+        $this->db->join("service_center_booking_action as sc", "sc.booking_id = sp.booking_id AND sc.service_center_id = sp.service_center_id");
+        $this->db->where("approved_defective_parts_by_partner",0);
+        $this->db->where("defective_part_required",1);
+        $this->db->where("parts_shipped IS NOT NULL",NULL, false);
+        $this->db->where("sp.service_center_id", $service_center_id);
+        $this->db->where("sc.service_center_id", $service_center_id);
+        $this->db->where("sc.current_status", "InProcess");
+        $query = $this->db->get();
+        return $query->result_array();
     }
 
     /**
@@ -1387,5 +1403,5 @@ class invoices_model extends CI_Model {
             return FALSE;
         }
     }
-
+    
 }

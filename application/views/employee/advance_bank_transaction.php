@@ -119,9 +119,20 @@
             </div>
             <img id="loader_gif" src="<?php echo base_url(); ?>images/loader.gif" style="width:50px;" class="col-md-offset-3">
             <div class="form-group ">
-                <label for="name" class="col-md-2">Name</label>
+                <label for="name" class="col-md-2">Name<span class="red">*</span></label>
                 <div class="col-md-6">
                     <select type="text" class="form-control"  id="name" name="partner_vendor_id"  required></select>
+                </div>
+            </div>
+            <div class="form-group ">
+                <label for="name" class="col-md-2">Type<span class="red">*</span></label>
+                <div class="col-md-6">
+                    <select  class="form-control"  id="type" name="ad_type"  required>
+                        <option selected disabled>Please Select</option>
+                        <option>Buyback</option>
+                        <option>SF</option>
+                        <option>Partner</option>
+                    </select>
                 </div>
             </div>
             <div class="form-group ">
