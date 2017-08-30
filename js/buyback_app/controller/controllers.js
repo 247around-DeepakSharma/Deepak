@@ -386,8 +386,18 @@ function notifyMe(msg) {
     
 //tag untag buyback orders
 taggingUntaggingBbOrders.controller("tagUntagController", function ($scope, $http) {
+    
+    $scope.IsInvoiceDivToShow = false;
     $scope.tempData = {};
     $scope.buttonText = "Submit";
+    $scope.showInvoiceIdDiv = function(selectedOption){
+        if(selectedOption === 'claim_debit_note_raised'){
+            $scope.IsInvoiceDivToShow = true;
+        }else{
+            $scope.IsInvoiceDivToShow = false;
+        }
+    };
+    
     // function to insert or update user data to the database
     $scope.processTagUntagOrderId = function (type) {
         var data = $.param({
