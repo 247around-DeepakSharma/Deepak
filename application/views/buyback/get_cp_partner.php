@@ -34,13 +34,13 @@
                                     <th>No.</th>
                                     
                                     <th>CP Name</th>
-                                    <th>Owner Name</th>
-                                    <th>Primary Mobile Number / Alternate Mobile Number</th>
-                                    <th>Shop Address1 / Shop Address2</th>
+                                    <th>CP Owner Name</th>
+                                    <th>Mobile</th>
+                                    <th>Address</th>
+                                    <th>Pincode</th>
                                     <th>Region</th>
-                                  
                                     <th>Action</th>
-                                    <th>View Update History</th>
+                                    <th>View History</th>
 
                                 </tr>
                             </thead>

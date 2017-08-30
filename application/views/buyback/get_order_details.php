@@ -234,9 +234,9 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1,7,8], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "targets": [0,1,7,8,9], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
             ],
             "fnInitComplete": function (oSettings, response) {
             
@@ -260,8 +260,8 @@
             "columnDefs": [
                 {
                     "targets": [0,1,6], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "orderable": false //set not orderable
+                }
             ],
             "fnInitComplete": function (oSettings, response) {
            
@@ -285,7 +285,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1], //first column / numbering column
+                    "targets": [0,1,6], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
