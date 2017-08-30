@@ -410,8 +410,12 @@ define('_247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH', 'Tat Breach');
 define('CLAIM_APPROVED','Claim Approved');
 define('CLAIM_REJECTED','Claim Rejected');
 define('CLAIM_SETTLED','Claim Settled');
+
 define('CLAIM_DEBIT_NOTE_RAISED','Claim Debit Note Raised');
 
 define('SF_NOTIFICATION_MSG','Urgent - Update your GST number by clicking on the GST link above IMMEDIATELY. Your CRM will get deactivated if GST is not updated soon.');
+
+define('BUYBACK_VOUCHER','Buyback_Voucher');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

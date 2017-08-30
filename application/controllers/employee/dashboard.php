@@ -469,9 +469,14 @@ class Dashboard extends CI_Controller {
         $this->table->set_heading(array('Name', 'Ledger Summary (Rs)', 'Delivered (Rs)', 'In-transit (Rs)', 'Total (Rs)','Balance (Rs)'));
 
         foreach ($cp as  $value) {
-            $paid_amount = $this->invoices_model->get_invoices_details(array('type'=>'Buyback','type_code'=>'A', 'vendor_partner' => 'vendor', 
+            $amount1 = $this->invoices_model->get_invoices_details(array('type'=>'Buyback','type_code'=>'A', 'vendor_partner' => 'vendor', 
                     'vendor_partner_id'=>$value['id']),
                     'SUM( `amount_paid`) as paid_amount')[0]['paid_amount'];
+            $advance_amount = $this->invoices_model->get_invoices_details(array('type'=> BUYBACK_VOUCHER,'type_code'=>'B', 'vendor_partner' => 'vendor', 
+                    'vendor_partner_id'=>$value['id']),
+                    'SUM( amount_collected_paid + `amount_paid`) as advance_amount')[0]['advance_amount'];
+            $this->db->last_query();
+            $paid_amount = $amount1 + abs($advance_amount);
    
             $where['where'] = array('assigned_cp_id' =>$value['id']);
             $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));

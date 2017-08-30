@@ -188,6 +188,9 @@
                                         <option value="Buyback" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "Buyback"){ echo "selected";}
                                             } ?>>Buyback</option>
+                                        <option value="<?php echo BUYBACK_VOUCHER;?>" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == BUYBACK_VOUCHER){ echo "selected";}
+                                            } ?>><?php echo BUYBACK_VOUCHER; ?></option>
                                         <option value="Stand" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "Stand"){ echo "selected";}
                                             } ?>>Stand</option>
@@ -387,6 +390,7 @@
             document.getElementById("type_code").options[2].disabled = false;
             document.getElementById("type_code").options[3].disabled = true;
             document.getElementById("type_code").options[4].disabled = true;
+            document.getElementById("type_code").options[6].disabled = true;
                
         } else if(radioValue === 'B'){
            
@@ -394,6 +398,7 @@
             document.getElementById("type_code").options[2].disabled = true;
             document.getElementById("type_code").options[3].disabled = false;
             document.getElementById("type_code").options[4].disabled = false;
+            document.getElementById("type_code").options[6].disabled = false;
         }
     }
 </script>

@@ -3122,6 +3122,7 @@ If you have any issue regarding this then please contact us. <br><br>
 Thanks. <br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,booking@247around.com, abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
 
 --Abhay Anand 30 Aug
+
 ALTER TABLE `bank_transactions` ADD `is_advance` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
 
 -- sachin 30 AUg
@@ -3133,3 +3134,6 @@ UPDATE `email_template` SET `template` = 'Dear Partner,<br><br> As discussed, pl
 <br><br> <b>Username: </b>%s<br><b>Password: </b>%s<br><br> Please use the ERP panel for your closures going forward. 
 In case of any issues, write to us or call us.<br><br> Regards,<br> 247around Team' 
 WHERE `email_template`.`tag` = 'vendor_login_details';
+
+ALTER TABLE `bank_transactions` ADD `is_advance` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
+
