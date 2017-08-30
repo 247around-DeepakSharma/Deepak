@@ -97,16 +97,16 @@
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
                 "type": "POST",
-                "data": {"status": 4},
+                "data": {"status": 4}
                 
             },
             
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "targets": [0,1,6], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
             ],
            "fnInitComplete": function (oSettings, response) {
             
@@ -126,16 +126,16 @@
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
                 "type": "POST",
-                "data": {"status": 5},
+                "data": {"status": 5}
                 
             },
             
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "targets": [0,1,6], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
             ],
            "fnInitComplete": function (oSettings, response) {
             
@@ -154,16 +154,16 @@
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
                 "type": "POST",
-                "data": {"status": 6},
+                "data": {"status": 6}
                 
             },
             
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1], //first column / numbering column
-                    "orderable": false, //set not orderable
-                },
+                    "targets": [0,1,6], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
             ],
            "fnInitComplete": function (oSettings, response) {
             
