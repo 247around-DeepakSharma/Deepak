@@ -199,16 +199,16 @@
                                     <?php } ?>
                                 </td>
                                 <?php if (isset($service_center)) { ?>
-                                <td><?php echo $value['count_spare_part']; ?></td>
+                                <td><?php echo $value['count_spare_part']; ?>
+                                    <input type="hidden" name="<?php echo "defective_parts[".$value['id']."]";?>" value="<?php echo $value["count_spare_part"];?>" />
+                                </td>
                                 
                                 <td ><input type="checkbox" class="form-control <?php if (isset($value['on_off'])) {
                                         if ($value['active'] == 1 && $value['on_off'] == 1) {
                                             echo 'checkbox_amt';
                                         }
                                     }
-                                    ?>" name="<?php echo "amount_service_center[" . $value['id'] . "]"; ?>" value ="<?php echo $value['final_amount']; ?>"  <?php if ($value['is_verified'] == 0) {
-                                    echo "disabled";
-                                    } ?>> </td>
+                                    ?>" name="<?php echo "amount_service_center[" . $value['id'] . "]"; ?>" value ="<?php echo $value['final_amount']; ?>" > </td>
                                 
                                 <?php } else { ?>
                                 <td><a href="#myModel" id="<?php echo "invoice_setup_" . $value['id']; ?>" onclick="invoice_setup_model('<?php echo $value['id']; ?>','<?php echo $value["name"]; ?>', 

@@ -216,9 +216,9 @@
           }
       });
   </script>
-<?php }  ?>
+<?php } ?>
   
-  <?php if(isset($vendor_details)) { ?>
+  <?php if($invoicing_summary['vendor_partner'] == "vendor") { ?>
       
       <br>
      <h2>Document Status</h2>
@@ -239,36 +239,36 @@
            <tr>
                <td class="text-center">
                  
-                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['pan_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['pan_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
                 <td class="text-center">
                  
-                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['service_tax_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['service_tax_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
                 <td class="text-center">
                  
-                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['vat_no']) || !empty($vendor_details[0]['tin_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['tin_no']) || !empty($invoicing_summary['tin_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
                 <td class="text-center">
                  
-                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['cst_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['cst_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
                
                <td class="text-center">
                  
-                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['is_verified']) && $vendor_details[0]['is_verified'] == '1'){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['is_verified']) && $invoicing_summary['is_verified'] == '1'){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
                 <td class="text-center">
                  
-                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['contract_file'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['contract_file'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
                <td class="text-center">
                  
-                  <?php  if(isset($count_spare_parts)){ echo $count_spare_parts;}?>
+                  <?php print_r($invoicing_summary['count_spare_part']);?>
                </td>
                <td class="text-center">
                  
-                   <a href="<?php echo base_url()?>/employee/vendor/editvendor/<?php echo $vendor_details[0]['id'] ?>" target="_blank" class="btn btn-sm btn-primary" >Click here</a>
+                   <a href="<?php echo base_url()?>/employee/vendor/editvendor/<?php echo $invoicing_summary['id'] ?>" target="_blank" class="btn btn-sm btn-primary" >Click here</a>
                </td>
 
            </tr>
@@ -301,10 +301,10 @@
            <?php foreach($bank_statement as $value){?>
            
                <tr id="<?php echo "row".$count;?>">
-               <td><?php echo $count;$count++;?></td>
+                   <td><?php  echo $count;$count++; if($value['is_advance'] ==1){?> <p id="advance_text">Advance</p><?php }?></td>
                <td><?php echo $value['transaction_date']; ?></td>
                <td><?php echo $value['description']; ?></td>
-               <td><?php echo round($value['credit_amount'],0); $credit_amount += intval($value['credit_amount']); ?></td>       
+               <td><?php echo round($value['credit_amount'],0); if($value['is_advance'] ==0){ $credit_amount += intval($value['credit_amount']); } ?></td>       
                <td><?php echo round($value['debit_amount'],0);  $debit_amount += intval($value['debit_amount']); ?></td>
                <td><?php echo round($value['tds_amount'],0); $tds_amount += intval($value['tds_amount']); ?></td>
                <td><?php echo $value['invoice_id']; ?></td>
@@ -335,7 +335,7 @@
     <br>
     <?php 
  
-        $final_settlement = $total_amount + $debit_amount - $credit_amount;
+        $final_settlement = $invoicing_summary['final_amount'];
     ?>
     <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo round($final_settlement,0);} else { echo 0;} ?></h4></p>
     <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(round($final_settlement,0));} else {echo 0;} ?></h4></p>
@@ -348,4 +348,14 @@
     <?php } } ?>
 
 
+<style>
+#advance_text {
+    -ms-transform: rotate(330deg); /* IE 9 */
+    -webkit-transform: rotate(330deg); /* Safari */
+    transform: rotate(330deg); /* Standard syntax */
+    color: red;
+    font-weight: bold;
+}
     
+    
+</style>

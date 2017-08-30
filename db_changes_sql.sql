@@ -3094,3 +3094,5 @@ Below are the bookings which are auto acknowledge by 247around as per the earlie
 If you have any issue regarding this then please contact us. <br><br>
 Thanks. <br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,booking@247around.com, abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
 
+--Abhay Anand 30 Aug
+ALTER TABLE `bank_transactions` ADD `is_advance` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
