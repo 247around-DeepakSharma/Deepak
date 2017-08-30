@@ -114,6 +114,12 @@ class Buyback_process extends CI_Controller {
             case 17:
                 $data = $this->process_30_days_tat_breech_claimed_data(CLAIM_REJECTED);
                 break;
+            case 18:
+                $data = $this->process_30_days_tat_breech_claimed_data(CLAIM_DEBIT_NOTE_RAISED);
+                break;
+            case 19:
+                $data = $this->get_vendor_rejected_order_claimed_data(CLAIM_DEBIT_NOTE_RAISED);
+                break;
         }
         
         $post = $data['post'];
@@ -447,6 +453,11 @@ class Buyback_process extends CI_Controller {
                 break;
             case CLAIM_SETTLED:
                 $post['where_in'] = array('current_status' => array(CLAIM_SETTLED),
+                    'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH));
+                $post['where'] = array();
+                break;
+            case CLAIM_DEBIT_NOTE_RAISED:
+                $post['where_in'] = array('current_status' => array(CLAIM_DEBIT_NOTE_RAISED),
                     'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH));
                 $post['where'] = array();
                 break;
@@ -1474,14 +1485,13 @@ class Buyback_process extends CI_Controller {
             $action_type = $this->input->post('data')['action_type'];
             $tag_untag_type = $this->input->post('data')['tag_untag_type'];
             $order_id = explode(PHP_EOL, $this->input->post('data')['order_id']);
-
+            $invoice_id = isset($this->input->post('data')['invoice_id'])? $this->input->post('data')['invoice_id']:'';
             if (!empty($tag_untag_type) && !empty($order_id) && !empty($action_type)) {
                 switch ($action_type) {
                     case 'tag':
-                        $res = $this->tag_bb_order_id($tag_untag_type, $order_id);
+                        $res = $this->tag_bb_order_id($tag_untag_type, $order_id,$invoice_id);
                         break;
-                    case 'untag':
-                        $res = '';
+                    
                 }
                 
                 if($res['flag']){
@@ -1489,7 +1499,7 @@ class Buyback_process extends CI_Controller {
                     $data['msg'] = 'Order Details Has Been Updated Successfully';
                 }else{
                     $data['status'] = 'ERR';
-                    $data['msg'] = "Error In Updating Following Order Id's ".implode(',', $res['not_updated_order_id']);
+                    $data['msg'] = "Error In Updating Following Order Id's : <b> ".implode(',', $res['not_updated_order_id']). " </b>";
                 }
                 
             } else {
@@ -1508,27 +1518,28 @@ class Buyback_process extends CI_Controller {
      * @param void()
      * @return $return_data array()
      */
-    private function tag_bb_order_id($tag_untag_type,$order_id){
+    private function tag_bb_order_id($tag_untag_type,$order_id,$invoice_id){
         
         //initialize variables
         $flag = FALSE;
         $order_details = [];
         $cp_action_details = []; 
         $not_updated_order_id = [];
+        $partner_invoice_id = empty($invoice_id)?'':trim($invoice_id);
         
         //process the tagging
         switch ($tag_untag_type){
-            case 'claimed_submitted_not_delivered':
+            case 'claim_submitted_not_delivered':
                 //order details status
                     $order_details['current_status'] = CLAIM_SUBMITTED;
                     $order_details['internal_status'] = _247AROUND_BB_TAG_CLAIMED_SUBMITTED_NOT_DELIVERED;
                 break;
-            case 'claimed_submitted_broken':
+            case 'claim_submitted_broken':
                 //order details status
                     $order_details['current_status'] = CLAIM_SUBMITTED;
                     $order_details['internal_status'] = _247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN;
                 break;
-            case 'claimed_submitted_tat_breach':
+            case 'claim_submitted_tat_breach':
                 //order details status
                     $order_details['current_status'] = CLAIM_SUBMITTED;
                     $order_details['internal_status'] = _247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH;
@@ -1537,20 +1548,24 @@ class Buyback_process extends CI_Controller {
                     $cp_action_details['current_status'] = _247AROUND_BB_NOT_DELIVERED;
                     $cp_action_details['internal_status'] = _247AROUND_BB_247APPROVED_STATUS;
                 break;
-            case 'claimed_approved_by_amazon':
+            case 'claim_approved_by_amazon':
                 //order details status
                     $order_details['current_status'] = CLAIM_APPROVED;
                 break;
-            case 'claimed_rejected_by_amazon':
+            case 'claim_rejected_by_amazon':
                 //order details status
                     $order_details['current_status'] = CLAIM_REJECTED;
                 break;
-            case 'claimed_settled_by_amazon':
+            case 'claim_debit_note_raised':
+                    //order details status
+                    $order_details['current_status'] = CLAIM_DEBIT_NOTE_RAISED;
+                break;
+            case 'claim_settled_by_amazon':
                 //order details status
                     $order_details['current_status'] = CLAIM_SETTLED;
                 break;
         }
-        
+
         foreach($order_id as $val){
             $partner_order_id = trim($val);
             //update order details table
@@ -1559,7 +1574,11 @@ class Buyback_process extends CI_Controller {
                 if(!empty($update_id)){
                     if(!empty($cp_action_details)){
                         $update_cp_order_action = $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $partner_order_id), $cp_action_details);
-                        log_message('info','CP Order Action Updated For Order Id = '.$update_cp_order_action);
+                        log_message('info','CP Order Action Updated For Order Id = '.$partner_order_id);
+                    }
+                    if(!empty($partner_invoice_id)){
+                        $update_unit_details = $this->bb_model->update_bb_unit_details(array('partner_order_id' => $partner_order_id),array('partner_invoice_id' => $partner_invoice_id));
+                        log_message('info','CP Order Action Updated For Order Id = '.$partner_order_id. " And Invoice Id = ".$partner_invoice_id);
                     }
                     
                     $this->buyback->insert_bb_state_change($partner_order_id, $order_details['current_status'], $order_details['current_status'], $this->session->userdata('id'), _247AROUND, NULL);
@@ -1608,6 +1627,11 @@ class Buyback_process extends CI_Controller {
                     'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_NOT_DELIVERED,_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN));
                 $post['where'] = array();
                 break;
+            case CLAIM_DEBIT_NOTE_RAISED:
+                $post['where_in'] = array('current_status' => array(CLAIM_DEBIT_NOTE_RAISED),
+                    'internal_status' => array(_247AROUND_BB_TAG_CLAIMED_SUBMITTED_NOT_DELIVERED,_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN));
+                $post['where'] = array();
+                break;
                 
         }
         
@@ -1629,5 +1653,5 @@ class Buyback_process extends CI_Controller {
             
                 );
     }
-
+    
 }

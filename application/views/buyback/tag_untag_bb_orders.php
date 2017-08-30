@@ -111,7 +111,6 @@
                                             <select class="form-control col-md-7 col-xs-12" id="actionType" name="action_type" ng-model="tempData.action_type" required="">
                                                 <option value="" selected="selected" disabled="">Select Action</option>
                                                 <option value="tag">Tag</option>
-                                                <option value="untag">Untag</option>
                                             </select>
                                         </div>
                                         <span class="msg" ng-show="form.cp_id.$dirty && form.cp_id.$invalid">This Field Is Required</span>
@@ -120,14 +119,15 @@
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="tagUntagType">Select Type <span class="required">*</span>
                                         </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <select class="form-control col-md-7 col-xs-12" id="tagUntagType" name="tag_untag_type" ng-model="tempData.tag_untag_type" required="">
+                                            <select class="form-control col-md-7 col-xs-12" id="tagUntagType" name="tag_untag_type" ng-model="tempData.tag_untag_type" ng-change="showInvoiceIdDiv(tempData.tag_untag_type)" required="">
                                                 <option value="" selected="selected" disabled="">Select Type</option>
-                                                <option value="claimed_submitted_not_delivered">Claimed Submitted Not Delivered</option>
-                                                <option value="claimed_submitted_broken">Claimed Submitted Broken</option>
-                                                <option value="claimed_submitted_tat_breach">Claimed Submitted Tat Breach</option>
-                                                <option value="claimed_approved_by_amazon">Claimed Approved By Amazon</option>
-                                                <option value="claimed_rejected_by_amazon">Claimed Rejected By Amazon</option>
-                                                <option value="claimed_settled_by_amazon">Claimed Settled By Amazon</option>
+                                                <option value="claim_submitted_not_delivered">Claim Submitted Not Delivered</option>
+                                                <option value="claim_submitted_broken">Claim Submitted Broken</option>
+                                                <option value="claim_submitted_tat_breach">Claim Submitted Tat Breach</option>
+                                                <option value="claim_approved_by_amazon">Claim Approved By Amazon</option>
+                                                <option value="claim_rejected_by_amazon">Claim Rejected By Amazon</option>
+                                                <option value="claim_debit_note_raised">Claim Debit Note Raised</option>
+                                                <option value="claim_settled_by_amazon">Claim Settled By Amazon</option>
                                             </select>
                                         </div>
                                         <span class="msg"  ng-show="form.tag_untag_type.$dirty && form.tag_untag_type.$error.required">This Field Is Required</span>
@@ -139,6 +139,16 @@
                                             <textarea id="orderID" required="required" rows="3" class="form-control col-md-7 col-xs-12" name="order_id" ng-model="tempData.order_id"></textarea>
                                         </div>
                                         <span class="msg" ng-show="form.order_id.$dirty && form.order_id.$invalid">This Field Is Required</span>
+                                    </div>
+                                    <div class="item form-group" ng-if="IsInvoiceDivToShow">
+                                        <label class="control-label col-md-4 col-sm-3 col-xs-12" for="invoiceId">
+                                                Invoice ID
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="text" id="invoiceId" required="required" class="form-control col-md-7 col-xs-12" name="invoice_id" ng-model="tempData.invoice_id"></input>
+                                        </div>
+                                        <span class="msg" ng-show="form.invoice_id.$dirty && form.invoice_id.$invalid">This Field Is Required</span>
                                     </div>
                                     <div class="ln_solid"></div>
                                     <div class="col-md-6 col-md-offset-5">
