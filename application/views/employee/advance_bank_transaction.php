@@ -124,17 +124,7 @@
                     <select type="text" class="form-control"  id="name" name="partner_vendor_id"  required></select>
                 </div>
             </div>
-            <div class="form-group ">
-                <label for="name" class="col-md-2">Type<span class="red">*</span></label>
-                <div class="col-md-6">
-                    <select  class="form-control"  id="type" name="ad_type"  required>
-                        <option selected disabled>Please Select</option>
-                        <option>Buyback</option>
-                        <option>SF</option>
-                        <option>Partner</option>
-                    </select>
-                </div>
-            </div>
+            
             <div class="form-group ">
                 <label for="name" class="col-md-2">Credit / Debit in 247Around <span class="red">*</span></label>
                 <div class="col-md-6">
