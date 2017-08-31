@@ -2777,6 +2777,7 @@ class Invoice extends CI_Controller {
             if ($vendor_partner == "vendor") {
 
                 $data['invoice_id'] = $this->create_invoice_id_to_insert($entity[0]['sc_code']);
+                $data['type'] = BUYBACK_VOUCHER;
             } else {
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("Around");
                 $gst_rate = 18;
@@ -2789,13 +2790,13 @@ class Invoice extends CI_Controller {
                 } else {
                     $data['igst_tax_amount'] = $gst_amount;
                     $data['igst_tax_rate'] = $gst_rate;
+                    $data['type'] = PARTNER_VOUCHER;
                 }
             }
 
             $data['type_code'] = "B";
             $data['vendor_partner'] = $vendor_partner;
             $data['vendor_partner_id'] = $vendor_partner_id;
-            $data['type'] = BUYBACK_VOUCHER;
             $data['from_date'] = $date;
             $data['to_date'] = $date;
             $data['due_date'] = date("Y-m-d", strtotime($date . "+1 month"));

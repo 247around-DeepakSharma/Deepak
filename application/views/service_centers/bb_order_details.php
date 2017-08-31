@@ -12,18 +12,15 @@
         margin:10px 0px;
         text-align: right;
     }
-
     .truncate_text {
         max-width: 100px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
     .dropdown-menu{
         left: -60px;
     }
-
 </style>
 
 <div class="bb_order_details" style="margin: 20px 20px 10px 10px;">
