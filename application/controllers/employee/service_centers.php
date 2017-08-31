@@ -1376,7 +1376,7 @@ class Service_centers extends CI_Controller {
                 $cc= $rm_email.", nits@247around.com";
                
                 $subject = $this->session->userdata('service_center_name')." Updated Courier Details for Booking ID ".$booking_id;
-                $message = "Please Find Courier Invoice Attachment";
+                $message = "Please Find Courier Invoice Attachment"."<br/>Courier Details:- <br/>";
                 $message .= "AWB ".$data['awb_by_sf']."<br/>";
                 $message .= "Courier Name ".$data['courier_name_by_sf']."<br/>";
                 $message .= "Courier Charge ".$this->input->post('courier_charges_by_sf')."<br/>";
