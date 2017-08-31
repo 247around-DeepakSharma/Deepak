@@ -439,8 +439,10 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
+        $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
+        
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/addpartner', array('results' => $results));
+        $this->load->view('employee/addpartner', array('results' => $results,'employee_list' => $employee_list));
     }
 
     /**
@@ -1016,6 +1018,7 @@ class Partner extends CI_Controller {
         $return_data['cst_no'] = $this->input->post('cst_no');
         $return_data['service_tax'] = $this->input->post('service_tax');
         $partner_code = $this->input->post('partner_code');
+        $return_data['account_managers_id'] = $this->input->post('account_managers_id');
 
         if (empty($partner_code)) {
             $return_data['is_active'] = 0;
@@ -1131,9 +1134,10 @@ class Partner extends CI_Controller {
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
+        $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results));
+        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list));
     }
 
     /**
@@ -2504,8 +2508,9 @@ class Partner extends CI_Controller {
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
 
         $data['spare_parts'] = $total_rows[0]['total_rows'];
-
-        $this->load->view('partner/header');
+        
+        $am_details['account_managers_details'] = $this->get_am_data($partner_id);
+        $this->load->view('partner/header',$am_details);
         $this->load->view('partner/partner_default_page', $data);
     }
 
@@ -3123,6 +3128,15 @@ class Partner extends CI_Controller {
                 }
             }
         }
+    }
+    
+    function get_am_data($partner_id){
+        $data = [];
+        $am_id = $this->partner_model->getpartner_details('account_managers_id',array('partners.id' => trim($partner_id)));
+        if(!empty($am_id)){
+            $data = $this->employee_model->getemployeefromid($am_id[0]['account_managers_id']);
+        }
+        return $data;
     }
 
 }

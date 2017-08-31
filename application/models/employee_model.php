@@ -141,6 +141,7 @@ class Employee_model extends CI_Model{
       function get_employee_by_group($where){
           $this->db->select('*');
           $this->db->where($where);
+          $this->db->order_by('full_name');
           $query = $this->db->get('employee');
           return $query->result_array();
       }
