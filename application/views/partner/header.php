@@ -76,9 +76,16 @@
                     <div class="modal-body">
                         <div class="card">
                             <div class="container">
+                                <?php if(isset($account_managers_details) && !empty($account_managers_details)) { ?> 
+                                <h5><b><?php echo $account_managers_details[0]['full_name']?></b></h5> 
+                                <p><?php echo $account_managers_details[0]['phone']?></p>
+                                <p><?php echo $account_managers_details[0]['official_email']?></p>
+                                <?php } else { ?> 
                                 <h5><b>Mr. Vikas Singh</b></h5> 
                                 <p>9910043586</p>
                                 <p>escalations@247around.com</p>
+                                <?php } ?>
+                                
                             </div>
                         </div>
                     </div>

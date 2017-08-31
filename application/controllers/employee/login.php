@@ -236,12 +236,12 @@ class Login extends CI_Controller {
             } else {
                 $userSession = array('error' => 'Login De-Activated! Please contact 247Around Team');
                 $this->session->set_userdata($userSession);
-                redirect(base_url() . "dealers");
+                redirect(base_url() . "dealer/login");
             }
         } else {
             $userSession = array('error' => 'Please enter correct user name and password');
             $this->session->set_userdata($userSession);
-            redirect(base_url() . "dealers");
+            redirect(base_url() . "dealer/login");
         }
     }
     
@@ -283,7 +283,7 @@ class Login extends CI_Controller {
         }
 
         $this->session->sess_destroy();
-        redirect(base_url() . "dealers");
+        redirect(base_url() . "dealer/login");
     }
     
     function checkDealerSession(){
@@ -294,7 +294,7 @@ class Login extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__. " Session Expire for Service Center");
             $this->session->sess_destroy();
-            redirect(base_url() . "dealers");
+            redirect(base_url() . "dealer/login");
         }
     }
     
@@ -511,12 +511,12 @@ class Login extends CI_Controller {
             } else {
                 $userSession = array('error' => 'Please enter correct user name and password');
                 $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center");
+                redirect(base_url() . "service_center/login");
             }
         } else {
             $userSession = array('error' => 'Please enter correct user name and password');
             $this->session->set_userdata($userSession);
-            redirect(base_url() . "service_center");
+            redirect(base_url() . "service_center/login");
         }
     }
 

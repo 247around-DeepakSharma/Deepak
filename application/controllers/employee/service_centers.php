@@ -377,7 +377,7 @@ class Service_centers extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__. " Session Expire for Service Center");
             $this->session->sess_destroy();
-            redirect(base_url() . "service_center");
+            redirect(base_url() . "service_center/login");
         }
     }
     
@@ -393,7 +393,7 @@ class Service_centers extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__. " Session Expire for Service Center");
             $this->session->sess_destroy();
-            redirect(base_url() . "service_center");
+            redirect(base_url() . "service_center/login");
         }
     }
 
@@ -422,7 +422,7 @@ class Service_centers extends CI_Controller {
         }
         
         $this->session->sess_destroy();
-        redirect(base_url() . "service_center");
+        redirect(base_url() . "service_center/login");
     }
 
     /**
@@ -919,7 +919,7 @@ class Service_centers extends CI_Controller {
            return true;
         } else {
             $this->form_validation->set_message('upload_defective_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 2 MB.');
+		    . 'Maximum file size is 5 MB.');
             return false;
         }
     }
@@ -938,7 +938,7 @@ class Service_centers extends CI_Controller {
 	//$filename = prev($temp);
 
 	if ($file["name"] != null) {
-	    if (($file["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+	    if (($file["size"] < 5e+6) && in_array($extension, $allowedExts)) {
 		if ($file["error"] > 0) {
 		    $this->form_validation->set_message('upload_spare_pic', $file["error"]);
 		} else {
@@ -1330,7 +1330,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('awb_by_sf', 'AWB', 'trim|required');
         $this->form_validation->set_rules('defective_part_shipped_date', 'AWB', 'trim|required');
         $this->form_validation->set_rules('courier_charges_by_sf', 'Courier Charges', 'trim|required');
-        $this->form_validation->set_rules('defective_courier_receipt', 'AWS Receipt', 'callback_upload_defective_spare_pic');
+        $this->form_validation->set_rules('defective_courier_receipt', 'Courier Invoice', 'callback_upload_defective_spare_pic');
 
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center ' . $this->session->userdata('service_center_name') .

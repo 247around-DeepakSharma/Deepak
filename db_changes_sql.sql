@@ -3096,3 +3096,13 @@ Thanks. <br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, 
 
 --Abhay Anand 30 Aug
 ALTER TABLE `bank_transactions` ADD `is_advance` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
+
+-- sachin 30 AUg
+ALTER TABLE `partners` ADD `account_managers_id` INT(11) NULL DEFAULT NULL AFTER `landmark`;
+
+-- sachin 31 Aug
+UPDATE `email_template` SET `template` = 'Dear Partner,<br><br> As discussed, please find below your login details.
+<br><br> URL: <a href="https://www.aroundhomzapp.com/service_center/login">https://www.aroundhomzapp.com/service_center/login</a>
+<br><br> <b>Username: </b>%s<br><b>Password: </b>%s<br><br> Please use the ERP panel for your closures going forward. 
+In case of any issues, write to us or call us.<br><br> Regards,<br> 247around Team' 
+WHERE `email_template`.`tag` = 'vendor_login_details';

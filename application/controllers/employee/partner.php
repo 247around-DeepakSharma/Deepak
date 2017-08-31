@@ -439,8 +439,10 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
+        $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
+        
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/addpartner', array('results' => $results));
+        $this->load->view('employee/addpartner', array('results' => $results,'employee_list' => $employee_list));
     }
 
     /**
@@ -1016,6 +1018,7 @@ class Partner extends CI_Controller {
         $return_data['cst_no'] = $this->input->post('cst_no');
         $return_data['service_tax'] = $this->input->post('service_tax');
         $partner_code = $this->input->post('partner_code');
+        $return_data['account_managers_id'] = $this->input->post('account_managers_id');
 
         if (empty($partner_code)) {
             $return_data['is_active'] = 0;
@@ -1131,9 +1134,10 @@ class Partner extends CI_Controller {
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
+        $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results));
+        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list));
     }
 
     /**
@@ -1547,11 +1551,11 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
-
+            
             $this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
         } else {
-            echo "Booking Not Find";
+            echo "Booking Not Found";
         }
     }
 
@@ -2504,8 +2508,9 @@ class Partner extends CI_Controller {
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
 
         $data['spare_parts'] = $total_rows[0]['total_rows'];
-
-        $this->load->view('partner/header');
+        
+        $am_details['account_managers_details'] = $this->get_am_data($partner_id);
+        $this->load->view('partner/header',$am_details);
         $this->load->view('partner/partner_default_page', $data);
     }
 
@@ -3029,7 +3034,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . ' => Defctive Parts Acknowledge Reminder By Cron');
 
         $where_get_partner = array('partners.is_active' => '1');
-        $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name";
+        $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name,partners.spare_notification_email";
         //Get all Active partners
         $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         foreach ($partners as $partner) {
@@ -3052,13 +3057,13 @@ class Partner extends CI_Controller {
                 
                 //send email
                 $email_template = $this->booking_model->get_booking_email_template("defective_parts_acknowledge_reminder");
-                $to = $partner['primary_contact_email'];
+                $to = !empty($partner['spare_notification_email'])?$partner['spare_notification_email']:$partner['primary_contact_email'];
                 $cc = $email_template[3];
                 $subject = $email_template[4];
                 $message = vsprintf($email_template[0], $html_table);
                 
                 $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
-
+                
                 if ($sendmail){
                     log_message('info', __FUNCTION__ . 'Report Mail has been send to partner '.$partner['public_name'].' successfully');
                 } else {
@@ -3079,7 +3084,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . ' => Auto Acknowledge Defective Parts');
 
         $where_get_partner = array('partners.is_active' => '1');
-        $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name";
+        $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name,partners.spare_notification_email";
         //Get all Active partners
         $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         foreach ($partners as $partner) {
@@ -3109,7 +3114,7 @@ class Partner extends CI_Controller {
                 //send email
                 
                 $email_template = $this->booking_model->get_booking_email_template("auto_acknowledge_defective_parts");
-                $to = $partner['primary_contact_email'];
+                $to = !empty($partner['spare_notification_email'])?$partner['spare_notification_email']:$partner['primary_contact_email'];
                 $cc = $email_template[3];
                 $subject = $email_template[4];
                 $message = vsprintf($email_template[0], $html_table);
@@ -3123,6 +3128,15 @@ class Partner extends CI_Controller {
                 }
             }
         }
+    }
+    
+    function get_am_data($partner_id){
+        $data = [];
+        $am_id = $this->partner_model->getpartner_details('account_managers_id',array('partners.id' => trim($partner_id)));
+        if(!empty($am_id)){
+            $data = $this->employee_model->getemployeefromid($am_id[0]['account_managers_id']);
+        }
+        return $data;
     }
 
 }
