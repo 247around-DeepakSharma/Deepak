@@ -1547,11 +1547,11 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
-
+            
             $this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
         } else {
-            echo "Booking Not Find";
+            echo "Booking Not Found";
         }
     }
 
@@ -3029,7 +3029,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . ' => Defective Parts Acknowledge Reminder By Cron');
 
         $where_get_partner = array('partners.is_active' => '1');
-        $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name";
+        $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name,partners.spare_notification_email";
         //Get all Active partners
         $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         foreach ($partners as $partner) {
@@ -3053,13 +3053,13 @@ class Partner extends CI_Controller {
                 
                 //send email
                 $email_template = $this->booking_model->get_booking_email_template("defective_parts_acknowledge_reminder");
-                $to = $partner['primary_contact_email'];
+                $to = !empty($partner['spare_notification_email'])?$partner['spare_notification_email']:$partner['primary_contact_email'];
                 $cc = $email_template[3];
                 $subject = $email_template[4];
                 $message = vsprintf($email_template[0], $html_table);
                 
                 $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
-
+                
                 if ($sendmail){
                     log_message('info', __FUNCTION__ . 'Defective Spares Yet to be Acknowledged Mail has been sent to partner '.$partner['public_name'].' successfully');
                 } else {
@@ -3080,7 +3080,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . ' => Auto Acknowledge Defective Parts');
 
         $where_get_partner = array('partners.is_active' => '1');
-        $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name";
+        $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name,partners.spare_notification_email";
         //Get all Active partners
         $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         foreach ($partners as $partner) {
@@ -3109,7 +3109,7 @@ class Partner extends CI_Controller {
                 
                 //send email
                 $email_template = $this->booking_model->get_booking_email_template("auto_acknowledge_defective_parts");
-                $to = $partner['primary_contact_email'];
+                $to = !empty($partner['spare_notification_email'])?$partner['spare_notification_email']:$partner['primary_contact_email'];
                 $cc = $email_template[3];
                 $subject = $email_template[4];
                 $message = vsprintf($email_template[0], $html_table);

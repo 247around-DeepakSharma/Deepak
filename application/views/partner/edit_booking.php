@@ -308,26 +308,26 @@
                                         <div class="col-md-6">
                                             <select  type="text" class=" form-control "   name="purchase_month" id="purchase_month_1" >
                                                 
-                                                <?php $current_month = date("M"); for($i = 0; $i< 12; $i++){ ?>
-                                                <option  <?php if(set_value('purchase_month') == date('M', strtotime("+ $i month"))){ echo "selected";} 
-                                                  else if(date('M', strtotime("+ $i month")) == $current_month){ echo "selected";}
-                                                  else if(date('M', strtotime("+ $i month")) == $unit_details[0]['purchase_month']){ echo "selected";}?> >
-                                                    <?php echo date('M', strtotime("+ $i month")); ?>
-                                                </option>
-                                                <?php }  ?>
-<!--                                                <option selected="selected" value="">Month</option>
-                                                <option <?php //if(set_value('purchase_month') == "Jan"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";} ?> >Jan</option>
-                                                <option <?php //if(set_value('purchase_month') == "Feb"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";} ?>>Feb</option>
-                                                <option <?php //if(set_value('purchase_month') == "Mar"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";} ?>>Mar</option>
-                                                <option <?php //if(set_value('purchase_month') == "Apr"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";} ?>>Apr</option>
-                                                <option <?php //if(set_value('purchase_month') == "May"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";} ?>>May</option>
-                                                <option <?php //if(set_value('purchase_month') == "Jun"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";} ?>>Jun</option>
-                                                <option <?php //if(set_value('purchase_month') == "July"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";} ?> >July</option>
-                                                <option <?php //if(set_value('purchase_month') == "Aug"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";} ?>>Aug</option>
-                                                <option <?php //if(set_value('purchase_month') == "Sept"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";} ?>>Sept</option>
-                                                <option <?php //if(set_value('purchase_month') == "Oct"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";} ?>>Oct</option>
-                                                <option <?php //if(set_value('purchase_month') == "Nov"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";} ?>>Nov</option>
-                                                <option <?php //if(set_value('purchase_month') == "Dec"){ echo "selected";} else if(date("M") == $unit_details[0]['purchase_month']){ echo "selected";}?>>Dec</option>-->
+                                                <?php //$current_month = date("M"); for($i = 0; $i< 12; $i++){ ?>
+<!--                                                <option  <?php //if(set_value('purchase_month') == date('M', strtotime("+ $i month"))){ echo "selected";} 
+                                                  //else if(date('M', strtotime("+ $i month")) == $current_month){ echo "selected";}
+                                                  //else if(date('M', strtotime("+ $i month")) == $unit_details[0]['purchase_month']){ echo "selected";}?> >
+                                                    <?php// echo date('M', strtotime("+ $i month")); ?>
+                                                </option>-->
+                                                <?php //}  ?>
+                                                <option selected="selected" value="" disabled=""> Select Month</option>
+                                                <option <?php if(set_value('purchase_month') === "Jan"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Jan"){ echo "selected";} ?> >Jan</option>
+                                                <option <?php if(set_value('purchase_month') === "Feb"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Feb"){ echo "selected";} ?>>Feb</option>
+                                                <option <?php if(set_value('purchase_month') === "Mar"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Mar"){ echo "selected";} ?>>Mar</option>
+                                                <option <?php if(set_value('purchase_month') === "Apr"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Apr"){ echo "selected";} ?>>Apr</option>
+                                                <option <?php if(set_value('purchase_month') === "May"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "May"){ echo "selected";} ?>>May</option>
+                                                <option <?php if(set_value('purchase_month') === "Jun"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Jun"){ echo "selected";} ?>>Jun</option>
+                                                <option <?php if(set_value('purchase_month') === "July"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "July"){ echo "selected";} ?> >July</option>
+                                                <option <?php if(set_value('purchase_month') === "Aug"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Aug"){ echo "selected";} ?>>Aug</option>
+                                                <option <?php if(set_value('purchase_month') === "Sept"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Sept"){ echo "selected";} ?>>Sept</option>
+                                                <option <?php if(set_value('purchase_month') === "Oct"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Oct"){ echo "selected";} ?>>Oct</option>
+                                                <option <?php if(set_value('purchase_month') === "Nov"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Nov"){ echo "selected";} ?>>Nov</option>
+                                                <option <?php if(set_value('purchase_month') === "Dec"){ echo "selected";} else if($unit_details[0]['purchase_month'] === "Dec"){ echo "selected";}?>>Dec</option>
                                             </select>
                                             <p><?php echo form_error('purchase_month'); ?></p>
                                         </div> 
