@@ -171,7 +171,7 @@
                             <div data-u="slides" style="cursor: default; position: relative; top: 0px; left: 0px; width: 980px; height: 100px; overflow: hidden;">
                                 <?php foreach($partner_logo as $value){ ?>
                                 <div style="display: none;">
-                                    <img data-u="images" src="<?php echo $value['partner_logo'];?>" alt="<?php echo $value['alt_text'];?>"/>
+                                    <img data-u="images" src="<?php echo base_url().$value['partner_logo'];?>" alt="<?php echo $value['alt_text'];?>"/>
                                 </div>
                                 <?php }?>
                             </div>
