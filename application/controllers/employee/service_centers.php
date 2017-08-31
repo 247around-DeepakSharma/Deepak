@@ -377,7 +377,7 @@ class Service_centers extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__. " Session Expire for Service Center");
             $this->session->sess_destroy();
-            redirect(base_url() . "service_center");
+            redirect(base_url() . "service_center/login");
         }
     }
     
@@ -393,7 +393,7 @@ class Service_centers extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__. " Session Expire for Service Center");
             $this->session->sess_destroy();
-            redirect(base_url() . "service_center");
+            redirect(base_url() . "service_center/login");
         }
     }
 
@@ -422,7 +422,7 @@ class Service_centers extends CI_Controller {
         }
         
         $this->session->sess_destroy();
-        redirect(base_url() . "service_center");
+        redirect(base_url() . "service_center/login");
     }
 
     /**
