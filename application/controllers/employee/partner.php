@@ -3031,7 +3031,7 @@ class Partner extends CI_Controller {
      * 
      */
     function get_defective_parts_acknowledge_reminder_data() {
-        log_message('info', __FUNCTION__ . ' => Defctive Parts Acknowledge Reminder By Cron');
+        log_message('info', __FUNCTION__ . ' => Defective Parts Acknowledge Reminder By Cron');
 
         $where_get_partner = array('partners.is_active' => '1');
         $select = "partners.id, partners.primary_contact_email, partners.public_name,partners.primary_contact_name,partners.spare_notification_email";
@@ -3039,6 +3039,7 @@ class Partner extends CI_Controller {
         $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         foreach ($partners as $partner) {
 
+            //fetch spare parts sent 7 days or more ago
             $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.partner_id' => $partner['id'], 
                            'DATEDIFF(defective_part_shipped_date,now()) <= -7' => null,
@@ -3065,9 +3066,9 @@ class Partner extends CI_Controller {
                 $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
                 
                 if ($sendmail){
-                    log_message('info', __FUNCTION__ . 'Report Mail has been send to partner '.$partner['public_name'].' successfully');
+                    log_message('info', __FUNCTION__ . 'Defective Spares Yet to be Acknowledged Mail has been sent to partner '.$partner['public_name'].' successfully');
                 } else {
-                    log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner '.$partner['public_name']);
+                    log_message('info', __FUNCTION__ . 'Error in Sending Defective Spares Yet to be Acknowledged Mail to partner '.$partner['public_name']);
                 }
             }
         }
@@ -3112,7 +3113,6 @@ class Partner extends CI_Controller {
                 
                 
                 //send email
-                
                 $email_template = $this->booking_model->get_booking_email_template("auto_acknowledge_defective_parts");
                 $to = !empty($partner['spare_notification_email'])?$partner['spare_notification_email']:$partner['primary_contact_email'];
                 $cc = $email_template[3];
