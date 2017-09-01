@@ -277,8 +277,7 @@ class Collection_partner extends CI_Controller {
         
             $where = array('cp_id' => $cp_shop[0]['cp_id'], 
                 'partner_id'=> $bb_details->partner_id, 
-                'order_key' => $bb_details->order_key,
-                'city' => $cp_shop[0]['shop_address_region']);
+                'order_key' => $bb_details->order_key);
             
             $status = $this->buyback->update_assign_cp_process($where, $order_id, $agent, $bb_details->internal_status);
             if(!$status['status']){
