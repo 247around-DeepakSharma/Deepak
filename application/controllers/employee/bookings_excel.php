@@ -196,12 +196,14 @@ class bookings_excel extends CI_Controller {
                     }
 
                     $prod = trim($rowData[0]['category']);
+                    $lead_details = array();
 
                     //check if service_id already exist or not by using product description
                     $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($rowData[0]['product_name']));
 
                     if (!empty($service_appliance_data)) {
                         log_message('info', __FUNCTION__ . "=> Appliance Dsecription found in table");
+                        
                         $lead_details['service_id'] = $service_appliance_data[0]['service_id'];
                         $lead_details['service_appliance_data'] = $service_appliance_data[0];
                         $lead_details['Product'] = $service_appliance_data[0]['services'];
