@@ -440,9 +440,9 @@ class Partner extends CI_Controller {
         }
         $results['partner_code'] = $code;
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
-        
+
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/addpartner', array('results' => $results,'employee_list' => $employee_list));
+        $this->load->view('employee/addpartner', array('results' => $results, 'employee_list' => $employee_list));
     }
 
     /**
@@ -1018,7 +1018,7 @@ class Partner extends CI_Controller {
         $return_data['cst_no'] = $this->input->post('cst_no');
         $return_data['service_tax'] = $this->input->post('service_tax');
         $partner_code = $this->input->post('partner_code');
-        $return_data['account_managers_id'] = $this->input->post('account_managers_id');
+        $return_data['account_manager_id'] = $this->input->post('account_manager_id');
 
         if (empty($partner_code)) {
             $return_data['is_active'] = 0;
@@ -1551,7 +1551,7 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
-            
+
             $this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
         } else {
@@ -1781,7 +1781,7 @@ class Partner extends CI_Controller {
      * @param String $new_state
      * @param String $remarks
      */
-    function insert_details_in_state_change($booking_id, $new_state, $remarks,$is_cron="") {
+    function insert_details_in_state_change($booking_id, $new_state, $remarks, $is_cron = "") {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
         //Save state change
         $state_change['booking_id'] = $booking_id;
@@ -1795,11 +1795,11 @@ class Partner extends CI_Controller {
         } else { //count($booking_state_change)
             $state_change['old_state'] = "Pending";
         }
-        
-        if(empty($is_cron)){
+
+        if (empty($is_cron)) {
             $state_change['agent_id'] = $this->session->userdata('agent_id');
             $state_change['partner_id'] = $this->session->userdata('partner_id');
-        }else{
+        } else {
             $state_change['agent_id'] = '1';
             $state_change['partner_id'] = _247AROUND;
         }
@@ -2034,22 +2034,21 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        
-         $where = array(
-            "spare_parts_details.defective_part_required"=>1,
+
+        $where = array(
+            "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('Delivered', '".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_SHIPPED."')  " => NULL
-            
+            "status IN ('Delivered', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
         );
-        
+
         $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
                 . " spare_parts_details.booking_id, name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,remarks_defective_part_by_sf";
-        
+
         $group_by = "spare_parts_details.booking_id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC";
 
         $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
-        $config['total_rows'] =  $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by);
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by);
 
         if ($all == 1) {
             $config['per_page'] = $config['total_rows'];
@@ -2063,7 +2062,7 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] =  $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
         $where_internal_status = array("page" => "defective_parts", "active" => '1');
         $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         $this->load->view('partner/header');
@@ -2076,8 +2075,8 @@ class Partner extends CI_Controller {
      */
     function acknowledge_received_defective_parts($booking_id, $is_cron = "") {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id);
-        
-        if(empty($is_cron)){
+
+        if (empty($is_cron)) {
             $this->checkUserSession();
         }
 
@@ -2093,17 +2092,16 @@ class Partner extends CI_Controller {
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = _247AROUND_COMPLETED;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-            
-            if(empty($is_cron)){
+
+            if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_waiting_defective_parts");
             }
-            
         } else { //if($response){
             log_message('info', __FUNCTION__ . '=> Defective Spare Parts not udated  by Partner ' . $this->session->userdata('partner_id') .
                     " booking id " . $booking_id);
-            if(empty($is_cron)){
+            if (empty($is_cron)) {
                 $userSession = array('success' => 'There is some error. Please try again.');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_waiting_defective_parts");
@@ -2508,9 +2506,9 @@ class Partner extends CI_Controller {
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
 
         $data['spare_parts'] = $total_rows[0]['total_rows'];
-        
-        $am_details['account_managers_details'] = $this->get_am_data($partner_id);
-        $this->load->view('partner/header',$am_details);
+
+        $am_details['account_manager_details'] = $this->get_am_data($partner_id);
+        $this->load->view('partner/header', $am_details);
         $this->load->view('partner/partner_default_page', $data);
     }
 
@@ -3022,7 +3020,6 @@ class Partner extends CI_Controller {
         $this->load->view('partner/invoice_summary', $invoice);
     }
 
-    
     /**
      * @Desc: This function is used to send the reminder email to partners
      * for defective parts not shipped 
@@ -3041,11 +3038,11 @@ class Partner extends CI_Controller {
 
             //fetch spare parts sent 7 days or more ago
             $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
-            $where = array('spare_parts_details.partner_id' => $partner['id'], 
-                           'DATEDIFF(defective_part_shipped_date,now()) <= -7' => null,
-                           "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
-                           "booking_details.current_status IN ('Pending', 'Rescheduled')" => null );
-            $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where,true);
+            $where = array('spare_parts_details.partner_id' => $partner['id'],
+                'DATEDIFF(defective_part_shipped_date,now()) <= -7' => null,
+                "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
+                "booking_details.current_status IN ('Pending', 'Rescheduled')" => null);
+            $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where, true);
 
             if (!empty($defective_parts_acknowledge_data)) {
                 $this->table->set_heading('Booking Id', 'Defective Part Shipped Date');
@@ -3055,14 +3052,14 @@ class Partner extends CI_Controller {
 
                 $this->table->set_template($template);
                 $html_table = $this->table->generate($defective_parts_acknowledge_data);
-                
+
                 //send email
                 $email_template = $this->booking_model->get_booking_email_template("defective_parts_acknowledge_reminder");
-                $to = !empty($partner['spare_notification_email'])?$partner['spare_notification_email']:$partner['primary_contact_email'];
+                $to = !empty($partner['spare_notification_email']) ? $partner['spare_notification_email'] : $partner['primary_contact_email'];
                 $cc = $email_template[3];
                 $subject = $email_template[4];
                 $message = vsprintf($email_template[0], $html_table);
-                
+
                 $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
                 
                 if ($sendmail){
@@ -3073,15 +3070,14 @@ class Partner extends CI_Controller {
             }
         }
     }
-    
-    
+
     /**
      * @Desc: This function is used to auto acknowledge the defective parts after 14 days 
      * @params: void()
      * @return: void()
      * 
      */
-    function auto_acknowledge_defective_parts(){
+    function auto_acknowledge_defective_parts() {
         log_message('info', __FUNCTION__ . ' => Auto Acknowledge Defective Parts');
 
         $where_get_partner = array('partners.is_active' => '1');
@@ -3091,18 +3087,18 @@ class Partner extends CI_Controller {
         foreach ($partners as $partner) {
 
             $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
-            $where = array('spare_parts_details.partner_id' => $partner['id'], 
-                           'DATEDIFF(defective_part_shipped_date,now()) <= -14' => null,
-                           "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
-                           "booking_details.current_status IN ('Pending', 'Rescheduled')" => null );
-            $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where,true);
-            if(!empty($defective_parts_acknowledge_data)){
-                
+            $where = array('spare_parts_details.partner_id' => $partner['id'],
+                'DATEDIFF(defective_part_shipped_date,now()) <= -14' => null,
+                "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
+                "booking_details.current_status IN ('Pending', 'Rescheduled')" => null);
+            $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where, true);
+            if (!empty($defective_parts_acknowledge_data)) {
+
                 //update acknowledge
-                foreach ($defective_parts_acknowledge_data as $value){
+                foreach ($defective_parts_acknowledge_data as $value) {
                     $this->acknowledge_received_defective_parts($value['booking_id'], true);
                 }
-                
+
                 $this->table->set_heading('Booking Id', 'Defective Part Shipped Date');
                 $template = array(
                     'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
@@ -3110,31 +3106,32 @@ class Partner extends CI_Controller {
 
                 $this->table->set_template($template);
                 $html_table = $this->table->generate($defective_parts_acknowledge_data);
-                
-                
+
+
                 //send email
+                
                 $email_template = $this->booking_model->get_booking_email_template("auto_acknowledge_defective_parts");
-                $to = !empty($partner['spare_notification_email'])?$partner['spare_notification_email']:$partner['primary_contact_email'];
+                $to = !empty($partner['spare_notification_email']) ? $partner['spare_notification_email'] : $partner['primary_contact_email'];
                 $cc = $email_template[3];
                 $subject = $email_template[4];
                 $message = vsprintf($email_template[0], $html_table);
-                
+
                 $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
 
-                if ($sendmail){
-                    log_message('info', __FUNCTION__ . 'Report Mail has been send to partner '.$partner['public_name'].' successfully');
+                if ($sendmail) {
+                    log_message('info', __FUNCTION__ . 'Report Mail has been send to partner ' . $partner['public_name'] . ' successfully');
                 } else {
-                    log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner '.$partner['public_name']);
+                    log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner ' . $partner['public_name']);
                 }
             }
         }
     }
-    
-    function get_am_data($partner_id){
+
+    function get_am_data($partner_id) {
         $data = [];
-        $am_id = $this->partner_model->getpartner_details('account_managers_id',array('partners.id' => trim($partner_id)));
-        if(!empty($am_id)){
-            $data = $this->employee_model->getemployeefromid($am_id[0]['account_managers_id']);
+        $am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => trim($partner_id)));
+        if (!empty($am_id)) {
+            $data = $this->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
         }
         return $data;
     }

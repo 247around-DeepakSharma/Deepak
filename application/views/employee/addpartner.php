@@ -291,18 +291,18 @@
                                         <?php } ?>
                                     </div>
                                 </div>
-                                <div  class="form-group <?php if (form_error('account_managers_id')) {
+                                <div  class="form-group <?php if (form_error('account_manager_id')) {
                                     echo 'has-error';
                                     } ?>">
-                                    <label  for="account_managers" class="col-md-4">Account Managers </label>
+                                    <label  for="account_manager" class="col-md-4">Account Managers </label>
                                     <div class="col-md-8">
-                                        <select name="account_managers_id" class="form-control" id="account_managers">
+                                        <select name="account_manager_id" class="form-control" id="account_manager">
                                             <option selected disabled>Select Account Managers</option>
                                             <?php foreach($employee_list as $employee){ ?>
-                                            <option value="<?php echo $employee['id']; ?>" <?php if(isset($query[0]['account_managers_id']) && ($query[0]['account_managers_id'] === $employee['id'] )){ echo "selected";}?>><?php echo $employee['full_name']; ?></option>
+                                            <option value="<?php echo $employee['id']; ?>" <?php if(isset($query[0]['account_manager_id']) && ($query[0]['account_manager_id'] === $employee['id'] )){ echo "selected";}?>><?php echo $employee['full_name']; ?></option>
                                             <?php } ?>
                                         </select>
-                                        <?php echo form_error('account_managers_id'); ?>
+                                        <?php echo form_error('account_manager_id'); ?>
                                     </div>
                                 </div>
                             </div>
@@ -876,7 +876,7 @@
     $('#pincode').select2({
         placeholder: "Select Pincode"
     });
-    $('#account_managers').select2({
+    $('#account_manager').select2({
         placeholder: "Select Account Managers"
     });
     
