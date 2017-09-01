@@ -120,7 +120,7 @@ class accounting_model extends CI_Model {
                 . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
                 . " AND sc.id = vpi.vendor_partner_id LEFT JOIN partners ON vendor_partner = 'partner' "
                 . " AND partners.id = vpi.vendor_partner_id WHERE "
-                . " type_code = '$payment_type' AND  vendor_partner = '$partner_vendor' $where";
+                . " type_code = '$payment_type' AND vpi.type NOT IN ('".BUYBACK_VOUCHER."', '".PARTNER_VOUCHER."') AND  vendor_partner = '$partner_vendor' $where";
         
         $query = $this->db->query($sql);
         $data = $query->result_array();
