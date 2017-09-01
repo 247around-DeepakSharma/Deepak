@@ -2796,9 +2796,10 @@ class Invoice extends CI_Controller {
             $data['type_code'] = "B";
             $data['vendor_partner'] = $vendor_partner;
             $data['vendor_partner_id'] = $vendor_partner_id;
+            $data['invoice_date'] = $date;
             $data['from_date'] = $date;
             $data['to_date'] = $date;
-            $data['due_date'] = date("Y-m-d", strtotime($date . "+1 month"));
+            $data['due_date'] = $date;
             $data['total_service_charge'] = $basic_price;
             $data['total_amount_collected'] = $amount;
             $data['around_royalty'] = 0;
