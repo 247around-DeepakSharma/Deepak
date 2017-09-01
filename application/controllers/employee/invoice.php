@@ -342,8 +342,7 @@ class Invoice extends CI_Controller {
                 } else {
                     //partner Pay to 247Around
                     if ($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Credit' && $data[0]['tds_amount'] == 0) {
-                        $per_tds = ($tds_amount_array[$key] * 100) / ($data[0]['total_service_charge'] + $data[0]['total_additional_service_charge'] +
-                                $data[0]['upcountry_price'] - $data[0]['penalty_amount'] + $data[0]['credit_penalty_amount'] + $data[0]['courier_charges']);
+                        $per_tds = 0;
                         $vp_details['tds_amount'] = $tds_amount_array[$key];
                         $vp_details['tds_rate'] = $per_tds;
                         $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
@@ -2774,11 +2773,11 @@ class Invoice extends CI_Controller {
         if (!empty($entity)) {
             if ($vendor_partner == "vendor") {
 
-                $data['invoice_id'] = $this->create_invoice_id_to_insert($entity[0]['sc_code']);
+                $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
                 $data['type'] = BUYBACK_VOUCHER;
                 $basic_price = $amount;
             } else {
-                $data['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+                $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
                 $gst_rate = 18;
                 $gst_amount = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
                 $c_s_gst = $this->invoices_model->check_gst_tax_type($entity[0]['state']);
