@@ -865,7 +865,7 @@ class invoices_model extends CI_Model {
                 sc.state, sc.company_name,sc.address as company_address, sc_code,
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
                 sc.pan_no, contract_file, company_type, signature_file, beneficiary_name,bank_account,
-                bank_name,ifsc_code, owner_phone_1
+                bank_name,ifsc_code, owner_phone_1, sc.district, sc.pincode
 
                 FROM  `booking_unit_details` AS ud 
                 JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
