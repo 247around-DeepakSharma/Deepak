@@ -2774,11 +2774,11 @@ class Invoice extends CI_Controller {
         if (!empty($entity)) {
             if ($vendor_partner == "vendor") {
 
-                $data['invoice_id'] = $this->create_invoice_id_to_insert($entity[0]['sc_code']);
+                $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
                 $data['type'] = BUYBACK_VOUCHER;
                 $basic_price = $amount;
             } else {
-                $data['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+                $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
                 $gst_rate = 18;
                 $gst_amount = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
                 $c_s_gst = $this->invoices_model->check_gst_tax_type($entity[0]['state']);
