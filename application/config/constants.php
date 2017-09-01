@@ -412,6 +412,7 @@ define('CLAIM_REJECTED','Claim Rejected');
 define('CLAIM_SETTLED','Claim Settled');
 
 define('BUYBACK_VOUCHER','Buyback_Voucher');
+define('PARTNER_VOUCHER','Partner_Voucher');
 
 define('CLAIM_DEBIT_NOTE_RAISED','Claim Debit Note Raised');
 

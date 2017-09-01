@@ -342,7 +342,8 @@ class Invoice extends CI_Controller {
                 } else {
                     //partner Pay to 247Around
                     if ($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Credit' && $data[0]['tds_amount'] == 0) {
-                        $per_tds = ($tds_amount_array[$key] * 100) / $data[0]['total_service_charge'];
+                        $per_tds = ($tds_amount_array[$key] * 100) / ($data[0]['total_service_charge'] + $data[0]['total_additional_service_charge'] +
+                                $data[0]['upcountry_price'] - $data[0]['penalty_amount'] + $data[0]['credit_penalty_amount'] + $data[0]['courier_charges']);
                         $vp_details['tds_amount'] = $tds_amount_array[$key];
                         $vp_details['tds_rate'] = $per_tds;
                         $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
@@ -958,7 +959,7 @@ class Invoice extends CI_Controller {
             
             $t_total = $total_inst_charge + $total_stand_charge;
             
-            $tds = $this->check_tds_sc($invoice_data['booking'][0], $total_inst_charge);
+            $tds = $this->check_tds_sc($invoice_data['booking'][0], $invoice_data['meta']['total_sc_charge']);
 
             //this array stores unique booking id
             $unique_booking = array_unique(array_map(function ($k) {
@@ -976,20 +977,16 @@ class Invoice extends CI_Controller {
             $invoice_data['meta']['total_gst_amount'] =  round($invoice_data['meta']["cgst_total_tax_amount"] + $invoice_data['meta']["sgst_total_tax_amount"] +
                     $invoice_data['meta']["igst_total_tax_amount"],0);
             $invoice_data['meta']['t_rating'] = $rating/$j;
-            $invoice_data['meta']['t_vp_w_tds'] = round($t_total - $invoice_data['meta']['tds'], 0);
             $invoice_data['meta']['cr_total_penalty_amount'] = round((array_sum(array_column($invoice_data['c_penalty'], 'p_amount'))),0);
             $invoice_data['meta']['total_penalty_amount'] = -round((array_sum(array_column($invoice_data['d_penalty'], 'p_amount'))), 0);
             $invoice_data['meta']['total_upcountry_price'] = round($total_upcountry_price, 0);
             $invoice_data['meta']['total_courier_charges'] = round((array_sum(array_column($invoice_data['courier'], 'courier_charges_by_sf'))), 0);
-                
-            $t_vp_w_tds =  $invoice_data['meta']['t_vp_w_tds'] +  $invoice_data['meta']['total_upcountry_price'] + 
-                    $invoice_data['meta']['cr_total_penalty_amount'] +  $invoice_data['meta']['total_courier_charges'] + $invoice_data['meta']['total_penalty_amount'];
             
-            $invoice_data['meta']['t_vp_w_tds'] = $t_vp_w_tds + $invoice_data['meta']['total_gst_amount'];
+            $invoice_data['meta']['t_vp_w_tds'] = round( ($invoice_data['meta']['sub_total_amount'] - $invoice_data['meta']['tds']), 0);
             
             $invoice_data['meta']['msg'] = 'Thanks 247around Partner for your support, we completed ' .  $invoice_data['meta']['count'] .
                     ' bookings with you from ' .  $invoice_data['meta']['sd'] . ' to ' .  $invoice_data['meta']['ed'] .
-                    '. Total transaction value for the bookings was Rs. ' . round( ($invoice_data['meta']['sub_total_amount'] - $invoice_data['meta']['tds']), 0) .
+                    '. Total transaction value for the bookings was Rs. ' .  $invoice_data['meta']['t_vp_w_tds'] .
                     '. Your rating for completed bookings is ' . round( $invoice_data['meta']['t_rating'], 0) .
                     '. We look forward to your continued support in future. As next step, 247around will pay you remaining amount as per our agreement.';
 
@@ -1090,7 +1087,7 @@ class Invoice extends CI_Controller {
                 );
 
                 // insert invoice details into vendor partner invoices table
-                //$this->invoices_model->action_partner_invoice($invoice_details);
+                $this->invoices_model->action_partner_invoice($invoice_details);
                 //Update Penalty Amount
                 foreach ($invoice_data['d_penalty'] as $value) {
                     $this->penalty_model->update_penalty_any(array('booking_id' => $value['booking_id']), array('foc_invoice_id' => $invoice_data['meta']['invoice_id']));
@@ -2146,7 +2143,7 @@ class Invoice extends CI_Controller {
                     if ($data['type'] == 'FOC') {
 
                         if ($vendor_partner == "vendor") {
-                            $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge']);
+                            $tds = $this->check_tds_sc($entity_details[0], ($total_amount_collected - $data['parts_cost']));
                             if (!empty($gst_number)) {
 
                                 $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
@@ -2730,17 +2727,24 @@ class Invoice extends CI_Controller {
         $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
         $data['credit_debit'] = $this->input->post("credit_debit");
         $data['bankname'] = $this->input->post("bankname");
+        $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
         $amount = $this->input->post("amount");
         if ($data['credit_debit'] == "Credit") {
             $data['credit_amount'] = $amount;
-            $data['is_advance'] = 1;
+            
+            $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], $data['partner_vendor_id'], $data['transaction_date'], $amount);
+            if($invoice_id){
+                $data['invoice_id'] = $invoice_id;
+                $data['is_advance'] = 1;
+            }
+            
+            
         } else if ($data['credit_debit'] == "Debit") {
             $data['debit_amount'] = $amount;
         }
 
         $data['tds_amount'] = $this->input->post('tds_amount');
         $data['transaction_mode'] = $this->input->post('transaction_mode');
-        $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
         $data['description'] = $this->input->post("description");
         $data['agent_id'] = $this->session->userdata('id');
         $data['create_date'] = date("Y-m-d H:i:s");
@@ -2755,7 +2759,59 @@ class Invoice extends CI_Controller {
         } else {
             $userSession = array('error' => "Bank Transaction Not Added");
             $this->session->set_userdata($userSession);
-            redirect(base_url() . "employee/invoice/get_advance_bank_transaction");
+           redirect(base_url() . "employee/invoice/get_advance_bank_transaction");
+        }
+    }
+    
+    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount) {
+
+        if ($vendor_partner == "vendor") {
+            $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id, "is_cp" => 1));
+        } else if ($vendor_partner == "partner") {
+            $entity = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $vendor_partner_id));
+        }
+        
+        if (!empty($entity)) {
+            if ($vendor_partner == "vendor") {
+
+                $data['invoice_id'] = $this->create_invoice_id_to_insert($entity[0]['sc_code']);
+                $data['type'] = BUYBACK_VOUCHER;
+                $basic_price = $amount;
+            } else {
+                $data['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+                $gst_rate = 18;
+                $gst_amount = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
+                $c_s_gst = $this->invoices_model->check_gst_tax_type($entity[0]['state']);
+                if ($c_s_gst) {
+
+                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $gst_amount / 2;
+                    $data['cgst_tax_rate'] = $data['sgst_tax_rate'] = $gst_rate / 2;
+                } else {
+                    $data['igst_tax_amount'] = $gst_amount;
+                    $data['igst_tax_rate'] = $gst_rate;
+                    $data['type'] = PARTNER_VOUCHER;
+                }
+                $basic_price = $amount - $gst_amount;
+            }
+
+            $data['type_code'] = "B";
+            $data['vendor_partner'] = $vendor_partner;
+            $data['vendor_partner_id'] = $vendor_partner_id;
+            $data['from_date'] = $date;
+            $data['to_date'] = $date;
+            $data['due_date'] = date("Y-m-d", strtotime($date . "+1 month"));
+            $data['total_service_charge'] = $basic_price;
+            $data['total_amount_collected'] = $amount;
+            $data['around_royalty'] = 0;
+            $data['amount_collected_paid'] = -$amount;
+            $data['agent_id'] = $this->session->userdata('id');
+            $data['agent_id'] = $this->input->post("description");
+            $data['create_date'] = date("Y-m-d H:i:s");
+
+            $this->invoices_model->action_partner_invoice($data);
+            return $data['invoice_id'];
+        } else {
+            return false;
         }
     }
 

@@ -307,7 +307,7 @@
                     <?php } ?>
 
 
-                    <?php if(isset($booking_history['spare_parts'])){ $parts_shipped = false; $approved_defective_parts_by_partner = 0; ?>
+                    <?php if(isset($booking_history['spare_parts'])){ $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
 
                     <div class="col-md-12">
 
@@ -343,8 +343,8 @@
                                     <td><?php echo $sp['remarks_by_sc']; ?></td>
                                     <td><?php echo $sp['status']; ?></td>
                                 </tr>
-                                     <?php  if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if($sp['approved_defective_parts_by_partner'] == "1"){
-                                         $approved_defective_parts_by_partner = 1;
+                                     <?php  if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
+                                         $defective_parts_shipped = TRUE;
                                      } } ?>
                                 </tbody>
                             </table>
@@ -390,7 +390,7 @@
                     </div>
                     <?php } ?> 
 
-                    <?php if($approved_defective_parts_by_partner == "1"){ ?>
+                    <?php if($defective_parts_shipped){ ?>
                     <div class="col-md-12">
                         <h1 style='font-size:24px;'>Defective Spare Parts Shipped By SF</h1>
                         <div class="col-md-12" style="padding-left:1px;">
@@ -408,7 +408,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if($sp['approved_defective_parts_by_partner'] == 1){  ?>
+                                     <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                     <tr>
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php echo $sp['courier_name_by_sf']; ?></td>
@@ -419,7 +419,7 @@
                                         <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                          <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                     </tr>
-                    <?php } } ?>
+                    <?php  } ?>
                                 </tbody>
 
                             </table>

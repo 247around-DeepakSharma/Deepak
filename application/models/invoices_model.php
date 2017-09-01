@@ -865,7 +865,7 @@ class invoices_model extends CI_Model {
                 sc.state, sc.company_name,sc.address as company_address, sc_code,
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
                 sc.pan_no, contract_file, company_type, signature_file, beneficiary_name,bank_account,
-                bank_name,ifsc_code, owner_phone_1
+                bank_name,ifsc_code, owner_phone_1, sc.district, sc.pincode
 
                 FROM  `booking_unit_details` AS ud 
                 JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
@@ -964,7 +964,7 @@ class invoices_model extends CI_Model {
             
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
                     $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
-            $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
+            $meta['total_sc_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
             
             $c_s_gst =$this->check_gst_tax_type($data['booking'][0]['state']);
@@ -1004,13 +1004,12 @@ class invoices_model extends CI_Model {
                 if(empty($data['booking'][0]['gst_number'])){
                     $meta['rcm'] = round(( $meta['sub_total_amount'] * 0.18), 0);
                 }
-                if($value['product_or_services'] == "Service"){
-                    
-                    $meta['total_ins_charge'] += $value['taxable_value'];
-                    
-                } else if($value['product_or_services'] == "Product"){
+                if($value['product_or_services'] == "Product"){
                     
                     $meta['total_parts_charge'] += $value['taxable_value'];
+                    
+                } else {
+                    $meta['total_sc_charge'] += $value['taxable_value'];
                 }
              }
              
