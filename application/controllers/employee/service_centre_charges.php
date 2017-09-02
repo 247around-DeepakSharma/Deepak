@@ -11,6 +11,8 @@ define('EOL', (PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 //require_once dirname(__FILE__) . '/../Classes/PHPExcel/IOFactory.php';
 
 error_reporting(E_ALL);
+ini_set('memory_limit', '-1');
+
 ini_set('display_errors', '1');
 ini_set('max_execution_time', 36000); //3600 seconds = 60 minutes
 
@@ -21,6 +23,10 @@ require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php
 
 class service_centre_charges extends CI_Controller {
 
+    var $dataToInsert = [];
+    var $currentSheetPartnerId = '';
+    var $Columfailed = "";
+    
     function __Construct() {
         parent::__Construct();
         $this->load->helper(array('form', 'url'));
@@ -31,6 +37,7 @@ class service_centre_charges extends CI_Controller {
         $this->load->library('PHPReport');
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_utilities');
+        $this->load->library('notify');
 
         $this->load->model('user_model');
         $this->load->model('booking_model');
@@ -175,43 +182,49 @@ class service_centre_charges extends CI_Controller {
         if ($return == "true") {
             //Logging
             log_message('info', __FUNCTION__ . ' Processing of Service Price List Excel File started');
-            $flag = "";
-            if ($this->input->post('flag')) {
-                $flag = $this->input->post('flag');
-            }
-
+            
             //Making process for file upload
             $tmpFile = $_FILES['file']['tmp_name'];
             $price_file = "Service-Price-List-" . date('Y-m-d-H-i-s') . '.xlsx';
-            move_uploaded_file($tmpFile, TMP_FOLDER . $price_file);
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $price_file);
 
             //Processing File
-            $this->upload_excel(TMP_FOLDER . $price_file, "price", $flag);
-
+            $response = $this->process_upload_service_price_file($tmpFile);
+            
             //Adding Details in File_Uploads table as well
+            if($response){
+                $data['file_name'] = $price_file;
+                $data['file_type'] = _247AROUND_SF_PRICE_LIST;
+                $data['agent_id'] = $this->session->userdata('id');
+                $insert_id = $this->partner_model->add_file_upload_details($data);
+                if (!empty($insert_id)) {
+                    //Logging success
+                    log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
+                } else {
+                    //Loggin Error
+                    log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+                }
 
-            $data['file_name'] = $price_file;
-            $data['file_type'] = _247AROUND_SF_PRICE_LIST;
-            $data['agent_id'] = $this->session->userdata('id');
-            $insert_id = $this->partner_model->add_file_upload_details($data);
-            if (!empty($insert_id)) {
-                //Logging success
-                log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
-            } else {
-                //Loggin Error
-                log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $price_file;
+                $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                //Logging
+                log_message('info', __FUNCTION__ . ' File has been uploaded in S3');
+
+                $userSession = array('success' => "File Uploaded Successfully");
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
+            }else{
+                $userSession = array('error' => 'Error In File Uploading. Please Try Again');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
             }
-
-            //Upload files to AWS
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $price_file;
-            $this->s3->putObjectFile(TMP_FOLDER . $price_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-            //Logging
-            log_message('info', __FUNCTION__ . ' File has been uploaded in S3');
-
-            $this->redirect_upload_form();
+            
         } else {
-            $this->upload_excel_form($return);
+            $userSession = array('error' => $return['error']);
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
         }
     }
 
@@ -310,6 +323,8 @@ class service_centre_charges extends CI_Controller {
             $output['error'] = "Error while uploading File";
             $this->upload_excel_form($output);
         }
+        
+        return $return;
     }
 
     /**
@@ -590,6 +605,309 @@ class service_centre_charges extends CI_Controller {
         } else {
             return $data;
         }
+    }
+    
+    function process_upload_service_price_file($inputFileName) {
+        try {
+            $flag = FALSE;
+            $msg = "";
+            $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+            $objPHPExcel = $objReader->load($inputFileName);
+            $i = 0;
+            foreach ($objPHPExcel->getAllSheets() as $sheet) {
+                $highestRow = $data = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestDataColumn();
+                $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE,FALSE);
+                
+                //getting sheet header
+                $headings_new = array();
+                foreach ($headings as $heading) {
+                    $heading = str_replace(array(" ","/"), "_", preg_replace('/\s+/', ' ', $heading));
+                    array_push($headings_new, $heading);
+                }
+                $this->Columfailed = "";
+                $headings_new1 = array_map('strtolower', $headings_new[0]);
+                $response = $this->check_column_exist($headings_new1);
+                $sheetData = [];
+                $sheetUniqueRowData = [];
+                $rowNotEmpty = 0;
+                if($response['status']){
+                    for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
+                        //  Read a row of data into an array
+                        $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE,FALSE);
+                        $newRowData = array_combine($headings_new1, $rowData[0]);
+                        if(!empty($newRowData['partner_id'])){
+                            $subArray = $this->get_sub_array($newRowData,array('partner_id','brand','product_id','category','capacity','service_category','customer_net_payable'));
+                            array_push($sheetUniqueRowData, implode('_', str_replace(' ','_', $subArray)));
+                            array_push($sheetData, $newRowData);
+                            $rowNotEmpty++;
+                            $this->make_final_service_price_data($newRowData);
+                        }
+                    }
+
+                    $currentSheetPartnerIdArr = array_column($sheetData, 'partner_id');
+                    $isDiffrentPartnerId = count(array_unique($currentSheetPartnerIdArr));
+                    $d = count(array_unique($sheetUniqueRowData));
+                    $arr_duplicates = array_diff_assoc($sheetUniqueRowData, array_unique($sheetUniqueRowData));
+                    if($isDiffrentPartnerId == 1 && empty($arr_duplicates)){
+                        $flag = TRUE;
+                        unset($currentSheetPartnerIdArr);
+                        unset($isDiffrentPartnerId);
+                    }else{
+                        log_message('info', $sheet->getTitle().' sheet either has different partner id or same data in any two or more row');
+                        $msg = $sheet->getTitle().' sheet has either different partner id or same data';
+                        $flag = FALSE;
+                        break;
+                    }
+                }else{
+                    log_message('info','Column Not Found');
+                    $msg = $response['msg']."in the ".$sheet->getTitle()." sheet";
+                    $flag = FALSE;
+                    break;
+                }
+            }
+            if($flag){
+                $res = $this->insert_data_list("price", $this->dataToInsert, "");
+                if($res){
+                    log_message('info','Price Updated Successfully');
+                }else{
+                    log_message('info','Error In Updating Price');
+                }
+            }else{
+                $to = $this->session->userdata('official_email');
+                $cc = DEVELOPER_EMAIL;
+                $subject = "Failed! Service Price File is uploaded by " . $this->session->userdata('employee_id');
+                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $msg, "");
+            }
+            
+            return $flag;
+            
+        } catch (Exception $e) {
+            die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
+        }
+    }
+    
+    function check_column_exist($rowData){
+        $message = "";
+        $error = false;
+        if (!in_array('partner_id', $rowData)) {
+            $message .= " Partner ID Column does not exist.<br/><br/>";
+            $this->Columfailed .= " Partner ID, ";
+            $error = true;
+        }
+
+        if (!in_array('state', $rowData)) {
+            $message .= " STATE Column does not exist. <br/><br/>";
+            $this->Columfailed .= " STATE, ";
+            $error = true;
+        }
+        
+        if (!in_array('brand', $rowData)) {
+      
+            $message .= " Brand Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Brand , ";
+            $error = true;
+        }
+         
+        if (!in_array('product_id', $rowData)) {
+       
+            $message .= " Product Column does not exist. <br/><br/>";
+            $this->Columfailed .= " Product , ";
+            $error = true;
+        }
+        if (!in_array('category', $rowData)) {
+
+            $message .= " Category Column does not exist. <br/><br/>";
+            $this->Columfailed .= " Category , ";
+            $error = true;
+        }
+        if (!in_array('capacity', $rowData)) {
+      
+            $message .= " Capacity Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Capacity , ";
+            $error = true;
+        }
+        if (!in_array('service_category', $rowData)) {
+      
+            $message .= " Service Category Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Service Category ";
+            $error = true;
+        }
+        if (!in_array('product_service', $rowData)) {
+      
+            $message .= " Product Service Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Product Service , ";
+            $error = true;
+        }
+        if (!in_array('product_type', $rowData)) {
+      
+            $message .= " Product Type Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Product Type,";
+            $error = true;
+        }
+        if (!in_array('tax_code', $rowData)) {
+      
+            $message .= " Tax Code Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Tax Code ,";
+            $error = true;
+        }
+        if (!in_array('active', $rowData)) {
+      
+            $message .= " Active Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Active ";
+            $error = true;
+        }
+        if (!in_array('check_box', $rowData)) {
+      
+            $message .= " Check Box Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Check Box ,";
+            $error = true;
+        }
+        if (!in_array('vendor_base_svc_ch', $rowData)) {
+      
+            $message .= " Vendor Base Service Charge Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Vendor Base Service Charge ,";
+            $error = true;
+        }
+        if (!in_array('vendor_base_svc_ch_tax', $rowData)) {
+      
+            $message .= " Vendor Base Service Charge Tax Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Vendor Base Service Charge Tax ";
+            $error = true;
+        }
+        if (!in_array('vendor_base_svc_ch_with_tax_(rs.)', $rowData)) {
+      
+            $message .= " Vendor Base Service Charge With Tax Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Vendor Base Service Charge With Tax ";
+            $error = true;
+        }
+        if (!in_array('around_svc_ch', $rowData)) {
+      
+            $message .= " Around Service Charge Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Around Service Charge ,";
+            $error = true;
+        }
+        if (!in_array('around_svc_tax___vat', $rowData)) {
+      
+            $message .= " Around Service Charge With Tax VAT Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Around Service Charge With Tax VAT ,";
+            $error = true;
+        }
+        if (!in_array('around_total_with_tax', $rowData)) {
+      
+            $message .= " Around Total With Tax Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Around Total With Tax ";
+            $error = true;
+        }
+        if (!in_array('around_svc_ch', $rowData)) {
+      
+            $message .= " Around Service Charge Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Around Service Charge ,";
+            $error = true;
+        }
+        if (!in_array('total_svc_tax___vat', $rowData)) {
+      
+            $message .= " Total Service Tax VAT Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Total Service Tax VAT ,";
+            $error = true;
+        }
+        if (!in_array('customer_total_rs.', $rowData)) {
+      
+            $message .= " Customer Total Rs Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Customer Total Rs ";
+            $error = true;
+        }
+        if (!in_array('partner_payable_basic', $rowData)) {
+      
+            $message .= " Partner Payable Basic Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Partner Payable Basic ,";
+            $error = true;
+        }
+        if (!in_array('partner_payable_tax', $rowData)) {
+      
+            $message .= " Partner Payable Tax Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Partner Payable Tax ,";
+            $error = true;
+        }
+        if (!in_array('partner_net_payable', $rowData)) {
+      
+            $message .= " Partner Net Payable Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Partner Net Payable ";
+            $error = true;
+        }
+        if (!in_array('customer_net_payable', $rowData)) {
+      
+            $message .= " Customer Net Payable Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Customer Net Payable ,";
+            $error = true;
+        }
+        if (!in_array('serial_number_mandatory', $rowData)) {
+      
+            $message .= " Serial Number Mandatory Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Serial Number Mandatory ,";
+            $error = true;
+        }
+        if (!in_array('upcountry', $rowData)) {
+      
+            $message .= " Upcountry Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Upcountry ";
+            $error = true;
+        }
+        if (!in_array('sf_percentage', $rowData)) {
+      
+            $message .= " SF Percentage Column does not exist. <br/><br/>";
+            $this->Columfailed .= "SF Percentage ";
+            $error = true;
+        }       
+        if ($error) {
+            $message .= " Please check and upload again.";
+            $this->Columfailed .= " column does not exist.";
+            $return_response['status'] = FALSE;
+            $return_response['msg'] = $message;
+        } else {
+            $return_response['status'] = TRUE;
+            $return_response['msg'] = '';
+        }
+        
+        return $return_response;
+    }
+    
+    function get_sub_array(array $parentArray, array $subsetArrayToGet)
+    {
+        return array_intersect_key($parentArray, array_flip($subsetArrayToGet));
+    }
+    
+    function make_final_service_price_data($newRowData){
+        
+        $final_data['partner_id'] = $newRowData['partner_id'];
+        $final_data['state'] = $newRowData['state'];
+        $final_data['brand'] = $newRowData['brand'];
+        $final_data['service_id'] = $newRowData['product_id'];
+        $final_data['category'] = $newRowData['category'];
+        $final_data['capacity'] = $newRowData['capacity'];
+        $final_data['service_category'] = $newRowData['service_category'];
+        $final_data['product_or_services'] = $newRowData['product_service'];
+        $final_data['product_type'] = $newRowData['product_type'];
+        $final_data['tax_code'] = $newRowData['tax_code'];
+        $final_data['active'] = $newRowData['active'];
+        $final_data['check_box'] = $newRowData['check_box'];
+        $final_data['vendor_basic_charges'] = $newRowData['vendor_base_svc_ch'];
+        $final_data['vendor_tax_basic_charges'] = $newRowData['vendor_base_svc_ch_tax'];
+        $final_data['vendor_total'] = $newRowData['vendor_base_svc_ch_with_tax_(rs.)'];
+        $final_data['around_basic_charges'] = $newRowData['around_svc_ch'];
+        $final_data['around_tax_basic_charges'] = $newRowData['around_svc_tax___vat'];
+        $final_data['around_total'] = $newRowData['around_total_with_tax'];
+        $final_data['customer_total'] = $newRowData['total_svc_tax___vat'];
+        $final_data['partner_payable_basic'] = $newRowData['partner_payable_basic'];
+        $final_data['partner_payable_tax'] = $newRowData['partner_payable_tax'];
+        $final_data['partner_net_payable'] = $newRowData['partner_net_payable'];
+        $final_data['customer_net_payable'] = $newRowData['customer_net_payable'];
+        $final_data['pod'] = $newRowData['serial_number_mandatory'];
+        $final_data['is_upcountry'] = $newRowData['upcountry'];
+        $final_data['vendor_basic_percentage'] = $newRowData['sf_percentage'];
+        
+        array_push($this->dataToInsert, $final_data);
+        
     }
 
 }
