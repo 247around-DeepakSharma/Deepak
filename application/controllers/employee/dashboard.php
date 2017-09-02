@@ -475,7 +475,7 @@ class Dashboard extends CI_Controller {
             $advance_amount = $this->invoices_model->get_invoices_details(array('type'=> BUYBACK_VOUCHER,'type_code'=>'B', 'vendor_partner' => 'vendor', 
                     'vendor_partner_id'=>$value['id']),
                     'SUM( amount_collected_paid + `amount_paid`) as advance_amount')[0]['advance_amount'];
-            $this->db->last_query();
+            
             $paid_amount = $amount1 + abs($advance_amount);
    
             $where['where'] = array('assigned_cp_id' =>$value['id']);

@@ -38,6 +38,7 @@ class partner_cb {
 
 	// it return data to call partner api, if need to call partner api other wise return false
 	$data = $this->My_CI->partner_model->get_data_for_partner_callback($booking_id);
+        
 	if (!empty($data)) {
 
 	    $call_details = $this->callback_array($data['partner_id'], $data['current_status']);
@@ -68,6 +69,7 @@ class partner_cb {
      */
     function callback_array($partner_id, $state) {
 	$snapdeal_partner_id = 1;
+        $jeeves_partner_id = 247030;
 
 	$callback_array = array();
 
@@ -76,6 +78,13 @@ class partner_cb {
 	$callback_array[$snapdeal_partner_id]['Pending'] = 'update_status_schedule_booking';
 	$callback_array[$snapdeal_partner_id]['FollowUp'] = 'update_status_schedule_booking';
 	$callback_array[$snapdeal_partner_id]['Rescheduled'] = 'update_status_reschedule_booking';
+        
+        
+        $callback_array[$jeeves_partner_id]['Pending'] = 'update_jeeves_status_schedule_booking';
+	$callback_array[$jeeves_partner_id]['FollowUp'] = 'update_jeeves_status_schedule_booking';
+	$callback_array[$jeeves_partner_id]['Rescheduled'] = 'update_jeeves_status_schedule_booking';
+        $callback_array[$snapdeal_partner_id]['Completed'] = 'update_jeeves_status_schedule_booking';
+	$callback_array[$snapdeal_partner_id]['Cancelled'] = 'update_jeeves_status_schedule_booking';
 
 	if (isset($callback_array[$partner_id][$state])) {
 	    return $callback_array[$partner_id][$state];
@@ -91,8 +100,10 @@ class partner_cb {
      */
     function get_callback_library($partner_id) {
 	$snapdeal_partner_id = 1;
+        $jeeves_partner_id = 247030;
 
 	$library[$snapdeal_partner_id] = 'partner_sd_cb';
+        $library[$jeeves_partner_id] = 'partner_sd_cb';
 
 	return $library[$partner_id];
     }

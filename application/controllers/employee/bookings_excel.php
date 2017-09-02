@@ -173,7 +173,7 @@ class bookings_excel extends CI_Controller {
                         $user['name'] = $user_name;
                         $user['phone_number'] = $rowData[0]['contact_number'];
                         $user['user_email'] = $rowData[0]['customer_email'];
-                        $user['home_address'] = $rowData[0]['address'] . " ," . $rowData[0]['area'];
+                        $user['home_address'] = $rowData[0]['address'];
                         $user['pincode'] = $rowData[0]['pincode'];
                         $user['city'] = $rowData[0]['customer_city'];
                         $user['state'] = $distict_details['state'];
@@ -212,7 +212,7 @@ class bookings_excel extends CI_Controller {
                         if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
                             $lead_details['Product'] = 'Washing Machine';
                         }
-                        if (stristr($prod, "Television")) {
+                        if (stristr($prod, "Television") || stristr($prod, "TV")) {
                             $lead_details['Product'] = 'Television';
                         }
                         if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
@@ -254,7 +254,7 @@ class bookings_excel extends CI_Controller {
                         $appliance_details['model_number'] = $unit_details['model_number'] = "";
                         $appliance_details['description'] = $unit_details['appliance_description'] = trim($rowData[0]['product_name']);
 
-                        $booking['booking_address'] = $rowData[0]['address'] . " ," . $rowData[0]['area'];
+                        $booking['booking_address'] = $rowData[0]['address'];
                         $booking['booking_pincode'] = $rowData[0]['pincode'];
                         $booking['city'] = $rowData[0]['customer_city'];
                         $booking['state'] = $distict_details['state'];
