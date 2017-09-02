@@ -3135,5 +3135,14 @@ UPDATE `email_template` SET `template` = 'Dear Partner,<br><br> As discussed, pl
 In case of any issues, write to us or call us.<br><br> Regards,<br> 247around Team' 
 WHERE `email_template`.`tag` = 'vendor_login_details';
 
+
 ALTER TABLE `bank_transactions` ADD `is_advance` INT(1) NOT NULL DEFAULT '0' AFTER `remarks`;
 
+--sachin 2 sep
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'partner_activate_email', 'Your CRM Activated', 'CRM Activated', 
+'booking@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'partner_deactivate_email', 'Your CRM De-Activated', 'CRM De-Activated', 
+'booking@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);

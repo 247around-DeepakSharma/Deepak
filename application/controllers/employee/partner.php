@@ -1089,6 +1089,21 @@ class Partner extends CI_Controller {
      * @return : void
      */
     function activate($id) {
+        
+        $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $id));
+        $am_email = "";
+        if (!empty($get_partner_details[0]['account_manager_id'])) {
+            $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+        }
+
+        //send email
+        $email_template = $this->booking_model->get_booking_email_template("partner_activate_email");
+        $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+        $cc = NITS_ANUJ_EMAIL_ID . "," . $am_email;
+        $subject = $email_template[4];
+        $message = $email_template[0];
+
+        $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
         $this->partner_model->activate($id);
         //Storing State change values in Booking_State_Change Table
         $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
@@ -1104,9 +1119,28 @@ class Partner extends CI_Controller {
      * @return : void
      */
     function deactivate($id) {
+
+        $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $id));
+        $am_email = "";
+        if (!empty($get_partner_details[0]['account_manager_id'])) {
+            $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+        }
+
+        //send email
+
+        $email_template = $this->booking_model->get_booking_email_template("partner_deactivate_email");
+        $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+        $cc = NITS_ANUJ_EMAIL_ID . "," . $am_email;
+        $subject = $email_template[4];
+        $message = $email_template[0];
+
+        $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+
         $this->partner_model->deactivate($id);
         //Storing State change values in Booking_State_Change Table
         $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+
+
         redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
     }
 
