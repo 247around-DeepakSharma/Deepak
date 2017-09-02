@@ -154,7 +154,7 @@ class bookings_excel extends CI_Controller {
                         $to = NITS_ANUJ_EMAIL_ID.', sales@247around.com';
                         $cc = "abhaya@247around.com,sachinj@247around.com";
                         $subject = "Failed! Paytm File is uploaded by " . $this->session->userdata('employee_id');
-                        $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $msg, "");
+                        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $msg, "");
                         break;
                     }
 
@@ -407,7 +407,7 @@ class bookings_excel extends CI_Controller {
                 $message = "Paytm File Uploaded Successfully <br/><br/>";
                 $message .= "Total Booking Inserted = $total_bookings";
 
-                $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
+                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
                 log_message('info', 'paytm file uploaded successfully. total booking inserted = '.$total_bookings) ;
             }
         }else{
@@ -665,7 +665,7 @@ class bookings_excel extends CI_Controller {
             $to = NITS_ANUJ_EMAIL_ID.', sales@247around.com';
             $cc = "abhaya@247around.com,sachinj@247around.com";
             $subject = "Failure! Paytm File is uploaded by " . $this->session->userdata('employee_id');
-            $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
+            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
             return false;
         } else {
             return true;
