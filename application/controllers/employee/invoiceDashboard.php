@@ -191,9 +191,8 @@ class InvoiceDashboard extends CI_Controller {
 
         $this->table->set_template($template);
 
-       $this->table->set_heading(array('SF name', 'CASH Inst. Charge', 
-            'CASH Add. Charge', 'CASH Misc Charge', '<strong>Total Cash Charge</strong>', 
-            'FOC Inst. Charge', 'FOC Parts Charge', 'FOC Misc Charge', 'FOC Total Charge'));
+       $this->table->set_heading(array('SF name', 'CASH Commision Charge','GST Amount','<strong>Total Cash Charge</strong>', 
+            'FOC Taxable Charge', 'FOC GST Amount', 'Total FOC Charge'));
         $select = "service_centres.name, service_centres.id, active";
         $vendor_details = $this->vendor_model->getVendorDetails($select);
         $total_cash_charge = 0;
@@ -202,43 +201,47 @@ class InvoiceDashboard extends CI_Controller {
             
             $cash = $this->invoices_model->get_vendor_cash_invoice($value['id'], 
                     $explode_date_range[0], $explode_date_range[1], FALSE);
+            
+            
            
             $foc = $this->invoices_model->get_vendor_foc_invoice($value['id'], $explode_date_range[0], $explode_date_range[1], FALSE);
+  
             $style="<span>";
             if($value['active'] == 0){
                 $style = "<span style='color:red'> ";
             }
             if(!empty($cash) && !empty($foc)){
-                $this->table->add_row($style.$value['name']."</span>", round($cash['meta']['total_installation_charge'],0), 
-                    round($cash['meta']['additional_charges'],0), round($cash['meta']['misc_charge'],0),
-                    "<strong>".round($cash['meta']['total_charge'],0)."</strong>", round($foc['meta']['sub_service_cost'],0), 
-                    round($foc['meta']['sub_part'],0), round($foc['meta']['total_misc_price'],0), "<strong>".round($foc['meta']['grand_total_price'],0)."</strong>");
+                $this->table->add_row($style.$value['name']."</span>", $cash['meta']['total_taxable_value'], 
+                        ($cash['meta']['cgst_total_tax_amount'] + $cash['meta']['sgst_total_tax_amount'] + $cash['meta']['igst_total_tax_amount']),
+                    "<strong>".round($cash['meta']['sub_total_amount'],0)."</strong>", $foc['meta']['total_taxable_value'], 
+                    ($foc['meta']['sgst_tax_rate'] + $foc['meta']['igst_tax_rate'] + $foc['meta']['cgst_tax_rate']),
+                        "<strong>".round($foc['meta']['sub_total_amount'],0)."</strong>");
                 
-                $total_cash_charge += $cash['meta']['total_charge'];
-                $total_foc_charge += $foc['meta']['grand_total_price'];
+                $total_cash_charge += $cash['meta']['sub_total_amount'];
+                $total_foc_charge += $foc['meta']['sub_total_amount'];
                 
             } else if(!empty($cash) && empty($foc)){
-                $this->table->add_row($style.$value['name']."</span>", round($cash['meta']['total_installation_charge'],0), 
-                    round($cash['meta']['additional_charges'],0), round($cash['meta']['misc_charge'],0),
-                    "<strong>".round($cash['meta']['total_charge'],0)."</strong>", "", 
-                    "", "", "");
+                $this->table->add_row($style.$value['name']."</span>", $cash['meta']['total_taxable_value'], 
+                        ($cash['meta']['cgst_total_tax_amount'] + $cash['meta']['sgst_total_tax_amount'] + $cash['meta']['igst_total_tax_amount']),
+                    "<strong>".round($cash['meta']['sub_total_amount'],0)."</strong>", "", 
+                    "", "");
                 
-                $total_cash_charge += $cash['meta']['total_charge'];
+                $total_cash_charge += $cash['meta']['sub_total_amount'];
                 
             } else if(empty($cash) && !empty($foc)){
                 $this->table->add_row($style.$value['name']."</span>", "", 
-                    "", "","", round($foc['meta']['sub_service_cost'],0), 
-                    round($foc['meta']['sub_part'],0), round($foc['meta']['total_misc_price'],0), "<strong>".round($foc['meta']['grand_total_price'],0)."</strong>");
-                $total_foc_charge += $foc['meta']['grand_total_price'];
+                    "", "","", round($foc['meta']['total_taxable_value'],0), 
+                    ($foc['meta']['cgst_total_tax_amount'] + $foc['meta']['sgst_total_tax_amount'] + $foc['meta']['igst_total_tax_amount']),
+                        "<strong>".$foc['meta']['sub_total_amount']."</strong>");
+                $total_foc_charge += $foc['meta']['sub_total_amount'];
                 
             } else if(empty($cash) && empty($foc)){
-                 $this->table->add_row($style.$value['name']."</span>", "", 
-                    "", "","", "", "", "", "");
+               
+                 $this->table->add_row($style.$value['name']."</span>", "", "","", "", "","");
             }  
-           
         }
         
-        $this->table->add_row("Total", "", "", "","<strong>".round($total_cash_charge,0)."<strong>", "", "", "","<strong>". round($total_foc_charge,0)."</strong>");
+        $this->table->add_row("Total", "", "","<strong>".round($total_cash_charge,0)."<strong>", "", "","<strong>". $total_foc_charge."</strong>");
          
         $t_data['table_data'] = $this->table->generate();
        
