@@ -283,6 +283,22 @@
                             </div>
                         </div>
                         <div class="panel panel-default">
+                            <div class="panel-heading">Spare Details</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-3 col-xs-12" for="spare_notification_email">Spare Notification Email
+                                            </label>
+                                            <div class="col-md-8 col-sm-6 col-xs-12">
+                                                <input type="text" id="spare_notification_email" name="spare_notification_email"  class="form-control col-md-7 col-xs-12" value="<?php if(isset($partner_details[0]['spare_notification_email'])){ echo $partner_details[0]['spare_notification_email'];}?>">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
                             <div class="panel-heading">Registration Details</div>
                             <div class="panel-body">
                                 <div class="row">

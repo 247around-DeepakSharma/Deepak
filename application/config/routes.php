@@ -81,7 +81,7 @@ $route['service_center/update_order_details/(:any)/(:any)/(:any)'] = 'employee/s
 $route['process_report_issue_bb_order_details'] = 'employee/service_centers/process_report_issue_bb_order_details';
 $route['service_center/update_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_received_bb_order/$1/$2/$3/$4';
 $route['service_center/update_not_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_not_received_bb_order/$1/$2/$3/$4';
-
+$route['service_center/show_bb_price_list'] = 'employee/service_centers/show_bb_price_list';
 
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';

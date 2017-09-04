@@ -2368,5 +2368,29 @@ class Service_centers extends CI_Controller {
         
         return $post;
     }
+    
+    /**
+     * @desc Used to get the bb price list according to cp
+     * @param void
+     * @return void
+     */
+    function show_bb_price_list(){
+        $this->checkUserSession();
+        $select = 'service_id,s.services';
+        $where['cp_id'] = $this->session->userdata('service_center_id');
+        $data['appliance_list'] = $this->bb_model->get_bb_price_data($select, $where, true, true);
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/show_show_bb_price_list',$data);
+    }
+    
+    /**
+     * @desc This function is used to the filtered charges data from bb_charges table
+     * @param void()
+     * @return void()
+     */
+    function get_bb_price_list(){
+        $response = $this->buyback->get_bb_price_list($this->input->post());
+        echo $response;
+    }
 
 }

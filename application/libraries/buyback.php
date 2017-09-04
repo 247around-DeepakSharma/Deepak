@@ -628,5 +628,30 @@ class Buyback {
         
          return array('status' => TRUE);
     }
+    
+    /**
+     * @desc This function is used to the filtered charges data from bb_charges table
+     * @param void()
+     * @return void()
+     */
+    function get_bb_price_list($post_data){
+        $this->POST_DATA = $post_data;
+        $where['cp_id'] = $this->POST_DATA['cp_id'];
+        $where['service_id'] = $this->POST_DATA['service_id'];
+        $where['physical_condition'] = $this->POST_DATA['physical_condition'];
+        $where['working_condition'] = $this->POST_DATA['working_condition'];
+        if(isset($this->POST_DATA['is_hide_field'])){
+            $cp['hide_field'] = FALSE;
+        }else{
+            $cp['hide_field'] = TRUE;
+        }
+        
+        $select = 'category , brand , city , partner_total , cp_total , around_total,visible_to_partner,visible_to_cp';
+        
+        $cp['charges_data'] = $this->My_CI->bb_model->get_bb_price_data($select,$where);
+        
+        $view = $this->My_CI->load->view('buyback/show_bb_charges', $cp);
+        return $view;
+    }
 
 }

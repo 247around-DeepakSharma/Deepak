@@ -28,7 +28,7 @@ class Buyback_process extends CI_Controller {
         $this->load->library('PHPReport');
 
 
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && $this->session->userdata('userType') == 'employee') {
             return TRUE;
         } else {
             echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
@@ -1497,16 +1497,8 @@ class Buyback_process extends CI_Controller {
      * @return void()
      */
     function get_bb_price_list(){
-        $where['cp_id'] = $this->input->post('cp_id');
-        $where['service_id'] = $this->input->post('service_id');
-        $where['physical_condition'] = $this->input->post('physical_condition');
-        $where['working_condition'] = $this->input->post('working_condition');
-        
-        $select = 'category , brand , city , partner_total , cp_total , around_total,visible_to_partner,visible_to_cp';
-        
-        $cp['charges_data'] = $this->bb_model->get_bb_price_data($select,$where);
-        
-        $this->load->view('buyback/show_bb_charges', $cp);
+        $response = $this->buyback->get_bb_price_list($this->input->post());
+        echo $response;
     }
     
     function download_order_snapshot() {
