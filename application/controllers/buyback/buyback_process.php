@@ -24,6 +24,7 @@ class Buyback_process extends CI_Controller {
         $this->load->library('buyback');
         $this->load->model('vendor_model');
         $this->load->model('booking_model');
+        $this->load->model("service_centre_charges_model");
         $this->load->library('PHPReport');
 
 
@@ -1201,7 +1202,8 @@ class Buyback_process extends CI_Controller {
     }
     
     public function download_price_list_data() {
-        $service_id = $this->service_centre_charges_model->get_bb_charges(array('partner_id' => '247024'), 'service_id', true);
+       
+        $service_id = $this->service_centre_charges_model->get_bb_charges(array('partner_id' => '247024', 'service_id != 46' => NULL), 'service_id', true);
         foreach ($service_id as $value) {
             $where = array('service_id' => $value['service_id'], 'partner_id' => '247024');
             $select = "category,brand, physical_condition, working_condition , city AS location , partner_total";
@@ -1209,12 +1211,15 @@ class Buyback_process extends CI_Controller {
             $excel_file[$value['service_id']] = $this->generate_bb_price_data($value['service_id'],$data);
             unset($data);
         }
+        $excel_file['46'] = $this->generate_tv_price_sheet();
+        
         $main_excel = $this->combined_excel_sheets($excel_file);
 
         if ($main_excel) {
             
-            foreach ($service_id as $value) {
-                unlink(TMP_FOLDER . $value['service_id'] . '.xlsx');
+            foreach ($excel_file as $value) {
+               
+                unlink($value );
             }
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
@@ -1224,12 +1229,107 @@ class Buyback_process extends CI_Controller {
             header('Pragma: public');
             header('Content-Length: ' . filesize($main_excel));
             readfile($main_excel);
-            exit;
+            
         }
+        $res1 = 0;
+        system(" chmod 777 " . $main_excel , $res1);
         unlink($main_excel);
+        exit();
     }
     
-    private function generate_bb_price_data($service_id,$data){
+    /**
+     * @desc This is used to generate TV price sheet
+     * @return String
+     */                   
+    function generate_tv_price_sheet() {
+        //load PHPExcel Library
+        $objPHPExcel = new PHPExcel();
+
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("Ariestania")
+                ->setLastModifiedBy("Ariestania")
+                ->setTitle("Sample Report");
+
+        //set active sheet and the title. 0 means first sheet that I will use
+        $objPHPExcel->setActiveSheetIndex(0);
+        $objPHPExcel->getActiveSheet()->setTitle('TV');
+
+        $charges = $this->service_centre_charges_model->get_bb_charges(array("service_id" => 46, "visible_to_partner" => 1), "city, order_key, category, brand, physical_condition, partner_basic", true);
+
+
+        $region = array_unique(array_map(function ($k) {
+                    return $k['city'];
+                }, $charges));
+        $order_key = array_unique(array_map(function ($k) {
+                    return $k['order_key'];
+                }, $charges));
+        
+        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, "Category");
+        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, "Brand");
+        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, "Type");
+        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, "Size");
+        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, "Note");
+        
+        $data = array();
+        $k = 3; $col= 0;
+        foreach ($order_key as $value) {
+            $c = 5;
+            foreach ($region as $city) {
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($c, 1, $city);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($c, 2, "Value");
+                //echo "Search KEY ". $value. " -- ". $city."<br/>";
+                $found = false;
+                $searched_key = false;
+                foreach ($charges as $key => $val) {
+
+                    if ($val['city'] == $city && $val['order_key'] == $value) {
+                        $searched_key = true;
+                        $found = $key;
+
+                        break;
+                    }
+                }
+                if ($searched_key) {
+
+                    if (!isset($data[$k])) {
+                        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $k, "TV");
+                        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $k, $charges[$found]['brand']);
+                        $category = explode("_", $charges[$found]['category']);
+                        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $k, $category[0]);
+                        if (!empty($category[1])) {
+                            $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $k, $category[1]);
+                        } else {
+                            $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $k, "");
+                        }
+                        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $k,  $charges[$found]['physical_condition']);
+                        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($c, $k,  $charges[$found]['partner_basic']);
+                       
+                        $data[$k] = $charges[$found]['order_key'];
+
+                    } else {
+                        //   echo "city_".$c. "  ". $city."<br/>"; 
+                         $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($c, $k,  $charges[$found]['partner_basic']);
+                    }
+                } else {
+
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($c, $k,  "0.00");
+                }
+
+                $c++;
+            }
+
+            $k++; $col++;
+        }
+        
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        ob_end_clean() ;
+        $objWriter->save(TMP_FOLDER."46.xlsx");
+        $res1 =0;
+        system(" chmod 777 " . TMP_FOLDER."46.xlsx" , $res1);
+        return TMP_FOLDER."46.xlsx";
+    }
+
+    private  function generate_bb_price_data($service_id,$data){
         $template = 'bb_Price_Quotes_Template.xlsx';
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -1291,7 +1391,7 @@ class Buyback_process extends CI_Controller {
         }
         unset($objPHPExcel4);
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, 'Excel2007');
-        $combined_excel = TMP_FOLDER.'AC-Wash-Ref-TV-Price Quotes Template.xlsx';
+        $combined_excel = TMP_FOLDER.'AC-Wash-Ref-TV-Price_Quotes_Template.xlsx';
         $objWriter->save($combined_excel);
         
         return $combined_excel;
