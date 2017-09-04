@@ -679,35 +679,6 @@ class Booking extends CI_Controller {
     }
 
     /**
-     *  @desc : This function displays list of completed and Cancelled bookings according to pagination. If $status is Completed, it gets Completed booking and if $status is Cancelled, it gets Cancelled booking
-     *
-     * This method will show only that number of bookings which are being selected from the pagination section(50/100/200/All).
-     *
-     *  @param : Starting page & number of results per page
-     *  @return : completed bookings according to pagination
-     */
-    function viewclosedbooking($status, $page = 0, $offset = 0, $booking_id = "") {
-        if ($page == '0') {
-            $page = 50;
-        }
-
-        //$offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
-        $config['base_url'] = base_url() . 'employee/booking/viewclosedbooking/' . $status . "/" . $page;
-        $config['total_rows'] = $this->booking_model->total_closed_booking($status, $booking_id);
-        $config['per_page'] = $page;
-        $config['uri_segment'] = 6;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-        $data['Bookings'] = $this->booking_model->view_completed_or_cancelled_booking($config['per_page'], $offset, $status, $booking_id);
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-
-        $this->load->view('employee/viewcompletedbooking', $data);
-    }
-
-    /**
      *  @desc : This function returns the cancelation reason for booking
      *  @param : void
      *  @return : all the cancelation reasons present in the database
