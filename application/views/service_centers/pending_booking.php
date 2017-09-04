@@ -249,6 +249,9 @@
 span.stars span {
     background-position: 0 0;
 }
+.notify-alert{
+    bottom:0px!important;
+}
 </style>
 <?php $this->session->unset_userdata('success'); ?>
 <script type="text/javascript">
@@ -407,8 +410,8 @@ span.stars span {
                 url_target: '<?php echo base_url(); ?>service_center/gst_details',
                 placement: {
 			from: "bottom",
-			align: "right"
-		},
+			align: "center"
+		}
             }
         );
     });
