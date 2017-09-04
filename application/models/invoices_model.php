@@ -258,6 +258,7 @@ class invoices_model extends CI_Model {
         $this->db->where("sp.service_center_id", $service_center_id);
         $this->db->where("sc.service_center_id", $service_center_id);
         $this->db->where("sc.current_status", "InProcess");
+        $this->db->where("sp.status","Defective Part Pending");
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -1146,14 +1147,15 @@ class invoices_model extends CI_Model {
             $result[$i] = $query->result_array();
         }
         $data = array();
-        if (!empty($result[0]) && !empty($result[1])) {
+        
+        if (!empty($result[0][0]['toal_amount']) && !empty($result[1][0]['toal_amount'])) {
             $data = array_merge($result[0], $result[1]);
-        } else if (!empty($result[0]) && empty($result[1])) {
+        } else if (!empty($result[0][0]['toal_amount']) && empty($result[1][0]['toal_amount'])) {
             $data = $result[0];
-        } else if (empty($result[0]) && !empty($result[1])) {
+        } else if (empty($result[0][0]['toal_amount']) && !empty($result[1][0]['toal_amount'])) {
             $data = $result[1];
         }
-        
+
         return $data;
     }
 
