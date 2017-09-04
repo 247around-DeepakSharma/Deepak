@@ -447,6 +447,19 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group <?php if (form_error('spare_notification_email')) {
+                                    echo 'has-error';
+                                    } ?>">
+                                    <label for="spare_notification_email" class="col-md-4">Spare Notification Email</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  name="spare_notification_email" value = "<?php if (isset($query[0]['spare_notification_email'])) {
+                                            echo $query[0]['spare_notification_email'];
+                                            } ?>" >
+                                        <?php echo form_error('spare_notification_email'); ?>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

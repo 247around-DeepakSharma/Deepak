@@ -1019,6 +1019,7 @@ class Partner extends CI_Controller {
         $return_data['service_tax'] = $this->input->post('service_tax');
         $partner_code = $this->input->post('partner_code');
         $return_data['account_manager_id'] = $this->input->post('account_manager_id');
+        $return_data['spare_notification_email'] = $this->input->post('spare_notification_email');
 
         if (empty($partner_code)) {
             $return_data['is_active'] = 0;
@@ -2951,6 +2952,7 @@ class Partner extends CI_Controller {
         $partner_data['tin'] = $this->input->post('tin');
         $partner_data['registration_no'] = $this->input->post('registration_no');
         $partner_data['cst_no'] = $this->input->post('cst_no');
+        $partner_data['spare_notification_email'] = $this->input->post('spare_notification_email');
 
         if (!empty($partner_data) && !empty($partner_id)) {
             $update_id = $this->partner_model->edit_partner($partner_data, $partner_id);
