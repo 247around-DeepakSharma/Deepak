@@ -193,6 +193,9 @@ class invoices_model extends CI_Model {
             if(isset($where['active'])){
                 $p_where = array('is_active' => $where['active']);
             }
+            if(isset($where['id'])){
+                $p_where['id'] = $where['id'];
+            }
             $data = $this->partner_model->get_all_partner($p_where);
             
             $due_date_status = "";

@@ -98,7 +98,7 @@ class Invoice extends CI_Controller {
         
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
         $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
-       
+            
         //TODO: Fix the reversed names here & everywhere else as well
         $data2['partner_vendor'] = $this->input->post('source');
         $data2['partner_vendor_id'] = $this->input->post('vendor_partner_id');
@@ -2727,11 +2727,12 @@ class Invoice extends CI_Controller {
         $data['credit_debit'] = $this->input->post("credit_debit");
         $data['bankname'] = $this->input->post("bankname");
         $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
+        $data['tds_amount'] = $this->input->post('tds_amount');
         $amount = $this->input->post("amount");
         if ($data['credit_debit'] == "Credit") {
-            $data['credit_amount'] = $amount;
+            $data['credit_amount'] = $amount -  $data['tds_amount'];
             
-            $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], $data['partner_vendor_id'], $data['transaction_date'], $amount);
+            $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], $data['partner_vendor_id'], $data['transaction_date'], $amount, $data['tds_amount']);
             if($invoice_id){
                 $data['invoice_id'] = $invoice_id;
                 $data['is_advance'] = 1;
@@ -2742,7 +2743,7 @@ class Invoice extends CI_Controller {
             $data['debit_amount'] = $amount;
         }
 
-        $data['tds_amount'] = $this->input->post('tds_amount');
+       
         $data['transaction_mode'] = $this->input->post('transaction_mode');
         $data['description'] = $this->input->post("description");
         $data['agent_id'] = $this->session->userdata('id');
@@ -2762,7 +2763,7 @@ class Invoice extends CI_Controller {
         }
     }
     
-    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount) {
+    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds) {
 
         if ($vendor_partner == "vendor") {
             $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id, "is_cp" => 1));
@@ -2778,6 +2779,10 @@ class Invoice extends CI_Controller {
                 $basic_price = $amount;
             } else {
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
+                if($tds > 0){
+                    $data['tds_amount'] = $tds;
+                }
+               
                 $gst_rate = 18;
                 $gst_amount = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
                 $c_s_gst = $this->invoices_model->check_gst_tax_type($entity[0]['state']);
@@ -2790,7 +2795,8 @@ class Invoice extends CI_Controller {
                     $data['igst_tax_rate'] = $gst_rate;
                     $data['type'] = PARTNER_VOUCHER;
                 }
-                $basic_price = $amount - $gst_amount;
+                $amount = $amount - $tds;
+                $basic_price = $amount - $gst_amount; 
             }
 
             $data['type_code'] = "B";
