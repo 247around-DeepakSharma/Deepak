@@ -330,13 +330,13 @@ class partner_sd_cb {
             $this->partner = $data['partner_id'];
             $serial_number = "";
             if($data['current_status'] == _247AROUND_COMPLETED){
-                $unit = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id']));
+                $unit = $this->My_CI->booking_model->get_unit_details(array("booking_id" => $data['booking_id']));
                 if(!empty($unit)){
                     $serial_number = $unit[0]['serial_number'];
                 }
             }
-
-            $postData = array(
+            
+            $postData["data"] = array(
                 "CaseId" => $data['order_id'],
                 "CallStatus" => $data['partner_current_status'],
                 "Remarks" => $data['internal_status'],
