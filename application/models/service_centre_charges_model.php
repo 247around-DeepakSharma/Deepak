@@ -258,7 +258,7 @@ class service_centre_charges_model extends CI_Model {
         if($is_distinct){
             $this->db->distinct();
         }
-        $this->db->select($select);
+        $this->db->select($select, false);
         if($where != ''){
             $this->db->where($where);
         }

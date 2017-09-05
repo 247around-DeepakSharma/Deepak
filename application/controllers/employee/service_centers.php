@@ -40,6 +40,7 @@ class Service_centers extends CI_Controller {
         $this->load->library('user_agent');
         $this->load->library('notify');
         $this->load->library('buyback');
+        $this->load->library("partner_cb");
         
     }
 
@@ -338,7 +339,7 @@ class Service_centers extends CI_Controller {
         $booking['booking_id'] = "Q-".$booking_id;
         $booking['current_status'] = "FollowUp";
         $booking['type'] = "Query";
-        $booking['internal_status'] = "FollowUp";
+        $booking['internal_status'] = "Product not Delivered";
         $booking['assigned_vendor_id'] = NULL;
         $booking['assigned_engineer_id'] = NULL;
         $booking['mail_to_vendor'] = '0';
@@ -361,6 +362,8 @@ class Service_centers extends CI_Controller {
         $this->service_centers_model->delete_booking_id($booking_id);
         //Insert Data into Booking state change
         $this->insert_details_in_state_change($booking_id, PRODUCT_NOT_DELIVERED_TO_CUSTOMER, "Convert Booking to Query");
+        $this->partner_cb->partner_callback($booking_id);
+        
         redirect(base_url() . "service_center/pending_booking");  
     }
 
@@ -2367,6 +2370,30 @@ class Service_centers extends CI_Controller {
         $post['status'] = $this->input->post('status');
         
         return $post;
+    }
+    
+    /**
+     * @desc Used to get the bb price list according to cp
+     * @param void
+     * @return void
+     */
+    function show_bb_price_list(){
+        $this->checkUserSession();
+        $select = 'service_id,s.services';
+        $where['cp_id'] = $this->session->userdata('service_center_id');
+        $data['appliance_list'] = $this->bb_model->get_bb_price_data($select, $where, true, true);
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/show_show_bb_price_list',$data);
+    }
+    
+    /**
+     * @desc This function is used to the filtered charges data from bb_charges table
+     * @param void()
+     * @return void()
+     */
+    function get_bb_price_list(){
+        $response = $this->buyback->get_bb_price_list($this->input->post());
+        echo $response;
     }
 
 }
