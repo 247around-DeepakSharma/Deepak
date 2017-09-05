@@ -654,7 +654,7 @@ class Booking_utilities {
      * 
      */
     function send_mail_When_no_data_found($current_status,$internal_status,$booking_id,$partner_id){
-        $to = ANUJ_EMAIL_ID;
+        $to = DEVELOPER_EMAIL;
         $cc = "";
         $bcc = "";
         $subject = " No Data found for '".$current_status."' and '".$internal_status."' in partner_booking_status_mapping Table";

@@ -193,6 +193,9 @@ class invoices_model extends CI_Model {
             if(isset($where['active'])){
                 $p_where = array('is_active' => $where['active']);
             }
+            if(isset($where['id'])){
+                $p_where['id'] = $where['id'];
+            }
             $data = $this->partner_model->get_all_partner($p_where);
             
             $due_date_status = "";
@@ -1148,11 +1151,11 @@ class invoices_model extends CI_Model {
         }
         $data = array();
         
-        if (!empty($result[0]['toal_amount']) && !empty($result[1]['toal_amount'])) {
+        if (!empty($result[0][0]['toal_amount']) && !empty($result[1][0]['toal_amount'])) {
             $data = array_merge($result[0], $result[1]);
-        } else if (!empty($result[0]['toal_amount']) && empty($result[1]['toal_amount'])) {
+        } else if (!empty($result[0][0]['toal_amount']) && empty($result[1][0]['toal_amount'])) {
             $data = $result[0];
-        } else if (empty($result[0]['toal_amount']) && !empty($result[1]['toal_amount'])) {
+        } else if (empty($result[0][0]['toal_amount']) && !empty($result[1][0]['toal_amount'])) {
             $data = $result[1];
         }
 
