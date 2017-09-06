@@ -11,6 +11,8 @@
 <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div class="right_col" role="main" ng-app="viewBBOrder">
 <!--        <div class="page-title">
     <div class="title_left">
@@ -103,6 +105,7 @@
                                 </table>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="unassigned">
+                                <form action="#" method="POST" id="reAssignForm" name="reAssignForm">
                                 <table id="datatable3" class="table table-striped table-bordered" style="width: 100%;">
                                     <thead>
                                         <tr>
@@ -113,13 +116,16 @@
                                             <th>Order Date</th>
                                             <th>Status</th>
                                             <th>Exchange Value</th>
+                                            <th>Assign</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                 </table>
                                 
                                     <div class="row">
-                                        <div class="btn btn-info" ng-click="showDialogueBox()">Assign Collection Partner</div>
+                                        <div class="btn btn-info" ng-click="showDialogueBox()">Assign All Order</div>
+                                       
+                                         <a href="javascript:void(0);" class="btn btn-md  btn-success" onclick="reAssign()"  >Assign CP</a>
                                         <div id="invoiceDetailsModal"  class="modal fade" data-backdrop="static" data-keyboard="false" role="dialog">
                                             <div class="modal-dialog modal-lg">
                                                 <div class="modal-content">
@@ -156,6 +162,7 @@
                                         </div>
                                         
                                     </div>
+                                </form>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="others">
                                 <table id="datatable4" class="table table-striped table-bordered" style="width: 100%;">
@@ -188,7 +195,7 @@
     var others;
     
     $(document).ready(function () {
-        
+         
         //datatables
         in_transit = $('#datatable1').DataTable({
             "processing": true, //Feature control the processing indicator.
@@ -199,7 +206,7 @@
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_order_details",
                 "type": "POST",
-                "data": {"status": 0},
+                "data": {"status": 0}
                 
             },
             
@@ -256,6 +263,11 @@
                 "type": "POST",
                 "data": {"status": 2}
             },
+            "drawCallback": function( settings ) {
+                $(".assign_cp_id").select2({
+                  allowClear: true
+                });
+            },
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
@@ -301,7 +313,7 @@
     
 </script>
 <script>
-    
+
     function showDialogueBox(url){
         swal({
                 title: "Do You Want To Continue?",
