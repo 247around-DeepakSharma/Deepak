@@ -897,7 +897,7 @@ class service_centre_charges extends CI_Controller {
         $final_data['around_basic_charges'] = $newRowData['around_svc_ch'];
         $final_data['around_tax_basic_charges'] = $newRowData['around_svc_tax___vat'];
         $final_data['around_total'] = $newRowData['around_total_with_tax'];
-        $final_data['customer_total'] = $newRowData['total_svc_tax___vat'];
+        $final_data['customer_total'] = $newRowData['customer_total_rs.'];
         $final_data['partner_payable_basic'] = $newRowData['partner_payable_basic'];
         $final_data['partner_payable_tax'] = $newRowData['partner_payable_tax'];
         $final_data['partner_net_payable'] = $newRowData['partner_net_payable'];
