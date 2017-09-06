@@ -1895,10 +1895,9 @@ class Invoice extends CI_Controller {
             if (!empty($rm_details)) {
                 $rem_email_id = ", " . $rm_details[0]['official_email'];
             }
-            $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
+                $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
             
             $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id;
-            $cc = "";
             $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                 
             //get email template from database
@@ -1928,7 +1927,7 @@ class Invoice extends CI_Controller {
                 'invoice_date' => date("Y-m-d"),
                 'from_date' => date("Y-m-d", strtotime($meta['sd'])),
                 'to_date' => date("Y-m-d", strtotime($meta['ed'])),
-                'num_bookings' =>  $meta['count'],
+                'num_bookings' =>  $meta['total_qty'],
                 'total_service_charge' => $meta['sub_total_amount'],
                 'total_amount_collected' => $meta['sub_total_amount'],
                 'around_royalty' => $meta['sub_total_amount'],
@@ -1940,7 +1939,7 @@ class Invoice extends CI_Controller {
                 //SMS has been sent or not
                 'sms_sent' => 1,
                 //Add 1 month to end date to calculate due date
-                'due_date' => date("Y-m-d", strtotime($meta['ed'] . "+1 month")),
+                'due_date' => date("Y-m-d", strtotime($meta['ed'])),
                 //add agent_id
                 'agent_id' => $agent_id,
             );
