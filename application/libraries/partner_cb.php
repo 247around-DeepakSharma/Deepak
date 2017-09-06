@@ -83,8 +83,8 @@ class partner_cb {
         $callback_array[$jeeves_partner_id]['Pending'] = 'update_jeeves_status_schedule_booking';
 	$callback_array[$jeeves_partner_id]['FollowUp'] = 'update_jeeves_status_schedule_booking';
 	$callback_array[$jeeves_partner_id]['Rescheduled'] = 'update_jeeves_status_schedule_booking';
-        $callback_array[$snapdeal_partner_id]['Completed'] = 'update_jeeves_status_schedule_booking';
-	$callback_array[$snapdeal_partner_id]['Cancelled'] = 'update_jeeves_status_schedule_booking';
+        $callback_array[$jeeves_partner_id]['Completed'] = 'update_jeeves_status_schedule_booking';
+	$callback_array[$jeeves_partner_id]['Cancelled'] = 'update_jeeves_status_schedule_booking';
 
 	if (isset($callback_array[$partner_id][$state])) {
 	    return $callback_array[$partner_id][$state];

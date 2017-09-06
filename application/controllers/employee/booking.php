@@ -81,6 +81,8 @@ class Booking extends CI_Controller {
                 log_message('info', " Booking Insert User ID: " . $user_id);
                 $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
                 if ($status) {
+                    log_message('info', __FUNCTION__ . " Partner callback  " . $status['booking_id']);
+                    $this->partner_cb->partner_callback($status['booking_id']);
                     //Redirect to Default Search Page
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
@@ -1466,8 +1468,8 @@ class Booking extends CI_Controller {
 
                     $status = $this->getAllBookingInput($user_id, $booking_id);
                     if ($status) {
-                        log_message('info', __FUNCTION__ . " Partner callback  " . $booking_id);
-                        $this->partner_cb->partner_callback($booking_id);
+                        log_message('info', __FUNCTION__ . " Partner callback  " . $status['booking_id']);
+                        $this->partner_cb->partner_callback($status['booking_id']);
 
                         //Redirect to Default Search Page
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -2766,5 +2768,5 @@ class Booking extends CI_Controller {
         
         return $row;
     }
-
+    
 }
