@@ -623,6 +623,25 @@ class Partner extends CI_Controller {
 
             $flag = FALSE;
         }
+        
+        if (($flag === TRUE) &&
+                (!isset($request['orderID']) ||
+                !isset($request['product']) ||
+                !isset($request['brand']) ||
+                //($request['model'] == "") ||
+                !isset($request['productType']) ||
+                !isset($request['name']) ||
+                !isset($request['mobile']) ||
+                !isset($request['address']) ||
+                !isset($request['pincode']) ||
+                !isset($request['city'] ) ||
+                !isset($request['requestType'] )
+                )) {
+            $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
+            $resultArr['msg'] = ERR_MANDATORY_PARAMETER_MISSING_MSG;
+
+            $flag = FALSE;
+        }
 
         //Mandatory Parameter Missing
         if (($flag === TRUE) &&
