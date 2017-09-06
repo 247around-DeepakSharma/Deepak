@@ -123,14 +123,14 @@ class Bb_model extends CI_Model {
         if(empty($select)){
             $select = $this->bb_select;
         }
-        $this->db->select($select);
+        $this->db->select($select,FALSE);
         
         $this->db->join('bb_unit_details', 'bb_order_details.partner_order_id = bb_unit_details.partner_order_id '
                 . ' AND bb_order_details.partner_id = bb_unit_details.partner_id ');
        
         $this->db->join('services', 'services.id = bb_unit_details.service_id');
         if(!empty($post['where'])){
-            $this->db->where($post['where']);
+            $this->db->where($post['where'],FALSE);
         }
         
         foreach ($post['where_in'] as $index => $value){
