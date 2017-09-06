@@ -1251,7 +1251,7 @@ class invoices_model extends CI_Model {
                     }, $data));
                     
             $commission_charge[0]['qty'] = $meta['total_qty']  = count($unique_booking);
-            $commission_charge[0]['rate'] = $meta['sub_total_amount']/$meta['total_qty'];
+            $commission_charge[0]['rate'] = round($meta['sub_total_amount']/$meta['total_qty'],2);
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
             $meta['invoice_date'] = date("jS M, Y");
@@ -1262,6 +1262,9 @@ class invoices_model extends CI_Model {
             $meta['state'] = $data[0]['state'];
             $meta['state_code'] = $data[0]['state_code'];
             $meta['gst_number'] = $data[0]['gst_no'];
+            $meta['owner_email'] = $data[0]['owner_email'];
+            $meta['primary_contact_email'] = $data[0]['primary_contact_email'];
+            $meta['owner_phone_1'] = $data[0]['owner_phone_1'];
             
             $data1['meta'] = $meta;
             $data1['booking'] = $commission_charge;
@@ -1281,6 +1284,7 @@ class invoices_model extends CI_Model {
         $sql = "SELECT bb_unit_details.id AS unit_id, order_date, services, bb_order_details.partner_order_id,
                 city, partner_tracking_id, order_key,owner_phone_1, delivery_date, order_date,gst_no,
                 sc.company_name, sc.address as company_address, sc.state,state_code,
+                sc.owner_email, sc.primary_contact_email, sc.owner_phone_1,
                 CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_invoice_id) 
                 ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge 

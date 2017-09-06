@@ -14,7 +14,7 @@ var shop_list_details = [];
     <div class="row" ng-controller="advancedSearchController">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel" style="height: auto;">
-                <form method="post" action="<?php echo base_url();?>buyback/buyback_process/download_order_snapshot">
+                <form method="post" action="<?php echo base_url();?>buyback/buyback_process/download_order_snapshot" >
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_title">
                         <h2>
@@ -84,7 +84,7 @@ var shop_list_details = [];
                                 </tbody>
                             </table>
                         </div>
-                       
+                       </form>
                         <form action="#" method="POST" id="reAssignForm" name="reAssignForm">
                             <table id="datatable1" class="table table-striped table-bordered">
                                 <thead>
@@ -113,7 +113,7 @@ var shop_list_details = [];
                     </div>
                    
                 </div>
-            </form>
+            
             </div>
         </div>
     </div>
@@ -231,6 +231,10 @@ var shop_list_details = [];
                     
                  }
             },
+            "drawCallback": function( settings ) {
+               $('input[type="search"]').attr("name", "search_value");
+               create_dropdown();
+            },
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
@@ -240,9 +244,7 @@ var shop_list_details = [];
             ],
             "fnInitComplete": function (oSettings, response) {
                //$("#count_total_order").text(response.recordsTotal);
-               $('input[type="search"]').attr("name", "search_value");
-               create_dropdown();
-               
+
             }
         });
         
@@ -250,20 +252,11 @@ var shop_list_details = [];
     $('select').on('change', function(){
         
         ad_table.ajax.reload( function ( json ) {
+            
                  create_dropdown();
           } );
     });
     
-
-//    $('select').on('select2:closing', function (evt) {
-//  
-//       // ad_table.ajax.reload(null, false);  
-//        ad_table.ajax.reload( function ( json ) {
-//               create_dropdown();
-//        } );
-//         
-//
-//    });
     
     function create_dropdown(){
         
@@ -277,17 +270,6 @@ var shop_list_details = [];
         }
        // console.log(option);
         $(".assign_cp_id").html(option);
-    }
-    
-    function download_excel(){
-//        var data_type = 'data:application/vnd.ms-excel';
-//        var table_div = document.getElementById('datatable1');
-//        var table_html = table_div.outerHTML.replace(/ /g, '%20');
-//
-//        var a = document.createElement('a');
-//        a.href = data_type + ', ' + table_html;
-//        a.download =   '<?php //echo date("d-m-Y");?>-searchedData.xls';
-//        a.click();
     }
     
      
