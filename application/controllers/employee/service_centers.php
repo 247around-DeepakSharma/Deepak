@@ -2451,9 +2451,17 @@ class Service_centers extends CI_Controller {
         $where['where'] = array('assigned_cp_id' =>$cp_id);
         $cp_total_inTransit_charges = $this->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_intransit")[0]->cp_intransit;
         
+        $amount1 = $this->invoices_model->get_invoices_details(array('type'=>'Buyback','type_code'=>'A', 'vendor_partner' => 'vendor', 
+                    'vendor_partner_id'=>$cp_id),
+                    'SUM( `amount_paid`) as paid_amount')[0]['paid_amount'];
+        $advance_amount = $this->invoices_model->get_invoices_details(array('type'=> BUYBACK_VOUCHER,'type_code'=>'B', 'vendor_partner' => 'vendor', 
+                    'vendor_partner_id'=>$cp_id),
+                    'SUM( amount_collected_paid + `amount_paid`) as advance_amount')[0]['advance_amount'];
+            
+        $paid_amount = $amount1 + abs($advance_amount);
         $data['delivered_charges'] = $cp_delivered_charge;
         $data['in_transit_charges'] = $cp_in_transit_charge;
-        $data['total_charges'] = $cp_total_delivered_charge +$cp_total_inTransit_charges;
+        $data['total_charges'] = $paid_amount - ($cp_total_delivered_charge +$cp_total_inTransit_charges);
         $this->load->view('service_centers/show_bb_charges_summary',$data);
     }
 
