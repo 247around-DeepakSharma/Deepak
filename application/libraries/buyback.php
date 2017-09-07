@@ -333,7 +333,7 @@ class Buyback {
 
             //update order_details
             $where = array('partner_order_id' => $order_id);
-            $data = array('current_status' => _247AROUND_COMPLETED, 'internal_status' => _247AROUND_COMPLETED);
+            $data = array('current_status' => _247AROUND_COMPLETED, 'internal_status' => _247AROUND_COMPLETED,'acknowledge_date' => date('Y-m-d H:i:s'));
             $order_details_update_id = $this->My_CI->bb_model->update_bb_order_details($where, $data);
             if ($order_details_update_id) {
                 // Insert state change
@@ -364,7 +364,7 @@ class Buyback {
         
         $this->POST_DATA = $post_data;
         
-        $update_data = array('current_status' => _247AROUND_BB_DELIVERED,
+        $update_data = array('current_status' => _247AROUND_BB_IN_PROCESS,
                              'internal_status' => _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS
                             );
         
@@ -378,7 +378,7 @@ class Buyback {
             
             //update order_details
             $where = array('partner_order_id' => $this->POST_DATA['order_id']);
-            $data = array('current_status' => _247AROUND_BB_DELIVERED, 'internal_status' => _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS);
+            $data = array('current_status' => _247AROUND_BB_DELIVERED, 'internal_status' => _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS,'acknowledge_date' => date('Y-m-d H:i:s'));
             $order_details_update_id = $this->My_CI->bb_model->update_bb_order_details($where, $data);
 
             if($order_details_update_id){
@@ -444,19 +444,27 @@ class Buyback {
         $update_id = $this->My_CI->cp_model->update_bb_cp_order_action($where, $data);
         if ($update_id) {
             log_message("info",__METHOD__. "Cp Action table updated for order id: ".$order_id);
+            
+            $order_details_where = array('partner_order_id' => $order_id,
+                               'assigned_cp_id' => $this->POST_DATA['cp_id']);
+            
             // Insert state change
             if (!empty($this->My_CI->session->userdata('service_center_id'))) {
+                
+                //update order details table
+                $this->My_CI->bb_model->update_bb_order_details($order_details_where, array('acknowledge_date' => date('Y-m-d H:i:s')));
+                
+                //update state change
                 $this->insert_bb_state_change($order_id, _247AROUND_BB_Damaged_STATUS, $this->POST_DATA['remarks'], $this->My_CI->session->userdata('service_center_agent_id'), NULL, $this->My_CI->session->userdata('service_center_id'));
                 $response['status'] = "success";
                 $response['msg'] = "Order has been updated successfully";
+                
             } else {
                 
                 $order_details_data = array('current_status' => _247AROUND_BB_IN_PROCESS,
-                          'internal_status' => _247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS
+                          'internal_status' => _247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS,
+                          'acknowledge_date' => date('Y-m-d H:i:s')
                 );
-
-                $order_details_where = array('partner_order_id' => $order_id,
-                               'assigned_cp_id' => $this->POST_DATA['cp_id']);
                 
                 //update order details table
                 $update_id = $this->My_CI->bb_model->update_bb_order_details($order_details_where, $order_details_data);
