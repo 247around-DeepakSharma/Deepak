@@ -247,7 +247,7 @@ define('PENALTY_FAKE_CANCEL',13);
 //Define error code for order id not found for partner_sd_sb.php file
 define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
 //Define error code for order id not found for partner_sd_sb.php file
-define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
+define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID is Not Exist');
 //Define snapdeal new missed call number
 define('PARTNERS_MISSED_CALLED_NUMBER','01130017601');
 //Define snapdeal new missed call number
@@ -417,6 +417,23 @@ define('PARTNER_VOUCHER','Partner_Voucher');
 define('CLAIM_DEBIT_NOTE_RAISED','Claim Debit Note Raised');
 
 define('SF_NOTIFICATION_MSG','Urgent - Update your GST number by clicking on the GST link above IMMEDIATELY. Your CRM will get deactivated if GST is not updated soon.');
+
+//Define error code for Type is not found for partner_sd_sb.php file
+define('ERR_UPDATE_TYPE_NOT_FOUND_CODE', -1018);
+define('ERR_UPDATE_TYPE_NOT_FOUND_MSG', 'UpdateType Value is Not Exist');
+
+//Define error code for Booking Already Schedule
+define('ERR_BOOKING_ALREADY_SCHEDULED_CODE', -1019);
+//Define error code for Booking Already Schedule
+define('ERR_BOOKING_ALREADY_SCHEDULED_MSG', 'Booking Already Scheduled');
+
+//Define error code for Booking Already Schedule
+define('ERR_STATUS_EMPTY_CODE', -1020);
+//Define error code for Booking Already Schedule
+define('ERR_STATUS_EMPTY_MSG', 'Status Should Not Be Empty');
+
+define('SUCCESS_UPDATED_MSG', 'Order is Updated Successfully');
+define('PRODUCT_DELIVERED', 'PRODUCT_DELIVERED');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
