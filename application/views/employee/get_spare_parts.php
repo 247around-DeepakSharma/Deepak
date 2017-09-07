@@ -11,10 +11,11 @@
                     <div class="col-md-12">
                         <ul class="nav nav-tabs" role="tablist" >
                             <li role="presentation" class="active"><a href="#spare_parts_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Spare Parts Requested</a></li>
-                            <li role="presentation"><a href="#shipped" aria-controls="shipped" role="tab" data-toggle="tab">Spare Parts Shipped By Partner</a></li>
-                            <li role="presentation"><a href="#delivered" aria-controls="delivered" role="tab" data-toggle="tab">Spare Parts Received By SF</a></li>
-                            <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" role="tab" data-toggle="tab">Defective Part Pending By SF</a></li>
+                            <li role="presentation"><a href="#shipped" aria-controls="shipped" role="tab" data-toggle="tab">Partner Shipped Part</a></li>
+                            <li role="presentation"><a href="#delivered" aria-controls="delivered" role="tab" data-toggle="tab">SF Received Part</a></li>
+                            <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" role="tab" data-toggle="tab">Defective Part Pending</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" data-toggle="tab">Defective Part Shipped By SF</a></li>
+                            <li role="presentation"><a href="#defective_part_shipped_by_SF_approved" aria-controls="defective_part_shipped_by_SF" role="tab" data-toggle="tab">Approved Defective Part By Admin</a></li>
                             
                         </ul>
                     </div>
@@ -45,29 +46,41 @@
     }
     
     $(document).on("click", ".open-adminremarks", function () {
-   
-        var booking_id = this.id;
-        var url = $(this).data('id');
+        
+        var booking_id = $(this).data('booking_id');
+        var url = $(this).data('url');
         $('#modal-title').text(booking_id);
         $('#textarea').val("");
         $("#url").val(url);
+        $button_text = $(this).text();
+        if($button_text === "Approve Invoice"){
+            $("#charges").css("display","block");
+             var charge = $(this).data('charge');
+            $("#charges").val(charge);
+        } else {
+            $("#charges").css("display","none");
+            $("#charges").val(0);
+        }
 
     });
     
     function reject_parts(){
       var remarks =  $('#textarea').val();
-      var booking_id = $('#modal-title').text();
+      //var booking_id = $('#modal-title').text();
+      var courier_charge = $('#charges').val();
       if(remarks !== ""){
         var url =  $('#url').val();
         $.ajax({
             type:'POST',
             url:url,
-            data:{remarks:remarks},
+            data:{remarks:remarks,courier_charge:courier_charge},
             success: function(data){
-                console.log(data);
+                
                 if(data === "Success"){
-                    $("#"+booking_id+"_1").hide();
+                  //  $("#"+booking_id+"_1").hide()
                     $('#myModal2').modal('hide');
+                    alert("Updated Successfully");
+                    location.reload();
                 } else {
                     alert("Spare Parts Cancellation Failed!");
                 }
