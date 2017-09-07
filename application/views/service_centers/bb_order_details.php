@@ -3,6 +3,8 @@
 
 <script src="<?php echo base_url() ?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
 <script src="<?php echo base_url() ?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.3/waypoints.min.js"></script> 
+<script src="<?php echo base_url(); ?>js/jquery.counterup.min.js"></script>
 <style>
     .dataTables_length{
         margin:10px 0px;
@@ -22,11 +24,13 @@
         left: -60px;
     }
 </style>
-
+<div class="col-md-12" id="bb_charges_summary" style="margin-top:10px;">
+    <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+</div>
 <div class="bb_order_details" style="margin: 20px 20px 10px 10px;">
     
-      
-    <h2>Order Details</h2>
+    
+    <h3>Order Details</h3>
     
     <?php
                 if ($this->session->userdata('success')) {
@@ -133,6 +137,19 @@
     var pending;
 
     $(document).ready(function () {
+        
+         $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/service_centers/get_bb_cp_charges/'+<?php echo $this->session->userdata('service_center_id')?>,
+            success: function (data) {
+             $("#bb_charges_summary").html(data);   
+             $('.bb_counter').counterUp({
+                delay: 10, // the delay time in ms
+                time: 1000 // the speed time in ms
+             });
+
+            }
+        });
 
         //delivered datatables
         delivered = $('#delivered_datatable').DataTable({

@@ -44,12 +44,12 @@ class Buyback_process extends CI_Controller {
         $this->load->view('buyback/get_order_details');
         $this->load->view('dashboard/dashboard_footer');
     }
-    /**
+    /*
      * @desc Used to get data as requested and also search 
      */
     function get_bb_order_details() {
         log_message("info",__METHOD__);
-       // $tmp ='{"draw":"2","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"7","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"date_range":"2017\/07\/01 - 2017\/07\/31","city":"Ghaziabad\n","service_id":"","current_status":"","internal_status":"","status":"10"}';
+       // $tmp ='{"draw":"2","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"7","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"date_range":"2017\/07\/01 - 2017\/07\/31","city":"Ghaziabad\n","service_id":"","current_status":"","internal_status":"","status":"2"}';
        // $_POST = json_decode($tmp, true);
         $data = array();
         switch ($this->input->post('status')){
@@ -167,7 +167,6 @@ class Buyback_process extends CI_Controller {
         $post1 = $this->get_bb_post_view_data();
         $post = $this->_advanced_bb_search($post1);
         $list = $this->bb_model->get_bb_order_list($post);
-        log_message('info',$this->db->last_query());
         $data = array();
         $no = $post['start'];
         foreach ($list as $order_list) {
@@ -260,9 +259,14 @@ class Buyback_process extends CI_Controller {
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
+        $select = "bb_shop_address.id, concat(name,'( ' ";
+       
+        $select .= ",shop_address_region ";
+        $select .= " ) as cp_name";
+        $shop_list = $this->bb_model->get_cp_shop_address_details(array(), $select, "name");
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->unassigned_table_data($order_list, $no);
+            $row =  $this->unassigned_table_data($order_list, $shop_list, $no);
             $data[] = $row;
         }
         
@@ -286,7 +290,7 @@ class Buyback_process extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->unassigned_table_data($order_list, $no);
+            $row =  $this->generic_table_data($order_list, $no);
             $data[] = $row;
         }
         
@@ -312,7 +316,7 @@ class Buyback_process extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->unassigned_table_data($order_list, $no);
+            $row =  $this->generic_table_data($order_list, $no);
             $data[] = $row;
         }
         
@@ -340,7 +344,7 @@ class Buyback_process extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->unassigned_table_data($order_list, $no);
+            $row =  $this->generic_table_data($order_list, $no);
             $data[] = $row;
         }
         
@@ -368,7 +372,7 @@ class Buyback_process extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->unassigned_table_data($order_list, $no);
+            $row =  $this->generic_table_data($order_list, $no);
             $data[] = $row;
         }
         
@@ -395,7 +399,7 @@ class Buyback_process extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->unassigned_table_data($order_list, $no);
+            $row =  $this->generic_table_data($order_list, $no);
             $data[] = $row;
         }
         
@@ -473,7 +477,7 @@ class Buyback_process extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->unassigned_table_data($order_list, $no);
+            $row =  $this->generic_table_data($order_list, $no);
             $data[] = $row;
         }
         
@@ -499,7 +503,7 @@ class Buyback_process extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->unassigned_table_data($order_list, $no);
+            $row =  $this->generic_table_data($order_list, $no);
             $data[] = $row;
         }
         
@@ -575,7 +579,30 @@ class Buyback_process extends CI_Controller {
         return $row;
     }
     
-    function unassigned_table_data($order_list, $no){
+    function unassigned_table_data($order_list, $shop_list, $no){
+        log_message("info",__METHOD__);
+        $row = array();
+        $row[] = $no;
+        $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
+                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+        $row[] = $order_list->services;
+        $row[] = $order_list->city;
+        $row[] = $order_list->order_date;
+        $row[] = $order_list->current_status;
+        $row[] = $order_list->partner_basic_charge;
+        $cp_list =  '<select name="assign_cp_id['.$order_list->partner_order_id.']" ui-select2  class="assign_cp_id"  class="form-control" 
+                data-placeholder="Select CP" style="width:200px;"><option value="" selected disabled>Select CP</option> ';
+        foreach ($shop_list as $value) {
+            $cp_list .= '<option value="'.$value['id'].'">'.$value['cp_name'].'</option>';
+        }
+        $cp_list.=  '</select>';
+        
+        $row[] = $cp_list;
+
+        return $row;
+    }
+    
+    function generic_table_data($order_list, $no){
         log_message("info",__METHOD__);
         $row = array();
         $row[] = $no;
@@ -1203,7 +1230,8 @@ class Buyback_process extends CI_Controller {
     
     public function download_price_list_data() {
        
-        $service_id = $this->service_centre_charges_model->get_bb_charges(array('partner_id' => '247024', 'service_id != 46' => NULL), 'service_id', true);
+        $service_id = $this->service_centre_charges_model->get_bb_charges(array('bb_charges.partner_id' => '247024', 'service_id != 46' => NULL, 
+            'visible_to_partner' => 1, 'bb_shop_address.active' =>1 ), 'service_id', true, true);
         foreach ($service_id as $value) {
             $where = array('service_id' => $value['service_id'], 'partner_id' => '247024');
             $select = "category,brand, physical_condition, working_condition , city AS location , partner_total";
@@ -1254,7 +1282,7 @@ class Buyback_process extends CI_Controller {
         $objPHPExcel->setActiveSheetIndex(0);
         $objPHPExcel->getActiveSheet()->setTitle('TV');
 
-        $charges = $this->service_centre_charges_model->get_bb_charges(array("service_id" => 46, "visible_to_partner" => 1), "city, order_key, category, brand, physical_condition, partner_basic", true);
+        $charges = $this->service_centre_charges_model->get_bb_charges(array("service_id" => 46, "visible_to_partner" => 1, 'bb_shop_address.active' =>1), "bb_charges.city, order_key, category, brand, physical_condition, partner_basic", true, true);
 
 
         $region = array_unique(array_map(function ($k) {
@@ -1735,7 +1763,7 @@ class Buyback_process extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->unassigned_table_data($order_list, $no);
+            $row =  $this->generic_table_data($order_list, $no);
             $data[] = $row;
         }
         

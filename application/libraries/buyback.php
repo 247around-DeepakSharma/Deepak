@@ -611,7 +611,7 @@ class Buyback {
                                 "create_date" => date('Y-m-d H:i:s'), "current_status" => 'Pending', 
                                 "internal_status" => $internal_status));
                    
-                    $this->insert_bb_state_change($order_id, ASSIGNED_VENDOR, 'Assigned CP Agent ID', $agent, _247AROUND, NULL);
+                    $this->insert_bb_state_change($order_id, ASSIGNED_VENDOR, 'Assigned CP ID: '.$where_bb_charges['cp_id'], $agent, _247AROUND, NULL);
                 } else {
                     log_message('info', __METHOD__ . " Error In log for this partner_order_id: " . $order_id);
                     return array('status' => false, "msg" => " Error In assigning cp_id for this partner_order_id: " . $order_id);

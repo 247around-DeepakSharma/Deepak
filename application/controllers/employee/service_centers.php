@@ -2395,5 +2395,74 @@ class Service_centers extends CI_Controller {
         $response = $this->buyback->get_bb_price_list($this->input->post());
         echo $response;
     }
+    
+    function get_bb_cp_charges($cp_id) {
+
+        $where['length'] = -1;
+        $data = array();
+        //get delivered charges by month
+        $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));
+        $select = "SUM(cp_basic_charge + cp_tax_charge) as cp_delivered_charge, count(bb_order_details.partner_order_id) as total_delivered_order";
+        for ($i = 0; $i < 3; $i++) {
+            if ($i == 0) {
+                $delivery_date = "bb_order_details.delivery_date >=  '" . date('Y-m-01') . "'";
+                $select .= ", date(now()) As month";
+            }else if ($i == 1) {
+                $delivery_date = "bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                $select .= ", DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month";
+            }else if ($i == 2) {
+                $delivery_date = "bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+                $select .= ", DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month";
+            }
+            
+            $where['where'] = array('assigned_cp_id' => $cp_id,"$delivery_date" => NULL);
+            $cp_delivered_charge[$i] = $this->bb_model->get_bb_order_list($where, $select);
+        }
+        
+        //get total delivered charges data
+        $where['where'] = array('assigned_cp_id' =>$cp_id);
+        $cp_total_delivered_charge = $this->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_delivered_charge")[0]->cp_delivered_charge;
+        
+        
+        //get in_transit data by month
+        $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+        $select_in_transit = "SUM(cp_basic_charge + cp_tax_charge) as cp_in_transit_charge,count(bb_order_details.partner_order_id) as total_inTransit_order";
+        for ($i = 0; $i < 3; $i++) {
+            if ($i == 0) {
+                $in_transit_date = "bb_order_details.order_date >=  '" . date('Y-m-01') . "'";
+                $select_in_transit .= ", date(now()) As month";
+            }else if ($i == 1) {
+                $in_transit_date = "bb_order_details.order_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+			    AND bb_order_details.order_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                $select_in_transit .= ", DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month";
+            }else if ($i == 2) {
+                $in_transit_date = "bb_order_details.order_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+			    AND bb_order_details.order_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+                $select_in_transit .= ", DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month";
+            }
+            
+            $where['where'] = array('assigned_cp_id' => $cp_id,"$in_transit_date" => NULL);
+            $cp_in_transit_charge[$i] = $this->bb_model->get_bb_order_list($where, $select_in_transit);
+        }
+
+        //get total in transit charges data
+        $where['where'] = array('assigned_cp_id' =>$cp_id);
+        $cp_total_inTransit_charges = $this->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_intransit")[0]->cp_intransit;
+        
+        $amount1 = $this->invoices_model->get_invoices_details(array('type'=>'Buyback','type_code'=>'A', 'vendor_partner' => 'vendor', 
+                    'vendor_partner_id'=>$cp_id),
+                    'SUM( `amount_paid`) as paid_amount')[0]['paid_amount'];
+        $advance_amount = $this->invoices_model->get_invoices_details(array('type'=> BUYBACK_VOUCHER,'type_code'=>'B', 'vendor_partner' => 'vendor', 
+                    'vendor_partner_id'=>$cp_id),
+                    'SUM( amount_collected_paid + `amount_paid`) as advance_amount')[0]['advance_amount'];
+            
+        $paid_amount = $amount1 + abs($advance_amount);
+        $data['delivered_charges'] = $cp_delivered_charge;
+        $data['in_transit_charges'] = $cp_in_transit_charge;
+        $data['total_charges'] = $paid_amount - ($cp_total_delivered_charge +$cp_total_inTransit_charges);
+        $this->load->view('service_centers/show_bb_charges_summary',$data);
+    }
 
 }
