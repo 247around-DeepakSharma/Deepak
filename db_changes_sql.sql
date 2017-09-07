@@ -3115,3 +3115,6 @@ VALUES (NULL, 'partner_activate_email', 'Your CRM Activated', 'CRM Activated',
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
 VALUES (NULL, 'partner_deactivate_email', 'Your CRM De-Activated', 'CRM De-Activated', 
 'booking@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+--Abhay 1 Sept
+ALTER TABLE `spare_parts_details` ADD `approved_defective_parts_by_admin` INT(1) NOT NULL DEFAULT '0' AFTER `approved_defective_parts_by_partner`;

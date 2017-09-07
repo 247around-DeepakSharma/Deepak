@@ -1050,19 +1050,77 @@ class Inventory extends CI_Controller {
      * @param int $id
      * @param String $booking_id
      */
-    function cancel_spare_parts($id, $booking_id){
+    function update_action_on_spare_parts($id, $booking_id, $requestType){
         log_message('info', __FUNCTION__. "Entering... id ". $id." Booking ID ". $booking_id);
          $this->checkUserSession();
         if(!empty($id)){
             $remarks = $this->input->post("remarks");
-            $this->service_centers_model->update_spare_parts(array('id' => $id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), array('status' => "Cancelled"));
-            $this->notify->insert_state_change($booking_id,"Spare Parts Cancelled","Spare Parts Requested", $remarks, 
-                      $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-            $sc_data['current_status'] = "Pending";
-            $sc_data['internal_status'] = "Pending";
-            $sc_data['update_date'] = date("Y-m-d H:i:s");
+            $flag = true;
+            switch ($requestType){
+                case 'CANCEL_PARTS':
+                    $where = array('id' => $id );
+                    $data = array('status' => "Cancelled");
+                    $new_state = "Spare Parts Cancelled";
+                    $old_state = "Spare Parts Requested";
+                    $sc_data['current_status'] = "Pending";
+                    $sc_data['internal_status'] = "Pending";
+                    $sc_data['update_date'] = date("Y-m-d H:i:s");
           
-            $this->vendor_model->update_service_center_action($booking_id,$sc_data);
+                    $this->vendor_model->update_service_center_action($booking_id,$sc_data);
+                    break;
+                
+                case 'REJECT_COURIER_INVOICE':
+                    $where = array('booking_id' => $booking_id );
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => 'Defective Part Rejected By Partner', 'remarks_defective_part_by_sf' => $remarks);
+                    $new_state = "Courier Invoice Rejected By Admin";
+                    $old_state = "Defective Part Shipped By SF";
+                    
+                    break;
+                case 'APPROVE_COURIER_INVOICE':
+                    $where_sp = "spare_parts_details.booking_id = '".$booking_id."' "
+                    . " AND spare_parts_details.status NOT IN ('Completed', 'Cancelled') ";
+                    $sp = $this->partner_model->get_spare_parts_booking($where_sp);
+                    $data['status'] = "Defective Part Shipped By SF";
+                    $data['approved_defective_parts_by_admin'] = 1;
+                    $courier_charge = $this->input->post("courier_charge");
+                    foreach ($sp as $key => $value) {
+                        if($key == 0){
+                            $data['courier_charges_by_sf'] = $courier_charge;
+                        } else {
+                             $data['courier_charges_by_sf'] = 0;
+                        }
+                        
+                        $where = array("id" => $value['id']);
+                        $this->service_centers_model->update_spare_parts($where, $data);
+                    }
+                    
+                    $new_state = "Courier Invoice Approved By Admin";
+                    $old_state = "Defective Part Shipped By SF";
+                    $flag = FALSE;
+                    break;
+                    
+                CASE 'NOT_REQUIRED_PARTS':
+                    $data['defective_part_required'] = 0;
+                    $where = array('id' => $id );
+                    $new_state = "Spare Parts Not Required To Partner";
+                    $old_state = "Spare Parts Requested";
+                    break;
+                
+                CASE 'REQUIRED_PARTS':
+                    $data['defective_part_required'] = 1;
+                    $where = array('id' => $id );
+                    $new_state = "Spare Parts Required To Partner";
+                    $old_state = "Spare Parts Requested";
+                    break;
+            }
+            if($flag){
+                $this->service_centers_model->update_spare_parts($where, $data);
+            }
+            
+            $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
+                      $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+           
+            
             echo "Success";
             //redirect(base_url()."employee/inventory/get_spare_parts");
         } else {
@@ -1171,33 +1229,6 @@ class Inventory extends CI_Controller {
         }
         
         return $response;
-    }
-    
-    function update_is_defective_parts_rquired($is_required, $sp_id, $booking_id){
-        log_message('info', __FUNCTION__. "Entering... id ". $sp_id." Booking ID ". $booking_id);
-         $this->checkUserSession();
-        if(!empty($sp_id)){
-          
-            $this->service_centers_model->update_spare_parts(array('id' => $sp_id ), array('defective_part_required' => $is_required));
-            if($is_required =='1'){
-                $this->notify->insert_state_change($booking_id,"Spare Parts Required To Partner","Spare Parts Requested", "", 
-                      $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-            } else{
-                $this->notify->insert_state_change($booking_id,"Spare Parts Not Required To Partner","Spare Parts Requested", "", 
-                      $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-            }
-            
-            $this->load->view('notification', array('notification' => 'Spare Parts Updated'));
-  
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-            $this->load->view('employee/get_spare_parts');
-            
-        } else {
-           
-            $this->load->view('notification', array('notification' => 'Please Refresh Page And Again Try To Update'));
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-            $this->load->view('employee/get_spare_parts');
-        }
-    }
+    }  
 
 }
