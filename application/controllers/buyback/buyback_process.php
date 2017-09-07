@@ -1230,7 +1230,8 @@ class Buyback_process extends CI_Controller {
     
     public function download_price_list_data() {
        
-        $service_id = $this->service_centre_charges_model->get_bb_charges(array('partner_id' => '247024', 'service_id != 46' => NULL, 'visible_to_partner' => 1), 'service_id', true);
+        $service_id = $this->service_centre_charges_model->get_bb_charges(array('bb_charges.partner_id' => '247024', 'service_id != 46' => NULL, 
+            'visible_to_partner' => 1, 'bb_shop_address.active' =>1 ), 'service_id', true, true);
         foreach ($service_id as $value) {
             $where = array('service_id' => $value['service_id'], 'partner_id' => '247024');
             $select = "category,brand, physical_condition, working_condition , city AS location , partner_total";
@@ -1281,7 +1282,7 @@ class Buyback_process extends CI_Controller {
         $objPHPExcel->setActiveSheetIndex(0);
         $objPHPExcel->getActiveSheet()->setTitle('TV');
 
-        $charges = $this->service_centre_charges_model->get_bb_charges(array("service_id" => 46, "visible_to_partner" => 1), "city, order_key, category, brand, physical_condition, partner_basic", true);
+        $charges = $this->service_centre_charges_model->get_bb_charges(array("service_id" => 46, "visible_to_partner" => 1, 'bb_shop_address.active' =>1), "bb_charges.city, order_key, category, brand, physical_condition, partner_basic", true, true);
 
 
         $region = array_unique(array_map(function ($k) {
