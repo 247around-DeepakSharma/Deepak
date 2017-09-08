@@ -104,8 +104,10 @@
                         foreach ($booking_history['spare_parts'] as  $value) {
                             if($value['status'] == "Completed" || $value['status'] == "Cancelled"){} else {
                                 if($value['defective_part_required'] == 1){
-                                    $flag = 1; 
-                                    array_push($required_sp_id, $value['id']);
+                                    if(!empty($value['parts_shipped'])){
+                                        $flag = 1; 
+                                        array_push($required_sp_id, $value['id']);   
+                                    }
                                 }
                             }
          
