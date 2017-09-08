@@ -3118,3 +3118,7 @@ VALUES (NULL, 'partner_deactivate_email', 'Your CRM De-Activated', 'CRM De-Activ
 
 --Abhay 1 Sept
 ALTER TABLE `spare_parts_details` ADD `approved_defective_parts_by_admin` INT(1) NOT NULL DEFAULT '0' AFTER `approved_defective_parts_by_partner`;
+
+-- sachin 7 sep
+
+ALTER TABLE `bb_order_details` ADD `acknowledge_date` DATETIME NULL DEFAULT NULL AFTER `delivery_date`;

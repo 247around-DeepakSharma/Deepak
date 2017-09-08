@@ -1952,20 +1952,15 @@ class Service_centers extends CI_Controller {
         $data['order_id'] = urldecode($order_id);
         $data['service_id'] = urldecode($service_id);
         $data['city'] = urldecode($city);
+        $data['cp_id'] = $this->session->userdata('service_center_id');
         
-        $update_data = array('current_status' => _247AROUND_BB_IN_PROCESS,
-                             'internal_status' => _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS
-                            );
+        $response = $this->buyback->process_update_not_received_bb_order_details($data);
         
-        $update_where = array('partner_order_id' => $data['order_id'],
-                            'cp_id' => $this->session->userdata('service_center_id'));
-        $update_id = $this->cp_model->update_bb_cp_order_action($update_where,$update_data);
-        
-        if ($update_id) {
-            $this->buyback->insert_bb_state_change($data['order_id'], _247AROUND_BB_IN_PROCESS, '', $this->session->userdata('service_center_agent_id'), NULL, $this->session->userdata('service_center_id'));
-
-            $msg = "Order has been updated successfully";
-            $this->session->set_userdata('success', $msg);
+        if ($response['status'] === 'success') {
+            $this->session->set_userdata('success', $response['msg']);
+            redirect(base_url() . 'service_center/bb_oder_details');
+        } else if ($response['status'] === 'error') {
+            $this->session->set_userdata('error', $response['msg']);
             redirect(base_url() . 'service_center/bb_oder_details');
         }
     }
