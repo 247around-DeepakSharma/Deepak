@@ -1928,7 +1928,7 @@ class Invoice extends CI_Controller {
                 'from_date' => date("Y-m-d", strtotime($meta['sd'])),
                 'to_date' => date("Y-m-d", strtotime($meta['ed'])),
                 'num_bookings' =>  $meta['total_qty'],
-                'total_service_charge' => $meta['sub_total_amount'],
+                'parts_cost' => $meta['sub_total_amount'],
                 'total_amount_collected' => $meta['sub_total_amount'],
                 'around_royalty' => $meta['sub_total_amount'],
                 'invoice_date' => date('Y-m-d'),
@@ -2776,6 +2776,9 @@ class Invoice extends CI_Controller {
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
                 $data['type'] = BUYBACK_VOUCHER;
                 $basic_price = $amount;
+                
+                $data['parts_cost'] = $basic_price;
+                
             } else {
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
                 if($tds > 0){
@@ -2796,6 +2799,8 @@ class Invoice extends CI_Controller {
                 }
                 $amount = $amount - $tds;
                 $basic_price = $amount - $gst_amount; 
+                
+                $data['total_service_charge'] = $basic_price;
             }
 
             $data['type_code'] = "B";
@@ -2805,12 +2810,11 @@ class Invoice extends CI_Controller {
             $data['from_date'] = $date;
             $data['to_date'] = $date;
             $data['due_date'] = $date;
-            $data['total_service_charge'] = $basic_price;
+            
             $data['total_amount_collected'] = $amount;
             $data['around_royalty'] = 0;
             $data['amount_collected_paid'] = -$amount;
             $data['agent_id'] = $this->session->userdata('id');
-            $data['agent_id'] = $this->input->post("description");
             $data['create_date'] = date("Y-m-d H:i:s");
 
             $this->invoices_model->action_partner_invoice($data);
