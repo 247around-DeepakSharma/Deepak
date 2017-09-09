@@ -278,4 +278,84 @@ class service_centre_charges_model extends CI_Model {
         $query = $this->db->get('service_centre_charges');
         return $query->result_array();
     }
+    
+    /**
+     *  @desc : This function is used to get sc charges by any condition
+     *  @param : $post string
+     *  @param : $select string
+     *  @return : $output Array()
+     */
+    function _get_service_centre_charges($post, $select = "") {
+        $this->db->from('service_centre_charges');
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->select($select,FALSE);
+        $this->db->join('tax_rates','tax_rates.tax_code = service_centre_charges.tax_code'
+                . ' AND tax_rates.product_type = service_centre_charges.product_type ');
+        $this->db->join('services','services.id = service_centre_charges.service_id');
+        
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('service_id','DESC');
+        }
+    }
+    
+    /**
+     *  @desc : This function is used to get charges by any condition
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_service_centre_charges_by_any($post, $select = "") {
+        $this->_get_service_centre_charges($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        log_message('info',$this->db->last_query());
+        return $query->result();
+    }
+    
+    /**
+     *  @desc : This function is used to get total count of charges
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_charges($post) {
+        $this->_get_service_centre_charges($post, 'count(category) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }  
+    
+    /**
+     *  @desc : This function is used to get total filtered count of charges
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_charges($post){
+        $this->_get_service_centre_charges($post,'count(category) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
 }

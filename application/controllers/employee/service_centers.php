@@ -1144,39 +1144,17 @@ class Service_centers extends CI_Controller {
      */
     function download_sf_charges_excel(){
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
-         $this->checkUserSession();
+        $this->checkUserSession();
         //Getting SC ID from session
         $service_center_id  =  $this->session->userdata('service_center_id');
         if(!empty($service_center_id)){
             //Getting SF Details
             $sc_details = $this->vendor_model->getVendorContact($service_center_id);
-            //Getting Charges Data
-            $sc_charges_data = $this->service_centre_charges_model->get_service_centre_charges($sc_details[0]['state']);
-            //Looping through all the values 
-            foreach ($sc_charges_data as $value) {
-                //Getting Details from Booking Sources
-                $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($value['partner_id']);
-                $code_source = $booking_sources[0]['code'];
-                
-                //Calculating vendor base charge 
-                $vendor_base_charge = $value['vendor_total']/(1+($value['rate']/100));
-                //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
-                $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
-                
-                $array_final['sc_code'] = $code_source;
-                $array_final['product'] = $value['product'];
-                $array_final['category'] = $value['category'];
-                $array_final['capacity'] = $value['capacity'];
-                $array_final['service_category'] = $value['service_category'];
-                $array_final['vendor_basic_charges'] = round($vendor_base_charge,0);
-                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,0);
-                $array_final['vendor_total'] = round($value['vendor_total'],0);
-                $array_final['customer_net_payable'] = round($value['customer_net_payable'],0);
-                $array_final['pod'] = $value['pod'];
-                
-                $final_array[] = $array_final;
-            }
-            $data['final_array'] = $final_array;
+            $filter_option = $this->service_centre_charges_model->get_service_centre_charges_by_any(array('tax_rates.state' =>$sc_details[0]['state'],'length' => -1),'distinct services.id,services.services as product,category,capacity,service_category');
+            $data['category'] = array_unique(array_column($filter_option, 'category'));
+            $data['capacity'] = array_unique(array_column($filter_option, 'capacity'));
+            $data['service_category'] = array_unique(array_column($filter_option, 'service_category'));
+            $data['appliance'] = array_unique(array_column($filter_option,'product','id'));
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/download_sf_charges_excel', $data);
 
@@ -2183,7 +2161,7 @@ class Service_centers extends CI_Controller {
      */
     function get_delivered_data(){
         //log_message("info",__METHOD__);
-        $post = $this->get_bb_post_view_data();
+        $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending', 'bb_cp_order_action.internal_status' => 'Delivered');
         $post['where_in'] = array();
@@ -2215,7 +2193,7 @@ class Service_centers extends CI_Controller {
      */
     function get_pending_data(){
         //log_message("info",__METHOD__);
-        $post = $this->get_bb_post_view_data();
+        $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending');
         $post['where_in'] = array('bb_cp_order_action.internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
@@ -2245,7 +2223,7 @@ class Service_centers extends CI_Controller {
      * @return array
      */
     function get_acknowledge_data(){
-        $post = $this->get_bb_post_view_data();
+        $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
         $post['where_in'] = array('bb_cp_order_action.current_status' => array('Delivered', 'InProcess', 'Not Delivered', 'Damaged'),
                                   'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged'));
@@ -2354,7 +2332,7 @@ class Service_centers extends CI_Controller {
      * @param void
      * @return $post array()
      */
-    function get_bb_post_view_data(){
+    function get_post_view_data(){
         //log_message("info",__METHOD__);
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
@@ -2458,6 +2436,129 @@ class Service_centers extends CI_Controller {
         $data['in_transit_charges'] = $cp_in_transit_charge;
         $data['total_charges'] = $paid_amount - ($cp_total_delivered_charge +$cp_total_inTransit_charges);
         $this->load->view('service_centers/show_bb_charges_summary',$data);
+    }
+    
+    /**
+     * @desc Used to get data as requested and also search 
+     */
+    function get_sf_data() {
+        $data = array();
+        switch ($this->input->post('status')){
+            case 0:
+                $data = $this->get_sf_charges_data();
+                break;
+        }
+        
+        $post = $data['post'];
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->service_centre_charges_model->count_all_charges($post),
+            "recordsFiltered" =>  $this->service_centre_charges_model->count_filtered_charges($post),
+            "data" => $data['data'],
+        );
+        
+        unset($post);
+        unset($data);
+        echo json_encode($output);
+    }
+    
+    /**
+     * @desc Used to get sf charges data
+     * @param void
+     * @return array
+     */
+    function get_sf_charges_data(){
+        
+        //Getting SC ID from session
+        $service_center_id  =  $this->session->userdata('service_center_id');
+        if(!empty($service_center_id)){
+            //Getting SF Details
+            $sc_details = $this->vendor_model->getVendorContact($service_center_id);
+            
+            $post = $this->get_post_view_data();
+            $new_post = $this->get_filterd_post_data($post,$sc_details[0]['state']);
+            
+            $select = "service_centre_charges.category,service_centre_charges.capacity,"
+                    . "service_centre_charges.service_category,service_centre_charges.vendor_total,service_centre_charges.partner_id, "
+                    . "service_centre_charges.customer_net_payable,service_centre_charges.pod,tax_rates.rate , services.services as product";
+            
+            //Getting Charges Data
+            $list = $this->service_centre_charges_model->get_service_centre_charges_by_any($new_post,$select);
+            $data = array();
+            $no = $post['start'];
+            foreach ($list as $charges_list) {
+                $no++;
+                $row = $this->get_charges_list_table($charges_list, $no);
+                $data[] = $row;
+            }
+        
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $new_post
+                );
+
+    }
+    
+    /**
+     *  @desc : This function is used to make filter logic for pagination
+     *  @param : $post string
+     *  @param : $state string
+     *  @return : $post Array()
+     */
+    private function get_filterd_post_data($post,$state){
+        $product = $this->input->post('product');
+        $category = $this->input->post('category');
+        $capacity = $this->input->post('capacity');
+        $service_category = $this->input->post('service_category');
+        
+        $post['where']  = array('tax_rates.state' => $state);
+        
+        if(!empty($product)){
+            $post['where']['service_id'] =  $product;
+        }
+        if(!empty($category)){
+            $post['where']['category'] =  $category;
+        }
+        if(!empty($capacity)){
+            $post['where']['capacity'] =  $capacity;
+        }
+        if(!empty($service_category)){
+            $post['where']['service_category'] =  $service_category;
+        }
+        
+        $post['column_order'] = array(NULL,NULL,'service_id','category','capacity','service_category',NULL,NULL,'vendor_total','customer_net_payable','pod');
+        $post['column_search'] = array();
+        
+        return $post;
+    }
+    
+    function get_charges_list_table($charges_list, $no) {
+        $row = array();
+        
+        //Getting Details from Booking Sources
+        $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($charges_list->partner_id);
+        $code_source = $booking_sources[0]['code'];
+
+        //Calculating vendor base charge 
+        $vendor_base_charge = $charges_list->vendor_total / (1 + ($charges_list->rate / 100));
+        //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
+        $vendor_tax = $charges_list->vendor_total - $vendor_base_charge;
+        
+        $row[] = $no;
+        $row[] = $code_source;
+        $row[] = $charges_list->product;
+        $row[] = $charges_list->category;
+        $row[] = $charges_list->capacity;
+        $row[] = $charges_list->service_category;
+        $row[] = round($vendor_base_charge, 0);
+        $row[] = round($vendor_tax, 0);
+        $row[] = round($charges_list->vendor_total, 0);
+        $row[] = round($charges_list->customer_net_payable, 0);
+        $row[] = $charges_list->pod;
+
+        return $row;
     }
 
 }
