@@ -559,7 +559,16 @@
     $("#appliance_capacity_1").select2();
     $("#appliance_category_1").select2();
     $("#partner_source").select2();
-    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd'});
+    var today = new Date();
+    $("#booking_date").datepicker({
+        dateFormat: 'yy-mm-dd', 
+        minDate: today.getHours() >= 12 ? 1 : 0,
+        beforeShowDay: function(date) {
+            var day = date.getDay();
+            return [(day !== 0), ''];
+        }
+    });
+    
     get_city();
     get_brands();
     
