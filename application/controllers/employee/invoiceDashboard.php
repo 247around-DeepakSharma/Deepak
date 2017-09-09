@@ -271,18 +271,24 @@ class InvoiceDashboard extends CI_Controller {
 
         $this->table->set_template($template);
 
-        $this->table->set_heading(array('Name', 'Service Charge', 
-            'Service Tax','Parts Charge', 'Parts Tax', 'Upcountry Charge', 
-            'Courier Charge', 'Total Charge'));
+        $this->table->set_heading(array('Name', 'Taxable Charge', 
+            'GST Amount', 'Total'));
         $partner = $this->partner_model->get_all_partner_source();
+        $total_basic = 0;$total_gst = 0; $sub_total=0;
         foreach ($partner as $value) {
-            $invoices = $this->invoices_model->generate_partner_invoice($value['partner_id'], trim($explode_date_range[0]), trim($explode_date_range[1]))['meta'];
-            $this->table->add_row($value['source'], $invoices['total_service_cost'], 
-                    ($invoices['total_service_cost_14'] +$invoices['total_service_cost_5']*2), 
-                    $invoices['total_part_cost'], $invoices['part_cost_vat'],$invoices['total_upcountry'], 
-                    $invoices['total_courier_charge'], $invoices['grand_part']);
-          
+            $invoices = $this->invoices_model->generate_partner_invoice($value['partner_id'], trim($explode_date_range[0]), trim($explode_date_range[1]));
+            if(isset($invoices['meta']) && !empty($invoices['meta'])){
+                $this->table->add_row($value['source'], $invoices['meta']['total_taxable_value'], 
+                    ($invoices['meta']['igst_total_tax_amount'] + $invoices['meta']['sgst_total_tax_amount'] + $invoices['meta']['cgst_total_tax_amount']),
+                    $invoices['meta']['sub_total_amount']);
+                $total_basic += $invoices['meta']['total_taxable_value'];
+                $total_gst += (($invoices['meta']['igst_total_tax_amount'] + $invoices['meta']['sgst_total_tax_amount'] + $invoices['meta']['cgst_total_tax_amount']));
+                $sub_total += $invoices['meta']['sub_total_amount'];
+            } else {
+                $this->table->add_row($value['source'],"", "","");
+            }
        }
+       $this->table->add_row("Total","<strong>".$total_basic."<strong>", $total_gst,"<strong>". $sub_total."</strong>");
        echo $this->table->generate();
     }
     
