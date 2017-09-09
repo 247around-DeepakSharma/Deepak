@@ -100,15 +100,16 @@
                     <div class="order_upload_file">
                         <div class="form-group form-inline">
                             <label for="order_files" class="col-md-2 info_tooltip"> Upload Order Id Image:</label>
-                            <input type="file" class="form-control col-md-8" id="order_files" name="order_files" accept="image/*" required></textarea>
+                            <input type="file" class="form-control col-md-8" id="order_files" name="order_files" accept="image/*" required >
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="order_upload_file">
                         <div class="form-group form-inline">
-                            <label for="damaged_order_files" class="col-md-2 info_tooltip"><i class="fa fa-info info-labal text-danger" data-toggle="tooltip" title="You can upload multiple images"></i> &nbsp;Upload Damaged Product Images:</label>
-                            <input type="file" class="form-control col-md-8" id="damaged_order_files" name="damaged_order_files[]" accept="image/*" multiple required></textarea>
+                            <label for="damaged_order_files" class="col-md-2">Upload Damaged Product Images:</label>
+                            <input type="file" class="form-control col-md-8" id="damaged_order_files" name="damaged_order_files[]" accept="image/*" multiple required >
+                            <span class="col-md-8 text-info">You Can Upload Multiple Images</span>
                         </div>
                     </div>
                 </div>

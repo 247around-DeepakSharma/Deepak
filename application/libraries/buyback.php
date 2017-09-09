@@ -411,85 +411,89 @@ class Buyback {
      * @return $response array()
      */
     function process_bb_order_report_issue_update($post_data) {
-        log_message("info",__METHOD__);
+        log_message("info", __METHOD__);
         $this->POST_DATA = $post_data;
-        
+
         $order_id = $this->POST_DATA['order_id'];
-        
+
         //process upload images
-        $this->process_bb_report_issue_upload_image($order_id);
-
-        $physical_condition = isset($this->POST_DATA['order_physical_condition'])?$this->POST_DATA['order_physical_condition']:'';
-        if (!empty($physical_condition)) {
-            $physical_condition = $this->POST_DATA['order_physical_condition'];
+        $upload_images = $this->process_bb_report_issue_upload_image($order_id);
+        if (isset($upload_images['status']) && $upload_images['status'] == 'error') {
+            $response['status'] = "error";
+            $response['msg'] = $upload_images['msg'];
         } else {
-            $physical_condition = '';
-        }
 
-        $data = array(
-            'category' =>  $this->POST_DATA['category'],
-            'physical_condition' =>  $physical_condition,
-            'working_condition' => $this->POST_DATA['order_working_condition'],
-            'remarks' =>  $this->POST_DATA['remarks'],
-            'brand' =>  $this->POST_DATA['order_brand'],
-            'current_status' => _247AROUND_BB_IN_PROCESS,
-            'internal_status' => _247AROUND_BB_Damaged_STATUS,
-            'order_key' => $this->POST_DATA['partner_order_key'],
-            'cp_claimed_price' => $this->POST_DATA['claimed_price']);
-
-        $where = array('partner_order_id' => $order_id,
-            'cp_id' => $this->POST_DATA['cp_id']);
-        
-        //update bb_cp_action_table
-        $update_id = $this->My_CI->cp_model->update_bb_cp_order_action($where, $data);
-        if ($update_id) {
-            log_message("info",__METHOD__. "Cp Action table updated for order id: ".$order_id);
-            
-            $order_details_where = array('partner_order_id' => $order_id,
-                               'assigned_cp_id' => $this->POST_DATA['cp_id']);
-            
-            // Insert state change
-            if (!empty($this->My_CI->session->userdata('service_center_id'))) {
-                
-                //update order details table
-                $this->My_CI->bb_model->update_bb_order_details($order_details_where, array('acknowledge_date' => date('Y-m-d H:i:s')));
-                
-                //update state change
-                $this->insert_bb_state_change($order_id, _247AROUND_BB_Damaged_STATUS, $this->POST_DATA['remarks'], $this->My_CI->session->userdata('service_center_agent_id'), NULL, $this->My_CI->session->userdata('service_center_id'));
-                $response['status'] = "success";
-                $response['msg'] = "Order has been updated successfully";
-                
+            $physical_condition = isset($this->POST_DATA['order_physical_condition']) ? $this->POST_DATA['order_physical_condition'] : '';
+            if (!empty($physical_condition)) {
+                $physical_condition = $this->POST_DATA['order_physical_condition'];
             } else {
-                
-                $order_details_data = array('current_status' => _247AROUND_BB_IN_PROCESS,
-                          'internal_status' => _247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS,
-                          'acknowledge_date' => date('Y-m-d H:i:s')
-                );
-                
-                //update order details table
-                $update_id = $this->My_CI->bb_model->update_bb_order_details($order_details_where, $order_details_data);
-                
-                if($update_id){
-                    
-                    log_message("info",__METHOD__. "Order Details table updated for order id: ".$order_id);
-                    $this->insert_bb_state_change($order_id, _247AROUND_BB_REPORT_ISSUE_IN_PROCESS,$this->POST_DATA['remarks'], $this->My_CI->session->userdata('id'), _247AROUND, Null);
+                $physical_condition = '';
+            }
+
+            $data = array(
+                'category' => $this->POST_DATA['category'],
+                'physical_condition' => $physical_condition,
+                'working_condition' => $this->POST_DATA['order_working_condition'],
+                'remarks' => $this->POST_DATA['remarks'],
+                'brand' => $this->POST_DATA['order_brand'],
+                'current_status' => _247AROUND_BB_IN_PROCESS,
+                'internal_status' => _247AROUND_BB_Damaged_STATUS,
+                'order_key' => $this->POST_DATA['partner_order_key'],
+                'cp_claimed_price' => $this->POST_DATA['claimed_price']);
+
+            $where = array('partner_order_id' => $order_id,
+                'cp_id' => $this->POST_DATA['cp_id']);
+
+            //update bb_cp_action_table
+            $update_id = $this->My_CI->cp_model->update_bb_cp_order_action($where, $data);
+            if ($update_id) {
+                log_message("info", __METHOD__ . "Cp Action table updated for order id: " . $order_id);
+
+                $order_details_where = array('partner_order_id' => $order_id,
+                    'assigned_cp_id' => $this->POST_DATA['cp_id']);
+
+                // Insert state change
+                if (!empty($this->My_CI->session->userdata('service_center_id'))) {
+
+                    //update order details table
+                    $this->My_CI->bb_model->update_bb_order_details($order_details_where, array('acknowledge_date' => date('Y-m-d H:i:s')));
+
+                    //update state change
+                    $this->insert_bb_state_change($order_id, _247AROUND_BB_Damaged_STATUS, $this->POST_DATA['remarks'], $this->My_CI->session->userdata('service_center_agent_id'), NULL, $this->My_CI->session->userdata('service_center_id'));
                     $response['status'] = "success";
                     $response['msg'] = "Order has been updated successfully";
-                }else{
-                    
-                    log_message("info",__METHOD__. "error In Updating Cp Action table for order id: ".$order_id);
-                    $response['status'] = "error";
-                    $response['msg'] = "Oops!!! There are some issue in updating order. Please Try Again...";
+                } else {
+
+                    $order_details_data = array('current_status' => _247AROUND_BB_IN_PROCESS,
+                        'internal_status' => _247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS,
+                        'acknowledge_date' => date('Y-m-d H:i:s')
+                    );
+
+                    //update order details table
+                    $update_id = $this->My_CI->bb_model->update_bb_order_details($order_details_where, $order_details_data);
+
+                    if ($update_id) {
+
+                        log_message("info", __METHOD__ . "Order Details table updated for order id: " . $order_id);
+                        $this->insert_bb_state_change($order_id, _247AROUND_BB_REPORT_ISSUE_IN_PROCESS, $this->POST_DATA['remarks'], $this->My_CI->session->userdata('id'), _247AROUND, Null);
+                        $response['status'] = "success";
+                        $response['msg'] = "Order has been updated successfully";
+                    } else {
+
+                        log_message("info", __METHOD__ . "error In Updating Cp Action table for order id: " . $order_id);
+                        $response['status'] = "error";
+                        $response['msg'] = "Oops!!! There are some issue in updating order. Please Try Again...";
+                    }
                 }
+            } else {
+                $response['status'] = "error";
+                $response['msg'] = "Oops!!! There are some issue in updating order. Please Try Again...";
             }
-        } else {
-            $response['status'] = "error";
-            $response['msg'] = "Oops!!! There are some issue in updating order. Please Try Again...";
         }
-        
+
         return $response;
     }
-    
+
     /**
      * @desc Process Upload Images of those order for which report issue was claimed by collection partner
      * @param void()
@@ -502,7 +506,7 @@ class Buyback {
         $allowed_types = array('image/gif', 'image/jpg', 'image/png', 'image/jpeg');
         
         //upload order id image
-        if (($_FILES['damaged_order_files']['error'] !== 4) && !empty($_FILES['order_files']['tmp_name'])) {
+        if (($_FILES['order_files']['error'] !== 4) && !empty($_FILES['order_files']['tmp_name'])) {
                 $file_type = $_FILES['order_files']['type'];
                 if (in_array($file_type, $allowed_types)) {
                     $tmp_name = $_FILES['order_files']['tmp_name'];
@@ -514,6 +518,10 @@ class Buyback {
                     $response['msg'] = "Please Upload valid image files only";
                     return $response;
                 }
+        }else{
+            $response['status'] = "error";
+            $response['msg'] = "Order File Is Required";
+            return $response;
         }
         
         //upload damaged order images
@@ -532,6 +540,10 @@ class Buyback {
                     return $response;
                 }
             }
+        }else{
+            $response['status'] = "error";
+            $response['msg'] = "Damaged Order File Is Required";
+            return $response;
         }
     }
     

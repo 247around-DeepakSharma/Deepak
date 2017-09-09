@@ -82,6 +82,10 @@ $route['process_report_issue_bb_order_details'] = 'employee/service_centers/proc
 $route['service_center/update_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_received_bb_order/$1/$2/$3/$4';
 $route['service_center/update_not_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_not_received_bb_order/$1/$2/$3/$4';
 $route['service_center/show_bb_price_list'] = 'employee/service_centers/show_bb_price_list';
+$route['service_center/buyback/view_bb_order_details/(:any)'] = 'employee/service_centers/view_bb_order_details/$1';
+$route['service_center/buyback/get_bb_order_details_data/(:any)'] = 'employee/service_centers/get_bb_order_details_data/$1';
+$route['service_center/buyback/get_bb_order_history_details/(:any)'] = 'employee/service_centers/get_bb_order_history_details/$1';
+$route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employee/service_centers/get_bb_order_appliance_details/$1';
 
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
