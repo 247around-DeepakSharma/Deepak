@@ -450,4 +450,42 @@ taggingUntaggingBbOrders.controller("tagUntagController", function ($scope, $htt
             $('.alert-danger > p').html('');
         });
     };
-});    
+});
+
+orderDetails.controller('viewCpOrderDetails', function ($scope, $http) {
+
+    var get_url = baseUrl + "/service_center/buyback/get_bb_order_details_data/" + partner_order_id;
+    $http.get(get_url)
+            .then(function (response) {
+                $scope.order_date = response.data[0].order_date;
+                $scope.delivery_date = response.data[0].delivery_date;
+                $scope.city = response.data[0].city;
+                $scope.partner_gc_id = response.data[0].partner_gc_id;
+                $scope.partner_tracking_id = response.data[0].partner_tracking_id;
+                $scope.internal_status = response.data[0].internal_status;
+                $scope.current_status = response.data[0].current_status;
+                $scope.partner_name = response.data[0].partner_name;
+                $scope.cp_name = response.data[0].cp_name;
+            });
+});
+
+orderDetails.controller('viewCpOrderHistory', function ($scope, $http) {
+
+    var get_url = baseUrl + "/service_center/buyback/get_bb_order_history_details/" + partner_order_id;
+    $http.get(get_url)
+            .then(function (response) {
+                $scope.orderHistoryDetails = response.data;
+            });
+    $scope.getDateFormat = function(timestamp) {
+    return new Date(timestamp);
+  }        
+});
+
+orderDetails.controller('viewCpOrderAppLianceDetails', function ($scope, $http) {
+
+    var get_url = baseUrl + "/service_center/buyback/get_bb_order_appliance_details/" + partner_order_id;
+    $http.get(get_url)
+            .then(function (response) {
+                $scope.orderHistoryDetails = response.data;
+            });
+});

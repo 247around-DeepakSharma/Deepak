@@ -670,7 +670,8 @@ class Buyback_process extends CI_Controller {
             $no++;
             $row = array();
             $row[] = $no;
-            $row[] = $order_list->partner_order_id;
+            $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
+                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
             $row[] = $order_list->name;
             $row[] = $order_list->category;
             $row[] = $order_list->brand;
@@ -758,6 +759,7 @@ class Buyback_process extends CI_Controller {
                             //update buyback cp order action
                             $bb_cp_order_details_data['current_status'] = _247AROUND_BB_NOT_DELIVERED;
                             $bb_cp_order_details_data['internal_status'] = _247AROUND_BB_247APPROVED_STATUS;
+                            $bb_cp_order_details_data['closed_date'] = date('Y-m-d H:i:s');
 
                             break;
 
@@ -770,6 +772,7 @@ class Buyback_process extends CI_Controller {
                             //update buyback cp order action
                             $bb_cp_order_details_data['current_status'] = _247AROUND_BB_Damaged_STATUS;
                             $bb_cp_order_details_data['internal_status'] = _247AROUND_BB_247APPROVED_STATUS;
+                            $bb_cp_order_details_data['closed_date'] = date('Y-m-d H:i:s');
 
                             //insert cp_claimed_price in bb_unit_details
                             $update_cp_claimed_price = $cp_claimed_price[$key];
@@ -893,7 +896,7 @@ class Buyback_process extends CI_Controller {
                 round(bb_unit.partner_basic_charge + bb_unit.partner_tax_charge) as partner_charge,
                 round(bb_unit.cp_basic_charge + bb_unit.cp_tax_charge) as cp_tax, 
                 round(bb_unit.around_commision_basic_charge + bb_unit.around_commision_tax) as around_charges,
-                bb_unit.partner_sweetner_charges,s.services as service_name';
+                bb_unit.partner_sweetner_charges,s.services as service_name,bb_unit.cp_claimed_price';
             $data = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id' => $partner_order_id), $select);
             print_r(json_encode($data));
         }
