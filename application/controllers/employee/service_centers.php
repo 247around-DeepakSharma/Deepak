@@ -2259,7 +2259,8 @@ class Service_centers extends CI_Controller {
         //log_message("info", __METHOD__);
         $row = array();
         $row[] = $no;
-        $row[] = $order_list->partner_tracking_id;
+        $row[] = "<a target='_blank' href='".base_url()."service_center/buyback/view_bb_order_details/".
+                $order_list->partner_order_id."'>$order_list->partner_tracking_id</a>";
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
@@ -2290,7 +2291,8 @@ class Service_centers extends CI_Controller {
         //log_message("info", __METHOD__);
         $row = array();
         $row[] = $no;
-        $row[] = $order_list->partner_tracking_id;
+        $row[] = "<a target='_blank' href='".base_url()."service_center/buyback/view_bb_order_details/".
+                $order_list->partner_order_id."'>$order_list->partner_tracking_id</a>";
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = $order_list->order_date;
@@ -2318,7 +2320,8 @@ class Service_centers extends CI_Controller {
         //log_message("info", __METHOD__);
         $row = array();
         $row[] = $no;
-        $row[] = $order_list->partner_tracking_id;
+        $row[] = "<a target='_blank' href='".base_url()."service_center/buyback/view_bb_order_details/".
+                $order_list->partner_order_id."'>$order_list->partner_tracking_id</a>";
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = $order_list->order_date;
@@ -2553,6 +2556,60 @@ class Service_centers extends CI_Controller {
         $row[] = $charges_list->pod;
 
         return $row;
+    }
+    
+    function view_bb_order_details($partner_order_id){
+        $data['partner_order_id'] = $partner_order_id;
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/view_bb_order_details', $data);
+    }
+    
+    /**
+     * @desc Used to get the order details data to take action 
+     * @param $partner_order_id string
+     * @return $data json
+     */
+    function get_bb_order_details_data($partner_order_id){
+        log_message("info",__METHOD__);
+        if($partner_order_id){
+            $data = $this->bb_model->get_bb_order_details(
+                    array('bb_order_details.partner_order_id' =>$partner_order_id),
+                    'bb_order_details.*, name as cp_name, public_name as partner_name');
+            print_r(json_encode($data));
+        }
+        
+    }
+    
+    
+    /**
+     * @desc Used to get order history data
+     * @param $partner_order_id string
+     * @return $data json
+     */
+    function get_bb_order_history_details($partner_order_id){
+        log_message("info",__METHOD__);
+        if($partner_order_id){
+            $data = $this->bb_model->get_bb_order_history($partner_order_id);
+            print_r(json_encode($data));
+        }
+    }
+    
+    
+    /**
+     * @desc Used to get the order appliance details
+     * @param $partner_order_id string
+     * @return $data json
+     */
+    function get_bb_order_appliance_details($partner_order_id){
+        log_message("info",__METHOD__);
+        if($partner_order_id){
+            $select = 'bb_unit.category, bb_unit.physical_condition, 
+                bb_unit.working_condition,
+                round(bb_unit.cp_basic_charge + bb_unit.cp_tax_charge) as cp_tax,
+                bb_unit.partner_sweetner_charges,s.services as service_name,bb_unit.cp_claimed_price';
+            $data = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id' => $partner_order_id), $select);
+            print_r(json_encode($data));
+        }
     }
 
 }
