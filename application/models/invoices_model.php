@@ -511,10 +511,13 @@ class invoices_model extends CI_Model {
      * @param String WHERE
      * @return Array
      */
-    function get_invoices_details($where, $select = "*") {
+    function get_invoices_details($where, $select = "*", $group_by = false) {
 
-        $this->db->select($select);
-        $this->db->where($where);
+        $this->db->select($select, false);
+        $this->db->where($where, false);
+        if($group_by){
+            $this->db->group_by($group_by);
+        }
         $query = $this->db->get("vendor_partner_invoices");
         if ($query->num_rows > 0) {
             return $query->result_array();
