@@ -27,6 +27,7 @@ class Dashboard extends CI_Controller {
         $this->load->model('dashboard_model');
         $this->load->model('bb_model');
         $this->load->model('cp_model');
+        $this->load->library("miscelleneous");
 
         $this->load->library('table');
 
@@ -458,32 +459,18 @@ class Dashboard extends CI_Controller {
         }else{
             $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1));
         }
-        //$data = array();
-        $where['length'] = -1;
+       
         $template = array(
         'table_open' => '<table  '
             . ' class="table table-striped table-bordered jambo_table bulk_action">'
         );
 
         $this->table->set_template($template);
-        $this->table->set_heading(array('Name', 'Ledger Summary (Rs)', 'Delivered (Rs)', 'In-transit (Rs)', 'Total (Rs)','Balance (Rs)'));
+        $this->table->set_heading(array('Name', 'Advance Paid', 'Un-Settle Invoice (Rs)', 'Un-billed Delivered (Rs)', 'Un-billed In-transit (Rs)', 'Balance (Rs)'));
 
         foreach ($cp as  $value) {
-            $amount1 = $this->invoices_model->get_invoices_details(array('type'=>'Buyback','type_code'=>'A', 'vendor_partner' => 'vendor', 
-                    'vendor_partner_id'=>$value['id']),
-                    'SUM( `amount_paid`) as paid_amount')[0]['paid_amount'];
-            $advance_amount = $this->invoices_model->get_invoices_details(array('type'=> BUYBACK_VOUCHER,'type_code'=>'B', 'vendor_partner' => 'vendor', 
-                    'vendor_partner_id'=>$value['id']),
-                    'SUM( amount_collected_paid + `amount_paid`) as advance_amount')[0]['advance_amount'];
-            
-            $paid_amount = $amount1 + abs($advance_amount);
-   
-            $where['where'] = array('assigned_cp_id' =>$value['id']);
-            $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));
-            
-            $cp_delivered_charge = $this->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_delivered_charge")[0]->cp_delivered_charge;
-            $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
-            
+           $amount_cr_deb = $this->miscelleneous->get_cp_buyback_credit_debit($value['id']);
+
             $shop_data = $this->cp_model->get_cp_shop_address_list(array('where' => array('cp_id' => $value['id'])));
             $star = "";
             $name = "";
@@ -508,18 +495,18 @@ class Dashboard extends CI_Controller {
                
             }
             $name .= "</ul></div>";
-            $cp_intransit = $this->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_intransit")[0]->cp_intransit;
-            $total_balance = $cp_delivered_charge + $cp_intransit;
-            $rest_balance = ($paid_amount - $total_balance);
+           
             $class ="";
-            if($rest_balance > 0){
+            
+            if($amount_cr_deb['total_balance'] > 0){
                 $class = ' <i class="success pull-right fa fa-caret-up fa-2x text-success"></i>';
-            } else if($rest_balance < 0){
+            } else if($amount_cr_deb['total_balance'] < 0){
                $class = ' <i class="error pull-right fa fa-caret-down fa-2x text-danger"></i>'; 
             }
             
-            $this->table->add_row($name .$star,$paid_amount,$cp_delivered_charge,$cp_intransit,$total_balance,$rest_balance.$class);
-           
+            $this->table->add_row($name .$star,abs($amount_cr_deb['advance']),-$amount_cr_deb['unbilled'], 
+                    -$amount_cr_deb['cp_delivered'],-$amount_cr_deb['cp_transit'],$amount_cr_deb['total_balance'].$class);
+          
         }
         
        echo $this->table->generate();
