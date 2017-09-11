@@ -35,6 +35,10 @@ class bookings_excel extends CI_Controller {
 	$this->load->model('booking_model');
 	$this->load->model('partner_model');
 	$this->load->model('vendor_model');
+        $this->load->model('upcountry_model');
+        $this->load->library('asynchronous_lib');
+        $this->load->library('initialized_variable');
+        $this->load->library("miscelleneous");
 
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -303,7 +307,8 @@ class bookings_excel extends CI_Controller {
                         $booking['partner_source'] = "Paytm-delivered-excel";
 
                         //get partner data to check the price
-                        $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
+                        $this->initialized_variable->fetch_partner_data($booking['partner_id']);
+                        $partner_data = $this->initialized_variable->get_partner_data();
                         $partner_mapping_id = $booking['partner_id'];
                         if ($partner_data[0]['partner_type'] == OEM) {
                             //if partner type is OEM then sent appliance brand in argument
@@ -349,17 +354,12 @@ class bookings_excel extends CI_Controller {
                             $booking['partner_current_status'] = $partner_status[0];
                             $booking['partner_internal_status'] = $partner_status[1];
                         }
-
-                        $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
-                        $vendors_count = count($vendors);
-
-                        if ($vendors_count > 0) {
-                            $this->send_sms_to_customer($lead_details['Product'], $booking['booking_primary_contact_no'], $user_id, $booking['booking_id'], $unit_details['appliance_category'], $booking['amount_due'], $flag);
-                        } else { //if ($vendors_count > 0) {
-                            //update booking
-                            $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
-
-                            log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                        
+                        $is_sms = $this->miscelleneous->check_upcountry($booking,$lead_details['Product'], $is_price, "");
+                        if(!$is_sms){
+                             $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                        } else {
+                            $booking['sms_count'] = 1;
                         }
 
                         $return_id = $this->booking_model->addbooking($booking);
@@ -419,33 +419,8 @@ class bookings_excel extends CI_Controller {
         
     }
     
-    function send_sms_to_customer($appliance, $phone_number, $user_id, $booking_id, $category, $amount_due, $flag) {
-        $sms['tag'] = "paytm_shipped_missed_call_initial";
 
-        //ordering of smsData is important, it should be as per the %s in the SMS
-        $sms['smsData']['service'] = $appliance;
-        $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-        if(!empty($flag)){
-            if($amount_due == 0){
-                $sms['smsData']['message'] = "FREE";
-            
-            } else {
-                $sms['smsData']['message'] = "Rs. ".  round($amount_due,0);
-            }
-            
-        } else {
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
-        }
-
-	$sms['phone_no'] = $phone_number;
-	$sms['booking_id'] = $booking_id;
-	$sms['type'] = "user";
-	$sms['type_id'] = $user_id;
-
-	$this->notify->send_sms_msg91($sms);
-    }
-
-     /**
+    /**
      * @desc: This method used to insert data into partner leads table.
      * @param: Array Booking details
      * @param: Array Unit details
