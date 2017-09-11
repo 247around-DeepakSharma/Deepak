@@ -1399,6 +1399,7 @@ class invoices_model extends CI_Model {
         if($is_join){
             $this->db->join('employee','payment_history.agent_id = employee.id','left');
         }
+        $this->db->join('bank_transactions','bank_transactions.id = payment_history.bank_transaction_id','left');
         $query = $this->db->get('payment_history');
         return $query->result_array();
     }

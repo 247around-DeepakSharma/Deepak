@@ -264,9 +264,9 @@ class Invoice extends CI_Controller {
             $tds = array();
 
 
-            $bank_payment_history = $this->invoices_model->get_payment_history('*',array('bank_transaction_id' => $id));
+            $bank_payment_history = $this->invoices_model->get_payment_history('credit_debit_amount,credit_debit, invoice_id, tds_amount',array('bank_transaction_id' => $id));
             foreach ($bank_payment_history as $value) {
-                if ($value == "Debit") {
+                if ($value['credit_debit'] == "Debit") {
                     $amount = -$value['credit_debit_amount'];
                 } else {
                     $amount = $value['credit_debit_amount'];
@@ -3214,8 +3214,8 @@ class Invoice extends CI_Controller {
     
     function get_invoice_payment_history(){
         $invoice_id = trim($this->input->post('invoice_id'));
-        $select = 'payment_history.*,employee.full_name';
-        $data['payment_history'] = $this->invoices_model->get_payment_history($select,array('invoice_id'=>$invoice_id),true);
+        $select = 'payment_history.credit_debit, payment_history.credit_debit_amount,employee.full_name, payment_history.tds_amount, bank_transactions.transaction_date';
+        $data['payment_history'] = $this->invoices_model->get_payment_history($select,array('payment_history.invoice_id'=>$invoice_id),true);
         echo $this->load->view('employee/show_invoice_payment_history_list',$data);
     }
 

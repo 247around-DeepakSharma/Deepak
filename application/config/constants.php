@@ -247,7 +247,7 @@ define('PENALTY_FAKE_CANCEL',13);
 //Define error code for order id not found for partner_sd_sb.php file
 define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
 //Define error code for order id not found for partner_sd_sb.php file
-define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID is Not Exist');
+define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Does Not Exist');
 //Define snapdeal new missed call number
 define('PARTNERS_MISSED_CALLED_NUMBER','01130017601');
 //Define snapdeal new missed call number
@@ -420,7 +420,7 @@ define('SF_NOTIFICATION_MSG','Urgent - Update your GST number by clicking on the
 
 //Define error code for Type is not found for partner_sd_sb.php file
 define('ERR_UPDATE_TYPE_NOT_FOUND_CODE', -1018);
-define('ERR_UPDATE_TYPE_NOT_FOUND_MSG', 'UpdateType Value is Not Exist');
+define('ERR_UPDATE_TYPE_NOT_FOUND_MSG', 'UpdateType Value Does Not Exist');
 
 //Define error code for Booking Already Schedule
 define('ERR_BOOKING_ALREADY_SCHEDULED_CODE', -1019);
