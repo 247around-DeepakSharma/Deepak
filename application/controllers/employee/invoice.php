@@ -1121,7 +1121,7 @@ class Invoice extends CI_Controller {
         foreach ($files as $file_name) {
             exec("rm -rf " . escapeshellarg($file_name));
         }
-            exit();
+           
         return true;
 
     }
@@ -1652,12 +1652,6 @@ class Invoice extends CI_Controller {
             echo "Data Not found".PHP_EOL;
             return FALSE;
         }
-
-            
-            exit();
-         
-
-         
     }
 
     /**
