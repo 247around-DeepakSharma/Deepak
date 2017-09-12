@@ -589,10 +589,10 @@ class Miscelleneous {
                             return FALSE;
                 }
             
-             $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $partner_data[0]['public_name'], $charges);
+             $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $partner_data[0]['public_name'], $charges);
              return true;
              } else {
-             $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $partner_data[0]['public_name'], "");
+             $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $partner_data[0]['public_name'], "");
             return true;
         }
     }
@@ -604,12 +604,11 @@ class Miscelleneous {
      * @param String $phone_number
      * @param String $user_id
      * @param String $booking_id
-     * @param String $file_type
      * @param String $partner
      * @param String $price
      * @return int
      */
-    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $file_type, $partner,$price) {
+    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $partner,$price) {
         log_message('info', __FUNCTION__.' phone_number: '.$phone_number.' user_id: '.$user_id.' booking_id: '. $booking_id.' partner: '.$partner.' appliance: '.$appliance.' price: '.$price);
         
         $sms['tag'] = "partner_missed_call_for_installation";
@@ -802,6 +801,50 @@ class Miscelleneous {
         
         return true;
         
+    }
+    /**
+     * @desc This is used to calculate buyabck overdue or credit amout for CP
+     * @param Int $cp_id
+     * @return Array
+     */
+    function get_cp_buyback_credit_debit($cp_id) {
+        $where['length'] = -1;
+        $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'vendor', 'vendor_partner_id' => $cp_id,
+            'type IN ("' . BUYBACK_VOUCHER . '", "Buyback")' => NULL, 'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) THEN ( amount_collected_paid -`amount_paid`) END)  AS amount', 'type_code');
+
+        $unbilled_amount = 0;
+        $advance_amount = 0;
+
+        if ($invoice_amount[0]['amount'] > 0) {
+
+            $unbilled_amount = $invoice_amount[0]['amount'];
+            if (isset($invoice_amount[1]['amount']) && $invoice_amount[1]['amount'] < 0) {
+                $advance_amount = $invoice_amount[1]['amount'];
+            }
+        } else if ($invoice_amount[0]['amount'] < 0) {
+
+            $advance_amount = $invoice_amount[0]['amount'];
+            if (isset($invoice_amount[1]['amount']) && $invoice_amount[1]['amount'] > 0) {
+                $unbilled_amount = $invoice_amount[1]['amount'];
+            }
+        }
+        
+        $where['where'] = array('assigned_cp_id' =>$cp_id, 'cp_invoice_id IS NULL' => NULL);
+        $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));
+            
+        $cp_delivered_charge = $this->My_CI->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_delivered_charge")[0]->cp_delivered_charge;
+        $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+        
+        $cp_intransit = $this->My_CI->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_intransit")[0]->cp_intransit;
+        $total_balance = abs($advance_amount) -( $unbilled_amount + $cp_delivered_charge + $cp_intransit);
+        
+        $cp_amount['total_balance'] = $total_balance;
+        $cp_amount['cp_delivered'] = $cp_delivered_charge;
+        $cp_amount['cp_transit'] = $cp_intransit;
+        $cp_amount['unbilled'] = $unbilled_amount;
+        $cp_amount['advance'] = $advance_amount;
+        
+        return $cp_amount;
     }
 
 }

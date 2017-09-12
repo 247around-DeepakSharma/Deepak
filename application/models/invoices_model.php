@@ -511,10 +511,13 @@ class invoices_model extends CI_Model {
      * @param String WHERE
      * @return Array
      */
-    function get_invoices_details($where, $select = "*") {
+    function get_invoices_details($where, $select = "*", $group_by = false) {
 
-        $this->db->select($select);
-        $this->db->where($where);
+        $this->db->select($select, false);
+        $this->db->where($where, false);
+        if($group_by){
+            $this->db->group_by($group_by);
+        }
         $query = $this->db->get("vendor_partner_invoices");
         if ($query->num_rows > 0) {
             return $query->result_array();
@@ -1287,7 +1290,7 @@ class invoices_model extends CI_Model {
                 sc.company_name, sc.address as company_address, sc.state,state_code,
                 sc.owner_email, sc.primary_contact_email, sc.owner_phone_1,
                 CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
-                THEN (bb_unit_details.cp_invoice_id) 
+                THEN (bb_unit_details.cp_claimed_price) 
                 ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge 
                 FROM `bb_order_details`, bb_unit_details, services, service_centres as sc, state_code WHERE 
                 `assigned_cp_id` = '$vendor_id' 
@@ -1396,6 +1399,7 @@ class invoices_model extends CI_Model {
         if($is_join){
             $this->db->join('employee','payment_history.agent_id = employee.id','left');
         }
+        $this->db->join('bank_transactions','bank_transactions.id = payment_history.bank_transaction_id','left');
         $query = $this->db->get('payment_history');
         return $query->result_array();
     }
