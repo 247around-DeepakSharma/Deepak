@@ -941,7 +941,7 @@ class invoices_model extends CI_Model {
             
             if (!empty($credit_penalty)) {
                 $cp_data = array();
-                $cp_data[0]['description'] = 'Credit- Bookings Penalty';
+                $cp_data[0]['description'] = 'Credit (Penalty Removed)';
                 $cp_data[0]['hsn_code'] = '';
                 $cp_data[0]['qty'] = '';
                 $cp_data[0]['rate'] = '';
