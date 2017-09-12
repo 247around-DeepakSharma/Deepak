@@ -388,10 +388,10 @@ class Buyback_process extends CI_Controller {
         log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
-        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
-            'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'));
+        $post['where_in'] = array('current_status' => array(_247AROUND_BB_TO_BE_CLAIMED),
+            'internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['where'] = array();
         $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         

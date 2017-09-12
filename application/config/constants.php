@@ -393,6 +393,7 @@ define('_247AROUND_BB_NOT_DELIVERED','Not Delivered');
 define('_247AROUND_BB_TO_BE_CLAIMED','To Be Claimed');
 define('_247AROUND_BB_ORDER_MISMATCH','Product Mismatch');
 define('_247AROUND_BB_ORDER_REJECTED','Rejected');
+define('_247AROUND_BB_ORDER_TAT_BREACH','Tat Breach');
 
 //new shop address added
 define('NEW_SHOP_ADDRESS_ADDED','New Shop Address Added');
