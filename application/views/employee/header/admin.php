@@ -121,7 +121,7 @@
                         
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url()?>employee/booking/update_not_pay_to_sf_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Wall Mount Given</strong></a>
+                            <a href="<?php echo base_url()?>employee/booking/update_not_pay_to_sf_booking"><i class="fa fa-fw fa-desktop"></i> <strong>No Installation, Only Stand Given</strong></a>
                         </li>
                          <li class="divider"></li>
                         <li>
@@ -329,6 +329,10 @@
                             <li class="divider"></li>   
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Check</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                         <li>
+                            <a href="<?php echo base_url() ?>employee/invoiceDashboard/get_invoice_summary_for_partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Summary</strong></a>
                         </li>
                             </ul>
                         </li>

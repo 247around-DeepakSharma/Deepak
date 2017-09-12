@@ -8,31 +8,27 @@
 <script src="<?php echo base_url(); ?>js/buyback_app/directives/directives.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/services/services.js"></script>
 <!-- page content -->
-<div class="right_col" role="main">
+<div id="page-wrapper" role="main">
     <div class="buyback_file_upload" ng-app="viewBuybackOrderDetails">
         <div class="order_details_file">
             <div class="page-title">
                 <div class="title_left">
-                    <h3>Buyback Order History</h3>
+                    <h2>Buyback Order History</h2>
                 </div>
             </div>
+            <hr>
             <div class="clearfix"></div>
             <div class="row">
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_panel">
                         <div class="x_title">
-                            <h2>Order Details</h2>
-                            <ul class="nav navbar-right panel_toolbox">
-                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                </li>
-                                </li>
-                            </ul>
+                            <h3>Order Details</h3>
                             <div class="clearfix"></div>
                         </div>
                         <div class="x_content">
                             <br />
                             <div id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
-                                <div ng-controller="viewOrderDetails">
+                                <div ng-controller="viewCpOrderDetails">
                                     <div class="row">
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <table class="table table-bordered table-hover table-responsive" ng-cloak="">
@@ -125,20 +121,15 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_panel">
                         <div class="x_title">
-                            <h2>Order Appliance Details</h2>
-                            <ul class="nav navbar-right panel_toolbox">
-                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                </li>
-                                </li>
-                            </ul>
+                            <h3>Order Appliance Details</h3>
                             <div class="clearfix"></div>
                         </div>
                         <div class="x_content">
                             <br />
                             <div id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
-                                <div ng-controller="viewOrderAppLianceDetails">
+                                <div ng-controller="viewCpOrderAppLianceDetails">
                                     <div class="row">
-                                        <div class="order_history">
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
                                             <table class="table table-bordered table-hover table-responsive" ng-cloak="">
                                                 <thead>
                                                     <tr>
@@ -147,10 +138,7 @@
                                                         <th>Service</th>
                                                         <th>Physical Condition</th>
                                                         <th>Working Condition</th>
-                                                        <th>Partner Charge</th>
                                                         <th>Collection Partner Charge</th>
-                                                        <th>Around Charge</th>
-                                                        <th>Partner Sweetner Charge</th>
                                                         <th>CP Claimed Price</th>
                                                     </tr>
                                                 </thead>
@@ -161,10 +149,7 @@
                                                         <td>{{x.service_name}}</td>
                                                         <td>{{x.physical_condition }}</td>
                                                         <td>{{x.working_condition }}</td>
-                                                        <td>{{x.partner_charge}}</td>
                                                         <td>{{x.cp_tax}}</td>
-                                                        <td>{{x.around_charges}}</td>
-                                                        <td>{{x.partner_sweetner_charges}}</td>
                                                         <td>{{x.cp_claimed_price}}</td>
                                                     </tr>
                                                 </tbody>
@@ -179,20 +164,15 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_panel">
                         <div class="x_title">
-                            <h2>Order History</h2>
-                            <ul class="nav navbar-right panel_toolbox">
-                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                </li>
-                                </li>
-                            </ul>
+                            <h3>Order History</h3>
                             <div class="clearfix"></div>
                         </div>
                         <div class="x_content">
                             <br />
                             <div id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
-                                <div ng-controller="viewOrderHistory">
+                                <div ng-controller="viewCpOrderHistory">
                                     <div class="row">
-                                        <div class="order_history">
+                                        <div class="col-md-12 col-sm-12 col-xs-12 order_history">
                                             <table class="table table-bordered table-hover table-responsive" ng-cloak="">
                                                 <thead>
                                                     <tr>

@@ -35,6 +35,10 @@ class bookings_excel extends CI_Controller {
 	$this->load->model('booking_model');
 	$this->load->model('partner_model');
 	$this->load->model('vendor_model');
+        $this->load->model('upcountry_model');
+        $this->load->library('asynchronous_lib');
+        $this->load->library('initialized_variable');
+        $this->load->library("miscelleneous");
 
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -238,159 +242,157 @@ class bookings_excel extends CI_Controller {
 
                     $service_id = isset($lead_details['service_id']) ? $lead_details['service_id'] : $this->booking_model->getServiceId($lead_details['Product']);
                     $data = $this->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $rowData[0]['brand'], "SP");
-                    //Add this lead into the leads table
-                    //Check whether this is a new Lead or Not
-                    //Pass order id and partner source
-                    $partner_booking = $this->partner_model->get_order_id_for_partner($data['partner_id'], $rowData[0]['order_id']);
-                    if (is_null($partner_booking)) {
-                        $booking['partner_id'] = $data['partner_id'];
-                        $booking['source'] = $data['source'];
-                        $booking['order_id'] = $rowData[0]['order_id'];
+                    if ($data) {
+                        //Add this lead into the leads table
+                        //Check whether this is a new Lead or Not
+                        //Pass order id and partner source
+                        $partner_booking = $this->partner_model->get_order_id_for_partner($data['partner_id'], $rowData[0]['order_id']);
+                        if (is_null($partner_booking)) {
+                            $booking['partner_id'] = $data['partner_id'];
+                            $booking['source'] = $data['source'];
+                            $booking['order_id'] = $rowData[0]['order_id'];
 
-                        //$lead_details['Unique_id'] = $rowData[0]['Item ID'];
-                        //$dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Order Date']);
-                        //$lead_details['DeliveryDate'] = $dateObj1->format('d/m/Y');
-                        $appliance_details['brand'] = $unit_details['appliance_brand'] = isset($lead_details['service_appliance_data']['brand']) ? $lead_details['service_appliance_data']['brand'] : $rowData[0]['brand'];
-                        $appliance_details['model_number'] = $unit_details['model_number'] = "";
-                        $appliance_details['description'] = $unit_details['appliance_description'] = trim($rowData[0]['product_name']);
+                            //$lead_details['Unique_id'] = $rowData[0]['Item ID'];
+                            //$dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Order Date']);
+                            //$lead_details['DeliveryDate'] = $dateObj1->format('d/m/Y');
+                            $appliance_details['brand'] = $unit_details['appliance_brand'] = isset($lead_details['service_appliance_data']['brand']) ? $lead_details['service_appliance_data']['brand'] : $rowData[0]['brand'];
+                            $appliance_details['model_number'] = $unit_details['model_number'] = "";
+                            $appliance_details['description'] = $unit_details['appliance_description'] = trim($rowData[0]['product_name']);
 
-                        $booking['booking_address'] = $rowData[0]['address'];
-                        $booking['booking_pincode'] = $rowData[0]['pincode'];
-                        $booking['city'] = $rowData[0]['customer_city'];
-                        $booking['state'] = $distict_details['state'];
-                        $booking['district'] = $distict_details['district'];
-                        $booking['taluk'] = $distict_details['taluk'];
-
-
-
-                        $booking['booking_primary_contact_no'] = $rowData[0]['contact_number'];
-
-                        $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['shipped_date']);
-                        $booking['shipped_date'] = date('Y-m-d H:i:s', strtotime($dateObj2->format('d-m-Y')));
-
-                        $booking['current_status'] = "FollowUp";
-                        $booking['internal_status'] = "Missed_call_not_confirmed";
-                        $booking['create_date'] = date("Y-m-d H:i:s");
-
-                        //Add this as a Query now
-                        $booking['booking_id'] = '';
-                        $appliance_details['user_id'] = $booking['user_id'] = $user_id;
-                        $appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $service_id;
-                        log_message('info', __FUNCTION__ . "=> Service ID: " . $booking['service_id']);
-
-                        $booking['booking_alternate_contact_no'] = '';
-
-                        $yy = date("y");
-                        $mm = date("m");
-                        $dd = date("d");
-                        $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
-                        $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
-
-                        //Assigning Booking Source and Partner ID for Brand Requested
-                        // First we send Service id and Brand and get Partner_id from it
-                        // Now we send state, partner_id and service_id 
+                            $booking['booking_address'] = $rowData[0]['address'];
+                            $booking['booking_pincode'] = $rowData[0]['pincode'];
+                            $booking['city'] = $rowData[0]['customer_city'];
+                            $booking['state'] = $distict_details['state'];
+                            $booking['district'] = $distict_details['district'];
+                            $booking['taluk'] = $distict_details['taluk'];
 
 
-                        $unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 
-                        $unit_details['partner_id'] = $booking['partner_id'];
-                        $booking['quantity'] = '1';
-                        $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category']) ? $lead_details['service_appliance_data']['category'] : $rowData[0]['category'];
-                        $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($lead_details['service_appliance_data']['capacity']) ? $lead_details['service_appliance_data']['capacity'] : '';
-                        $appliance_details['tag'] = $unit_details['appliance_brand'] . " " . $unit_details['appliance_description'];
-                        $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
-                        $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
-                        $booking['partner_source'] = "Paytm-delivered-excel";
+                            $booking['booking_primary_contact_no'] = $rowData[0]['contact_number'];
 
-                        //get partner data to check the price
-                        $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
-                        $partner_mapping_id = $booking['partner_id'];
-                        if ($partner_data[0]['partner_type'] == OEM) {
-                            //if partner type is OEM then sent appliance brand in argument
-                            $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, 'Installation & Demo', $unit_details['appliance_brand']);
-                        } else {
-                            //if partner type is not OEM then dose not sent appliance brand in argument
-                            $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, 'Installation & Demo', "");
-                        }
-                        $booking['amount_due'] = '0';
-                        $is_price = array();
-                        $flag = array();
-                        if (!empty($prices)) {
-                            $unit_details['id'] = $prices[0]['id'];
-                            $unit_details['price_tags'] = "Installation & Demo";
-                            $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
-                            $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
-                            $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
-                            $booking['amount_due'] = $prices[0]['customer_net_payable'];
-                            $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
-                            $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
-                            $flag = array('1');
-                        }
+                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['shipped_date']);
+                            $booking['shipped_date'] = date('Y-m-d H:i:s', strtotime($dateObj2->format('d-m-Y')));
+
+                            $booking['current_status'] = "FollowUp";
+                            $booking['internal_status'] = "Missed_call_not_confirmed";
+                            $booking['create_date'] = date("Y-m-d H:i:s");
+
+                            //Add this as a Query now
+                            $booking['booking_id'] = '';
+                            $appliance_details['user_id'] = $booking['user_id'] = $user_id;
+                            $appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $service_id;
+                            log_message('info', __FUNCTION__ . "=> Service ID: " . $booking['service_id']);
+
+                            $booking['booking_alternate_contact_no'] = '';
+
+                            $yy = date("y");
+                            $mm = date("m");
+                            $dd = date("d");
+                            $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
+                            $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
+
+                            //Assigning Booking Source and Partner ID for Brand Requested
+                            // First we send Service id and Brand and get Partner_id from it
+                            // Now we send state, partner_id and service_id 
 
 
-                        $booking['potential_value'] = '';
-                        $appliance_details['last_service_date'] = date('d-m-Y');
+                            $unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 
+                            $unit_details['partner_id'] = $booking['partner_id'];
+                            $booking['quantity'] = '1';
+                            $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category']) ? $lead_details['service_appliance_data']['category'] : $rowData[0]['category'];
+                            $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($lead_details['service_appliance_data']['capacity']) ? $lead_details['service_appliance_data']['capacity'] : '';
+                            $appliance_details['tag'] = $unit_details['appliance_brand'] . " " . $unit_details['appliance_description'];
+                            $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
+                            $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
+                            $booking['partner_source'] = "Paytm-delivered-excel";
 
-                        $booking['type'] = "Query";
-
-                        $booking['booking_date'] = date('d-m-Y', strtotime("+3 days", strtotime($booking['shipped_date'])));
-                        $booking['booking_timeslot'] = '';
-                        $booking['amount_due'] = '';
-                        $booking['booking_remarks'] = 'Installation & Demo';
-                        $booking['query_remarks'] = 'Installation & Demo';
-                        $booking['request_type'] = 'Installation & Demo';
-
-                        //Insert query
-                        //echo print_r($booking, true) . "<br><br>";
-                        //check partner status from partner_booking_status_mapping table  
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
-                        if (!empty($partner_status)) {
-                            $booking['partner_current_status'] = $partner_status[0];
-                            $booking['partner_internal_status'] = $partner_status[1];
-                        }
-
-                        $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
-                        $vendors_count = count($vendors);
-
-                        if ($vendors_count > 0) {
-                            $this->send_sms_to_customer($lead_details['Product'], $booking['booking_primary_contact_no'], $user_id, $booking['booking_id'], $unit_details['appliance_category'], $booking['amount_due'], $flag);
-                        } else { //if ($vendors_count > 0) {
-                            //update booking
-                            $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
-
-                            log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
-                        }
-
-                        $return_id = $this->booking_model->addbooking($booking);
-
-                        if (!$return_id) {
-                            log_message('info', __FUNCTION__ . 'Error Paytm booking details not inserted: ' . print_r($booking, true));
-                        } else {
-                            $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
-                            if (!empty($prices)) {
-                                $unit_id = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], 0);
+                            //get partner data to check the price
+                            $this->initialized_variable->fetch_partner_data($booking['partner_id']);
+                            $partner_data = $this->initialized_variable->get_partner_data();
+                            $partner_mapping_id = $booking['partner_id'];
+                            if ($partner_data[0]['partner_type'] == OEM) {
+                                //if partner type is OEM then sent appliance brand in argument
+                                $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, 'Installation & Demo', $unit_details['appliance_brand']);
                             } else {
-                                $unit_id = $this->booking_model->addunitdetails($unit_details);
+                                //if partner type is not OEM then dose not sent appliance brand in argument
+                                $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, 'Installation & Demo', "");
                             }
-                            $this->insert_booking_in_partner_leads($booking, $unit_details, $user, $lead_details['Product']);
-                            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-                            //Reset
-                            if (empty($booking['state'])) {
-                                $to = NITS_ANUJ_EMAIL_ID;
-                                $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-                                $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+                            $booking['amount_due'] = '0';
+                            $is_price = array();
+                            $flag = array();
+                            if (!empty($prices)) {
+                                $unit_details['id'] = $prices[0]['id'];
+                                $unit_details['price_tags'] = "Installation & Demo";
+                                $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
+                                $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                                $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
+                                $booking['amount_due'] = $prices[0]['customer_net_payable'];
+                                $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
+                                $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
+                                $flag = array('1');
                             }
-                            $total_bookings++;
+
+
+                            $booking['potential_value'] = '';
+                            $appliance_details['last_service_date'] = date('d-m-Y');
+
+
+                            $booking['type'] = "Query";
+
+                            $booking['booking_date'] = date('d-m-Y', strtotime("+3 days", strtotime($booking['shipped_date'])));
+                            $booking['booking_timeslot'] = '';
+                            $booking['amount_due'] = '';
+                            $booking['booking_remarks'] = 'Installation & Demo';
+                            $booking['query_remarks'] = 'Installation & Demo';
+                            $booking['request_type'] = 'Installation & Demo';
+
+                            //Insert query
+                            //echo print_r($booking, true) . "<br><br>";
+                            //check partner status from partner_booking_status_mapping table  
+                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
+                            if (!empty($partner_status)) {
+                                $booking['partner_current_status'] = $partner_status[0];
+                                $booking['partner_internal_status'] = $partner_status[1];
+                            }
+
+                            $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price, "");
+                            if (!$is_sms) {
+                                $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                            } else {
+                                $booking['sms_count'] = 1;
+                            }
+
+                            $return_id = $this->booking_model->addbooking($booking);
+
+                            if (!$return_id) {
+                                log_message('info', __FUNCTION__ . 'Error Paytm booking details not inserted: ' . print_r($booking, true));
+                            } else {
+                                $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
+                                if (!empty($prices)) {
+                                    $unit_id = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state'], 0);
+                                } else {
+                                    $unit_id = $this->booking_model->addunitdetails($unit_details);
+                                }
+                                $this->insert_booking_in_partner_leads($booking, $unit_details, $user, $lead_details['Product']);
+                                $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                                //Reset
+                                if (empty($booking['state'])) {
+                                    $to = NITS_ANUJ_EMAIL_ID;
+                                    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+                                    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+                                }
+                                $total_bookings++;
+                            }
+
+
+                            unset($booking);
+
+
+
+                            unset($unit_details);
+                            unset($appliance_details);
                         }
-
-
-                        unset($booking);
-
-
-
-                        unset($unit_details);
-                        unset($appliance_details);
                     }
                 }else{
                     $error = true;
@@ -419,33 +421,8 @@ class bookings_excel extends CI_Controller {
         
     }
     
-    function send_sms_to_customer($appliance, $phone_number, $user_id, $booking_id, $category, $amount_due, $flag) {
-        $sms['tag'] = "paytm_shipped_missed_call_initial";
 
-        //ordering of smsData is important, it should be as per the %s in the SMS
-        $sms['smsData']['service'] = $appliance;
-        $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-        if(!empty($flag)){
-            if($amount_due == 0){
-                $sms['smsData']['message'] = "FREE";
-            
-            } else {
-                $sms['smsData']['message'] = "Rs. ".  round($amount_due,0);
-            }
-            
-        } else {
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
-        }
-
-	$sms['phone_no'] = $phone_number;
-	$sms['booking_id'] = $booking_id;
-	$sms['type'] = "user";
-	$sms['type_id'] = $user_id;
-
-	$this->notify->send_sms_msg91($sms);
-    }
-
-     /**
+    /**
      * @desc: This method used to insert data into partner leads table.
      * @param: Array Booking details
      * @param: Array Unit details
@@ -497,7 +474,7 @@ class bookings_excel extends CI_Controller {
         $data = [];
 
         $partner_array = $this->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
-        
+
         if (!empty($partner_array)) {
 
             foreach ($partner_array as $value) {
@@ -508,13 +485,17 @@ class bookings_excel extends CI_Controller {
                     $data['partner_id'] = $value['partner_id'];
                     $data['source'] = $this->partner_model->get_source_code_for_partner($value['partner_id']);
                 } else {
-                    if($default_source == "SS"){
-                       //Now assigning this case to SS
-                       $data['partner_id'] = SNAPDEAL_ID;
-                       $data['source'] = $default_source;
-                    } else if($default_source == "SP"){
-                       $data['partner_id'] = PAYTM;
-                       $data['source'] = $default_source;
+                    if ($value['partner_id'] == 247041) {
+                        if ($default_source == "SS") {
+                            //Now assigning this case to SS
+                            $data['partner_id'] = SNAPDEAL_ID;
+                            $data['source'] = $default_source;
+                        } else if ($default_source == "SP") {
+                            $data['partner_id'] = PAYTM;
+                            $data['source'] = $default_source;
+                        }
+                    } else {
+                        return false;
                     }
                 }
             }
@@ -524,10 +505,10 @@ class bookings_excel extends CI_Controller {
             $data['partner_id'] = PAYTM;
             $data['source'] = 'SP';
         }
-        
+
         return $data;
     }
-    
+
     /**
      * @Desc: This function is used to upload Paytm file to s3 and update file uploads table
      * @params: String

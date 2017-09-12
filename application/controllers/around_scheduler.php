@@ -17,12 +17,15 @@ class Around_scheduler extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
         $this->load->model('employee_model');
+        $this->load->model('bb_model');
+        $this->load->model('cp_model');
         $this->load->model('reporting_utils');
         $this->load->library('s3');
         $this->load->library('email');
         $this->load->library('notify');
         $this->load->library('PHPReport');
         $this->load->library('table');
+        $this->load->library('buyback');
         $this->load->helper(array('form', 'url', 'file'));
         $this->load->dbutil();
     }
@@ -732,11 +735,34 @@ class Around_scheduler extends CI_Controller {
             $table = $this->table->generate($data);
             $template = $this->booking_model->get_booking_email_template("bank_details_not_verified_notification");
             $body = vsprintf($template[0], $table);
-            $to = $template[1];;
+            $to = $template[1];
             $from = $template[2];
             $subject = $template[4];
                 
             $this->notify->sendEmail($from, $to, '', '', $subject, $body, "");
+        }
+    }
+    /**
+     * @desc: This function is used to call to assign tat breach. It called from Cron
+     */
+    function assign_tat_breach_order(){
+        $post['length'] = -1;
+        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
+            'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'));
+        $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
+        $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['column_search'] = array();
+        $select = "bb_order_details.id, bb_order_details.partner_order_id";
+        $list = $this->bb_model->get_bb_order_list($post, $select);
+        
+        foreach($list as $value){
+            log_message("info", __METHOD__." TAT BREACH ORDER ID =>".$value->partner_order_id);
+            $where['partner_order_id'] = $value->partner_order_id;
+            $this->bb_model->update_bb_order_details($where, array('current_status' =>_247AROUND_BB_TO_BE_CLAIMED, 
+                'internal_status' => _247AROUND_BB_ORDER_TAT_BREACH));
+            $this->buyback->insert_bb_state_change($value->partner_order_id, _247AROUND_BB_TO_BE_CLAIMED, _247AROUND_BB_ORDER_TAT_BREACH, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
+            
+            $this->cp_model->update_bb_cp_order_action($where, array('current_status' => _247AROUND_BB_NOT_DELIVERED, 'internal_status' =>_247AROUND_BB_247APPROVED_STATUS));
         }
     }
 }

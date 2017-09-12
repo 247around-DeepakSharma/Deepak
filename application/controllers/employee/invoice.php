@@ -264,9 +264,9 @@ class Invoice extends CI_Controller {
             $tds = array();
 
 
-            $bank_payment_history = $this->invoices_model->get_payment_history('*',array('bank_transaction_id' => $id));
+            $bank_payment_history = $this->invoices_model->get_payment_history('credit_debit_amount,credit_debit, invoice_id, tds_amount',array('bank_transaction_id' => $id));
             foreach ($bank_payment_history as $value) {
-                if ($value == "Debit") {
+                if ($value['credit_debit'] == "Debit") {
                     $amount = -$value['credit_debit_amount'];
                 } else {
                     $amount = $value['credit_debit_amount'];
@@ -1065,7 +1065,7 @@ class Invoice extends CI_Controller {
                     'upcountry_rate' => $upcountry_rate,
                     'upcountry_price' => $invoice_data['meta']['total_upcountry_price'],
                     'upcountry_distance' => $upcountry_distance,
-                    'penalty_amount' => $invoice_data['meta']['total_penalty_amount'],
+                    'penalty_amount' => abs($invoice_data['meta']['total_penalty_amount']),
                     'penalty_bookings_count' => array_sum(array_column($invoice_data['d_penalty'], 'penalty_times')),
                     'credit_penalty_amount' => $invoice_data['meta']['cr_total_penalty_amount'],
                     'credit_penalty_bookings_count' => array_sum(array_column($invoice_data['c_penalty'], 'penalty_times')),
@@ -1094,7 +1094,7 @@ class Invoice extends CI_Controller {
                 
                 if (!empty($invoice_data['upcountry'])) {
                     foreach ($invoice_data['upcountry'] as $up_booking_details) {
-                        $up_b = explode(",", $up_booking_details['booking_id']);
+                        $up_b = explode(",", $up_booking_details['booking']);
                         for($i=0; $i < count($up_b); $i++){
 
                             $this->booking_model->update_booking(trim($up_b[$i]), array('upcountry_vendor_invoice_id' => $invoice_data['meta']['invoice_id']));
@@ -1928,7 +1928,7 @@ class Invoice extends CI_Controller {
                 'from_date' => date("Y-m-d", strtotime($meta['sd'])),
                 'to_date' => date("Y-m-d", strtotime($meta['ed'])),
                 'num_bookings' =>  $meta['total_qty'],
-                'total_service_charge' => $meta['sub_total_amount'],
+                'parts_cost' => $meta['sub_total_amount'],
                 'total_amount_collected' => $meta['sub_total_amount'],
                 'around_royalty' => $meta['sub_total_amount'],
                 'invoice_date' => date('Y-m-d'),
@@ -2776,6 +2776,9 @@ class Invoice extends CI_Controller {
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
                 $data['type'] = BUYBACK_VOUCHER;
                 $basic_price = $amount;
+                
+                $data['parts_cost'] = $basic_price;
+                
             } else {
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
                 if($tds > 0){
@@ -2796,6 +2799,8 @@ class Invoice extends CI_Controller {
                 }
                 $amount = $amount - $tds;
                 $basic_price = $amount - $gst_amount; 
+                
+                $data['total_service_charge'] = $basic_price;
             }
 
             $data['type_code'] = "B";
@@ -2805,12 +2810,11 @@ class Invoice extends CI_Controller {
             $data['from_date'] = $date;
             $data['to_date'] = $date;
             $data['due_date'] = $date;
-            $data['total_service_charge'] = $basic_price;
+            
             $data['total_amount_collected'] = $amount;
             $data['around_royalty'] = 0;
             $data['amount_collected_paid'] = -$amount;
             $data['agent_id'] = $this->session->userdata('id');
-            $data['agent_id'] = $this->input->post("description");
             $data['create_date'] = date("Y-m-d H:i:s");
 
             $this->invoices_model->action_partner_invoice($data);
@@ -3210,8 +3214,8 @@ class Invoice extends CI_Controller {
     
     function get_invoice_payment_history(){
         $invoice_id = trim($this->input->post('invoice_id'));
-        $select = 'payment_history.*,employee.full_name';
-        $data['payment_history'] = $this->invoices_model->get_payment_history($select,array('invoice_id'=>$invoice_id),true);
+        $select = 'payment_history.credit_debit, payment_history.credit_debit_amount,employee.full_name, payment_history.tds_amount, bank_transactions.transaction_date';
+        $data['payment_history'] = $this->invoices_model->get_payment_history($select,array('payment_history.invoice_id'=>$invoice_id),true);
         echo $this->load->view('employee/show_invoice_payment_history_list',$data);
     }
 
