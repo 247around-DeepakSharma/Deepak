@@ -514,7 +514,7 @@ class invoices_model extends CI_Model {
     function get_invoices_details($where, $select = "*", $group_by = false) {
 
         $this->db->select($select, false);
-        $this->db->where($where, false);
+        $this->db->where($where);
         if($group_by){
             $this->db->group_by($group_by);
         }
@@ -897,7 +897,7 @@ class invoices_model extends CI_Model {
             $result['d_penalty'] = $result['c_penalty'] = array();
             // Calculate Upcountry booking details
             $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
-            $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "distinct", $is_regenerate);
+            $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
             $courier = $this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
             $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date_tmp, "distinct" );
             if (!empty($upcountry_data)) {

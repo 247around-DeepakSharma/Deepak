@@ -1032,7 +1032,7 @@ class Invoice extends CI_Controller {
                 $this->send_invoice_sms("FOC", $invoice_data['meta']['sd'], $invoice_data['meta']['t_vp_w_tds'], $invoice_data['meta']['owner_phone_1'], $vendor_id);
                
                 //Save this invoice info in table
-                $invoice_details = array(
+                $invoice_details_insert = array(
                     'invoice_id' => $invoice_data['meta']['invoice_id'],
                     'type' => 'FOC',
                     'type_code' => 'B',
@@ -1086,7 +1086,7 @@ class Invoice extends CI_Controller {
                 );
 
                 // insert invoice details into vendor partner invoices table
-                $this->invoices_model->action_partner_invoice($invoice_details);
+                $this->invoices_model->action_partner_invoice($invoice_details_insert);
                 //Update Penalty Amount
                 foreach ($invoice_data['d_penalty'] as $value) {
                     $this->penalty_model->update_penalty_any(array('booking_id' => $value['booking_id']), array('foc_invoice_id' => $invoice_data['meta']['invoice_id']));
@@ -1121,7 +1121,7 @@ class Invoice extends CI_Controller {
         foreach ($files as $file_name) {
             exec("rm -rf " . escapeshellarg($file_name));
         }
-            exit();
+           
         return true;
 
     }
@@ -1652,12 +1652,6 @@ class Invoice extends CI_Controller {
             echo "Data Not found".PHP_EOL;
             return FALSE;
         }
-
-            
-            exit();
-         
-
-         
     }
 
     /**
