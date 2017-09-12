@@ -745,7 +745,7 @@ class Around_scheduler extends CI_Controller {
     /**
      * @desc: This function is used to call to assign tat breach. It called from Cron
      */
-    function assign_tat_brecch_order(){
+    function assign_tat_breach_order(){
         $post['length'] = -1;
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
             'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'));
