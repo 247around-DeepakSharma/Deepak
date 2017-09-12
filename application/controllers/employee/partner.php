@@ -34,7 +34,8 @@ class Partner extends CI_Controller {
 
         $this->load->library('table');
 
-        $this->load->helper(array('form', 'url'));
+        $this->load->helper(array('form', 'url','file'));
+        $this->load->dbutil();
     }
 
     /**
@@ -3171,6 +3172,108 @@ class Partner extends CI_Controller {
             $data = $this->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
         }
         return $data;
+    }
+    
+    
+    /**
+     * @Desc: This function is used to show booking_summary with escalation percentage on partner homepage
+     * @params: $partner_id string
+     * @return: void()
+     * 
+     */
+    function get_partner_booking_summary_data($partner_id){
+        
+        //get bookings count by month 
+        $select = "DATE_FORMAT(closed_date, '%b') AS month, "
+                . "SUM(IF(booking_details.current_status ='Completed' , 1, 0)) AS completed,"
+                . "SUM(IF(booking_details.current_status ='Cancelled', 1, 0)) AS cancelled, "
+                . "SUM(IF(booking_details.current_status ='Completed' AND booking_details.is_upcountry = '1' AND booking_details.upcountry_partner_approved = '1' AND booking_details.upcountry_paid_by_customer = '0' , 1, 0)) AS upcountry_completed ,"
+                . "SUM(IF(booking_details.current_status ='Cancelled' AND booking_details.is_upcountry = '1' AND booking_details.upcountry_partner_approved = '1' AND booking_details.upcountry_paid_by_customer = '0', 1, 0)) AS upcountry_cancelled";
+        $where = array('partner_id' => $partner_id, "booking_details.closed_date >= (DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 2 MONTH)" => NULL);
+        $order_by = "YEAR(booking_details.closed_date),MONTH(booking_details.closed_date)";
+        $group_by = "month";
+        $data['bookings_count'] =  $this->booking_model->get_bookings_count_by_any($select,$where,$order_by,$group_by);
+        
+        
+        //get escalation percentage
+        $data['escalation_percentage'] = $this->partner_model->get_booking_escalation_percantage($partner_id);
+        $this->load->view('partner/show_partner_booking_summary',$data);
+        
+    }
+    
+    /**
+     * @Desc: This function is used to download Active vendors list
+     *      in Excel
+     * params: void
+     * @return: void
+     * 
+     */
+    function download_sf_list_excel(){
+       
+        $where = array('active' => '1','on_off' => '1');
+        $select = "district,state,pincode,appliances,non_working_days";
+        $vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
+
+        $template = 'Consolidated_SF_List_Template.xlsx';
+        //set absolute path to directory with template files
+        $templateDir = __DIR__ . "/../excel-templates/";
+        //set config for report
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        //load template
+        $R = new PHPReport($config);
+
+        $R->load(array(
+
+                 'id' => 'vendor',
+                'repeat' => TRUE,
+                'data' => $vendor
+            ));
+
+        $output_file_dir = TMP_FOLDER;
+        $output_file = "SF_List_" . date('y-m-d');
+        $output_file_name = $output_file . ".xlsx";
+        $output_file_excel = $output_file_dir . $output_file_name;
+        $R->render('excel', $output_file_excel);
+        
+        //Downloading File
+        if(file_exists($output_file_excel)){
+
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+            readfile($output_file_excel);
+            exit;
+        }
+
+    }
+    
+    function get_serviceability_by_pincode() {
+
+        $data = $this->partner_model->get_serviceability_by_pincode();
+        
+        $newCSVFileName = "serviceability_pincode_list_" . date('j-M-Y') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($data, $delimiter, $newline);
+        write_file($csv, $new_report);
+        
+        //Downloading Generated CSV
+        if (file_exists($csv)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($csv));
+            readfile($csv);
+            exec("rm -rf " . escapeshellarg($csv));
+            exit;
+        }
     }
 
 }

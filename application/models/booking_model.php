@@ -2110,5 +2110,29 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
+    
+    
+    /**
+     * @Desc: This function is used get bookings data from booking _details by using any condition
+     * @params: $select string
+     * @params: $where string
+     * @params: $order_by string
+     * @params: $group_by string
+     * @return: $query array()
+     * 
+     */
+    function get_bookings_count_by_any($select, $where, $order_by = "" , $group_by = ""){
+        $this->db->select($select,false);
+        $this->db->where($where,false);
+        if(!empty($group_by)){
+            $this->db->group_by($group_by);
+        }
+        if(!empty($order_by)){
+            $this->db->order_by($order_by,false);
+        }
+        $this->db->from('booking_details');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 
 }

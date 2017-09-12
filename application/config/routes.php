@@ -136,6 +136,8 @@ $route['partner/get_waiting_for_approval_upcountry_charges'] = 'employee/partner
 $route['partner/upcountry_charges_approval/(:any)/(:any)'] = 'employee/partner/upcountry_charges_approval/$1/$2';
 $route['partner/reject_upcountry_charges/(:any)/(:any)'] = 'employee/partner/reject_upcountry_charges/$1/$2';
 $route['partner/download_partner_summary/(:any)'] = 'BookingSummary/send_leads_summary_mail_to_partners/$1';
+$route['partner/download_sf_list_excel'] = 'employee/partner/download_sf_list_excel';
+$route['partner/serviceability_list'] = 'employee/partner/get_serviceability_by_pincode';
 
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
 $route['partner/invoice'] = 'employee/partner/inactive_partner_default_page';
