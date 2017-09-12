@@ -718,13 +718,13 @@ class vendor_model extends CI_Model {
      * @param: Array
      * @return : Array
      */
-    function getVendorDetails($select, $where ="") {
+    function getVendorDetails($select, $where ="" , $order_by='name') {
         
         $this->db->select($select,FALSE);
         if(!empty($where)){
            $this->db->where($where);
         }
-        $this->db->order_by("name");     
+        $this->db->order_by($order_by);
         $sql = $this->db->get('service_centres');
         return $sql->result_array();
     }
