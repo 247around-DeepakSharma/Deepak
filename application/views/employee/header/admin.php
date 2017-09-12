@@ -330,6 +330,10 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Check</strong></a>
                         </li>
+                        <li class="divider"></li>
+                         <li>
+                            <a href="<?php echo base_url() ?>employee/invoiceDashboard/get_invoice_summary_for_partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Summary</strong></a>
+                        </li>
                             </ul>
                         </li>
                         <li class="divider"></li>
