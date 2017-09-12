@@ -1065,7 +1065,7 @@ class Invoice extends CI_Controller {
                     'upcountry_rate' => $upcountry_rate,
                     'upcountry_price' => $invoice_data['meta']['total_upcountry_price'],
                     'upcountry_distance' => $upcountry_distance,
-                    'penalty_amount' => $invoice_data['meta']['total_penalty_amount'],
+                    'penalty_amount' => abs($invoice_data['meta']['total_penalty_amount']),
                     'penalty_bookings_count' => array_sum(array_column($invoice_data['d_penalty'], 'penalty_times')),
                     'credit_penalty_amount' => $invoice_data['meta']['cr_total_penalty_amount'],
                     'credit_penalty_bookings_count' => array_sum(array_column($invoice_data['c_penalty'], 'penalty_times')),
@@ -1094,7 +1094,7 @@ class Invoice extends CI_Controller {
                 
                 if (!empty($invoice_data['upcountry'])) {
                     foreach ($invoice_data['upcountry'] as $up_booking_details) {
-                        $up_b = explode(",", $up_booking_details['booking_id']);
+                        $up_b = explode(",", $up_booking_details['booking']);
                         for($i=0; $i < count($up_b); $i++){
 
                             $this->booking_model->update_booking(trim($up_b[$i]), array('upcountry_vendor_invoice_id' => $invoice_data['meta']['invoice_id']));
