@@ -514,7 +514,7 @@ class invoices_model extends CI_Model {
     function get_invoices_details($where, $select = "*", $group_by = false) {
 
         $this->db->select($select, false);
-        $this->db->where($where,null, false);
+        $this->db->where($where);
         if($group_by){
             $this->db->group_by($group_by);
         }
