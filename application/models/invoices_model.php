@@ -644,7 +644,7 @@ class invoices_model extends CI_Model {
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
                    
                 } else {
-                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter State.xlsx";
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                     $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = 18;
                     $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),0);
                     $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
@@ -740,7 +740,7 @@ class invoices_model extends CI_Model {
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 14;
                 } else {
-                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter State.xlsx";
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                     $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = 28;
                     $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.28), 0);
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
@@ -1208,7 +1208,7 @@ class invoices_model extends CI_Model {
                 
 
             } else {
-                $meta['invoice_template'] = "247around_Tax_Invoice_Inter State.xlsx";
+                $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                 $commission_charge[0]['igst_tax_amount'] = $meta['igst_total_tax_amount'] = round($tax_charge,0);
                 $commission_charge[0]['igst_rate'] = $meta['igst_tax_rate'] = 18;
            
