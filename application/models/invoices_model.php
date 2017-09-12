@@ -1285,8 +1285,8 @@ class invoices_model extends CI_Model {
                 $is_foc_null = " AND cp_invoice_id IS NULL ";
         }
         $sql = "SELECT bb_unit_details.id AS unit_id, order_date, services, bb_order_details.partner_order_id,
-                city, partner_tracking_id, order_key,owner_phone_1, CASE WHEN(current_status = 'Delivered') 
-                THEN (delivery_date) WHEN(current_status = 'Completed') THEN (acknowledge_date) END AS delivery_date, order_date,gst_no,
+                city, partner_tracking_id, order_key,owner_phone_1, CASE WHEN(acknowledge_date IS NOT NULL) 
+                THEN (acknowledge_date) ELSE (delivery_date) END AS delivery_date, order_date,gst_no,
                 sc.company_name, sc.address as company_address, sc.state,state_code,
                 sc.owner_email, sc.primary_contact_email, sc.owner_phone_1,
                 CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
@@ -1294,9 +1294,9 @@ class invoices_model extends CI_Model {
                 ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge 
                 FROM `bb_order_details`, bb_unit_details, services, service_centres as sc, state_code WHERE 
                 `assigned_cp_id` = '$vendor_id' 
-                AND `current_status` IN ('Delivered', 'Completed' ) 
-                AND CASE WHEN (current_status = 'Delivered') THEN (`delivery_date` >= '$from_date' AND `delivery_date`< '$to_date' ) 
-                WHEN (current_status = 'Completed') THEN (acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date') END
+                AND bb_unit_details.`order_status` = 'Delivered' 
+                AND CASE WHEN (acknowledge_date IS NOT NULL) THEN (acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date' ) 
+                ELSE (`delivery_date` >= '$from_date' AND `delivery_date`< '$to_date') END
                 AND sc.id = assigned_cp_id
                 AND sc.state = state_code.state
                 AND bb_order_details.partner_order_id =  bb_unit_details.partner_order_id
