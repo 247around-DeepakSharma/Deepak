@@ -1290,7 +1290,7 @@ class invoices_model extends CI_Model {
                 sc.company_name, sc.address as company_address, sc.state,state_code,
                 sc.owner_email, sc.primary_contact_email, sc.owner_phone_1,
                 CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
-                THEN (bb_unit_details.cp_invoice_id) 
+                THEN (bb_unit_details.cp_claimed_price) 
                 ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge 
                 FROM `bb_order_details`, bb_unit_details, services, service_centres as sc, state_code WHERE 
                 `assigned_cp_id` = '$vendor_id' 
