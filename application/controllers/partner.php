@@ -1367,7 +1367,7 @@ class Partner extends CI_Controller {
                     $appliance_details['purchase_month'] = $unit_details['purchase_month'] = $requestData['purchase_month'];
                     $appliance_details['purchase_year'] = $unit_details['purchase_year'] = $requestData['purchase_year'];
 
-                    $booking['quantity'] = '1';
+                    $booking['quantity'] = $requestData['appliance_unit'];
                     $appliance_details['serial_number'] = $unit_details['partner_serial_number'] = $requestData['serial_number'];
 
                     //$booking['potential_value'] = '';
