@@ -367,7 +367,7 @@ class Upcountry_model extends CI_Model {
     /**
      * @desc: This is used to return upcountry booking which is paid by customer. 
      * For the Cash Invoice, We do not group booking on the basis of booking date and Pincode
-     * 
+     * Do not remove Additional, Parts cost, price tags
      * @param String $vendor_id
      * @param String $from_date
      * @param String $to_date
@@ -376,8 +376,14 @@ class Upcountry_model extends CI_Model {
     function upcountry_cash_invoice($vendor_id, $from_date, $to_date){
         $sql = "SELECT DISTINCT ( bd.booking_id) As booking_id, "
                 . " upcountry_distance, bd.city, services, "
-                . " assigned_vendor_id, "
-                . " round((customer_paid_upcountry_charges * 0.30 ),2) AS service_charges "
+                . " '0.00' AS additional_charges, "
+                . " '0.00' AS parts_cost, "
+                . " 'Upcountry Services' AS price_tags, "
+                . " assigned_vendor_id, customer_paid_upcountry_charges AS amount_paid, "
+                . " '' AS appliance_category, "
+                . " '' AS appliance_capacity, "
+                . " closed_date, '' AS rating_stars, "
+                . " round((customer_paid_upcountry_charges * 0.30 ),2) AS service_charges, '' AS around_net_payable "
                 . " FROM `booking_details` AS bd, service_centres as sc, services "
                 . " WHERE "
                 . " bd.assigned_vendor_id = '$vendor_id' "
