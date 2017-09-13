@@ -147,6 +147,7 @@
                                                         <th>Service</th>
                                                         <th>Physical Condition</th>
                                                         <th>Working Condition</th>
+                                                        <th>Order Status</th>
                                                         <th>Partner Charge</th>
                                                         <th>Collection Partner Charge</th>
                                                         <th>Around Charge</th>
@@ -161,6 +162,7 @@
                                                         <td>{{x.service_name}}</td>
                                                         <td>{{x.physical_condition }}</td>
                                                         <td>{{x.working_condition }}</td>
+                                                        <td>{{x.order_status }}</td>
                                                         <td>{{x.partner_charge}}</td>
                                                         <td>{{x.cp_tax}}</td>
                                                         <td>{{x.around_charges}}</td>

@@ -1801,13 +1801,50 @@ class Service_centers extends CI_Controller {
             redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
         }else {
             
-            $response = $this->buyback->process_bb_order_report_issue_update($this->input->post());
-            if ($response['status'] === 'success') {
-                $this->session->set_userdata('success', $response['msg']);
-                redirect(base_url().'service_center/bb_oder_details');
-            } else if ($response['status'] === 'error') {
-                $this->session->set_userdata('error', $response['msg']);
+            $order_id = $this->input->post('order_id');
+            $remarks = $this->input->post('remarks');
+            $working_condition = $this->input->post('order_working_condition');
+            $category = $this->input->post('category');
+            $cp_id = $this->input->post('cp_id');
+            $cp_claimed_price = $this->input->post('claimed_price');
+            $order_brand = $this->input->post('order_brand');
+            $order_key = $this->input->post('partner_order_key');
+            $physical_condition = $this->input->post('order_physical_condition');
+            
+            $upload_images = $this->buyback->process_bb_report_issue_upload_image($this->input->post());
+            
+            if (isset($upload_images['status']) && $upload_images['status'] == 'error') {
+                $this->session->set_userdata('error', $upload_images['msg']);
                 redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
+            } else {
+                $physical_condition = isset($physical_condition) ? $physical_condition : '';
+                if (!empty($physical_condition)) {
+                    $physical_condition = $physical_condition;
+                } else {
+                    $physical_condition = '';
+                }
+
+                $data = array(
+                    'category' => $category,
+                    'physical_condition' => $physical_condition,
+                    'working_condition' => $working_condition,
+                    'remarks' => $remarks,
+                    'brand' => $order_brand,
+                    'current_status' => _247AROUND_BB_IN_PROCESS,
+                    'internal_status' => _247AROUND_BB_Damaged_STATUS,
+                    'order_key' => $order_key,
+                    'cp_claimed_price' => $cp_claimed_price,
+                    'acknowledge_date' => date('Y-m-d H:i:s'));
+
+                $where = array('partner_order_id' => $order_id,'cp_id' => $cp_id);
+                //update bb_cp_action_table
+                $update_id = $this->cp_model->update_bb_cp_order_action($where, $data);
+                if ($update_id) {
+                    log_message("info", __METHOD__ . "Cp Action table updated for order id: " . $order_id);
+                    $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('id'), _247AROUND, Null);
+                    $this->session->set_userdata('success', 'Order has been updated successfully');
+                    redirect(base_url().'service_center/bb_oder_details');
+                }
             }
         }
         
@@ -1884,37 +1921,6 @@ class Service_centers extends CI_Controller {
         }
         
     }
-
-    /**
-     * @desc Used to process the  buyback update order form
-     * @param void
-     * @return void
-     */
-    function process_received_bb_order_update(){ 
-        $this->check_BB_UserSession();
-         //check for validation
-        
-        //check for validation
-        $this->form_validation->set_rules('order_id', 'Order Id', 'trim|required');
-        $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
-        $this->form_validation->set_rules('order_working_condition', 'Order Working Condition', 'trim|required');
-        
-        if($this->form_validation->run() === false){
-            $msg = "Please fill all required field";
-            $this->session->set_userdata('error',$msg);
-            redirect(base_url().'service_center/update_received_bb_order/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
-        }else {
-            $data = $this->input->post();
-            $response = $this->buyback->process_update_received_bb_order_details($data);
-            if($response['status'] === 'success'){
-                $this->session->set_userdata('success',$response['msg']);
-                redirect(base_url().'service_center/bb_oder_details');
-            }else if($response['status'] === 'error'){
-                $this->session->set_userdata('error',$response['msg']);
-                redirect(base_url().'service_center/update_received_bb_order/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
-            }
-        }
-    }
     
     
     /**
@@ -1933,13 +1939,23 @@ class Service_centers extends CI_Controller {
         $data['city'] = urldecode($city);
         $data['cp_id'] = $this->session->userdata('service_center_id');
         
-        $response = $this->buyback->process_update_not_received_bb_order_details($data);
+        $update_data = array('current_status' => _247AROUND_BB_IN_PROCESS,
+                             'internal_status' => _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS,
+                             'acknowledge_date' => date('Y-m-d H:i:s')
+                            );
         
-        if ($response['status'] === 'success') {
-            $this->session->set_userdata('success', $response['msg']);
+        $update_where = array('partner_order_id' => $data['order_id'], 'cp_id' => $data['cp_id']);
+        
+        //update cp action table
+        $update_id = $this->cp_model->update_bb_cp_order_action($update_where,$update_data);
+        if($update_id){
+            $this->buyback->insert_bb_state_change($data['order_id'], _247AROUND_BB_IN_PROCESS, '', $data['cp_id'], Null, $data['cp_id']);
+            
+            $this->session->set_userdata('success', 'Order has been updated successfully');
             redirect(base_url() . 'service_center/bb_oder_details');
-        } else if ($response['status'] === 'error') {
-            $this->session->set_userdata('error', $response['msg']);
+            
+        }else{
+            $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
             redirect(base_url() . 'service_center/bb_oder_details');
         }
     }
@@ -2164,13 +2180,14 @@ class Service_centers extends CI_Controller {
         //log_message("info",__METHOD__);
         $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
-            'bb_cp_order_action.current_status' => 'Pending', 'bb_cp_order_action.internal_status' => 'Delivered');
+            'bb_cp_order_action.current_status' => 'Pending', 'bb_order_details.internal_status' => 'Delivered','bb_order_details.current_status' => 'Delivered');
         $post['where_in'] = array();
         $post['column_order'] = array( NULL,'bb_order_details.partner_tracking_id','services','category',
               'cp_basic_charge','category','delivery_date',NULL,NULL);
         $post['column_search'] = array('bb_order_details.partner_tracking_id', 'services', 'city',
             'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
+        log_message('info',$this->db->last_query());
         $data = array();
         $no = $post['start'];
         foreach ($list as $order_list) {
@@ -2197,7 +2214,8 @@ class Service_centers extends CI_Controller {
         $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending');
-        $post['where_in'] = array('bb_cp_order_action.internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+        $post['where_in'] = array('bb_order_details.internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted'),
+            'bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $post['column_order'] = array( NULL,'bb_order_details.partner_tracking_id','services', 'category',
               'order_date','cp_basic_charge',NULL,NULL);
         $post['column_search'] = array('bb_order_details.partner_tracking_id', 'services', 'bb_unit_details.category','order_date', 'cp_basic_charge');

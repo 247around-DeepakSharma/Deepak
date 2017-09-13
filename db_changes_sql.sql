@@ -3154,3 +3154,6 @@ ALTER TABLE `spare_parts_details` ADD `approved_defective_parts_by_admin` INT(1)
 -- sachin 7 sep
 
 ALTER TABLE `bb_order_details` ADD `acknowledge_date` DATETIME NULL DEFAULT NULL AFTER `delivery_date`;
+
+-- sachin 12 sep
+ALTER TABLE `bb_cp_order_action` ADD `acknowledge_date` DATETIME NULL DEFAULT NULL AFTER `admin_remarks`;
