@@ -746,7 +746,7 @@ class Buyback_process extends CI_Controller {
             $cp_claimed_price = explode(',', $this->input->post('cp_claimed_price'));
             $remarks = $this->input->post('remarks');
             $order_details_data = array();
-            $update_cp_claimed_price = '';
+            $update_bb_unit_data = array();
             if ($type === 'approved') {
                 foreach ($order_ids as $key => $value) {
                     switch ($status[$key]) {
@@ -755,11 +755,14 @@ class Buyback_process extends CI_Controller {
                             //update buyback order details
                             $order_details_data['current_status'] = _247AROUND_BB_TO_BE_CLAIMED;
                             $order_details_data['internal_status'] = _247AROUND_BB_NOT_DELIVERED;
+                            $order_details_data['acknowledge_date'] = date('Y-m-d H:i:s');
 
                             //update buyback cp order action
                             $bb_cp_order_details_data['current_status'] = _247AROUND_BB_NOT_DELIVERED;
                             $bb_cp_order_details_data['internal_status'] = _247AROUND_BB_247APPROVED_STATUS;
                             $bb_cp_order_details_data['closed_date'] = date('Y-m-d H:i:s');
+                            
+                            $update_bb_unit_data['order_status'] = _247AROUND_BB_NOT_DELIVERED;
 
                             break;
 
@@ -768,6 +771,7 @@ class Buyback_process extends CI_Controller {
                             //update buyback order details
                             $order_details_data['current_status'] = _247AROUND_BB_TO_BE_CLAIMED;
                             $order_details_data['internal_status'] = _247AROUND_BB_ORDER_MISMATCH;
+                            $order_details_data['acknowledge_date'] = date('Y-m-d H:i:s');
 
                             //update buyback cp order action
                             $bb_cp_order_details_data['current_status'] = _247AROUND_BB_Damaged_STATUS;
@@ -775,19 +779,21 @@ class Buyback_process extends CI_Controller {
                             $bb_cp_order_details_data['closed_date'] = date('Y-m-d H:i:s');
 
                             //insert cp_claimed_price in bb_unit_details
-                            $update_cp_claimed_price = $cp_claimed_price[$key];
+                            $update_bb_unit_data['cp_claimed_price'] = $cp_claimed_price[$key];
+                            $update_bb_unit_data['order_status'] = _247AROUND_BB_DELIVERED;
+                            
 
                             break;
                     }
 
-                    $flag = $this->process_approve_reject_bb_order($order_details_data, $bb_cp_order_details_data, $value, $update_cp_claimed_price);
+                    $flag = $this->process_approve_reject_bb_order($order_details_data, $bb_cp_order_details_data, $value, $update_bb_unit_data);
                 }
             } else if ($type === 'rejected') {
                 $bb_cp_order_details_data['current_status'] = _247AROUND_PENDING;
                 $bb_cp_order_details_data['internal_status'] = _247AROUND_BB_DELIVERED;
                 $bb_cp_order_details_data['admin_remarks'] = $remarks;
                 
-                $flag = $this->process_approve_reject_bb_order($order_details_data, $bb_cp_order_details_data, $order_ids[0], $update_cp_claimed_price);
+                $flag = $this->process_approve_reject_bb_order($order_details_data, $bb_cp_order_details_data, $order_ids[0], $update_bb_unit_data);
             }
 
             echo $flag;
@@ -796,7 +802,7 @@ class Buyback_process extends CI_Controller {
         }
     }
 
-    function process_approve_reject_bb_order($order_details_data,$bb_cp_order_details_data,$partner_order_id,$update_cp_claimed_price) {
+    function process_approve_reject_bb_order($order_details_data,$bb_cp_order_details_data,$partner_order_id,$update_bb_unit_data) {
         
         $flag = FALSE;
         if(!empty($order_details_data)){
@@ -815,8 +821,8 @@ class Buyback_process extends CI_Controller {
 
             if ($update_cp_unit_details) {
                 
-                if(!empty($update_cp_claimed_price)){
-                    $this->bb_model->update_bb_unit_details(array('partner_order_id' => $partner_order_id),array('cp_claimed_price'=>$update_cp_claimed_price));
+                if(!empty($update_bb_unit_data)){
+                    $this->bb_model->update_bb_unit_details(array('partner_order_id' => $partner_order_id),$update_bb_unit_data);
                 }
                 
                 $this->buyback->insert_bb_state_change($partner_order_id, $new_state, $remarks, $this->session->userdata('id'), _247AROUND, NULL);
@@ -896,7 +902,7 @@ class Buyback_process extends CI_Controller {
                 round(bb_unit.partner_basic_charge + bb_unit.partner_tax_charge) as partner_charge,
                 round(bb_unit.cp_basic_charge + bb_unit.cp_tax_charge) as cp_tax, 
                 round(bb_unit.around_commision_basic_charge + bb_unit.around_commision_tax) as around_charges,
-                bb_unit.partner_sweetner_charges,s.services as service_name,bb_unit.cp_claimed_price';
+                bb_unit.partner_sweetner_charges,s.services as service_name,bb_unit.cp_claimed_price,bb_unit.order_status';
             $data = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id' => $partner_order_id), $select);
             print_r(json_encode($data));
         }
@@ -1056,12 +1062,35 @@ class Buyback_process extends CI_Controller {
         $data['service_id'] = urldecode($service_id);
         $data['city'] = urldecode($city);
         $data['cp_id'] = urldecode($cp_id);
-        $response = $this->buyback->process_update_not_received_bb_order_details($data);
-        if($response['status'] === 'success'){
-            $this->session->set_userdata('success',$response['msg']);
-            redirect(base_url().'buyback/buyback_process/view_bb_order_details');
-        }else if($response['status'] === 'error'){
-            $this->session->set_userdata('error',$response['msg']);
+        
+        $update_data = array('current_status' => _247AROUND_BB_NOT_DELIVERED,
+                             'internal_status' => _247AROUND_BB_247APPROVED_STATUS,
+                             'acknowledge_date' => date('Y-m-d H:i:s')
+                            );
+        
+        $update_where = array('partner_order_id' => $data['order_id'], 'cp_id' => $data['cp_id']);
+        
+        //update cp action table
+        $update_id = $this->cp_model->update_bb_cp_order_action($update_where,$update_data);
+        
+        if($update_id){
+            
+            //update order_details
+            $where = array('partner_order_id' => $data['order_id']);
+            $order_details_update_data = array('current_status' => _247AROUND_BB_TO_BE_CLAIMED, 'internal_status' => _247AROUND_BB_NOT_DELIVERED,'acknowledge_date' => date('Y-m-d H:i:s'));
+            $order_details_update_id = $this->bb_model->update_bb_order_details($where, $order_details_update_data);
+            if(!empty($order_details_update_id)){
+                $this->bb_model->update_bb_unit_details(array('partner_order_id' => $data['order_id']),array('order_status' => _247AROUND_BB_NOT_DELIVERED));
+                $this->buyback->insert_bb_state_change($data['order_id'], _247AROUND_BB_IN_PROCESS, '', $this->session->userdata('id'), _247AROUND, NULL);
+                $this->session->set_userdata('success', 'Order has been updated successfully');
+                redirect(base_url().'buyback/buyback_process/view_bb_order_details');
+            }else{
+                $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
+                redirect(base_url().'buyback/buyback_process/view_bb_order_details');
+            }
+            
+        }else{
+            $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
             redirect(base_url().'buyback/buyback_process/view_bb_order_details');
         }
     }
@@ -1205,14 +1234,76 @@ class Buyback_process extends CI_Controller {
             $this->session->set_userdata('error',$msg);
             redirect(base_url().'buyback/buyback_process/update_bb_report_issue_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
         } else {
-
-            $response = $this->buyback->process_bb_order_report_issue_update($this->input->post());
-            if ($response['status'] === 'success') {
-                $this->session->set_userdata('success', $response['msg']);
-                redirect(base_url().'buyback/buyback_process/view_bb_order_details');
-            } else if ($response['status'] === 'error') {
-                $this->session->set_userdata('error', $response['msg']);
+            
+            $order_id = $this->input->post('order_id');
+            $remarks = $this->input->post('remarks');
+            $working_condition = $this->input->post('order_working_condition');
+            $category = $this->input->post('category');
+            $cp_id = $this->input->post('cp_id');
+            $cp_claimed_price = $this->input->post('claimed_price');
+            $order_brand = $this->input->post('order_brand');
+            $order_key = $this->input->post('partner_order_key');
+            $physical_condition = $this->input->post('order_physical_condition');
+            
+            $upload_images = $this->buyback->process_bb_report_issue_upload_image($this->input->post());
+            if (isset($upload_images['status']) && $upload_images['status'] == 'error') {
+                $this->session->set_userdata('error', $upload_images['msg']);
                 redirect(base_url().'buyback/buyback_process/update_bb_report_issue_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
+            } else {
+                
+                $physical_condition = isset($physical_condition) ? $physical_condition : '';
+                if (!empty($physical_condition)) {
+                    $physical_condition = $physical_condition;
+                } else {
+                    $physical_condition = '';
+                }
+
+                $data = array(
+                    'category' => $category,
+                    'physical_condition' => $physical_condition,
+                    'working_condition' => $working_condition,
+                    'remarks' => $remarks,
+                    'brand' => $order_brand,
+                    'current_status' => _247AROUND_BB_NOT_DELIVERED,
+                    'internal_status' => _247AROUND_BB_247APPROVED_STATUS,
+                    'order_key' => $order_key,
+                    'cp_claimed_price' => $cp_claimed_price,
+                    'acknowledge_date' => date('Y-m-d H:i:s'),
+                    'closed_date' => date('Y-m-d H:i:s'));
+
+                $where = array('partner_order_id' => $order_id,'cp_id' => $cp_id);
+                //update bb_cp_action_table
+                $update_id = $this->cp_model->update_bb_cp_order_action($where, $data);
+                if ($update_id) {
+                    log_message("info", __METHOD__ . "Cp Action table updated for order id: " . $order_id);
+                    
+                    $order_details_where = array('partner_order_id' => $order_id,'assigned_cp_id' => $cp_id);
+                    
+                    $order_details_data = array('current_status' => _247AROUND_BB_TO_BE_CLAIMED,
+                        'internal_status' => _247AROUND_BB_ORDER_MISMATCH,
+                        'acknowledge_date' => date('Y-m-d H:i:s')
+                    );
+
+                    //update order details table
+                    $order_details_update_id = $this->bb_model->update_bb_order_details($order_details_where, $order_details_data);
+                    if(!empty($order_details_update_id)){
+                        log_message("info", __METHOD__ . "Order Details table updated for order id: " . $order_id);
+                        $this->bb_model->update_bb_unit_details(array('partner_order_id' => $order_id),array('cp_claimed_price'=>$cp_claimed_price,'order_status' => _247AROUND_BB_DELIVERED));
+                        
+                        $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_TO_BE_CLAIMED, $remarks, $this->session->userdata('id'), _247AROUND, Null);
+                        
+                        $this->session->set_userdata('success', 'Order has been updated successfully');
+                        redirect(base_url().'buyback/buyback_process/view_bb_order_details');
+                    }else{
+                        $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
+                        redirect(base_url().'buyback/buyback_process/update_bb_report_issue_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
+                    }
+                    
+                } else {
+                    $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
+                    redirect(base_url().'buyback/buyback_process/update_bb_report_issue_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
+                }    
+
             }
         }
     }
