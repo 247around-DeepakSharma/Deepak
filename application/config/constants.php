@@ -405,9 +405,8 @@ define('CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER','Customer not visited to service 
 define("HSN_CODE", "998715");
 define("STAND_HSN_CODE", "8302");
 
-define('_247AROUND_BB_TAG_CLAIMED_SUBMITTED_NOT_DELIVERED', 'Not Delivered');
+
 define('_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN', 'Broken');
-define('_247AROUND_BB_TAG_CLAIMED_SUBMITTED_TAT_BREACH', 'Tat Breach');
 define('CLAIM_APPROVED','Claim Approved');
 define('CLAIM_REJECTED','Claim Rejected');
 define('CLAIM_SETTLED','Claim Settled');
