@@ -1032,7 +1032,7 @@ class Invoice extends CI_Controller {
                 $this->send_invoice_sms("FOC", $invoice_data['meta']['sd'], $invoice_data['meta']['t_vp_w_tds'], $invoice_data['meta']['owner_phone_1'], $vendor_id);
                
                 //Save this invoice info in table
-                $invoice_details = array(
+                $invoice_details_insert = array(
                     'invoice_id' => $invoice_data['meta']['invoice_id'],
                     'type' => 'FOC',
                     'type_code' => 'B',
@@ -1065,14 +1065,14 @@ class Invoice extends CI_Controller {
                     'upcountry_rate' => $upcountry_rate,
                     'upcountry_price' => $invoice_data['meta']['total_upcountry_price'],
                     'upcountry_distance' => $upcountry_distance,
-                    'penalty_amount' => $invoice_data['meta']['total_penalty_amount'],
+                    'penalty_amount' => abs($invoice_data['meta']['total_penalty_amount']),
                     'penalty_bookings_count' => array_sum(array_column($invoice_data['d_penalty'], 'penalty_times')),
                     'credit_penalty_amount' => $invoice_data['meta']['cr_total_penalty_amount'],
                     'credit_penalty_bookings_count' => array_sum(array_column($invoice_data['c_penalty'], 'penalty_times')),
                     'courier_charges' => $invoice_data['meta']['total_courier_charges'],
                     'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
-                    'due_date' => date("Y-m-d", strtotime($invoice_data['meta']['sd'] . "+1 month")),
+                    'due_date' => date("Y-m-d", strtotime($invoice_data['meta']['ed'] . "+1 month")),
                     //add agent id
                     'agent_id' => $agent_id,
                     "cgst_tax_rate" => $invoice_data['meta']['cgst_tax_rate'],
@@ -1086,7 +1086,7 @@ class Invoice extends CI_Controller {
                 );
 
                 // insert invoice details into vendor partner invoices table
-                $this->invoices_model->action_partner_invoice($invoice_details);
+                $this->invoices_model->action_partner_invoice($invoice_details_insert);
                 //Update Penalty Amount
                 foreach ($invoice_data['d_penalty'] as $value) {
                     $this->penalty_model->update_penalty_any(array('booking_id' => $value['booking_id']), array('foc_invoice_id' => $invoice_data['meta']['invoice_id']));
@@ -1094,7 +1094,7 @@ class Invoice extends CI_Controller {
                 
                 if (!empty($invoice_data['upcountry'])) {
                     foreach ($invoice_data['upcountry'] as $up_booking_details) {
-                        $up_b = explode(",", $up_booking_details['booking_id']);
+                        $up_b = explode(",", $up_booking_details['booking']);
                         for($i=0; $i < count($up_b); $i++){
 
                             $this->booking_model->update_booking(trim($up_b[$i]), array('upcountry_vendor_invoice_id' => $invoice_data['meta']['invoice_id']));
@@ -1121,7 +1121,7 @@ class Invoice extends CI_Controller {
         foreach ($files as $file_name) {
             exec("rm -rf " . escapeshellarg($file_name));
         }
-            exit();
+           
         return true;
 
     }
@@ -1652,12 +1652,6 @@ class Invoice extends CI_Controller {
             echo "Data Not found".PHP_EOL;
             return FALSE;
         }
-
-            
-            exit();
-         
-
-         
     }
 
     /**

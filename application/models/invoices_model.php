@@ -514,7 +514,7 @@ class invoices_model extends CI_Model {
     function get_invoices_details($where, $select = "*", $group_by = false) {
 
         $this->db->select($select, false);
-        $this->db->where($where, false);
+        $this->db->where($where);
         if($group_by){
             $this->db->group_by($group_by);
         }
@@ -644,7 +644,7 @@ class invoices_model extends CI_Model {
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
                    
                 } else {
-                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter State.xlsx";
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                     $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = 18;
                     $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),0);
                     $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
@@ -740,7 +740,7 @@ class invoices_model extends CI_Model {
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 14;
                 } else {
-                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter State.xlsx";
+                    $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                     $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = 28;
                     $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.28), 0);
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
@@ -897,7 +897,7 @@ class invoices_model extends CI_Model {
             $result['d_penalty'] = $result['c_penalty'] = array();
             // Calculate Upcountry booking details
             $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
-            $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "distinct", $is_regenerate);
+            $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
             $courier = $this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
             $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date_tmp, "distinct" );
             if (!empty($upcountry_data)) {
@@ -941,7 +941,7 @@ class invoices_model extends CI_Model {
             
             if (!empty($credit_penalty)) {
                 $cp_data = array();
-                $cp_data[0]['description'] = 'Credit- Bookings Penalty';
+                $cp_data[0]['description'] = 'Credit (Penalty Removed)';
                 $cp_data[0]['hsn_code'] = '';
                 $cp_data[0]['qty'] = '';
                 $cp_data[0]['rate'] = '';
@@ -1208,7 +1208,7 @@ class invoices_model extends CI_Model {
                 
 
             } else {
-                $meta['invoice_template'] = "247around_Tax_Invoice_Inter State.xlsx";
+                $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                 $commission_charge[0]['igst_tax_amount'] = $meta['igst_total_tax_amount'] = round($tax_charge,0);
                 $commission_charge[0]['igst_rate'] = $meta['igst_tax_rate'] = 18;
            
@@ -1285,8 +1285,8 @@ class invoices_model extends CI_Model {
                 $is_foc_null = " AND cp_invoice_id IS NULL ";
         }
         $sql = "SELECT bb_unit_details.id AS unit_id, order_date, services, bb_order_details.partner_order_id,
-                city, partner_tracking_id, order_key,owner_phone_1, CASE WHEN(current_status = 'Delivered') 
-                THEN (delivery_date) WHEN(current_status = 'Completed') THEN (acknowledge_date) END AS delivery_date, order_date,gst_no,
+                city, partner_tracking_id, order_key,owner_phone_1, CASE WHEN(acknowledge_date IS NOT NULL) 
+                THEN (acknowledge_date) ELSE (delivery_date) END AS delivery_date, order_date,gst_no,
                 sc.company_name, sc.address as company_address, sc.state,state_code,
                 sc.owner_email, sc.primary_contact_email, sc.owner_phone_1,
                 CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
@@ -1294,9 +1294,9 @@ class invoices_model extends CI_Model {
                 ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge 
                 FROM `bb_order_details`, bb_unit_details, services, service_centres as sc, state_code WHERE 
                 `assigned_cp_id` = '$vendor_id' 
-                AND `current_status` IN ('Delivered', 'Completed' ) 
-                AND CASE WHEN (current_status = 'Delivered') THEN (`delivery_date` >= '$from_date' AND `delivery_date`< '$to_date' ) 
-                WHEN (current_status = 'Completed') THEN (acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date') END
+                AND bb_unit_details.`order_status` = 'Delivered' 
+                AND CASE WHEN (acknowledge_date IS NOT NULL) THEN (acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date' ) 
+                ELSE (`delivery_date` >= '$from_date' AND `delivery_date`< '$to_date') END
                 AND sc.id = assigned_cp_id
                 AND sc.state = state_code.state
                 AND bb_order_details.partner_order_id =  bb_unit_details.partner_order_id
