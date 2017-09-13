@@ -39,7 +39,13 @@
                                     <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['phone_number']; ?>)" class="btn btn-sm btn-info pull-right"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true' class="pull-right"></i></button>
                                 </td>
                                 <th>Alternate Number: </th>
-                                <td><?php echo $booking_history[0]['alternate_phone_number']; ?></td>
+                                <td><?php echo $booking_history[0]['alternate_phone_number']; ?>
+                                   <?php if(!empty($booking_history[0]['alternate_phone_number']))
+                                   {?>
+                                <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['alternate_phone_number']; ?>)" class="btn btn-sm btn-info pull-right"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true' class="pull-right"></i></button>
+                                   <?php } ?>
+                                
+                                </td>
                             </tr>
                             <tr>
                                 <th>Email ID: </th>
@@ -447,7 +453,9 @@
                             <tr>
                                 <td><?php if(isset($booking_history[0]['vendor_name'])){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $booking_history[0]['assigned_vendor_id']?>" target="_blank"><?php echo $booking_history[0]['vendor_name']?></a> <?php }?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_name'])){echo $booking_history[0]['primary_contact_name'];}?></td>
-                                <td><?php if(isset($booking_history[0]['primary_contact_phone_1'])){echo $booking_history[0]['primary_contact_phone_1'];}?>
+                                <td><?php if(isset($booking_history[0]['primary_contact_phone_1'])){echo $booking_history[0]['primary_contact_phone_1'];?>
+                                    <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['primary_contact_phone_1'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
+                                           <?php }?>
                                 </td>
                                 <td> <?php if(!is_null($booking_history[0]['sub_vendor_id'])){ ?><?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?><?php } ?></td>
                                 <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
