@@ -2215,7 +2215,7 @@ class Invoice extends CI_Controller {
 
             if ($is_s3) {
                 log_message('info', __FUNCTION__ . " Main Invoice upload");
-                $data['invoice_detailed_excel'] = $data['invoice_id'] . "-detailed." . $extension1;
+                $data['invoice_detailed_excel'] = $invoice_id . "-detailed." . $extension1;
             } else {
                 log_message('info', __FUNCTION__ . " Main Invoice upload failed");
             }
