@@ -1072,7 +1072,7 @@ class Invoice extends CI_Controller {
                     'courier_charges' => $invoice_data['meta']['total_courier_charges'],
                     'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
-                    'due_date' => date("Y-m-d", strtotime($invoice_data['meta']['sd'] . "+1 month")),
+                    'due_date' => date("Y-m-d", strtotime($invoice_data['meta']['ed'] . "+1 month")),
                     //add agent id
                     'agent_id' => $agent_id,
                     "cgst_tax_rate" => $invoice_data['meta']['cgst_tax_rate'],
