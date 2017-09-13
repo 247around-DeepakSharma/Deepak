@@ -1,3 +1,23 @@
+<script>
+    function outbound_call(phone_number){
+        var confirm_call = confirm("Call Customer ?");
+
+        if (confirm_call === true) {
+
+             $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                success: function(response) {
+                    //console.log(response);
+
+                }
+            });
+        } else {
+            return false;
+        }
+
+    }
+    </script>
 <div id="page-wrapper" >
     <div class="panel panel-info" style="margin-top:20px;">
         <div class="panel-heading"><center style="font-size:130%;">Employee List</center></div>
@@ -101,7 +121,11 @@
                                 <?php }?>
                             </td>
                             <td style="text-align: center;"><?php echo $value['full_name']?></td>
-                            <td style="text-align: center;"><?php echo $value['phone']?></td>
+                            <td style="text-align: center;"><?php echo $value['phone']?>
+                                <?php if(!empty($value['phone'])){
+                                    ?>
+                            <button type="button" onclick="outbound_call(<?php echo $value['phone'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button></td>
+                                <?php } ?>
                             <td style="text-align: center;"><?php echo $value['exotel_phone']?></td>
                             <td style="text-align: center;"><?php echo $value['official_email']?></td>
                             <td style="text-align: center;"><?php echo $value['personal_email']?></td>
