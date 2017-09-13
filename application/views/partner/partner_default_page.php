@@ -13,6 +13,8 @@
         }
 
     });
+    
+    
     function open_upcountry_model(booking_id, amount_due){
       
        $.ajax({
@@ -43,6 +45,10 @@
 
 <div class="container-fluid">
     <div class="row" style="margin-top: 10px;">
+        
+        <div class="col-md-12" id="booking_summary" style="margin-top:10px;">
+            <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+        </div>
         <div class="col-md-12">
             <?php if($this->session->userdata('error')) {
                 echo '<div class="alert alert-danger alert-dismissible" role="alert">
@@ -63,7 +69,6 @@
                 }
                 ?>
             
-           
             <div id="tabs" style="border:0px solid #fff;"> 
                 <div class="col-md-12" style="    margin-left: -10px;">
                     <ul>
@@ -165,6 +170,7 @@
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
 <script>
+    
     $(document).on("click", ".open-AddBookDialog", function () {
         var myBookId = $(this).data('id');
         $(".modal-body #ec_booking_id").val( myBookId );
@@ -190,6 +196,14 @@
             }
         $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
         }); 
+        
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/partner/get_partner_booking_summary_data/'+<?php echo $this->session->userdata('partner_id')?>,
+            success: function (data) {
+                $("#booking_summary").html(data);   
+            }
+        });
     }
     
     function load_view(url, tab) {

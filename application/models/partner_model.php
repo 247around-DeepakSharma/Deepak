@@ -1333,5 +1333,45 @@ class Partner_model extends CI_Model {
         return $query->result_array();
         
     }
+    
+    
+    /**
+     * @Desc: This function is used to get the escalation percentage of bookings by request type
+     * @params: $partner_id string
+     * @return: $query array();
+     * 
+     */
+    function get_booking_escalation_percantage($partner_id){
+        $sql = "SELECT 
+                ((new_table.total_installation_escalate_booking*100)/installation_booking) as total_installation_escalate_percentage,
+                ((new_table.unique_installation_escalate_booking*100)/installation_booking) as unique_installation_escalate_percentage,
+                ((new_table.total_repair_escalate_booking*100)/repair_booking) as total_repair_escalate_percentage,
+                ((new_table.unique_repair_escalate_booking*100)/repair_booking) as unique_repair_escalate_percentage,
+                ((new_table.total_upcountry_escalate_booking*100)/upcountry_booking) as total_upcountry_escalate_percentage,
+                ((new_table.unique_upcountry_escalate_booking*100)/upcountry_booking) as unique_upcountry_escalate_percentage
+                 FROM (SELECT
+                    SUM(IF(request_type LIKE '%Installation%' ,1,0)) as installation_booking,
+                    SUM(IF(request_type LIKE '%Installation%' ,count_escalation,0)) as total_installation_escalate_booking,
+                    SUM(IF(request_type LIKE '%Installation%' AND count_escalation > 0 ,1,0)) as unique_installation_escalate_booking,
+                    SUM(IF(request_type LIKE '%Repair%' ,1,0)) as repair_booking,
+                    SUM(IF(request_type LIKE '%Repair%' ,count_escalation,0)) as total_repair_escalate_booking,
+                    SUM(IF(request_type LIKE '%Repair%' AND count_escalation > 0 ,1,0)) as unique_repair_escalate_booking,
+                    SUM(IF(is_upcountry = '1' AND upcountry_partner_approved = '1' AND upcountry_paid_by_customer = '0',1,0)) as upcountry_booking,
+                    SUM(IF(is_upcountry = '1' AND upcountry_partner_approved = '1' AND upcountry_paid_by_customer = '0' AND count_escalation > 0,count_escalation,0)) as total_upcountry_escalate_booking,
+                    SUM(IF(is_upcountry = '1' AND upcountry_partner_approved = '1' AND upcountry_paid_by_customer = '0' AND count_escalation > 0,1,0)) as unique_upcountry_escalate_booking
+                    FROM booking_details
+                    WHERE partner_id = '".$partner_id."' AND type = 'Booking' ) as new_table";
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_serviceability_by_pincode(){
+        $sql = "SELECT City, State, Pincode,GROUP_CONCAT( DISTINCT Appliance SEPARATOR ',') as appliance
+                FROM vendor_pincode_mapping 
+                GROUP BY Pincode
+                ORDER BY City";
+        return $this->db->query($sql);
+    }
 }
 

@@ -214,7 +214,7 @@ class InvoiceDashboard extends CI_Controller {
                 $this->table->add_row($style.$value['name']."</span>", $cash['meta']['total_taxable_value'], 
                         ($cash['meta']['cgst_total_tax_amount'] + $cash['meta']['sgst_total_tax_amount'] + $cash['meta']['igst_total_tax_amount']),
                     "<strong>".round($cash['meta']['sub_total_amount'],0)."</strong>", $foc['meta']['total_taxable_value'], 
-                    ($foc['meta']['sgst_tax_rate'] + $foc['meta']['igst_tax_rate'] + $foc['meta']['cgst_tax_rate']),
+                    ($foc['meta']['cgst_total_tax_amount'] + $foc['meta']['sgst_total_tax_amount'] + $foc['meta']['igst_total_tax_amount']),
                         "<strong>".round($foc['meta']['sub_total_amount'],0)."</strong>");
                 
                 $total_cash_charge += $cash['meta']['sub_total_amount'];
