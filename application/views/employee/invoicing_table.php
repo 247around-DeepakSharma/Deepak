@@ -60,7 +60,7 @@
         
          <td style="max-width: 56px; word-wrap:break-word;"><?php echo $invoice['type']; ?></td>
          <td ><?php echo $invoice['num_bookings']; ?></td>
-         <td><?php echo date("jS M, Y", strtotime($invoice['from_date'])). " to ". date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
+         <td><?php echo date("jS M, Y", strtotime($invoice['invoice_date'])). " <br/><br/> ".date("jS M, Y", strtotime($invoice['from_date'])). " to ". date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
          
          <td><?php echo (round(($invoice['total_service_charge'] + $invoice['service_tax']),0)); $sum_of_total_service_charges +=  $invoice['total_service_charge'] + $invoice['service_tax']; ?></td>
          <td><?php echo round($invoice['total_additional_service_charge'],0); $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>

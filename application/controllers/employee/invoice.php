@@ -105,13 +105,7 @@ class Invoice extends CI_Controller {
         $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
         if ($data['vendor_partner'] == "vendor") {
     
-            if (!empty($invoice['invoice_array'])) {
-                $to_date = $invoice['invoice_array'][count($invoice['invoice_array']) - 1]['to_date'];
-            } else {
-                $to_date = "";
-            }
-
-            $invoice['unbilled_amount'] = $this->invoices_model->get_unbilled_amount($data['vendor_partner_id'], $to_date);
+            $invoice['unbilled_amount'] = $this->invoices_model->get_unbilled_amount($data['vendor_partner_id']);
         }
 
         echo $this->load->view('employee/invoicing_table', $invoice);
@@ -3212,5 +3206,5 @@ class Invoice extends CI_Controller {
         $data['payment_history'] = $this->invoices_model->get_payment_history($select,array('payment_history.invoice_id'=>$invoice_id),true);
         echo $this->load->view('employee/show_invoice_payment_history_list',$data);
     }
-
+    
 }
