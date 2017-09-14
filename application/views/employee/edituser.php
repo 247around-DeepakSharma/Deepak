@@ -33,6 +33,26 @@
     return false;
   }
 }
+function outbound_call(phone_number){
+        var confirm_call = confirm("Call Customer ?");
+
+        if (confirm_call === true) {
+
+             $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                success: function(response) {
+                    //console.log(response);
+
+                }
+            });
+        } else {
+            return false;
+        }
+
+    }
+
+
 </script>
 <style>
 .red{
@@ -67,6 +87,7 @@
                     <input type="text" class="form-control"  name="phone_number" value = "<?php echo $user[0]['phone_number']; ?>">
                     <?php echo form_error('phone_number'); ?>
                 </div>
+                <label for="phone_icon" class="col-md-2"><button type="button" onclick="outbound_call(<?php echo $user[0]['phone_number']  ?>)" class="btn btn-sm btn-info"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button></label>
             </div>
             <div class="form-group <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
                 <label for="alternate_phone_number" class="col-md-2">Alternate Phone Number</label>
@@ -74,6 +95,11 @@
                     <input type="text" class="form-control"  name="alternate_phone_number" value = "<?php echo $user[0]['alternate_phone_number']; ?>">
                     <?php echo form_error('alternate_phone_number'); ?>
                 </div>
+                <?php
+                if(!empty($user[0]['alternate_phone_number'])){
+                ?>
+                <label for="phone_icon" class="col-md-2"><button type="button" onclick="outbound_call(<?php echo $user[0]['alternate_phone_number']  ?>)" class="btn btn-sm btn-info"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button></label>
+                <?php } ?>
             </div>
             <div class="form-group <?php if( form_error('home_address') ) { echo 'has-error';} ?>">
                 <label for="home_address" class="col-md-2">Home Address</label>

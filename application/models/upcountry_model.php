@@ -324,7 +324,12 @@ class Upcountry_model extends CI_Model {
      * @param String $to_date
      * @return boolean
      */
-    function upcountry_foc_invoice($vendor_id, $from_date, $to_date){
+    function upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate){
+        $invoice_check = "";
+        if($is_regenerate == 0){
+            $invoice_check =" AND upcountry_vendor_invoice_id IS NULL ";
+        }
+        
         $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking,"
                 . " upcountry_distance, "
                 . " assigned_vendor_id, "
@@ -335,7 +340,7 @@ class Upcountry_model extends CI_Model {
                 . "  bd.assigned_vendor_id = '$vendor_id' "
                 . " AND bd.closed_date >= '$from_date' "
                 . " AND bd.closed_date < '$to_date' "
-                . " AND upcountry_vendor_invoice_id IS NULL"
+                . " $invoice_check "
                 . " AND sub_vendor_id IS NOT NULL "
                 . " AND bd.is_upcountry = '1' "
                 . " AND bd.current_status = 'Completed' "
@@ -373,7 +378,12 @@ class Upcountry_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function upcountry_cash_invoice($vendor_id, $from_date, $to_date){
+    function upcountry_cash_invoice($vendor_id, $from_date, $to_date, $is_regenerate){
+        $invoice_check = "";
+        if($is_regenerate == 0){
+            $invoice_check =" AND upcountry_vendor_invoice_id IS NULL ";
+        }
+        
         $sql = "SELECT DISTINCT ( bd.booking_id) As booking_id, "
                 . " upcountry_distance, bd.city, services, "
                 . " '0.00' AS additional_charges, "
@@ -391,7 +401,7 @@ class Upcountry_model extends CI_Model {
                 . " AND bd.closed_date < '$to_date' "
                 . " AND sub_vendor_id IS NOT NULL "
                 . " AND bd.is_upcountry = '1' "
-                . " AND upcountry_vendor_invoice_id IS NULL"
+                . " $invoice_check "
                 . " AND sc.id = bd.assigned_vendor_id "
                 . " AND current_status = 'Completed' "
                 . " AND bd.service_id = services.id"
@@ -701,7 +711,7 @@ class Upcountry_model extends CI_Model {
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
         
         $query = $this->db->query($sql);
-        
+        echo $this->db->last_query(); exit();
         if($query->num_rows > 0){
             $result = $query->result_array();
             $total_price = 0;
