@@ -36,11 +36,11 @@
 function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
 
-        if (confirm_call == true) {
+        if (confirm_call === true) {
 
              $.ajax({
                 type: 'POST',
-                url: 'http://localhost/247around/employee/booking/call_customer/' + phone_number,
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
                 success: function(response) {
                     //console.log(response);
 
@@ -50,7 +50,7 @@ function outbound_call(phone_number){
             return false;
         }
 
-}
+    }
 
 
 </script>
