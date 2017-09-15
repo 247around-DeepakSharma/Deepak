@@ -11,15 +11,26 @@
     label{
         font-size: 12px;
     }
+    
+    @media screen and (min-width: 1100px){ 
+        .pull-right{
+          display:inline-block;
+        }
+}
 </style>
 
 <div class="right_col" role="main" id="page-wrapper">
     <div class="price_charges_file">
-        <div class="page-title">
-            <div class="title_left">
-                <h3>Buyback charges List</h3>
+         <div class="row">
+            <div class="col-md-6">
+                <h3>Buyback Charges List</h3>
             </div>
-        </div>
+             <div class="col-md-6" style="margin-top:18px">
+                <div class="pull-right">
+                    <a href="#" class="btn btn-success" id="download_charges_list">Download Charges List</a>
+                </div>
+            </div>
+          </div>
         <hr>
         <div class="clearfix"></div>
         <div class="row">
@@ -88,4 +99,22 @@
             }
         });
     }
+    
+    $('#download_charges_list').click(function (e) {
+       
+       var time = '<?php echo date("Y-m-d") ;?>';
+       filename = 'Buyback_Price_List_' + time;
+
+        e.preventDefault();
+
+        //getting data from table
+        var data_type = 'data:application/vnd.ms-excel';
+        var table_div = document.getElementById('bb_price_list');
+        var table_html = table_div.outerHTML.replace(/ /g, '%20');
+
+        var a = document.createElement('a');
+        a.href = data_type + ', ' + table_html;
+        a.download = filename + '.xlsx';
+        a.click();
+    });
 </script>

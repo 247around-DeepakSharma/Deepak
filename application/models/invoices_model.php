@@ -896,7 +896,7 @@ class invoices_model extends CI_Model {
             $result['upcountry'] =  $result['courier'] = $result['c_penalty'] = array();
             $result['d_penalty'] = $result['c_penalty'] = array();
             // Calculate Upcountry booking details
-            $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
+            $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
             $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
             $courier = $this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
             $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date_tmp, "distinct" );
@@ -1187,7 +1187,7 @@ class invoices_model extends CI_Model {
                      $meta['total_cgst_tax_amount'] = $meta['total_igst_tax_amount'] = $meta['igst_tax_rate'] = 
                      $meta['sgst_tax_rate'] = $meta['sgst_tax_rate'] =  0;
             $from_date_tmp = date('Y-m-d', strtotime('-1 months', strtotime($from_date)));
-            $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date_tmp, $to_date);
+            $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date_tmp, $to_date, $is_regenerate);
             if (!empty($upcountry_data)) {
                   $commission_charge[0]['toal_amount'] += $upcountry_data[0]['total_upcountry_price'];
                   $meta['upcountry_charge'] = $upcountry_data[0]['total_upcountry_price'];
@@ -1313,19 +1313,15 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function get_unbilled_amount($vendor_id, $to_date) {
-        $where = "";
-        if (!empty($to_date)) {
-            $where = "AND ud_closed_date >= '" . $to_date . "' ";
-        }
+    function get_unbilled_amount($vendor_id) {
+        
         $sql = "SELECT SUM(`vendor_to_around` - `around_to_vendor`) AS unbilled_amount
                 FROM booking_unit_details AS ud, booking_details AS bd
                 WHERE bd.assigned_vendor_id = '$vendor_id'
                 AND pay_to_sf =  '1'
                 AND booking_status =  'Completed'
                 AND bd.booking_id = ud.booking_id 
-                $where
-                AND ud_closed_date < '" . date('Y-m-d') . "'
+                AND ud_closed_date >= '" . date('Y-m-d', strtotime("-3 months")) . "'
                 AND `vendor_cash_invoice_id` IS NULL
                 AND `vendor_foc_invoice_id` IS NULL";
 

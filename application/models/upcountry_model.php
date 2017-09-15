@@ -324,7 +324,12 @@ class Upcountry_model extends CI_Model {
      * @param String $to_date
      * @return boolean
      */
-    function upcountry_foc_invoice($vendor_id, $from_date, $to_date){
+    function upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate){
+        $invoice_check = "";
+        if($is_regenerate == 0){
+            $invoice_check =" AND upcountry_vendor_invoice_id IS NULL ";
+        }
+        
         $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking,"
                 . " upcountry_distance, "
                 . " assigned_vendor_id, "
@@ -335,7 +340,7 @@ class Upcountry_model extends CI_Model {
                 . "  bd.assigned_vendor_id = '$vendor_id' "
                 . " AND bd.closed_date >= '$from_date' "
                 . " AND bd.closed_date < '$to_date' "
-                . " AND upcountry_vendor_invoice_id IS NULL"
+                . " $invoice_check "
                 . " AND sub_vendor_id IS NOT NULL "
                 . " AND bd.is_upcountry = '1' "
                 . " AND bd.current_status = 'Completed' "
@@ -373,7 +378,12 @@ class Upcountry_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function upcountry_cash_invoice($vendor_id, $from_date, $to_date){
+    function upcountry_cash_invoice($vendor_id, $from_date, $to_date, $is_regenerate){
+        $invoice_check = "";
+        if($is_regenerate == 0){
+            $invoice_check =" AND upcountry_vendor_invoice_id IS NULL ";
+        }
+        
         $sql = "SELECT DISTINCT ( bd.booking_id) As booking_id, "
                 . " upcountry_distance, bd.city, services, "
                 . " '0.00' AS additional_charges, "
@@ -391,7 +401,7 @@ class Upcountry_model extends CI_Model {
                 . " AND bd.closed_date < '$to_date' "
                 . " AND sub_vendor_id IS NOT NULL "
                 . " AND bd.is_upcountry = '1' "
-                . " AND upcountry_vendor_invoice_id IS NULL"
+                . " $invoice_check "
                 . " AND sc.id = bd.assigned_vendor_id "
                 . " AND current_status = 'Completed' "
                 . " AND bd.service_id = services.id"
@@ -701,16 +711,22 @@ class Upcountry_model extends CI_Model {
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
         
         $query = $this->db->query($sql);
-        
         if($query->num_rows > 0){
             $result = $query->result_array();
             $total_price = 0;
             $total_booking = 0;
             $total_distance = 0;
-            foreach ($result as $value) {
+            foreach ($result as $key => $value) {
                 $total_price += $value['upcountry_price'];
                 $total_booking += $value['count_booking'];
                 $total_distance += $value['upcountry_distance'];
+                if ($partner_id == 1){
+                    // Replace non upcountry city to area from india pincode table.
+                    $area = $this->is_non_upcountry_city($partner_id,$value['city'], $value['booking_pincode']);
+                    if(!empty($area)){
+                        $result[$key]['city'] = $area;
+                    }
+                }
             }
             $result[0]['total_upcountry_price'] = $total_price;
             $result[0]['total_booking'] = $total_booking;
@@ -721,6 +737,36 @@ class Upcountry_model extends CI_Model {
         } else {
             return FALSE;
         }
+    }
+    /**
+     * @desc This is used to replace city to area for snapdeal upcountry booking
+     * @param int $partner_id
+     * @param String $city
+     * @param int $pincode
+     * @return boolean
+     */
+    function is_non_upcountry_city($partner_id, $city, $pincode){
+        if($partner_id == 1){
+            $non_upcountry_city = $this->get_non_upcountry_city(array('partner_id' => $partner_id, 'city' => $city));
+            if(!empty($non_upcountry_city)){
+                $data = $this->vendor_model->get_distict_details_from_india_pincode($pincode);
+                return $data['area'];
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    /**
+     * @desc This is used to get non upcountry city for snapdeal
+     * @param Array $where
+     * @return String
+     */
+    function get_non_upcountry_city($where){
+        $this->db->where($where);
+        $query = $this->db->get('non_upcountry_city');
+        return $query->result_array();
     }
     
     

@@ -188,6 +188,7 @@ class User_model extends CI_Model {
         $this->db->select('*');
         $this->db->like('name', $userName);
         $this->db->from('users');
+        $this->db->order_by('name', 'asc');
         $query = $this->db->get();
         $result = $query->result_array();
         if ($query->num_rows() > 0) {
