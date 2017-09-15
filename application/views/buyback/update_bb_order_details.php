@@ -118,7 +118,7 @@
                                 <div class="row">
                                     <div class="order_upload_file">
                                         <div class="form-group form-inline">
-                                            <label for="order_files" class="col-md-4 info_tooltip">Upload Order Id Image:</label>
+                                            <label for="order_files" class="col-md-4 info_tooltip">Shipping Label Image:</label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control" id="order_files" name="order_files" accept="image/*" required>
                                             </div>
@@ -128,7 +128,7 @@
                                 <div class="row">
                                     <div class="order_upload_file">
                                         <div class="form-group form-inline">
-                                            <label for="damaged_order_files" class="col-md-4 info_tooltip"><i class="fa fa-info info-labal text-info fa_custom" data-toggle="tooltip" title="You can upload multiple images"></i> &nbsp;Upload Damaged Product Images:</label>
+                                            <label for="damaged_order_files" class="col-md-4 info_tooltip"><i class="fa fa-info info-labal text-info fa_custom" data-toggle="tooltip" title="You can upload multiple images"></i>Broken Product Images:</label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control" id="damaged_order_files" name="damaged_order_files[]" accept="image/*" multiple required>
                                             </div>
@@ -292,8 +292,8 @@
         
         $("#claimed_price").blur(function() {
             var claimed_price = $(this).val();
-            var final_claimed_price = Math.round(($('#cp_basic_charge').val() * .30),0);
-            var alert_msg = 'Price You Entered Is Too Low. We can not accept entered amount for this order.Please Enter an amount greater than or equal to <b>Rs.' + final_claimed_price + '</b>';
+            var final_claimed_price = Math.round(($('#cp_basic_charge').val() * .50),0);
+            var alert_msg = 'Please enter higher price...' + '</b>';
             if(claimed_price < final_claimed_price){
                 //alert(alert_msg);
                 $('#claimed_price_error').html(alert_msg).show();
