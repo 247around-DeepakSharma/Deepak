@@ -1843,7 +1843,7 @@ class Service_centers extends CI_Controller {
                     log_message("info", __METHOD__ . "Cp Action table updated for order id: " . $order_id);
                     $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('id'), _247AROUND, Null);
                     $this->session->set_userdata('success', 'Order has been updated successfully');
-                    redirect(base_url().'service_center/bb_oder_details');
+                    redirect(base_url().'service_center/bb_order_details');
                 }
             }
         }
@@ -1914,10 +1914,10 @@ class Service_centers extends CI_Controller {
         
         if ($response['status'] === 'success') {
             $this->session->set_userdata('success', $response['msg']);
-            redirect(base_url() . 'service_center/bb_oder_details');
+            redirect(base_url() . 'service_center/bb_order_details');
         } else if ($response['status'] === 'error') {
             $this->session->set_userdata('error', $response['msg']);
-            redirect(base_url() . 'service_center/bb_oder_details');
+            redirect(base_url() . 'service_center/bb_order_details');
         }
         
     }
@@ -1952,18 +1952,18 @@ class Service_centers extends CI_Controller {
             $this->buyback->insert_bb_state_change($data['order_id'], _247AROUND_BB_IN_PROCESS, '', $data['cp_id'], Null, $data['cp_id']);
             
             $this->session->set_userdata('success', 'Order has been updated successfully');
-            redirect(base_url() . 'service_center/bb_oder_details');
+            redirect(base_url() . 'service_center/bb_order_details');
             
         }else{
             $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
-            redirect(base_url() . 'service_center/bb_oder_details');
+            redirect(base_url() . 'service_center/bb_order_details');
         }
     }
     /**
      * @desc It check if sc update gst form first then show its profile otherwies GST form
      */
     function gst_update_form(){
-        $this->checkUserSession();
+        //$this->checkUserSession();
         log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
         $data = $this->service_centers_model->get_gst_details_table_data(array('service_center_id' => 
             $this->session->userdata('service_center_id')));
@@ -1981,7 +1981,7 @@ class Service_centers extends CI_Controller {
      * @desc This is used to insert gst for data.
      */
     function process_gst_update() {
-        $this->checkUserSession();
+        //$this->checkUserSession();
         log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
         $this->load->library('table');
 
@@ -2373,7 +2373,7 @@ class Service_centers extends CI_Controller {
      * @return void
      */
     function show_bb_price_list(){
-        $this->checkUserSession();
+        $this->check_BB_UserSession();
         $select = 'service_id,s.services';
         $where['cp_id'] = $this->session->userdata('service_center_id');
         $data['appliance_list'] = $this->bb_model->get_bb_price_data($select, $where, true, true);
