@@ -1,7 +1,7 @@
 <?php if (isset($charges_data)) {
     if (!empty($charges_data)) { ?>
 
-        <table class="table table-striped table-bordered" >
+        <table class="table table-striped table-bordered" id="bb_price_list">
             <th>No.</th>
             <th>Category</th>
             <th>Brand</th>
