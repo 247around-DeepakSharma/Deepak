@@ -98,14 +98,8 @@ class Bb_model extends CI_Model {
 
     function update_bb_order_details($where, $data) {
         $this->db->where($where);
-        $this->db->update('bb_order_details', $data);
-        if($this->db->affected_rows() > 0){
-            $flag = TRUE; 
-        }else{
-            $flag = FALSE;
-        }
-        
-        return $flag;
+        return $this->db->update('bb_order_details', $data);
+
     }
 
     function update_bb_unit_details($where, $data) {

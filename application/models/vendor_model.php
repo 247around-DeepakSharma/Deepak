@@ -446,7 +446,7 @@ class vendor_model extends CI_Model {
        // $this->db->cache_on();
         $this->db->distinct();
         // Do not make state capital. It should be 'state'.
-        $this->db->select('district, state, taluk');
+        $this->db->select('district, state, taluk, area');
         $this->db->where('pincode', $pincode);
 
         $query = $this->db->get('india_pincode');
@@ -456,6 +456,7 @@ class vendor_model extends CI_Model {
             $district['district'] = "";
             $district['state'] = "";
             $district['taluk'] = "";
+            $district['area'] = "";
             return $district;
         }
     }
