@@ -89,9 +89,19 @@
                                 <div ng-controller="uploadOrderDetailsFile">
                                     <div class="form-group" >
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <input type="file" file-model="myFile" id="order_details_file" required="required" class="form-control col-md-7 col-xs-12">
+                                            <input type="file" file-model="myFile" id="order_details_file" required="required" class="form-control col-md-7 col-xs-12" enctype="multipart/form-data">
                                         </div>
-
+                                        
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <input type="text" placeholder="File Date" ng-model="file_date.received_date" class="form-control" id="file_date" name="file_date"/>
+                                        </div>
+                                    </div>
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group">
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <button ng-click="uploadFile()" class="btn btn-success">Upload</button>
+                                        </div>
+                                        
                                         <div class="col-md-6 col-sm-6 col-xs-12" ng-cloak="">
                                             <div class="spinner" ng-if="ShowSpinnerStatus">
                                                 <div class="rect1" style="background-color:#db3236"></div>
@@ -101,12 +111,6 @@
                                             </div>
                                             <div ng-if="successMsg" class="alert alert-success">{{msg}}</div>
                                             <div ng-if="errorMsg" class="alert alert-danger">{{msg}}</div>
-                                        </div>
-                                    </div>
-                                    <div class="ln_solid"></div>
-                                    <div class="form-group">
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <button ng-click="uploadFile()" class="btn btn-success">Upload</button>
                                         </div>
                                     </div>
                                     
@@ -139,6 +143,14 @@
     var table;
 
         $(document).ready(function () {
+            
+            $('input[name="file_date"]').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                locale:{
+                    format: 'DD-MM-YYYY'
+                }
+            });
 
             //datatables
             table = $('#datatable1').DataTable({

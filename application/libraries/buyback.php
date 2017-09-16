@@ -220,7 +220,7 @@ class Buyback {
                         $bb_unit_details = array(
                             'order_status' => $this->POST_DATA['current_status']
                         );
-                        $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $bb_unit_details);
+                        $this->My_CI->bb_model->update_bb_unit_details(array('partner_order_id' => $this->POST_DATA['partner_order_id'] ), $bb_unit_details);
                         $this->insert_bb_state_change($this->POST_DATA['partner_order_id'], $this->POST_DATA['current_status'], NULL, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
                         
                         $this->My_CI->initialized_variable->total_updated();
@@ -313,7 +313,7 @@ class Buyback {
     
     /**
      * @desc This function is used to update the buyback order when order received by
-     *       the collection partner.
+     *       the collection partner and our crm.
      * @param $post_data array()
      * @return $response array()
      */
@@ -334,7 +334,7 @@ class Buyback {
 
             //update order_details
             $where = array('partner_order_id' => $order_id);
-            $data = array('current_status' => _247AROUND_COMPLETED, 'internal_status' => _247AROUND_COMPLETED,'acknowledge_date' => date('Y-m-d H:i:s'));
+            $data = array('current_status' => _247AROUND_COMPLETED, 'internal_status' => _247AROUND_COMPLETED,'acknowledge_date' => date('Y-m-d H:i:s'),'is_delivered' => '1');
             $order_details_update_id = $this->My_CI->bb_model->update_bb_order_details($where, $data);
             if ($order_details_update_id) {
                 
