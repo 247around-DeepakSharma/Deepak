@@ -3158,6 +3158,11 @@ ALTER TABLE `bb_order_details` ADD `acknowledge_date` DATETIME NULL DEFAULT NULL
 -- sachin 12 sep
 ALTER TABLE `bb_cp_order_action` ADD `acknowledge_date` DATETIME NULL DEFAULT NULL AFTER `admin_remarks`;
 
+<<<<<<< HEAD
+=======
+--sachin 13 sep
+ALTER TABLE `appliance_product_description` ADD `is_verified` TINYINT(1) NULL DEFAULT NULL AFTER `brand`;
+>>>>>>> 23abce4... add checks for TV On appliance description
 
 --sachin 15 sep
 CREATE TABLE `bb_delivery_order_status_report` (
@@ -3185,3 +3190,8 @@ ALTER TABLE `bb_delivery_order_status_report` CHANGE `id` `id` INT(11) NOT NULL 
 ALTER TABLE `bb_order_details` ADD `file_received_date` DATE NOT NULL AFTER `internal_status`;
 
 ALTER TABLE `bb_delivery_order_status_report` ADD `file_received_date` DATE NOT NULL AFTER `file_name`;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'non_verified_appliance_mail', 'Appliance Description Details', 
+'Below are the appliance description which are not verified. Please have a look and update this as soon as posssible: <br>
+%s', 'noreply@2417around.com', '', '', '', '1', CURRENT_TIMESTAMP);

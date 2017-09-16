@@ -2134,5 +2134,10 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    function update_appliance_description_details($data,$where){
+         $this->db->where($where,FALSE);
+         $this->db->update('appliance_product_description', $data);
+    }
 
 }
