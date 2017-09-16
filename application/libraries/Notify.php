@@ -293,13 +293,7 @@ class Notify {
      * @return: true
      */
     function send_sms_email_for_booking($booking_id, $current_status) {
-	//Is this SD booking?
-	if (strpos($booking_id, "SS") !== FALSE) {
-	    $is_sd = TRUE;
-	} else {
-	    $is_sd = FALSE;
-	}
-
+	
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
 	if (!empty($query1)) {
 
@@ -336,14 +330,8 @@ class Notify {
 		    //Send internal mails now
 		    $this->send_email($email);
 
-		    if ($is_sd == FALSE) {
-
-			$sms['tag'] = "complete_booking";
-		    } else {
-
-			$sms['tag'] = "complete_booking_snapdeal";
-		    }
-
+	            $sms['tag'] = "complete_booking";
+		    
 		    $sms['smsData']['service'] = $query1[0]['services'];
                     $sms['smsData']['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
                     $sms['smsData']['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
@@ -391,15 +379,15 @@ class Notify {
 			//Send internal mails now
 			$this->send_email($email);
 
-			if ($is_sd == FALSE) {
-			    $sms['smsData']['service'] = $query1[0]['services'];
-			    $sms['tag'] = "cancel_booking";
-			    $sms['booking_id'] = $query1[0]['booking_id'];
-			    $sms['type'] = "user";
-			    $sms['type_id'] = $query1[0]['user_id'];
+			
+                        $sms['smsData']['service'] = $query1[0]['services'];
+                        $sms['tag'] = "cancel_booking";
+                        $sms['booking_id'] = $query1[0]['booking_id'];
+                        $sms['type'] = "user";
+                        $sms['type_id'] = $query1[0]['user_id'];
 
-			    $this->send_sms_msg91($sms);
-			}
+                        $this->send_sms_msg91($sms);
+			
 		    }
 
 		    break;
@@ -421,16 +409,16 @@ class Notify {
 		    //Send internal mails now
 		    $this->send_email($email);
 
-		    if ($is_sd == FALSE) {
-			$sms['tag'] = "reschedule_booking";
-			$sms['smsData']['service'] = $query1[0]['services'];
-			$sms['smsData']['booking_date'] = $query1[0]['booking_date'];
-			$sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
-			$sms['booking_id'] = $query1[0]['booking_id'];
-			$sms['type'] = "user";
-			$sms['type_id'] = $query1[0]['user_id'];
-			$this->send_sms_msg91($sms);
-		    }
+		    
+		    $sms['tag'] = "reschedule_booking";
+		    $sms['smsData']['service'] = $query1[0]['services'];
+		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
+		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+		    $sms['booking_id'] = $query1[0]['booking_id'];
+		    $sms['type'] = "user";
+		    $sms['type_id'] = $query1[0]['user_id'];
+		    $this->send_sms_msg91($sms);
+		    
 
 		    break;
 
@@ -466,13 +454,7 @@ class Notify {
                     //Max name length = 15 to fit in 1 SMS
 		    $sms['smsData']['name'] = substr($query1[0]['name'], 0, 15);
 		    $sms['smsData']['service'] = $query1[0]['services'];
-
-		    if ($is_sd) {
-			$sms['tag'] = "call_not_picked_snapdeal";
-		    } else {
-			$sms['tag'] = "call_not_picked_other";
-		    }
-
+		    $sms['tag'] = "call_not_picked_other";
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
@@ -485,13 +467,8 @@ class Notify {
 		    $sms['smsData']['service'] = $query1[0]['services']. " ".$call_type[0];
 		    $sms['smsData']['booking_date'] = date("d/M", strtotime($query1[0]['booking_date']));
 		    $sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
-
-		    if ($is_sd == FALSE) {
-			$sms['tag'] = "add_new_booking";
-		    } else {
-			$sms['tag'] = "new_snapdeal_booking";
-		    }
-
+		    $sms['tag'] = "add_new_booking";
+		    
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
