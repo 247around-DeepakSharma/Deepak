@@ -3180,3 +3180,8 @@ CREATE TABLE `bb_delivery_order_status_report` (
 ALTER TABLE `bb_delivery_order_status_report` ADD PRIMARY KEY(`id`);
 
 ALTER TABLE `bb_delivery_order_status_report` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+
+--sachin 16 sep
+ALTER TABLE `bb_order_details` ADD `file_received_date` DATE NOT NULL AFTER `internal_status`;
+
+ALTER TABLE `bb_delivery_order_status_report` ADD `file_received_date` DATE NOT NULL AFTER `file_name`;
