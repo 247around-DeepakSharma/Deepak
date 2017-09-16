@@ -505,7 +505,9 @@ class Dashboard extends CI_Controller {
             }
             
             $this->table->add_row($name .$star,abs($amount_cr_deb['advance']),-$amount_cr_deb['unbilled'], 
-                    -$amount_cr_deb['cp_delivered'],-$amount_cr_deb['cp_transit'],$amount_cr_deb['total_balance'].$class);
+                    -$amount_cr_deb['cp_delivered'],-$amount_cr_deb['cp_transit'], 
+                    "<a target='_blank' href='".  base_url()."employee/invoice/invoice_summary/vendor/".$value['id']."'>".
+                    $amount_cr_deb['total_balance'].$class. "</a>");
           
         }
         
