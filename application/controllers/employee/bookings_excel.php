@@ -486,16 +486,15 @@ class bookings_excel extends CI_Controller {
                     $data['source'] = $this->partner_model->get_source_code_for_partner($value['partner_id']);
                 } else {
                     if ($value['partner_id'] == 247041) {
-                        if ($default_source == "SS") {
-                            //Now assigning this case to SS
-                            $data['partner_id'] = SNAPDEAL_ID;
-                            $data['source'] = $default_source;
-                        } else if ($default_source == "SP") {
-                            $data['partner_id'] = PAYTM;
-                            $data['source'] = $default_source;
-                        }
-                    } else {
                         return false;
+                        
+                    } else if ($default_source == "SS") {
+                        //Now assigning this case to SS
+                        $data['partner_id'] = SNAPDEAL_ID;
+                        $data['source'] = $default_source;
+                    } else if ($default_source == "SP") {
+                        $data['partner_id'] = PAYTM;
+                        $data['source'] = $default_source;
                     }
                 }
             }
