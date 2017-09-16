@@ -220,7 +220,7 @@ class Buyback {
                         $bb_unit_details = array(
                             'order_status' => $this->POST_DATA['current_status']
                         );
-                        $this->My_CI->bb_model->update_bb_unit_details($where_bb_order, $bb_unit_details);
+                        $this->My_CI->bb_model->update_bb_unit_details(array('partner_order_id' => $this->POST_DATA['partner_order_id'] ), $bb_unit_details);
                         $this->insert_bb_state_change($this->POST_DATA['partner_order_id'], $this->POST_DATA['current_status'], NULL, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
                         
                         $this->My_CI->initialized_variable->total_updated();
