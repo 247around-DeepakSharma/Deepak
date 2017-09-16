@@ -1171,7 +1171,7 @@ class Service_centers extends CI_Controller {
      * 
      */
     function show_vendor_details(){
-        $this->checkUserSession();
+        //$this->checkUserSession();
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $id = $this->session->userdata('service_center_id');
         if(!empty($id)){
@@ -1841,9 +1841,17 @@ class Service_centers extends CI_Controller {
                 $update_id = $this->cp_model->update_bb_cp_order_action($where, $data);
                 if ($update_id) {
                     log_message("info", __METHOD__ . "Cp Action table updated for order id: " . $order_id);
-                    $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('id'), _247AROUND, Null);
-                    $this->session->set_userdata('success', 'Order has been updated successfully');
-                    redirect(base_url().'service_center/bb_order_details');
+                    //update order details table
+                    $order_details_update_id = $this->bb_model->update_bb_order_details(array('partner_order_id' => $order_id,'assigned_cp_id' => $cp_id), array('is_delivered' => '1'));
+                    if(!empty($order_details_update_id)){
+                        $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('id'), _247AROUND, Null);
+                        $this->session->set_userdata('success', 'Order has been updated successfully');
+                        redirect(base_url().'service_center/bb_order_details');
+                    }else{
+                        $this->session->set_userdata('error','Oops!!! There are some issue in updating order. Please Try Again...');
+                        redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
+                    }
+                    
                 }
             }
         }
