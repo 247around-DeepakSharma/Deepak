@@ -120,6 +120,7 @@ class Upload_buyback_process extends CI_Controller {
                                 $rowData1['partner_order_id'] = $rowData1['order_id'];
                                 $rowData1['partner_basic_charge'] = $rowData1['discount_value'];
                                 $rowData1['delivery_date'] = "";
+                                $rowData1['file_received_date'] = date('Y-m-d', strtotime($this->input->post('file_received_date')));
                                 if ($rowData1['city'] == '0') {
                                     $rowData1['city'] = "";
                                 }
@@ -129,6 +130,7 @@ class Upload_buyback_process extends CI_Controller {
                                 }
                                 
                                 $temp_arr['file_name'] = $order_file;
+                                $temp_arr['file_received_date'] = $rowData1['file_received_date'];
                                 $temp_arr['order_day'] = $dateObj1->format('Y-m-d');
                                 $temp_arr['partner_name'] = $rowData1['partner_name'];
                                 $temp_arr['subcat'] = $rowData1['subcat'];
