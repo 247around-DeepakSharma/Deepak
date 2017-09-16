@@ -315,7 +315,7 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Buyback <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="<?php echo base_url();?>service_center/bb_oder_details">Buyback Order Details</a></li>
+                                <li><a href="<?php echo base_url();?>service_center/bb_order_details">Buyback Order Details</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/show_bb_price_list">Buyback Charges List</a></li>
                             </ul>
