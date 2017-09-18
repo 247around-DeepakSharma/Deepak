@@ -192,6 +192,9 @@ class Around_scheduler_model extends CI_Model {
             case 'all':
                 $data = $this->get_all_user_booking_phn_number();
                 break;
+            case 'promotion':
+                $data = $this->get_all_promotional_active_user_phone_number();
+                break;
         }
         
         if(!empty($data)){
@@ -441,6 +444,15 @@ class Around_scheduler_model extends CI_Model {
         $this->db->select('*');
         $this->db->where('is_verified',1);
         $query = $this->db->get('appliance_product_description');
+        return $query->result_array();
+    }
+    /*
+     * 
+     */
+    function get_all_promotional_active_user_phone_number(){
+        $this->db->select('*');
+        $this->db->where('ndnc',0);
+        $query = $this->db->get('users');
         return $query->result_array();
     }
 
