@@ -434,5 +434,13 @@ define('ERR_STATUS_EMPTY_MSG', 'Status Should Not Be Empty');
 define('SUCCESS_UPDATED_MSG', 'Order is Updated Successfully');
 define('PRODUCT_DELIVERED', 'PRODUCT_DELIVERED');
 
+//SMS deactivation constant
+define('SMS_DEACTIVATION_MAIL_SERVER','{md-in-13.webhostbox.net}');
+define('SMS_DEACTIVATION_EMAIL','chhavid@247around.com');
+define('SMS_DEACTIVATION_PASSWORD','chhavid247');
+define('SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS','-1 day');
+define('SMS_DEACTIVATION_EMAIL_SUBJECT','has requested for opt-out!');
+define('SMS_DEACTIVATION_NO_NEW_REQUEST_MSG','There is not any new request');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
