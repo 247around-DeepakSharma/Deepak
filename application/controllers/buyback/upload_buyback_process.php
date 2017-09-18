@@ -12,6 +12,7 @@ ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
 
 class Upload_buyback_process extends CI_Controller {
     var $Columfailed = "";
+    var $upload_sheet_data = array();
 
     /**
      * load list modal and helpers
@@ -115,10 +116,11 @@ class Upload_buyback_process extends CI_Controller {
                                 $rowData1['order_date'] = $dateObj1->format('Y-m-d');
                                 $rowData1['order_key'] = $rowData1['buyback_details'];
                                 $rowData1['current_status'] = $rowData1['orderstatus'];
-                                $rowData1['partner_sweetner_charges'] = $rowData1['sweetenervalue'];
+                                $rowData1['partner_sweetner_charges'] = isset($rowData1['sweetenervalue'])?$rowData1['sweetenervalue']:'';
                                 $rowData1['partner_order_id'] = $rowData1['order_id'];
                                 $rowData1['partner_basic_charge'] = $rowData1['discount_value'];
                                 $rowData1['delivery_date'] = "";
+                                $rowData1['file_received_date'] = date('Y-m-d', strtotime($this->input->post('file_received_date')));
                                 if ($rowData1['city'] == '0') {
                                     $rowData1['city'] = "";
                                 }
@@ -126,7 +128,23 @@ class Upload_buyback_process extends CI_Controller {
                                     $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['old_item_del_date']);
                                     $rowData1['delivery_date'] = $dateObj2->format('Y-m-d');
                                 }
+                                
+                                $temp_arr['file_name'] = $order_file;
+                                $temp_arr['file_received_date'] = $rowData1['file_received_date'];
+                                $temp_arr['order_day'] = $dateObj1->format('Y-m-d');
+                                $temp_arr['partner_name'] = $rowData1['partner_name'];
+                                $temp_arr['subcat'] = $rowData1['subcat'];
+                                $temp_arr['order_id'] = $rowData1['order_id'];
+                                $temp_arr['city'] = $rowData1['city'];
+                                $temp_arr['tracking_id'] = isset($rowData1['tracking_id'])?$rowData1['tracking_id']:'';
+                                $temp_arr['discount_value'] = $rowData1['discount_value'];
+                                $temp_arr['order_status'] = $rowData1['orderstatus'];
+                                $temp_arr['old_item_del_date'] = $rowData1['delivery_date'];
+                                $temp_arr['buyback_details'] =$rowData1['buyback_details'];
+                                $temp_arr['sweetner_value'] = isset($rowData1['sweetenervalue'])?$rowData1['sweetenervalue']:'';
+                                array_push($this->upload_sheet_data, $temp_arr);
 
+                                unset($temp_arr);
                                 unset($rowData1['order_id']);
                                 unset($rowData1['discount_value']);
                                 unset($rowData1['order_day']);
@@ -152,6 +170,13 @@ class Upload_buyback_process extends CI_Controller {
                                 $error = true;
                                 break;
                             }
+                        }
+                        
+                        $insert_id = $this->bb_model->insert_bb_sheet_data($this->upload_sheet_data);
+                        if($insert_id){
+                            log_message('info',"Buyback Sheet Data Inserted");
+                        }else{
+                            log_message('info',"Error In Inserting Buyback Sheet Data");
                         }
                         $total_lead = $i;
 
@@ -225,11 +250,11 @@ class Upload_buyback_process extends CI_Controller {
             $error = true;
         }
 
-        if (!array_key_exists('sweetenervalue', $rowData1)) {
-            $message .= " Sweetener Value Column does not exist. <br/><br/>";
-            $this->Columfailed .= " Sweetener Value, ";
-            $error = true;
-        }
+//        if (!array_key_exists('sweetenervalue', $rowData1)) {
+//            $message .= " Sweetener Value Column does not exist. <br/><br/>";
+//            $this->Columfailed .= " Sweetener Value, ";
+//            $error = true;
+//        }
         
         if (!array_key_exists('order_id', $rowData1)) {
       

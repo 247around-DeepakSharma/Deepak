@@ -2,6 +2,7 @@ uploadfile.service('fileUpload', ['$http', function ($http) {
     this.uploadFileToUrl = function($scope,file, uploadUrl){
         var fd = new FormData();
         fd.append('file', file);
+        fd.append('file_received_date',$scope.file_date.received_date)
         $http.post(uploadUrl, fd, {
             transformRequest: angular.identity,
             headers: {'Content-Type': undefined}

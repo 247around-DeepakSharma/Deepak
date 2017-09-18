@@ -1015,36 +1015,6 @@ class Buyback_process extends CI_Controller {
             redirect(base_url() . 'buyback/buyback_process/view_bb_order_details');
         }
     }
-
-    /**
-     * @desc This function is used to update the buyback order when order received by
-     *       the collection partner.
-     * @param void();
-     * @return void();
-     */
-    function process_received_bb_order_update(){ 
-        log_message("info",__METHOD__);
-        //check for validation
-        $this->form_validation->set_rules('order_id', 'Order Id', 'trim|required');
-        $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
-        $this->form_validation->set_rules('order_working_condition', 'Order Working Condition', 'trim|required');
-        
-        if($this->form_validation->run() === false){
-            $msg = "Please fill all required field";
-            $this->session->set_userdata('error',$msg);
-            redirect(base_url().'buyback/buyback_process/update_received_bb_order/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
-        }else {
-            $data = $this->input->post();
-            $response = $this->buyback->process_update_received_bb_order_details($data);
-            if($response['status'] === 'success'){
-                $this->session->set_userdata('success',$response['msg']);
-                redirect(base_url().'buyback/buyback_process/view_bb_order_details');
-            }else if($response['status'] === 'error'){
-                $this->session->set_userdata('error',$response['msg']);
-                redirect(base_url().'buyback/buyback_process/update_received_bb_order/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
-            }
-        }
-    }
     
     
     /**
@@ -1281,7 +1251,8 @@ class Buyback_process extends CI_Controller {
                     
                     $order_details_data = array('current_status' => _247AROUND_BB_TO_BE_CLAIMED,
                         'internal_status' => _247AROUND_BB_ORDER_MISMATCH,
-                        'acknowledge_date' => date('Y-m-d H:i:s')
+                        'acknowledge_date' => date('Y-m-d H:i:s'),
+                        'is_delivered' => '1'
                     );
 
                     //update order details table

@@ -1185,10 +1185,10 @@ class Do_background_upload_excel extends CI_Controller {
                 } else {
                     if($value['partner_id'] == 247041){
                         //Now assigning this case to SS
+                        return false;
+                    } else {
                         $data['partner_id'] = SNAPDEAL_ID;
                         $data['source'] = 'SS';
-                    } else {
-                        return false;
                     }
                 }
             }

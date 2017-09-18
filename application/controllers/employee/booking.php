@@ -166,8 +166,8 @@ class Booking extends CI_Controller {
 
             foreach ($appliance_brand as $key => $value) {
 
-                $services_details = "";
-                $appliances_details = "";
+                $services_details = array();
+                $appliances_details = array();
                 $appliances_details['user_id'] = $user_id;
 
                 $appliances_details['brand'] = $services_details['appliance_brand'] = $value; // brand
@@ -198,13 +198,23 @@ class Booking extends CI_Controller {
                  * */
                 if (!empty($appliances_details['description'])) {
                     $check_product_type = $this->booking_model->get_service_id_by_appliance_details(trim($appliances_details['description']));
-                    if (!$check_product_type) {
+                    $verified_capacity = $this->miscelleneous->verified_applicance_capacity($appliances_details);
+                    if (empty($check_product_type)) {
                         $insert_data = array('service_id' => $appliances_details['service_id'],
                             'category' => $appliances_details['category'],
                             'capacity' => $appliances_details['capacity'],
-                            'brand' => $appliances_details['brand'],
-                            'product_description' => trim($appliances_details['description']));
+                            'brand' => $appliances_details['dd'],
+                            'product_description' => trim($appliances_details['description']),
+                            'is_verified' => $verified_capacity['is_verified']);
                         $this->booking_model->insert_appliance_details($insert_data);
+                    }else{
+                        $this->booking_model->update_appliance_description_details(array('is_verified' => $verified_capacity['is_verified']),
+                                array('service_id' => $appliances_details['service_id'],
+                                    'category' => $appliances_details['category'],
+                                    'capacity' => $appliances_details['capacity'],
+                                    'product_description' => trim($appliances_details['description']),
+                                    'brand' => $appliances_details['brand'],
+                                    ));
                     }
                 }
 

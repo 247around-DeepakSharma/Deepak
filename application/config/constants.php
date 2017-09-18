@@ -261,7 +261,7 @@ define('AC_SERVICE_MISSED_CALLED_NUMBER','01139595450');
 define('HOME_THEATER_REPAIR_SERVICE_TAG', 'Repair - In Warranty (Service Center Visit)');
 define('HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY', 'Repair - Out Of Warranty (Service Center Visit)');
 
-define("CAP_ON_PENALTY_AMOUNT", "50");
+define("CAP_ON_PENALTY_AMOUNT", "100");
 define("PAYTM", "3");
 define("PENALTY_ON_COMPLETED_BOOKING", TRUE);
 define("PENALTY_ON_CANCELLED_BOOKING", TRUE);
