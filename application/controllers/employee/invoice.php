@@ -2448,8 +2448,8 @@ class Invoice extends CI_Controller {
                 array_push($payment_data, $sc_details);
             }
 
-            header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename=payment_upload_summary.csv');
+            header("Content-Type:   application/vnd.ms-excel; charset=utf-8");
+            header("Content-Disposition: attachment; filename=payment_upload_summary.xls");
 
             // create a file pointer connected to the output stream
             $output = fopen('php://output', 'w');
