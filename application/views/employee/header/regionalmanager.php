@@ -7,7 +7,7 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <meta name="format-detection" content="telephone=no">
-        <title>Telecaller</title>
+        <title>247Around</title>
         <!-- Bootstrap Core CSS -->
         <link href="<?php echo base_url()?>css/bootstrap.min.css" rel="stylesheet">
         <!-- Custom CSS -->
@@ -263,6 +263,10 @@
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/user/user_count" ><i class="fa fa-fw fa-desktop"></i> <strong> Users</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/dashboard/buyback_dashboard" target="_blank"><i class="fa fa-fw fa-desktop"></i> <strong>Buyback Dashboard</strong></a>
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
