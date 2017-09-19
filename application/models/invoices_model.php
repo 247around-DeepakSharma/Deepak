@@ -184,7 +184,7 @@ class invoices_model extends CI_Model {
         $array = array();
 
         if ($vendor_partner == "vendor") {
-            $select = "service_centres.name, service_centres.id, on_off, active, is_verified, pan_no, service_tax_no, tin_no, cst_no, contract_file";
+            $select = "service_centres.name, service_centres.id, on_off, active, is_verified, pan_no, service_tax_no, tin_no, cst_no, contract_file, gst_no";
             $data = $this->vendor_model->getVendorDetails($select, $where);
             $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
             
@@ -228,6 +228,7 @@ class invoices_model extends CI_Model {
                 $result[0]['service_tax_no'] = $value['service_tax_no'];
                 $result[0]['tin_no'] = $value['tin_no'];
                 $result[0]['cst_no'] = $value['cst_no'];
+                $result[0]['gst_no'] = $value['gst_no'];
                 $result[0]['contract_file'] = $value['contract_file'];
                 $result[0]['count_spare_part'] = $this->get_pending_defective_parts($value['id'])[0]['count'];
             } else if (isset($value['public_name'])) {
@@ -247,7 +248,6 @@ class invoices_model extends CI_Model {
 
             array_push($array, $result[0]);
         }
-
         return $array;
     }
     
