@@ -33,15 +33,15 @@
                                     </div>
                                     
                                 </div>
-<!--                                <div  class="form-group <?php //if( form_error('is_gst') ) { echo 'has-error';} ?>">
+                                <div  class="form-group <?php if( form_error('is_gst') ) { echo 'has-error';} ?>">
                                     <label  for="company_name" class="col-md-4">GST Registration Done?</label>
-                                    <div class="col-md-8"><label class="radio-inline">-->
+                                    <div class="col-md-8"><label class="radio-inline">
                                         <input type="radio" onclick="is_gst_number(this);" style="display:none" name="is_gst" value="1" checked required>
-<!--                                       </label> <label class="radio-inline"><input type="radio" onclick="is_gst_number(this);" name="is_gst" value="0" required>No</label>
-                                         <?php //echo form_error('is_gst'); ?>
+                                       </label> <label class="radio-inline"><input type="radio" onclick="is_gst_number(this);" name="is_gst" value="0" required>No</label>
+                                         <?php echo form_error('is_gst'); ?>
                                     </div>
-                                   
-                                </div>-->
+                                </div>    
+                                    
                                  <div  class="form-group <?php if( form_error('gst_number') ) { echo 'has-error';} ?>">
                                     <label  for="gst_no" class="col-md-4">Company GST No</label>
                                     <div class="col-md-8">
