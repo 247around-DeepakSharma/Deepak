@@ -37,7 +37,7 @@ class Employee_model extends CI_Model{
       }else{
           $this->db->select('*');
       }
-      
+      $this->db->where('active',1);
       $query = $this->db->get('employee');
       if ($query->num_rows() > 0) {
         return $query->result_array();

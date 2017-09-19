@@ -1,5 +1,4 @@
 <?php
-
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
@@ -14,6 +13,7 @@ class Around_scheduler extends CI_Controller {
         parent::__Construct();
 
         $this->load->model('around_scheduler_model');
+        $this->load->model('user_model');
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
         $this->load->model('employee_model');
@@ -26,6 +26,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('PHPReport');
         $this->load->library('table');
         $this->load->library('buyback');
+        $this->load->library('email_data_reader');
         $this->load->helper(array('form', 'url', 'file'));
         $this->load->dbutil();
     }
@@ -763,6 +764,52 @@ class Around_scheduler extends CI_Controller {
         }
     }
     
+     /*
+      *@desc: This function is use to process sms deactivation request from user 
+      *This Function fetch deactivation request from email, and update user table for requested numbers
+      *This Function calls by cron
+     */
+    function process_sms_deactivation_request(){
+        $to_date = date('Y-m-d');
+        $from_date = date('Y-m-d',(strtotime (SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS , strtotime($to_date))));
+        //create connection for email
+        $conn = $this->email_data_reader->create_email_connection(SMS_DEACTIVATION_MAIL_SERVER,SMS_DEACTIVATION_EMAIL,SMS_DEACTIVATION_PASSWORD);
+        if($conn != 'FALSE'){
+            //get emails for previous day
+            $email_data = $this->email_data_reader->fetch_emails_between_two_dates($to_date,$from_date);
+            //get numbers array, from which we get deactivation request before 1 day
+            $count = count($email_data);
+            $numbers = array();
+            for($i=0;$i<$count;$i++){
+                if (strpos($email_data[$i][0]->subject, SMS_DEACTIVATION_EMAIL_SUBJECT) !== false) {
+                    //get numbers
+                    $numbers[] = substr(trim(explode(SMS_DEACTIVATION_EMAIL_SUBJECT,$email_data[$i][0]->subject)[0]),-10);
+                }
+            }
+            //update sms_activation status for requested numbers
+            if(!empty($numbers)){
+                $updated_rows = $this->user_model->update_sms_deactivation_status($numbers);
+                if($updated_rows>0){
+                    $length = count($numbers);
+                    for($j=0;$j<$length;$j++){
+                        log_message('info', 'NDNC has been activated for '.$numbers[$j]);
+                    }
+                }
+                else{
+                    log_message('info', 'NDNC already activated');
+                }
+            }
+            else{
+                log_message('info', 'There is not any new request for NDNC');
+            }
+            //close email connection
+            $this->email_data_reader->close_email_connection();
+        }
+        else{
+            log_message('info', 'Connection is not created');
+        }
+    }
+    
     /**
      * @desc: This function is used to send those appliance data which are not verified yet
      * @param:void()
@@ -797,5 +844,5 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-
 }
+
