@@ -4,9 +4,10 @@ uploadfile.controller('uploadOrderDetailsFile', ['$scope', 'fileUpload', functio
 
         $scope.uploadFile = function () {
             var file = $scope.myFile;
+            var file_date = $scope.file_date.received_date
             $scope.ShowSpinnerStatus = true;
             var uploadUrl = baseUrl + "/buyback/upload_buyback_process/process_upload_order";
-            fileUpload.uploadFileToUrl($scope, file, uploadUrl);
+            fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
         };
 
     }]);
@@ -16,9 +17,10 @@ uploadfile.controller('uploadPriceChargesFile', ['$scope', 'fileUpload', functio
 
         $scope.uploadFile = function () {
             var file = $scope.myFile;
+            var file_date = ''
             $scope.ShowSpinnerStatus = true;
             var uploadUrl = baseUrl + "/buyback/upload_buyback_process/proces_upload_bb_price_charges";
-            fileUpload.uploadFileToUrl($scope, file, uploadUrl);
+            fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
         };
 
     }]);
