@@ -320,7 +320,7 @@ class vendor extends CI_Controller {
                 }
                 
        
-            
+
             $non_working_days = $this->input->post('day');
             $appliances = $this->input->post('appliances');
             $brands = $this->input->post('brands');
@@ -353,7 +353,7 @@ class vendor extends CI_Controller {
             }
             
             
-            if(isset($_POST['is_verified'])){
+            if(isset($_POST['is_verified']) && !empty($_POST['is_verified'])){
                $_POST['is_verified'] = '1';
             }else if(!isset($_POST['is_verified']) && $this->session->userdata('user_group') == 'admin')
             {
