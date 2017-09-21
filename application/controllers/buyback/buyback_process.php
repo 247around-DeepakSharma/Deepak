@@ -986,7 +986,7 @@ class Buyback_process extends CI_Controller {
         $post['length'] = -1;
         
         $list['list'] = $this->bb_model->get_bb_order_list($post);
-        $select = "bb_shop_address.id, concat(name,'( ' ";
+        $select = "bb_shop_address.id,bb_shop_address.cp_id, concat(name,'( ' ";
        
         $select .= ",shop_address_region ";
         $select .= " ) as cp_name";

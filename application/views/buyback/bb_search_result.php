@@ -50,9 +50,9 @@
                                     <select name="assign_cp_id[<?php echo $value->partner_order_id; ?>]" ui-select2  class="assign_cp_id"  class="form-control" 
                                         data-placeholder="Select CP" style="width:200px;">
                                         <option value="" selected disabled>Select CP</option>   
-                                         <?php foreach ($shop_list as $key => $value) { ?>
+                                         <?php foreach ($shop_list as $key => $val) { ?>
                                                 
-                                        <option value="<?php echo $value['id']?>" ><?php echo $value['cp_name']?></option>   
+                                        <option value="<?php echo $val['id']?>" <?php if($value->assigned_cp_id == $val['cp_id']) { echo "selected";}?>><?php echo $val['cp_name']?></option>   
                                 <?php } ?>
                                         </select>
                                 </td>
