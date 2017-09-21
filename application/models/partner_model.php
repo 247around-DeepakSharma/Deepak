@@ -764,10 +764,12 @@ function get_data_for_partner_callback($booking_id) {
      * @param String $is_reporting_mail (O or 1)
      * @return Array
      */
-    function getpartner_details($select, $where, $is_reporting_mail="") {
+    function getpartner_details($select, $where = "", $is_reporting_mail="") {
 
 	$this->db->select($select);
-	$this->db->where($where);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $this->db->from('partners');
 	if ($is_reporting_mail != "") {
 	    $this->db->where_in('is_reporting_mail', $is_reporting_mail);
