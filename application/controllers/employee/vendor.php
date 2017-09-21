@@ -2847,7 +2847,7 @@ class vendor extends CI_Controller {
     function show_around_dashboard(){
         //Initializing array data for where and select clause
         $data_report['query'] = $this->vendor_model->get_around_dashboard_queries();
-        $data_report['data'] = $this->vendor_model->execute_around_dashboard_query($data_report['query']);
+        $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
         
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/247around_dashboard', $data_report);

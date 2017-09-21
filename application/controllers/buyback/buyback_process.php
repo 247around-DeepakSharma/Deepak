@@ -121,6 +121,9 @@ class Buyback_process extends CI_Controller {
             case 19:
                 $data = $this->get_vendor_rejected_order_claimed_data(CLAIM_DEBIT_NOTE_RAISED);
                 break;
+            case 20:
+                $data = $this->get_bb_claimed_raised_order_data();
+                break;
         }
         
         $post = $data['post'];
@@ -602,7 +605,7 @@ class Buyback_process extends CI_Controller {
         return $row;
     }
     
-    function generic_table_data($order_list, $no){
+    function generic_table_data($order_list, $no, $is_new_row=""){
         log_message("info",__METHOD__);
         $row = array();
         $row[] = $no;
@@ -612,6 +615,9 @@ class Buyback_process extends CI_Controller {
         $row[] = $order_list->city;
         $row[] = $order_list->order_date;
         $row[] = $order_list->current_status;
+        if($is_new_row){
+            $row[] = $order_list->internal_status;
+        }
         $row[] = $order_list->partner_basic_charge;
         $row[] = "<input type ='checkbox' class = 'form control'>";
 
@@ -1838,5 +1844,59 @@ class Buyback_process extends CI_Controller {
             
                 );
     }
+    
+    /**
+     * @desc This function is used to show bb claim raised data
+     * @param void()
+     * @return void()
+     */
+    
+    function bb_claimed_raised_order_data(){
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('buyback/bb_claimed_raised_order_data');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    
+    /**
+     * @desc This function is used to get bb claim raised data
+     * @param void()
+     * @return array()
+     */
+    function get_bb_claimed_raised_order_data() {
+        $post = $this->get_bb_post_view_data();
+        $post['where_in'] = array('current_status' => array(CLAIM_DEBIT_NOTE_RAISED));
+        $post['where'] = array();
+        $post['column_order'] = array(NULL, NULL, 'services', 'city', 'order_date', 'current_status','internal_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id', 'services', 'city', 'order_date', 'current_status','internal_status');
+        
+        $list = $this->bb_model->get_bb_order_list($post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row = $this->generic_table_data($order_list, $no,TRUE);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+    
+     /**
+     * @desc This function is used to show dashboard header summary
+     * @param void()
+     * @return void()
+     */
+    function get_buyback_dashboard_summary(){
+        
+        $data_report['query'] = $this->bb_model->get_bb_dashboard_queries();
+        $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
+        $this->load->view('dashboard/bb_dashboard_summary', $data_report);
+    }
+
     
 }
