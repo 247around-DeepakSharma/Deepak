@@ -844,5 +844,39 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
+    
+    /**
+     * @desc: This function is used to send reminder mail when partner contract expired
+     * @param: void()
+     * @return: void()
+     */
+    function send_partner_contract_expiry_notification() {
+        $data = $this->partner_model->getpartner_details('public_name,agreement_end_date', array('datediff(curdate(),agreement_end_date)  >= -7' => null,'is_active' => 1));
+        if (!empty($data)) {
+
+            $template = array(
+                'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+            );
+
+            $this->table->set_template($template);
+            $this->table->set_heading('Partner Name', 'Agreement End Date');
+            $html_table = $this->table->generate($data);
+            //send email
+
+            $email_template = $this->booking_model->get_booking_email_template("partner_contract_expiry_reminder");
+            $to = NITS_ANUJ_EMAIL_ID;
+            $subject = $email_template[4];
+            $message = vsprintf($email_template[0], $html_table);
+
+            $sendmail = $this->notify->sendEmail($email_template[2], $to, "", "", $subject, $message, "");
+
+            if ($sendmail) {
+                log_message('info', __FUNCTION__ . 'Report Mail has been send successfully');
+            } else {
+                log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner ');
+            }
+        }
+    }
+
 }
 
