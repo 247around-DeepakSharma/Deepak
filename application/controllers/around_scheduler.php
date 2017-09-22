@@ -820,8 +820,8 @@ class Around_scheduler extends CI_Controller {
             $to = NITS_ANUJ_EMAIL_ID;
             $subject = $email_template[4];
             $message = vsprintf($email_template[0], $html_table);
-
-            $sendmail = $this->notify->sendEmail($email_template[2], $to, "", "", $subject, $message, "");
+            
+	    $sendmail = $this->notify->sendEmail($email_template[2], $to, "", "", $subject, $message, "");
 
             if ($sendmail) {
                 log_message('info', __FUNCTION__ . 'Report Mail has been send successfully');
@@ -830,7 +830,5 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-
-}
 
 }
