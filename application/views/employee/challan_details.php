@@ -101,6 +101,7 @@
                                 <option value="ST">Service Tax</option>
                                 <option value="VAT">VAT</option>
                                 <option value="TDS">TDS</option>
+                                <option value="GST">GST</option>
                                 <option value="Other">Other</option>
                                 <option value="ALL">ALL</option>
                             </select>
