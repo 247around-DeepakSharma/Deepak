@@ -1502,78 +1502,93 @@ class vendor extends CI_Controller {
                 redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
 
             }
-
-            //Logging
-            log_message('info', __FUNCTION__ . ' Processing of Pincode CSV File started');
-
-            //Processing SQL Queries
-            
-            $sql_commands = array();
-            array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
-            $this->vendor_model->execute_query($sql_commands);
-            unset($sql_commands);
-
-            $dbHost=$this->db->hostname;
-            $dbUser=$this->db->username;
-            $dbPass=$this->db->password;
-            $dbName=$this->db->database;
-
             $csv = TMP_FOLDER.$newCSVFileName;
-            $sql = "LOAD DATA LOCAL INFILE '$csv' INTO TABLE vendor_pincode_mapping_temp "
-                   . "FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' "
-                    . "(Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State);";
-
-            $res1 = 0;
-            system("mysql -u $dbUser -h $dbHost --password=$dbPass --local_infile=1 -e \"$sql\" $dbName", $res1);
-
-            $sql_commands1 = array();
             
-            array_push($sql_commands1, "TRUNCATE TABLE vendor_pincode_mapping;");
-            array_push($sql_commands1, "INSERT vendor_pincode_mapping SELECT * FROM vendor_pincode_mapping_temp;");
-
-            $this->vendor_model->execute_query($sql_commands1);
-
-            //Inserting file details in pincode_mapping_s3_upload_details
-//            $data['bucket_name'] = 'vendor-pincodes';// We add Directory of Bucket used
-//            $data['file_name'] = $newCSVFileName;
-//            $data['agent_id'] = $this->session->userdata('id');
-//
-//            $this->vendor_model->insertS3FileDetails($data);
+            //check file is valid or not
+            $file = fopen($csv,"r");
+            $is_valid_file = TRUE;
+            while(! feof($file))
+            {
+                $csv_content = fgetcsv($file);
+                foreach($csv_content as $data){
+                    if(empty($data)){
+                        $is_valid_file = FALSE;
+                        break;
+                    }
+                }
+                
+            }
+            fclose($file);
             
-            //Adding Details in File_Uploads table as well
-            $data_uploads['file_name'] = "vendor_pincode_mapping_temp_".date('j-M-Y').".zip";
-            $data_uploads['file_type'] = _247AROUND_VENDOR_PINCODE;
-            $data_uploads['agent_id'] = $this->session->userdata('id');
-            $insert_id = $this->partner_model->add_file_upload_details($data_uploads);
-            if (!empty($insert_id)) {
-                //Logging success
-                log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data_uploads, TRUE));
-            } else {
-                //Loggin Error
-                log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data_uploads, TRUE));
+            //process if file is valid else disply error message
+            if($is_valid_file){
+                //Logging
+                log_message('info', __FUNCTION__ . ' Processing of Pincode CSV File started');
+                //Processing SQL Queries
+                $sql_commands = array();
+                array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
+                $this->vendor_model->execute_query($sql_commands);
+                unset($sql_commands);
+
+                $dbHost=$this->db->hostname;
+                $dbUser=$this->db->username;
+                $dbPass=$this->db->password;
+                $dbName=$this->db->database;
+                
+                $sql = "LOAD DATA LOCAL INFILE '$csv' INTO TABLE vendor_pincode_mapping_temp "
+                       . "FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' "
+                        . "(Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State);";
+
+                $res1 = 0;
+                system("mysql -u $dbUser -h $dbHost --password=$dbPass --local_infile=1 -e \"$sql\" $dbName", $res1);
+
+                $sql_commands1 = array();
+
+                array_push($sql_commands1, "TRUNCATE TABLE vendor_pincode_mapping;");
+                array_push($sql_commands1, "INSERT vendor_pincode_mapping SELECT * FROM vendor_pincode_mapping_temp;");
+
+                $this->vendor_model->execute_query($sql_commands1);
+
+                //Adding Details in File_Uploads table as well
+                $data_uploads['file_name'] = "vendor_pincode_mapping_temp_".date('j-M-Y').".zip";
+                $data_uploads['file_type'] = _247AROUND_VENDOR_PINCODE;
+                $data_uploads['agent_id'] = $this->session->userdata('id');
+                $insert_id = $this->partner_model->add_file_upload_details($data_uploads);
+                if (!empty($insert_id)) {
+                    //Logging success
+                    log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data_uploads, TRUE));
+                } else {
+                    //Loggin Error
+                    log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data_uploads, TRUE));
+                }
+
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/"."vendor_pincode_mapping_temp_".date('j-M-Y').".zip";
+                $this->s3->putObjectFile($newZipFileName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                //Logging
+                log_message('info', __FUNCTION__ . ' Vendor Pincode Zipped File has been uploaded in S3');
+                
+                //remove file from system
+                unlink($csv);
+                unlink($newZipFileName);
+                
+                log_message('info', __FUNCTION__ . ' => All queries executed: ');
+                
+                $this->session->set_flashdata('success_msg','Pincode File Uploaded successfully');
+                redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
+            }else{
+                
+                //remove file from system
+                unlink($csv);
+                unlink($newZipFileName);
+                
+                $this->session->set_flashdata('file_error','Pincode File Is Not Valid Please Check And Upload Again');
+                redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
             }
             
             
-            //Upload files to AWS
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/"."vendor_pincode_mapping_temp_".date('j-M-Y').".zip";
-            $this->s3->putObjectFile($newZipFileName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-            //Logging
-            log_message('info', __FUNCTION__ . ' Vendor Pincode Zipped File has been uploaded in S3');
-            
-//             //Uploading csv file to S3
-//            $directory_xls = "vendor-pincodes/" . $newCSVFileName;
-//            $this->s3->putObjectFile(TMP_FOLDER . $newCSVFileName, BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
-
-
-            system ("rm -rf ".$newZipFileName);
-            system ("rm -rf ".TMP_FOLDER . $CSVFileName );
-            system ("rm -rf ".TMP_FOLDER . $newCSVFileName );
-            log_message('info', __FUNCTION__ . ' => All queries executed: ');
-            //log_message('info', __FUNCTION__ . ' => New pincode count: ' . $count);
-
-            $this->session->set_flashdata('success_msg','Pincode File Uploaded successfully');
-            redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
         }else{
             $this->session->set_flashdata('file_error',' Empty File has been uploaded');
             redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
