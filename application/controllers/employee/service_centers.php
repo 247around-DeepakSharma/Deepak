@@ -2190,9 +2190,9 @@ class Service_centers extends CI_Controller {
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending', 'bb_order_details.internal_status' => 'Delivered','bb_order_details.current_status' => 'Delivered');
         $post['where_in'] = array();
-        $post['column_order'] = array( NULL,'bb_order_details.partner_tracking_id','services','category',
+        $post['column_order'] = array( NULL,'bb_order_details.partner_order_id','bb_order_details.partner_tracking_id','services','category',
               'cp_basic_charge','category','delivery_date',NULL,NULL);
-        $post['column_search'] = array('bb_order_details.partner_tracking_id', 'services', 'city',
+        $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'city',
             'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
         log_message('info',$this->db->last_query());
@@ -2224,9 +2224,9 @@ class Service_centers extends CI_Controller {
             'bb_cp_order_action.current_status' => 'Pending');
         $post['where_in'] = array('bb_order_details.internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted'),
             'bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
-        $post['column_order'] = array( NULL,'bb_order_details.partner_tracking_id','services', 'category',
+        $post['column_order'] = array( NULL,'bb_order_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'category',
               'order_date','cp_basic_charge',NULL,NULL);
-        $post['column_search'] = array('bb_order_details.partner_tracking_id', 'services', 'bb_unit_details.category','order_date', 'cp_basic_charge');
+        $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'bb_unit_details.category','order_date', 'cp_basic_charge');
         $list = $this->cp_model->get_bb_cp_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -2254,9 +2254,9 @@ class Service_centers extends CI_Controller {
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
         $post['where_in'] = array('bb_cp_order_action.current_status' => array('Delivered', 'InProcess', 'Not Delivered', 'Damaged'),
                                   'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged'));
-        $post['column_order'] = array( NULL,'bb_order_details.partner_tracking_id','services','category',
+        $post['column_order'] = array( NULL,'bb_order_details.partner_order_id','bb_order_details.partner_tracking_id','services','category',
                                 'order_date','delivery_date','cp_basic_charge',NULL,NULL);
-        $post['column_search'] = array('bb_order_details.partner_tracking_id', 'services', 'city',
+        $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'city',
             'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
         $data = array();
@@ -2286,7 +2286,8 @@ class Service_centers extends CI_Controller {
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."service_center/buyback/view_bb_order_details/".
-                $order_list->partner_order_id."'>$order_list->partner_tracking_id</a>";
+                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+        $row[] = $order_list->partner_tracking_id;
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
@@ -2318,7 +2319,8 @@ class Service_centers extends CI_Controller {
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."service_center/buyback/view_bb_order_details/".
-                $order_list->partner_order_id."'>$order_list->partner_tracking_id</a>";
+                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+        $row[] = $order_list->partner_tracking_id;
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = $order_list->order_date;
@@ -2347,7 +2349,8 @@ class Service_centers extends CI_Controller {
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."service_center/buyback/view_bb_order_details/".
-                $order_list->partner_order_id."'>$order_list->partner_tracking_id</a>";
+                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+        $row[] = $order_list->partner_tracking_id;
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = $order_list->order_date;
