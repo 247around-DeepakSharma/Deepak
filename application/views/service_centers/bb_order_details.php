@@ -68,8 +68,8 @@
                     <thead>
                         <tr>
                             <th>No.</th>
-                            <th>Order Partner ID</th>
-                            <th>Order Tracking ID</th>
+                            <th>Order ID</th>
+                            <th>Tracking ID</th>
                             <th>Service Name</th>
                             <th>Category</th>
                             <th>Order date</th>
@@ -90,8 +90,8 @@
                         <thead>
                             <tr>
                                 <th>No.</th>
-                                <th>Order Partner ID</th>
-                                <th>Order Tracking ID</th>
+                                <th>Order ID</th>
+                                <th>Tracking ID</th>
                                 <th>Service Name</th>
                                 <th>Category</th>
                                 <th>SF Charge</th>
@@ -114,8 +114,8 @@
                     <thead>
                         <tr>
                             <th>No.</th>
-                            <th>Order Partner ID</th>
-                            <th>Order Tracking ID</th>
+                            <th>Order ID</th>
+                            <th>Tracking ID</th>
                             <th>Service Name</th>
                             <th>Category</th>
                             <th>Order date</th>
