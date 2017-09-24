@@ -145,11 +145,20 @@
         $(document).ready(function () {
             
             $('input[name="file_date"]').daterangepicker({
+                autoUpdateInput: false,
                 singleDatePicker: true,
                 showDropdowns: true,
                 locale:{
                     format: 'DD-MM-YYYY'
                 }
+            });
+            
+            $('input[name="file_date"]').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD-MM-YYYY'));
+            });
+
+            $('input[name="file_date"]').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
             });
 
             //datatables

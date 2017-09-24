@@ -3,10 +3,18 @@
 <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
+<style>
+    .col-md-2 {
+        width: 16.666667%;
+    }
+    .tile_count .tile_stats_count, ul.quick-list li {
+        white-space: normal;
+    }
+</style>
 <div class="right_col" role="main" ng-app="buyback_dashboard">
     <!-- top tiles -->
-    <div class="row tile_count" id="title_count">
-        <div class="col-md-12"><center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
+    <div class="row tile_count" id="title_count" ng-controller="bb_dashboard_summary">
+        <center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
     </div>
     <!-- /top tiles -->
 
@@ -18,21 +26,6 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Collection Partner <small>Amount Balance</small></h2>
-                    <ul class="nav navbar-right panel_toolbox">
-                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Settings 1</a>
-                                </li>
-                                <li><a href="#">Settings 2</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li><a class="close-link"><i class="fa fa-close"></i></a>
-                        </li>
-                    </ul>
                     <div class="clearfix"></div>
                 </div>
 

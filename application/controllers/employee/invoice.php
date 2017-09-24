@@ -2407,17 +2407,33 @@ class Invoice extends CI_Controller {
         $payment_data = array();
                 
         if (!empty($data)) {
-            $sc_details['debit_acc_no'] = "Debit Account No";
-            $sc_details['bank_account'] = "SF Bank Account";
+            $sc_details['debit_acc_no'] = "Debit Ac No";
+            $sc_details['bank_account'] = "Beneficiary Ac No";
             $sc_details['beneficiary_name'] = "Beneficiary Name";
-            $sc_details['final_amount'] = "Amount";
-            $sc_details['amount_type'] = "Type";
-            $sc_details['payment_mode'] = "Payment Mode";
-            $sc_details['payment_date'] = "Payment Date";
-            $sc_details['ifsc_code'] = "IFSC Code";
+            $sc_details['final_amount'] = "Amt";
+            $sc_details['payment_mode'] = "Pay Mod";
+            $sc_details['payment_date'] = "Date";
+            $sc_details['ifsc_code'] = "IFSC";
+            $sc_details['payable_location_name'] = "Payable Location name";
+            $sc_details['print_location'] = "Print Location";
+            $sc_details['bene_mobile_no'] = "Bene Mobile no";
+            $sc_details['bene_email_id'] = "Bene email id";
+            $sc_details['ben_add_1'] = "Ben add1";
+            $sc_details['ben_add_2'] = "Ben add2";
+            $sc_details['ben_add_3'] = "Ben add3";
+            $sc_details['ben_add_4'] = "Ben add4";
+            $sc_details['add_details_1'] = "Add details 1";
+            $sc_details['add_details_2'] = "Add details 2";
+            $sc_details['add_details_3'] = "Add details 3";
+            $sc_details['add_details_4'] = "Add details 4";
+            $sc_details['add_details_5'] = "Add details 5";
+            $sc_details['remarks'] = "Remarks";
             $sc_details['defective_parts'] = "No Of Defective Parts";
             $sc_details['is_verified'] = "Bank Account Verified";
-            $sc_details['remarks'] = "Remarks";
+            $sc_details['amount_type'] = "Type";
+            $sc_details['is_sf'] = "SF";
+            $sc_details['is_cp'] = "CP";
+            
             array_push($payment_data, $sc_details);
             foreach ($data as $service_center_id => $amount) {
                 $sc = $this->vendor_model->viewvendor($service_center_id)[0];
@@ -2427,12 +2443,6 @@ class Invoice extends CI_Controller {
                 $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
 
                 $sc_details['final_amount'] = abs(round($amount, 0));
-                if ($amount > 0) {
-                    $sc_details['amount_type'] = "CR";
-                } else {
-                    $sc_details['amount_type'] = "DR";
-                }
-
                 if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
                     $sc_details['payment_mode'] = "I";
                 } else {
@@ -2441,15 +2451,35 @@ class Invoice extends CI_Controller {
 
                 $sc_details['payment_date'] = date("d-M-Y");
                 $sc_details['ifsc_code'] = trim($sc['ifsc_code']);
+                $sc_details['payable_location_name'] = "";
+                $sc_details['print_location'] = "";
+                $sc_details['bene_mobile_no'] = "";
+                $sc_details['bene_email_id'] = "";
+                $sc_details['ben_add_1'] = "";
+                $sc_details['ben_add_2'] = "";
+                $sc_details['ben_add_3'] = "";
+                $sc_details['ben_add_4'] = "";
+                $sc_details['add_details_1'] = "";
+                $sc_details['add_details_2'] = "";
+                $sc_details['add_details_3'] = "";
+                $sc_details['add_details_4'] = "";
+                $sc_details['add_details_5'] = "";
+                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
                 $sc_details['defective_parts'] = $defective_parts[$service_center_id];
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
-                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
+                if ($amount > 0) {
+                    $sc_details['amount_type'] = "CR";
+                } else {
+                    $sc_details['amount_type'] = "DR";
+                }
+                $sc_details['is_sf'] = $sc['is_sf'];
+                $sc_details['is_cp'] = $sc['is_cp'];
                
                 array_push($payment_data, $sc_details);
             }
 
-            header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename=payment_upload_summary.csv');
+            header("Content-Type:   application/vnd.ms-excel; charset=utf-8");
+            header("Content-Disposition: attachment; filename=payment_upload_summary.xls");
 
             // create a file pointer connected to the output stream
             $output = fopen('php://output', 'w');
