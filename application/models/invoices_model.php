@@ -746,7 +746,7 @@ class invoices_model extends CI_Model {
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
-                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18), 0);
+                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.28), 0);
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += round($value['taxable_value'], 0);
