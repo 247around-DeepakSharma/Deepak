@@ -570,16 +570,22 @@ class Service_centers extends CI_Controller {
      * Get Service center Id from session.
      */
     function invoices_details() {
-        $this->checkUserSession();
-        $data['vendor_partner'] = "vendor";
-        $data['vendor_partner_id'] = $this->session->userdata('service_center_id');
-        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
+        //$this->checkUserSession();
+        if(!empty($this->session->userdata('service_center_id'))){
+            $data['vendor_partner'] = "vendor";
+            $data['vendor_partner_id'] = $this->session->userdata('service_center_id');
+            $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
 
-        $data2['partner_vendor'] = "vendor";
-        $data2['partner_vendor_id'] = $this->session->userdata('service_center_id');
-        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
-        $this->load->view('service_centers/header');
-        $this->load->view('service_centers/invoice_summary', $invoice);
+            $data2['partner_vendor'] = "vendor";
+            $data2['partner_vendor_id'] = $this->session->userdata('service_center_id');
+            $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/invoice_summary', $invoice);
+        }else{
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+        }
+        
     }
 
     /**
