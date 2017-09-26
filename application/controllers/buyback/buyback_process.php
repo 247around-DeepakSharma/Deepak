@@ -1087,10 +1087,12 @@ class Buyback_process extends CI_Controller {
                 //Get CP id from shop address table.
                 $cp_id = $this->buyback->get_cp_id_from_region($value->city);
                 if(!empty($cp_id)){
+                     $s_order_key = str_replace(":","",$value->order_key);
+                     $s_order_key1 = str_replace("_","",$s_order_key);
                     //Get Charges list
                     $where_bb_charges = array('partner_id' => $value->partner_id,
                                               'city' => $value->city,
-                                              'order_key' => $value->order_key,
+                                              'order_key' => $s_order_key1,
                                               'cp_id' => $cp_id
                                     );
                    $status = $this->buyback->update_assign_cp_process($where_bb_charges, $value->partner_order_id, 1, $value->internal_status);
