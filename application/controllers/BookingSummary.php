@@ -413,35 +413,29 @@ class BookingSummary extends CI_Controller {
 
     public function get_partner_summary_table($partner_id) {
         $partner_summary_params = $this->partner_model->get_partner_summary_params($partner_id);
-        $total_install_req = $partner_summary_params['total_install_req'];
+        
         $today_install_req = $partner_summary_params['today_install_req'];
         $yday_install_req = $partner_summary_params['yday_install_req'];
         $month_install_req = $partner_summary_params['month_install_req'];
 
-        $total_install_sched = $partner_summary_params['total_install_sched'];
         $today_install_sched = $partner_summary_params['today_install_sched'];
         $yday_install_sched = $partner_summary_params['yday_install_sched'];
         $month_install_sched = $partner_summary_params['month_install_sched'];
 
-        $total_install_compl = $partner_summary_params['total_install_compl'];
         $today_install_compl = $partner_summary_params['today_install_compl'];
         $yday_install_compl = $partner_summary_params['yday_install_compl'];
         $month_install_compl = $partner_summary_params['month_install_compl'];
 
-        $total_followup_pend = $partner_summary_params['total_followup_pend'];
         $today_followup_pend = $partner_summary_params['today_followup_pend'];
         $yday_followup_pend = $partner_summary_params['yday_followup_pend'];
         $month_followup_pend = $partner_summary_params['month_followup_pend'];
 
-        $total_install_cancl = $partner_summary_params['total_install_cancl'];
         $today_install_cancl = $partner_summary_params['today_install_cancl'];
         $yday_install_cancl = $partner_summary_params['yday_install_cancl'];
         $month_install_cancl = $partner_summary_params['month_install_cancl'];
 
-        $tat = $partner_summary_params['tat'];
-
         $message = <<<EOD
-    <table border="1">
+    <table border="1" cellspacing="0" cellpadding="5px">
         <tr>
         <td>Date</td>
         <td>Requests Received</td>
@@ -482,20 +476,9 @@ class BookingSummary extends CI_Controller {
         <td>NA</td>
         </tr>
 
-
-        <tr>
-        <td>Total</td>
-        <td>$total_install_req</td>
-        <td>$total_install_compl</td>
-        <td>$total_install_sched</td>
-        <td>$total_followup_pend</td>
-        <td>$total_install_cancl</td>
-        <td>$tat</td>
-        </tr>
-
     </table>
 EOD;
-
+        
         return $message;
     }
 
