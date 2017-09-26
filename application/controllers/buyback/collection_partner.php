@@ -274,10 +274,11 @@ class Collection_partner extends CI_Controller {
             $array['where'] = array('bb_unit_details.partner_order_id' => $order_id);
             
             $bb_details = $this->bb_model->get_bb_order_list($array)[0];
-        
+            $s_order_key = str_replace(":","",$bb_details->order_key);
+            $s_order_key1 = str_replace("_","",$s_order_key);
             $where = array('cp_id' => $cp_shop[0]['cp_id'], 
                 'partner_id'=> $bb_details->partner_id, 
-                'order_key' => $bb_details->order_key);
+                'order_key' => $s_order_key1 );
             
             $status = $this->buyback->update_assign_cp_process($where, $order_id, $agent, $bb_details->internal_status);
             if(!$status['status']){
