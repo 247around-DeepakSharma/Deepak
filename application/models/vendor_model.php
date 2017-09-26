@@ -895,7 +895,7 @@ class vendor_model extends CI_Model {
 
             $service_center = $this->getVendorFromMapping($vendor['vendor_id']);
         } else {
-            $service_center = $this->getActiveVendor($vendor['vendor_id']);
+            $service_center = $this->viewvendor($vendor['vendor_id']);
         }
 
         // initialize empty array
@@ -1269,7 +1269,7 @@ class vendor_model extends CI_Model {
      * params: STRING query
      * return : ARRAY containing counts for different queries
      */
-    function execute_around_dashboard_query($query){
+    function execute_dashboard_query($query){
         foreach($query as $key=>$value){
             $query = $this->db->query($value['query']);
             $count[$key] = $query->result_array();

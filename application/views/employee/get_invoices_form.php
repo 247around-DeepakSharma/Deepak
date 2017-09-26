@@ -100,7 +100,7 @@ function partner_vendor1(vendor_partner_id){
                format: 'YYYY/MM/DD'
             },
             startDate: '<?php echo date("Y/m/01", strtotime("-1 month")) ?>',
-            endDate: '<?php echo date("Y/m/01") ?>'
+            endDate: '<?php echo date('Y-m-d', strtotime('last day of previous month')); ?>'
         });
 //        $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
 //          $(this).val(picker.startDate.format('YYYY/MM/DD') + '-' + picker.endDate.format('YYYY/MM/DD'));

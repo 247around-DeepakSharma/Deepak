@@ -3160,3 +3160,20 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 VALUES (NULL, 'non_verified_appliance_mail', 'Appliance Description Details', 
 'Below are the appliance description which are not verified. Please have a look and update this as soon as posssible: <br>
 %s', 'noreply@2417around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+
+--sachin 18 sep
+
+CREATE TABLE `247around`.`bb_query_report` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `description` VARCHAR(512) NOT NULL , 
+`query` VARCHAR(2048) NOT NULL , `active` TINYINT(2) NOT NULL , `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , 
+PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+INSERT INTO `bb_query_report` (`id`, `description`, `query`, `active`, `create_date`) VALUES
+(1, 'debit_note_raised', 'select count(partner_order_id) as count from bb_order_details where current_status = \'Claim Debit Note Raised\'', 1, '2017-09-20 13:05:48'),
+(2, 'debot_note_raised_amt', 'select round(COALESCE(sum(partner_basic_charge),0)) as count from bb_order_details join bb_unit_details on bb_order_details.partner_order_id = bb_unit_details.partner_order_id where current_status = \'Claim Debit Note Raised\'', 1, '2017-09-20 13:16:26'),
+(3, 'debit_note_not_raised', 'select count(partner_order_id) as count from bb_order_details where current_status = \'Claim Approved\'', 1, '2017-09-20 13:17:59'),
+(4, 'debit_note_not_raised_amt', 'select round(COALESCE(sum(partner_basic_charge),0)) as count from bb_order_details join bb_unit_details on bb_order_details.partner_order_id = bb_unit_details.partner_order_id where current_status = \'Claim Approved\'', 1, '2017-09-20 13:17:59'),
+(5, 'last_month_order', 'SELECT (in_transit_count+deliverd_count) as count\nFROM ( \n    SELECT SUM(CASE\n        WHEN current_status = \'Delivered\' AND delivery_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 1 MONTH, \'%Y/%m/01\' ) AND delivery_date < DATE_FORMAT( CURRENT_DATE, \'%Y/%m/01\' )THEN 1\n        ELSE 0\n    END) AS \'deliverd_count\',\n    SUM(CASE\n       WHEN current_status IN (\'In-Transit\', \'New Item In-transit\', \'Attempted\') AND order_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 1 MONTH, \'%Y/%m/01\' ) AND order_date < DATE_FORMAT( CURRENT_DATE, \'%Y/%m/01\' ) THEN 1\n        ELSE 0\n    END) AS \'in_transit_count\' FROM bb_order_details) as a', 1, '2017-09-21 06:06:22'),
+(6, 'this_month_order', 'SELECT (in_transit_count+deliverd_count) as count\nFROM ( \n    SELECT SUM(CASE\n        WHEN current_status = \'Delivered\' AND delivery_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 0 MONTH, \'%Y/%m/01\' ) THEN 1\n        ELSE 0\n    END) AS \'deliverd_count\',\n    SUM(CASE\n       WHEN current_status IN (\'In-Transit\', \'New Item In-transit\', \'Attempted\') AND order_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 0 MONTH, \'%Y/%m/01\' ) THEN 1\n        ELSE 0\n    END) AS \'in_transit_count\' FROM bb_order_details) as a', 1, '2017-09-21 06:09:34'),
+(7, 'avg_buying_price', 'SELECT round(AVG(partner_basic_charge+partner_tax_charge)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id', 1, '2017-09-21 06:48:40'),
+(8, 'avg_selling_price', 'SELECT round(AVG(cp_basic_charge+cp_tax_charge)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id', 1, '2017-09-21 06:48:40');
