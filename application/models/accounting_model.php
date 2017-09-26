@@ -116,7 +116,7 @@ class accounting_model extends CI_Model {
                 . "`sgst_tax_amount`,`cgst_tax_rate`,"
                 . "`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`,"
                 . "`tds_amount`,`upcountry_price`,`penalty_amount`,"
-                . "`credit_penalty_amount`,`courier_charges` "
+                . "`credit_penalty_amount`,`courier_charges`,`num_bookings` "
                 . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
                 . " AND sc.id = vpi.vendor_partner_id LEFT JOIN partners ON vendor_partner = 'partner' "
                 . " AND partners.id = vpi.vendor_partner_id WHERE "
