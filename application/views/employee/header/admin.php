@@ -12,6 +12,8 @@
         <link href="<?php echo base_url()?>css/bootstrap.min.css" rel="stylesheet">
         <!-- Custom CSS -->
         <link href="<?php echo base_url()?>css/sb-admin.css" rel="stylesheet">
+        <!-- bootstrap-daterangepicker -->
+        <link href="<?php echo base_url()?>css/daterangepicker.css" rel="stylesheet">
         <!-- Animate CSS -->
         <link href="<?php echo base_url()?>css/animate.css" rel="stylesheet">
         <!-- Custom Fonts -->
@@ -40,6 +42,10 @@
 
         <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+         <!-- bootstrap-daterangepicker -->
+        <script src="<?php echo base_url()?>/js/moment.min.js"></script>
+        <script src="<?php echo base_url()?>js/daterangepicker.js"></script>
+
          
     </head>
     <body>
@@ -143,7 +149,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/show_missed_call_rating_data"><i class="fa fa-fw fa-desktop"></i> <strong>Missed Call Rating</strong></a>
                         </li>
-                  
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/booking_advance_search"><i class="fa fa-fw fa-desktop"></i> <strong>Advanced Search</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-tasks -->
                 </li>
