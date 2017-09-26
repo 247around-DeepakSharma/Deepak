@@ -2646,5 +2646,29 @@ class Service_centers extends CI_Controller {
             print_r(json_encode($data));
         }
     }
+    
+    /**
+     * @desc Used to get sf escalation percentage
+     * @param $service_center_id string
+     * @return $escalation_per string
+     */
+    function get_sf_escalation($sf_id){
+        if(!empty($sf_id)){
+            $select = "COUNT(booking_id) AS total_booking,SUM(if(count_escalation >= 1,count_escalation,0)) AS total_escalation";
+            $where = array('assigned_vendor_id' => $sf_id);
+            $data = $this->booking_model->get_bookings_count_by_any($select,$where);
+            if(!empty($data)){
+                $total_bookings = $data[0]['total_booking'];
+                $total_escalation = $data[0]['total_escalation'];
+                $escalation_per = ($total_escalation*100)/$total_bookings;
+                echo round($escalation_per,2);
+            }else{
+                echo 0;
+            }
+        }else{
+            echo 'empty';
+        }
+        
+    }
 
 }
