@@ -215,7 +215,7 @@ class Upload_buyback_process extends CI_Controller {
         $handle = fopen($file, "r");
         $escapeCounter = 0;
 
-        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+        while (($data = fgetcsv($handle, 6000, ",")) !== FALSE) {
             if ($escapeCounter > 0) {
                 $this->get_bb_csv_data($data);
             } else {
