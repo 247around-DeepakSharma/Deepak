@@ -780,7 +780,9 @@ class Invoice extends CI_Controller {
 
            //Upload Excel files to AWS
             $this->upload_invoice_to_S3($meta['invoice_id']);
-
+            $t_s_charge =  ($meta['r_sc'] - $meta['upcountry_charge']) - $this->booking_model->get_calculated_tax_charge( ($meta['r_sc'] - $meta['upcountry_charge']), 18);
+            $t_ad_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge( $meta['r_asc'], 18);
+            $t_part_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge($meta['r_pc'], 18);
             //Save this invoice info in table
             $invoice_details = array(
                 'invoice_id' => $meta['invoice_id'],
@@ -795,9 +797,9 @@ class Invoice extends CI_Controller {
                 'from_date' => date("Y-m-d", strtotime($meta['sd'])),
                 'to_date' => date("Y-m-d", strtotime($meta['ed'])),
                 'num_bookings' =>  $meta['booking_count'],
-                'total_service_charge' => $meta['r_sc'] - $meta['upcountry_charge'],
-                'total_additional_service_charge' => $meta['r_asc'],
-                'parts_cost' => $meta['r_pc'],
+                'total_service_charge' => $t_s_charge,
+                'total_additional_service_charge' => $t_ad_charge,
+                'parts_cost' => $t_part_charge,
                 'vat' => 0, //No VAT here in Cash invoice
                 'total_amount_collected' => $meta['total_amount_paid'],
                 'rating' => $meta['t_rating'],
@@ -2257,7 +2259,7 @@ class Invoice extends CI_Controller {
         $data['courier_charges'] = $this->input->post("courier_charges");
         $data['upcountry_price'] = $this->input->post("upcountry_price");
         $data['remarks'] = $this->input->post("remarks");
-        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+        $data['due_date'] = date('Y-m-d', strtotime($this->input->post('due_date')));
         $data['invoice_date'] = date('Y-m-d', strtotime($this->input->post('invoice_date')));
         $data['type_code'] = $this->input->post('around_type');
         

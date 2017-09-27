@@ -23,11 +23,15 @@
             </div>';
             }
             ?>
-        <div class="col-md-offset-5">
+        <div class="col-md-offset-3">
             <div style="margin-top:10px; display: flex;font-size: 25px;">
                     <b>Rating: </b> &nbsp;&nbsp;
                     <span class="stars" style="margin-top: 9px;"><?php echo $rating; ?></span>&nbsp;&nbsp;
                     <b><span <?php if($rating > '3.5') { echo "class='text-success'";}else{echo "class='text-danger'";}?>><?php echo $rating; ?> /5</span></b>&nbsp;&nbsp;
+                    <div class="sf-escalation">
+                        <b> <span style="color:#333;">|</span> Escalation: </b>
+                        <b><span id="sf-escalation-value" class="text-danger"></span><span class="text-danger">%</span></b>
+                    </div>
             </div>
     </div>
         <?php if($this->session->userdata('is_update') == 1){ ?>
@@ -150,6 +154,19 @@
                show: 50,
                hide: 100
            }
+        });
+        
+        $.ajax({
+            method:'POST',
+            url: '<?php echo base_url(); ?>employee/service_centers/get_sf_escalation/<?php echo $this->session->userdata('service_center_id')?>',
+            success:function(res){
+                if(res === 'empty'){
+                    console.log('SF id is mpty');
+                }else{
+                    $('#sf-escalation-value').html(res);
+                }
+                
+            }
         });
     } );
     

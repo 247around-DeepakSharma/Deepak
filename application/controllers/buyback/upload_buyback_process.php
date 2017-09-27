@@ -98,6 +98,13 @@ class Upload_buyback_process extends CI_Controller {
     
     function process_upload_order() {
         $response = $this->buyback_file_processing();
+        $insert_id = $this->bb_model->insert_bb_sheet_data($this->upload_sheet_data);
+        if ($insert_id) {
+            log_message('info', "Buyback Sheet Data Inserted");
+        } else {
+           log_message('info', "Error In Inserting Buyback Sheet Data");
+        }
+        
         if ($response['code'] == -247) {
             echo $response;
         } else {
@@ -208,7 +215,7 @@ class Upload_buyback_process extends CI_Controller {
         $handle = fopen($file, "r");
         $escapeCounter = 0;
 
-        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+        while (($data = fgetcsv($handle, 6000, ",")) !== FALSE) {
             if ($escapeCounter > 0) {
                 $this->get_bb_csv_data($data);
             } else {
@@ -288,12 +295,6 @@ class Upload_buyback_process extends CI_Controller {
         $temp_arr['sweetner_value'] = isset($rowData['partner_sweetner_charges']) ? $rowData['partner_sweetner_charges'] : '';
         array_push($this->upload_sheet_data, $temp_arr);
         
-        $insert_id = $this->bb_model->insert_bb_sheet_data($this->upload_sheet_data);
-        if ($insert_id) {
-            log_message('info', "Buyback Sheet Data Inserted");
-        } else {
-           log_message('info', "Error In Inserting Buyback Sheet Data");
-        }
     }
 
     function check_csv_column_exist($data){

@@ -200,7 +200,7 @@ class Buyback {
      */
 
     function update_bb_order($order_data) {
-        if($this->POST_DATA['current_status'] == "PLACED"){
+        if($this->POST_DATA['current_status'] == "PLACED" || $this->POST_DATA['current_status'] == "Unknown"){
             return false;
         }
         if ($order_data[0]['is_delivered'] == 0) {
