@@ -60,7 +60,7 @@ class Around_scheduler extends CI_Controller {
                         . " " . $status['content'];
                 $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
 
-                $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
             }
         }
         // Inserting values in scheduler tasks log
