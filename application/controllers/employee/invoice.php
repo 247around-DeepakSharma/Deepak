@@ -2259,7 +2259,7 @@ class Invoice extends CI_Controller {
         $data['courier_charges'] = $this->input->post("courier_charges");
         $data['upcountry_price'] = $this->input->post("upcountry_price");
         $data['remarks'] = $this->input->post("remarks");
-        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+        $data['due_date'] = date('Y-m-d', strtotime($this->input->post('due_date')));
         $data['invoice_date'] = date('Y-m-d', strtotime($this->input->post('invoice_date')));
         $data['type_code'] = $this->input->post('around_type');
         
