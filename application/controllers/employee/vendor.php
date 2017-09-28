@@ -4304,12 +4304,12 @@ class vendor extends CI_Controller {
         if($flag == 1){
             $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com, vijaya@247around.com, adila@247around.com,".RM_EMAIL;
 
-            $cc = "abhaya@247around.com,sachinj@247around.com";
+            $cc = DEVELOPER_EMAIL;
             $message1 = "Booking should be upcountry but not marked properly. Please check and update booking.<br/>";
             $subject = "Upcountry Booking Missed - Need To Take Action";
             $message1 .= $this->table->generate();
 
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
         } else {
             log_message("info", __METHOD__." There is no pending booking which need to update for upcountry");
         }
