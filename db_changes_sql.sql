@@ -3158,11 +3158,8 @@ ALTER TABLE `bb_order_details` ADD `acknowledge_date` DATETIME NULL DEFAULT NULL
 -- sachin 12 sep
 ALTER TABLE `bb_cp_order_action` ADD `acknowledge_date` DATETIME NULL DEFAULT NULL AFTER `admin_remarks`;
 
-<<<<<<< HEAD
-=======
 --sachin 13 sep
 ALTER TABLE `appliance_product_description` ADD `is_verified` TINYINT(1) NULL DEFAULT NULL AFTER `brand`;
->>>>>>> 23abce4... add checks for TV On appliance description
 
 --sachin 15 sep
 CREATE TABLE `bb_delivery_order_status_report` (

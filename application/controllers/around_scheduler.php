@@ -804,7 +804,7 @@ class Around_scheduler extends CI_Controller {
      * @return: void()
      */
     function send_partner_contract_expiry_notification() {
-        $data = $this->partner_model->getpartner_details('public_name,agreement_end_date', array('datediff(curdate(),agreement_end_date)  >= -7' => null,'is_active' => 1));
+        $data = $this->partner_model->getpartner_details('public_name,agreement_end_date', array('datediff(curdate(),agreement_end_date)  >= -30' => null,'is_active' => 1));
         if (!empty($data)) {
 
             $template = array(
