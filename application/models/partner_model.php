@@ -123,7 +123,7 @@ class Partner_model extends CI_Model {
   if (count($results) > 0) {
       return $results[0]['code'];
   } else {
-      return "SO";
+      return "SB";
   }
     }
 

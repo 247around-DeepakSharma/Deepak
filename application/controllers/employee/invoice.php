@@ -2804,7 +2804,7 @@ class Invoice extends CI_Controller {
                 if($tds > 0){
                     $data['tds_amount'] = $tds;
                 }
-               
+                $data['type'] = PARTNER_VOUCHER;
                 $gst_rate = 18;
                 $gst_amount = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
                 $c_s_gst = $this->invoices_model->check_gst_tax_type($entity[0]['state']);
@@ -2815,7 +2815,7 @@ class Invoice extends CI_Controller {
                 } else {
                     $data['igst_tax_amount'] = $gst_amount;
                     $data['igst_tax_rate'] = $gst_rate;
-                    $data['type'] = PARTNER_VOUCHER;
+                    
                 }
                 $amount = $amount - $tds;
                 $basic_price = $amount - $gst_amount; 
