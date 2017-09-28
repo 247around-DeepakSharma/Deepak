@@ -185,7 +185,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function _advanced_bb_search($post){
-        $date_range = $this->input->post("date_range");
+        $date_range = $this->input->post("order_date");
         $delivery_date = $this->input->post("delivery_date");
         $city = $this->input->post("city");
         $service_id = $this->input->post("service_id");
@@ -1307,7 +1307,7 @@ class Buyback_process extends CI_Controller {
         $service_id = $this->service_centre_charges_model->get_bb_charges(array('bb_charges.partner_id' => '247024', 'service_id != 46' => NULL, 
             'visible_to_partner' => 1, 'bb_shop_address.active' =>1 ), 'service_id', true, true);
         foreach ($service_id as $value) {
-            $where = array('service_id' => $value['service_id'], 'partner_id' => '247024');
+            $where = array('service_id' => $value['service_id'], 'partner_id' => '247024', 'bb_shop_address.active' =>1, 'visible_to_partner' => 1);
             $select = "category,brand, physical_condition, working_condition , city AS location , partner_total";
             $data = $this->service_centre_charges_model->get_bb_charges($where, $select);
             $excel_file[$value['service_id']] = $this->generate_bb_price_data($value['service_id'],$data);

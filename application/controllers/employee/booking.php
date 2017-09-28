@@ -275,11 +275,6 @@ class Booking extends CI_Controller {
 
             if ($booking['type'] == 'Booking') {
 
-                if ($result['DEFAULT_TAX_RATE'] == 1) {
-                    log_message('info', __METHOD__ . " Default_tax_rate: " . $result['DEFAULT_TAX_RATE']);
-                    $this->send_sms_email($booking['booking_id'], "Default_tax_rate");
-                }
-
                 if (empty($booking['state'])) {
                     log_message('info', __FUNCTION__ . " Pincode Not Found Booking Id: " . $booking['booking_pincode']);
                     $this->send_sms_email($booking_id, "Pincode_not_found");

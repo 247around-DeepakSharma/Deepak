@@ -52,7 +52,7 @@ class Invoice extends CI_Controller {
     public function index() {
         $select = "service_centres.name, service_centres.id";
         $data['service_center'] = $this->vendor_model->getVendorDetails($select);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1));
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1), true);
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
@@ -2259,7 +2259,7 @@ class Invoice extends CI_Controller {
         $data['courier_charges'] = $this->input->post("courier_charges");
         $data['upcountry_price'] = $this->input->post("upcountry_price");
         $data['remarks'] = $this->input->post("remarks");
-        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+        $data['due_date'] = date('Y-m-d', strtotime($this->input->post('due_date')));
         $data['invoice_date'] = date('Y-m-d', strtotime($this->input->post('invoice_date')));
         $data['type_code'] = $this->input->post('around_type');
         
@@ -2804,7 +2804,7 @@ class Invoice extends CI_Controller {
                 if($tds > 0){
                     $data['tds_amount'] = $tds;
                 }
-               
+                $data['type'] = PARTNER_VOUCHER;
                 $gst_rate = 18;
                 $gst_amount = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
                 $c_s_gst = $this->invoices_model->check_gst_tax_type($entity[0]['state']);
@@ -2815,7 +2815,7 @@ class Invoice extends CI_Controller {
                 } else {
                     $data['igst_tax_amount'] = $gst_amount;
                     $data['igst_tax_rate'] = $gst_rate;
-                    $data['type'] = PARTNER_VOUCHER;
+                    
                 }
                 $amount = $amount - $tds;
                 $basic_price = $amount - $gst_amount; 
