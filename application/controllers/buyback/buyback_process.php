@@ -185,7 +185,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function _advanced_bb_search($post){
-        $date_range = $this->input->post("date_range");
+        $date_range = $this->input->post("order_date");
         $delivery_date = $this->input->post("delivery_date");
         $city = $this->input->post("city");
         $service_id = $this->input->post("service_id");
