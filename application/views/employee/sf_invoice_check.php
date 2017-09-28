@@ -25,8 +25,8 @@
                             locale: {
                                format: 'YYYY/MM/DD'
                             },
-                            startDate: '<?php echo date("Y/m/01", strtotime("-2 month")) ?>',
-                            endDate: '<?php echo date("Y/m/01", strtotime("-1 month")) ?>'
+                            startDate: '<?php echo date("Y/m/01", strtotime("-1 month")) ?>',
+                            endDate: '<?php echo date('Y-m-d', strtotime('last day of previous month')); ?>'
                         });
                     
                         });

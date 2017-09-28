@@ -123,7 +123,7 @@ class Partner_model extends CI_Model {
   if (count($results) > 0) {
       return $results[0]['code'];
   } else {
-      return "SO";
+      return "SB";
   }
     }
 
@@ -501,178 +501,85 @@ class Partner_model extends CI_Model {
     //Get partner summary parameters for daily report
     function get_partner_summary_params($partner_id) {
 	$partner_source_code = $this->get_source_code_for_partner($partner_id);
-
-	//Count all partner leads
-	$this->db->where('partner_id', $partner_id);
-	$total_install_req = $this->db->count_all_results('booking_details');
-
-	//Count today leads which has create_date as today
-	$this->db->where('partner_id', $partner_id);
-	$this->db->where('create_date >= ', date('Y-m-d'));
-	$today_install_req = $this->db->count_all_results('booking_details');
-
-	//Count y'day leads
-	$this->db->where('partner_id', $partner_id);
-	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
-	$this->db->where('create_date < ', date('Y-m-d'));
-	$yday_install_req = $this->db->count_all_results('booking_details');
         
-        //Count This month leads
-        $this->db->where('partner_id',$partner_id );
-        $this->db->where("create_date >=", date('Y-m-01'));
-        $month_install_req =$this->db->count_all_results('booking_details');
+        //count today installation scheduled
+        $toady_sql = "SELECT count(DISTINCT booking_id) AS today_install_sched 
+                FROM booking_state_change
+                WHERE booking_state_change.booking_id LIKE '%$partner_source_code%' 
+                AND booking_state_change.create_date >= CURDATE() 
+                AND ((old_state = 'New_Booking' AND new_state = 'Pending') 
+                OR (old_state = 'FollowUp' AND new_state = 'Pending'))";
+        $today_query = $this->db->query($toady_sql);
+        $today_install_sched = $today_query->result_array()[0]['today_install_sched'];
         
-
-
-	//Count total installations scheduled
-//	$this->db->where('partner_id', $partner_id);
-//	$this->db->where_in('current_status', array('Pending', 'Rescheduled'));
-//	$total_install_sched = $this->db->count_all_results('booking_details');
-        $sql = "SELECT COUNT(distinct(booking_id)) as total FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
-	    . " AND (new_state = 'Pending' OR new_state = 'Rescheduled') "
-	    . " AND (old_state = 'FollowUp' OR old_state = 'New_Booking' ) ";
-        $scheduled_query = $this->db->query($sql);
-	$total_install_sched = $scheduled_query->result_array();
-	$total_install_sched = $total_install_sched[0]['total'];
+        //count yesterday installation scheduled
+        $yday_sql = "SELECT count(DISTINCT booking_id) AS yday_install_sched 
+                FROM booking_state_change
+                WHERE booking_state_change.booking_id LIKE '%$partner_source_code%' 
+                AND booking_state_change.create_date >= DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY) 
+                AND booking_state_change.create_date < CURDATE()
+                AND ((old_state = 'New_Booking' AND new_state = 'Pending') 
+                OR (old_state = 'FollowUp' AND new_state = 'Pending'))";
+        $yday_query = $this->db->query($yday_sql);
+        $yday_install_sched = $yday_query->result_array()[0]['yday_install_sched'];
         
-	//Count today installations scheduled
-        $this->db->distinct();
-        $this->db->select('count(booking_id) as count');
-	$this->db->like('booking_id', $partner_source_code);
-	$this->db->where('new_state', 'Pending');
-	$this->db->where('create_date >= ', date('Y-m-d'));
-        $sched_count = $this->db->get('booking_state_change');
-        $sched_c1 = $sched_count->result_array();
-	$today_install_sched = $sched_c1[0]['count'];
-
-	//Count y'day installations scheduled
-        $this->db->distinct();
-        $this->db->select('count(booking_id) as count');
-	$this->db->like('booking_id', $partner_source_code);
-	$this->db->where('new_state', 'Pending');
-	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
-	$this->db->where('create_date < ', date('Y-m-d'));
-        $y_day_count = $this->db->get('booking_state_change');
-        $yday_c1 = $y_day_count->result_array();
-	$yday_install_sched = $yday_c1[0]['count'];
-
-	//Count This month installation scheduled
-	$sql = "SELECT distinct(booking_id) FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
-	    . " AND create_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
-	    . " AND (new_state = 'Pending' OR new_state = 'Rescheduled') "
-	    . " AND (old_state = 'FollowUp' OR old_state = 'New_Booking' ) ";
-	$install_query = $this->db->query($sql);
-	$month__scheduled = $install_query->result_array();
-	$month_install_scheduled = count($month__scheduled);
-
-	//Count total installations completed
-	$this->db->where('partner_id', $partner_id);
-	$this->db->where_in('current_status', array('Completed'));
-	$total_install_compl = $this->db->count_all_results('booking_details');
-
-	//Count today installations completed
-	$this->db->where('partner_id', $partner_id);
-	$this->db->where_in('current_status', array('Completed'));
-	$this->db->where('closed_date >= ', date('Y-m-d'));
-	$today_install_compl = $this->db->count_all_results('booking_details');
-
-	//Count y'day installations completed
-	$this->db->where('partner_id', $partner_id);
-	$this->db->where_in('current_status', array('Completed'));
-	$this->db->where('closed_date >= ', date('Y-m-d', strtotime("-1 days")));
-	$this->db->where('closed_date < ', date('Y-m-d'));
-	$yday_install_compl = $this->db->count_all_results('booking_details');
-
-	//Count this month installations completed
-	$sql = "SELECT * FROM booking_details WHERE partner_id = '" . $partner_id . "'"
-	    . " AND closed_date >= '".date('Y-m-01')."' "
-	    . "AND current_status = 'Completed' ";
-	$comp_query = $this->db->query($sql);
-	$month_comp = $comp_query->result_array();
-	$month_install_comp = count($month_comp);
-
-	//Count total follow-ups pending
-	$this->db->where('partner_id', $partner_id);
-	$this->db->where('current_status', 'FollowUp');
-	$total_followup_pend = $this->db->count_all_results('booking_details');
-
-	//Count today follow-ups pending
-	$today = date("d-m-Y");
-	$where_today = "`partner_id` =  '" . $partner_id . "' AND `current_status`='FollowUp' AND (`booking_date`='' OR `booking_date`=$today)";
-	$this->db->where($where_today);
-	$today_followup_pend = $this->db->count_all_results('booking_details');
-
-	//Count yday follow-ups pending
-	$yday = date("d-m-Y", strtotime("-1 days"));
-	$where_yday = "`partner_id` = '" . $partner_id . "' AND `current_status`='FollowUp' AND `booking_date`=$yday";
-	$this->db->where($where_yday);
-	$yday_followup_pend = $this->db->count_all_results('booking_details');
-
-	//Count this follow-ups pending
-	$sql = "SELECT distinct(booking_id) FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
-	    . " AND create_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
-	    . "AND (new_state = 'FollowUp' OR old_state = 'New_Query' ) ";
-	$followUp_query = $this->db->query($sql);
-	$followUp_comp = $followUp_query->result_array();
-	$month_followup_pend = count($followUp_comp);
-
-	//Count total installations Cancelled
-	$this->db->where('source', $partner_source_code);
-	$this->db->where('current_status', 'Cancelled');
-	$total_install_cancl = $this->db->count_all_results('booking_details');
-
-	//Count today installations Cancelled
-	$this->db->like('booking_id', $partner_source_code);
-	$this->db->where('new_state', 'Cancelled');
-	$this->db->where('create_date >= ', date('Y-m-d'));
-	$today_install_cancl = $this->db->count_all_results('booking_state_change');
-
-	//Count y'day installations Cancelled
-	$this->db->like('booking_id', $partner_source_code);
-	$this->db->where('new_state', 'Cancelled');
-	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
-	$this->db->where('create_date < ', date('Y-m-d'));
-	$yday_install_cancl = $this->db->count_all_results('booking_state_change');
-
-	//Count this month installations Cancelled
-	$sql = "SELECT * FROM booking_details WHERE partner_id = '" . $partner_id . "'"
-	    . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
-	    . "AND current_status = 'Cancelled' ";
-	$can_query = $this->db->query($sql);
-	$month_install_can = $can_query->result_array();
-	$month_install_cancl = count($month_install_can);
-
-	//TAT calculation
-	$tat = "100";
-	//SELECT DATEDIFF(`closed_date`, STR_TO_DATE(`booking_date`,"%d-%m-%Y")) FROM `booking_details` where source=$partner_source_code AND current_status='Completed'
-	//Average Rating
-//	$this->db->where('Rating_Stars !=', '');
-//	$this->db->select_avg('Rating_Stars');
-//	$query = $this->db->get('snapdeal_leads');
-//	$avg_rating = $query->result_array()[0]['Rating_Stars'];
-
+        //count this month installation scheduled
+        $month_sql = "SELECT count(DISTINCT booking_id) AS month_install_sched 
+                FROM booking_state_change
+                WHERE booking_state_change.booking_id LIKE '%$partner_source_code%' 
+                AND booking_state_change.create_date >= DATE_FORMAT(CURDATE(), '%Y-%m-%01')
+                AND ((old_state = 'New_Booking' AND new_state = 'Pending') 
+                OR (old_state = 'FollowUp' AND new_state = 'Pending'))";
+        $month_query = $this->db->query($month_sql);
+        $month_install_scheduled = $month_query->result_array()[0]['month_install_sched'];
+        
+        //count request,completed,cancelled,followup
+        $sql = "SELECT
+                COUNT( DISTINCT CASE WHEN create_date >= CURDATE() THEN booking_id END) AS today_install_req,
+                COUNT( DISTINCT CASE WHEN create_date >= DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY) and create_date < curdate() THEN booking_id END) AS yday_install_req,
+                COUNT( DISTINCT CASE WHEN create_date >= DATE_FORMAT(CURDATE(), '%Y-%m-%01') THEN booking_id END) AS month_install_req,
+                COUNT( DISTINCT CASE WHEN current_status = 'Completed' AND closed_date >= CURDATE() THEN booking_id END) AS today_install_compl,
+                COUNT( DISTINCT CASE WHEN current_status = 'Completed' AND closed_date >= DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY) and closed_date < curdate() THEN booking_id END) AS yday_install_compl,
+                COUNT( DISTINCT CASE WHEN current_status = 'Completed' AND create_date >= DATE_FORMAT(CURDATE(), '%Y-%m-%01') THEN booking_id END) AS month_install_compl,
+                COUNT( DISTINCT CASE WHEN current_status = 'Cancelled' AND closed_date >= CURDATE() THEN 1 ELSE 0 END) AS today_install_cancl,
+                COUNT( DISTINCT CASE WHEN current_status = 'Cancelled' AND closed_date >= DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY) and closed_date < curdate() THEN booking_id END) AS yday_install_cancl,
+                COUNT( DISTINCT CASE WHEN current_status = 'Cancelled' AND closed_date >= DATE_FORMAT(CURDATE(), '%Y-%m-%01') THEN booking_id END) AS month_install_cancl,
+                COUNT( DISTINCT CASE WHEN current_status = 'FollowUp' AND create_date >= CURDATE() THEN booking_id END) AS today_followup_pend,
+                COUNT( DISTINCT CASE WHEN current_status = 'FollowUp' AND create_date >= DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY) and create_date < curdate() THEN booking_id END) AS yday_followup_pend,
+                COUNT( DISTINCT CASE WHEN current_status = 'FollowUp' AND create_date >= DATE_FORMAT(CURDATE(), '%Y-%m-%01') THEN booking_id END) AS month_followup_pend
+                FROM booking_details WHERE partner_id = '$partner_id'";
+        $query = $this->db->query($sql)->result()[0];
+        
+        $today_install_req = $query->today_install_req;
+        $yday_install_req = $query->yday_install_req;
+        $month_install_req = $query->month_install_req;
+        $today_install_compl = $query->today_install_compl;
+        $yday_install_compl = $query->yday_install_compl;
+        $month_install_comp = $query->month_install_compl;
+        $today_followup_pend = $query->today_followup_pend;
+        $yday_followup_pend = $query->yday_followup_pend;
+        $month_followup_pend = $query->month_followup_pend;
+        $today_install_cancl = $query->today_install_cancl;
+        $yday_install_cancl = $query->yday_install_cancl;
+        $month_install_cancl = $query->month_install_cancl;
+        
+        
 	$result = array(
-	    "total_install_req" => $total_install_req,
 	    "today_install_req" => $today_install_req,
 	    "yday_install_req" => $yday_install_req,
 	    "month_install_req" => $month_install_req,
-	    "total_install_sched" => $total_install_sched,
 	    "today_install_sched" => $today_install_sched,
 	    "yday_install_sched" => $yday_install_sched,
 	    "month_install_sched" => $month_install_scheduled,
-	    "total_install_compl" => $total_install_compl,
 	    "today_install_compl" => $today_install_compl,
 	    "yday_install_compl" => $yday_install_compl,
 	    "month_install_compl" => $month_install_comp,
-	    "total_followup_pend" => $total_followup_pend,
 	    "today_followup_pend" => $today_followup_pend,
 	    "yday_followup_pend" => $yday_followup_pend,
 	    "month_followup_pend" => $month_followup_pend,
-	    "total_install_cancl" => $total_install_cancl,
 	    "today_install_cancl" => $today_install_cancl,
 	    "yday_install_cancl" => $yday_install_cancl,
-	    "month_install_cancl" => $month_install_cancl,
-	    "tat" => $tat,
+	    "month_install_cancl" => $month_install_cancl
 	);
 
 	return $result;

@@ -220,7 +220,7 @@ var shop_list_details = [];
                 "type": "POST",
                 "data": function(d){
                    
-                    d.date_range = $('input[name="order_date"]').val();
+                    d.order_date = $('input[name="order_date"]').val();
                     d.delivery_date = $('input[name="delivery_date"]').val();
                     d.city = $("#city option:selected").text();
                     d.service_id = $("#service_id").val();

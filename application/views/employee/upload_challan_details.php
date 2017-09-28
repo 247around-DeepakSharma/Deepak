@@ -220,7 +220,7 @@ $(function() {
                                 format: 'YYYY/MM/DD'
                             },
                             startDate: '<?php if(isset($challan_data[0]['from_date'])){echo $challan_data[0]['from_date'];}else{echo date("Y/m/01", strtotime("-1 month"));}?>',
-                            endDate: '<?php if(isset($challan_data[0]['to_date'])){echo $challan_data[0]['to_date'];}else{echo date("Y/m/01", strtotime("-1 month"));} ?>'
+                            endDate: '<?php if(isset($challan_data[0]['to_date'])){echo $challan_data[0]['to_date'];}else{echo date('Y-m-d', strtotime('last day of previous month'));} ?>'
                 });
                 $('input[name="tender_date"]').daterangepicker({
                         singleDatePicker: true,

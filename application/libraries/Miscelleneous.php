@@ -581,10 +581,21 @@ class Miscelleneous {
                             $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
 
                             $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                            
+                            return FALSE;
    
+                        } else {
+                            $price = $is_price['customer_net_payable'];
+                            if($price >0){
+                                $charges = "Rs. " . round($price,0);
+                               log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+                                
+                            } else {
+                                $charges = "FREE";
+                            }
                         }
-                        return FALSE;
-                   // break;
+                        
+                    break;
                         case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                             return FALSE;
                 }

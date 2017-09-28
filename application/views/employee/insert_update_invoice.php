@@ -168,6 +168,17 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-group" >
+                                <label for="Due Date" class="col-md-4">Due Date</label>
+                                <div class="col-md-6">
+                                    <div class="input-group input-append date">
+                                        <input id="due_date" class="form-control" placeholder="Select Date" name="due_date" type="text" required readonly='true' style="background-color:#fff;cursor: pointer;" value="<?php if (isset($invoice_details[0]['due_date'])) {
+                                            echo $invoice_details[0]['due_date'];
+                                            } else { echo date('Y-m-d');} ?>">
+                                        <span class="input-group-addon add-on" onclick="from_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-group <?php if( form_error('type') ) { echo 'has-error';} ?>">
                                 <label for="Type Code" class="col-md-4">Type</label>
                                 <div class="col-md-6">
@@ -311,6 +322,7 @@
 <script>
     $("#to_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    $("#due_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $("#from_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $("#vendor_partner_id").select2();
     

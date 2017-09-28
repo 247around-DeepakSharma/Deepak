@@ -180,13 +180,16 @@ class invoices_model extends CI_Model {
      * @param: String ( vendor or patner)
      * @return: Array()
      */
-    function getsummary_of_invoice($vendor_partner, $where) {
+    function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false) {
         $array = array();
 
         if ($vendor_partner == "vendor") {
-            $select = "service_centres.name, service_centres.id, on_off, active, is_verified, pan_no, service_tax_no, tin_no, cst_no, contract_file";
+            $select = "service_centres.name, service_centres.id, on_off, active, is_verified, pan_no, service_tax_no, tin_no, cst_no, contract_file, gst_no";
             $data = $this->vendor_model->getVendorDetails($select, $where);
-            $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
+            $due_date_status = "";
+            if($due_date_flag){
+                $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
+            }
             
         } else if ($vendor_partner == "partner") {
             $p_where = "";
@@ -228,6 +231,7 @@ class invoices_model extends CI_Model {
                 $result[0]['service_tax_no'] = $value['service_tax_no'];
                 $result[0]['tin_no'] = $value['tin_no'];
                 $result[0]['cst_no'] = $value['cst_no'];
+                $result[0]['gst_no'] = $value['gst_no'];
                 $result[0]['contract_file'] = $value['contract_file'];
                 $result[0]['count_spare_part'] = $this->get_pending_defective_parts($value['id'])[0]['count'];
             } else if (isset($value['public_name'])) {
@@ -247,7 +251,6 @@ class invoices_model extends CI_Model {
 
             array_push($array, $result[0]);
         }
-
         return $array;
     }
     
@@ -637,8 +640,8 @@ class invoices_model extends CI_Model {
                 if($c_s_gst){
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
                     $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = 9;
-                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09),0);
-                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09),0);
+                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
+                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
                     $meta['cgst_total_tax_amount'] +=  $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
@@ -646,15 +649,15 @@ class invoices_model extends CI_Model {
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                     $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = 18;
-                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),0);
+                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
                     $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
                 }
                 
-                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),0);
+                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
-                $meta['total_taxable_value'] += round($value['taxable_value'],0);
-                $meta['sub_total_amount'] +=  round($result[$key]['toal_amount'],0);
+                $meta['total_taxable_value'] += $value['taxable_value'];
+                $meta['sub_total_amount'] += $result[$key]['toal_amount'];
                 if($value['product_or_services'] == "Service"){
                     
                     $meta['total_ins_charge'] += $value['taxable_value'];
@@ -664,6 +667,8 @@ class invoices_model extends CI_Model {
                     $meta['total_parts_charge'] += $value['taxable_value'];
                 }
             }
+            $meta['total_taxable_value'] = round($meta['total_taxable_value'], 0);
+            $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
             $meta['gst_number'] = $result[0]['gst_number'];
             $meta['reverse_charge_type'] = "N";
             $meta['reverse_charge'] = '';
@@ -746,7 +751,7 @@ class invoices_model extends CI_Model {
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
-                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18), 0);
+                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.28), 0);
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += round($value['taxable_value'], 0);
@@ -827,8 +832,8 @@ class invoices_model extends CI_Model {
 		     `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_paid_basic_charges as around_net_payable,
 		     (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, 
   
-                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (round(vendor_basic_charges,0)) ELSE 0 END) as vendor_installation_charge,
-                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (round(vendor_basic_charges,0)) ELSE 0 END) as vendor_stand
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_installation_charge,
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_stand
 
                     $condition ";
 
@@ -843,7 +848,7 @@ class invoices_model extends CI_Model {
         if($is_regenerate == 0){
             $is_invoice_null = " AND vendor_foc_invoice_id IS NULL ";
         }
-        $sql = "SELECT DISTINCT round((`vendor_basic_charges`),0) AS rate,product_or_services,
+        $sql = "SELECT DISTINCT round((`vendor_basic_charges`),2) AS rate,product_or_services,
                 sc.gst_no as gst_number, ".HSN_CODE." AS hsn_code,
                CASE 
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
@@ -868,7 +873,7 @@ class invoices_model extends CI_Model {
                 
                 END AS description, 
                 COUNT( ud.`appliance_capacity` ) AS qty, 
-                round((vendor_basic_charges * COUNT( ud.`appliance_capacity` )),0) AS  taxable_value,
+                round((vendor_basic_charges * COUNT( ud.`appliance_capacity` )),2) AS  taxable_value,
                 sc.state, sc.company_name,sc.address as company_address, sc_code,
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
                 sc.pan_no, contract_file, company_type, signature_file, beneficiary_name,bank_account,
@@ -980,36 +985,36 @@ class invoices_model extends CI_Model {
                 if(empty($data['booking'][0]['gst_number'])){
                     
                     $meta['invoice_template'] = "SF_FOC_Bill_of_Supply-v1.xlsx";
-                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'],0);
+                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'],2);
                     
                 } else if($c_s_gst){
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
                     
                     $data['booking'][$key]['cgst_rate'] =  $data['booking'][$key]['sgst_rate'] = 9;
-                    $data['booking'][$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09),0);
-                    $data['booking'][$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09),0);
+                    $data['booking'][$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
+                    $data['booking'][$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
                     $meta['cgst_total_tax_amount'] +=  $data['booking'][$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $data['booking'][$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
-                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),0);
+                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
                     
                 } else {
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
                     
                     $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = 18;
-                    $data['booking'][$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),0);
+                    $data['booking'][$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
                     $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
-                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),0);
+                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
                 }
                 
                
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
-                $meta['total_taxable_value'] += round($value['taxable_value'],0);
-                $meta['sub_total_amount'] +=  round($data['booking'][$key]['toal_amount'],0);
+                $meta['total_taxable_value'] += $value['taxable_value'];
+                $meta['sub_total_amount'] +=  $data['booking'][$key]['toal_amount'];
                 $meta['rcm'] = 0;
                 if(empty($data['booking'][0]['gst_number'])){
-                    $meta['rcm'] = round(( $meta['sub_total_amount'] * 0.18), 0);
+                    $meta['rcm'] = round(( $meta['sub_total_amount'] * 0.18), 2);
                 }
                 if($value['product_or_services'] == "Product"){
                     
@@ -1022,7 +1027,11 @@ class invoices_model extends CI_Model {
              
             $meta['reverse_charge'] = 0;
             $meta['reverse_charge_type'] = 'N';
-           
+            $meta['total_taxable_value'] = round($meta['total_taxable_value'], 0);
+            $meta['cgst_total_tax_amount'] = round($meta['cgst_total_tax_amount'], 2);
+            $meta['sgst_total_tax_amount'] = round($meta['sgst_total_tax_amount'], 2);
+            $meta['igst_total_tax_amount'] = round($meta['igst_total_tax_amount'], 2);
+            $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date("jS M, Y", strtotime($to_date_tmp));
             $meta['invoice_date'] = date("jS M, Y");

@@ -570,16 +570,22 @@ class Service_centers extends CI_Controller {
      * Get Service center Id from session.
      */
     function invoices_details() {
-        $this->checkUserSession();
-        $data['vendor_partner'] = "vendor";
-        $data['vendor_partner_id'] = $this->session->userdata('service_center_id');
-        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
+        //$this->checkUserSession();
+        if(!empty($this->session->userdata('service_center_id'))){
+            $data['vendor_partner'] = "vendor";
+            $data['vendor_partner_id'] = $this->session->userdata('service_center_id');
+            $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
 
-        $data2['partner_vendor'] = "vendor";
-        $data2['partner_vendor_id'] = $this->session->userdata('service_center_id');
-        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
-        $this->load->view('service_centers/header');
-        $this->load->view('service_centers/invoice_summary', $invoice);
+            $data2['partner_vendor'] = "vendor";
+            $data2['partner_vendor_id'] = $this->session->userdata('service_center_id');
+            $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/invoice_summary', $invoice);
+        }else{
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+        }
+        
     }
 
     /**
@@ -2639,6 +2645,30 @@ class Service_centers extends CI_Controller {
             $data = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id' => $partner_order_id), $select);
             print_r(json_encode($data));
         }
+    }
+    
+    /**
+     * @desc Used to get sf escalation percentage
+     * @param $service_center_id string
+     * @return $escalation_per string
+     */
+    function get_sf_escalation($sf_id){
+        if(!empty($sf_id)){
+            $select = "COUNT(booking_id) AS total_booking,SUM(if(count_escalation >= 1,count_escalation,0)) AS total_escalation";
+            $where = array('assigned_vendor_id' => $sf_id);
+            $data = $this->booking_model->get_bookings_count_by_any($select,$where);
+            if(!empty($data)){
+                $total_bookings = $data[0]['total_booking'];
+                $total_escalation = $data[0]['total_escalation'];
+                $escalation_per = ($total_escalation*100)/$total_bookings;
+                echo round($escalation_per,2);
+            }else{
+                echo 0;
+            }
+        }else{
+            echo 'empty';
+        }
+        
     }
 
 }

@@ -1119,17 +1119,12 @@ class vendor_model extends CI_Model {
      */
     function check_vendor_details($data){
         $this->db->select('*');
-        $this->db->where('Vendor_ID', $data['Vendor_ID']);
-        $this->db->where('Pincode', $data['Pincode']);
-        $this->db->where('Area', $data['Area']);
-        $this->db->where('City', $data['City']);
-        $this->db->where('State', $data['State']);
-        $this->db->where('Appliance_ID', $data['Appliance_ID']);
+        $this->db->where($data);
         $query = $this->db->get('vendor_pincode_mapping');
         
         if($query->num_rows >0){
 
-            return false;
+            return $query->result_array();
 
         } else {
             return true;
