@@ -182,7 +182,7 @@ addShopAddressDetails.controller("userController", function ($scope, $http) {
         };
         var URL = baseUrl + "/buyback/collection_partner/process_add_cp_shop_address";
         $http.post(URL, data, config).success(function (response) {
-             //console.log(response);
+             console.log(response);
             if (response.status === 'OK') {
                 $scope.userForm.$setPristine();
                 $scope.tempData = {};
@@ -278,11 +278,8 @@ viewBBOrderList.controller('assignCP', function ($scope, $http) {
                         message = response.error;
                         $scope.notFoundCity = message;
                         $scope.showLoader = false;
-                        $('#invoiceDetailsModal').modal("show");
+                        $('#myModal').modal("show");
                     } 
-                   
-                   
-                    
                     
                 });
             });
@@ -374,7 +371,7 @@ function notifyMe(msg) {
               $('body').loadingModal('destroy');
               $(".assign_cp_id option:selected").prop("selected", false);
               alert("Assigned CP Successfully");
-             
+              window.location.reload();
           } else if(data1.status === -247){
                message = data1.error;
                console.log(message);
@@ -385,11 +382,11 @@ function notifyMe(msg) {
                $('body').loadingModal('destroy');
                $("#error_td").html(table_td);
                $('#myModal').modal("show");
+               
+               
           } else {
               alert("There is problem in Assign Vendor. Please Contact to 247Around Dev Team");
           }
-          
-          //location.reload();
 
         });
     }

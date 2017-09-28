@@ -121,7 +121,7 @@ class Collection_partner extends CI_Controller {
         $data['tin_number'] = $this->input->post('tin_number');
         $data['shop_address_line1'] = $this->input->post('shop_address_line1');
         $data['shop_address_line2'] = $this->input->post('shop_address_line2');
-        $data['shop_address_region'] = $this->input->post('shop_address_region');
+        $data['shop_address_region'] = implode(',', $this->input->post('shop_address_region'));
         $data['shop_address_city'] = $this->input->post('shop_address_city');
         $data['shop_address_pincode'] = $this->input->post('shop_address_pincode');
         $data['shop_address_state'] = $this->input->post('shop_address_state');
@@ -142,7 +142,7 @@ class Collection_partner extends CI_Controller {
         $data = $this->vendor_model->getDistrict_from_india_pincode("", $pincode);
         if (!empty($data)) {
             $city = "<option selected='selected' value='' disabled>Select City</option>";
-            $region = "<option selected='selected' value='' disabled>Select Region</option>";
+            $region = "<option  disabled>Select Region</option>";
             $flag = false;
             $flag1 = false;
             foreach ($data as $district) {
@@ -153,7 +153,7 @@ class Collection_partner extends CI_Controller {
                     $city .= "<option value='$district[district]'>$district[district]</option>";
                 }
 
-                if (strtolower(trim($region_post)) == strtolower(trim($district['district']))) {
+                if (!empty($region_post) && in_array(strtolower(trim($district['district'])), $region_post)) {
                     $region .= "<option selected value='$district[district]'>$district[district]</option>";
                     $flag1 = true;
                 } else {
@@ -166,7 +166,9 @@ class Collection_partner extends CI_Controller {
             }
 
             if (!$flag1 && !empty($region_post)) {
-                $region .= "<option selected value='$region_post' >$region_post</option>";
+                foreach($region_post as $key => $val){
+                    $region .= "<option selected value='$val'>$val</option>";
+                }
             }
 
             $output['city'] = $city;
@@ -194,7 +196,7 @@ class Collection_partner extends CI_Controller {
                     'shop_address_line1' => $this->input->post('data')['shop_address_line1'],
                     'shop_address_line2' => isset($this->input->post('data')['shop_address_line2'])?$this->input->post('data')['shop_address_line2']:'',
                     'shop_address_city' => $this->input->post('data')['shop_address_city'],
-                    'shop_address_region' => $this->input->post('data')['shop_address_region'],
+                    'shop_address_region' => isset($this->input->post('data')['shop_address_region'])?implode(',', $this->input->post('data')['shop_address_region']):'',
                     'shop_address_pincode' => $this->input->post('data')['shop_address_pincode'],
                     'shop_address_state' => $this->input->post('data')['shop_address_state'],
                     'contact_person' => $this->input->post('data')['name'],
@@ -204,7 +206,7 @@ class Collection_partner extends CI_Controller {
                     'alternate_conatct_number2' => isset($this->input->post('data')['alt_phone_number_2'])?$this->input->post('data')['alt_phone_number_2']:'',
                     'active' => '1',
                     'tin_number' => isset($this->input->post('data')['tin_number'])?$this->input->post('data')['tin_number']:'',
-                    'cp_capacity' => $this->input->post('data')['cp_capacity'],
+                    'cp_capacity' => isset($this->input->post('data')['cp_capacity'])?$this->input->post('data')['cp_capacity']:'',
                     'create_date' => date('Y-m-d H-i-s'),
                 );
                 $insert_id = $this->cp_model->insert_cp_shop_address($userData);
