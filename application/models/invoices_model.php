@@ -180,14 +180,17 @@ class invoices_model extends CI_Model {
      * @param: String ( vendor or patner)
      * @return: Array()
      */
-    function getsummary_of_invoice($vendor_partner, $where) {
+    function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false) {
         $array = array();
 
         if ($vendor_partner == "vendor") {
             $select = "service_centres.name, service_centres.id, on_off, active, is_verified, pan_no, service_tax_no, tin_no, cst_no, contract_file, gst_no";
             $data = $this->vendor_model->getVendorDetails($select, $where);
-           // $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
             $due_date_status = "";
+            if($due_date_flag){
+                $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
+            }
+            
         } else if ($vendor_partner == "partner") {
             $p_where = "";
             if(isset($where['active'])){
