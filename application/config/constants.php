@@ -44,8 +44,8 @@ define('short_api_url', 'https://www.googleapis.com/urlshortener/v1/url');
 define('basic_percentage', 0.7);
 define('addtitional_percentage', .85);
 define('parts_percentage', .95);
-define('SERVICE_TAX_RATE', 0.15);
-define('DEFAULT_TAX_RATE', 15);
+define('SERVICE_TAX_RATE', 0.18);
+define('DEFAULT_TAX_RATE', 18);
 
 //Agent ID used when Partner inserts a Booking by calling our API
 define('DEFAULT_PARTNER_AGENT', 978978);
