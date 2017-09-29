@@ -634,7 +634,7 @@ class invoices_model extends CI_Model {
                     $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
-            
+            $parts_count = 0;
             foreach ($result as $key => $value) {
                 
                 if($c_s_gst){
@@ -661,14 +661,19 @@ class invoices_model extends CI_Model {
                 if($value['product_or_services'] == "Service"){
                     
                     $meta['total_ins_charge'] += $value['taxable_value'];
+                    $parts_count++;
                     
                 } else if($value['product_or_services'] == "Product"){
                     
                     $meta['total_parts_charge'] += $value['taxable_value'];
                 }
             }
+            $meta['parts_count'] = $parts_count;
             $meta['total_taxable_value'] = round($meta['total_taxable_value'], 0);
             $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
+            $meta['igst_total_tax_amount'] = round( $meta['igst_total_tax_amount'], 0);
+            $meta['cgst_total_tax_amount'] = round( $meta['cgst_total_tax_amount'], 0);
+            $meta['sgst_total_tax_amount'] = round( $meta['sgst_total_tax_amount'], 0);
             $meta['gst_number'] = $result[0]['gst_number'];
             $meta['reverse_charge_type'] = "N";
             $meta['reverse_charge'] = '';
@@ -739,28 +744,33 @@ class invoices_model extends CI_Model {
                 if ($c_s_gst) {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
                     $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = 14;
-                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 0);
-                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 0);
+                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 2);
+                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 2);
                     $meta['cgst_total_tax_amount'] += $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 14;
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                     $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = 28;
-                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.28), 0);
+                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.28), 2);
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
-                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.28), 0);
+                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.28), 2);
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
-                $meta['total_taxable_value'] += round($value['taxable_value'], 0);
-                $meta['sub_total_amount'] += round($result[$key]['toal_amount'], 0);
+                $meta['total_taxable_value'] += $value['taxable_value'];
+                $meta['sub_total_amount'] += $result[$key]['toal_amount'];
             }
 
 
             $meta['reverse_charge'] = 0;
             $meta['reverse_charge_type'] = 'N';
+            $meta['sub_total_amount'] = round( $meta['sub_total_amount'], 0); 
+            $meta['total_taxable_value'] = round( $meta['total_taxable_value'], 0);
+            $meta['sgst_total_tax_amount'] = round($meta['sgst_total_tax_amount'], 0);
+            $meta['cgst_total_tax_amount'] = round($meta['cgst_total_tax_amount'], 0);
+            $meta['igst_total_tax_amount'] = round($meta['igst_total_tax_amount'], 0);
             $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'], 0));
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date("jS M, Y", strtotime($to_date_temp));
@@ -980,7 +990,7 @@ class invoices_model extends CI_Model {
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
             
             $c_s_gst =$this->check_gst_tax_type($data['booking'][0]['state']);
-           
+            $parts_count = 0;
              foreach ($data['booking'] as $key => $value) {
                 if(empty($data['booking'][0]['gst_number'])){
                     
@@ -1012,19 +1022,21 @@ class invoices_model extends CI_Model {
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += $value['taxable_value'];
                 $meta['sub_total_amount'] +=  $data['booking'][$key]['toal_amount'];
-                $meta['rcm'] = 0;
-                if(empty($data['booking'][0]['gst_number'])){
-                    $meta['rcm'] = round(( $meta['sub_total_amount'] * 0.18), 2);
-                }
+                
                 if($value['product_or_services'] == "Product"){
                     
                     $meta['total_parts_charge'] += $value['taxable_value'];
+                    $parts_count++;
                     
                 } else {
                     $meta['total_sc_charge'] += $value['taxable_value'];
                 }
              }
-             
+            $meta['rcm'] = 0;
+            if(empty($data['booking'][0]['gst_number'])){
+                $meta['rcm'] = round(( $meta['sub_total_amount'] * 0.18), 2);
+            }
+            $meta['parts_count'] = $parts_count;
             $meta['reverse_charge'] = 0;
             $meta['reverse_charge_type'] = 'N';
             $meta['total_taxable_value'] = round($meta['total_taxable_value'], 0);
