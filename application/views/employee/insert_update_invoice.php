@@ -73,6 +73,14 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label for="Number of Booking" class="col-md-4">Number of Booking</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"  name="num_bookings" value = "<?php if (isset($invoice_details[0]['num_bookings'])) {
+                                        echo $invoice_details[0]['num_bookings'];
+                                        } ?>" placeholder="Number of Bookings">
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label for="total service charges" class="col-md-4">Basic Service Charge*</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control"  name="total_service_charge" value = "<?php if (isset($invoice_details[0]['total_service_charge'])) {
@@ -213,11 +221,11 @@
                                 <?php echo form_error('type'); ?>
                             </div>
                             <div class="form-group">
-                                <label for="Number of Booking" class="col-md-4">Number of Booking</label>
+                                <label for="Number of Parts" class="col-md-4">Number of Parts</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="num_bookings" value = "<?php if (isset($invoice_details[0]['num_bookings'])) {
-                                        echo $invoice_details[0]['num_bookings'];
-                                        } ?>" placeholder="Number of Bookings">
+                                    <input type="text" class="form-control"  name="parts_count" value = "<?php if (isset($invoice_details[0]['parts_count'])) {
+                                        echo $invoice_details[0]['parts_count'];
+                                        } ?>" placeholder="Number of Parts">
                                 </div>
                             </div>
                             <div class="form-group">

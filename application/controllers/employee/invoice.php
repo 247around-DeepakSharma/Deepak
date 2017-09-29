@@ -595,7 +595,8 @@ class Invoice extends CI_Controller {
                 "igst_tax_rate" => $meta['igst_tax_rate'],
                 "igst_tax_amount" => $meta["igst_total_tax_amount"],
                 "sgst_tax_amount" => $meta["sgst_total_tax_amount"],
-                "cgst_tax_amount" => $meta["cgst_total_tax_amount"]
+                "cgst_tax_amount" => $meta["cgst_total_tax_amount"],
+                "parts_count" =>$meta['parts_count']
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -797,6 +798,7 @@ class Invoice extends CI_Controller {
                 'from_date' => date("Y-m-d", strtotime($meta['sd'])),
                 'to_date' => date("Y-m-d", strtotime($meta['ed'])),
                 'num_bookings' =>  $meta['booking_count'],
+                "parts_count" => $meta['parts_count'],
                 'total_service_charge' => $t_s_charge,
                 'total_additional_service_charge' => $t_ad_charge,
                 'parts_cost' => $t_part_charge,
@@ -1077,6 +1079,7 @@ class Invoice extends CI_Controller {
                     "igst_tax_amount" => $invoice_data['meta']["igst_total_tax_amount"],
                     "sgst_tax_amount" => $invoice_data['meta']["sgst_total_tax_amount"],
                     "cgst_tax_amount" => $invoice_data['meta']["cgst_total_tax_amount"],
+                    "parts_count" => $invoice_data['meta']["cgst_total_tax_amount"],
                     "rcm" => $invoice_data['meta']['rcm']
                    
                 );
@@ -1785,10 +1788,14 @@ class Invoice extends CI_Controller {
                 $invoices_details_data = array_merge($data, $invoices['upcountry']);
                 $invoices['meta']['r_sc'] = $invoices['meta']['r_asc'] = $invoices['meta']['r_pc'] = $rating = $total_amount_paid = 0;
                 $i = 0;
+                $parts_count = 0;
                 foreach ($invoices_details_data as $value) {
                     $invoices['meta']['r_sc'] += $value['service_charges'];
                     $invoices['meta']['r_asc'] += $value['additional_charges'];
                     $invoices['meta']['r_pc'] += $value['parts_cost'];
+                    if($value['product_or_services'] == "Product"){
+                        $parts_count++;
+                    }
                    
                     $total_amount_paid += $value['amount_paid'];
 
@@ -1801,6 +1808,7 @@ class Invoice extends CI_Controller {
                 if ($i == 0) {
                     $i = 1;
                 }
+                $invoices['meta']['parts_count'] = $parts_count;
                 $invoices['meta']['total_amount_paid'] = round($total_amount_paid, 0);
                 $invoices['meta']['t_rating'] = round($rating / $i, 0);
                 $this->generate_cash_details_invoices_for_vendors($vendor_id, $invoices_details_data, $invoices['meta'], $invoice_type, $agent_id);
@@ -1917,7 +1925,7 @@ class Invoice extends CI_Controller {
                 'invoice_date' => date("Y-m-d"),
                 'from_date' => date("Y-m-d", strtotime($meta['sd'])),
                 'to_date' => date("Y-m-d", strtotime($meta['ed'])),
-                'num_bookings' =>  $meta['total_qty'],
+                'parts_count' =>  $meta['total_qty'],
                 'parts_cost' => $meta['sub_total_amount'],
                 'total_amount_collected' => $meta['sub_total_amount'],
                 'around_royalty' => $meta['sub_total_amount'],
@@ -2245,6 +2253,7 @@ class Invoice extends CI_Controller {
         $data['from_date'] = trim($date_explode[0]);
         $data['to_date'] = trim($date_explode[1]);
         $data['num_bookings'] = $this->input->post('num_bookings');
+        $data['parts_count'] = $this->input->post('parts_count');
         $data['hsn_code'] = $this->input->post('hsn_code');
         $data['total_service_charge'] = $this->input->post('total_service_charge');
         $data['total_additional_service_charge'] = $this->input->post('total_additional_service_charge');

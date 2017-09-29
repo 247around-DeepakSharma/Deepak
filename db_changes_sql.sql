@@ -3177,3 +3177,21 @@ INSERT INTO `bb_query_report` (`id`, `description`, `query`, `active`, `create_d
 (6, 'this_month_order', 'SELECT (in_transit_count+deliverd_count) as count\nFROM ( \n    SELECT SUM(CASE\n        WHEN current_status = \'Delivered\' AND delivery_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 0 MONTH, \'%Y/%m/01\' ) THEN 1\n        ELSE 0\n    END) AS \'deliverd_count\',\n    SUM(CASE\n       WHEN current_status IN (\'In-Transit\', \'New Item In-transit\', \'Attempted\') AND order_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 0 MONTH, \'%Y/%m/01\' ) THEN 1\n        ELSE 0\n    END) AS \'in_transit_count\' FROM bb_order_details) as a', 1, '2017-09-21 06:09:34'),
 (7, 'avg_buying_price', 'SELECT round(AVG(partner_basic_charge+partner_tax_charge)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id', 1, '2017-09-21 06:48:40'),
 (8, 'avg_selling_price', 'SELECT round(AVG(cp_basic_charge+cp_tax_charge)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id', 1, '2017-09-21 06:48:40');
+
+
+
+
+
+--Abhay 27 Sept
+ALTER TABLE `partners` ADD `is_prepaid` INT(1) NOT NULL DEFAULT '0' AFTER `is_def_spare_required`;
+ALTER TABLE `partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
+ALTER TABLE `partners` ADD `prepaid_grace_amount` INT(128) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
+
+ALTER TABLE `trigger_partners` ADD `is_prepaid` INT(1) NOT NULL DEFAULT '0' AFTER `is_def_spare_required`;
+ALTER TABLE `trigger_partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
+ALTER TABLE `trigger_partners` ADD `prepaid_grace_amount` INT(128) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
+
+
+--Abhay 29 Sep
+ALTER TABLE `vendor_partner_invoices` ADD `parts_count` INT(11) NOT NULL DEFAULT '0' AFTER `num_bookings`;
+ALTER TABLE `trigger_vendor_partner_invoices` ADD `parts_count` INT(11) NOT NULL DEFAULT '0' AFTER `num_bookings`;
