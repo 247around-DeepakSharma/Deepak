@@ -194,7 +194,7 @@ class Upload_buyback_process extends CI_Controller {
                         
                     } else {
 
-                        $this->table->add_row($rowData1['partner_order_id']);
+                        log_message("info", __METHOD__." Buyback Order Id neither update nor Inserted ".$rowData1['partner_order_id']);
                     }
                 } else {
                    $response = array("code" => -247, "msg" => $this->Columfailed);
@@ -267,8 +267,8 @@ class Upload_buyback_process extends CI_Controller {
         if ($status1) {
 
         } else {
-
-            $this->table->add_row($rowData['partner_order_id']);
+            log_message("info", __METHOD__." Buyback Order Id neither update nor Inserted ".$rowData['partner_order_id']);
+           
         }
     }
     
