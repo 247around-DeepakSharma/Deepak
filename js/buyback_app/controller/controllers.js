@@ -182,7 +182,7 @@ addShopAddressDetails.controller("userController", function ($scope, $http) {
         };
         var URL = baseUrl + "/buyback/collection_partner/process_add_cp_shop_address";
         $http.post(URL, data, config).success(function (response) {
-             console.log(response);
+            //console.log(response);
             if (response.status === 'OK') {
                 $scope.userForm.$setPristine();
                 $scope.tempData = {};

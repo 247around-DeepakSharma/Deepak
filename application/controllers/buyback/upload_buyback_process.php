@@ -9,6 +9,7 @@ use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
 
 ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
+ini_set('memory_limit', '-1');
 
 class Upload_buyback_process extends CI_Controller {
     var $Columfailed = "";
@@ -445,41 +446,79 @@ class Upload_buyback_process extends CI_Controller {
             //Making process for file upload
             $pathinfo = pathinfo($_FILES["file"]["name"]);
             if ($pathinfo['extension'] == 'xlsx') {
+                $inputFileName = $_FILES['file']['tmp_name'];
                 $inputFileExtn = 'Excel2007';
             } else {
+                $inputFileName = $_FILES['file']['tmp_name'];
                 $inputFileExtn = 'Excel5';
             }
-            $tmpFile = $_FILES['file']['tmp_name'];
-            $charges_file = "Buyback-Charges-List-" . date('Y-m-d-H-i-s') . '.xlsx';
-            move_uploaded_file($tmpFile, TMP_FOLDER . $charges_file);
 
-            //Processing File
-            $is_insert = $this->process_bb_chargs_file(TMP_FOLDER . $charges_file, $inputFileExtn);
-            if ($is_insert) {
+            try {
+                $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
+                $objPHPExcel = $objReader->load($inputFileName);
+            } catch (Exception $e) {
+                die('Error loading file "' . $inputFileName . '": ' . $e->getMessage());
+            }
+            
+            //get first sheet 
+            $sheet = $objPHPExcel->getSheet(0);
+            //get total number of rows
+            $highestRow = $sheet->getHighestDataRow();
+            //get total number of columns
+            $highestColumn = $sheet->getHighestDataColumn();
+            //get first row
+            $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+            
+            //replace all unwanted character from headers
+            $headings_new = array();
+            foreach ($headings as $heading) {
+                $heading = str_replace(array("/", "(", ")", " ", "."), "", $heading);
+                array_push($headings_new, str_replace(array(" "), "_", $heading));
+            }
 
-                //Adding Details in File_Uploads table as well
-                $data['file_name'] = $charges_file;
-                $data['file_type'] = _247AROUND_BB_PRICE_LIST;
-                $data['agent_id'] = $this->session->userdata('id');
-                $insert_id = $this->partner_model->add_file_upload_details($data);
-                if ($insert_id) {
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $charges_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $charges_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+
+            $sheetData = [];
+            $this->Columfailed = "";
+            $headings_new1 = array_map('strtolower', $headings_new[0]);
+            //check all column exist
+            $response = $this->check_bb_price_sheet_column_exist($headings_new1);
+            if ($response) {
+
+                for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
+                    //  Read a row of data into an array
+                    $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE, FALSE);
+                    $newRowData = array_combine($headings_new1, $rowData[0]);
+                    $dataToInsert = $this->set_charges_rows_data($newRowData);
+                    array_push($sheetData, $dataToInsert);
                 }
+                //insert data in batch
+                $is_insert = $this->bb_model->insert_charges_data_in_batch($sheetData);
+                if ($is_insert) {
 
-                //delete file from the system
-                exec("rm -rf " . escapeshellarg(TMP_FOLDER . $charges_file));
+                    //Adding Details in File_Uploads table as well
+                    $data['file_name'] = $_FILES['file']['name'];
+                    $data['file_type'] = _247AROUND_BB_PRICE_LIST;
+                    $data['agent_id'] = $this->session->userdata('id');
+                    $insert_id = $this->partner_model->add_file_upload_details($data);
+                    if ($insert_id) {
+                        //Upload files to AWS
+                        $bucket = BITBUCKET_DIRECTORY;
+                        $directory_xls = "vendor-partner-docs/" . $_FILES['file']['name'];
+                        $this->s3->putObjectFile($inputFileName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    }
 
-                //Return success Message
-                $msg = "File Uploaded Successfully.";
-                $response = array("code" => '247', "msg" => $msg);
-                echo json_encode($response);
+                    //Return success Message
+                    $msg = "File Uploaded Successfully.";
+                    $response = array("code" => '247', "msg" => $msg);
+                    echo json_encode($response);
+                } else {
+                    $msg = "Error!!! Please Try Again...";
+                    $response = array("code" => '-247', "msg" => $msg);
+                    echo json_encode($response);
+                }
             } else {
                 $msg = "Error!!! Please Try Again...";
-                $response = array("code" => '-247', "msg" => $msg);
-                echo json_encode($response);
+                $response = array("code" => '-247', "msg" => $this->Columfailed);
             }
         } else {
             $msg = $return['error'];
@@ -489,62 +528,31 @@ class Upload_buyback_process extends CI_Controller {
     }
 
     /**
-     * @desc This function is used to process the charges list excel and insert into the table
-     * @para, $charges_file string
-     * @return $flag boolean
-     */
-    private function process_bb_chargs_file($charges_file) {
-        $reader = ReaderFactory::create(Type::XLSX);
-        $reader->open($charges_file);
-        $charges_data = array();
-        $count = 1;
-        $flag = False;
-        foreach ($reader->getSheetIterator() as $sheet) {
-            foreach ($sheet->getRowIterator() as $row) {
-                if ($count > 1) {
-                    $data = $this->set_charges_rows_data($row);
-                    array_push($charges_data, $data);
-                }
-                $count++;
-            }
-            $count = 1;
-            $return = $this->bb_model->insert_charges_data_in_batch($charges_data);
-            if ($return) {
-                $flag = True;
-            } else {
-                $flag = False;
-            }
-        }
-
-        return $flag;
-    }
-
-    /**
      * @desc This function is used to make final data from charges list excel to insert into the table
      * @para, $row array
      * @return $tmp array
      */
     private function set_charges_rows_data($row) {
-        $tmp['partner_id'] = $row[0];
-        $tmp['cp_id'] = $row[2];
-        $tmp['service_id'] = $row[4];
-        $tmp['category'] = $row[5];
-        $tmp['brand'] = isset($row[6]) ? $row[6] : NULL;
-        $tmp['physical_condition'] = isset($row[7]) ? $row[7] : NULL;
-        $tmp['working_condition'] = isset($row[8]) ? $row[8] : '';
-        $tmp['city'] = $row[9];
-        $tmp['order_key'] = $row[10];
-        $tmp['partner_basic'] = isset($row[11]) ? $row[11] : '0';
-        $tmp['partner_tax'] = isset($row[12]) ? $row[12] : '0';
-        $tmp['partner_total'] = isset($row[13]) ? $row[13] : '0';
-        $tmp['cp_basic'] = isset($row[14]) ? $row[14] : '0';
-        $tmp['cp_tax'] = isset($row[15]) ? $row[15] : '0';
-        $tmp['cp_total'] = isset($row[16]) ? $row[16] : '0';
-        $tmp['around_basic'] = isset($row[17]) ? $row[17] : '0';
-        $tmp['around_tax'] = isset($row[18]) ? $row[18] : '0';
-        $tmp['around_total'] = isset($row[19]) ? $row[19] : '0';
-        $tmp['visible_to_partner'] = isset($row[20]) ? $row[20] : '0';
-        $tmp['visible_to_cp'] = isset($row[21]) ? $row[21] : '0';
+        $tmp['partner_id'] = $row['partner_id'];
+        $tmp['cp_id'] = $row['cp_id'];
+        $tmp['service_id'] = $row['service_id'];
+        $tmp['category'] = $row['categorysize'];
+        $tmp['brand'] = $row['brand'];
+        $tmp['physical_condition'] = $row['physicalcondition'];
+        $tmp['working_condition'] = $row['workingcondition'];
+        $tmp['city'] = $row['city'];
+        $tmp['order_key'] = str_replace(array("_",":"), "", $row['key']);
+        $tmp['partner_basic'] = $row['partner_basic'];
+        $tmp['partner_tax'] = $row['partner_tax'];
+        $tmp['partner_total'] = $row['partner_total'];
+        $tmp['cp_basic'] = $row['cp_basic'];
+        $tmp['cp_tax'] = $row['cp_tax'];
+        $tmp['cp_total'] = $row['cp_total'];
+        $tmp['around_basic'] = $row['around_basic'];
+        $tmp['around_tax'] = $row['around_tax'];
+        $tmp['around_total'] = $row['around_total'];
+        $tmp['visible_to_partner'] = $row['visible_to_partner'];
+        $tmp['visible_to_cp'] = $row['visible_to_cp'];
         $tmp['create_date'] = date("Y-m-d H:i:s");
 
         return $tmp;
@@ -553,6 +561,145 @@ class Upload_buyback_process extends CI_Controller {
     public function upload_file_history($file_type) {
         $data = $this->reporting_utils->get_uploaded_file_history($file_type);
         print_r(json_encode($data, TRUE));
+    }
+    
+    function check_bb_price_sheet_column_exist($rowData){
+        $message = "";
+        $error = false;
+        
+        if (!in_array('partner_id', $rowData)) {
+            $message .= " Partner ID Column does not exist.<br/><br/>";
+            $this->Columfailed .= " Partner ID, ";
+            $error = true;
+        }
+        
+        if (!in_array('cp_id', $rowData)) {
+      
+            $message .= " CP Id Column does not exist. <br/><br/>";
+            $this->Columfailed .= "CP Id , ";
+            $error = true;
+        }
+        
+        if (!in_array('service_id', $rowData)) {
+
+            $message .= " Service Id Column does not exist. <br/><br/>";
+            $this->Columfailed .= " Service Id , ";
+            $error = true;
+        }
+        if (!in_array('categorysize', $rowData)) {
+      
+            $message .= " Category Size Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Category Size , ";
+            $error = true;
+        }
+        if (!in_array('brand', $rowData)) {
+      
+            $message .= " Brand Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Service Category ";
+            $error = true;
+        }
+        if (!in_array('physicalcondition', $rowData)) {
+      
+            $message .= " Physical Condition Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Physical Condition , ";
+            $error = true;
+        }
+        if (!in_array('workingcondition', $rowData)) {
+      
+            $message .= " Working Condition Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Working Condition,";
+            $error = true;
+        }
+        if (!in_array('city', $rowData)) {
+      
+            $message .= " City Column does not exist. <br/><br/>";
+            $this->Columfailed .= "City , ";
+            $error = true;
+        }
+        if (!in_array('key', $rowData)) {
+      
+            $message .= " Key Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Key,";
+            $error = true;
+        }
+        if (!in_array('partner_basic', $rowData)) {
+      
+            $message .= " Partner Basic Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Partner Basic , ";
+            $error = true;
+        }
+        if (!in_array('partner_tax', $rowData)) {
+      
+            $message .= " Product Tax Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Product Tax,";
+            $error = true;
+        }
+        if (!in_array('partner_total', $rowData)) {
+      
+            $message .= " Partner Total Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Partner Total , ";
+            $error = true;
+        }
+        if (!in_array('cp_basic', $rowData)) {
+      
+            $message .= " CP Basic Column does not exist. <br/><br/>";
+            $this->Columfailed .= "CP Basic,";
+            $error = true;
+        }
+        if (!in_array('cp_tax', $rowData)) {
+      
+            $message .= " CP Total Column does not exist. <br/><br/>";
+            $this->Columfailed .= "CP Total , ";
+            $error = true;
+        }
+        if (!in_array('cp_total', $rowData)) {
+      
+            $message .= " CP Total Column does not exist. <br/><br/>";
+            $this->Columfailed .= "CP Total,";
+            $error = true;
+        }
+        if (!in_array('around_basic', $rowData)) {
+      
+            $message .= " Around Basic Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Around Basic,";
+            $error = true;
+        }
+        if (!in_array('around_tax', $rowData)) {
+      
+            $message .= " Around Tax Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Around Tax , ";
+            $error = true;
+        }
+        if (!in_array('around_total', $rowData)) {
+      
+            $message .= " Around Total Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Around Total,";
+            $error = true;
+        }
+        if (!in_array('visible_to_partner', $rowData)) {
+      
+            $message .= " Visible To Partner Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Visible To Partner,";
+            $error = true;
+        }
+        if (!in_array('visible_to_cp', $rowData)) {
+      
+            $message .= " Visible To CP Column does not exist. <br/><br/>";
+            $this->Columfailed .= "Visible To CP , ";
+            $error = true;
+        }
+         
+        if ($error) {
+            $message .= " Please check and upload again.";
+            $this->Columfailed .= " column does not exist.";
+            $to = $this->session->userdata('official_email');
+            $cc = DEVELOPER_EMAIL;
+            $subject = "Failed!!! Buyabck Price Sheet File uploaded by " . $this->session->userdata('employee_id');
+            $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $message, "");
+            return false;
+        } else {
+            return true;
+        }
     }
     
 }
