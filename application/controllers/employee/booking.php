@@ -2857,7 +2857,6 @@ class Booking extends CI_Controller {
     
     
     /*
->>>>>>> 0d2d8a999... Advance Search on bookings
      * This function use to send search result data back to filter
      * @output - it's print required json, which is automatically used by dataTables
      */ 
