@@ -52,7 +52,7 @@ class Dashboard extends CI_Controller {
     }
     
     function execute_title_query(){
-        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries();
+        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries(array('active' => 1,'type'=> 'service'));
         $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
         $this->load->view('dashboard/dashboard_title', $data_report);
     }

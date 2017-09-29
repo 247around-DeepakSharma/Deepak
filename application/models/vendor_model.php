@@ -1252,8 +1252,8 @@ class vendor_model extends CI_Model {
      * 
      * return: Array of Active queries
      */
-    function get_around_dashboard_queries(){
-        $this->db->where('active',1);        
+    function get_around_dashboard_queries($where){
+        $this->db->where($where,false);        
         $query = $this->db->get('query_report');
         
         return $query->result_array();

@@ -2433,6 +2433,7 @@ class Invoice extends CI_Controller {
             $sc_details['defective_parts'] = "No Of Defective Parts";
             $sc_details['is_verified'] = "Bank Account Verified";
             $sc_details['amount_type'] = "Type";
+            $sc_details['sf_id'] = "SF/CP Id";
             $sc_details['is_sf'] = "SF";
             $sc_details['is_cp'] = "CP";
             
@@ -2474,6 +2475,7 @@ class Invoice extends CI_Controller {
                 } else {
                     $sc_details['amount_type'] = "DR";
                 }
+                $sc_details['sf_id'] = $service_center_id;
                 $sc_details['is_sf'] = $sc['is_sf'];
                 $sc_details['is_cp'] = $sc['is_cp'];
                

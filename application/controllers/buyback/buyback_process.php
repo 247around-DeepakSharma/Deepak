@@ -1896,7 +1896,7 @@ class Buyback_process extends CI_Controller {
      */
     function get_buyback_dashboard_summary(){
         
-        $data_report['query'] = $this->bb_model->get_bb_dashboard_queries();
+        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries(array('active' => 1,'type'=> 'buyback'));
         $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
         $this->load->view('dashboard/bb_dashboard_summary', $data_report);
     }
