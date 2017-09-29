@@ -476,22 +476,39 @@ class Accounting extends CI_Controller {
     function process_search_bank_reansaction() {
         $transaction_type = $this->input->post('transaction_type');
         $transaction_date = $this->input->post('transaction_date');
-        $transaction_amount = $this->input->post('transaction_amount');
+        $transaction_amount = trim($this->input->post('transaction_amount'));
+        $transaction_description = trim($this->input->post('transaction_description'));
 
         $modified_transaction_date = date('Y-m-d', strtotime($transaction_date));
-        $min_transaction_amount = $transaction_amount - 5;
-        $max_transaction_amount = $transaction_amount + 5;
+        if(!empty($transaction_amount)){
+            $min_transaction_amount = $transaction_amount - 5;
+            $max_transaction_amount = $transaction_amount + 5;
+        }
 
         if ($transaction_type === 'Credit') {
-            $where = array('credit_debit' => $transaction_type,
-                'transaction_date' => $modified_transaction_date,
-                "credit_amount >=" => $min_transaction_amount,
-                "credit_amount <=" => $max_transaction_amount);
+            $where = array('credit_debit' => $transaction_type,'transaction_date' => $modified_transaction_date);
+            if(!empty($transaction_amount) && !empty($transaction_description)){
+                $where["credit_amount >="] = $min_transaction_amount;
+                $where["credit_amount <="] = $max_transaction_amount;
+                $where["description like '%$transaction_description%'"] = NULL;
+            }else if(!empty($transaction_amount)){
+                $where["credit_amount >="] = $min_transaction_amount;
+                $where["credit_amount <="] = $max_transaction_amount;
+            }else if(!empty($transaction_description)){
+                $where["description like '%$transaction_description%'"] = NULL;
+            }
         } else if ($transaction_type === 'Debit') {
-            $where = array('credit_debit' => $transaction_type,
-                'transaction_date' => $modified_transaction_date,
-                "debit_amount >= " => $min_transaction_amount,
-                "debit_amount <= " => $max_transaction_amount);
+            $where = array('credit_debit' => $transaction_type,'transaction_date' => $modified_transaction_date);
+            if(!empty($transaction_amount) && !empty($transaction_description)){
+                $where["debit_amount >="] = $min_transaction_amount;
+                $where["debit_amount <="] = $max_transaction_amount;
+                $where["description like '%$transaction_description%'"] = NULL;
+            }else if(!empty($transaction_amount)){
+                $where["debit_amount >="] = $min_transaction_amount;
+                $where["debit_amount <="] = $max_transaction_amount;
+            }else if(!empty($transaction_description)){
+                $where["description like '%$transaction_description%'"] = NULL;
+            }
         }
         $select = 'bank_transactions.* , employee.full_name as agent_name';
         $data['transaction_details'] = $this->invoices_model->get_bank_transactions_details($select,$where,true);

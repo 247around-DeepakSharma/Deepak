@@ -3,6 +3,9 @@
     #invoiceDetailsModal .modal-lg {
         width: 100%!important;
     }
+    .col-md-3 {
+        width: 23%;
+    }
 </style>
 <div id="page-wrapper" >
     <div class="container-fluid">
@@ -11,7 +14,7 @@
             <hr>
             <section class="fetch_bank_transaction_details" style="padding-left:20px;">
                 <div class="row">
-                    <div class="form-inline">
+                    <div class="col-md-3">
                         <div class="form-group" style="margin-right: 20px;">
                             <label for="transaction_type">Transaction Type</label>
                             <select class="form-control" id="transaction_type">
@@ -19,17 +22,29 @@
                                 <option value="Debit">Debit</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="col-md-3">
                         <div class="form-group" style="margin-right: 20px;">
                             <label for="transaction_date">Transaction Date</label>
                             <input type="text" class="form-control" id="transaction_date">
                         </div>
-                        <div class="form-group" style="margin-right: 20px;">
+                    </div>
+                    
+                    <div class="col-md-3">
+                       <div class="form-group" style="margin-right: 20px;">
                             <label for="transaction_amount">Transaction Amount</label>
                             <input type="text" class="form-control allowNumericWithDecimal" id="transaction_amount">
                         </div>
-                        <button class="btn btn-success" id="get_bank_transaction_data">Search</button>
                     </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="margin-right: 20px;">
+                            <label for="transaction_description">Description</label>
+                            <textarea type="text" class="form-control" id="transaction_description"></textarea>
+                        </div>
+                    </div>
+                    
                 </div>
+                <button class="btn btn-success" id="get_bank_transaction_data">Search</button>
             </section>
             <div class="text-center" id="loader" style="display: none;" ><img src= '<?php echo base_url(); ?>images/loadring.gif' /></div>
             <hr>
@@ -87,11 +102,10 @@
             var transaction_type = $("#transaction_type").val();
             var transaction_date = $("#transaction_date").val();
             var transaction_amount = $.trim($("#transaction_amount").val());
+            var transaction_description = $.trim($("#transaction_description").val());
             
             if (transaction_type === null || transaction_type === undefined ||
-                transaction_date === null || transaction_date === undefined ||
-                transaction_amount === null || transaction_amount === undefined || transaction_amount === ''
-                ){
+                transaction_date === null || transaction_date === undefined){
             
                 if(transaction_amount === ''){
                     alert("Please fill Amount");
@@ -103,7 +117,7 @@
                 $('#loader').show();
                 $.ajax({
                     method: 'POST',
-                    data: {'transaction_type':transaction_type,'transaction_date':transaction_date,'transaction_amount':transaction_amount},
+                    data: {'transaction_type':transaction_type,'transaction_date':transaction_date,'transaction_amount':transaction_amount,'transaction_description':transaction_description},
                     url: '<?php echo base_url(); ?>employee/accounting/process_search_bank_reansaction',
                     success: function (response) {
                         //console.log(response);
