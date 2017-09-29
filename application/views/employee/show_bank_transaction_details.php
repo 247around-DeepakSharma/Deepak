@@ -12,9 +12,11 @@
         </tr>
     </thead>
     <tbody>
-            <?php $invoices = explode(',', $transaction_details[0]['invoice_id']); 
+            <?php  
                   $sn1 = 1; 
-                  foreach($transaction_details as $transactions) { ?>
+                  foreach($transaction_details as $transactions) { 
+                        $invoices = explode(',', $transactions['invoice_id']);
+            ?>
         <tr>
             <td><?php echo $sn1;?></td>
             <td> <?php if(!empty($invoices)){ ?> 
