@@ -483,7 +483,7 @@ class bookings_excel extends CI_Controller {
                 if ($filtered_partner_state) {
                     //Now assigning this case to Partner
                     $data['partner_id'] = $value['partner_id'];
-                    $data['source'] = $this->partner_model->get_source_code_for_partner($value['partner_id']);
+                    $data['source'] = $partner_array[0]['code'];
                 } else {
                     if ($value['partner_id'] == 247041) {
                         return false;

@@ -193,7 +193,7 @@ class Partner_booking extends CI_Controller {
         $count = 1;
         $rows = array();
 
-        $source_code = $this->partner_model->get_source_code_for_partner($partner_id);
+        $source_code = $this->partner_model->getpartner_details("bookings_sources.code", array('bookings_sources.partner_id' => $partner_id))[0]['code'];
         switch ($source_code) {
             case 'SP':
                 // Header for Excel file
@@ -286,7 +286,7 @@ class Partner_booking extends CI_Controller {
         //Add this lead into the leads table
         //Check whether this is a new Lead or Not
 
-        if ($this->partner_model->check_partner_lead_exists_by_order_id($row[0], $partner_id) == false) {
+        if (empty($this->partner_model->get_order_id_for_partner($partner_id, $row[0] ))) {
             return $this->set_price_rows_data_for_paytm($row, $partner_id, $user_id);
         }
     }
@@ -336,7 +336,7 @@ class Partner_booking extends CI_Controller {
     function createBooking($data, $partner_id, $user_id) {
         // print_r("times");
         $unit_details['partner_id'] = $booking['partner_id'];
-        $source = $this->partner_model->get_source_code_for_partner($partner_id);
+        $source = $this->partner_model->getpartner_details("bookings_sources.code", array('bookings_sources.partner_id' => $partner_id))[0]['code'];
         $appliances_details['user_id'] =  $booking_id['user_id'] = $user_id;
         $booking['source'] = $source;
         $unit_details['booking_id'] = $booking['booking_id'] = $data['booking_id']= $this->create_booking_id($data['user_id'], $data['source']);

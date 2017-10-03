@@ -3231,11 +3231,11 @@ INSERT INTO `bb_query_report` (`id`, `description`, `query`, `active`, `create_d
 
 --Abhay 27 Sept
 ALTER TABLE `partners` ADD `is_prepaid` INT(1) NOT NULL DEFAULT '0' AFTER `is_def_spare_required`;
-ALTER TABLE `partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
+ALTER TABLE `partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace_period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 ALTER TABLE `partners` ADD `prepaid_grace_amount` INT(128) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 
 ALTER TABLE `trigger_partners` ADD `is_prepaid` INT(1) NOT NULL DEFAULT '0' AFTER `is_def_spare_required`;
-ALTER TABLE `trigger_partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
+ALTER TABLE `trigger_partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace_period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 ALTER TABLE `trigger_partners` ADD `prepaid_grace_amount` INT(128) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 
 
@@ -3263,6 +3263,7 @@ ALTER TABLE `partners` CHANGE `grace_period` `grace_period_date` DATE NULL DEFAU
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
 VALUES (NULL, 'low_prepaid_amount', 'Low Balance', 'Dear Partner,<br/><br/> Please recharge your account <br/><br/>Thanks,<br/>247around Team', 
 'billing@247around.com', '', 'anuj@247around.com, nits@247around.com, adityag@gmail.com', '', '1', '2017-10-03 13:05:07');
+
 
 --Chhavi 06 oct
 ALTER TABLE `employee_relation` ADD `state_id` VARCHAR(50) NOT NULL AFTER `service_centres_id`;
@@ -3327,3 +3328,4 @@ CREATE TABLE `bb_svc_balance`
 `tv_balance` DECIMAL(10,2) NOT NULL DEFAULT '0.00' , 
 `la_balance` DECIMAL(10,2) NOT NULL DEFAULT '0.00' , 
 `create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
