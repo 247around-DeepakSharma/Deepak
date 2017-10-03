@@ -10,7 +10,7 @@
          
          <th>Invoice Id</th>
          <th>Type</th>
-         <th>Bookings</th>
+         <th>Bookings/ Parts</th>
          <th>Invoice Period</th>
          <th>Service Charges</th>
          <th>Additional Service Charges</th>
@@ -59,7 +59,7 @@
          </td>
         
          <td style="max-width: 56px; word-wrap:break-word;"><?php echo $invoice['type']; ?></td>
-         <td ><?php echo $invoice['num_bookings']; ?></td>
+         <td ><?php echo $invoice['num_bookings']."/".$invoice['parts_count']; ?></td>
          <td><?php echo date("jS M, Y", strtotime($invoice['invoice_date'])). " <br/><br/> ".date("jS M, Y", strtotime($invoice['from_date'])). " to ". date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
          
          <td><?php echo (round(($invoice['total_service_charge'] + $invoice['service_tax']),0)); $sum_of_total_service_charges +=  $invoice['total_service_charge'] + $invoice['service_tax']; ?></td>
