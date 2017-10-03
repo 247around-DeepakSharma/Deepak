@@ -3185,11 +3185,11 @@ INSERT INTO `bb_query_report` (`id`, `description`, `query`, `active`, `create_d
 
 --Abhay 27 Sept
 ALTER TABLE `partners` ADD `is_prepaid` INT(1) NOT NULL DEFAULT '0' AFTER `is_def_spare_required`;
-ALTER TABLE `partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
+ALTER TABLE `partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace_period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 ALTER TABLE `partners` ADD `prepaid_grace_amount` INT(128) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 
 ALTER TABLE `trigger_partners` ADD `is_prepaid` INT(1) NOT NULL DEFAULT '0' AFTER `is_def_spare_required`;
-ALTER TABLE `trigger_partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
+ALTER TABLE `trigger_partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace_period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 ALTER TABLE `trigger_partners` ADD `prepaid_grace_amount` INT(128) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 
 
@@ -3210,4 +3210,12 @@ INSERT INTO `query_report` (`id`, `description`, `query`, `active`, `type`, `cre
 --sachin 29 sep
 ALTER TABLE `query_report` ADD `type` VARCHAR(64) NOT NULL AFTER `active`;
 UPDATE `query_report` SET `type` = 'service' 
+
+--Abhay 03 oct
+ALTER TABLE `partners` CHANGE `prepaid_grace_amount` `prepaid_notification_amount` INT(128) NOT NULL DEFAULT '0';
+ALTER TABLE `partners` CHANGE `grace_period` `grace_period_date` DATE NULL DEFAULT NULL;
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'low_prepaid_amount', 'Low Balance', 'Dear Partner,<br/><br/> Please recharge your account <br/><br/>Thanks,<br/>247around Team', 
+'billing@247around.com', '', 'anuj@247around.com, nits@247around.com, adityag@gmail.com', '', '1', '2017-10-03 13:05:07');
+
 

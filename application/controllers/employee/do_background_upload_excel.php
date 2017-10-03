@@ -1181,10 +1181,10 @@ class Do_background_upload_excel extends CI_Controller {
                 if ($filtered_partner_state) {
                     //Now assigning this case to Partner
                     $data['partner_id'] = $value['partner_id'];
-                    $data['source'] = $this->partner_model->get_source_code_for_partner($value['partner_id']);
+                    $data['source'] = $partner_array[0]['code'];
                 } else {
                     if($value['partner_id'] == 247041){
-                        //Now assigning this case to SS
+                        //Not Assign 
                         return false;
                     } else {
                         $data['partner_id'] = SNAPDEAL_ID;

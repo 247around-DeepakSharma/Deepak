@@ -658,8 +658,8 @@ class Booking_model extends CI_Model {
      *  @param : booking id
      *  @return : all the unit booking detais
      */
-     function get_unit_details($where, $like= FALSE) {
-        $this->db->select('*');
+     function get_unit_details($where, $like= FALSE, $select = "*") {
+        $this->db->select($select);
         if($like == TRUE){
             $this->db->like($where);
         } else {
