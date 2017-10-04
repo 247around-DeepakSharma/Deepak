@@ -11,9 +11,11 @@ class Miscelleneous {
         $this->My_CI->load->library('asynchronous_lib');
         $this->My_CI->load->library('booking_utilities');
         $this->My_CI->load->library('notify');
+        $this->My_CI->load->library('s3');
 	$this->My_CI->load->model('vendor_model');
 	$this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
+        $this->My_CI->load->model('partner_model');
        
         $this->My_CI->load->model('service_centers_model');
     }
@@ -883,6 +885,113 @@ class Miscelleneous {
         }
         
         return $return_data;
+    }
+    
+    /**
+     * @Desc: This function is used to _allot_source_partner_id_for_pincode
+     * @params: String Pincode, brnad, default partner id(SS)
+     * @return : Array
+     * 
+     */
+     function _allot_source_partner_id_for_pincode($service_id, $state, $brand,$default_partner) {
+        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
+        $data = [];
+        $flag = FALSE;
+
+        $partner_array = $this->My_CI->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
+        
+        if (!empty($partner_array)) {
+
+            foreach ($partner_array as $value) {
+                //Now getting details for each Partner 
+                $filtered_partner_state = $this->My_CI->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
+                if ($filtered_partner_state) {
+                    //Now assigning this case to Partner
+                    $data['partner_id'] = $value['partner_id'];
+                    $data['source'] = $this->My_CI->partner_model->get_source_code_for_partner($value['partner_id']);
+                    $flag = FALSE;
+                } else {
+                    if($value['partner_id'] == 247041){
+                        return false;
+                    } else {
+                        $flag = TRUE;
+                    }
+                }
+            }
+        } else {
+            log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
+            $flag = TRUE;
+        }
+        
+        if($flag){
+            switch ($default_partner){
+                case SNAPDEAL_ID:
+                    $data['partner_id'] = SNAPDEAL_ID;
+                    $data['source'] = 'SS';
+                    break;
+                case WYBOR_ID:
+                    $data['partner_id'] = WYBOR_ID;
+                    $data['source'] = 'SY';
+                    break;
+                case PAYTM:
+                    $data['partner_id'] = PAYTM;
+                    $data['source'] = 'SP';
+                    break;
+            }
+        }
+        
+        return $data;
+    }
+    
+    /**
+     * @Desc: This function is used to Add details in File Uploads table
+     * @params: String, String
+     * @return: Void
+     * 
+     * 
+     */
+    public function update_file_uploads($tmpFile, $type) {
+        switch ($type) {
+            case _247AROUND_SNAPDEAL_DELIVERED:
+                $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
+                $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
+                break;
+            case _247AROUND_SNAPDEAL_SHIPPED:
+                $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '.xlsx';
+                $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
+                break;
+            case _247AROUND_SATYA_DELIVERED:
+                $data['file_name'] = "Satya-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
+                $data['file_type'] = _247AROUND_SATYA_DELIVERED;
+                break;
+            case _247AROUND_PAYTM_DELIVERED:
+                $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
+                $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
+                break;
+        }
+        $data['agent_id'] = $this->My_CI->session->userdata('id');
+        
+        $insert_id = $this->My_CI->partner_model->add_file_upload_details($data);
+        
+        if (!empty($insert_id)) {
+            //Logging success
+            log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
+        } else {
+            //Loggin Error
+            log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+        }
+
+        //Making process for file upload
+        move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
+
+        //Upload files to AWS
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/" . $data['file_name'];
+        $this->My_CI->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+
+        //Logging
+        log_message('info', __FUNCTION__ . 'File has been uploaded in S3');
+        unlink(TMP_FOLDER . $data['file_name']);
     }
 
 }
