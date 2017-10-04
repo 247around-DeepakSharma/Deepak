@@ -965,24 +965,35 @@ class Booking extends CI_Controller {
         $source_code = $this->input->post('source_code');
 
         $booking_source = $this->booking_model->get_booking_source($source_code);
-        if ($booking_source[0]['partner_type'] == OEM) {
-            $services = $this->partner_model->get_partner_specific_services($booking_source[0]['partner_id']);
-        } else {
-            $services = $this->booking_model->selectservice();
+        $prepaid['active'] = 1;
+        if($selected_service_id == "undefined"){
+            $prepaid = $this->miscelleneous->get_partner_prepaid_amount($booking_source[0]['partner_id']);
         }
-        $data['partner_type'] = $booking_source[0]['partner_type'];
-        $data['services'] = "<option selected disabled>Select Service</option>";
-        foreach ($services as $appliance) {
-            $data['services'] .= "<option ";
-            if ($selected_service_id == $appliance->id) {
-                $data['services'] .= " selected ";
-            } else if (count($services) == 1) {
-                $data['services'] .= " selected ";
+        
+        if ($prepaid['active'] == 1) {
+            if ($booking_source[0]['partner_type'] == OEM) {
+                $services = $this->partner_model->get_partner_specific_services($booking_source[0]['partner_id']);
+            } else {
+                $services = $this->booking_model->selectservice();
             }
-            $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
+            $data['partner_type'] = $booking_source[0]['partner_type'];
+            $data['services'] = "<option selected disabled>Select Service</option>";
+            foreach ($services as $appliance) {
+                $data['services'] .= "<option ";
+                if ($selected_service_id == $appliance->id) {
+                    $data['services'] .= " selected ";
+                } else if (count($services) == 1) {
+                    $data['services'] .= " selected ";
+                }
+                $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
+            }
+            $data['code'] = 247;
+            print_r(json_encode($data, true));
+        } else {
+            $data['code'] = -247;
+            $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
+            echo json_encode($data,true);
         }
-
-        print_r(json_encode($data, true));
     }
 
     /**

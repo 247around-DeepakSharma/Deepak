@@ -14,6 +14,7 @@ class Dealers extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->model('dealer_model');
         $this->load->model('user_model');
+        $this->load->model('invoices_model');
         $this->load->model('partner_model');
         $this->load->model('service_centre_charges_model');
         $this->load->library('miscelleneous');
@@ -122,38 +123,46 @@ class Dealers extends CI_Controller {
         print_r(json_encode($array));
     }
     
-    function get_category(){
-         log_message("info", __METHOD__);
+    function get_category() {
+        log_message("info", __METHOD__);
         $this->checkDealerSession();
         $brand = $this->input->post("brand");
         $category = $this->input->post("category");
         $service_id = $this->input->post("service_id");
-        $partner_id= $this->input->post('partner_id');
-        $where = array('service_id' => $service_id, "brand" => $brand, 
-            'product_or_services' => 'Service', 'partner_net_payable > 0' => NULL, 'partner_id' => $partner_id);
-        $select = "category"; $order_by = "category";
-        $category_data = $this->service_centre_charges_model->get_service_charge_details($where, $select, $order_by);
-        if(!empty($category_data)){
-            $option = "<option selected disabled>Select Category</option>";
-            foreach($category_data as $value){
-                $option .= "<option  ";
-                if(count($category_data) == 1){
-                    $option .=" selected ";
-                } else if($value['category'] == $category){
-                    $option .="selected ";
-                }
-                $option .= " value = '".$value['category']."' >".$value['category']."</option>";
-            }
-            
-            $array = array("code" => '0001', 'category' =>$option);
+        $partner_id = $this->input->post('partner_id');
+        $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+        if (!empty($prepaid)) {
+            if ($prepaid['active'] == 1) {
+                $where = array('service_id' => $service_id, "brand" => $brand,
+                    'product_or_services' => 'Service', 'partner_net_payable > 0' => NULL, 'partner_id' => $partner_id);
+                $select = "category";
+                $order_by = "category";
+                $category_data = $this->service_centre_charges_model->get_service_charge_details($where, $select, $order_by);
+                if (!empty($category_data)) {
+                    $option = "<option selected disabled>Select Category</option>";
+                    foreach ($category_data as $value) {
+                        $option .= "<option  ";
+                        if (count($category_data) == 1) {
+                            $option .=" selected ";
+                        } else if ($value['category'] == $category) {
+                            $option .="selected ";
+                        }
+                        $option .= " value = '" . $value['category'] . "' >" . $value['category'] . "</option>";
+                    }
 
+                    $array = array("code" => '0001', 'category' => $option);
+                } else {
+                    $array = array("code" => '0002');
+                }
+            } else {
+                $array = array("code" => '0003', "msg" => PREPAID_LOW_AMOUNT_MSG_FOR_DEALER);
+            }
         } else {
-             $array = array("code" => '0000');
+            $array = array("code" => '0004');
         }
         print_r(json_encode($array));
-
     }
-    
+
     function get_capacity(){
          log_message("info", __METHOD__);
         $this->checkDealerSession();
