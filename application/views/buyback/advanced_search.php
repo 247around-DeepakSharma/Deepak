@@ -91,6 +91,7 @@ var shop_list_details = [];
                                     <tr>
                                         <th>No.</th>
                                         <th>Order ID</th>
+                                        <th>Tracking ID</th>
                                         <th>Service Name</th>
                                         <th>Categor/Size</th>
                                         <th>City</th>
@@ -238,7 +239,7 @@ var shop_list_details = [];
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0, 1, 8, 9,10], //first column / numbering column
+                    "targets": [0, 1, 2, 7,9,10,11], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
