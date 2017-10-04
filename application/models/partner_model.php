@@ -406,7 +406,8 @@ function get_data_for_partner_callback($booking_id) {
 
     //Get partner summary parameters for daily report
     function get_partner_summary_params($partner_id) {
-	$partner_source_code = $this->get_source_code_for_partner($partner_id);
+	$partner_details = $this->getpartner_details('code',array('partners.id' => $partner_id));
+        $partner_source_code = $partner_details[0]["code"];
         
         //count today installation scheduled
         $toady_sql = "SELECT count(DISTINCT booking_id) AS today_install_sched 
