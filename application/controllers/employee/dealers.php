@@ -62,7 +62,7 @@ class Dealers extends CI_Controller {
         $partner_data= $this->session->userdata('partners');
         $dealer_id = $this->session->userdata('dealer_id');
         $condition = array(
-            "where" => array('dealer_brand_mapping.dealer_id' => $dealer_id),
+            "where" => array('dealer_brand_mapping.dealer_id' => $dealer_id, "partners.is_active" => 1),
             "where_in" => array('partner_id' => $partner_data),
             "search" => array(),
             "order_by" => "services");
@@ -97,7 +97,7 @@ class Dealers extends CI_Controller {
        
         $select = "brand, partner_id";
         $condition = array(
-            "where" => array('dealer_brand_mapping.dealer_id' => $dealer_id, 'service_id' => $service_id),
+            "where" => array('dealer_brand_mapping.dealer_id' => $dealer_id, 'service_id' => $service_id, "partners.is_active" => 1),
             "where_in" => array('partner_id' => $partner_data),
             "search" => array(),
             "order_by" => "brand");

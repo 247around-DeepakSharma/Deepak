@@ -908,7 +908,7 @@ class Miscelleneous {
                 if ($filtered_partner_state) {
                     //Now assigning this case to Partner
                     $data['partner_id'] = $value['partner_id'];
-                    $data['source'] = $this->My_CI->partner_model->get_source_code_for_partner($value['partner_id']);
+                    $data['source'] = $partner_array[0]['code'];
                     $flag = FALSE;
                 } else {
                     if($value['partner_id'] == 247041){
@@ -992,6 +992,24 @@ class Miscelleneous {
         //Logging
         log_message('info', __FUNCTION__ . 'File has been uploaded in S3');
         unlink(TMP_FOLDER . $data['file_name']);
+    }
+        
+    /**
+     * @desc This is used to get the balance of partner account
+     * @param int $partner_id
+     * @return int
+     */
+    function get_partner_prepaid_amount($partner_id){
+         $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id,
+            'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) '
+                . 'THEN ( amount_collected_paid -`amount_paid`) END)  AS amount');
+        $where = array(
+            'partner_id' => $partner_id,
+            'partner_invoice_id is null' => NULL,
+            'booking_status IN ("' . _247AROUND_PENDING . '", "' . _247AROUND_FOLLOWUP . '", "' . _247AROUND_COMPLETED . '")' => NULL
+        );
+        $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
+        return $invoice_amount[0]['amount'] - $service_amount[0]['amount'];
     }
 
 }

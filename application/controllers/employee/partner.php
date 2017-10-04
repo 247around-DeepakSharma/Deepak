@@ -187,7 +187,7 @@ class Partner extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') && !empty($this->session->userdata('partner_id')) && ($this->session->userdata('status') == 1)) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') && !empty($this->session->userdata('partner_id'))) {
             return TRUE;
         } else {
             $this->session->sess_destroy();
@@ -572,30 +572,7 @@ class Partner extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Service Tax FILE is being uploaded sucessfully.');
                 }
 
-                //Checking for Upcountry
-                $upcountry = $this->input->post('is_upcountry');
-                if (isset($upcountry) && $upcountry == 'on') {
-                    //Setting Flag as 1
-                    $edit_partner_data['partner']['is_upcountry'] = 1;
-                    $edit_partner_data['partner']['upcountry_rate'] = $this->input->post('upcountry_rate');
-                    $edit_partner_data['partner']['upcountry_min_distance_threshold'] = $this->input->post('upcountry_min_distance_threshold');
-                    $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $this->input->post('upcountry_max_distance_threshold');
-                    $edit_partner_data['partner']['upcountry_rate1'] = $this->input->post('upcountry_rate1');
-                    $edit_partner_data['partner']['upcountry_mid_distance_threshold'] = $this->input->post('upcountry_mid_distance_threshold');
-                    $edit_partner_data['partner']['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
-                    $upcountry_approval = $this->input->post('upcountry_approval');
-                    $edit_partner_data['partner']['upcountry_approval'] = (!empty($upcountry_approval)) ? 1 : 0;
-                } else {
-                    $edit_partner_data['partner']['is_upcountry'] = 0;
-                    $edit_partner_data['partner']['upcountry_rate'] = 0;
-                    $edit_partner_data['partner']['upcountry_min_distance_threshold'] = 0;
-                    $edit_partner_data['partner']['upcountry_max_distance_threshold'] = 0;
-                    $edit_partner_data['partner']['upcountry_rate1'] = 0;
-                    $edit_partner_data['partner']['upcountry_mid_distance_threshold'] = 0;
-                    $edit_partner_data['partner']['upcountry_approval_email'] = NULL;
-                    $edit_partner_data['partner']['upcountry_approval'] = 0;
-                }
-
+               
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
 
@@ -734,30 +711,7 @@ class Partner extends CI_Controller {
                     $return_data['partner']['agreement_end_date'] = $this->input->post('agreement_end_date');
                 }
 
-                //Checking for Upcountry
-                $upcountry = $this->input->post('is_upcountry');
-                if (isset($upcountry) && $upcountry == 'on') {
-                    //Setting Flag as 1
-                    $return_data['partner']['is_upcountry'] = 1;
-                    $return_data['partner']['upcountry_rate'] = $this->input->post('upcountry_rate');
-                    $return_data['partner']['upcountry_min_distance_threshold'] = $this->input->post('upcountry_min_distance_threshold');
-                    $return_data['partner']['upcountry_max_distance_threshold'] = $this->input->post('upcountry_max_distance_threshold');
-                    $return_data['partner']['upcountry_rate1'] = $this->input->post('upcountry_rate1');
-                    $return_data['partner']['upcountry_mid_distance_threshold'] = $this->input->post('upcountry_mid_distance_threshold');
-                    $return_data['partner']['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
-                    $upcountry_approval = $this->input->post('upcountry_approval');
-                    $return_data['partner']['upcountry_approval'] = (!empty($upcountry_approval)) ? 1 : 0;
-                } else {
-                    $return_data['partner']['is_upcountry'] = 0;
-                    $return_data['partner']['upcountry_rate'] = 0;
-                    $return_data['partner']['upcountry_min_distance_threshold'] = 0;
-                    $return_data['partner']['upcountry_max_distance_threshold'] = 0;
-                    $return_data['partner']['upcountry_rate1'] = 0;
-                    $return_data['partner']['upcountry_mid_distance_threshold'] = 0;
-                    $return_data['partner']['upcountry_approval_email'] = NULL;
-                    $return_data['partner']['upcountry_approval'] = 0;
-                }
-
+                
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
 
@@ -1021,7 +975,16 @@ class Partner extends CI_Controller {
         $partner_code = $this->input->post('partner_code');
         $return_data['account_manager_id'] = $this->input->post('account_manager_id');
         $return_data['spare_notification_email'] = $this->input->post('spare_notification_email');
-
+        $return_data['prepaid_amount_limit'] = $this->input->post('prepaid_amount_limit');
+        $return_data['prepaid_notification_amount'] = $this->input->post('prepaid_notification_amount');
+        $return_data['grace_period_date'] = $this->input->post('grace_period_date');
+        $is_prepaid = $this->input->post('is_prepaid');
+        if(!empty($is_prepaid)){
+            $return_data['is_prepaid']  = 1;
+        } else {
+             $return_data['is_prepaid']  = 0;
+        }
+        
         if (empty($partner_code)) {
             $return_data['is_active'] = 0;
         }
@@ -1031,6 +994,31 @@ class Partner extends CI_Controller {
         } else {
             $return_data['is_reporting_mail'] = '0';
         }
+        
+        //Checking for Upcountry
+        $upcountry = $this->input->post('is_upcountry');
+        if (isset($upcountry) && $upcountry == 'on') {
+            //Setting Flag as 1
+            $return_data['is_upcountry'] = 1;
+            $return_data['upcountry_rate'] = $this->input->post('upcountry_rate');
+            $return_data['upcountry_min_distance_threshold'] = $this->input->post('upcountry_min_distance_threshold');
+            $return_data['upcountry_max_distance_threshold'] = $this->input->post('upcountry_max_distance_threshold');
+            $return_data['upcountry_rate1'] = $this->input->post('upcountry_rate1');
+            $return_data['upcountry_mid_distance_threshold'] = $this->input->post('upcountry_mid_distance_threshold');
+            $return_data['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
+            $upcountry_approval = $this->input->post('upcountry_approval');
+            $return_data['upcountry_approval'] = (!empty($upcountry_approval)) ? 1 : 0;
+        } else {
+            $return_data['is_upcountry'] = 0;
+            $return_data['upcountry_rate'] = 0;
+            $return_data['upcountry_min_distance_threshold'] = 0;
+            $return_data['upcountry_max_distance_threshold'] = 0;
+            $return_data['upcountry_rate1'] = 0;
+            $return_data['upcountry_mid_distance_threshold'] = 0;
+            $return_data['upcountry_approval_email'] = NULL;
+            $return_data['upcountry_approval'] = 0;
+        }
+                
 //        $partner_data_final['partner'] = $return_data;
         return $return_data;
     }
@@ -2754,7 +2742,7 @@ class Partner extends CI_Controller {
             if ($status == 0) {
                 echo "<script>alert('Thanks, Booking Has Been Already Approved.');</script>";
             } else {
-                $userSession = array('error' => 'Booking Not Found');
+                $userSession = array('error' => 'Thanks, Booking Has Been Already Approved.');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
             }
@@ -3197,6 +3185,10 @@ class Partner extends CI_Controller {
         
         //get escalation percentage
         $data['escalation_percentage'] = $this->partner_model->get_booking_escalation_percantage($partner_id);
+        if(!empty($this->session->userdata('is_prepaid'))){
+            $data['prepaid_amount'] = $this->get_prepaid_amount($partner_id);
+        }
+        
         $this->load->view('partner/show_partner_booking_summary',$data);
         
     }
@@ -3274,6 +3266,53 @@ class Partner extends CI_Controller {
             exec("rm -rf " . escapeshellarg($csv));
             exit;
         }
+    }
+    
+    /**
+     * @desc This is used to get prepaid amount for requested partner 
+     * @param int $partner_id
+     * @return Array
+     */
+    function get_prepaid_amount($partner_id) {
+        log_message("info",__METHOD__." Partner Id ".$partner_id);
+        $final_amount = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+        $partner_details = $this->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,grace_period_date,prepaid_notification_amount ", 
+                array('partners.id' => $partner_id));
+        log_message("info",__METHOD__." Partner Id ".$partner_id." Prepaid account".$final_amount);
+        if ($final_amount > $partner_details[0]['prepaid_notification_amount']) {
+            
+            $d['prepaid_amount'] = '<strong style="color:green; font-size: 16px;">Rs. ' . $final_amount . '</strong>';
+            
+        } else {
+            $d['prepaid_amount'] = '<strong class="blink" style="color:red; font-size: 16px;">Rs. ' . $final_amount . '</strong> ';
+        }
+        $d['prepaid_msg'] = "";
+        $is_active = 1;
+        
+        if (($partner_details[0]['is_prepaid'] == 1) & $partner_details[0]['prepaid_amount_limit'] > $final_amount) {
+            $d['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;
+            if (!empty($partner_details[0]['grace_period_date']) && (date("Y-m-d") > date("Y-m-d", strtotime($partner_details[0]['grace_period_date'])))) {
+                $is_active = 0;
+            } else if (empty($partner_details[0]['grace_period_date'])) {
+
+                $is_active = 0;
+            }
+        }
+
+        $partner['is_active'] = $is_active;
+        
+        if ($partner_details[0]['is_active'] == 0 && $is_active = 1) {
+            $partner['grace_period_date'] = NULL;
+            log_message("info",__METHOD__." Partner Id ".$partner_id." Activated");
+            $this->partner_model->edit_partner($partner, $partner_id);
+        } else if ($partner_details[0]['is_active'] == 1 && $is_active == 0) {
+            log_message("info",__METHOD__." Partner Id ".$partner_id." De-Activated");
+            $this->partner_model->edit_partner($partner, $partner_id);
+        }
+        
+        $userSession = array('status' => $is_active);
+        $this->session->set_userdata($userSession);
+        return $d;
     }
 
 }
