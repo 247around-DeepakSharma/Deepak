@@ -318,7 +318,7 @@ class Login extends CI_Controller {
         
         if (!empty($agent)) {
             //get partner details now
-            $partner_details = $this->partner_model->getpartner($partner_id);
+            $partner_details = $this->partner_model->getpartner($partner_id, false);
 
             $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], 
                     $agent[0]['agent_id'], $partner_details[0]['is_active'], $partner_details[0]['is_prepaid']);
