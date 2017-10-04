@@ -1007,10 +1007,10 @@ class Buyback_process extends CI_Controller {
     function update_received_bb_order($order_id, $service_id, $city, $cp_id) {
         log_message("info", __METHOD__);
         
-        $data['order_id'] = rawurlencode($order_id);
-        $data['service_id'] = rawurlencode($service_id);
-        $data['city'] = rawurlencode($city);
-        $data['cp_id'] = rawurlencode($cp_id);
+        $data['order_id'] = rawurldecode($order_id);
+        $data['service_id'] = rawurldecode($service_id);
+        $data['city'] = rawurldecode($city);
+        $data['cp_id'] = rawurldecode($cp_id);
 
         $response = $this->buyback->process_update_received_bb_order_details($data);
 
@@ -1035,10 +1035,10 @@ class Buyback_process extends CI_Controller {
      */
     function update_not_received_bb_order($order_id, $service_id, $city, $cp_id) {
         log_message("info",__METHOD__);
-        $data['order_id'] = rawurlencode($order_id);
-        $data['service_id'] = rawurlencode($service_id);
-        $data['city'] = rawurlencode($city);
-        $data['cp_id'] = rawurlencode($cp_id);
+        $data['order_id'] = rawurldecode($order_id);
+        $data['service_id'] = rawurldecode($service_id);
+        $data['city'] = rawurldecode($city);
+        $data['cp_id'] = rawurldecode($cp_id);
         
         $update_data = array('current_status' => _247AROUND_BB_NOT_DELIVERED,
                              'internal_status' => _247AROUND_BB_247APPROVED_STATUS,
@@ -1181,10 +1181,10 @@ class Buyback_process extends CI_Controller {
      * @return void
      */
     function update_bb_report_issue_order_details($order_id,$service_id,$city,$cp_id){
-        $data['order_id'] = rawurlencode($order_id);
-        $data['service_id'] = rawurlencode($service_id);
-        $data['city'] = rawurlencode($city);
-        $data['cp_id'] = rawurlencode($cp_id);
+        $data['order_id'] = rawurldecode($order_id);
+        $data['service_id'] = rawurldecode($service_id);
+        $data['city'] = rawurldecode($city);
+        $data['cp_id'] = rawurldecode($cp_id);
         $data['products'] = $this->booking_model->selectservice();
         $data['cp_basic_charge'] = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id'=> $data['order_id']),'cp_basic_charge');
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
