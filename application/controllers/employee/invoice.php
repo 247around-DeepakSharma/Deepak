@@ -30,6 +30,7 @@ class Invoice extends CI_Controller {
         $this->load->model('penalty_model');
         $this->load->model("accounting_model");
         $this->load->model("bb_model");
+        $this->load->model("cp_model");
         $this->load->library("notify");
         $this->load->library("miscelleneous");
         $this->load->library('PHPReport');
@@ -911,6 +912,9 @@ class Invoice extends CI_Controller {
                
                 log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
                 $this->bb_model->update_bb_unit_details(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
+                
+                $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $value['partner_order_id'], 'current_status' => 'Pending'),
+                        array('current_status' => 'Delivered', 'internal_status' => 'Delivered'));
                 
             } 
         }
