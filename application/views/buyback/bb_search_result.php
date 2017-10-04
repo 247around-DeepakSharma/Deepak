@@ -18,6 +18,7 @@
                             <tr>
                                 <th>No.</th>
                                 <th>Order ID</th>
+                                <th>Tracking ID</th>
                                 <th>Appliance</th>
                                 <th>Category/Size</th>
                                 <th>City</th>
@@ -38,6 +39,7 @@
                                 <td><a href="<?php echo base_url();?>buyback/buyback_process/view_order_details/<?php echo $value->partner_order_id;?>">
                                     <?php echo $value->partner_order_id;?></a>
                                 </td>
+                                <td><?php echo $value->tracking_id;?></td>
                                 <td><?php echo $value->services;?></td>
                                 <td><?php echo $value->category;?></td>
                                 <td><?php echo $value->city;?></td>
