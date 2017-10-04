@@ -1,5 +1,4 @@
 <?php
-
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
@@ -14,6 +13,7 @@ class Around_scheduler extends CI_Controller {
         parent::__Construct();
 
         $this->load->model('around_scheduler_model');
+        $this->load->model('user_model');
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
         $this->load->model('employee_model');
@@ -26,6 +26,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('PHPReport');
         $this->load->library('table');
         $this->load->library('buyback');
+        $this->load->library('email_data_reader');
         $this->load->helper(array('form', 'url', 'file'));
         $this->load->dbutil();
     }
@@ -41,28 +42,26 @@ class Around_scheduler extends CI_Controller {
         $data1 = $this->around_scheduler_model->get_reminder_installation_sms_data_today();
         $tag = "sd_edd_missed_call_reminder";
 
-        foreach ($data1 as  $value) {
+        foreach ($data1 as $value) {
             $status = $this->notify->sendTransactionalSmsMsg91($value->booking_primary_contact_no, $value->content);
             log_message('info', __METHOD__ . print_r($status, 1));
             if (ctype_alnum($status['content']) && strlen($status['content']) == 24) {
-                $this->notify->add_sms_sent_details($value->type_id, $value->type, $value->booking_primary_contact_no, 
-                         $value->content, $value->booking_id, $tag, $status['content']);
-                 
+                $this->notify->add_sms_sent_details($value->type_id, $value->type, $value->booking_primary_contact_no, $value->content, $value->booking_id, $tag, $status['content']);
+
                 $this->booking_model->increase_escalation_reschedule($value->booking_id, "sms_count");
             } else {
-                $this->notify->add_sms_sent_details($value->type_id,  $value->type, $value->booking_primary_contact_no, 
-                         $value->content, $value->booking_id, $status['content']);
-                
+                $this->notify->add_sms_sent_details($value->type_id, $value->type, $value->booking_primary_contact_no, $value->content, $value->booking_id, $status['content']);
+
                 log_message('info', "Message Not Sent - Booking id: " . $value->booking_id . ",
         		please recheck tag: '" . $tag . "' & Phone Number - " . $value->booking_primary_contact_no);
 
                 $subject = 'SMS Sending Failed';
                 $message = "Please check SMS tag and phone number. Booking id is : " .
-                       $value->booking_id . " Tag is '" . $tag . "' & phone number is :" . $value->booking_primary_contact_no . " Result:"
+                        $value->booking_id . " Tag is '" . $tag . "' & phone number is :" . $value->booking_primary_contact_no . " Result:"
                         . " " . $status['content'];
                 $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
 
-                $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
             }
         }
         // Inserting values in scheduler tasks log
@@ -424,15 +423,15 @@ class Around_scheduler extends CI_Controller {
             $rm = $this->employee_model->get_employee_email_by_group('regionalmanager');
             $rm_email = '';
             foreach ($rm as $key => $value) {
-                $rm_email .=$value['official_email'];
-                $rm_email .=",";
+                $rm_email .= $value['official_email'];
+                $rm_email .= ",";
             }
 
             $admin_gp = $this->employee_model->get_employee_email_by_group('admin');
             $admin_email = '';
             foreach ($admin_gp as $key => $value) {
-                $admin_email .=$value['official_email'];
-                $admin_email .=",";
+                $admin_email .= $value['official_email'];
+                $admin_email .= ",";
             }
 
             $to = substr($rm_email, 0, -1);
@@ -504,48 +503,47 @@ class Around_scheduler extends CI_Controller {
         // Inserting values in scheduler tasks log
         $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
     }
-    
-    
+
     /**
      * @desc: This function is used to get the corresponding SMS TAG for booking_status and phone_number 
      * @param:$filtered_phn_number_data array()
      * @retun:void()
      */
     function get_sms_tag($booking_status) {
-        $smsTag_arr1 = array(1,3,5,7,9,11);
-        $smsTag_arr2 = array(2,4,6,8,12);
+        $smsTag_arr1 = array(1, 3, 5, 7, 9, 11);
+        $smsTag_arr2 = array(2, 4, 6, 8, 12);
         $cur_month = date('n');
         switch ($booking_status) {
             case 'Completed':
-                if (in_array($cur_month, $smsTag_arr1)){
+                if (in_array($cur_month, $smsTag_arr1)) {
                     $smsTag = COMPLETED_PROMOTINAL_SMS_1;
-                } else if(in_array($cur_month, $smsTag_arr2)){
+                } else if (in_array($cur_month, $smsTag_arr2)) {
                     $smsTag = COMPLETED_PROMOTINAL_SMS_2;
                 }
                 break;
             case 'Cancelled':
-                if (in_array($cur_month, $smsTag_arr1)){
+                if (in_array($cur_month, $smsTag_arr1)) {
                     $smsTag = CANCELLED_PROMOTINAL_SMS_1;
-                } else if(in_array($cur_month, $smsTag_arr2)){
+                } else if (in_array($cur_month, $smsTag_arr2)) {
                     $smsTag = CANCELLED_PROMOTINAL_SMS_2;
                 }
                 break;
             case 'Query':
-                if (in_array($cur_month, $smsTag_arr1)){
+                if (in_array($cur_month, $smsTag_arr1)) {
                     $smsTag = CANCELLED_QUERY_PROMOTINAL_SMS_1;
-                } else if(in_array($cur_month, $smsTag_arr2)){
+                } else if (in_array($cur_month, $smsTag_arr2)) {
                     $smsTag = CANCELLED_QUERY_PROMOTINAL_SMS_2;
                 }
                 break;
             case 'no_status':
-                if (in_array($cur_month, $smsTag_arr1)){
+                if (in_array($cur_month, $smsTag_arr1)) {
                     $smsTag = BOOKING_NOT_EXIST_PROMOTINAL_SMS_1;
-                } else if(in_array($cur_month, $smsTag_arr2)){
+                } else if (in_array($cur_month, $smsTag_arr2)) {
                     $smsTag = BOOKING_NOT_EXIST_PROMOTINAL_SMS_2;
                 }
                 break;
         }
-        
+
         return $smsTag;
     }
 
@@ -570,51 +568,50 @@ class Around_scheduler extends CI_Controller {
 
         $this->notify->send_sms_msg91($sms);
     }
+
     /**
      * @desc This call from cron. AT 12:15, 15:15, 6:15 to send updated jeeves booking in the  Mail
      */
-    function send_notification_mail_to_jeeves(){
+    function send_notification_mail_to_jeeves() {
         $hour = 3;
-        if(date('H') < 12){
+        if (date('H') < 12) {
             $hour = 18;
         }
 
         $data = $this->around_scheduler_model->get_status_changes_booking_with_in_hour($hour);
         $template = array(
-        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
         );
 
         $this->table->set_template($template);
 
         $this->table->set_heading(array('Order ID', 'Jeeves New Status', 'Rescheduled Booking Date', 'Remarks', 'Amount Collected'));
-        foreach($data as $value){
-            
-            $this->table->add_row($value['order_id'], $value['partner_current_status'], 
-                    $value['booking_date'], $value['cancellation_reaoson'], $value['amount_paid']);
+        foreach ($data as $value) {
 
+            $this->table->add_row($value['order_id'], $value['partner_current_status'], $value['booking_date'], $value['cancellation_reaoson'], $value['amount_paid']);
         }
 
         $to = NITS_ANUJ_EMAIL_ID;
         $cc = "abhaya@247around.com";
-        
+
         $subject = "Jeeves Booking Update Status";
-        $message = "Dear Partner,<br/> Attached is the status of the last ".$hour. " hour <br/><br/><br/>";
+        $message = "Dear Partner,<br/> Attached is the status of the last " . $hour . " hour <br/><br/><br/>";
         $message .= $this->table->generate();
 
         $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
     }
-    
+
     /**
      * @desc: This function is used to send SMS to those users who don't give ratings but booking is completed
      * @param:$from String(optional)
      * @param:$to String(optional)
      * @retun:void()
      */
-    public function send_sms_for_rating_on_booking_completed($from="",$to=""){
-        
-        $data = $this->around_scheduler_model->get_data_for_bookings_without_rating($from,$to);
-        
-        if(!empty($data)){
+    public function send_sms_for_rating_on_booking_completed($from = "", $to = "") {
+
+        $data = $this->around_scheduler_model->get_data_for_bookings_without_rating($from, $to);
+
+        if (!empty($data)) {
             foreach ($data as $value) {
 
                 //send sms according to booking status
@@ -625,16 +622,16 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-    
+
     /**
      * @desc: This function is used to send SMS to those users who did bot give missed call
      * after sending completed rating sms and rating is also null
      * @param:void
      * @retun:void()
      */
-    public function send_missed_call_rating_sms_again(){
+    public function send_missed_call_rating_sms_again() {
         $data = $this->around_scheduler_model->get_missed_call_data_without_rating();
-        if(!empty($data)){
+        if (!empty($data)) {
             foreach ($data as $value) {
 
                 //send sms according to booking status
@@ -645,14 +642,15 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
+
     /**
      * @desc This is used to send GST notification email
      */
-    function sent_mail_for_gst_notification(){
+    function sent_mail_for_gst_notification() {
         log_message('info', __METHOD__ . '=> Entering...');
         $data = $this->around_scheduler_model->get_vendor_email_contact_no();
-        if(!empty($data['email'])){
-            $template =  $this->booking_model->get_booking_email_template("gst_notification");
+        if (!empty($data['email'])) {
+            $template = $this->booking_model->get_booking_email_template("gst_notification");
             $body = $template[0];
             $to = $template[1];
             $from = $template[2];
@@ -660,13 +658,12 @@ class Around_scheduler extends CI_Controller {
             $subject = $template[4];
 
             $bcc = $data['email'];
-           
+
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
         }
         log_message('info', __METHOD__ . '=> EXIT...');
-        
     }
-    
+
     function send_mail_for_pan_notification() {
         log_message('info', __METHOD__ . '=> Entering...');
 
@@ -683,12 +680,12 @@ class Around_scheduler extends CI_Controller {
                 $from = $template[2];
                 $cc = $template[3] . ',' . $rm_mail;
                 $subject = vsprintf($template[4], $val['name']);
-                
+
                 $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "");
             }
         }
     }
-    
+
     function send_mail_for_bank_details_notification() {
         log_message('info', __METHOD__ . '=> Entering...');
 
@@ -708,12 +705,12 @@ class Around_scheduler extends CI_Controller {
                 $from = $template[2];
                 $cc = $template[3] . ',' . $rm_mail;
                 $subject = vsprintf($template[4], $val['name']);
-                
+
                 $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "");
             }
         }
     }
-    
+
     function send_mail_for_bank_details_not_verified_notification() {
         log_message('info', __METHOD__ . '=> Entering...');
 
@@ -725,27 +722,28 @@ class Around_scheduler extends CI_Controller {
                          AND is_verified = 0 )" => null, 'active' => 1);
         $data = $this->vendor_model->getVendorDetails($select, $where);
         if (!empty($data)) {
-            
+
             $table_template = array(
-                    'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
-                );
-           
+                'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+            );
+
             $this->table->set_template($table_template);
-            $this->table->set_heading(array('ID','SF Name'));
+            $this->table->set_heading(array('ID', 'SF Name'));
             $table = $this->table->generate($data);
             $template = $this->booking_model->get_booking_email_template("bank_details_not_verified_notification");
             $body = vsprintf($template[0], $table);
             $to = $template[1];
             $from = $template[2];
             $subject = $template[4];
-                
+
             $this->notify->sendEmail($from, $to, '', '', $subject, $body, "");
         }
     }
+
     /**
      * @desc: This function tags orders for TAT Breach if CP has not claimed them within 45 days.
      */
-    function assign_tat_breach_order(){
+    function assign_tat_breach_order() {
         $post['length'] = -1;
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost'),
             'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost'));
@@ -754,15 +752,130 @@ class Around_scheduler extends CI_Controller {
         $post['column_search'] = array();
         $select = "bb_order_details.id, bb_order_details.partner_order_id";
         $list = $this->bb_model->get_bb_order_list($post, $select);
-        
-        foreach($list as $value){
-            log_message("info", __METHOD__." TAT BREACH ORDER ID =>".$value->partner_order_id);
+
+        foreach ($list as $value) {
+            log_message("info", __METHOD__ . " TAT BREACH ORDER ID =>" . $value->partner_order_id);
             $where['partner_order_id'] = $value->partner_order_id;
-            $this->bb_model->update_bb_order_details($where, array('current_status' =>_247AROUND_BB_TO_BE_CLAIMED, 
+            $this->bb_model->update_bb_order_details($where, array('current_status' => _247AROUND_BB_TO_BE_CLAIMED,
                 'internal_status' => _247AROUND_BB_ORDER_TAT_BREACH));
             $this->buyback->insert_bb_state_change($value->partner_order_id, _247AROUND_BB_TO_BE_CLAIMED, _247AROUND_BB_ORDER_TAT_BREACH, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
-            
-            $this->cp_model->update_bb_cp_order_action($where, array('current_status' => _247AROUND_BB_NOT_DELIVERED, 'internal_status' =>_247AROUND_BB_247APPROVED_STATUS));
+
+            $this->cp_model->update_bb_cp_order_action($where, array('current_status' => _247AROUND_BB_NOT_DELIVERED, 'internal_status' => _247AROUND_BB_247APPROVED_STATUS));
         }
     }
+    
+    /**
+     * @desc: This function is used to send those appliance data which are not verified yet
+     * @param:void()
+     * @return void()
+     */
+    function get_non_verified_appliance_description_data() {
+        $data = $this->around_scheduler_model->get_non_verified_appliance_description_data();
+        if (!empty($data)) {
+            $this->table->set_heading('Product Description', 'Service Id', 'Category', 'Capacity', 'Brand', 'Is Verified');
+            $template = array(
+                'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+            );
+
+            foreach ($data as $val) {
+                $this->table->add_row($val['product_description'], $val['service_id'], $val['category'], $val['capacity'], $val['brand'], $val['is_verified']);
+            }
+
+            $this->table->set_template($template);
+            $html_table = $this->table->generate();
+
+            //send email
+            $email_template = $this->booking_model->get_booking_email_template("non_verified_appliance_mail");
+            $to = DEVELOPER_EMAIL;
+            $subject = $email_template[4];
+            $message = vsprintf($email_template[0], $html_table);
+
+            $sendmail = $this->notify->sendEmail($email_template[2], $to, '', "", $subject, $message, "");
+            if ($sendmail) {
+                log_message('info', __FUNCTION__ . ' Report Mail has been send successfully');
+            } else {
+                log_message('info', __FUNCTION__ . ' Error in Sending Mail to partner ');
+            }
+        }
+    }
+    
+    /**
+     * @desc: This function is used to send reminder mail when partner contract expired
+     * @param: void()
+     * @return: void()
+     */
+    function send_partner_contract_expiry_notification() {
+        $data = $this->partner_model->getpartner_details('public_name,agreement_end_date', array('datediff(curdate(),agreement_end_date)  >= -30' => null,'is_active' => 1));
+        if (!empty($data)) {
+
+            $template = array(
+                'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+            );
+
+            $this->table->set_template($template);
+            $this->table->set_heading('Partner Name', 'Agreement End Date');
+            $html_table = $this->table->generate($data);
+            //send email
+
+            $email_template = $this->booking_model->get_booking_email_template("partner_contract_expiry_reminder");
+            $to = NITS_ANUJ_EMAIL_ID;
+            $subject = $email_template[4];
+            $message = vsprintf($email_template[0], $html_table);
+            
+	    $sendmail = $this->notify->sendEmail($email_template[2], $to, "", "", $subject, $message, "");
+
+            if ($sendmail) {
+                log_message('info', __FUNCTION__ . 'Report Mail has been send successfully');
+            } else {
+                log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner ');
+            }
+        }
+    }
+    
+     /*
+      *@desc: This function is use to process sms deactivation request from user 
+      *This Function fetch deactivation request from email, and update user table for requested numbers
+      *This Function calls by cron
+     */
+    function process_sms_deactivation_request(){
+        $to_date = date('Y-m-d');
+        $from_date = date('Y-m-d',(strtotime (SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS , strtotime($to_date))));
+        //create connection for email
+        $conn = $this->email_data_reader->create_email_connection(SMS_DEACTIVATION_MAIL_SERVER,SMS_DEACTIVATION_EMAIL,SMS_DEACTIVATION_PASSWORD);
+        if($conn != 'FALSE'){
+            //get emails for previous day
+            $email_data = $this->email_data_reader->fetch_emails_between_two_dates($to_date,$from_date);
+            //get numbers array, from which we get deactivation request before 1 day
+            $count = count($email_data);
+            $numbers = array();
+            for($i=0;$i<$count;$i++){
+                if (strpos($email_data[$i][0]->subject, SMS_DEACTIVATION_EMAIL_SUBJECT) !== false) {
+                    //get numbers
+                    $numbers[] = substr(trim(explode(SMS_DEACTIVATION_EMAIL_SUBJECT,$email_data[$i][0]->subject)[0]),-10);
+                }
+            }
+            //update sms_activation status for requested numbers
+            if(!empty($numbers)){
+                $updated_rows = $this->user_model->update_sms_deactivation_status($numbers);
+                if($updated_rows>0){
+                    $length = count($numbers);
+                    for($j=0;$j<$length;$j++){
+                        log_message('info', 'NDNC has been activated for '.$numbers[$j]);
+                    }
+                }
+                else{
+                    log_message('info', 'NDNC already activated');
+                }
+            }
+            else{
+                log_message('info', 'There is not any new request for NDNC');
+            }
+            //close email connection
+            $this->email_data_reader->close_email_connection();
+        }
+        else{
+            log_message('info', 'Connection is not created');
+        }
+    }
+
 }

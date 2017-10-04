@@ -581,10 +581,21 @@ class Miscelleneous {
                             $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
 
                             $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                            
+                            return FALSE;
    
+                        } else {
+                            $price = $is_price['customer_net_payable'];
+                            if($price >0){
+                                $charges = "Rs. " . round($price,0);
+                               log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+                                
+                            } else {
+                                $charges = "FREE";
+                            }
                         }
-                        return FALSE;
-                   // break;
+                        
+                    break;
                         case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                             return FALSE;
                 }
@@ -845,6 +856,33 @@ class Miscelleneous {
         $cp_amount['advance'] = $advance_amount;
         
         return $cp_amount;
+    }
+    
+    
+    /**
+     * @desc This function is used to verified appliance description
+     * @param $appliances_details array()
+     * @return $return_data array()
+     */
+    function verified_applicance_capacity($appliances_details){
+        switch ($appliances_details['service_id']){
+            case '46':
+                $match = array();
+                preg_match('/[0-9]+/', $appliances_details['capacity'],$match);
+                if( !empty($match) && (strpos($appliances_details['description'],$match[0]) !== False) && (strpos($appliances_details['description'],$appliances_details['brand']) !== False)){
+                    $return_data['status'] = TRUE;
+                    $return_data['is_verified'] = '1';
+                }else{
+                    $return_data['status'] = FALSE;
+                    $return_data['is_verified'] = '0';
+                }
+                break;
+            default :
+                $return_data['status'] = FALSE;
+                $return_data['is_verified'] = '0';
+        }
+        
+        return $return_data;
     }
 
 }

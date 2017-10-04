@@ -226,9 +226,10 @@
           <thead>
           <tr>
              <th class="text-center">PAN</th>     
-             <th class="text-center">Service Tax </th>
+<!--             <th class="text-center">Service Tax </th>
              <th class="text-center">VAT/TIN</th>
-             <th class="text-center">CST</th>
+             <th class="text-center">CST</th>-->
+             <th class="text-center">GST</th>
              <th class="text-center">Bank Details Verification</th>
              <th class="text-center">Contract</th>
              <th class="text-center">Defective Parts Not Shipped by SF</th>
@@ -241,19 +242,22 @@
                  
                    <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['pan_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
-                <td class="text-center">
+<!--                <td class="text-center">
                  
-                   <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['service_tax_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+                   <img src="<?php //echo  base_url(); ?><?php //if(!empty($invoicing_summary['service_tax_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
                 <td class="text-center">
                  
-                   <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['tin_no']) || !empty($invoicing_summary['tin_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+                   <img src="<?php //echo  base_url(); ?><?php //if(!empty($invoicing_summary['tin_no']) || !empty($invoicing_summary['tin_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
                 <td class="text-center">
                  
-                   <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['cst_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+                   <img src="<?php //echo  base_url(); ?><?php //if(!empty($invoicing_summary['cst_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+               </td>-->
+               <td class="text-center">
+                 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['gst_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
-               
                <td class="text-center">
                  
                    <img src="<?php echo  base_url(); ?><?php if(!empty($invoicing_summary['is_verified']) && $invoicing_summary['is_verified'] == '1'){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 

@@ -476,6 +476,13 @@ class User_model extends CI_Model {
         $query = $this->db->get('users');
         return $query->result_array();
     }
-
+    
+    function update_sms_deactivation_status($numbers){
+        $this->db->set('ndnc', '1');
+        $this->db->where_in('phone_number', $numbers);
+        $this->db->update('users');
+        return $this->db->affected_rows();
+    }
+    
     // end of model
 }

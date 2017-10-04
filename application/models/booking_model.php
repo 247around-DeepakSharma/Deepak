@@ -7,6 +7,7 @@ class Booking_model extends CI_Model {
      */
     function __construct() {
         parent::__Construct();
+        
     }
 
     function date_compare_queries($a, $b) {
@@ -2134,5 +2135,48 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-
+    
+    function update_appliance_description_details($data,$where){
+         $this->db->where($where,FALSE);
+         $this->db->update('appliance_product_description', $data);
+    }
+    /*
+     * This function use to get query on the basis of input 
+     * @input string(table),string(required field(comma seprated), array[OPTIONAL](key value pair array with where ),array[OPTIONAL](collection of fileds on which we want to apply group by))
+     * @output array(result of query satisfied the where condition)
+     */
+    
+    function get_search_query($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        if(!empty($join)){
+            foreach ($join as $tableName=>$joinCondition){
+                $this->db->join($tableName,$joinCondition);
+            }
+        }
+        if(!empty($limitArray)){
+            if($limitArray['length'] != -1){
+                 $this->db->limit($limitArray['length'], $limitArray['start']);
+            }
+        }
+        if(!empty($orderBYArray)){
+            foreach ($orderBYArray as $fieldName=>$sortingOrder){
+                $this->db->order_by($fieldName, $sortingOrder);
+            }
+        }
+       return $query = $this->db->get($table);   
+    }
+    
+    function get_advance_search_result_data($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
+       $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
+       return $query->result_array();  
+    }
+    function get_advance_search_result_count($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
+       $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
+       return $this->db->affected_rows();
+    }
+    
+    
 }

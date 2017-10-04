@@ -118,7 +118,7 @@
                 format: 'YYYY/MM/DD'
             },
             startDate: '<?php echo date("Y/m/01", strtotime("-1 month")) ?>',
-            endDate: '<?php echo date("Y/m/01") ?>',
+            endDate: '<?php echo date('Y-m-d', strtotime('last day of previous month')) ?>',
             minDate: '2015/01/01',
             maxDate: '2030/12/31',
             showDropdowns: true,

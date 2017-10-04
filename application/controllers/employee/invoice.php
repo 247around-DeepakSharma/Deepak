@@ -52,7 +52,7 @@ class Invoice extends CI_Controller {
     public function index() {
         $select = "service_centres.name, service_centres.id";
         $data['service_center'] = $this->vendor_model->getVendorDetails($select);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1));
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1), true);
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
@@ -595,7 +595,8 @@ class Invoice extends CI_Controller {
                 "igst_tax_rate" => $meta['igst_tax_rate'],
                 "igst_tax_amount" => $meta["igst_total_tax_amount"],
                 "sgst_tax_amount" => $meta["sgst_total_tax_amount"],
-                "cgst_tax_amount" => $meta["cgst_total_tax_amount"]
+                "cgst_tax_amount" => $meta["cgst_total_tax_amount"],
+                "parts_count" =>$meta['parts_count']
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -780,7 +781,9 @@ class Invoice extends CI_Controller {
 
            //Upload Excel files to AWS
             $this->upload_invoice_to_S3($meta['invoice_id']);
-
+            $t_s_charge =  ($meta['r_sc'] - $meta['upcountry_charge']) - $this->booking_model->get_calculated_tax_charge( ($meta['r_sc'] - $meta['upcountry_charge']), 18);
+            $t_ad_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge( $meta['r_asc'], 18);
+            $t_part_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge($meta['r_pc'], 18);
             //Save this invoice info in table
             $invoice_details = array(
                 'invoice_id' => $meta['invoice_id'],
@@ -795,9 +798,10 @@ class Invoice extends CI_Controller {
                 'from_date' => date("Y-m-d", strtotime($meta['sd'])),
                 'to_date' => date("Y-m-d", strtotime($meta['ed'])),
                 'num_bookings' =>  $meta['booking_count'],
-                'total_service_charge' => $meta['r_sc'] - $meta['upcountry_charge'],
-                'total_additional_service_charge' => $meta['r_asc'],
-                'parts_cost' => $meta['r_pc'],
+                "parts_count" => $meta['parts_count'],
+                'total_service_charge' => $t_s_charge,
+                'total_additional_service_charge' => $t_ad_charge,
+                'parts_cost' => $t_part_charge,
                 'vat' => 0, //No VAT here in Cash invoice
                 'total_amount_collected' => $meta['total_amount_paid'],
                 'rating' => $meta['t_rating'],
@@ -1075,6 +1079,7 @@ class Invoice extends CI_Controller {
                     "igst_tax_amount" => $invoice_data['meta']["igst_total_tax_amount"],
                     "sgst_tax_amount" => $invoice_data['meta']["sgst_total_tax_amount"],
                     "cgst_tax_amount" => $invoice_data['meta']["cgst_total_tax_amount"],
+                    "parts_count" => $invoice_data['meta']["cgst_total_tax_amount"],
                     "rcm" => $invoice_data['meta']['rcm']
                    
                 );
@@ -1586,7 +1591,7 @@ class Invoice extends CI_Controller {
                         'total_service_charge' => 0,
                         'total_additional_service_charge' => 0,
                         'service_tax' => 0,
-                        'parts_cost' => $invoice['meta']['sub_total_amount'],
+                        'parts_cost' => $invoice['meta']['taxable_value'],
                         'vat' => 0,
                         'total_amount_collected' => $invoice['meta']['sub_total_amount'],
                         'rating' => 0,
@@ -1783,10 +1788,14 @@ class Invoice extends CI_Controller {
                 $invoices_details_data = array_merge($data, $invoices['upcountry']);
                 $invoices['meta']['r_sc'] = $invoices['meta']['r_asc'] = $invoices['meta']['r_pc'] = $rating = $total_amount_paid = 0;
                 $i = 0;
+                $parts_count = 0;
                 foreach ($invoices_details_data as $value) {
                     $invoices['meta']['r_sc'] += $value['service_charges'];
                     $invoices['meta']['r_asc'] += $value['additional_charges'];
                     $invoices['meta']['r_pc'] += $value['parts_cost'];
+                    if($value['product_or_services'] == "Product"){
+                        $parts_count++;
+                    }
                    
                     $total_amount_paid += $value['amount_paid'];
 
@@ -1799,6 +1808,7 @@ class Invoice extends CI_Controller {
                 if ($i == 0) {
                     $i = 1;
                 }
+                $invoices['meta']['parts_count'] = $parts_count;
                 $invoices['meta']['total_amount_paid'] = round($total_amount_paid, 0);
                 $invoices['meta']['t_rating'] = round($rating / $i, 0);
                 $this->generate_cash_details_invoices_for_vendors($vendor_id, $invoices_details_data, $invoices['meta'], $invoice_type, $agent_id);
@@ -1915,7 +1925,7 @@ class Invoice extends CI_Controller {
                 'invoice_date' => date("Y-m-d"),
                 'from_date' => date("Y-m-d", strtotime($meta['sd'])),
                 'to_date' => date("Y-m-d", strtotime($meta['ed'])),
-                'num_bookings' =>  $meta['total_qty'],
+                'parts_count' =>  $meta['total_qty'],
                 'parts_cost' => $meta['sub_total_amount'],
                 'total_amount_collected' => $meta['sub_total_amount'],
                 'around_royalty' => $meta['sub_total_amount'],
@@ -2243,6 +2253,7 @@ class Invoice extends CI_Controller {
         $data['from_date'] = trim($date_explode[0]);
         $data['to_date'] = trim($date_explode[1]);
         $data['num_bookings'] = $this->input->post('num_bookings');
+        $data['parts_count'] = $this->input->post('parts_count');
         $data['hsn_code'] = $this->input->post('hsn_code');
         $data['total_service_charge'] = $this->input->post('total_service_charge');
         $data['total_additional_service_charge'] = $this->input->post('total_additional_service_charge');
@@ -2257,7 +2268,7 @@ class Invoice extends CI_Controller {
         $data['courier_charges'] = $this->input->post("courier_charges");
         $data['upcountry_price'] = $this->input->post("upcountry_price");
         $data['remarks'] = $this->input->post("remarks");
-        $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+        $data['due_date'] = date('Y-m-d', strtotime($this->input->post('due_date')));
         $data['invoice_date'] = date('Y-m-d', strtotime($this->input->post('invoice_date')));
         $data['type_code'] = $this->input->post('around_type');
         
@@ -2407,17 +2418,34 @@ class Invoice extends CI_Controller {
         $payment_data = array();
                 
         if (!empty($data)) {
-            $sc_details['debit_acc_no'] = "Debit Account No";
-            $sc_details['bank_account'] = "SF Bank Account";
+            $sc_details['debit_acc_no'] = "Debit Ac No";
+            $sc_details['bank_account'] = "Beneficiary Ac No";
             $sc_details['beneficiary_name'] = "Beneficiary Name";
-            $sc_details['final_amount'] = "Amount";
-            $sc_details['amount_type'] = "Type";
-            $sc_details['payment_mode'] = "Payment Mode";
-            $sc_details['payment_date'] = "Payment Date";
-            $sc_details['ifsc_code'] = "IFSC Code";
+            $sc_details['final_amount'] = "Amt";
+            $sc_details['payment_mode'] = "Pay Mod";
+            $sc_details['payment_date'] = "Date";
+            $sc_details['ifsc_code'] = "IFSC";
+            $sc_details['payable_location_name'] = "Payable Location name";
+            $sc_details['print_location'] = "Print Location";
+            $sc_details['bene_mobile_no'] = "Bene Mobile no";
+            $sc_details['bene_email_id'] = "Bene email id";
+            $sc_details['ben_add_1'] = "Ben add1";
+            $sc_details['ben_add_2'] = "Ben add2";
+            $sc_details['ben_add_3'] = "Ben add3";
+            $sc_details['ben_add_4'] = "Ben add4";
+            $sc_details['add_details_1'] = "Add details 1";
+            $sc_details['add_details_2'] = "Add details 2";
+            $sc_details['add_details_3'] = "Add details 3";
+            $sc_details['add_details_4'] = "Add details 4";
+            $sc_details['add_details_5'] = "Add details 5";
+            $sc_details['remarks'] = "Remarks";
             $sc_details['defective_parts'] = "No Of Defective Parts";
             $sc_details['is_verified'] = "Bank Account Verified";
-            $sc_details['remarks'] = "Remarks";
+            $sc_details['amount_type'] = "Type";
+            $sc_details['sf_id'] = "SF/CP Id";
+            $sc_details['is_sf'] = "SF";
+            $sc_details['is_cp'] = "CP";
+            
             array_push($payment_data, $sc_details);
             foreach ($data as $service_center_id => $amount) {
                 $sc = $this->vendor_model->viewvendor($service_center_id)[0];
@@ -2427,12 +2455,6 @@ class Invoice extends CI_Controller {
                 $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
 
                 $sc_details['final_amount'] = abs(round($amount, 0));
-                if ($amount > 0) {
-                    $sc_details['amount_type'] = "CR";
-                } else {
-                    $sc_details['amount_type'] = "DR";
-                }
-
                 if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
                     $sc_details['payment_mode'] = "I";
                 } else {
@@ -2441,9 +2463,30 @@ class Invoice extends CI_Controller {
 
                 $sc_details['payment_date'] = date("d-M-Y");
                 $sc_details['ifsc_code'] = trim($sc['ifsc_code']);
+                $sc_details['payable_location_name'] = "";
+                $sc_details['print_location'] = "";
+                $sc_details['bene_mobile_no'] = "";
+                $sc_details['bene_email_id'] = "";
+                $sc_details['ben_add_1'] = "";
+                $sc_details['ben_add_2'] = "";
+                $sc_details['ben_add_3'] = "";
+                $sc_details['ben_add_4'] = "";
+                $sc_details['add_details_1'] = "";
+                $sc_details['add_details_2'] = "";
+                $sc_details['add_details_3'] = "";
+                $sc_details['add_details_4'] = "";
+                $sc_details['add_details_5'] = "";
+                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
                 $sc_details['defective_parts'] = $defective_parts[$service_center_id];
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
-                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
+                if ($amount > 0) {
+                    $sc_details['amount_type'] = "CR";
+                } else {
+                    $sc_details['amount_type'] = "DR";
+                }
+                $sc_details['sf_id'] = $service_center_id;
+                $sc_details['is_sf'] = $sc['is_sf'];
+                $sc_details['is_cp'] = $sc['is_cp'];
                
                 array_push($payment_data, $sc_details);
             }
@@ -2772,7 +2815,7 @@ class Invoice extends CI_Controller {
                 if($tds > 0){
                     $data['tds_amount'] = $tds;
                 }
-               
+                $data['type'] = PARTNER_VOUCHER;
                 $gst_rate = 18;
                 $gst_amount = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
                 $c_s_gst = $this->invoices_model->check_gst_tax_type($entity[0]['state']);
@@ -2783,7 +2826,7 @@ class Invoice extends CI_Controller {
                 } else {
                     $data['igst_tax_amount'] = $gst_amount;
                     $data['igst_tax_rate'] = $gst_rate;
-                    $data['type'] = PARTNER_VOUCHER;
+                    
                 }
                 $amount = $amount - $tds;
                 $basic_price = $amount - $gst_amount; 

@@ -52,8 +52,8 @@ class Dashboard extends CI_Controller {
     }
     
     function execute_title_query(){
-        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries();
-        $data_report['data'] = $this->vendor_model->execute_around_dashboard_query($data_report['query']);
+        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries(array('active' => 1,'type'=> 'service'));
+        $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
         $this->load->view('dashboard/dashboard_title', $data_report);
     }
     
@@ -459,6 +459,12 @@ class Dashboard extends CI_Controller {
         }else{
             $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1));
         }
+        
+        $total_advance_paid = 0;
+        $total_un_settle = 0;
+        $total_un_billed_delivered = 0;
+        $total_un_billed_in_transit= 0;
+        $total_balance= 0;
        
         $template = array(
         'table_open' => '<table  '
@@ -504,6 +510,12 @@ class Dashboard extends CI_Controller {
                $class = ' <i class="error pull-right fa fa-caret-down fa-2x text-danger"></i>'; 
             }
             
+            $total_advance_paid += abs($amount_cr_deb['advance']);
+            $total_un_settle += $amount_cr_deb['unbilled'];
+            $total_un_billed_delivered += $amount_cr_deb['cp_delivered'];
+            $total_un_billed_in_transit += $amount_cr_deb['cp_transit'];
+            $total_balance += $amount_cr_deb['total_balance'];
+            
             $this->table->add_row($name .$star,abs($amount_cr_deb['advance']),-$amount_cr_deb['unbilled'], 
                     -$amount_cr_deb['cp_delivered'],-$amount_cr_deb['cp_transit'], 
                     "<a target='_blank' href='".  base_url()."employee/invoice/invoice_summary/vendor/".$value['id']."'>".
@@ -511,7 +523,13 @@ class Dashboard extends CI_Controller {
           
         }
         
-       echo $this->table->generate();
+        $this->table->add_row("<b>Total</b>",
+                "<b>".$total_advance_paid."</b>",
+                "<b>".$total_un_settle."</b>",
+                "<b>".$total_un_billed_delivered."</b>",
+                "<b>".$total_un_billed_in_transit,
+                "<b>".$total_balance."</b>");
+        echo $this->table->generate();
     }
     
     
@@ -566,5 +584,5 @@ class Dashboard extends CI_Controller {
         $json_data['completed_booking'] = implode(",", $completed_booking);
         echo json_encode($json_data);
     }
-
+    
 }

@@ -413,35 +413,29 @@ class BookingSummary extends CI_Controller {
 
     public function get_partner_summary_table($partner_id) {
         $partner_summary_params = $this->partner_model->get_partner_summary_params($partner_id);
-        $total_install_req = $partner_summary_params['total_install_req'];
+        
         $today_install_req = $partner_summary_params['today_install_req'];
         $yday_install_req = $partner_summary_params['yday_install_req'];
         $month_install_req = $partner_summary_params['month_install_req'];
 
-        $total_install_sched = $partner_summary_params['total_install_sched'];
         $today_install_sched = $partner_summary_params['today_install_sched'];
         $yday_install_sched = $partner_summary_params['yday_install_sched'];
         $month_install_sched = $partner_summary_params['month_install_sched'];
 
-        $total_install_compl = $partner_summary_params['total_install_compl'];
         $today_install_compl = $partner_summary_params['today_install_compl'];
         $yday_install_compl = $partner_summary_params['yday_install_compl'];
         $month_install_compl = $partner_summary_params['month_install_compl'];
 
-        $total_followup_pend = $partner_summary_params['total_followup_pend'];
         $today_followup_pend = $partner_summary_params['today_followup_pend'];
         $yday_followup_pend = $partner_summary_params['yday_followup_pend'];
         $month_followup_pend = $partner_summary_params['month_followup_pend'];
 
-        $total_install_cancl = $partner_summary_params['total_install_cancl'];
         $today_install_cancl = $partner_summary_params['today_install_cancl'];
         $yday_install_cancl = $partner_summary_params['yday_install_cancl'];
         $month_install_cancl = $partner_summary_params['month_install_cancl'];
 
-        $tat = $partner_summary_params['tat'];
-
         $message = <<<EOD
-    <table border="1">
+    <table border="1" cellspacing="0" cellpadding="5px">
         <tr>
         <td>Date</td>
         <td>Requests Received</td>
@@ -482,20 +476,9 @@ class BookingSummary extends CI_Controller {
         <td>NA</td>
         </tr>
 
-
-        <tr>
-        <td>Total</td>
-        <td>$total_install_req</td>
-        <td>$total_install_compl</td>
-        <td>$total_install_sched</td>
-        <td>$total_followup_pend</td>
-        <td>$total_install_cancl</td>
-        <td>$tat</td>
-        </tr>
-
     </table>
 EOD;
-
+        
         return $message;
     }
 
@@ -1106,7 +1089,7 @@ EOD;
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $subject = "SF Crimes Report " . date("d-M-Y");
                         $to = $value['official_email'];
-                        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $view, "");
                     } else {
                         log_message('info', __FUNCTION__ . " Empty Data get");
                     }
@@ -1155,7 +1138,7 @@ EOD;
                         $cc = "";
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
                        
-                        $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $view, $file_path . ".txt");
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt");
                         exec("rm -rf " . escapeshellarg($file_path));
                         
                     } else {
@@ -1189,7 +1172,7 @@ EOD;
             $view = $this->load->view('employee/unassigned_table', $data, TRUE);
             $to = NITS_ANUJ_EMAIL_ID;
             $subject = "SF Engineer Assigned Report " . date("d-M-Y");
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $view, "");
         }
     }
 
@@ -1204,7 +1187,7 @@ EOD;
             $to = $value['primary_contact_email'] . "," . $value['owner_email'];
             //$to = "abhaya@247around.com";
             $subject = $value['service_center_name'] . " Assigned Report " . date("d-M-Y");
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $view, "");
         }
     }
 
@@ -1379,7 +1362,7 @@ EOD;
             $to = rtrim($to, ', ');
 
             $subject = " RM Crimes Report " . date("d-M-Y");
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $report_view, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $report_view, "");
 
             //Logging
             log_message('info', __FUNCTION__ . ' RM Crime Report has been sent successfully');

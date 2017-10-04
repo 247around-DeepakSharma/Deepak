@@ -570,16 +570,22 @@ class Service_centers extends CI_Controller {
      * Get Service center Id from session.
      */
     function invoices_details() {
-        $this->checkUserSession();
-        $data['vendor_partner'] = "vendor";
-        $data['vendor_partner_id'] = $this->session->userdata('service_center_id');
-        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
+        //$this->checkUserSession();
+        if(!empty($this->session->userdata('service_center_id'))){
+            $data['vendor_partner'] = "vendor";
+            $data['vendor_partner_id'] = $this->session->userdata('service_center_id');
+            $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
 
-        $data2['partner_vendor'] = "vendor";
-        $data2['partner_vendor_id'] = $this->session->userdata('service_center_id');
-        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
-        $this->load->view('service_centers/header');
-        $this->load->view('service_centers/invoice_summary', $invoice);
+            $data2['partner_vendor'] = "vendor";
+            $data2['partner_vendor_id'] = $this->session->userdata('service_center_id');
+            $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/invoice_summary', $invoice);
+        }else{
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+        }
+        
     }
 
     /**
@@ -1642,10 +1648,10 @@ class Service_centers extends CI_Controller {
      */
     function update_bb_report_issue_order_details($order_id,$service_id,$city,$cp_id){
         $this->check_BB_UserSession();
-        $data['order_id'] = urldecode($order_id);
-        $data['service_id'] = urldecode($service_id);
-        $data['city'] = urldecode($city);
-        $data['cp_id'] = urldecode($cp_id);
+        $data['order_id'] = rawurldecode($order_id);
+        $data['service_id'] = rawurldecode($service_id);
+        $data['city'] = rawurldecode($city);
+        $data['cp_id'] = rawurldecode($cp_id);
         $data['products'] = $this->booking_model->selectservice();
         $data['cp_basic_charge'] = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id'=> $data['order_id']),'cp_basic_charge');
         
@@ -1913,10 +1919,10 @@ class Service_centers extends CI_Controller {
     function update_received_bb_order($order_id, $service_id, $city, $cp_id) {
         $this->check_BB_UserSession();
 
-        $data['order_id'] = urldecode($order_id);
-        $data['service_id'] = urldecode($service_id);
-        $data['city'] = urldecode($city);
-        $data['cp_id'] = urldecode($cp_id);
+        $data['order_id'] = rawurldecode($order_id);
+        $data['service_id'] = rawurldecode($service_id);
+        $data['city'] = rawurldecode($city);
+        $data['cp_id'] = rawurldecode($cp_id);
         
         $response = $this->buyback->process_update_received_bb_order_details($data);
         
@@ -1942,9 +1948,9 @@ class Service_centers extends CI_Controller {
     function update_not_received_bb_order($order_id, $service_id, $city) {
         $this->check_BB_UserSession();
 
-        $data['order_id'] = urldecode($order_id);
-        $data['service_id'] = urldecode($service_id);
-        $data['city'] = urldecode($city);
+        $data['order_id'] = rawurldecode($order_id);
+        $data['service_id'] = rawurldecode($service_id);
+        $data['city'] = rawurldecode($city);
         $data['cp_id'] = $this->session->userdata('service_center_id');
         
         $update_data = array('current_status' => _247AROUND_BB_IN_PROCESS,
@@ -2298,9 +2304,9 @@ class Service_centers extends CI_Controller {
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_not_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_not_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
 
@@ -2329,8 +2335,8 @@ class Service_centers extends CI_Controller {
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
        
@@ -2639,6 +2645,33 @@ class Service_centers extends CI_Controller {
             $data = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id' => $partner_order_id), $select);
             print_r(json_encode($data));
         }
+    }
+    
+    /**
+     * @desc Used to get sf escalation percentage
+     * @param $service_center_id string
+     * @return $escalation_per string
+     */
+    function get_sf_escalation($sf_id){
+        if(!empty($sf_id)){
+            $select = "COUNT(booking_id) AS total_booking,SUM(if(count_escalation >= 1,count_escalation,0)) AS total_escalation";
+            $where = array('assigned_vendor_id' => $sf_id);
+            $data = $this->booking_model->get_bookings_count_by_any($select,$where);
+            if(!empty($data)){
+                if(!empty($data[0]['total_booking'])){
+                    $total_bookings = $data[0]['total_booking'];
+                    $total_escalation = $data[0]['total_escalation'];
+                    $escalation_per = ($total_escalation*100)/$total_bookings;
+                    echo round($escalation_per,2);
+                }
+                
+            }else{
+                echo 0;
+            }
+        }else{
+            echo 'empty';
+        }
+        
     }
 
 }

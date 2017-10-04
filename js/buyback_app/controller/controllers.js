@@ -4,10 +4,19 @@ uploadfile.controller('uploadOrderDetailsFile', ['$scope', 'fileUpload', functio
 
         $scope.uploadFile = function () {
             var file = $scope.myFile;
-            var file_date = $scope.file_date.received_date
+            //var file_date = $scope.file_date.received_date;
             $scope.ShowSpinnerStatus = true;
-            var uploadUrl = baseUrl + "/buyback/upload_buyback_process/process_upload_order";
-            fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
+            var file_date = $('#file_date').val();
+            if(file_date === ''){
+                $scope.ShowSpinnerStatus = false;
+                $scope.errorMsg = true;
+                $scope.msg = "Please Select File Received Date To Continue";
+            }else{
+                $scope.errorMsg = false;
+                //console.log(file_date);
+                var uploadUrl = baseUrl + "/buyback/upload_buyback_process/process_upload_order";
+                fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
+            }
         };
 
     }]);
@@ -173,7 +182,7 @@ addShopAddressDetails.controller("userController", function ($scope, $http) {
         };
         var URL = baseUrl + "/buyback/collection_partner/process_add_cp_shop_address";
         $http.post(URL, data, config).success(function (response) {
-             //console.log(response);
+            //console.log(response);
             if (response.status === 'OK') {
                 $scope.userForm.$setPristine();
                 $scope.tempData = {};
@@ -269,11 +278,8 @@ viewBBOrderList.controller('assignCP', function ($scope, $http) {
                         message = response.error;
                         $scope.notFoundCity = message;
                         $scope.showLoader = false;
-                        $('#invoiceDetailsModal').modal("show");
+                        $('#myModal').modal("show");
                     } 
-                   
-                   
-                    
                     
                 });
             });
@@ -288,7 +294,7 @@ buyback_dashboard.controller('buyback_dashboardController', function ($scope, $h
     var get_url = baseUrl + "/employee/dashboard/get_buyback_balanced_amount";
     $http.get(get_url)
         .then(function (response) {
-             console.log(response.data);
+             //console.log(response.data);
             $("#table_data").html(response.data);
        
                
@@ -365,7 +371,7 @@ function notifyMe(msg) {
               $('body').loadingModal('destroy');
               $(".assign_cp_id option:selected").prop("selected", false);
               alert("Assigned CP Successfully");
-             
+              window.location.reload();
           } else if(data1.status === -247){
                message = data1.error;
                console.log(message);
@@ -376,11 +382,11 @@ function notifyMe(msg) {
                $('body').loadingModal('destroy');
                $("#error_td").html(table_td);
                $('#myModal').modal("show");
+               
+               
           } else {
               alert("There is problem in Assign Vendor. Please Contact to 247Around Dev Team");
           }
-          
-          //location.reload();
 
         });
     }
@@ -490,4 +496,16 @@ orderDetails.controller('viewCpOrderAppLianceDetails', function ($scope, $http) 
             .then(function (response) {
                 $scope.orderHistoryDetails = response.data;
             });
+});
+
+buyback_dashboard.controller('bb_dashboard_summary', function ($scope, $http) {
+
+    var get_url = baseUrl + "/buyback/buyback_process/get_buyback_dashboard_summary";
+    $http.get(get_url)
+        .then(function (response) {
+             //console.log(response.data);
+            $("#title_count").html(response.data);
+       
+               
+    });
 });

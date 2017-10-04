@@ -1054,7 +1054,7 @@
                                         ?>">
                                         <label for="bank_account" class="col-md-4">Bank Account</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control allowNumericWithDecimal"  name="bank_account" value = "<?php
+                                            <input type="text" class="form-control allowNumericWithDecimal"  id = "bank_account" name="bank_account" value = "<?php
                                                 if (isset($query[0]['bank_account'])) {
                                                     echo $query[0]['bank_account'];
                                                 }
@@ -1090,7 +1090,7 @@
                                         ?>">
                                         <label for="beneficiary_name" class="col-md-4">Beneficiary Name</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control blockspacialchar"  name="beneficiary_name" value = "<?php
+                                            <input type="text" class="form-control blockspacialchar"  name="beneficiary_name" id = "beneficiary_name" value = "<?php
                                                 if (isset($query[0]['beneficiary_name'])) {
                                                     echo $query[0]['beneficiary_name'];
                                                 }
@@ -1107,7 +1107,7 @@
                                         ?>">
                                         <label  for="cancelled_cheque_file" class="col-md-4">Cancelled Cheque File</label>
                                         <div class="col-md-5">
-                                            <input type="file" class="form-control"  name="cancelled_cheque_file" value = "<?php
+                                            <input type="file" class="form-control"  name="cancelled_cheque_file" id = "cancelled_cheque_file" value = "<?php
                                                 if (isset($query[0]['cancelled_cheque_file'])) {
                                                     echo $query[0]['cancelled_cheque_file'];
                                                 }
@@ -1139,7 +1139,7 @@
                                         <div class="col-md-3">
                                         <input type="checkbox" value="1" name="is_verified" id="is_bank_details_verified" <?php if(isset($query[0]['is_verified']) && $query[0]['is_verified'] == '1') { ?>checked<?php } ?> style="zoom:1.5;">
                                         <?php }else { ?>
-                                        <input type="hidden" name="is_verified" value="<?php if(isset($query[0]['is_verified'])) { echo $query[0]['is_verified']; }?>">
+                                        <input type="hidden" name="is_verified" id="is_bank_details_verified" value="<?php if(isset($query[0]['is_verified'])) { echo $query[0]['is_verified']; }?>">
                                         <?php } ?>
                                         
                                     </div>
@@ -1443,6 +1443,18 @@
                  alert("Please Select Atleast One Checkbox of Service Center OR Collection Partner");
                  return false;
              } 
+             
+             
+             if($('#cancelled_cheque_file').val() !== ''){
+                 if($('#bank_name').val() === '' || $('#account_type').val() === '' || $('#ifsc_code').val() === '' || $('#bank_account').val() === '' || $('#beneficiary_name').val() === ''){
+                    alert("Please Fill All Bank Details");
+                    return false;
+                }else{
+                    return true;
+                }
+             }else{
+                 return true;
+             }
           
         }
         

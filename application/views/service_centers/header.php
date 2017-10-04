@@ -291,6 +291,13 @@
                                 </li>
                             </ul>
                         </li>
+                        
+                        <?php if($this->session->userdata('service_center_id') == '10'){ ?>
+                        <li>
+                            <a href="<?php echo base_url() ;?>employee/service_centers/show_brackets_list">Brackets</a>
+                        </li>
+                        <?php } ?>
+                        <?php } ?>
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             <i ></i> Invoices <i class="fa fa-caret-down"></i>
@@ -299,18 +306,14 @@
                                 <li>
                                     <a href="<?php echo base_url() ?>service_center/invoices_details" ><i class="fa fa-fw fa-desktop"></i> <strong> Invoice Summary</strong></a>
                                 </li>
+                                <?php if($this->session->userdata('is_sf') === '1'){ ?>
                                 <li role="separator" class="divider"></li>
                                 <li>
                                     <a href="<?php echo base_url() ?>employee/service_centers/download_sf_charges_excel" ><i class="fa fa-fw fa-desktop"></i> <strong> Charges List</strong></a>
                                 </li>
+                                <?php }?>
                             </ul>
                         </li>
-                        <?php if($this->session->userdata('service_center_id') == '10'){ ?>
-                        <li>
-                            <a href="<?php echo base_url() ;?>employee/service_centers/show_brackets_list">Brackets</a>
-                        </li>
-                        <?php } ?>
-                        <?php } ?>
                         <?php if($this->session->userdata('is_cp') === '1'){ ?>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Buyback <span class="caret"></span></a>

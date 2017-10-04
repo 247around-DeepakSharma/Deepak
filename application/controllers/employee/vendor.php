@@ -320,7 +320,7 @@ class vendor extends CI_Controller {
                 }
                 
        
-            
+
             $non_working_days = $this->input->post('day');
             $appliances = $this->input->post('appliances');
             $brands = $this->input->post('brands');
@@ -353,7 +353,7 @@ class vendor extends CI_Controller {
             }
             
             
-            if(isset($_POST['is_verified'])){
+            if(isset($_POST['is_verified']) && !empty($_POST['is_verified'])){
                $_POST['is_verified'] = '1';
             }else if(!isset($_POST['is_verified']) && $this->session->userdata('user_group') == 'admin')
             {
@@ -1348,21 +1348,47 @@ class vendor extends CI_Controller {
     function process_broadcast_mail_to_vendors_form() {
         $bcc_poc = $this->input->post('bcc_poc');
         $bcc_owner = $this->input->post('bcc_owner');
+        $bcc_partner_poc = $this->input->post('bcc_partner_poc');
+        $bcc_partner_owner = $this->input->post('bcc_partner_owner');
+        $bcc_employee = $this->input->post('bcc_employee');
         $mail_to = $this->input->post('mail_to');
+        
         $to = NITS_ANUJ_EMAIL_ID.', sales@247around.com,' . $mail_to;
 	$cc = $this->input->post('mail_cc');
-
 	$subject = $this->input->post('subject');
-	//Replace new lines with line breaks for proper html formatting
+	
+        //Replace new lines with line breaks for proper html formatting
 	$message = nl2br($this->input->post('mail_body'));
-
-	$tmpFile = $_FILES['fileToUpload']['tmp_name'];
-        $fileName = $_FILES['fileToUpload']['name'];
-        move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
-
-        //gets primary contact's email and owner's email
-        $service_centers = $this->vendor_model->select_active_service_center_email();
-        $bcc = $this->getBccToSendMail($service_centers, $bcc_poc, $bcc_owner);
+        
+        if(!empty($_FILES['fileToUpload']['tmp_name'])){
+            $tmpFile = $_FILES['fileToUpload']['tmp_name'];
+            $fileName = $_FILES['fileToUpload']['name'];
+            move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
+        }else{
+            $fileName = "";
+        }
+	
+        $bcc = "";
+        //gets primary contact's email and owner's email of service centers
+        if(!empty($bcc_owner) || !empty($bcc_poc)){
+            $service_centers = $this->vendor_model->select_active_service_center_email();
+            $sf_bcc = $this->getBccToSendMail($service_centers, $bcc_poc, $bcc_owner);
+            $bcc .= $sf_bcc;
+        }
+        
+        //gets primary contact's email and owner's email of partners
+        if(!empty($bcc_partner_poc) || !empty($bcc_partner_owner)){
+            $partners = $this->partner_model->getpartner_details('primary_contact_email,owner_email');
+            $partner_bcc = $this->getBccToSendMail($partners, $bcc_partner_poc, $bcc_partner_owner);
+            $bcc .= $partner_bcc;
+        }
+        
+        if(!empty($bcc_employee)){
+            $employee = $this->employee_model->get_employee();
+            $employee_bcc = implode(',', array_column($employee, 'official_email'));
+            $bcc .= $employee_bcc;
+        }
+        
         $attachment = "";
         if (!empty($fileName)) {
             $attachment = TMP_FOLDER.$fileName;
@@ -1376,7 +1402,7 @@ class vendor extends CI_Controller {
 
         $this->notify->sendEmail("sales@247around.com", $to, $cc, $bcc, $subject, $message, $attachment);
 
-       redirect(base_url() . DEFAULT_SEARCH_PAGE);
+        redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     /**
@@ -1391,7 +1417,7 @@ class vendor extends CI_Controller {
      */
     function getBccToSendMail($service_centers, $bcc_poc, $bcc_owner) {
         $bcc = array();
-
+        
         foreach ($service_centers as $key => $email) {
             if (!empty($bcc_poc) && !empty($bcc_owner)) {
                 $bcc1 = $email['primary_contact_email'] . "," . $email['owner_email'];
@@ -1476,78 +1502,93 @@ class vendor extends CI_Controller {
                 redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
 
             }
-
-            //Logging
-            log_message('info', __FUNCTION__ . ' Processing of Pincode CSV File started');
-
-            //Processing SQL Queries
-            
-            $sql_commands = array();
-            array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
-            $this->vendor_model->execute_query($sql_commands);
-            unset($sql_commands);
-
-            $dbHost=$this->db->hostname;
-            $dbUser=$this->db->username;
-            $dbPass=$this->db->password;
-            $dbName=$this->db->database;
-
             $csv = TMP_FOLDER.$newCSVFileName;
-            $sql = "LOAD DATA LOCAL INFILE '$csv' INTO TABLE vendor_pincode_mapping_temp "
-                   . "FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' "
-                    . "(Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State);";
-
-            $res1 = 0;
-            system("mysql -u $dbUser -h $dbHost --password=$dbPass --local_infile=1 -e \"$sql\" $dbName", $res1);
-
-            $sql_commands1 = array();
             
-            array_push($sql_commands1, "TRUNCATE TABLE vendor_pincode_mapping;");
-            array_push($sql_commands1, "INSERT vendor_pincode_mapping SELECT * FROM vendor_pincode_mapping_temp;");
-
-            $this->vendor_model->execute_query($sql_commands1);
-
-            //Inserting file details in pincode_mapping_s3_upload_details
-//            $data['bucket_name'] = 'vendor-pincodes';// We add Directory of Bucket used
-//            $data['file_name'] = $newCSVFileName;
-//            $data['agent_id'] = $this->session->userdata('id');
-//
-//            $this->vendor_model->insertS3FileDetails($data);
+            //check file is valid or not
+            $file = fopen($csv,"r");
+            $is_valid_file = TRUE;
+            while(! feof($file))
+            {
+                $csv_content = fgetcsv($file);
+                foreach($csv_content as $data){
+                    if(empty($data)){
+                        $is_valid_file = FALSE;
+                        break;
+                    }
+                }
+                
+            }
+            fclose($file);
             
-            //Adding Details in File_Uploads table as well
-            $data_uploads['file_name'] = "vendor_pincode_mapping_temp_".date('j-M-Y').".zip";
-            $data_uploads['file_type'] = _247AROUND_VENDOR_PINCODE;
-            $data_uploads['agent_id'] = $this->session->userdata('id');
-            $insert_id = $this->partner_model->add_file_upload_details($data_uploads);
-            if (!empty($insert_id)) {
-                //Logging success
-                log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data_uploads, TRUE));
-            } else {
-                //Loggin Error
-                log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data_uploads, TRUE));
+            //process if file is valid else disply error message
+            if($is_valid_file){
+                //Logging
+                log_message('info', __FUNCTION__ . ' Processing of Pincode CSV File started');
+                //Processing SQL Queries
+                $sql_commands = array();
+                array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
+                $this->vendor_model->execute_query($sql_commands);
+                unset($sql_commands);
+
+                $dbHost=$this->db->hostname;
+                $dbUser=$this->db->username;
+                $dbPass=$this->db->password;
+                $dbName=$this->db->database;
+                
+                $sql = "LOAD DATA LOCAL INFILE '$csv' INTO TABLE vendor_pincode_mapping_temp "
+                       . "FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' "
+                        . "(Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State);";
+
+                $res1 = 0;
+                system("mysql -u $dbUser -h $dbHost --password=$dbPass --local_infile=1 -e \"$sql\" $dbName", $res1);
+
+                $sql_commands1 = array();
+
+                array_push($sql_commands1, "TRUNCATE TABLE vendor_pincode_mapping;");
+                array_push($sql_commands1, "INSERT vendor_pincode_mapping SELECT * FROM vendor_pincode_mapping_temp;");
+
+                $this->vendor_model->execute_query($sql_commands1);
+
+                //Adding Details in File_Uploads table as well
+                $data_uploads['file_name'] = "vendor_pincode_mapping_temp_".date('j-M-Y').".zip";
+                $data_uploads['file_type'] = _247AROUND_VENDOR_PINCODE;
+                $data_uploads['agent_id'] = $this->session->userdata('id');
+                $insert_id = $this->partner_model->add_file_upload_details($data_uploads);
+                if (!empty($insert_id)) {
+                    //Logging success
+                    log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data_uploads, TRUE));
+                } else {
+                    //Loggin Error
+                    log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data_uploads, TRUE));
+                }
+
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/"."vendor_pincode_mapping_temp_".date('j-M-Y').".zip";
+                $this->s3->putObjectFile($newZipFileName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                //Logging
+                log_message('info', __FUNCTION__ . ' Vendor Pincode Zipped File has been uploaded in S3');
+                
+                //remove file from system
+                unlink($csv);
+                unlink($newZipFileName);
+                
+                log_message('info', __FUNCTION__ . ' => All queries executed: ');
+                
+                $this->session->set_flashdata('success_msg','Pincode File Uploaded successfully');
+                redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
+            }else{
+                
+                //remove file from system
+                unlink($csv);
+                unlink($newZipFileName);
+                
+                $this->session->set_flashdata('file_error','Pincode File Is Not Valid Please Check And Upload Again');
+                redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
             }
             
             
-            //Upload files to AWS
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/"."vendor_pincode_mapping_temp_".date('j-M-Y').".zip";
-            $this->s3->putObjectFile($newZipFileName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-            //Logging
-            log_message('info', __FUNCTION__ . ' Vendor Pincode Zipped File has been uploaded in S3');
-            
-//             //Uploading csv file to S3
-//            $directory_xls = "vendor-pincodes/" . $newCSVFileName;
-//            $this->s3->putObjectFile(TMP_FOLDER . $newCSVFileName, BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
-
-
-            system ("rm -rf ".$newZipFileName);
-            system ("rm -rf ".TMP_FOLDER . $CSVFileName );
-            system ("rm -rf ".TMP_FOLDER . $newCSVFileName );
-            log_message('info', __FUNCTION__ . ' => All queries executed: ');
-            //log_message('info', __FUNCTION__ . ' => New pincode count: ' . $count);
-
-            $this->session->set_flashdata('success_msg','Pincode File Uploaded successfully');
-            redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
         }else{
             $this->session->set_flashdata('file_error',' Empty File has been uploaded');
             redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
@@ -2846,8 +2887,8 @@ class vendor extends CI_Controller {
      */
     function show_around_dashboard(){
         //Initializing array data for where and select clause
-        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries();
-        $data_report['data'] = $this->vendor_model->execute_around_dashboard_query($data_report['query']);
+        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries(array('active' => 1,'type'=> 'service'));
+        $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
         
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/247around_dashboard', $data_report);
@@ -4263,12 +4304,12 @@ class vendor extends CI_Controller {
         if($flag == 1){
             $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com, vijaya@247around.com, adila@247around.com,".RM_EMAIL;
 
-            $cc = "abhaya@247around.com";
+            $cc = DEVELOPER_EMAIL;
             $message1 = "Booking should be upcountry but not marked properly. Please check and update booking.<br/>";
             $subject = "Upcountry Booking Missed - Need To Take Action";
             $message1 .= $this->table->generate();
 
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
         } else {
             log_message("info", __METHOD__." There is no pending booking which need to update for upcountry");
         }

@@ -895,7 +895,7 @@ class vendor_model extends CI_Model {
 
             $service_center = $this->getVendorFromMapping($vendor['vendor_id']);
         } else {
-            $service_center = $this->getActiveVendor($vendor['vendor_id']);
+            $service_center = $this->viewvendor($vendor['vendor_id']);
         }
 
         // initialize empty array
@@ -1119,17 +1119,12 @@ class vendor_model extends CI_Model {
      */
     function check_vendor_details($data){
         $this->db->select('*');
-        $this->db->where('Vendor_ID', $data['Vendor_ID']);
-        $this->db->where('Pincode', $data['Pincode']);
-        $this->db->where('Area', $data['Area']);
-        $this->db->where('City', $data['City']);
-        $this->db->where('State', $data['State']);
-        $this->db->where('Appliance_ID', $data['Appliance_ID']);
+        $this->db->where($data);
         $query = $this->db->get('vendor_pincode_mapping');
         
         if($query->num_rows >0){
 
-            return false;
+            return $query->result_array();
 
         } else {
             return true;
@@ -1257,8 +1252,8 @@ class vendor_model extends CI_Model {
      * 
      * return: Array of Active queries
      */
-    function get_around_dashboard_queries(){
-        $this->db->where('active',1);        
+    function get_around_dashboard_queries($where){
+        $this->db->where($where,false);        
         $query = $this->db->get('query_report');
         
         return $query->result_array();
@@ -1269,7 +1264,7 @@ class vendor_model extends CI_Model {
      * params: STRING query
      * return : ARRAY containing counts for different queries
      */
-    function execute_around_dashboard_query($query){
+    function execute_dashboard_query($query){
         foreach($query as $key=>$value){
             $query = $this->db->query($value['query']);
             $count[$key] = $query->result_array();

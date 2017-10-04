@@ -35,11 +35,12 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
         <!-- Loading Noty script library -->
         <script type="text/javascript" src="<?php echo base_url()?>js/plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
-        <script src="<?php echo base_url()?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
+         <script src="<?php echo base_url()?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 
         <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+         
     </head>
     <body>
         <div id="wrapper">
@@ -329,6 +330,10 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Check</strong></a>
                         </li>
+                        <li class="divider"></li>
+                         <li>
+                            <a href="<?php echo base_url() ?>employee/invoiceDashboard/get_invoice_summary_for_partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Summary</strong></a>
+                        </li>
                             </ul>
                         </li>
                         <li class="divider"></li>
@@ -392,9 +397,6 @@
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/get_pending_bookings/0"><i class="fa fa-fw fa-desktop "></i> <strong>Download SF Pending Summary</strong></a>
                         </li>
-<!--                        <li>
-                            <a href="<?php echo base_url()?>employee/vendor/show_around_dashboard"><i class="fa fa-fw fa-desktop "></i> <strong>247around Dashboard</strong></a>
-                        </li>-->
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/get_sc_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF Missed Target Report</strong></a>
@@ -409,7 +411,7 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url()?>employee/dashboard" target="_blank"><i class="fa fa-fw fa-desktop"></i> <strong>New Dashboard</strong></a>
+                            <a href="<?php echo base_url()?>employee/dashboard/buyback_dashboard" target="_blank"><i class="fa fa-fw fa-desktop"></i> <strong>Buyback Dashboard</strong></a>
                         </li>
                         
                     </ul>

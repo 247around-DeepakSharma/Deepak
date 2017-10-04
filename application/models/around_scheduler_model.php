@@ -192,6 +192,9 @@ class Around_scheduler_model extends CI_Model {
             case 'all':
                 $data = $this->get_all_user_booking_phn_number();
                 break;
+            case 'promotion':
+                $data = $this->get_all_promotional_active_user_phone_number();
+                break;
         }
         
         if(!empty($data)){
@@ -209,16 +212,18 @@ class Around_scheduler_model extends CI_Model {
      */
     function get_completed_cancelled_booking_user_phn_number($where){
         
-        $sql = "SELECT DISTINCT booking_primary_contact_no as phn_number, current_status,user_id
+        $sql = "SELECT DISTINCT booking_primary_contact_no as phn_number, current_status,booking_details.user_id
                 FROM booking_details JOIN partners 
                 ON booking_details.partner_id = partners.id
-                WHERE booking_primary_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
+                JOIN users ON users.user_id = booking_details.user_id
+                WHERE users.ndnc=0 AND booking_primary_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
                 AND partners.is_sms_allowed = '1'
                 AND $where AND DAY(closed_date) = DAY(CURDATE()) 
                 UNION 
-                SELECT DISTINCT booking_alternate_contact_no as phn_number,current_status,user_id
+                SELECT DISTINCT booking_alternate_contact_no as phn_number,current_status,booking_details.user_id
                 FROM booking_details JOIN partners 
                 ON booking_details.partner_id = partners.id
+                JOIN users ON users.user_id = booking_details.user_id
                 WHERE booking_alternate_contact_no REGEXP '^[7-9]{1}[0-9]{9}$'
                 AND partners.is_sms_allowed = '1'
                 AND $where AND DAY(closed_date) = DAY(CURDATE())";
@@ -234,17 +239,19 @@ class Around_scheduler_model extends CI_Model {
      * @retun:array();
      */
     function get_cancelled_query_booking_user_phn_number(){
-        $sql = "SELECT DISTINCT booking_primary_contact_no as phn_number, 'Query' as current_status,user_id
+        $sql = "SELECT DISTINCT booking_primary_contact_no as phn_number, 'Query' as current_status,booking_details.user_id
                 FROM booking_details JOIN partners 
                 ON booking_details.partner_id = partners.id
-                WHERE booking_primary_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
+                JOIN users ON users.user_id = booking_details.user_id
+                WHERE users.ndnc=0 AND booking_primary_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
                 AND partners.is_sms_allowed = '1'
-                AND booking_details.type = 'Query' AND booking_details.current_status = '"._247AROUND_CANCELLED."' AND DAY(closed_date) = DAY(CURDATE()) 
+                AND booking_details.type = 'Query' AND booking_details.current_status = '"._247AROUND_CANCELLED."' AND DAY(closed_date) = DAY(CURDATE())
                 UNION 
-                SELECT DISTINCT booking_alternate_contact_no as phn_number, 'Query' as current_status,user_id
+                SELECT DISTINCT booking_alternate_contact_no as phn_number, 'Query' as current_status,booking_details.user_id
                 FROM booking_details JOIN partners 
                 ON booking_details.partner_id = partners.id
-                WHERE booking_alternate_contact_no REGEXP '^[7-9]{1}[0-9]{9}$'
+                JOIN users ON users.user_id = booking_details.user_id
+                WHERE users.ndnc=0 AND booking_alternate_contact_no REGEXP '^[7-9]{1}[0-9]{9}$'
                 AND partners.is_sms_allowed = '1'
                 AND booking_details.type = 'Query' AND booking_details.current_status = '"._247AROUND_CANCELLED."' AND DAY(closed_date) = DAY(CURDATE())";
         
@@ -261,12 +268,12 @@ class Around_scheduler_model extends CI_Model {
      */
     function get_user_booking_not_exist_phn_number(){
         $sql = "SELECT users.user_id, users.phone_number as phn_number,'no_status' as 'current_status'
-                FROM users LEFT JOIN booking_details ON users.user_id = booking_details.user_id 
-                WHERE booking_details.user_id IS NULL AND users.phone_number REGEXP '^[7-9]{1}[0-9]{9}$'
+                FROM users LEFT JOIN booking_details ON users.user_id = booking_details.user_id
+                WHERE users.ndnc=0 AND booking_details.user_id IS NULL AND users.phone_number REGEXP '^[7-9]{1}[0-9]{9}$'
                 UNION
                 SELECT users.user_id, users.alternate_phone_number as phn_number,'no_status' as 'current_status'
                 FROM users LEFT JOIN booking_details ON users.user_id = booking_details.user_id 
-                WHERE booking_details.user_id IS NULL AND users.alternate_phone_number REGEXP '^[7-9]{1}[0-9]{9}$'";
+                WHERE users.ndnc=0 AND booking_details.user_id IS NULL AND users.alternate_phone_number REGEXP '^[7-9]{1}[0-9]{9}$'";
         
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -435,6 +442,22 @@ class Around_scheduler_model extends CI_Model {
             'email' => $query1->result_array()[0]['email']
             //'phone' => $query2->return_array()[0],
         );
+    }
+    
+    function get_non_verified_appliance_description_data(){
+        $this->db->select('*');
+        $this->db->where('is_verified',1);
+        $query = $this->db->get('appliance_product_description');
+        return $query->result_array();
+    }
+    /*
+     * 
+     */
+    function get_all_promotional_active_user_phone_number(){
+        $this->db->select('*');
+        $this->db->where('ndnc',0);
+        $query = $this->db->get('users');
+        return $query->result_array();
     }
 
 }

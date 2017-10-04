@@ -43,21 +43,26 @@ class Buyback {
      */
     function new_bb_order() {
         // Get CP Id
-        $cp_id = $this->get_cp_id_from_region( $this->POST_DATA['city']);
-
+        $cp_data = $this->get_cp_id_from_region( $this->POST_DATA['city']);
+        
         $bb_charges = array();
         $service_id = 0;
-        if (!empty($cp_id)) {
+        if (!empty($cp_data)) {
             //Get Charges list
+            $s_order_key = str_replace(":","",$this->POST_DATA['order_key']);
+            $s_order_key1 = str_replace("_","",$s_order_key);
             $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges(array(
                 'partner_id' => $this->POST_DATA['partner_id'],
-                'city' => $this->POST_DATA['city'],
-                'order_key' => $this->POST_DATA['order_key'],
-                'cp_id' => $cp_id
+                'city' => $cp_data['shop_address_city'],
+                'order_key' => $s_order_key1,
+                'cp_id' => $cp_data['cp_id'],
                     ), '*');
+            
             if (!empty($bb_charges)) {
                 $cp_id = $bb_charges[0]['cp_id'];
                 $service_id = $bb_charges[0]['service_id'];
+            } else {
+                $cp_id = NULL;
             }
         } else {
             $this->My_CI->initialized_variable->not_assigned_order();
@@ -65,8 +70,9 @@ class Buyback {
         if (empty($service_id)) {
             $service_id = $this->get_service_id_by_appliance();
         }
-
+        
         // Insert bb order details
+        $current_status = ($this->POST_DATA['current_status'] == "PLACED")? "In-Transit" :$this->POST_DATA['current_status'];
         $is_insert = $this->insert_bb_order_details($cp_id);
         if ($is_insert) {
             // Insert bb unit details
@@ -78,11 +84,11 @@ class Buyback {
                         "cp_id" => $cp_id,
                         "create_date" => date('Y-m-d H:i:s'),
                         "current_status" => 'Pending',
-                        "internal_status" => $this->POST_DATA['current_status']
+                        "internal_status" => $current_status
                     ));
                 }
                 // Insert state change
-                $this->insert_bb_state_change($this->POST_DATA['partner_order_id'], $this->POST_DATA['current_status'], $this->POST_DATA['order_key'], _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
+                $this->insert_bb_state_change($this->POST_DATA['partner_order_id'], $current_status, $this->POST_DATA['order_key'], _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
                 if ($this->POST_DATA['current_status'] == 'Delivered') {
                     $this->My_CI->initialized_variable->delivered_count();
                 }
@@ -106,13 +112,13 @@ class Buyback {
     function get_service_id_by_appliance() {
         $appliance_name = "";
 
-        if (stristr($this->POST_DATA['subcat'], "Laundry")) {
+        if (stristr($this->POST_DATA['subcat'], "Laundry") || stristr($this->POST_DATA['subcat'], "WashingMachine")) {
             $appliance_name = 'Washing Machine';
         }
         if (stristr($this->POST_DATA['subcat'], "Air Conditioners")) {
             $appliance_name = 'Air Conditioner';
         }
-        if (stristr($this->POST_DATA['subcat'], "Refrigerators")) {
+        if (stristr($this->POST_DATA['subcat'], "Refrigerators") || stristr($this->POST_DATA['subcat'], "Refrigerator")) {
             $appliance_name = 'Refrigerator';
         }
         if (stristr($this->POST_DATA['subcat'], "Tv")) {
@@ -143,13 +149,14 @@ class Buyback {
             'partner_order_id' => $this->POST_DATA['partner_order_id'],
             'order_date' => $this->POST_DATA['order_date'],
             'city' => $this->POST_DATA['city'],
-            'current_status' => $this->POST_DATA['current_status'],
-            'internal_status' => $this->POST_DATA['current_status'],
+            'current_status' => ($this->POST_DATA['current_status'] == "PLACED")? "In-Transit" :$this->POST_DATA['current_status'],
+            'internal_status' =>($this->POST_DATA['current_status'] == "PLACED")? "In-Transit" :$this->POST_DATA['current_status'],
             'create_date' => date('Y-m-d H:i:s'),
             'assigned_cp_id' => (!empty($cp_id) ? $cp_id : NULL),
             'delivery_date' => (!empty($this->POST_DATA['delivery_date']) ? $this->POST_DATA['delivery_date'] : NULL),
             'partner_tracking_id' => (isset($this->POST_DATA['tracking_id']) ? $this->POST_DATA['tracking_id'] : NULL),
-            'is_delivered' => (($this->POST_DATA['current_status'] == 'Delivered') ? 1 : 0)
+            'is_delivered' => (($this->POST_DATA['current_status'] == 'Delivered') ? 1 : 0),
+            'file_received_date' => $this->POST_DATA['file_received_date']
         );
 
         return $this->My_CI->bb_model->insert_bb_order_details($bb_order_details);
@@ -161,7 +168,7 @@ class Buyback {
      * @return Array
      */
     function insert_bb_unit_details($bb_charges, $service_id) {
-
+        log_message("info", __METHOD__."Order ID =>".$this->POST_DATA['partner_order_id']." BB Charge ". print_r($bb_charges, TRUE), " service_id ". $service_id);
         $bb_unit_details = array(
             'partner_id' => $this->POST_DATA['partner_id'],
             'partner_order_id' => $this->POST_DATA['partner_order_id'],
@@ -169,7 +176,7 @@ class Buyback {
             'brand' => (!empty($bb_charges) ? $bb_charges[0]['brand'] : NULL),
             'physical_condition' => (!empty($bb_charges) ? $bb_charges[0]['physical_condition'] : NULL),
             'working_condition' => (!empty($bb_charges) ? $bb_charges[0]['working_condition'] : NULL),
-            'order_status' => $this->POST_DATA['current_status'],
+            'order_status' => ($this->POST_DATA['current_status'] == "PLACED")? "In-Transit" :$this->POST_DATA['current_status'],
             'partner_basic_charge' => $this->POST_DATA['partner_basic_charge'],
             'cp_basic_charge' => (!empty($bb_charges) ? $bb_charges[0]['cp_basic'] : 0),
             'cp_tax_charge' => (!empty($bb_charges) ? $bb_charges[0]['cp_tax'] : 0),
@@ -193,6 +200,9 @@ class Buyback {
      */
 
     function update_bb_order($order_data) {
+        if($this->POST_DATA['current_status'] == "PLACED" || $this->POST_DATA['current_status'] == "Unknown"){
+            return false;
+        }
         if ($order_data[0]['is_delivered'] == 0) {
                 if ($order_data[0]['current_status'] != $this->POST_DATA['current_status']) {
 
@@ -441,23 +451,23 @@ class Buyback {
     function get_cp_id_from_region($region){
         
         //Get CP id from shop address table.
-        $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details(array('shop_address_region' => $region), 'cp_id, bb_shop_address.active');
+        $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details(array("find_in_set('$region',shop_address_region) != " => 0), 'cp_id, shop_address_city,bb_shop_address.active');
         if(count($cp_shop_ddress) ==1){
             
-            return $cp_shop_ddress[0]['cp_id'];
+            return $cp_shop_ddress[0];
             
         } else if(count($cp_shop_ddress) > 1){
             
             $ac_cp = array();
             foreach ($cp_shop_ddress as $value) {
                 if($value['active'] == 1){
-                    array_push($ac_cp, $value['cp_id']);
+                    $tmp_arr = array('cp_id' => $value['cp_id'],'shop_address_city' => $value['shop_address_city']);
+                    array_push($ac_cp, $tmp_arr);
                 } 
             }
             
             if(count($ac_cp) == 1){
-                return $ac_cp[0];
-                
+                return $ac_cp[0]; 
             } 
         }
         
@@ -470,6 +480,7 @@ class Buyback {
      */
     function update_assign_cp_process($where_bb_charges, $order_id, $agent, $internal_status) {
         $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges($where_bb_charges, '*');
+        
         if (!empty($bb_charges)) {
             $unit_data = array('category' => $bb_charges[0]['category'],
                 'brand' => $bb_charges[0]['brand'],
