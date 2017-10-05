@@ -2899,25 +2899,6 @@ class Booking extends CI_Controller {
         $data = $this->get_advance_search_result_data($receieved_Data);
         echo json_encode($data);
     }
-    function downloadCSV($CSVData,$headings,$file){
-        ob_clean();
-        $filename=$file.date('Y-m-d h:i').'.csv';
-        date_default_timezone_set('Asia/Kolkata');
-        array_unshift($CSVData,$headings);
-        $lnth=count($CSVData);
-        $number_of_records=count($CSVData);
-        $fp = fopen('php://output', 'w');
-        for($i=0;$i<$number_of_records;$i++){
-            fputcsv($fp, $CSVData[$i]);
-        }
-        fclose($fp);
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Content-type: text/x-csv");
-        header("Content-type: text/csv");
-        header("Content-type: application/csv");
-        header("Content-Disposition: attachment; filename=$filename");
-        exit;
-     }
        
     function download_booking_snapshot(){
        ob_start();
@@ -2927,6 +2908,6 @@ class Booking extends CI_Controller {
        $receieved_Data['draw'] = 1;
        $data = $this->get_advance_search_result_data($receieved_Data);
        $headings = array("S.no","Booking ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service");
-       $this->downloadCSV($data['data'],$headings,"booking_search_summary_");   
+       $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_search_summary");   
     }
 }
