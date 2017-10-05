@@ -115,7 +115,7 @@ class Buyback {
         if (stristr($this->POST_DATA['subcat'], "Laundry") || stristr($this->POST_DATA['subcat'], "WashingMachine")) {
             $appliance_name = 'Washing Machine';
         }
-        if (stristr($this->POST_DATA['subcat'], "Air Conditioners")) {
+        if (stristr($this->POST_DATA['subcat'], "Air Conditioners") || strstr($this->POST_DATA['subcat'], "AC")) {
             $appliance_name = 'Air Conditioner';
         }
         if (stristr($this->POST_DATA['subcat'], "Refrigerators") || stristr($this->POST_DATA['subcat'], "Refrigerator")) {
