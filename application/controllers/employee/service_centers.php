@@ -1804,7 +1804,7 @@ class Service_centers extends CI_Controller {
         if($this->form_validation->run() === false){
             $msg = "Please fill all required field";
             $this->session->set_userdata('error',$msg);
-            redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
+            redirect(base_url().'service_center/buyback/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
         }else {
             
             $order_id = $this->input->post('order_id');
@@ -1821,7 +1821,7 @@ class Service_centers extends CI_Controller {
             
             if (isset($upload_images['status']) && $upload_images['status'] == 'error') {
                 $this->session->set_userdata('error', $upload_images['msg']);
-                redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
+                redirect(base_url().'service_center/buyback/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
             } else {
                 $physical_condition = isset($physical_condition) ? $physical_condition : '';
                 if (!empty($physical_condition)) {
@@ -1852,10 +1852,10 @@ class Service_centers extends CI_Controller {
                     if(!empty($order_details_update_id)){
                         $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('id'), _247AROUND, Null);
                         $this->session->set_userdata('success', 'Order has been updated successfully');
-                        redirect(base_url().'service_center/bb_order_details');
+                        redirect(base_url().'service_center/buyback/bb_order_details');
                     }else{
                         $this->session->set_userdata('error','Oops!!! There are some issue in updating order. Please Try Again...');
-                        redirect(base_url().'service_center/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
+                        redirect(base_url().'service_center/buyback/update_order_details/'.$this->input->post('order_id').'/'.$this->input->post('service_id').'/'.$this->input->post('city').'/'.$this->input->post('cp_id'));
                     }
                     
                 }
@@ -1928,10 +1928,10 @@ class Service_centers extends CI_Controller {
         
         if ($response['status'] === 'success') {
             $this->session->set_userdata('success', $response['msg']);
-            redirect(base_url() . 'service_center/bb_order_details');
+            redirect(base_url() . 'service_center/buyback/bb_order_details');
         } else if ($response['status'] === 'error') {
             $this->session->set_userdata('error', $response['msg']);
-            redirect(base_url() . 'service_center/bb_order_details');
+            redirect(base_url() . 'service_center/buyback/buyback/bb_order_details');
         }
         
     }
@@ -1966,11 +1966,11 @@ class Service_centers extends CI_Controller {
             $this->buyback->insert_bb_state_change($data['order_id'], _247AROUND_BB_IN_PROCESS, '', $data['cp_id'], Null, $data['cp_id']);
             
             $this->session->set_userdata('success', 'Order has been updated successfully');
-            redirect(base_url() . 'service_center/bb_order_details');
+            redirect(base_url() . 'service_center/buyback/bb_order_details');
             
         }else{
             $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
-            redirect(base_url() . 'service_center/bb_order_details');
+            redirect(base_url() . 'service_center/buyback/bb_order_details');
         }
     }
     /**
@@ -2201,7 +2201,7 @@ class Service_centers extends CI_Controller {
         $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'city',
             'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
         $list = $this->cp_model->get_bb_cp_order_list($post);
-        log_message('info',$this->db->last_query());
+        
         $data = array();
         $no = $post['start'];
         foreach ($list as $order_list) {
@@ -2304,9 +2304,9 @@ class Service_centers extends CI_Controller {
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_not_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_not_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
 
@@ -2335,8 +2335,8 @@ class Service_centers extends CI_Controller {
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
        
@@ -2500,7 +2500,7 @@ class Service_centers extends CI_Controller {
      * @return array
      */
     function get_sf_charges_data(){
-        
+        $this->check_BB_UserSession();
         //Getting SC ID from session
         $service_center_id  =  $this->session->userdata('service_center_id');
         if(!empty($service_center_id)){
@@ -2605,6 +2605,7 @@ class Service_centers extends CI_Controller {
      * @return $data json
      */
     function get_bb_order_details_data($partner_order_id){
+        $this->check_BB_UserSession();
         log_message("info",__METHOD__);
         if($partner_order_id){
             $data = $this->bb_model->get_bb_order_details(
@@ -2673,5 +2674,22 @@ class Service_centers extends CI_Controller {
         }
         
     }
+    /**
+     * @desc This is uesd to for buyback search. It will get the data from Order ID/Tracking ID
+     */
+    function search_for_buyback(){
+        $this->check_BB_UserSession();
+        $post['search_value'] = trim($this->input->post('search'));
+        $post['column_search'] = array('bb_order_details.partner_order_id', 'bb_order_details.partner_tracking_id');
+        $post['where'] = array('assigned_cp_id' =>  $this->session->userdata('service_center_id'));
+        $post['where_in'] = array();
+        $post['column_order'] = array();
+        $post['length'] = -1;
+        
+        $list['list'] = $this->cp_model->get_bb_cp_order_list($post);
+        $this->load->view('service_centers/search_for_buyback',$list);
+            
+    }
+    
 
 }

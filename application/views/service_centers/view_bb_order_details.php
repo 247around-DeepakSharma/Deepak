@@ -8,7 +8,7 @@
 <script src="<?php echo base_url(); ?>js/buyback_app/directives/directives.js"></script>
 <script src="<?php echo base_url(); ?>js/buyback_app/services/services.js"></script>
 <!-- page content -->
-<div id="page-wrapper" role="main">
+<div id="page-wrapper" class="right_col" role="main">
     <div class="buyback_file_upload" ng-app="viewBuybackOrderDetails">
         <div class="order_details_file">
             <div class="page-title">
