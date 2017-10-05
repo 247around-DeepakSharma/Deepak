@@ -203,7 +203,7 @@ class Booking extends CI_Controller {
                         $insert_data = array('service_id' => $appliances_details['service_id'],
                             'category' => $appliances_details['category'],
                             'capacity' => $appliances_details['capacity'],
-                            'brand' => $appliances_details['dd'],
+                            'brand' => $appliances_details['brand'],
                             'product_description' => trim($appliances_details['description']),
                             'is_verified' => $verified_capacity['is_verified']);
                         $this->booking_model->insert_appliance_details($insert_data);
