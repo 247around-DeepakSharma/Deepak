@@ -888,7 +888,57 @@ class Miscelleneous {
     }
     
     /**
-     * @Desc: This function is used to _allot_source_partner_id_for_pincode
+     * @desc This function is used to download CSV
+     * @param $CSVData(Array),$headings(Array(What should be heading for csv),$file(String(File name)))
+     * @return It will download the CSV
+     */
+    function downloadCSV($CSVData,$headings=NULL,$file){
+        ob_clean();
+        $filename=$file.'.csv';
+        date_default_timezone_set('Asia/Kolkata');
+        if(!empty($headings)){
+            array_unshift($CSVData,$headings);
+        }
+        $number_of_records=count($CSVData);
+        $fp = fopen('php://output', 'w');
+        for($i=0;$i<$number_of_records;$i++){
+            fputcsv($fp, $CSVData[$i]);
+        }
+        fclose($fp);
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-type: text/x-csv");
+        header("Content-type: text/csv");
+        header("Content-type: application/csv");
+        header("Content-Disposition: attachment; filename=$filename");
+        exit;
+     }
+     
+     function downloadExcel($data,$config){
+                    $R = new PHPReport($config);
+                    $R->load(array(array('id' => 'order','repeat' => true,'data' => $data),));
+                     $output_file_excel = TMP_FOLDER . $config['template'];
+                     $res1 = 0;
+                    if (file_exists($output_file_excel)) {
+                              system(" chmod 777 " . $output_file_excel, $res1);
+                              unlink($output_file_excel);
+                    }
+                     $R->render('excel', $output_file_excel);
+                     if (file_exists($output_file_excel)) {
+                              system(" chmod 777 " . $output_file_excel, $res1);
+                              header('Content-Description: File Transfer');
+                              header('Content-Type: application/octet-stream');
+                              header('Content-Disposition: attachment; filename='.$config['template']);
+                              header('Expires: 0');
+                              header('Cache-Control: must-revalidate');
+                              header('Pragma: public');
+                              header('Content-Length: ' . filesize($output_file_excel));
+                              readfile($output_file_excel);
+                              exec("rm -rf " . escapeshellarg($output_file_excel));
+                              exit;
+                     } 
+         
+     }
+     /* @Desc: This function is used to _allot_source_partner_id_for_pincode
      * @params: String Pincode, brnad, default partner id(SS)
      * @return : Array
      * 

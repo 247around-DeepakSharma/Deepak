@@ -15,7 +15,7 @@ use Box\Spout\Common\Type;
 require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php';
 
 class vendor extends CI_Controller {
-
+   var  $vendorPinArray = array();
     function __Construct() {
         parent::__Construct();
         $this->load->model('employee_model');
@@ -1012,6 +1012,7 @@ class vendor extends CI_Controller {
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data));
+        
     }
 
     /**
@@ -1478,7 +1479,7 @@ class vendor extends CI_Controller {
      *  @return : void
      */
     function process_pincode_excel_upload_form() {
-        if(!empty($_FILES['file']['tmp_name'])){
+        if(!empty($_FILES['file']['tmp_name'])){    
             $inputFileName = $_FILES['file']['tmp_name'];
             log_message('info', __FUNCTION__ . ' => Input ZIP file: ' . $inputFileName);
             
@@ -4411,4 +4412,196 @@ class vendor extends CI_Controller {
         }
     }
 
+        function download_vendor_pin_code($vendorID){ 
+                    ob_start();
+                    $pincodeArray =  $this->vendor_model->check_vendor_details(array("Vendor_ID"=>$vendorID));
+                    $config = array('template' => "vendor_pin_code.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
+                    $this->miscelleneous->downloadExcel($pincodeArray,$config);
+          } 
+         
+         function upload_pin_code_vendor($vendorID){
+                    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                    $this->load->view('employee/vendor_pincode_upload',array('vendorID'=>$vendorID));
+          }
+          
+          function save_vendor_pin_code_file($tempName,$vendorID){
+                    $msg = FALSE;
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $filePath = "vendor_pincode_mapping_".rand(10,100)."_".date('j-M-Y')."_".$vendorID.".xlsx";
+                    $directory_xls = "vendor-partner-docs/".$filePath;
+                    $is_success = $this->s3->putObjectFile($tempName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    if($is_success){
+                              $affected_rows =  $this->vendor_model->vendor_pin_code_uploads_insert("file_uploads",array("file_name"=>$filePath,"file_type"=>"vendor_pincode_".$vendorID,"agent_id"=>$this->session->userdata['id']));
+                              if($affected_rows>0){
+                                        $msg =  TRUE; 
+                              }
+                    }
+                    return $msg;
+          }
+          function  is_file_extension_excel($fileName){
+                    $msg = "Please upload only excel file";
+                    $pathinfo = pathinfo($fileName);
+                    if($pathinfo['extension'] == 'xls' || $pathinfo['extension'] == 'xlsx'){
+                              $msg = TRUE;
+                    }
+                    return $msg;
+          }
+          
+          function is_file_less_then_size($fileSize){
+                    $msg = "File Size is more then 2 MB";
+                    $MB = 1048576;
+                    if ($fileSize > 0 && $fileSize < 2 * $MB) {
+                              $msg = TRUE;
+                    }
+                    return $msg;
+          }
+          function get_excel_reader_version($fileName){
+                    $pathinfo = pathinfo($fileName);
+                    if ($pathinfo['extension'] == 'xlsx') {
+                        $readerVersion = 'Excel2007';
+                    } 
+                    else {
+                        $readerVersion = 'Excel5';
+                    }
+                    return $readerVersion;
+          }
+          function excel_to_Array_converter($file,$readerVersion){
+                    $objReader = PHPExcel_IOFactory::createReader($readerVersion);
+                    $objPHPExcel = $objReader->load($file['file']['tmp_name']);
+                    $sheet = $objPHPExcel->getSheet(0);
+                    $highestRow = $sheet->getHighestDataRow();
+                    $highestColumn = $sheet->getHighestDataColumn();
+                    $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+                    $heading = str_replace(array("/", "(", ")", " ", "."), "", $headings[0]);
+                    $newHeading[0][0] = str_replace(array(" "), "_", $heading);
+                    $excelDataArray=array();
+                    for($i=2;$i<=$highestRow;$i++){
+                              $excelDataArray[] = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
+                    }
+                    $finalExcelDataArray = array_merge($newHeading, $excelDataArray);
+                    return $finalExcelDataArray;
+          }
+          
+          function is_file_contains_only_valid_vendor($vendorID,$excelDataArray){
+                    $msg = TRUE;
+                    foreach($excelDataArray as $index=>$data){
+                              if($index>0){
+                                                  if($data[0][1] != $vendorID){
+                                                            $msg = "This file Contains more then 1 Vendor Please check file and upload it after correction";
+                                                  }
+                              }
+                   }
+                   return $msg;
+          }
+          
+          function is_uploded_file_blank($excelDataArray){
+                    $msg = TRUE;
+                    $length = count($excelDataArray);
+                    if($length<2){
+                              $msg = "File does not contains any records";
+                    }
+                   return $msg;
+          }
+          
+          function is_pin_code_valid($excelDataArray){
+                    $msg = TRUE;
+                    foreach($excelDataArray as $index=>$data){
+                              if($index>0){
+                                    if(strlen($data[0][6]) != 6){
+                                              $msg = "This file Contains invalid pincodes";
+                                    }
+                              }
+                   }
+                   return $msg;
+          }
+          
+          function  is_vendor_pin_code_file_valid($file,$vendorID){
+                   $msg['extension']=$this->is_file_extension_excel($file['file']['name']);
+                   if($msg['extension'] == 1){
+                              $msg['size'] = $this->is_file_less_then_size($file['file']['size']);
+                                        if($msg['size'] == 1){
+                                                  $readerVersion = $this->get_excel_reader_version($file['file']['name']);
+                                                  $this->vendorPinArray =  $this->excel_to_Array_converter($file,$readerVersion);
+                                                  $msg['blank'] = $this->is_uploded_file_blank($this->vendorPinArray);
+                                                  if($msg['blank'] == 1){
+                                                            $msg['vendor'] = $this->is_file_contains_only_valid_vendor($vendorID,$this->vendorPinArray );  
+                                                            if($msg['vendor']){
+                                                                       $msg['pin_code'] = $this->is_pin_code_valid($this->vendorPinArray);
+                                                                       return $msg['pin_code'];
+                                                            }
+                                                            else{
+                                                                      return $msg['vendor'];
+                                                            }
+                                                  }
+                                                  else{
+                                                            return $msg['blank'];
+                                                  }
+                                        }
+                                        else{
+                                                  return $msg['size'];
+                                        }
+                   }
+                   else{
+                              return $msg['extension'];
+                   }
+          }
+          function update_vendor_pin_code_file($file,$vendorID){
+                    $deleteMsg = $this->vendor_model->delete_vendor_pin_codes(array('Vendor_ID'=>$vendorID));
+                    if($deleteMsg == TRUE){
+                              $finalInsertArray = array();
+                              foreach($this->vendorPinArray as $key=>$data){
+                                        if($key>0){
+                                                  $insertArray['Vendor_Name'] = $data[0][0];
+                                                  $insertArray['Vendor_ID'] = $data[0][1];
+                                                  $insertArray['Appliance'] = $data[0][2];
+                                                  $insertArray['Appliance_ID'] = $data[0][3];
+                                                  $insertArray['Brand'] = $data[0][4];
+                                                  $insertArray['Area'] = $data[0][5];
+                                                  $insertArray['Pincode'] = $data[0][6];
+                                                  $insertArray['Region'] = $data[0][7];
+                                                  $insertArray['City'] = $data[0][8];
+                                                  $insertArray['State'] = $data[0][9];
+                                                  $finalInsertArray[] = $insertArray;
+                                        }
+                              }
+                              if(!empty($finalInsertArray)){
+                                       $affectedRows =  $this->vendor_model->insert_vendor_pincode_in_bulk($finalInsertArray);
+                                       if($affectedRows>0){
+                                                  return "Successfully Done";
+                                       }
+                                       else{
+                                                  return "Something Wrong Happens";
+                                       }
+                              }
+                    }
+                    else{
+                        return $deleteMsg;
+                    }
+          }
+          function process_upload_pin_code_vendor(){
+                     if(!empty($_FILES['file']['tmp_name'])){  
+                              $tempName = $_FILES['file']['tmp_name'];
+                              $vendorID = $this->input->post('vendorID');
+                              $msgVerfied = $this->is_vendor_pin_code_file_valid($_FILES,$vendorID);
+                              if($msgVerfied == 1){
+                                        $is_saved = $this->save_vendor_pin_code_file($tempName,$vendorID);
+                                        if($is_saved == 1){
+                                                  $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($_FILES,$vendorID);
+                                        }
+                                        else{
+                                                  $finalMsg =  $is_saved;
+                                        }
+                              }
+                              else{
+                                        $finalMsg =  $msgVerfied;
+                              }
+                    }
+                    else{
+                        
+                    }
+                    $msg['final_msg'] = $finalMsg;
+                    $this->session->set_userdata($msg);
+                    redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
+          }
 }
+

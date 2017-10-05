@@ -1264,7 +1264,6 @@ class Upload_booking_file extends CI_Controller {
         echo json_encode($output);
     }
     
-    
     /**
      * @Desc: This function is used to make the table data for upload file history
      * @params: void
@@ -1276,11 +1275,13 @@ class Upload_booking_file extends CI_Controller {
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".
-                $file_list->file_name."'>$file_list->file_name</a>";
+        $file_list->file_name."'>$file_list->file_name</a>";
         $row[] = $file_list->agent_name;
         $row[] = $file_list->upload_date;
         
         return $row;
     }
+    
+    
     
 }
