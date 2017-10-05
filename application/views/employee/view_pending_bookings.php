@@ -3,9 +3,37 @@
         text-align: right;
     }
     .col-md-3 {
-        width: 18%;
+        width: 22%;
+    }
+
+    @keyframes blink {
+        50% { opacity: 0.0; }
+    }
+    @-webkit-keyframes blink {
+        50% { opacity: 0.0; }
+    }
+    
+    .blink {
+        animation: blink 1s step-start 0s infinite;
+        -webkit-animation: blink 1s step-start 0s infinite;
+    }
+
+    .esclate {
+        width: auto;
+        height: 17px;
+        background-color: #F73006;
+        color: #fff;
+        margin-left: 0px;
+        font-weight: bold;
+        margin-right: 0px;
+        font-size: 12px;
+    }
+    
+    .dialog{
+        display: none;
     }
 </style>
+
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 <div id="page-wrapper" >
     <div class="row">
@@ -81,19 +109,7 @@
                 <div class="col-md-3">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
-                            <select class="form-control filter_table" id="ratings">
-                                <option value="" selected="selected" disabled="">Select Rating Status</option>
-                                <option value="a">Booking With Ratings</option>
-                                <option value="b">Booking Without Ratings</option>
-                                <option value="c">All</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="item form-group">
-                        <div class="col-md-12 col-sm-12 col-xs-12">
-                            <input type="text" class="form-control" id="closed_date" placeholder="Completion Date">
+                            <input type="text" class="form-control filter_table" id="booking_date" placeholder="Booking Date">
                         </div>
                     </div>
                 </div>
@@ -108,22 +124,21 @@
                         <th>Booking Id</th>
                         <th>User Name / Phone Number</th>
                         <th>Service Name</th>
+                        <th>Booking Date</th>
+                        <th>Status</th>
                         <th>Service Centre</th>
-                        <th>Service Centre City</th>
-                        <th>Completion Date</th>
                         <th>Call</th>
-                        <?php if($booking_status === _247AROUND_COMPLETED) { ?> 
-                        <th>Edit</th>
-                        <th>Cancel</th>
-                        <?php } else if ($booking_status === _247AROUND_CANCELLED) { ?> 
-                        <th>Complete</th>
-                        <?php } ?>
-                        <th>Open</th>
                         <th>View</th>
-                        <?php if($booking_status === _247AROUND_COMPLETED){ ?> 
-                        <th>Rate</th>    
-                        <?php } ?>
-                        <th>Penalty</th>
+                        <th>Reschedule</th>
+                        <th>Cancel</th>
+                        <th>Complete</th>
+                        <th>Job Card</th>
+                        <th>Mail</th>
+                        <th>Reminder Mail</th>
+                        <th>Edit Booking</th>
+                        <th>Re-assign</th>
+                        <th>Escalate</th>
+                        <th>Remove Penalty</th>
                     </tr>
                     <tbody></tbody>
                 </thead>
@@ -197,23 +212,15 @@
     });
     $(document).ready(function(){
         
-        
-        $('#closed_date').daterangepicker({
-            autoUpdateInput: false,
-            locale: {
-                cancelLabel: 'Clear'
-            }
-        });
-        $('#closed_date').on('apply.daterangepicker', function (ev, picker) {
-            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-            datatable1.ajax.reload();
-        });
-        
-        $('#closed_date').on('cancel.daterangepicker', function(ev, picker) {
-            $(this).val('');
-            datatable1.ajax.reload();
-        });
-        
+//        $('#booking_date').daterangepicker({
+//            autoUpdateInput: false,
+//            singleDatePicker: true,
+//            showDropdowns: true
+//        });
+//        $('#booking_date').on('apply.daterangepicker', function (ev, picker) {
+//            $(this).val(picker.startDate.format('MM/DD/YYYY'));
+//            datatable1.ajax.reload();
+//        });
         
         datatable1 = $('#datatable1').DataTable({
             "processing": true, 
@@ -229,9 +236,8 @@
                     d.booking_id =  '<?php echo $booking_id;?>';
                     d.partner_id =  $('#partner_id').val();
                     d.sf_id =  $('#sf_id').val();
-                    d.booking_date_range =  $('#closed_date').val();
-                    d.ratings =  $('#ratings').val();
                     d.appliance =  $('#appliance').val();
+                    d.booking_date =  $('#booking_date').val();
                  }
             },
             "fnInitComplete": function (oSettings, response) {
@@ -242,7 +248,6 @@
         $('.filter_table').on('change', function(){
             datatable1.ajax.reload();
         });
-        
     });
 
 </script>
@@ -313,6 +318,64 @@
 
             }
           });
+    }
+    
+    //Function to show the specific popup form
+    function show(id)
+    {
+        var type = id.search("b_notes");
+        var count = id.replace( /^\D+/g, '');
+
+        if (type >= 0) {
+            $('#bookingMailForm'+count).toggle(500);
+        }
+        else {
+            $('#reminderMailForm'+count).toggle(500);
+        }
+    }
+
+    //Function to send email to vendor using ajax
+    function send_email_to_vendor(i)
+    {
+
+        var id = $("#booking_id"+i).val();
+        var additional_note = $("#valueFromMyButton"+i).val();
+
+        $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/bookingjobcard/send_mail_to_vendor/' + id + "/" + additional_note,
+                success: function(response) {
+                    var resAlert = response.search("Mail sent to Service Center successfully.");
+
+                    if (resAlert >= 0)
+                        alert("Mail sent to Service Center successfully.")
+                    else
+                        alert("Mail could not be sent, please try again.");
+                }
+        });
+
+        $("#bookingMailForm"+i).toggle(500);
+    }
+
+    //Function to send reminder email to vendor
+    function send_reminder_email_to_vendor(i)
+    {
+        var id = $("#booking_id"+i).val();
+        var additional_note = $("#reminderMailButton"+i).val();
+        $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/bookingjobcard/send_reminder_mail_to_vendor/' + id + "/" + additional_note,
+                success: function(response) {
+                    var resAlert = response.search("Reminder mail sent to Service Center successfully.");
+
+                    if (resAlert >= 0)
+                        alert("Reminder mail sent to Service Center successfully.")
+                    else
+                        alert("Reminder mail could not be sent, please try again.");
+                }
+        });
+
+        $("#reminderMailForm"+i).toggle(500);
     }
 
 
