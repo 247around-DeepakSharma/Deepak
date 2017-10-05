@@ -171,7 +171,7 @@
                     <tr>
                         <th>S No.</th>
                         <th width="160px;">
-                            <a href="<?php echo base_url();?>employee/booking/view">Booking Id</a>
+                            <a href="<?php echo base_url();?>employee/booking/view_bookings_by_status/Pending/">Booking Id</a>
                         </th>
                         <th width="140px;">User Name</th>
                         <th width="125px;">Phone No.</th>
@@ -437,7 +437,7 @@
                         <tr>
                             <th></th>
                             <th width="150px;">
-                                <a href="<?php echo base_url();?>employee/booking/view">Booking Id</a>
+                                <a href="<?php echo base_url();?>employee/booking/view_bookings_by_status/Pending">Booking Id</a>
                             </th>
                             <th width="125px;">User Name</th>
                             <th width="125px;">Phone No.</th>
@@ -548,7 +548,7 @@
                         <tr>
                             
                             <th width="150px;">
-                                <a href="<?php echo base_url();?>employee/booking/view">Booking Id</a>
+                                <a href="<?php echo base_url();?>employee/booking/view_bookings_by_status/Pending">Booking Id</a>
                             </th>
                             <th width="110px;">User Name</th>
                             <th width="110px;">Phone No.</th>

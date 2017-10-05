@@ -37,7 +37,7 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
         <!-- Loading Noty script library -->
         <script type="text/javascript" src="<?php echo base_url()?>js/plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
-         <script src="<?php echo base_url()?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
+        <script src="<?php echo base_url()?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 
         <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
@@ -97,7 +97,7 @@
                     </a>
                     <ul class="dropdown-menu ">
                         <li>
-                            <a href="<?php echo base_url() ?>employee/booking/view"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Booking</strong></a>
+                            <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Pending"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Booking</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>

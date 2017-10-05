@@ -122,7 +122,7 @@
                 <div>
                   <center>
                     <input type="submit" value="Reschedule" class="btn btn-danger">
-                    <?php echo "<a id='edit' class='btn btn-small btn-primary' href=".base_url()."employee/booking/view>Cancel</a>";?>
+                    <?php echo "<a id='edit' class='btn btn-small btn-primary' href='".base_url()."employee/booking/view_bookings_by_status/Pending' >Cancel</a>";?>
                     
                   </center>
                 </div>
