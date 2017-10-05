@@ -203,7 +203,7 @@ class Booking extends CI_Controller {
                         $insert_data = array('service_id' => $appliances_details['service_id'],
                             'category' => $appliances_details['category'],
                             'capacity' => $appliances_details['capacity'],
-                            'brand' => $appliances_details['dd'],
+                            'brand' => $appliances_details['brand'],
                             'product_description' => trim($appliances_details['description']),
                             'is_verified' => $verified_capacity['is_verified']);
                         $this->booking_model->insert_appliance_details($insert_data);
@@ -965,24 +965,35 @@ class Booking extends CI_Controller {
         $source_code = $this->input->post('source_code');
 
         $booking_source = $this->booking_model->get_booking_source($source_code);
-        if ($booking_source[0]['partner_type'] == OEM) {
-            $services = $this->partner_model->get_partner_specific_services($booking_source[0]['partner_id']);
-        } else {
-            $services = $this->booking_model->selectservice();
+        $prepaid['active'] = 1;
+        if($selected_service_id == "undefined"){
+            $prepaid = $this->miscelleneous->get_partner_prepaid_amount($booking_source[0]['partner_id']);
         }
-        $data['partner_type'] = $booking_source[0]['partner_type'];
-        $data['services'] = "<option selected disabled>Select Service</option>";
-        foreach ($services as $appliance) {
-            $data['services'] .= "<option ";
-            if ($selected_service_id == $appliance->id) {
-                $data['services'] .= " selected ";
-            } else if (count($services) == 1) {
-                $data['services'] .= " selected ";
+        
+        if ($prepaid['active'] == 1) {
+            if ($booking_source[0]['partner_type'] == OEM) {
+                $services = $this->partner_model->get_partner_specific_services($booking_source[0]['partner_id']);
+            } else {
+                $services = $this->booking_model->selectservice();
             }
-            $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
+            $data['partner_type'] = $booking_source[0]['partner_type'];
+            $data['services'] = "<option selected disabled>Select Service</option>";
+            foreach ($services as $appliance) {
+                $data['services'] .= "<option ";
+                if ($selected_service_id == $appliance->id) {
+                    $data['services'] .= " selected ";
+                } else if (count($services) == 1) {
+                    $data['services'] .= " selected ";
+                }
+                $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
+            }
+            $data['code'] = 247;
+            print_r(json_encode($data, true));
+        } else {
+            $data['code'] = -247;
+            $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
+            echo json_encode($data,true);
         }
-
-        print_r(json_encode($data, true));
     }
 
     /**
@@ -2906,25 +2917,6 @@ class Booking extends CI_Controller {
         $data = $this->get_advance_search_result_data($receieved_Data);
         echo json_encode($data);
     }
-    function downloadCSV($CSVData,$headings,$file){
-        ob_clean();
-        $filename=$file.date('Y-m-d h:i').'.csv';
-        date_default_timezone_set('Asia/Kolkata');
-        array_unshift($CSVData,$headings);
-        $lnth=count($CSVData);
-        $number_of_records=count($CSVData);
-        $fp = fopen('php://output', 'w');
-        for($i=0;$i<$number_of_records;$i++){
-            fputcsv($fp, $CSVData[$i]);
-        }
-        fclose($fp);
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Content-type: text/x-csv");
-        header("Content-type: text/csv");
-        header("Content-type: application/csv");
-        header("Content-Disposition: attachment; filename=$filename");
-        exit;
-     }
        
     function download_booking_snapshot(){
        ob_start();
@@ -2934,7 +2926,7 @@ class Booking extends CI_Controller {
        $receieved_Data['draw'] = 1;
        $data = $this->get_advance_search_result_data($receieved_Data);
        $headings = array("S.no","Booking ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service");
-       $this->downloadCSV($data['data'],$headings,"booking_search_summary_");   
+       $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_search_summary");   
     }
     
     /**

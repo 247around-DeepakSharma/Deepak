@@ -27,7 +27,7 @@
 <div class="col-md-12" id="bb_charges_summary" style="margin-top:10px;">
     <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
 </div>
-<div class="bb_order_details" style="margin: 20px 20px 10px 10px;">
+<div class="bb_order_details right_col" style="margin: 20px 20px 10px 10px;">
     
     
     <h3>Order Details</h3>
@@ -238,20 +238,7 @@
 });
 
 </script>
-<script>
-    function showConfirmDialougeBox(url){
-        swal({
-                title: "Do You Want To Continue?",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                closeOnConfirm: false
-            },
-            function(){
-                window.location.href = url;
-            });
-    }
-</script>
+
 <?php 
 $this->session->unset_userdata('success');
 $this->session->unset_userdata('error');

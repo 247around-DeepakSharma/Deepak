@@ -3275,42 +3275,18 @@ class Partner extends CI_Controller {
      */
     function get_prepaid_amount($partner_id) {
         log_message("info",__METHOD__." Partner Id ".$partner_id);
-        $final_amount = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
-        $partner_details = $this->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,grace_period_date,prepaid_notification_amount ", 
-                array('partners.id' => $partner_id));
-        log_message("info",__METHOD__." Partner Id ".$partner_id." Prepaid account".$final_amount);
-        if ($final_amount > $partner_details[0]['prepaid_notification_amount']) {
+        $p_details = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+        
+        if($p_details['is_notification']){
             
-            $d['prepaid_amount'] = '<strong style="color:green; font-size: 16px;">Rs. ' . $final_amount . '</strong>';
-            
+            $d['prepaid_amount'] = '<strong class="blink" style="color:red; font-size: 16px;">Rs. ' . $p_details['prepaid_amount'] . '</strong> ';
         } else {
-            $d['prepaid_amount'] = '<strong class="blink" style="color:red; font-size: 16px;">Rs. ' . $final_amount . '</strong> ';
-        }
-        $d['prepaid_msg'] = "";
-        $is_active = 1;
-        
-        if (($partner_details[0]['is_prepaid'] == 1) & $partner_details[0]['prepaid_amount_limit'] > $final_amount) {
-            $d['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;
-            if (!empty($partner_details[0]['grace_period_date']) && (date("Y-m-d") > date("Y-m-d", strtotime($partner_details[0]['grace_period_date'])))) {
-                $is_active = 0;
-            } else if (empty($partner_details[0]['grace_period_date'])) {
-
-                $is_active = 0;
-            }
+             $d['prepaid_amount'] = '<strong style="color:green; font-size: 16px;">Rs. ' . $p_details['prepaid_amount'] . '</strong>';
         }
 
-        $partner['is_active'] = $is_active;
-        
-        if ($partner_details[0]['is_active'] == 0 && $is_active = 1) {
-            $partner['grace_period_date'] = NULL;
-            log_message("info",__METHOD__." Partner Id ".$partner_id." Activated");
-            $this->partner_model->edit_partner($partner, $partner_id);
-        } else if ($partner_details[0]['is_active'] == 1 && $is_active == 0) {
-            log_message("info",__METHOD__." Partner Id ".$partner_id." De-Activated");
-            $this->partner_model->edit_partner($partner, $partner_id);
-        }
-        
-        $userSession = array('status' => $is_active);
+        $d['prepaid_msg'] = $p_details['prepaid_msg'];
+ 
+        $userSession = array('status' => $p_details['active']);
         $this->session->set_userdata($userSession);
         return $d;
     }

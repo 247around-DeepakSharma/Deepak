@@ -448,6 +448,8 @@ define('SMS_DEACTIVATION_EMAIL_SUBJECT','has requested for opt-out!');
 define('SMS_DEACTIVATION_NO_NEW_REQUEST_MSG','There is not any new request');
 
 define('PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER','Your Credit is low. Add credit');
+define('PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN','Your Credit is low. Add credit');
+define('PREPAID_LOW_AMOUNT_MSG_FOR_DEALER','Your Credit is low. Add credit');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

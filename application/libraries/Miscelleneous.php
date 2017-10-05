@@ -888,7 +888,57 @@ class Miscelleneous {
     }
     
     /**
-     * @Desc: This function is used to _allot_source_partner_id_for_pincode
+     * @desc This function is used to download CSV
+     * @param $CSVData(Array),$headings(Array(What should be heading for csv),$file(String(File name)))
+     * @return It will download the CSV
+     */
+    function downloadCSV($CSVData,$headings=NULL,$file){
+        ob_clean();
+        $filename=$file.'.csv';
+        date_default_timezone_set('Asia/Kolkata');
+        if(!empty($headings)){
+            array_unshift($CSVData,$headings);
+        }
+        $number_of_records=count($CSVData);
+        $fp = fopen('php://output', 'w');
+        for($i=0;$i<$number_of_records;$i++){
+            fputcsv($fp, $CSVData[$i]);
+        }
+        fclose($fp);
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-type: text/x-csv");
+        header("Content-type: text/csv");
+        header("Content-type: application/csv");
+        header("Content-Disposition: attachment; filename=$filename");
+        exit;
+     }
+     
+     function downloadExcel($data,$config){
+                    $R = new PHPReport($config);
+                    $R->load(array(array('id' => 'order','repeat' => true,'data' => $data),));
+                     $output_file_excel = TMP_FOLDER . $config['template'];
+                     $res1 = 0;
+                    if (file_exists($output_file_excel)) {
+                              system(" chmod 777 " . $output_file_excel, $res1);
+                              unlink($output_file_excel);
+                    }
+                     $R->render('excel', $output_file_excel);
+                     if (file_exists($output_file_excel)) {
+                              system(" chmod 777 " . $output_file_excel, $res1);
+                              header('Content-Description: File Transfer');
+                              header('Content-Type: application/octet-stream');
+                              header('Content-Disposition: attachment; filename='.$config['template']);
+                              header('Expires: 0');
+                              header('Cache-Control: must-revalidate');
+                              header('Pragma: public');
+                              header('Content-Length: ' . filesize($output_file_excel));
+                              readfile($output_file_excel);
+                              exec("rm -rf " . escapeshellarg($output_file_excel));
+                              exit;
+                     } 
+         
+     }
+     /* @Desc: This function is used to _allot_source_partner_id_for_pincode
      * @params: String Pincode, brnad, default partner id(SS)
      * @return : Array
      * 
@@ -999,17 +1049,51 @@ class Miscelleneous {
      * @param int $partner_id
      * @return int
      */
-    function get_partner_prepaid_amount($partner_id){
-         $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id,
-            'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) '
-                . 'THEN ( amount_collected_paid -`amount_paid`) END)  AS amount');
-        $where = array(
-            'partner_id' => $partner_id,
-            'partner_invoice_id is null' => NULL,
-            'booking_status IN ("' . _247AROUND_PENDING . '", "' . _247AROUND_FOLLOWUP . '", "' . _247AROUND_COMPLETED . '")' => NULL
-        );
-        $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
-        return $invoice_amount[0]['amount'] - $service_amount[0]['amount'];
+    function get_partner_prepaid_amount($partner_id) {
+        $partner_details = $this->My_CI->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,"
+                . "grace_period_date,prepaid_notification_amount ", array('partners.id' => $partner_id));
+        if (!empty($partner_details)) {
+            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id,
+                'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) '
+                    . 'THEN ( amount_collected_paid -`amount_paid`) END)  AS amount');
+            $where = array(
+                'partner_id' => $partner_id,
+                'partner_invoice_id is null' => NULL,
+                'booking_status IN ("' . _247AROUND_PENDING . '", "' . _247AROUND_FOLLOWUP . '", "' . _247AROUND_COMPLETED . '")' => NULL
+            );
+            $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
+
+            $final_amount = $invoice_amount[0]['amount'] - $service_amount[0]['amount'];
+
+
+
+            log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
+            $d['prepaid_amount'] = $final_amount;
+
+            if ($final_amount > $partner_details[0]['prepaid_notification_amount']) {
+
+                $d['is_notification'] = FALSE;
+            } else {
+                $d['is_notification'] = TRUE;
+            }
+            $d['prepaid_msg'] = "";
+            $d['active'] = $partner_details[0]['is_active'];
+
+            if (($partner_details[0]['is_prepaid'] == 1) & $partner_details[0]['prepaid_amount_limit'] > $final_amount) {
+                $d['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;
+
+                if (!empty($partner_details[0]['grace_period_date']) && (date("Y-m-d") > date("Y-m-d", strtotime($partner_details[0]['grace_period_date'])))) {
+                    $d['active'] = 0;
+                } else if (empty($partner_details[0]['grace_period_date'])) {
+
+                    $d['active'] = 0;
+                }
+            }
+
+            return $d;
+        } else {
+            return false;
+        }
     }
 
 }
