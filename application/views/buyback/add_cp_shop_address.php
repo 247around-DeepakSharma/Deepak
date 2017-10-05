@@ -156,8 +156,7 @@
                                         <label class="control-label col-md-4 col-sm-3 col-xs-12" for="shop_address_region">Shop Region
                                         </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <select id="shop_address_region" required="required" class="optional form-control col-md-7 col-xs-12" name="shop_address_region" ng-model="tempData.shop_address_region">
-                                                <option value="" selected="" disabled="">Select Region</option>
+                                            <select id="shop_address_region" required="required" class="optional form-control col-md-7 col-xs-12" name="shop_address_region[]" ng-model="tempData.shop_address_region" multiple="multiple" placeholder="Select Region">
                                             </select>
                                         </div>
                                         <span class="msg" ng-if="userForm.shop_address_region.$invalid" ng-show="userForm.shop_address_region.$dirty && userForm.shop_address_region.$invalid">Region is required</span>
@@ -195,6 +194,8 @@
     </div>
     <script>
         $(document).ready(function () {
-            $("#cp_id").select2();
+            $("#shop_address_region").select2({
+                tags: true
+            });
         });
     </script>    

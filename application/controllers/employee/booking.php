@@ -203,7 +203,7 @@ class Booking extends CI_Controller {
                         $insert_data = array('service_id' => $appliances_details['service_id'],
                             'category' => $appliances_details['category'],
                             'capacity' => $appliances_details['capacity'],
-                            'brand' => $appliances_details['dd'],
+                            'brand' => $appliances_details['brand'],
                             'product_description' => trim($appliances_details['description']),
                             'is_verified' => $verified_capacity['is_verified']);
                         $this->booking_model->insert_appliance_details($insert_data);
@@ -523,11 +523,10 @@ class Booking extends CI_Controller {
         $booking['taluk'] = $distict_details['taluk'];
         $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
         $booking['order_id'] = $this->input->post('order_id');
-//	$booking['potential_value'] = $this->input->post('potential_value');
         $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
         $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
         $booking['update_date'] = date("Y-m-d H:i:s");
-        $partner_details = $this->partner_model->get_all_partner_source("", $booking['source']);
+        $partner_details = $this->partner_model->getpartner_details('bookings_sources.partner_id', array('bookings_sources.code' => $booking['source']));
         $booking['partner_id'] = $partner_details[0]['partner_id'];
 
         return $booking;
@@ -715,7 +714,8 @@ class Booking extends CI_Controller {
         $data['booking_id'] = $booking_id;
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $data['booking_unit_details'] = $this->booking_model->getunit_details($booking_id);
-        $source = $this->partner_model->get_all_partner_source("0", $data['booking_history'][0]['source']);
+        $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', 
+                array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
         $data['booking_history'][0]['source_name'] = $source[0]['source'];
 
         $partner_id = $data['booking_history'][0]['partner_id'];
@@ -965,24 +965,35 @@ class Booking extends CI_Controller {
         $source_code = $this->input->post('source_code');
 
         $booking_source = $this->booking_model->get_booking_source($source_code);
-        if ($booking_source[0]['partner_type'] == OEM) {
-            $services = $this->partner_model->get_partner_specific_services($booking_source[0]['partner_id']);
-        } else {
-            $services = $this->booking_model->selectservice();
+        $prepaid['active'] = 1;
+        if($selected_service_id == "undefined"){
+            $prepaid = $this->miscelleneous->get_partner_prepaid_amount($booking_source[0]['partner_id']);
         }
-        $data['partner_type'] = $booking_source[0]['partner_type'];
-        $data['services'] = "<option selected disabled>Select Service</option>";
-        foreach ($services as $appliance) {
-            $data['services'] .= "<option ";
-            if ($selected_service_id == $appliance->id) {
-                $data['services'] .= " selected ";
-            } else if (count($services) == 1) {
-                $data['services'] .= " selected ";
+        
+        if ($prepaid['active'] == 1) {
+            if ($booking_source[0]['partner_type'] == OEM) {
+                $services = $this->partner_model->get_partner_specific_services($booking_source[0]['partner_id']);
+            } else {
+                $services = $this->booking_model->selectservice();
             }
-            $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
+            $data['partner_type'] = $booking_source[0]['partner_type'];
+            $data['services'] = "<option selected disabled>Select Service</option>";
+            foreach ($services as $appliance) {
+                $data['services'] .= "<option ";
+                if ($selected_service_id == $appliance->id) {
+                    $data['services'] .= " selected ";
+                } else if (count($services) == 1) {
+                    $data['services'] .= " selected ";
+                }
+                $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
+            }
+            $data['code'] = 247;
+            print_r(json_encode($data, true));
+        } else {
+            $data['code'] = -247;
+            $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
+            echo json_encode($data,true);
         }
-
-        print_r(json_encode($data, true));
     }
 
     /**
@@ -1499,32 +1510,6 @@ class Booking extends CI_Controller {
         }
     }
 
-    /**
-     *  @desc : This function is used to rebook cancel query
-     *  @param : String (Booking Id)
-     *  @param : String(Phone Number)
-     *  @return : refirect user controller
-     */
-    function cancelled_booking_re_book($booking_id, $phone) {
-        $status = array("current_status" => "FollowUp",
-            "internal_status" => "FollowUp",
-            "cancellation_reason" => NULL,
-            "closed_date" => NULL);
-
-        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        $partner_id = $partner_id_data['partner_id'];
-        if ($partner_id) {
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($status['current_status'], $status['internal_status'], $partner_id, $booking_id);
-            if (!empty($partner_status)) {
-                $status['partner_current_status'] = $partner_status[0];
-                $status['partner_internal_status'] = $partner_status[1];
-            }
-        }
-        $this->booking_model->update_booking($booking_id, $status);
-        $this->booking_model->update_booking_unit_details_by_any(array('booking_id'=> $booking_id), array('booking_status'=> _247AROUND_FOLLOWUP));
-        
-        redirect(base_url() . 'employee/user/finduser/0/0/' . $phone, 'refresh');
-    }
 
     /**
      *  @desc : This function is used to call customer from admin panel
@@ -2073,8 +2058,8 @@ class Booking extends CI_Controller {
             "closed_date" => NULL);
 
         //check partner status from partner_booking_status_mapping table  
-        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        $partner_id = $partner_id_data['partner_id'];
+        $getbooking = $this->booking_model->getbooking_history($booking_id);
+        $partner_id = $getbooking[0]['partner_id'];
         if ($partner_id) {
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($status['current_status'], $status['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
@@ -2090,7 +2075,7 @@ class Booking extends CI_Controller {
 
         redirect(base_url() . 'employee/booking/view_queries/FollowUp/' . PINCODE_ALL_AVAILABLE . '/0/0/' . $booking_id);
     }
-
+    
     /**
      * @desc: This is used to show Booking Life Cycle of particular Booking
      * params: String Booking_ID

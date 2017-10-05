@@ -1,4 +1,9 @@
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
+<style>
+    .modal-body .select2-container{
+        width: 100%!important;
+    }
+</style>
 <div class="right_col" role="main">
     <!--        <div class="page-title">
         <div class="title_left">
@@ -147,7 +152,7 @@
                                 <label class="control-label col-md-4 col-sm-3 col-xs-12" for="Region">Shop Region
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                    <select id="shop_address_region" name="shop_address_region" required="required" class="optional form-control col-md-7 col-xs-12">
+                                    <select id="shop_address_region" name="shop_address_region[]" required="required" class="optional form-control col-md-7 col-xs-12" multiple="multiple">
                                     </select>
                                 </div>
                             </div>
@@ -265,12 +270,20 @@
             $(".modal-body #shop_address_line2").val( form_data.shop_address_line2 );
             var s_html = '<option selected value="'+form_data.shop_address_city+'">'+form_data.shop_address_city+'</option>';
             $(".modal-body #shop_address_city").html( s_html );
-            var r_html = '<option selected value="'+form_data.shop_address_region+'">'+form_data.shop_address_region+'</option>';
-            $(".modal-body #shop_address_region").html( r_html );
             $(".modal-body #shop_address_pincode").val( form_data.shop_address_pincode );
             $(".modal-body #shop_address_state").val( form_data.shop_address_state );
             $(".modal-body #cp_capacity").val( form_data.cp_capacity );
-            check_pincode();
+            
+            var region = form_data.shop_address_region.split(',');
+            var region_val = "";
+            $(region).each(function(key, val ) {
+                var r_html = '<option selected value="'+val+'">'+val+'</option>';
+                region_val +=  r_html;
+            });
+            $(".modal-body #shop_address_region").html( region_val );
+            $(".modal-body #shop_address_region").select2({
+                tags: true
+            });
            
        });
        
@@ -331,7 +344,7 @@
                         alert("Please check Pincode. It is not exist in the System.");
                         return false;
                     }  else {
-                         var data1 = JSON.parse(data);
+                        var data1 = JSON.parse(data);
                         $("#shop_address_city").html(data1.city);
                         $("#shop_address_region").html(data1.region);
                         $('#submit_form').attr('disabled', false); 

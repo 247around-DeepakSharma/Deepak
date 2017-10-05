@@ -48,7 +48,7 @@ class Buyback_process extends CI_Controller {
      * @desc Used to get data as requested and also search 
      */
     function get_bb_order_details() {
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
        // $tmp ='{"draw":"2","columns":[{"data":"0","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"1","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"2","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"3","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"4","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"5","name":"","searchable":"true","orderable":"true","search":{"value":"","regex":"false"}},{"data":"6","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}},{"data":"7","name":"","searchable":"true","orderable":"false","search":{"value":"","regex":"false"}}],"start":"0","length":"50","search":{"value":"","regex":"false"},"date_range":"2017\/07\/01 - 2017\/07\/31","city":"Ghaziabad\n","service_id":"","current_status":"","internal_status":"","status":"2"}';
        // $_POST = json_decode($tmp, true);
         $data = array();
@@ -147,7 +147,7 @@ class Buyback_process extends CI_Controller {
         $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-d',strtotime("-30 days")));
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -185,7 +185,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function _advanced_bb_search($post){
-        $date_range = $this->input->post("date_range");
+        $date_range = $this->input->post("order_date");
         $delivery_date = $this->input->post("delivery_date");
         $city = $this->input->post("city");
         $service_id = $this->input->post("service_id");
@@ -222,19 +222,19 @@ class Buyback_process extends CI_Controller {
         }
         
         $post['where_in'] = array();
-        $post['column_order'] = array( NULL, NULL,'services','category', 'city','order_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','category','services', 'city','order_date','current_status');
+        $post['column_order'] = array( NULL, NULL,NULL,'services','category', 'city','order_date',NULL, 'current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','category','services', 'city','order_date','current_status');
         
         return $post;
     }
     
     function process_delivered(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL);
         $post['where_in'] = array('current_status' => array('Delivered'), 'internal_status' => array('Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'delivery_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','delivery_date','current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','delivery_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -253,12 +253,12 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_unassigned(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where'] = array('assigned_cp_id IS NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime("-30 days")));
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
+        $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
         $data = array();
         $no = $post['start'];
@@ -282,7 +282,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_lost_other(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where'] = array('order_date >= ' => date('Y-m-d', strtotime("-30 days")));
         $post['where_in'] = array('current_status' => array('Lost', 'Unknown'));
@@ -306,7 +306,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_cancelled_not_claim(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where_in'] = array(
             'current_status' => array('Cancelled', 'Rejected'), 
@@ -332,7 +332,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_cancelled_claim_submitted(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array(
@@ -360,7 +360,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_cancelled_claim_settled(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array(
@@ -388,7 +388,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_30_days_tat_breech_not_claim(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array('current_status' => array(_247AROUND_BB_TO_BE_CLAIMED),
@@ -414,7 +414,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function get_vendor_rejected_data(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array('current_status' => array(_247AROUND_BB_DELIVERED,_247AROUND_BB_TO_BE_CLAIMED),
@@ -440,7 +440,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_30_days_tat_breech_claimed_data($claimed_type){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         
         switch ($claimed_type){
@@ -492,7 +492,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function process_30_days_tat_breech_claim_settled(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
          $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
@@ -518,7 +518,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function get_bb_post_view_data(){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
@@ -531,12 +531,12 @@ class Buyback_process extends CI_Controller {
     }
     
     function in_tansit_table_data($order_list, $no){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
                 $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
-
+        $row[] = $order_list->tracking_id;
         $row[] = $order_list->services;
         $row[] = $order_list->city;
         $row[] = $order_list->order_date;
@@ -547,8 +547,8 @@ class Buyback_process extends CI_Controller {
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('" . base_url() . "buyback/buyback_process/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Broken/Wrong Product</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('" . base_url() . "buyback/buyback_process/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
         
@@ -556,12 +556,12 @@ class Buyback_process extends CI_Controller {
     }
     
     function delivered_table_data($order_list, $no){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
                 $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
-
+        $row[] = $order_list->tracking_id;
         $row[] = $order_list->services;
         $row[] = $order_list->city;
         $row[] = $order_list->order_date;
@@ -573,9 +573,9 @@ class Buyback_process extends CI_Controller {
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('" . base_url() . "buyback/buyback_process/update_received_bb_order/" . urlencode($order_list->partner_order_id) . "/" . urlencode($order_list->service_id) . "/" . urlencode($order_list->city) . "/" . urlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('".base_url()."buyback/buyback_process/update_not_received_bb_order/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."')>Not Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".urlencode($order_list->partner_order_id)."/".urlencode($order_list->service_id)."/".urlencode($order_list->city)."/".urlencode($order_list->assigned_cp_id)."'>Broken/Wrong Product</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('" . base_url() . "buyback/buyback_process/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('".base_url()."buyback/buyback_process/update_not_received_bb_order/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."')>Not Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
         
@@ -583,11 +583,12 @@ class Buyback_process extends CI_Controller {
     }
     
     function unassigned_table_data($order_list, $shop_list, $no){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
                 $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+        $row[] = $order_list->tracking_id;
         $row[] = $order_list->services;
         $row[] = $order_list->city;
         $row[] = $order_list->order_date;
@@ -606,7 +607,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function generic_table_data($order_list, $no, $is_new_row=""){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
@@ -625,7 +626,7 @@ class Buyback_process extends CI_Controller {
     }
     
     function to_be_claimed_not_delivered($order_list, $no){
-        log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
@@ -1006,10 +1007,10 @@ class Buyback_process extends CI_Controller {
     function update_received_bb_order($order_id, $service_id, $city, $cp_id) {
         log_message("info", __METHOD__);
         
-        $data['order_id'] = urldecode($order_id);
-        $data['service_id'] = urldecode($service_id);
-        $data['city'] = urldecode($city);
-        $data['cp_id'] = urldecode($cp_id);
+        $data['order_id'] = rawurldecode($order_id);
+        $data['service_id'] = rawurldecode($service_id);
+        $data['city'] = rawurldecode($city);
+        $data['cp_id'] = rawurldecode($cp_id);
 
         $response = $this->buyback->process_update_received_bb_order_details($data);
 
@@ -1034,10 +1035,10 @@ class Buyback_process extends CI_Controller {
      */
     function update_not_received_bb_order($order_id, $service_id, $city, $cp_id) {
         log_message("info",__METHOD__);
-        $data['order_id'] = urldecode($order_id);
-        $data['service_id'] = urldecode($service_id);
-        $data['city'] = urldecode($city);
-        $data['cp_id'] = urldecode($cp_id);
+        $data['order_id'] = rawurldecode($order_id);
+        $data['service_id'] = rawurldecode($service_id);
+        $data['city'] = rawurldecode($city);
+        $data['cp_id'] = rawurldecode($cp_id);
         
         $update_data = array('current_status' => _247AROUND_BB_NOT_DELIVERED,
                              'internal_status' => _247AROUND_BB_247APPROVED_STATUS,
@@ -1085,16 +1086,17 @@ class Buyback_process extends CI_Controller {
             foreach ($unassigned_order_data as  $value){
 
                 //Get CP id from shop address table.
-                $cp_id = $this->buyback->get_cp_id_from_region($value->city);
-                if(!empty($cp_id)){
+                $cp_data = $this->buyback->get_cp_id_from_region($value->city);
+                if(!empty($cp_data)){
                      $s_order_key = str_replace(":","",$value->order_key);
                      $s_order_key1 = str_replace("_","",$s_order_key);
                     //Get Charges list
                     $where_bb_charges = array('partner_id' => $value->partner_id,
-                                              'city' => $value->city,
+                                              'city' => $cp_data['shop_address_city'],
                                               'order_key' => $s_order_key1,
-                                              'cp_id' => $cp_id
+                                              'cp_id' => $cp_data['cp_id']
                                     );
+                    
                    $status = $this->buyback->update_assign_cp_process($where_bb_charges, $value->partner_order_id, 1, $value->internal_status);
                    if(!$status['status']){
                       array_push($not_assigned, array('order_id' =>$value->partner_order_id,"message" => "Charges Not Found"));
@@ -1146,7 +1148,7 @@ class Buyback_process extends CI_Controller {
         $row[] = $no;
         $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
                 $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
-
+        $row[] = $order_list->tracking_id;
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = $order_list->city;
@@ -1179,10 +1181,10 @@ class Buyback_process extends CI_Controller {
      * @return void
      */
     function update_bb_report_issue_order_details($order_id,$service_id,$city,$cp_id){
-        $data['order_id'] = urldecode($order_id);
-        $data['service_id'] = urldecode($service_id);
-        $data['city'] = urldecode($city);
-        $data['cp_id'] = urldecode($cp_id);
+        $data['order_id'] = rawurldecode($order_id);
+        $data['service_id'] = rawurldecode($service_id);
+        $data['city'] = rawurldecode($city);
+        $data['cp_id'] = rawurldecode($cp_id);
         $data['products'] = $this->booking_model->selectservice();
         $data['cp_basic_charge'] = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id'=> $data['order_id']),'cp_basic_charge');
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
@@ -1306,9 +1308,9 @@ class Buyback_process extends CI_Controller {
         $service_id = $this->service_centre_charges_model->get_bb_charges(array('bb_charges.partner_id' => '247024', 'service_id != 46' => NULL, 
             'visible_to_partner' => 1, 'bb_shop_address.active' =>1 ), 'service_id', true, true);
         foreach ($service_id as $value) {
-            $where = array('service_id' => $value['service_id'], 'partner_id' => '247024');
+            $where = array('service_id' => $value['service_id'], 'bb_charges.partner_id' => '247024', 'visible_to_partner' => 1,'bb_shop_address.active' =>1 );
             $select = "category,brand, physical_condition, working_condition , city AS location , partner_total";
-            $data = $this->service_centre_charges_model->get_bb_charges($where, $select);
+            $data = $this->service_centre_charges_model->get_bb_charges($where, $select, true, true);
             $excel_file[$value['service_id']] = $this->generate_bb_price_data($value['service_id'],$data);
             unset($data);
         }
@@ -1355,7 +1357,8 @@ class Buyback_process extends CI_Controller {
         $objPHPExcel->setActiveSheetIndex(0);
         $objPHPExcel->getActiveSheet()->setTitle('TV');
 
-        $charges = $this->service_centre_charges_model->get_bb_charges(array("service_id" => 46, "visible_to_partner" => 1, 'bb_shop_address.active' =>1), "bb_charges.city, order_key, category, brand, physical_condition, partner_basic", true, true);
+        $charges = $this->service_centre_charges_model->get_bb_charges(array("service_id" => 46, "visible_to_partner" => 1, 
+            'bb_shop_address.active' =>1 ), "bb_charges.city, order_key, category, brand, physical_condition, partner_basic", true, true);
 
 
         $region = array_unique(array_map(function ($k) {
@@ -1895,7 +1898,7 @@ class Buyback_process extends CI_Controller {
      */
     function get_buyback_dashboard_summary(){
         
-        $data_report['query'] = $this->bb_model->get_bb_dashboard_queries();
+        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries(array('active' => 1,'type'=> 'buyback'));
         $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
         $this->load->view('dashboard/bb_dashboard_summary', $data_report);
     }

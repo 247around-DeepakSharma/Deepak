@@ -18,6 +18,7 @@
                             <tr>
                                 <th>No.</th>
                                 <th>Order ID</th>
+                                <th>Tracking ID</th>
                                 <th>Appliance</th>
                                 <th>Category/Size</th>
                                 <th>City</th>
@@ -38,6 +39,7 @@
                                 <td><a href="<?php echo base_url();?>buyback/buyback_process/view_order_details/<?php echo $value->partner_order_id;?>">
                                     <?php echo $value->partner_order_id;?></a>
                                 </td>
+                                <td><?php echo $value->tracking_id;?></td>
                                 <td><?php echo $value->services;?></td>
                                 <td><?php echo $value->category;?></td>
                                 <td><?php echo $value->city;?></td>
@@ -68,6 +70,36 @@
                              <a href="javascript:void(0);" class="btn btn-md  btn-success" onclick="reAssign()"  >ReAssign CP</a>
                         </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal"  class="modal fade" data-keyboard="false" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Not Assigned</h4>
+            </div>
+            <div class="modal-body">
+                <div id="open_model">
+
+                    <table class="table table-bordered table-hover table-responsive">
+                        <thead>
+                        <th>S.No.</th>
+                        <th>Order ID</th>   
+                        <th>Message</th>   
+                        </thead>
+                        <tbody id="error_td">
+                            
+                        </tbody>
+                    </table>
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>

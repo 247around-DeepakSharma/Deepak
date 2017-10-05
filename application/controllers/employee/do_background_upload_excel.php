@@ -13,6 +13,9 @@ use Box\Spout\Common\Type;
 require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php';
 
 class Do_background_upload_excel extends CI_Controller {
+    
+    var $ColumnFailed = "";
+    var $finalArray = array();
 
     /**
      * load list modal and helpers
@@ -135,7 +138,12 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         //Processing $_FILES to upload in s3 and update file_uploads table
-        $this->_update_file_uploads($_FILES["file"]["tmp_name"],$file_type);
+        if($file_type == 'delivered'){
+            $type = _247AROUND_SNAPDEAL_DELIVERED;
+        }else{
+            $type = _247AROUND_SNAPDEAL_SHIPPED;
+        }
+        $this->miscelleneous->update_file_uploads($_FILES["file"]["tmp_name"],$type);
         
 	$headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
 	$headings_new = array();
@@ -170,6 +178,7 @@ class Do_background_upload_excel extends CI_Controller {
                     } else if($rowData['Type_Of_Data'] == 'Delivered'){
                         if(isset($rowData['fso_delivery_date'])){
                             //pushed Shipped data into varible $delivery_data
+                            $rowData['partner_source'] = "Snapdeal-delivered-excel";
                             array_push($delivered_data, $rowData);
                             
                         } else {
@@ -180,6 +189,9 @@ class Do_background_upload_excel extends CI_Controller {
                     }
 
                 } else if(isset($rowData['Delivery_Date'])){
+                    if($file_type == 'delivered'){
+                        $rowData['partner_source'] = "Snapdeal-delivered-excel";
+                    }
                     array_push($data, $rowData);
                     
                 } else {
@@ -192,16 +204,16 @@ class Do_background_upload_excel extends CI_Controller {
         
         // For shipped data
         if(!empty($shipped_data)){
-            $this->process_upload_sd_file($shipped_data,"shipped", $file_name);
+            $this->process_upload_sd_file($shipped_data,"shipped", $file_name,SNAPDEAL_ID);
             
         }
         //For delivered data
         if(!empty($delivered_data)){
-            $this->process_upload_sd_file($delivered_data,"delivered", $file_name);
+            $this->process_upload_sd_file($delivered_data,"delivered", $file_name,SNAPDEAL_ID);
         }
         // for both type of file
         if(!empty($data)){
-            $this->process_upload_sd_file($data,$file_type, $file_name);
+            $this->process_upload_sd_file($data,$file_type, $file_name,SNAPDEAL_ID);
         }
         
     }
@@ -213,7 +225,7 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function send_mail_column($subject, $message, $validation){
         $to = NITS_ANUJ_EMAIL_ID.", sales@247around.com";
-        $from = "booking@247around.com";
+        $from = "noreply@247around.com";
         $cc = "abhaya@247around.com";
         $bcc = "";
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
@@ -223,8 +235,8 @@ class Do_background_upload_excel extends CI_Controller {
         }
     }
     
-    function process_upload_sd_file($data,$file_type, $file_name){
-       
+    function process_upload_sd_file($data,$file_type, $file_name,$default_partner){
+        
         // Warning: Do not Change Validation Order
 	$validate_data = $this->validate_phone_number($data, $file_type, $file_name);
 	$row_data1 = $this->validate_product($validate_data, $file_type, $file_name);
@@ -246,7 +258,7 @@ class Do_background_upload_excel extends CI_Controller {
 	$count_booking_not_updated = 0;
        
 	foreach ($row_data['valid_data'] as $key => $value) {
-
+            $phone = explode('/', $value['Phone']);
 	    //echo print_r($rowData[0], true), EOL;
 	    if ($value['Phone'] == "") {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
@@ -259,14 +271,17 @@ class Do_background_upload_excel extends CI_Controller {
             }
             
 	    //Insert user if phone number doesn't exist
-	    $output = $this->user_model->search_user(trim($value['Phone']));
+	    $output = $this->user_model->search_user(trim($phone[0]));
 	    
             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['Pincode']));
 
 	    if (empty($output)) {
 		//User doesn't exist
 		$user['name'] = $value['Customer_Name'];
-		$user['phone_number'] = $value['Phone'];
+		$user['phone_number'] = $phone[0];
+                if(isset($phone[1])){
+                    $user['alternate_phone_number'] = $phone[1];
+                }
 		$user['user_email'] = (isset($value['Email_ID']) ? $value['Email_ID'] : "");
 		$user['home_address'] = $value['Customer_Address'];
 		$user['pincode'] = trim($value['Pincode']);
@@ -295,7 +310,7 @@ class Do_background_upload_excel extends CI_Controller {
             // Now we send state, partner_id and service_id 
             $value['Brand'] = isset($value['service_appliance_data']['brand'])?$value['service_appliance_data']['brand'] :$value['Brand'];
             $value['Brand'] = trim(str_replace("'", "", $value['Brand']));
-            $data = $this->_allot_source_partner_id_for_pincode($value['service_id'], $distict_details['state'], $value['Brand']);
+            $data = $this->miscelleneous->_allot_source_partner_id_for_pincode($value['service_id'], $distict_details['state'], $value['Brand'],$default_partner);
             if ($data) {
                 $booking['partner_id'] = $data['partner_id'];
                 $booking['source'] = $data['source'];
@@ -360,20 +375,22 @@ class Do_background_upload_excel extends CI_Controller {
                         case 'delivered':
                             if (isset($value['fso_delivery_date'])) {
                                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
-                            } else {
+                            } else if(isset($value['Delivery_Date'])){
                                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+                            } else {
+                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject();
                             }
                             //For delivered file, set booking date empty so that the queries come on top of the page
                             $yy = date("y");
                             $mm = date("m");
                             $dd = date("d");
-                            $booking['partner_source'] = "Snapdeal-delivered-excel";
+                            $booking['partner_source'] = $value['partner_source'];
                             $booking['booking_date'] = '';
 
                             //Set delivered date only
                             $booking['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
                             $booking['estimated_delivery_date'] = '';
-                            $booking['backup_delivery_date'] = $value['Delivery_Date'];
+                            $booking['backup_delivery_date'] = isset($value['Delivery_Date'])?$value['Delivery_Date']:'';
                             $booking['backup_estimated_delivery_date'] = '';
 
                             $booking['internal_status'] = "Missed_call_not_confirmed";
@@ -430,11 +447,11 @@ class Do_background_upload_excel extends CI_Controller {
 
                     $booking['order_id'] = $value['Sub_Order_ID'];
 
-                    $ref_date = PHPExcel_Shared_Date::ExcelToPHPObject($value['Referred_Date_and_Time']);
+                    $ref_date = !empty($value['Referred_Date_and_Time'])?PHPExcel_Shared_Date::ExcelToPHPObject($value['Referred_Date_and_Time']):PHPExcel_Shared_Date::ExcelToPHPObject();
                     $booking['reference_date'] = $ref_date->format('Y-m-d H:i:s');
                     $booking['booking_timeslot'] = '';
                     $booking['request_type'] = 'Installation & Demo';
-                    $booking['booking_primary_contact_no'] = $value['Phone'];
+                    $booking['booking_primary_contact_no'] = $phone[0];
                     $booking['create_date'] = date('Y-m-d H:i:s');
                     $booking['current_status'] = "FollowUp";
                     $booking['type'] = "Query";
@@ -534,14 +551,14 @@ class Do_background_upload_excel extends CI_Controller {
                                     $int_status == 'Missed_call_not_confirmed') {
                                 if (isset($value['fso_delivery_date'])) {
                                     $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
-                                } else {
+                                } else if(isset($value['Delivery_Date'])){
                                     $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+                                } else {
+                                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject();
                                 }
-                                $delivery_date = $dateObj2;
-
-                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($delivery_date);
+                                
                                 $update_data['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
-                                $update_data['backup_delivery_date'] = $value['Delivery_Date'];
+                                $update_data['backup_delivery_date'] = isset($value['Delivery_Date'])?$value['Delivery_Date']:'';
                                 $update_data['booking_date'] = '';
                                 $update_data['booking_timeslot'] = '';
                                 $update_data['update_date'] = date("Y-m-d H:i:s");
@@ -672,8 +689,9 @@ class Do_background_upload_excel extends CI_Controller {
 		exit();
 	    }
             if(!empty($value['Phone'])){
-	    // check mobile number validation
-	        if (!preg_match('/^\d{10}$/', $value['Phone'])) {
+	        // check mobile number validation
+                $phone = explode('/', $value['Phone']);
+	        if (!preg_match('/^\d{10}$/', $phone[0])) {
 		    unset($data[$key]);
 		    array_push($invalid_data, $value);
 	        }
@@ -907,8 +925,10 @@ class Do_background_upload_excel extends CI_Controller {
             if(isset($value['fso_delivery_date'])){
                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
                 
-            } else {
+            } else if(isset($value['Delivery_Date'])){
                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+            } else {
+                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject();
             }
 
 	    if (count($invalid_data) > 4) {
@@ -986,6 +1006,7 @@ class Do_background_upload_excel extends CI_Controller {
         log_message('info', __FUNCTION__ . "=> Entering validation routine...");
 	$invalid_data = array();
 	foreach ($data['valid_data'] as $key => $value) {
+            $phone = explode('/', $value['Phone']);
 	    if (count($invalid_data) > 4) {
 
 
@@ -996,7 +1017,7 @@ class Do_background_upload_excel extends CI_Controller {
                  log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
 		exit();
 	    }
-	    if ($value['Sub_Order_ID'] == $value['Phone']) {
+	    if ($value['Sub_Order_ID'] == $phone[0]) {
 		unset($data['valid_data'][$key]);
 		array_push($invalid_data, $value);
 	    }
@@ -1023,7 +1044,7 @@ class Do_background_upload_excel extends CI_Controller {
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name) {
         
 	$to = NITS_ANUJ_EMAIL_ID.", sales@247around.com";
-	$from = "booking@247around.com";
+        $from = "noreply@247around.com";
 	$cc = "abhaya@247around.com";
 	$bcc = "";
 	$subject = "";
@@ -1161,115 +1182,172 @@ class Do_background_upload_excel extends CI_Controller {
         return true;
     }
     
-    /**
-     * @Desc: This function is used to _allot_source_partner_id_for_pincode
-     * @params: String Pincode, brnad, default partner id(SS)
-     * @return : Array
-     * 
-     */
-    private function _allot_source_partner_id_for_pincode($service_id, $state, $brand) {
-        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
-        $data = [];
+    function upload_satya_file() {
+        //log_message('info', __FUNCTION__ . "=> Satya File Upload: Beginning processing...");
 
-        $partner_array = $this->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
-        
-        if (!empty($partner_array)) {
+        if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
+            $pathinfo = pathinfo($_FILES["file"]["name"]);
 
-            foreach ($partner_array as $value) {
-                //Now getting details for each Partner 
-                $filtered_partner_state = $this->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
-                if ($filtered_partner_state) {
-                    //Now assigning this case to Partner
-                    $data['partner_id'] = $value['partner_id'];
-                    $data['source'] = $this->partner_model->get_source_code_for_partner($value['partner_id']);
-                } else {
-                    if($value['partner_id'] == 247041){
-                        //Now assigning this case to SS
-                        return false;
-                    } else {
-                        $data['partner_id'] = SNAPDEAL_ID;
-                        $data['source'] = 'SS';
-                    }
-                }
+            switch ($pathinfo['extension']) {
+                case 'xlsx':
+                    $inputFileName = $_FILES['file']['tmp_name'];
+                    $inputFileExtn = 'Excel2007';
+                    break;
+                case 'xls':
+                    $inputFileName = $_FILES['file']['tmp_name'];
+                    $inputFileExtn = 'Excel5';
+                    break;
             }
         } else {
-            log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
-            //Now assigning this case to SS
-            $data['partner_id'] = SNAPDEAL_ID;
-            $data['source'] = 'SS';
+            log_message('info', __FUNCTION__ . ' Empty File Uploaded for Satya File Upload');
+            $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+            redirect(base_url() . "employee/booking_excel/upload_satya_file");
         }
-        return $data;
-    }
-    
-    /**
-     * @Desc: This function is used to Add details in File Uploads table
-     * @params: String, String
-     * @return: Void
-     * 
-     * 
-     */
-    private function _update_file_uploads($tmpFile, $type) {
-        if($type == 'delivered'){
+
+        try {
+            $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
+            $objPHPExcel = $objReader->load($inputFileName);
+        } catch (Exception $e) {
+            die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
+        }
+
+        $file_name = $_FILES["file"]["name"];
+
+        //  Get worksheet dimensions
+        $sheet = $objPHPExcel->getSheet(0);
+        $highestRow = $sheet->getHighestDataRow();
+        $highestColumn = $sheet->getHighestDataColumn();
+
+        //Validation for Empty File
+        if ($highestRow <= 1) {
             //Logging
-            log_message('info', __FUNCTION__ . ' Processing of Snapdeal Delivered Product Excel File started');
+            log_message('info', __FUNCTION__ . ' Empty File Uploaded for Satya File Upload');
+            $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+            redirect(base_url() . "employee/booking_excel/upload_satya_file");
+        }
 
-            //Adding Details in File_Uploads table as well
-
-            $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
-            $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
-            $data['agent_id'] = $this->session->userdata('id');
-            $insert_id = $this->partner_model->add_file_upload_details($data);
-            if (!empty($insert_id)) {
-                //Logging success
-                log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
-            } else {
-                //Loggin Error
-                log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+        $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+        $headings_new = array();
+        foreach ($headings as $heading) {
+            $heading = str_replace(array("/", "(", ")", "."), "", $heading);
+            array_push($headings_new, str_replace(array(" "), "_", $heading));
+        }
+        
+        $this->ColumnFailed = "";
+        $headings_new1 = array_map('strtolower', $headings_new[0]);
+        $response = $this->check_column_exist_in_satya_file($headings_new1);
+        
+        if ($response['status']) {
+            for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
+                $rowData_array = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
+                $rowData = array_combine($headings_new1, $rowData_array[0]);
+                $subArray = $this->get_sub_array($rowData,array('itemcode','docno','customer','phno','address','zipcodeb','item_name','create_date'));
+                $this->make_final_array_to_insert($subArray);
             }
-
-            //Making process for file upload
-            move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
-
-            //Upload files to AWS
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
-            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             
-            //Logging
-            log_message('info', __FUNCTION__ . ' Snapdeal Delivered File has been uploaded in S3');
-            
-        } else if($type == "shipped"){
-            
-            //Logging
-            log_message('info', __FUNCTION__ . ' Processing of Snapdeal Shipped Excel File started');
-
-            //Adding Details in File_Uploads table as well
-           
-            $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '.xlsx';
-            $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
-            $data['agent_id'] = $this->session->userdata('id');
-            $insert_id = $this->partner_model->add_file_upload_details($data);
-            
-            if (!empty($insert_id)) {
-                //Logging success
-                log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
-            } else {
-                //Loggin Error
-                log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+            if(!empty($this->finalArray)){
+                //process file to insert bookings
+                $this->process_upload_sd_file($this->finalArray,'delivered', $file_name,WYBOR_ID);
+                
+                //save file and upload on s3
+                $this->miscelleneous->update_file_uploads($_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED);
             }
-
-            //Making process for file upload
-            move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
-
-            //Upload files to AWS
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
-            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             
-            //Logging
-            log_message('info', __FUNCTION__ . ' Snapdeal Shipped File has been uploaded in S3');
-            
+        } else {
+            $to = $this->session->userdata('official_email');
+            $cc = DEVELOPER_EMAIL;
+            $subject = "Failed! Satya File is uploaded by " . $this->session->userdata('employee_id');
+            $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $response['msg'], "");
+
+            log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
+            $this->session->set_flashdata('file_error', $this->ColumnFailed);
+            redirect(base_url() . "employee/booking_excel/upload_satya_file");
         }
     }
+
+    private function check_column_exist_in_satya_file($rowData) {
+        $message = "";
+        $error = false;
+        if (!in_array('itemcode', $rowData)) {
+            $message .= " Itemcode Column does not exist.<br/><br/>";
+            $this->ColumnFailed .= " Itemcode, ";
+            $error = TRUE;
+        }
+
+        if (!in_array('docno', $rowData)) {
+            $message .= " DocNo Column does not exist. <br/><br/>";
+            $this->ColumnFailed .= " DocNo, ";
+            $error = TRUE;
+        }
+
+        if (!in_array('customer', $rowData)) {
+
+            $message .= " Customer Column does not exist. <br/><br/>";
+            $this->ColumnFailed .= "Customer , ";
+            $error = TRUE;
+        }
+
+        if (!in_array('phno', $rowData)) {
+
+            $message .= " PHNo Column does not exist. <br/><br/>";
+            $this->ColumnFailed .= " PHNo , ";
+            $error = TRUE;
+        }
+        if (!in_array('address', $rowData)) {
+
+            $message .= " Address Column does not exist. <br/><br/>";
+            $this->ColumnFailed .= " Address , ";
+            $error = TRUE;
+        }
+        if (!in_array('zipcodeb', $rowData)) {
+
+            $message .= " ZipCodeB Column does not exist. <br/><br/>";
+            $this->ColumnFailed .= "ZipCodeB , ";
+            $error = TRUE;
+        }
+        if (!in_array('item_name', $rowData)) {
+
+            $message .= " Item Name Column does not exist. <br/><br/>";
+            $this->ColumnFailed .= "Item Name ";
+            $error = TRUE;
+        }
+        
+        if ($error) {
+            $message .= " Please check and upload again.";
+            $this->ColumnFailed .= " column does not exist.";
+            $return_response['status'] = FALSE;
+            $return_response['msg'] = $message;
+        } else {
+            $return_response['status'] = TRUE;
+            $return_response['msg'] = '';
+        }
+
+        return $return_response;
+    }
     
+    function get_sub_array(array $parentArray, array $subsetArrayToGet)
+    {
+        return array_intersect_key($parentArray, array_flip($subsetArrayToGet));
+    }
+    
+    function make_final_array_to_insert($data){
+        $tmpArr['Unique_id'] = 'Around';
+        $tmpArr['Referred_Date_and_Time'] = '';
+        $tmpArr['Sub_Order_ID'] = $data['docno'];
+        $tmpArr['Brand'] = 'Wybor';
+        $tmpArr['Model'] = '';
+        $tmpArr['Product'] = 'Televisions';
+        $tmpArr['Product_Type'] = $data['item_name'];
+        $tmpArr['Customer_Name'] = $data['customer'];
+        $tmpArr['Customer_Address'] = $data['address'];
+        $tmpArr['Pincode'] = $data['zipcodeb'];
+        $tmpArr['CITY'] = '';
+        $tmpArr['Phone'] = $data['phno'];
+        $tmpArr['Email_ID'] = '';
+        $tmpArr['Call_Type_Installation_Table_Top_InstallationDemo_Service'] = '';
+        $tmpArr['partner_source'] = "Satya-delivered-excel";
+        
+        array_push($this->finalArray, $tmpArr);
+    }
+
 }

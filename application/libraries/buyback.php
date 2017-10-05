@@ -10,6 +10,7 @@ class Buyback {
         $this->My_CI->load->library("initialized_variable");
         $this->My_CI->load->library("session");
         $this->My_CI->load->library("s3");
+        $this->My_CI->load->library("table");
         $this->My_CI->load->model("service_centre_charges_model");
         $this->My_CI->load->model("bb_model");
         $this->My_CI->load->model("cp_model");
@@ -43,29 +44,32 @@ class Buyback {
      */
     function new_bb_order() {
         // Get CP Id
-        $cp_id = $this->get_cp_id_from_region( $this->POST_DATA['city']);
-
+        $cp_data = $this->get_cp_id_from_region( $this->POST_DATA['city']);
+        
         $bb_charges = array();
         $service_id = 0;
-        if (!empty($cp_id)) {
+        $cp_id = NULL;
+        if (!empty($cp_data)) {
             //Get Charges list
             $s_order_key = str_replace(":","",$this->POST_DATA['order_key']);
             $s_order_key1 = str_replace("_","",$s_order_key);
             $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges(array(
                 'partner_id' => $this->POST_DATA['partner_id'],
-                'city' => $this->POST_DATA['city'],
+                'city' => $cp_data['shop_address_city'],
                 'order_key' => $s_order_key1,
-                'cp_id' => $cp_id
+                'cp_id' => $cp_data['cp_id'],
                     ), '*');
             
             if (!empty($bb_charges)) {
                 $cp_id = $bb_charges[0]['cp_id'];
                 $service_id = $bb_charges[0]['service_id'];
             } else {
+                $this->My_CI->table->add_row($this->POST_DATA['partner_order_id']);
                 $cp_id = NULL;
             }
         } else {
             $this->My_CI->initialized_variable->not_assigned_order();
+            $this->My_CI->table->add_row($this->POST_DATA['partner_order_id']);
         }
         if (empty($service_id)) {
             $service_id = $this->get_service_id_by_appliance();
@@ -451,23 +455,23 @@ class Buyback {
     function get_cp_id_from_region($region){
         
         //Get CP id from shop address table.
-        $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details(array('shop_address_region' => $region), 'cp_id, bb_shop_address.active');
+        $cp_shop_ddress = $this->My_CI->bb_model->get_cp_shop_address_details(array("find_in_set('$region',shop_address_region) != " => 0), 'cp_id, shop_address_city,bb_shop_address.active');
         if(count($cp_shop_ddress) ==1){
             
-            return $cp_shop_ddress[0]['cp_id'];
+            return $cp_shop_ddress[0];
             
         } else if(count($cp_shop_ddress) > 1){
             
             $ac_cp = array();
             foreach ($cp_shop_ddress as $value) {
                 if($value['active'] == 1){
-                    array_push($ac_cp, $value['cp_id']);
+                    $tmp_arr = array('cp_id' => $value['cp_id'],'shop_address_city' => $value['shop_address_city']);
+                    array_push($ac_cp, $tmp_arr);
                 } 
             }
             
             if(count($ac_cp) == 1){
-                return $ac_cp[0];
-                
+                return $ac_cp[0]; 
             } 
         }
         
@@ -480,6 +484,7 @@ class Buyback {
      */
     function update_assign_cp_process($where_bb_charges, $order_id, $agent, $internal_status) {
         $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges($where_bb_charges, '*');
+        
         if (!empty($bb_charges)) {
             $unit_data = array('category' => $bb_charges[0]['category'],
                 'brand' => $bb_charges[0]['brand'],

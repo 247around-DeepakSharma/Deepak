@@ -180,14 +180,17 @@ class invoices_model extends CI_Model {
      * @param: String ( vendor or patner)
      * @return: Array()
      */
-    function getsummary_of_invoice($vendor_partner, $where) {
+    function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false) {
         $array = array();
 
         if ($vendor_partner == "vendor") {
             $select = "service_centres.name, service_centres.id, on_off, active, is_verified, pan_no, service_tax_no, tin_no, cst_no, contract_file, gst_no";
             $data = $this->vendor_model->getVendorDetails($select, $where);
-           // $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
             $due_date_status = "";
+            if($due_date_flag){
+                $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
+            }
+            
         } else if ($vendor_partner == "partner") {
             $p_where = "";
             if(isset($where['active'])){
@@ -631,7 +634,7 @@ class invoices_model extends CI_Model {
                     $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
-            
+            $parts_count = 0;
             foreach ($result as $key => $value) {
                 
                 if($c_s_gst){
@@ -658,14 +661,19 @@ class invoices_model extends CI_Model {
                 if($value['product_or_services'] == "Service"){
                     
                     $meta['total_ins_charge'] += $value['taxable_value'];
+                    $parts_count++;
                     
                 } else if($value['product_or_services'] == "Product"){
                     
                     $meta['total_parts_charge'] += $value['taxable_value'];
                 }
             }
+            $meta['parts_count'] = $parts_count;
             $meta['total_taxable_value'] = round($meta['total_taxable_value'], 0);
             $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
+            $meta['igst_total_tax_amount'] = round( $meta['igst_total_tax_amount'], 0);
+            $meta['cgst_total_tax_amount'] = round( $meta['cgst_total_tax_amount'], 0);
+            $meta['sgst_total_tax_amount'] = round( $meta['sgst_total_tax_amount'], 0);
             $meta['gst_number'] = $result[0]['gst_number'];
             $meta['reverse_charge_type'] = "N";
             $meta['reverse_charge'] = '';
@@ -736,28 +744,33 @@ class invoices_model extends CI_Model {
                 if ($c_s_gst) {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
                     $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = 14;
-                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 0);
-                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 0);
+                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 2);
+                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 2);
                     $meta['cgst_total_tax_amount'] += $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 14;
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                     $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = 28;
-                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.28), 0);
+                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.28), 2);
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
-                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.28), 0);
+                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.28), 2);
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
-                $meta['total_taxable_value'] += round($value['taxable_value'], 0);
-                $meta['sub_total_amount'] += round($result[$key]['toal_amount'], 0);
+                $meta['total_taxable_value'] += $value['taxable_value'];
+                $meta['sub_total_amount'] += $result[$key]['toal_amount'];
             }
 
 
             $meta['reverse_charge'] = 0;
             $meta['reverse_charge_type'] = 'N';
+            $meta['sub_total_amount'] = round( $meta['sub_total_amount'], 0); 
+            $meta['total_taxable_value'] = round( $meta['total_taxable_value'], 0);
+            $meta['sgst_total_tax_amount'] = round($meta['sgst_total_tax_amount'], 0);
+            $meta['cgst_total_tax_amount'] = round($meta['cgst_total_tax_amount'], 0);
+            $meta['igst_total_tax_amount'] = round($meta['igst_total_tax_amount'], 0);
             $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'], 0));
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date("jS M, Y", strtotime($to_date_temp));
@@ -977,7 +990,7 @@ class invoices_model extends CI_Model {
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
             
             $c_s_gst =$this->check_gst_tax_type($data['booking'][0]['state']);
-           
+            $parts_count = 0;
              foreach ($data['booking'] as $key => $value) {
                 if(empty($data['booking'][0]['gst_number'])){
                     
@@ -1009,19 +1022,21 @@ class invoices_model extends CI_Model {
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += $value['taxable_value'];
                 $meta['sub_total_amount'] +=  $data['booking'][$key]['toal_amount'];
-                $meta['rcm'] = 0;
-                if(empty($data['booking'][0]['gst_number'])){
-                    $meta['rcm'] = round(( $meta['sub_total_amount'] * 0.18), 2);
-                }
+                
                 if($value['product_or_services'] == "Product"){
                     
                     $meta['total_parts_charge'] += $value['taxable_value'];
+                    $parts_count++;
                     
                 } else {
                     $meta['total_sc_charge'] += $value['taxable_value'];
                 }
              }
-             
+            $meta['rcm'] = 0;
+            if(empty($data['booking'][0]['gst_number'])){
+                $meta['rcm'] = round(( $meta['sub_total_amount'] * 0.18), 2);
+            }
+            $meta['parts_count'] = $parts_count;
             $meta['reverse_charge'] = 0;
             $meta['reverse_charge_type'] = 'N';
             $meta['total_taxable_value'] = round($meta['total_taxable_value'], 0);
@@ -1248,36 +1263,39 @@ class invoices_model extends CI_Model {
     function get_buyback_invoice_data($vendor_id, $from_date, $to_date_tmp, $is_regenerate){
         log_message("info", __METHOD__);
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
-        $data = $this->_buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate);
-        if(!empty($data)){
-            $commission_charge = array();
-            $commission_charge[0]['description'] = "E-Gift Vouchers";
-            $commission_charge[0]['taxable_value'] = $meta['sub_total_amount'] = (array_sum(array_column($data, 'cp_charge')));
-            $commission_charge[0]['hsn_code'] =  '';
-            $meta['invoice_template'] = "Buyback-v1.xlsx";
-            $unique_booking = array_unique(array_map(function ($k) {
-                        return $k['partner_order_id'];
-                    }, $data));
-                    
-            $commission_charge[0]['qty'] = $meta['total_qty']  = count($unique_booking);
-            $commission_charge[0]['rate'] = round($meta['sub_total_amount']/$meta['total_qty'],2);
+        $annexure_data = $this->_buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, true);
+        $commission_charge = $this->_buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, false);
+
+        $meta['sub_total_amount'] = $meta['total_qty'] = 0;
+        
+        if(!empty($commission_charge)){
+            foreach ($commission_charge as $key => $value) {
+                $commission_charge[$key]['rate'] = round($value['taxable_value']/$value['qty'],2);
+                $meta['sub_total_amount'] += $value['taxable_value'];
+                $meta['total_qty'] += $value['qty'];
+            }
+            
+            $meta['sub_total_amount'] = round( $meta['sub_total_amount'], 2);
+            $meta['invoice_template'] = "Buyback-v1.xlsx"; 
+            
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
             $meta['invoice_date'] = date("jS M, Y");
             $meta['reference_invoice_id'] = "";
-            $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
-            $meta['company_name'] = $data[0]['company_name'];
-            $meta['company_address'] = $data[0]['company_address'];
-            $meta['state'] = $data[0]['state'];
-            $meta['state_code'] = $data[0]['state_code'];
-            $meta['gst_number'] = $data[0]['gst_no'];
-            $meta['owner_email'] = $data[0]['owner_email'];
-            $meta['primary_contact_email'] = $data[0]['primary_contact_email'];
-            $meta['owner_phone_1'] = $data[0]['owner_phone_1'];
+            $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
+            $meta['company_name'] = $commission_charge[0]['company_name'];
+            $meta['company_address'] = $commission_charge[0]['company_address'];
+            $meta['state'] = $commission_charge[0]['state'];
+            $meta['state_code'] = $commission_charge[0]['state_code'];
+            $meta['gst_number'] = $commission_charge[0]['gst_no'];
+            $meta['owner_email'] = $commission_charge[0]['owner_email'];
+            $meta['primary_contact_email'] = $commission_charge[0]['primary_contact_email'];
+            $meta['owner_phone_1'] = $commission_charge[0]['owner_phone_1'];
             
             $data1['meta'] = $meta;
             $data1['booking'] = $commission_charge;
-            $data1['annexure_data'] = $data;
+            $data1['annexure_data'] = $annexure_data;
+            
             return $data1;
             
         } else{
@@ -1285,19 +1303,34 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function _buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate){
+    function _buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, $is_unit){
         $is_foc_null = "";
         if ($is_regenerate == 0) {
                 $is_foc_null = " AND cp_invoice_id IS NULL ";
         }
-        $sql = "SELECT bb_unit_details.id AS unit_id, order_date, services, bb_order_details.partner_order_id,
-                city, partner_tracking_id, order_key,owner_phone_1, CASE WHEN(acknowledge_date IS NOT NULL) 
-                THEN (acknowledge_date) ELSE (delivery_date) END AS delivery_date, order_date,gst_no,
-                sc.company_name, sc.address as company_address, sc.state,state_code,
-                sc.owner_email, sc.primary_contact_email, sc.owner_phone_1,
-                CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
+        $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
-                ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge 
+                ELSE (bb_unit_details.cp_basic_charge) END ) AS taxable_value, concat('Used ',services) as description, 
+                CASE WHEN (bb_unit_details.service_id = 46) THEN (8528) 
+                WHEN (bb_unit_details.service_id = 50) THEN (8415)
+                WHEN (bb_unit_details.service_id = 28) THEN (8450)
+                WHEN (bb_unit_details.service_id = 37) THEN (8418) ELSE '' END As hsn_code, owner_phone_1, gst_no,
+                sc.company_name, sc.address as company_address, sc.state,state_code,
+                sc.owner_email, sc.primary_contact_email, sc.owner_phone_1";
+        $group_by = " GROUP BY bb_unit_details.service_id ";
+        if($is_unit){
+            $select = " bb_unit_details.id AS unit_id, CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
+                THEN (bb_unit_details.cp_claimed_price) 
+                ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge,partner_tracking_id, city,order_key,
+                CASE WHEN(acknowledge_date IS NOT NULL) 
+                THEN (acknowledge_date) ELSE (delivery_date) END AS delivery_date, order_date,
+                order_date, services, bb_order_details.partner_order_id";
+            $group_by = "";
+        }
+        
+        $sql = "SELECT $select
+                
+                
                 FROM `bb_order_details`, bb_unit_details, services, service_centres as sc, state_code WHERE 
                 `assigned_cp_id` = '$vendor_id' 
                 AND bb_unit_details.`order_status` = 'Delivered' 
@@ -1306,7 +1339,7 @@ class invoices_model extends CI_Model {
                 AND sc.id = assigned_cp_id
                 AND sc.state = state_code.state
                 AND bb_order_details.partner_order_id =  bb_unit_details.partner_order_id
-                AND bb_unit_details.service_id = services.id";
+                AND bb_unit_details.service_id = services.id $group_by ";
         
         $query = $this->db->query($sql);
         return $query->result_array();

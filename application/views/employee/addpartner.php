@@ -832,6 +832,62 @@
                         </div>
                     </div>
                 </div>
+                 <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><b>Prepaid Account Details</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-6">
+                                <div class="form-group ">
+                                    <label for="is prepaid" class="col-md-4">Is Prepaid Account</label>
+                                    <div class="col-md-1">
+                                        <input  type="checkbox" class="form-control"  name="is_prepaid" value = "1" <?php if (isset($query)) {
+                                            if($query[0]['is_prepaid'] == '1'){ echo "checked"; }
+                                            } ?> >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group <?php if (form_error('prepaid_amount_limit')) {
+                                    echo 'has-error';
+                                    } ?>">
+                                    <label for="prepaid_amount_limit" class="col-md-4">Prepaid Minimum Amt Limit</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  name="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
+                                            echo $query[0]['prepaid_amount_limit'];
+                                            } ?>" >
+                                        <?php echo form_error('prepaid_amount_limit'); ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group <?php if (form_error('prepaid_notification_amount')) {
+                                    echo 'has-error';
+                                    } ?>">
+                                    <label for="prepaid_notification_amount" class="col-md-4">Notification Amt Limit</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  name="prepaid_notification_amount" value = "<?php if (isset($query[0]['prepaid_notification_amount'])) {
+                                            echo $query[0]['prepaid_notification_amount'];
+                                            } ?>" >
+                                        <?php echo form_error('prepaid_notification_amount'); ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group <?php if (form_error('grace_period_date')) {
+                                    echo 'has-error';
+                                    } ?>">
+                                    <label for="grace_period_date" class="col-md-4">Grace Period Date </label>
+                                    <div class="col-md-8">
+                                        <input type="text" id="grace_period_date" placeholder="Select Date When Partner De-Activate" class="form-control"  name="grace_period_date" value = "<?php if (isset($query[0]['grace_period_date'])) {
+                                            echo $query[0]['grace_period_date'];
+                                            } ?>" >
+                                        <?php echo form_error('grace_period_date'); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading"><b>Partner Operation Region</b></div>
@@ -895,6 +951,7 @@
     
     $("#agreement_start_date").datepicker({dateFormat: 'yy-mm-dd'});
     $("#agreement_end_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+    $("#grace_period_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
     
     
     //Check for upcountry

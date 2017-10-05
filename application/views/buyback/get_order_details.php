@@ -71,6 +71,7 @@
                                         <tr>
                                             <th>No.</th>
                                             <th>Order ID</th>
+                                            <th>Tracking Id</th>
                                             <th>Service Name</th>
                                             <th>City</th>
                                             <th>Order Date</th>
@@ -90,6 +91,7 @@
                                         <tr>
                                             <th>No.</th>
                                             <th>Order ID</th>
+                                            <th>Tracking Id</th>
                                             <th>Service Name</th>
                                             <th>City</th>
                                             <th>Order Date</th>
@@ -111,6 +113,7 @@
                                         <tr>
                                             <th>No.</th>
                                             <th>Order ID</th>
+                                            <th>Tracking Id</th>
                                             <th>Services</th>
                                             <th>City</th>
                                             <th>Order Date</th>
@@ -126,7 +129,7 @@
                                         <div class="btn btn-info" ng-click="showDialogueBox()">Assign All Order</div>
                                        
                                          <a href="javascript:void(0);" class="btn btn-md  btn-success" onclick="reAssign()"  >Assign CP</a>
-                                        <div id="invoiceDetailsModal"  class="modal fade" data-backdrop="static" data-keyboard="false" role="dialog">
+                                        <div id="myModal"  class="modal fade" data-backdrop="static" data-keyboard="false" role="dialog">
                                             <div class="modal-dialog modal-lg">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
@@ -142,7 +145,7 @@
                                                                     <th>Order ID</th>   
                                                                      <th>Message</th>   
                                                                 </thead>
-                                                                <tbody>
+                                                                <tbody id="error_td">
                                                                     <tr ng-repeat="x in notFoundCity">
                                                                         <td>{{$index + 1}}</td>
                                                                         <td>{{ x.order_id }}</td>
@@ -213,7 +216,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1,6,7,8], //first column / numbering column
+                    "targets": [0,1,2,6,7,8,9], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -241,7 +244,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1,7,8,9], //first column / numbering column
+                    "targets": [0,1,2,7,8,9,10], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -271,7 +274,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1,6], //first column / numbering column
+                    "targets": [0,1,2,6,7,8], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -297,7 +300,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1,6], //first column / numbering column
+                    "targets": [0,1,5,6], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],

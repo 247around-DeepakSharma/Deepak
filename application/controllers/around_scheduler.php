@@ -16,6 +16,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->model('user_model');
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
+        $this->load->model('invoices_model');
         $this->load->model('employee_model');
         $this->load->model('bb_model');
         $this->load->model('cp_model');
@@ -27,6 +28,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('table');
         $this->load->library('buyback');
         $this->load->library('email_data_reader');
+        $this->load->library('miscelleneous');
         $this->load->helper(array('form', 'url', 'file'));
         $this->load->dbutil();
     }
@@ -851,7 +853,7 @@ class Around_scheduler extends CI_Controller {
      * @return: void()
      */
     function send_partner_contract_expiry_notification() {
-        $data = $this->partner_model->getpartner_details('public_name,agreement_end_date', array('datediff(curdate(),agreement_end_date)  >= -7' => null,'is_active' => 1));
+        $data = $this->partner_model->getpartner_details('public_name,agreement_end_date', array('datediff(curdate(),agreement_end_date)  >= -30' => null,'is_active' => 1));
         if (!empty($data)) {
 
             $template = array(
@@ -876,6 +878,32 @@ class Around_scheduler extends CI_Controller {
                 log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner ');
             }
         }
+    }
+    /**
+     * @desc This method is used to send notification email to partner whose account type is prepaid and have low balance.
+     */
+    function send_notification_for_low_balance() {
+        $partner_details = $this->partner_model->getpartner_details("partners.id, prepaid_notification_amount, "
+                . "is_active, is_prepaid,prepaid_amount_limit,grace_period_date,invoice_email_to ",
+                array('is_prepaid' => 1));
+        foreach ($partner_details as $value) {
+            $final_amount = $this->miscelleneous->get_partner_prepaid_amount($value['id']);
+            if ($value['prepaid_notification_amount'] > $final_amount) {
+                $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
+                $to = $value['invoice_email_to'];
+                $subject = $email_template[4];
+                $message = $email_template[0];
+                $cc = $email_template[3];
+                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+                if ($sendmail) {
+                    log_message('info', __FUNCTION__ . 'Mail has been send successfully. Partner id => '. $value['id']);
+                } else {
+                    log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner Partner Id => '. $value['id']);
+                }
+            }
+        }
+            
+        
     }
 
 }
