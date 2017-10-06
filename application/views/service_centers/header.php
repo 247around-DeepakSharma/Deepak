@@ -21,6 +21,7 @@
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
         <!-- sweet Alert JS -->
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+        
         <style type="text/css">
             .navbar{
             min-height: 80px;
@@ -318,9 +319,9 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Buyback <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="<?php echo base_url();?>service_center/bb_order_details">Buyback Order Details</a></li>
+                                <li><a href="<?php echo base_url();?>service_center/buyback/bb_order_details">Buyback Order Details</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url();?>service_center/show_bb_price_list">Buyback Charges List</a></li>
+                                <li><a href="<?php echo base_url();?>service_center/buyback/show_bb_price_list">Buyback Charges List</a></li>
                             </ul>
                         </li>
                         <?php } ?>
@@ -332,8 +333,9 @@
                         </li>
                         
                     </ul>
+                    <?php $is_buyback = $this->uri->segment(2);?>
                     <ul class="nav navbar-nav navbar-right">
-                        <?php if($this->session->userdata('is_sf') === '1'){ ?>
+                        <?php if($is_buyback != 'buyback'){ ?>
                             <li>
                                 <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>service_center/search">
                                     <div class="form-group">
@@ -342,7 +344,16 @@
                                     <!--                      <button type="submit" class="btn btn-default">Submit</button>-->
                                 </form>
                             </li>
-                        <?php } ?>
+                        <?php } else{ ?>
+                            <li>
+                                <a href="javascript:void(0)" style="width:110%;margin-top: -9px;">
+                           
+                                <input type="text" class="form-control" placeholder="Search Order/Tracking ID ..." onkeydown="search_order_id(this)" 
+                                       style=" border-radius:25px 25px 25px 25px">
+                            
+                            </a>
+                            </li>
+                       <?php  } ?>
 <!--                        <li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('service_center_name'); ?> <b class="caret"></b></a>
                         </li>-->
@@ -370,3 +381,36 @@
         </style>
     </body>
 </html>
+
+<script>
+function search_order_id(ele){
+    if(event.keyCode === 13 && ele.value !== '') {
+
+    $.ajax({
+        type: 'POST',
+        url: '<?php echo base_url() ?>employee/service_centers/search_for_buyback',
+        data: {search:ele.value},
+        success: function (response) {
+         console.log(response);
+         $(".right_col").html(response);
+
+       }
+     });
+    }
+}
+
+
+function showConfirmDialougeBox(url){
+    swal({
+            title: "Do You Want To Continue?",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            closeOnConfirm: false
+        },
+        function(){
+            window.location.href = url;
+        });
+}
+
+</script>

@@ -9,7 +9,7 @@
     padding: 2px 4px;
 }
 </style>
-<div class="update_order_Details" style="margin-top: 20px;">
+<div class="update_order_Details right_col" style="margin-top: 20px;">
     <div class="container">
         <form action="<?php echo base_url();?>process_report_issue_bb_order_details" method="post" id="bb_order_update" role='form' enctype="multipart/form-data">
             <div class="row">

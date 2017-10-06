@@ -6,7 +6,7 @@
         border-radius: 0px;
     }
 </style>
-<div class="update_order_Details" style="margin-top: 20px;">
+<div class="update_order_Details right_col" style="margin-top: 20px;">
     <div class="container-fluid">
         <form action="<?php echo base_url();?>employee/service_centers/process_received_bb_order_update" method="post" id="bb_order_update" role='form' enctype="multipart/form-data">
             <div class="panel panel-info">
