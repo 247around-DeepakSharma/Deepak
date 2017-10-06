@@ -91,7 +91,7 @@
                     </a>
                     <ul class="dropdown-menu ">
                         <li>
-                            <a href="<?php echo base_url() ?>employee/booking/view"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Booking</strong></a>
+                            <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Pending"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Booking</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>

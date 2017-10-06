@@ -99,7 +99,10 @@ class Upload_buyback_process extends CI_Controller {
     
     function process_upload_order() {
         $response = $this->buyback_file_processing();
-        $insert_id = $this->bb_model->insert_bb_sheet_data($this->upload_sheet_data);
+        $insert_id = FALSE;
+        if(!empty($this->upload_sheet_data)){
+            $insert_id = $this->bb_model->insert_bb_sheet_data($this->upload_sheet_data);
+        }
         if ($insert_id) {
             log_message('info', "Buyback Sheet Data Inserted");
         } else {
@@ -121,9 +124,9 @@ class Upload_buyback_process extends CI_Controller {
             $message .= "Total lead  ---->" . $response['msg'] . "<br/><br/>";
 
             $message .= "Total Delivered ---->" . ($this->initialized_variable->delivered_count() == -1)? 0: $this->initialized_variable->delivered_count() . "<br/><br/>";
-            $message .= "Total Inserted ---->" . ($this->initialized_variable->total_inserted()) . "<br/><br/>";
+            $message .= "Total Inserted ---->" . ($this->initialized_variable->total_inserted() == -1)? 0: $this->initialized_variable->total_inserted() . "<br/><br/>";
             $message .= "Total Updated ---->" . ($this->initialized_variable->total_updated() == -1)? 0: $this->initialized_variable->total_updated() . "<br/><br/>";
-            $message .= "Total Not Assigned ---->" . ($this->initialized_variable->not_assigned_order()) . "<br/><br/>";
+            $message .= "Total Not Assigned ---->" .($this->initialized_variable->not_assigned_order() == -1)? 0: $this->initialized_variable->not_assigned_order() . "<br/><br/>";
             $message .= "Please check below orders, these were neither inserted nor updated: <br/><br/><br/>";
             $message .= $this->table->generate();
 
@@ -202,7 +205,7 @@ class Upload_buyback_process extends CI_Controller {
                    return $response;
                 }
             }
-            $response = array("code" => 247, "msg" => $i);
+            $response = array("code" => 247, "msg" => ($i+1));
             return $response;
         } catch (Exception $e) {
             die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
@@ -241,15 +244,16 @@ class Upload_buyback_process extends CI_Controller {
         $rowData['partner_id'] = 247024;
         $rowData['partner_name'] = "Amazon";
         $rowData['subcat'] = $data[1];
-        $rowData['city'] = $data[2];
-        $rowData['order_date'] = date('Y-m-d', strtotime($data[3]));
-        $rowData['partner_order_id'] = $data[4];
-        $rowData['order_key'] = $data[5];
-        $rowData['buyback_details'] = $data[5];
-        $rowData['partner_charge'] = $data[6];
-        $rowData['partner_basic_charge'] = $data[6];
-        $rowData['partner_sweetner_charges'] = $data[7];
-        $rowData['current_status'] = $data[9];
+        $rowData['city'] = $data[3];
+        $order_date = date('d-m-Y', strtotime($data[4]));
+        $rowData['order_date'] = date("Y-m-d", strtotime($order_date));
+        $rowData['partner_order_id'] = $data[5];
+        $rowData['order_key'] = $data[6];
+        $rowData['buyback_details'] = $data[6];
+        $rowData['partner_charge'] = $data[7];
+        $rowData['partner_basic_charge'] = $data[7];
+        $rowData['partner_sweetner_charges'] = $data[8];
+        $rowData['current_status'] = $data[12];
         if ($rowData['city'] == '0') {
             $rowData['city'] = "";
         }
@@ -307,41 +311,41 @@ class Upload_buyback_process extends CI_Controller {
             $error = true;
         }
         
-        if ($data[2] !== 'City') {
+        if ($data[3] !== 'City') {
             $message .= " City Column does not exist at position Three.<br/><br/>";
             $this->Columfailed .= " City, ";
             $error = true;
         }
         
-        if ($data[3] !== 'Order Date') {
+        if ($data[4] !== 'Order Date') {
             $message .= " Order Date Column does not exist at position Four.<br/><br/>";
             $this->Columfailed .= " Order Date, ";
             $error = true;
         }
         
-        if ($data[4] !== 'Order Id') {
+        if ($data[5] !== 'Order Id') {
             $message .= " Order Id Column does not exist at position Fifth.<br/><br/>";
             $this->Columfailed .= " Order Id, ";
             $error = true;
         }
         
-        if ($data[5] !== 'Used Item Info') {
+        if ($data[6] !== 'Used Item Info') {
             $message .= " Used Item Info Column does not exist at position Sixth.<br/><br/>";
             $this->Columfailed .= " Used Item Info, ";
             $error = true;
         }
-        if ($data[6] !== 'Exchange Offer Value') {
-            $message .= " Exchange Offer Value Column does not exist at position Seventh.<br/><br/>";
+        if ($data[7] !== 'Base Exchange Value') {
+            $message .= "Base Exchange Value Column does not exist at position Seventh.<br/><br/>";
             $this->Columfailed .= " Exchange Offer Value, ";
             $error = true;
         }
-        if ($data[7] !== 'Sponsored Value') {
+        if ($data[8] !== 'Sponsored Value') {
             $message .= " Sponsored Value Column does not exist at position Eight.<br/><br/>";
             $this->Columfailed .= " Sponsored Value, ";
             $error = true;
         }
         
-        if ($data[9] !== 'Order Status') {
+        if ($data[12] !== 'Order Status') {
             $message .= " Order Status Column does not exist at position Tenth.<br/><br/>";
             $this->Columfailed .= " Order Status, ";
             $error = true;

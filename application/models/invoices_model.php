@@ -1263,36 +1263,39 @@ class invoices_model extends CI_Model {
     function get_buyback_invoice_data($vendor_id, $from_date, $to_date_tmp, $is_regenerate){
         log_message("info", __METHOD__);
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
-        $data = $this->_buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate);
-        if(!empty($data)){
-            $commission_charge = array();
-            $commission_charge[0]['description'] = "E-Gift Vouchers";
-            $commission_charge[0]['taxable_value'] = $meta['sub_total_amount'] = (array_sum(array_column($data, 'cp_charge')));
-            $commission_charge[0]['hsn_code'] =  '';
-            $meta['invoice_template'] = "Buyback-v1.xlsx";
-            $unique_booking = array_unique(array_map(function ($k) {
-                        return $k['partner_order_id'];
-                    }, $data));
-                    
-            $commission_charge[0]['qty'] = $meta['total_qty']  = count($unique_booking);
-            $commission_charge[0]['rate'] = round($meta['sub_total_amount']/$meta['total_qty'],2);
+        $annexure_data = $this->_buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, true);
+        $commission_charge = $this->_buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, false);
+
+        $meta['sub_total_amount'] = $meta['total_qty'] = 0;
+        
+        if(!empty($commission_charge)){
+            foreach ($commission_charge as $key => $value) {
+                $commission_charge[$key]['rate'] = round($value['taxable_value']/$value['qty'],2);
+                $meta['sub_total_amount'] += $value['taxable_value'];
+                $meta['total_qty'] += $value['qty'];
+            }
+            
+            $meta['sub_total_amount'] = round( $meta['sub_total_amount'], 2);
+            $meta['invoice_template'] = "Buyback-v1.xlsx"; 
+            
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
             $meta['invoice_date'] = date("jS M, Y");
             $meta['reference_invoice_id'] = "";
-            $meta['price_inword'] = convert_number_to_words($meta['sub_total_amount']);
-            $meta['company_name'] = $data[0]['company_name'];
-            $meta['company_address'] = $data[0]['company_address'];
-            $meta['state'] = $data[0]['state'];
-            $meta['state_code'] = $data[0]['state_code'];
-            $meta['gst_number'] = $data[0]['gst_no'];
-            $meta['owner_email'] = $data[0]['owner_email'];
-            $meta['primary_contact_email'] = $data[0]['primary_contact_email'];
-            $meta['owner_phone_1'] = $data[0]['owner_phone_1'];
+            $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
+            $meta['company_name'] = $commission_charge[0]['company_name'];
+            $meta['company_address'] = $commission_charge[0]['company_address'];
+            $meta['state'] = $commission_charge[0]['state'];
+            $meta['state_code'] = $commission_charge[0]['state_code'];
+            $meta['gst_number'] = $commission_charge[0]['gst_no'];
+            $meta['owner_email'] = $commission_charge[0]['owner_email'];
+            $meta['primary_contact_email'] = $commission_charge[0]['primary_contact_email'];
+            $meta['owner_phone_1'] = $commission_charge[0]['owner_phone_1'];
             
             $data1['meta'] = $meta;
             $data1['booking'] = $commission_charge;
-            $data1['annexure_data'] = $data;
+            $data1['annexure_data'] = $annexure_data;
+            
             return $data1;
             
         } else{
@@ -1300,28 +1303,43 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function _buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate){
+    function _buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, $is_unit){
         $is_foc_null = "";
         if ($is_regenerate == 0) {
                 $is_foc_null = " AND cp_invoice_id IS NULL ";
         }
-        $sql = "SELECT bb_unit_details.id AS unit_id, order_date, services, bb_order_details.partner_order_id,
-                city, partner_tracking_id, order_key,owner_phone_1, CASE WHEN(current_status = 'Delivered') 
-                THEN (delivery_date) WHEN(current_status = 'Completed') THEN (acknowledge_date) END AS delivery_date, order_date,gst_no,
-                sc.company_name, sc.address as company_address, sc.state,state_code,
-                sc.owner_email, sc.primary_contact_email, sc.owner_phone_1,
-                CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
+        $select = " COUNT(bb_unit_details.id) as qty, SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
-                ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge 
+                ELSE (bb_unit_details.cp_basic_charge) END ) AS taxable_value, concat('Used ',services) as description, 
+                CASE WHEN (bb_unit_details.service_id = 46) THEN (8528) 
+                WHEN (bb_unit_details.service_id = 50) THEN (8415)
+                WHEN (bb_unit_details.service_id = 28) THEN (8450)
+                WHEN (bb_unit_details.service_id = 37) THEN (8418) ELSE '' END As hsn_code, owner_phone_1, gst_no,
+                sc.company_name, sc.address as company_address, sc.state,state_code,
+                sc.owner_email, sc.primary_contact_email, sc.owner_phone_1";
+        $group_by = " GROUP BY bb_unit_details.service_id ";
+        if($is_unit){
+            $select = " bb_unit_details.id AS unit_id, CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
+                THEN (bb_unit_details.cp_claimed_price) 
+                ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge,partner_tracking_id, city,order_key,
+                CASE WHEN(acknowledge_date IS NOT NULL) 
+                THEN (acknowledge_date) ELSE (delivery_date) END AS delivery_date, order_date,
+                order_date, services, bb_order_details.partner_order_id";
+            $group_by = "";
+        }
+        
+        $sql = "SELECT $select
+                
+                
                 FROM `bb_order_details`, bb_unit_details, services, service_centres as sc, state_code WHERE 
                 `assigned_cp_id` = '$vendor_id' 
-                AND `current_status` IN ('Delivered', 'Completed' ) 
-                AND CASE WHEN (current_status = 'Delivered') THEN (`delivery_date` >= '$from_date' AND `delivery_date`< '$to_date' ) 
-                WHEN (current_status = 'Completed') THEN (acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date') END
+                AND bb_unit_details.`order_status` = 'Delivered' 
+                AND CASE WHEN (acknowledge_date IS NOT NULL) THEN (acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date' ) 
+                ELSE (`delivery_date` >= '$from_date' AND `delivery_date`< '$to_date') END
                 AND sc.id = assigned_cp_id
                 AND sc.state = state_code.state
                 AND bb_order_details.partner_order_id =  bb_unit_details.partner_order_id
-                AND bb_unit_details.service_id = services.id";
+                AND bb_unit_details.service_id = services.id $group_by ";
         
         $query = $this->db->query($sql);
         return $query->result_array();

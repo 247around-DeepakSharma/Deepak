@@ -165,7 +165,7 @@ class bookingjobcard extends CI_Controller {
         }
         
         exec("rm -rf " . escapeshellarg($output_file_excel));
-        redirect(base_url() . 'employee/booking/view');
+        redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
     }
 
     /*
@@ -279,7 +279,7 @@ class bookingjobcard extends CI_Controller {
                // $this->session->set_flashdata('result', 'Mail could not be sent, please try again');
             }
 
-            redirect(base_url() . 'employee/booking/view');
+            redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
         } else {
             echo "Booking does not exist.";
         }
@@ -371,7 +371,7 @@ class bookingjobcard extends CI_Controller {
                 "body" => $message, "type" => $type);
             $this->booking_model->save_vendor_email($details);
 
-            redirect(base_url() . 'employee/booking/view');
+            redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
         } else {
             echo "This booking Id do not exists";
         }
