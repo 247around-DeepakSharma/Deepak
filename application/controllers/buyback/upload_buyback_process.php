@@ -122,14 +122,13 @@ class Upload_buyback_process extends CI_Controller {
 
             $message .= "Order File Name ---->" . $order_file . "<br/><br/>";
             $message .= "Total lead  ---->" . $response['msg'] . "<br/><br/>";
-
-            $message .= "Total Delivered ---->" . ($this->initialized_variable->delivered_count() == -1)? 0: $this->initialized_variable->delivered_count() . "<br/><br/>";
-            $message .= "Total Inserted ---->" . ($this->initialized_variable->total_inserted() == -1)? 0: $this->initialized_variable->total_inserted() . "<br/><br/>";
-            $message .= "Total Updated ---->" . ($this->initialized_variable->total_updated() == -1)? 0: $this->initialized_variable->total_updated() . "<br/><br/>";
-            $message .= "Total Not Assigned ---->" .($this->initialized_variable->not_assigned_order() == -1)? 0: $this->initialized_variable->not_assigned_order() . "<br/><br/>";
-            $message .= "Please check below orders, these were neither inserted nor updated: <br/><br/><br/>";
+            $message .= "Total Delivered ---->" . $this->initialized_variable->delivered_count() . "<br/><br/>";
+            $message .= "Total Inserted ---->" . $this->initialized_variable->total_inserted() . "<br/><br/>";
+            $message .= "Total Updated ---->" . $this->initialized_variable->total_updated() . "<br/><br/>";
+            $message .= "Total Not Assigned ---->" . $this->initialized_variable->not_assigned_order() . "<br/><br/>";
+            $message .= "Please check below orders, these were not assigned: <br/><br/><br/>";
             $message .= $this->table->generate();
-
+           
             $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
 
             $this->upload_file_to_S3($order_file, _247AROUND_BB_ORDER_LIST, $_FILES['file']['tmp_name']);
@@ -205,7 +204,7 @@ class Upload_buyback_process extends CI_Controller {
                    return $response;
                 }
             }
-            $response = array("code" => 247, "msg" => ($i+1));
+            $response = array("code" => 247, "msg" => ($i));
             return $response;
         } catch (Exception $e) {
             die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
@@ -234,7 +233,7 @@ class Upload_buyback_process extends CI_Controller {
         }
         fclose($handle);
         
-        $response = array("code" => 247, "msg" => $escapeCounter);
+        $response = array("code" => 247, "msg" => $escapeCounter -1);
         return $response;
     }
 
