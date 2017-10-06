@@ -672,7 +672,7 @@ class Booking extends CI_Controller {
 
         $data['Count'] = $config['total_rows'];
         $data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset, $booking_id);
-
+        
         if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
         }
@@ -1914,7 +1914,7 @@ class Booking extends CI_Controller {
             $this->asynchronous_lib->do_background_process($url, $send);
 
             $this->partner_cb->partner_callback($booking_id);
-            redirect(base_url() . 'employee/booking/view');
+            redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
         } else {
             redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
         }
@@ -2567,8 +2567,15 @@ class Booking extends CI_Controller {
         $data['booking_id'] = trim($booking_id);
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',array('is_active'=> '1'));
         $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
+        $data['services'] = $this->booking_model->selectservice();
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/view_bookings_by_status', $data);
+        
+        if(strtolower($data['booking_status']) == 'pending'){
+            $this->load->view('employee/view_pending_bookings', $data);
+        }else{
+            $this->load->view('employee/view_bookings_by_status', $data);
+        }
+        
     }
     
     
@@ -2606,15 +2613,24 @@ class Booking extends CI_Controller {
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
-            service_centres.primary_contact_phone_1";
+            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day";
         
         $list = $this->booking_model->get_bookings_by_status($new_post,$select);
+        unset($new_post['order_performed_on_count']);
         $data = array();
         $no = $post['start'];
-        foreach ($list as $order_list) {
-            $no++;
-            $row = $this->get_bookings_table_by_status($order_list, $no,$booking_status);
-            $data[] = $row;
+        if(strtolower($booking_status) == 'pending'){
+            foreach ($list as $order_list) {
+                $no++;
+                $row = $this->get_pending_bookings_table($order_list, $no,$booking_status);
+                $data[] = $row;
+            }
+        }else{
+            foreach ($list as $order_list) {
+                $no++;
+                $row = $this->get_completed_cancelled_bookings_table($order_list, $no,$booking_status);
+                $data[] = $row;
+            }
         }
 
         return array(
@@ -2637,9 +2653,17 @@ class Booking extends CI_Controller {
         $date_range = $this->input->post('booking_date_range');
         $booking_id = $this->input->post('booking_id');
         $ratings = $this->input->post('ratings');
+        $appliance = $this->input->post('appliance');
+        $booking_date = $this->input->post('booking_date');
         
-        $post['where']  = array('current_status' => $booking_status,"booking_details.booking_id NOT LIKE '%Q-%'" => null);
-        $post['where']['current_status'] = $booking_status;
+        if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
+            $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
+        }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
+            $post['where']  = array("current_status IN ('Pending','Rescheduled')" => NULL,
+                "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1" => NULL );
+            $post['order'] = array(array('column' => 0,'dir' => 'desc'));
+            $post['order_performed_on_count'] = TRUE;
+        }
         
         if(!empty($booking_id)){
             $post['where']['booking_details.booking_id'] =  $booking_id;
@@ -2669,8 +2693,16 @@ class Booking extends CI_Controller {
             }
         }
         
-        $post['column_order'] = "";
-        $post['column_search'] = array('booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date');
+        if(!empty($appliance)){
+            $post['where']['booking_details.service_id'] =  $appliance;
+        }
+        
+        if(!empty($booking_date)){
+            $post['where']['booking_details.booking_date = '] =  trim($booking_date);
+        }
+        
+        $post['column_order'] = array('booking_day');
+        $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date');
         
         return $post;
     }
@@ -2698,7 +2730,7 @@ class Booking extends CI_Controller {
      *  @param : $booking_status string
      *  @return : $row Array()
      */
-    private function get_bookings_table_by_status($order_list, $no, $booking_status){
+    private function get_completed_cancelled_bookings_table($order_list, $no, $booking_status){
         $row = array();
         if($order_list->is_upcountry === '1'){
             $sn = "<i class='fa fa-road' aria-hidden='true' onclick='";
@@ -2729,6 +2761,7 @@ class Booking extends CI_Controller {
             $penalty_modal .= ")' ";
             $penalty_row = "<a class='btn btn-sm col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='background:#FFEB3B;margin-top:10px;' $penalty_modal><i class='fa fa-plus-square' aria-hidden='true'></i></a>";
         }
+        
         
         
         $row[] = $no.$sn;
@@ -2894,5 +2927,163 @@ class Booking extends CI_Controller {
        $data = $this->get_advance_search_result_data($receieved_Data);
        $headings = array("S.no","Booking ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service");
        $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_search_summary");   
+    }
+    
+    /**
+     *  @desc : This function is used to make the table for pending bookings
+     *  @param : $order_list string
+     *  @param : $no string
+     *  @param : $booking_status string
+     *  @return : $row Array()
+     */
+    private function get_pending_bookings_table($order_list, $no, $booking_status){
+        $row = array();
+        if($order_list->is_upcountry === '1'){
+            $sn = "<i class='fa fa-road' aria-hidden='true' onclick='";
+            $sn .= "open_upcountry_model(".'"'.$order_list->assigned_vendor_id.'"';
+            $sn .= ', "'.$order_list->booking_id.'"';
+            $sn .= ', "'.$order_list->amount_due.'"';
+            $sn .= ")' style='color:red; font-size:20px;'></i>";
+        }else{
+            $sn = "";
+        }
+        
+        $call_btn = "<button type='button' class='btn btn-sm btn-info' onclick='";
+        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
+        $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+        
+        if ($order_list->current_status == 'Completed' && empty($order_list->rating_stars )){
+            $rating_btn_disabled = "";
+        }else{
+            $rating_btn_disabled = "disabled";
+        }
+        
+        if(empty($order_list->penalty_active)){
+            $penalty_row = "<a class='btn btn-sm col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='background:#FFEB3B;margin-top:10px;cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+        }else if($order_list->penalty_active === '1'){
+            $penalty_modal = "onclick='";
+            $penalty_modal .= "get_penalty_details(".'"'.$order_list->booking_id.'"';
+            $penalty_modal .= ', "'.$booking_status.'"';
+            $penalty_modal .= ")' ";
+            $penalty_row = "<a class='btn btn-sm col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='background:#FFEB3B;margin-top:10px;' $penalty_modal><i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+        }
+        
+        if($order_list->count_escalation > 0){
+            $escalation = "<div class='esclate blink'>Escalated</div> <b>".$order_list->count_escalation." <b> Times";
+        }else{
+            $escalation = "";
+        }
+        
+        if(!empty($order_list->service_centre_name)){
+            $sf = $order_list->service_centre_name." / ".$order_list->primary_contact_name." / ".$order_list->primary_contact_phone_1;
+        }else{
+            $sf = "";
+        }
+        
+        if ($order_list->assigned_vendor_id == "") {
+            $complete =  "<a target='_blank' class='btn btn-sm btn-danger btn-sm disabled' "
+            . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+        } else {
+            if ($order_list->current_status == 'Pending' || $order_list->current_status == 'Rescheduled') {
+                $complete = "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
+                . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+            } else if ($order_list->current_status == 'Review') {
+                $complete = "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
+                . "href=" . base_url() . "employee/booking/review_bookings/$order_list->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true' ></i></a>";
+            } else {
+                $complete = "<a target='_blank' class='btn btn-sm btn-danger btn-sm disabled' "
+                . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+            }
+        }
+        
+        if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor == 0)) {
+            $mail =  "<a  id='b_notes" . $no . "' class='btn btn-sm btn-success' onclick='show(this.id)' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>";
+            $mail .= "<div class='dialog' id='bookingMailForm" . $no . "'>";
+            $mail .= "<form class='mailform'>";
+            $mail .= "<textarea style='width:200px;height:80px;' id='valueFromMyButton" . $no . "' name='valueFromMyButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
+            $mail .= "<input type='hidden' id='booking_id" . $no . "' name='booking_id" . $no . "' value=$order_list->booking_id >";
+            $mail .= "<div align='center'>";
+            $mail .= "<a id='btnOK" . $no . "' class='btn btn-sm btn-success' onclick='send_email_to_vendor(" . $no . ");'>Ok</a>";
+            $mail .= "</div>";
+            $mail .= "</form>";
+            $mail .= "</div>";
+        } else {
+            $mail = "<a class='btn btn-sm btn-success disabled' href='" . base_url() . "employee/bookingjobcard/send_mail_to_vendor/$order_list->booking_id' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true' ></i></a>";
+        }
+        
+        if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor)) {
+            $r_mail = "<a id='r_notes" . $no . "' class='btn btn-sm btn-warning' onclick='show(this.id)' title='Remainder Mail' ><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
+            $r_mail .= "<div class='dialog' id='reminderMailForm" . $no . "'>";
+            $r_mail .= "<form class='remindermailform'>";
+            $r_mail .= "<textarea style='width:200px;height:80px;' id='reminderMailButton" . $no . "' name='reminderMailButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
+            $r_mail .= "<input type='hidden' id='booking_id" . $no . "' name='booking_id" . $no . "' value=$order_list->booking_id >";
+            $r_mail .= "<div align='center'>";
+            $r_mail .= "<a id='btnOK" . $no . "' class='btn btn-sm btn-success' onclick='send_reminder_email_to_vendor(" . $no . ");'>Ok</a>";
+            $r_mail .= "</div>";
+            $r_mail .= "</form>";
+            $r_mail .= "</div>";
+        } else {
+            $r_mail = "<a class='btn btn-sm btn-warning disabled' href = '" . base_url() . "employee/bookingjobcard/send_reminder_mail_to_vendor/$order_list->booking_id ' title = 'Reminder Mail'><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
+        }
+        
+        if(is_null($order_list->assigned_vendor_id)){
+            $d_btn = "disabled";
+        }else{
+            $d_btn = "";
+        }
+        
+        $b_date = date("Y-m-d", strtotime($order_list->booking_date));
+        $date1 = date_create($b_date);
+        $date2 = date_create(date("Y-m-d"));
+        $diff = date_diff($date2, $date1);
+        $b_days = $diff->days;
+        if ($diff->invert == 1) {
+            $b_days = -$diff->days;
+        }
+        $b_time = explode("-", $order_list->booking_timeslot);
+        $b_timeslot = date("H", strtotime($b_time[0]));
+        if( $order_list->current_status != "Rescheduled") { 
+            if ( $order_list->assigned_vendor_id == null){ 
+                $esc =  "disabled"; 
+            } 
+            else if($b_days >0){ 
+                $esc = "disabled";
+            } 
+            else if($b_days == 0){ 
+                if($b_timeslot > date("H")){ 
+                    $esc =  "disabled";
+                }
+            }else{
+                $esc = "";
+            } 
+        }else{
+            $esc = "";
+        }
+
+
+
+        $row[] = $no.$sn;
+        $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
+        $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser/0/0/".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
+        $row[] = $order_list->services;
+        $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
+        $row[] = $escalation." ".$order_list->current_status;
+        $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
+        $row[] = $call_btn;
+        $row[] = "<a id ='view' class ='btn btn-sm btn-primary' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
+        $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-success' "
+            . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";
+        $row[] = "<a target = '_blank' id = 'cancel' class = 'btn btn-sm btn-warning' href = '".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title = 'Cancel'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
+        $row[] = $complete;
+        $row[] ="<a target = '_blank' class = 'btn btn-sm btn-info' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
+        $row[] = $mail;
+        $row[] = $r_mail;
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-primary' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-success' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
+        $row[] = "<a target = '_blank' class = 'btn btn-sm btn-danger' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
+        $row[] = $penalty_row;
+        
+        
+        return $row;
     }
 }
