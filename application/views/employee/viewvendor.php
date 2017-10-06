@@ -33,6 +33,12 @@
         var data = $("#active_state option:selected").val();
         $('#get_vender').submit();
     }
+    
+    function createPinCodeForm(id,name){
+       document.getElementById("download_pin_code").href ="download_vendor_pin_code/"+id;
+       document.getElementById("upload_pin_code").href ="upload_pin_code_vendor/"+id;
+       document.getElementById("v_name").innerHTML = name;
+    }
 </script>
 <script>
     $(document).ready(function(){
@@ -119,6 +125,7 @@
                 <th class='jumbotron'>Go To Invoice Page</th>
           	<th class="jumbotron">Temporary</th>
           	<th class="jumbotron">Permanent</th>
+                    <th class="jumbotron">Add Pin Code</th> 
           </tr>
 
           
@@ -173,6 +180,7 @@
                 }
               ?>
             </td>
+            <td><button type="button" class="btn btn-small btn-success" id="<?php echo $row['id']; ?>" data-toggle="modal" data-target="#pin_code" onclick="createPinCodeForm(this.id,<?php echo "'".$row['name']."'"  ?>)">Pin Code</button></td>
           </tr>
           <?php } ?>
         </table>
@@ -229,3 +237,25 @@
          $this->session->unset_userdata('error'); 
     }?>
 <?php } ?>
+    
+ <!-- This model class is used for pin code pop up-->
+ <div id="pin_code" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title" id="v_name" align="center"></h4>
+      </div>
+      <div class="modal-body" align="center">
+          <a id='download_pin_code' class='btn btn-info' href="">Download Pin code</a>
+          <a id='upload_pin_code' class='btn btn-info' href="vendor/upload_vendor_pin_code" target="_blank">Upload Pin Code</a>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>

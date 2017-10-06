@@ -264,7 +264,7 @@ class service_centre_charges_model extends CI_Model {
         }
         
         if($join){
-            $this->db->join('bb_shop_address', 'bb_shop_address.cp_id = bb_charges.cp_id AND bb_shop_address.shop_address_region = bb_charges.city');
+            $this->db->join('bb_shop_address', 'bb_shop_address.cp_id = bb_charges.cp_id AND bb_shop_address.shop_address_city = bb_charges.city');
         }
         $query = $this->db->get("bb_charges");
         return $query->result_array();

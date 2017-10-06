@@ -62,6 +62,10 @@ class Buyback {
                 $cp_id = $bb_charges[0]['cp_id'];
                 $service_id = $bb_charges[0]['service_id'];
             } else {
+
+                $this->My_CI->initialized_variable->not_assigned_order();
+                $this->My_CI->table->add_row($this->POST_DATA['partner_order_id']);
+
                 $cp_id = NULL;
             }
         } else {

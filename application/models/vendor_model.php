@@ -1121,7 +1121,6 @@ class vendor_model extends CI_Model {
         $this->db->select('*');
         $this->db->where($data);
         $query = $this->db->get('vendor_pincode_mapping');
-        
         if($query->num_rows >0){
 
             return $query->result_array();
@@ -1799,5 +1798,25 @@ class vendor_model extends CI_Model {
         return $this->db->insert_id();
     }
     
+    function vendor_pin_code_uploads_insert($table,$data){
+          $this->db->insert($table, $data); 
+          return  $this->db->affected_rows();
+    }
     
+    function delete_vendor_pin_codes($where){
+          $this->db->where($where);
+          return $this->db->delete('vendor_pincode_mapping'); 
+    }
+    
+    function insert_vendor_pincode_in_bulk($data){
+            $this->db->insert_batch('vendor_pincode_mapping', $data); 
+            return $this->db->affected_rows();
+    }
+    
+    function get_pin_code_uploaded_file_history($vendorID){
+          $this->db->select('');
+          $this->db->where('file_type','vendor_pincode_'.$vendorID);
+          $query = $this->db->get('file_uploads');
+          return $query->result_object();
+    }
 }
