@@ -825,5 +825,12 @@ class Upcountry_model extends CI_Model {
         return $this->db->insert_id();
     }
     
+    function upcountry_pincode_services_sf_level($data){
+       
+         $this->db->insert_ignore_duplicate_batch('upcountry_pincode_services_sf_level', $data);
+        
+         return $this->db->insert_id();
+    }
+    
     
 }
