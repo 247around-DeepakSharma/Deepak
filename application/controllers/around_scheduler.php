@@ -26,6 +26,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('PHPReport');
         $this->load->library('table');
         $this->load->library('buyback');
+        $this->load->library('miscelleneous');
         $this->load->library('email_data_reader');
         $this->load->helper(array('form', 'url', 'file'));
         $this->load->dbutil();
