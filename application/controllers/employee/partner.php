@@ -2418,6 +2418,7 @@ class Partner extends CI_Controller {
         $choice = $this->input->post('choice');
         $partner_id = $this->input->post('partner_id');
         $login_id_array = $this->input->post('id');
+        $email_array = $this->input->post('email');
         $password_array = $this->input->post('password');
         $retype_password_array = $this->input->post('retype_password');
         $username_array = $this->input->post('username');
@@ -2426,6 +2427,7 @@ class Partner extends CI_Controller {
                 $password = $password_array[$key];
                 $retype_password = $retype_password_array[$key];
                 $username = $username_array[$key];
+                $email = $email_array[$key];
 
                 //checking for password and retype password value
                 if (strcmp($password, $retype_password) == 0) {
@@ -2438,6 +2440,7 @@ class Partner extends CI_Controller {
                             //Updating values when password matches 
                             $where = array('agent_id' => $login_id_array[$value]);
                             $data['user_id'] = $username;
+                            $data['email'] = $email;
                             $data['password'] = md5($password);
                             $data['clear_password'] = $password;
 
@@ -2461,6 +2464,7 @@ class Partner extends CI_Controller {
                         $data['entity_id'] = $partner_id;
                         $data['entity'] = "partner";
                         $data['user_id'] = $username;
+                        $data['email'] = $email;
                         $data['password'] = md5($password);
                         $data['clear_password'] = $password;
                         $data['active'] = 1;

@@ -30,12 +30,12 @@
                     <tr>
                         <th class="jumbotron" style="text-align: center">S.N.</th>
                         <th class="jumbotron" style="text-align: center">USERNAME</th>
+                        <th class="jumbotron" style="text-align: center">EMAIL</th>
                         <th class="jumbotron" style="text-align: center">PASSWORD</th>
                         <th class="jumbotron" style="text-align: center">RE-TYPE PASSWORD</th>
                     </tr>
                 </thead>
                 <tbody>
-
                 <form name="myForm" class="form-horizontal" id ="brackets"  action='<?php echo base_url() ?>employee/partner/process_partner_login_details_form' method="POST" enctype="form-data">
                     <input type="hidden" name = "partner_id" value="<?php echo $login['partner_id']?>"/>
                     <?php for ($i = 0; $i < 5; $i++) { ?>		
@@ -46,6 +46,9 @@
                             </td>
                             <td>
                                 <input type='text' name='username[]' id="username_<?php echo $i?>" disabled="" class = "form-control" value="<?php echo isset($login[$i]['user_id'])?$login[$i]['user_id']:''?>" />
+                            </td>
+                           <td>
+                               <input type='email' required="required" name='email[]' id="email_<?php echo $i?>" disabled="" class = "form-control" value="<?php echo isset($login[$i]['email'])?$login[$i]['email']:''?>" />
                             </td>
                             <td>
                                 <input type='password' name='password[]' id="password_<?php echo $i?>" class = "form-control" disabled="" value="<?php echo isset($login[$i]['clear_password'])?$login[$i]['clear_password']:''?>" />
@@ -77,6 +80,8 @@
         if ($('#check_' + id).is(':checked')) {
             $("#username_"+id).attr('required', true);
             $("#username_"+id).attr('disabled', false);
+            $("#email_"+id).attr('required', true);
+            $("#email_"+id).attr('disabled', false);
             $("#password_"+id).attr('required', true);
             $("#password_"+id).attr('disabled', false);
             $("#retype_password_"+id).attr('required', true);
@@ -84,6 +89,8 @@
         } else {
             $("#username_"+id).attr('required', false);
             $("#username_"+id).attr('disabled', true);
+            $("#email_"+id).attr('required', false);
+            $("#email_"+id).attr('disabled', true);
             $("#password_"+id).attr('required', false);
             $("#password_"+id).attr('disabled', true);
             $("#retype_password_"+id).attr('required', false);
