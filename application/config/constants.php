@@ -442,5 +442,11 @@ define('SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS','-1 day');
 define('SMS_DEACTIVATION_EMAIL_SUBJECT','has requested for opt-out!');
 define('SMS_DEACTIVATION_NO_NEW_REQUEST_MSG','There is not any new request');
 
+
+define("PARTNER_ADVANCE_DESCRIPTION", "Advance Payment");
+define("QC_INVOICE_DESCRIPTION", "Service Charges for QC");
+define("CRM_SETUP_INVOICE_DESCRIPTION", "Annual Setup Charges");
+define("QC_HSN_CODE", 998397);
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
