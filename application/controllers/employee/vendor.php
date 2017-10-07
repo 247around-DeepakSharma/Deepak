@@ -1075,7 +1075,8 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function deactivate($id) {
-        $this->vendor_model->deactivate($id);
+        $agentID = $this->session->userdata('id');
+        $this->vendor_model->deactivate($id,$agentID);
         
         //Getting Vendor Details
         $sf_details = $this->vendor_model->getVendorContact($id);
@@ -3295,7 +3296,8 @@ class vendor extends CI_Controller {
      */
     function temporary_on_off_vendor($id, $on_off) {
         log_message('info',__FUNCTION__.' id: '.$id.' on_off: '.$on_off);
-        $this->vendor_model->temporary_on_off_vendor($id,$on_off);
+        $agentID = $this->session->userdata('id');
+        $this->vendor_model->temporary_on_off_vendor($id,$on_off,$agentID);
         
         //Check on off
         if($on_off == 1){
