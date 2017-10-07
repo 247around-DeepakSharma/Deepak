@@ -2043,7 +2043,8 @@ class Service_centers extends CI_Controller {
                     $sc['gst_no'] = $gst_details['company_gst_number'];
                     $sc['gst_file'] = $gst_details['gst_certificate_file'];
                     $sc['signature_file'] = $gst_details['signature_file'];
-                    $this->vendor_model->edit_vendor($sc, $this->session->userdata('service_center_id'));
+                    $sc['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                   $this->vendor_model->edit_vendor($sc, $this->session->userdata('service_center_id'));
 
                     $template = array(
                         'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
