@@ -3,10 +3,10 @@
 class Initialized_variable {
     Private $PartnerData = array();
     Private $BuybackOderDetails = array();
-    Private $t_delivered = -1;
-    Private $t_inserted = -1;
-    Private $t_updated = -1;
-    Private $t_not_assigned = -1;
+    Private $t_delivered = 0;
+    Private $t_inserted = 0;
+    Private $t_updated = 0;
+    Private $t_not_assigned = 0;
 
     public function __construct() {
 	$this->My_CI = & get_instance();
