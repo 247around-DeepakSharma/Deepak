@@ -952,7 +952,7 @@ class Around_scheduler extends CI_Controller {
                         break;
                     case SF_DOES_NOT_EXIST:
                         $data['is_upcountry'] = 0;
-                        if(isset($data['vendor_not_found'])){
+                        if(isset($up_details['vendor_not_found'])){
                             $data['remarks'] = SF_DOES_NOT_EXIST;
                              
                         } else {

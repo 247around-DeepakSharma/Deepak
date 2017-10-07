@@ -451,5 +451,9 @@ define('PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER','Your Credit is low. Add credit');
 define('PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN','Your Credit is low. Add credit');
 define('PREPAID_LOW_AMOUNT_MSG_FOR_DEALER','Your Credit is low. Add credit');
 
+define("PARTNER_ADVANCE_DESCRIPTION", "Advance Payment");
+define("QC_INVOICE_DESCRIPTION", "Service Charges for QC");
+define("CRM_SETUP_INVOICE_DESCRIPTION", "Annual Setup Charges");
+define("QC_HSN_CODE", 998397);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
