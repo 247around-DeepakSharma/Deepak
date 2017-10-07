@@ -295,14 +295,16 @@ class invoices_model extends CI_Model {
                 . " `booking_details`.city, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
                 . " `booking_unit_details`.appliance_capacity, "
                 . "  booking_details.booking_primary_contact_no,  "
-                . " `services`.services, users.name, "
+                . " `services`.services, users.name,order_id, "
                 . " 
 
              (case when (`booking_unit_details`.product_or_services = 'Service' ) 
                  THEN (ROUND(partner_net_payable,2) ) 
                  ELSE 0 END) as installation_charge,
-              (case when( order_id !='') THEN order_id when(booking_details.partner_id= '247010') 
-              THEN (partner_serial_number) ELSE '' END ) AS order_id
+              (case when( product_or_services ='Service' AND (partner_serial_number != '' AND partner_serial_number IS NOT NULL) )
+              THEN partner_serial_number 
+              when(product_or_services ='Service'  ) 
+              THEN (serial_number) ELSE '' END ) AS serial_number
 
               From booking_details, booking_unit_details, services, partners, users
                   WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id 

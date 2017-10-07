@@ -905,6 +905,72 @@ class Around_scheduler extends CI_Controller {
             
         
     }
+    /**
+     * @desc This funnction is used to calculate upcountry from India Pincode File
+     */
+    function get_upcountry_details_from_india_pincode() {
+        $pincode_array = $this->vendor_model->getPincode_from_india_pincode();
+        $partner_data = array();
+        $partner_data[0]['is_upcountry'] = 0;
+        $services = $this->booking_model->selectservice();
+        foreach ($services as $service_id) {
+        $upcountry_data = array();
+            foreach ($pincode_array as $key => $pincode) {
+                $up_details = $this->miscelleneous->check_upcountry_vendor_availability("", $pincode['pincode'], $service_id->id, $partner_data);
+                $data = array();
+                $data['pincode'] = $pincode['pincode'];
+                $data['service_id'] = $service_id->id;
+                $data['hq_pincode'] = NULL;
+                $data['sub_vendor_id'] = 0;
+                $data['distance']= 0;
+                $data['vendor_id'] = 0;
+                $data['sf_upcountry_rate'] = 0;
+                
+                switch ($up_details['message']){
+                      case UPCOUNTRY_BOOKING:
+                      case UPCOUNTRY_LIMIT_EXCEED:
+                            $data['is_upcountry'] = 1;
+                            $data['hq_pincode'] = $up_details['upcountry_pincode'];
+                            $data['sub_vendor_id'] = $up_details['sub_vendor_id'];
+                            $data['distance'] = $up_details['upcountry_distance'];
+                            $data['vendor_id'] = $up_details['vendor_id'];
+                            $data['sf_upcountry_rate'] = $up_details['sf_upcountry_rate'];
+                            $data['remarks'] = UPCOUNTRY_BOOKING;
+                            
+                    break;
+                    case NOT_UPCOUNTRY_BOOKING:
+                        $data['is_upcountry'] = 0;
+                        $data['vendor_id'] = $up_details['vendor_id'];
+                        $data['remarks'] = NOT_UPCOUNTRY_BOOKING;
+                        break;
+                    case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                        $data['is_upcountry'] = 0;
+                        $data['hq_pincode'] = $up_details['upcountry_pincode'];
+                        $data['sub_vendor_id'] = $up_details['sub_vendor_id'];
+                        $data['sf_upcountry_rate'] = $up_details['sf_upcountry_rate'];
+                        $data['remarks'] = UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE;
+                        break;
+                    case SF_DOES_NOT_EXIST:
+                        $data['is_upcountry'] = 0;
+                        if(isset($data['vendor_not_found'])){
+                            $data['remarks'] = SF_DOES_NOT_EXIST;
+                             
+                        } else {
+                           $data['remarks'] = NOT_UPCOUNTRY_BOOKING;
+                            
+                        }
+                        break;
+                }
+                
+                $data['response'] = json_encode($up_details, TRUE);
+                echo "No -".$key.PHP_EOL; print_r($data);
+                array_push($upcountry_data, $data);  
+               
+            }
+            
+            $this->upcountry_model->upcountry_pincode_services_sf_level($upcountry_data);
+        }
+    }
 
 }
 
