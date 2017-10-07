@@ -4582,18 +4582,18 @@ class vendor extends CI_Controller {
                      if(!empty($_FILES['file']['tmp_name'])){  
                               $tempName = $_FILES['file']['tmp_name'];
                               $vendorID = $this->input->post('vendorID');
-                              $msgVerfied = $this->is_vendor_pin_code_file_valid($_FILES,$vendorID);
-                              if($msgVerfied == 1){
-                                        $is_saved = $this->save_vendor_pin_code_file($tempName,$vendorID);
-                                        if($is_saved == 1){
+                              $is_saved = $this->save_vendor_pin_code_file($tempName,$vendorID);
+                              if($is_saved == 1){
+                                        $msgVerfied = $this->is_vendor_pin_code_file_valid($_FILES,$vendorID);
+                                        if($msgVerfied == 1){
                                                   $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($_FILES,$vendorID);
                                         }
                                         else{
-                                                  $finalMsg =  $is_saved;
+                                                  $finalMsg =  $msgVerfied;
                                         }
                               }
                               else{
-                                        $finalMsg =  $msgVerfied;
+                                        $finalMsg =  $is_saved;
                               }
                     }
                     else{
