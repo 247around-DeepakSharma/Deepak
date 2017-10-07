@@ -3042,6 +3042,7 @@ class Booking extends CI_Controller {
         }
         $b_time = explode("-", $order_list->booking_timeslot);
         $b_timeslot = date("H", strtotime($b_time[0]));
+        $esc = "";
         if( $order_list->current_status != "Rescheduled") { 
             if ( $order_list->assigned_vendor_id == null){ 
                 $esc =  "disabled"; 
