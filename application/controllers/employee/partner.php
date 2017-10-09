@@ -2684,72 +2684,76 @@ class Partner extends CI_Controller {
 
         $data = $this->upcountry_model->get_upcountry_service_center_id_by_booking($booking_id);
         if (!empty($data)) {
-            $this->booking_model->update_booking($booking_id, array('upcountry_partner_approved' => '1'));
+            if ($data[0]['upcountry_partner_approved'] == 0 & empty($data[0]['assigned_vendor_id'])) {
+                log_message('info', __FUNCTION__ . " => On Approval Booking Id" . $booking_id );
+                $this->booking_model->update_booking($booking_id, array('upcountry_partner_approved' => '1'));
 
-            if ($status == 0) {// means request from mail
-                $agent_id = _247AROUND_DEFAULT_AGENT;
-                $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
-                $partner_id = _247AROUND;
-                $type = " Email";
-            } else {
-                $agent_id = $this->session->userdata('agent_id');
-                $agent_name = $this->session->userdata('partner_name');
-                $partner_id = $this->session->userdata('partner_id');
-                $type = " Panel";
-            }
-            // Insert log into booking state change
-            $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, $partner_id);
-
-            $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id);
-            if ($assigned) {
-
-                log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
-                //Send SMS to customer
-                $sms['tag'] = "service_centre_assigned";
-                $sms['phone_no'] = $data[0]['booking_primary_contact_no'];
-                $sms['booking_id'] = $booking_id;
-                $sms['type'] = "user";
-                $sms['type_id'] = $data[0]['user_id'];
-                $sms['smsData'] = "";
-
-                $this->notify->send_sms_msg91($sms);
-                log_message('info', "Send SMS to customer: " . $booking_id);
-
-                //Prepare job card
-                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
-                log_message('info', "Async Process to create Job card: " . $booking_id);
-
-                $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, UPCOUNTRY_CHARGES_APPROVED, "Service Center Id: " . $data[0]['service_center_id'], $agent_id, $agent_name, $partner_id);
-
-                if ($status == 0) {
-                    echo "<script>alert('Thanks For Approving Upcountry Charges');</script>";
+                if ($status == 0) {// means request from mail
+                    $agent_id = _247AROUND_DEFAULT_AGENT;
+                    $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
+                    $partner_id = _247AROUND;
+                    $type = " Email";
                 } else {
-                    $userSession = array('error' => 'Booking Approved Successfully.');
-                    $this->session->set_userdata($userSession);
-                    redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
+                    $agent_id = $this->session->userdata('agent_id');
+                    $agent_name = $this->session->userdata('partner_name');
+                    $partner_id = $this->session->userdata('partner_id');
+                    $type = " Panel";
+                }
+                // Insert log into booking state change
+                $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, $partner_id);
+
+                $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id);
+                if ($assigned) {
+
+                    log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
+                    //Send SMS to customer
+                    $sms['tag'] = "service_centre_assigned";
+                    $sms['phone_no'] = $data[0]['booking_primary_contact_no'];
+                    $sms['booking_id'] = $booking_id;
+                    $sms['type'] = "user";
+                    $sms['type_id'] = $data[0]['user_id'];
+                    $sms['smsData'] = "";
+
+                    $this->notify->send_sms_msg91($sms);
+                    log_message('info', "Send SMS to customer: " . $booking_id);
+
+                    //Prepare job card
+                    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                    $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
+                    log_message('info', "Async Process to create Job card: " . $booking_id);
+
+                    $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, UPCOUNTRY_CHARGES_APPROVED, "Service Center Id: " . $data[0]['service_center_id'], $agent_id, $agent_name, $partner_id);
+
+                    if ($status == 0) {
+                        echo "<script>alert('Thanks For Approving Upcountry Charges');</script>";
+                    } else {
+                        $userSession = array('success' => 'Booking Approved Successfully.');
+                        $this->session->set_userdata($userSession);
+                        redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
+                    }
+                } else {
+                    log_message('info', __FUNCTION__ . " => Not Assigned Booking Id" . $booking_id );
+                    $msg = "Thanks, Booking Has Been Already Approved.";
                 }
             } else {
-                if ($status == 0) {
-                    echo "<script>alert('Thanks, Booking Has Been Already Approved.');</script>";
-                } else {
-                    $userSession = array('error' => 'Booking Has Been Already Approved');
-                    $this->session->set_userdata($userSession);
-                    redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
-                }
+                log_message('info', __FUNCTION__ . " => Already Approve Booking Id" . $booking_id );
+                $msg = "Thanks, Booking Has Been Already Approved.";
             }
         } else {
+            log_message('info', __FUNCTION__ . " => Failed: Partner try to approve Booking Id" . $booking_id );
             $to = NITS_ANUJ_EMAIL_ID;
             $cc = "vijaya@247around.com, abhaya@247around.com";
             $message = "Partner try to approve Booking Id " . $booking_id . " but somehow it failed. <br/>Please check this booking.";
             $this->notify->sendEmail('booking@247around.com', $to, $cc, '', 'UpCountry Approval Failed', $message, '');
-            if ($status == 0) {
-                echo "<script>alert('Thanks, Booking Has Been Already Approved.');</script>";
-            } else {
-                $userSession = array('error' => 'Thanks, Booking Has Been Already Approved.');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
-            }
+            $msg = "Your request has been submitted. We will fix it shortly.";
+        }
+
+        if ($status == 0) {
+            echo "<script>alert('" . $msg . "');</script>";
+        } else {
+            $userSession = array('error' => $msg);
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
         }
     }
 
