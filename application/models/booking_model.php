@@ -2291,5 +2291,15 @@ class Booking_model extends CI_Model {
         return $query->result_array()[0]['numrows'];
     }
     
+    /**
+     * @desc: This function is used to insert Send email to database
+     * @params: $data Array()
+     * @return: Integer 
+     */
+    function add_email_send_details($data){
+        $this->db->insert('email_send_details', $data);
+        return $this->db->insert_id();
+    }
+    
     
 }

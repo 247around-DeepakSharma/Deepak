@@ -868,6 +868,7 @@ class Invoice extends CI_Controller {
         $this->email->subject($subject);
         $mail_ret = $this->email->send();
         if ($mail_ret) {
+            $this->notify->add_email_send_details($email_from,$to,$cc,"",$subject,$message,$pdf_attachement);
             log_message('info', __METHOD__ . ": Mail sent successfully");
             echo "Mail sent successfully..............." . PHP_EOL;
             return 1;
