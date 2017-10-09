@@ -2623,12 +2623,13 @@ class Invoice extends CI_Controller {
             );
             
              $this->invoices_model->insert_new_invoice($invoice_details);
-             log_message('info', __METHOD__ . ": Invoice ID is not inserted");
-             $this->session->set_flashdata('file_error', 'CRM SETUP INVOICE NOT INSERTED');
+             log_message('info', __METHOD__ . ": Invoice ID inserted");
+             $this->session->set_flashdata('file_error', 'CRM SETUP INVOICE GENERATED');
              redirect(base_url() . "employee/invoice/invoice_partner_view");
 
         } else {
-
+            log_message('info', __METHOD__ . ": Invoice ID inserted");
+            $this->session->set_flashdata('file_error', 'CRM SETUP INVOICE NOT GENERATED');
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
         }
@@ -2831,14 +2832,15 @@ class Invoice extends CI_Controller {
 
             $to = $partner_data['invoice_email_to'];
             $cc = $partner_data['invoice_email_cc'];
-            //$to ="abhaya@247around.com";
-            //$cc= "";
+           
             $this->upload_invoice_to_S3($invoice_id, false);
-            $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
-                
-            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $pdf_attachement_url, "");
+           
+            $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
+            exec($cmd);    
+            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER.$output_pdf_file_name, "");
             
             unlink(TMP_FOLDER.$invoice_id.".xlsx");
+            unlink(TMP_FOLDER.$output_pdf_file_name);
             unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
             
         }
