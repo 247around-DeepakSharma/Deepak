@@ -2501,7 +2501,7 @@ class Service_centers extends CI_Controller {
      * @return array
      */
     function get_sf_charges_data(){
-        $this->check_BB_UserSession();
+        $this->checkUserSession();
         //Getting SC ID from session
         $service_center_id  =  $this->session->userdata('service_center_id');
         if(!empty($service_center_id)){
