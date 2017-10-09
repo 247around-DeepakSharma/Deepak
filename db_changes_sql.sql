@@ -3260,4 +3260,16 @@ ALTER TABLE `pincode_not_found_sf`
 
   ALTER TABLE `service_centres` ADD `agent_id` INT(10) NULL DEFAULT NULL AFTER `create_date`;
 
+-- sachin 09 oct
 
+CREATE TABLE `email_send_details` 
+( 
+`id` INT(11) NOT NULL AUTO_INCREMENT , 
+`email_from` VARCHAR(64) NOT NULL , 
+`email_to` VARCHAR(256) NOT NULL , 
+`cc` VARCHAR(256) NULL , 
+`bcc` VARCHAR(256) NULL , 
+`subject` VARCHAR(256) NOT NULL , 
+`message` VARCHAR(256) NULL , 
+`attachment_link` VARCHAR(256) NULL , 
+`create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
