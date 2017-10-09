@@ -144,7 +144,7 @@ class Buyback_process extends CI_Controller {
     function process_in_tansit(){
        
         $post = $this->get_bb_post_view_data();
-        $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-d',strtotime("-30 days")));
+        $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-d',strtotime(TAT_BREACH_DAYS)));
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
@@ -255,7 +255,7 @@ class Buyback_process extends CI_Controller {
     function process_unassigned(){
         //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
-        $post['where'] = array('assigned_cp_id IS NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['where'] = array('assigned_cp_id IS NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
@@ -284,7 +284,7 @@ class Buyback_process extends CI_Controller {
     function process_lost_other(){
         //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
-        $post['where'] = array('order_date >= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['where'] = array('order_date >= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));
         $post['where_in'] = array('current_status' => array('Lost', 'Unknown'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');

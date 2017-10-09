@@ -359,16 +359,18 @@ class vendor extends CI_Controller {
             {
                 $_POST['is_verified'] = '0';
             }
+         
             
             
             //Getting RM Official Email details to send Welcome Mails to them as well
             $rm_official_email = $this->employee_model->getemployeefromid($rm)[0]['official_email'];
+            $agentID = $this->session->userdata('id');
                 
             if (!empty($this->input->post('id'))) {
                 
                 //if vendor exists, details are edited
                 $vendor_data = $this->get_vendor_form_data();
-
+                $vendor_data['agent_id'] = $agentID;
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
       
                 //Log Message
@@ -407,6 +409,7 @@ class vendor extends CI_Controller {
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
                 
                 $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
+                $vendor_data['agent_id'] = $agentID;
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
@@ -1072,7 +1075,8 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function deactivate($id) {
-        $this->vendor_model->deactivate($id);
+        $agentID = $this->session->userdata('id');
+        $this->vendor_model->deactivate($id,$agentID);
         
         //Getting Vendor Details
         $sf_details = $this->vendor_model->getVendorContact($id);
@@ -3292,7 +3296,8 @@ class vendor extends CI_Controller {
      */
     function temporary_on_off_vendor($id, $on_off) {
         log_message('info',__FUNCTION__.' id: '.$id.' on_off: '.$on_off);
-        $this->vendor_model->temporary_on_off_vendor($id,$on_off);
+        $agentID = $this->session->userdata('id');
+        $this->vendor_model->temporary_on_off_vendor($id,$on_off,$agentID);
         
         //Check on off
         if($on_off == 1){

@@ -750,7 +750,7 @@ class Around_scheduler extends CI_Controller {
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost'),
             'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime("-45 days")));
+        $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));
         $post['column_search'] = array();
         $select = "bb_order_details.id, bb_order_details.partner_order_id";
         $list = $this->bb_model->get_bb_order_list($post, $select);
@@ -952,7 +952,7 @@ class Around_scheduler extends CI_Controller {
                         break;
                     case SF_DOES_NOT_EXIST:
                         $data['is_upcountry'] = 0;
-                        if(isset($data['vendor_not_found'])){
+                        if(isset($up_details['vendor_not_found'])){
                             $data['remarks'] = SF_DOES_NOT_EXIST;
                              
                         } else {

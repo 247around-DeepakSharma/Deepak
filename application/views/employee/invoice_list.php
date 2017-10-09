@@ -210,12 +210,10 @@
                                     }
                                     ?>" name="<?php echo "amount_service_center[" . $value['id'] . "]"; ?>" value ="<?php echo $value['final_amount']; ?>" > </td>
                                 
-                                <?php } else { ?>
-                                <td><a href="#myModel" id="<?php echo "invoice_setup_" . $value['id']; ?>" onclick="invoice_setup_model('<?php echo $value['id']; ?>','<?php echo $value["name"]; ?>', 
-                                            '<?php echo $value['address']
-                                        ." , ".$value['district'].", Pincode- ".$value['pincode'].", ".$value['state']; ?>', '<?php echo $value['state']; ?>', 
-                                                    '<?php echo $value['seller_code']; ?>', '<?php echo $value['invoice_email_to']; ?>', '<?php echo $value['invoice_email_cc']; ?>')" class="btn btn-sm btn-primary text-center"
-                                    data-toggle="modal" data-target="#myModal"  >CRM Setup Invoice</a></td>
+                                <?php } else { if($value['id'] !== "247029") { $CRM_SETUP = CRM_SETUP_INVOICE_DESCRIPTION;} else { $CRM_SETUP = QC_INVOICE_DESCRIPTION;}  ?>
+                                <td>
+                                    <a href="#myModel" id="<?php echo "invoice_setup_" . $value['id']; ?>" onclick="invoice_setup_model('<?php echo $value['id']; ?>','<?php echo $value["name"]; ?>','<?php echo $CRM_SETUP; ?>' )" class="btn btn-sm btn-primary text-center"
+                                    data-toggle="modal" data-target="#myModal"  ><?php echo $CRM_SETUP;?></a></td>
                                 <?php } ?>
                             </tr>
                             <?php $count++;
@@ -252,12 +250,9 @@
             <div class="modal-body">
                 <form class="form-horizontal" action="<?php echo base_url() . "employee/invoice/generate_crm_setup"; ?>" method="POST"  >
                     <input class="form-control" type="hidden" id="model_partner_id" name="partner_id" value="" />
-                    <input class="form-control" type="hidden" id="model_seller_code" name="seller_code" value="" />
-                     <input class="form-control" type="hidden" id="model_email_to" name="email_to" value="" />
-                      <input class="form-control" type="hidden" id="model_email_cc" name="email_cc" value="" />
                     <input class="form-control" type="hidden" id="model_partner_name" name="partner_name" value=""/>
-                    <input class="form-control" type="hidden" id="model_partner_address" name="partner_address" value=""/>
-                    <input class="form-control" type="hidden" id="model_partner_state" name="partner_state" value=""/>
+                    <input class="form-control" type="hidden" id="model_invoice_type" name="invoice_type" value=""/>
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
@@ -268,9 +263,9 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="email">Agreement Date:</label>
+                                    <label for="email" id="agreement_date">Agreement Date:</label>
                                     <div class="input-group input-append date">
-                                        <input id="from_date" class="form-control" style="z-index: 1059; background-color:#fff;" name="from_date" type="date" required readonly='true'>
+                                        <input id="from_date" class="form-control" style="z-index: 1059; background-color:#fff;" name="daterange" type="text" required readonly='true'>
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                 </div>
@@ -327,16 +322,18 @@ if(isset($_SESSION['file_error'])){
     
     }
     
-    function invoice_setup_model(partner_id, partner_name, partner_address, state, seller_code, email_to, email_cc) {
+    function invoice_setup_model(partner_id, partner_name, CRM_SETUP) {
 
-        $(".modal-title").html(partner_name + " CRM Setup Invoice");
+        $(".modal-title").html(partner_name + " "+CRM_SETUP);
         $("#model_partner_id").val(partner_id);
         $("#model_partner_name").val(partner_name);
-        $("#model_partner_address").val(partner_address);
-        $("#model_partner_state").val(state);
-        $("#model_seller_code").val(seller_code);
-        $("#model_email_to").val(email_to);
-        $("#model_email_cc").val(email_cc);
+        $("#model_invoice_type").val(CRM_SETUP);
+        if(CRM_SETUP === '<?php echo QC_INVOICE_DESCRIPTION;?>'){
+            $("#agreement_date").text("Invoice Date");
+        } else {
+            $("#agreement_date").text("Agreement Date");
+        }
+       
     }
     $("#from_date").datepicker({dateFormat: 'yy-mm-dd'});
     
@@ -369,3 +366,24 @@ if(isset($_SESSION['file_error'])){
                               });
                });
 </script>
+
+ <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+    <script type="text/javascript">
+    $(function() {
+        $('input[name="daterange"]').daterangepicker({
+            locale: {
+               format: 'YYYY/MM/DD'
+            },
+            startDate: '<?php echo date("Y/m/01", strtotime("-1 month")) ?>',
+            endDate: '<?php echo date('Y-m-d', strtotime('last day of previous month')); ?>'
+        });
+//        $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+//          $(this).val(picker.startDate.format('YYYY/MM/DD') + '-' + picker.endDate.format('YYYY/MM/DD'));
+//        });
+
+        });
+</script>
+
