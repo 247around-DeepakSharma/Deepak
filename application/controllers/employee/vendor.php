@@ -808,14 +808,11 @@ class vendor extends CI_Controller {
         $this->email->to($to);
         
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
-           
-            $this->email->subject("Vendor Updated : " . $_POST['name'] . ' - By ' . $logged_user_name);
-        
+           $subject = "Vendor Updated : " . $_POST['name'] . ' - By ' . $logged_user_name;
         }else{
-            
-            $this->email->subject("New Vendor Added : " . $_POST['name'] . ' - By ' . $logged_user_name);
+            $subject = "New Vendor Added : " . $_POST['name'] . ' - By ' . $logged_user_name;
         }
-        
+        $this->email->subject($subject);
         $this->email->message($html);
 
         if (!empty($updated_vendor_details[0]['address_proof_file'])) {
@@ -853,6 +850,7 @@ class vendor extends CI_Controller {
         }
 
         if ($this->email->send()) {
+            $this->notify->add_email_send_details('booking@247around.com',$to,"","",$subject,$html,"");
             log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
             $flag = TRUE;
         } else {

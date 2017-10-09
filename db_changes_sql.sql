@@ -3242,3 +3242,80 @@ ALTER TABLE `trigger_partners` ADD `prepaid_grace_amount` INT(128) NOT NULL DEFA
 --Abhay 29 Sep
 ALTER TABLE `vendor_partner_invoices` ADD `parts_count` INT(11) NOT NULL DEFAULT '0' AFTER `num_bookings`;
 ALTER TABLE `trigger_vendor_partner_invoices` ADD `parts_count` INT(11) NOT NULL DEFAULT '0' AFTER `num_bookings`;
+
+INSERT INTO `query_report` (`id`, `description`, `query`, `active`, `type`, `create_date`) VALUES
+(null, 'debit_note_raised', 'select count(partner_order_id) as count from bb_order_details where current_status = \'Claim Debit Note Raised\'', 1, 'buyback','2017-09-20 13:05:48'),
+(null, 'debot_note_raised_amt', 'select round(COALESCE(sum(partner_basic_charge),0)) as count from bb_order_details join bb_unit_details on bb_order_details.partner_order_id = bb_unit_details.partner_order_id where current_status = \'Claim Debit Note Raised\'', 1, 'buyback','2017-09-20 13:16:26'),
+(null, 'debit_note_not_raised', 'select count(partner_order_id) as count from bb_order_details where current_status = \'Claim Approved\'', 1,'buyback', '2017-09-20 13:17:59'),
+(null, 'debit_note_not_raised_amt', 'select round(COALESCE(sum(partner_basic_charge),0)) as count from bb_order_details join bb_unit_details on bb_order_details.partner_order_id = bb_unit_details.partner_order_id where current_status = \'Claim Approved\'', 1,'buyback', '2017-09-20 13:17:59'),
+(null, 'last_month_order', 'SELECT (in_transit_count+deliverd_count) as count\nFROM ( \n    SELECT SUM(CASE\n        WHEN current_status = \'Delivered\' AND delivery_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 1 MONTH, \'%Y/%m/01\' ) AND delivery_date < DATE_FORMAT( CURRENT_DATE, \'%Y/%m/01\' )THEN 1\n        ELSE 0\n    END) AS \'deliverd_count\',\n    SUM(CASE\n       WHEN current_status IN (\'In-Transit\', \'New Item In-transit\', \'Attempted\') AND order_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 1 MONTH, \'%Y/%m/01\' ) AND order_date < DATE_FORMAT( CURRENT_DATE, \'%Y/%m/01\' ) THEN 1\n        ELSE 0\n    END) AS \'in_transit_count\' FROM bb_order_details) as a', 1,'buyback', '2017-09-21 06:06:22'),
+(null, 'this_month_order', 'SELECT (in_transit_count+deliverd_count) as count\nFROM ( \n    SELECT SUM(CASE\n        WHEN current_status = \'Delivered\' AND delivery_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 0 MONTH, \'%Y/%m/01\' ) THEN 1\n        ELSE 0\n    END) AS \'deliverd_count\',\n    SUM(CASE\n       WHEN current_status IN (\'In-Transit\', \'New Item In-transit\', \'Attempted\') AND order_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 0 MONTH, \'%Y/%m/01\' ) THEN 1\n        ELSE 0\n    END) AS \'in_transit_count\' FROM bb_order_details) as a', 1, 'buyback','2017-09-21 06:09:34'),
+(null, 'avg_buying_price', 'SELECT round(AVG(partner_basic_charge+partner_tax_charge)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id', 1, 'buyback','2017-09-21 06:48:40'),
+(null, 'avg_selling_price', 'SELECT round(AVG(cp_basic_charge+cp_tax_charge)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id', 1,'buyback', '2017-09-21 06:48:40');
+
+--sachin 29 sep
+ALTER TABLE `query_report` ADD `type` VARCHAR(64) NOT NULL AFTER `active`;
+UPDATE `query_report` SET `type` = 'service' 
+
+--Abhay 03 oct
+ALTER TABLE `partners` CHANGE `prepaid_grace_amount` `prepaid_notification_amount` INT(128) NOT NULL DEFAULT '0';
+ALTER TABLE `partners` CHANGE `grace_period` `grace_period_date` DATE NULL DEFAULT NULL;
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'low_prepaid_amount', 'Low Balance', 'Dear Partner,<br/><br/> Please recharge your account <br/><br/>Thanks,<br/>247around Team', 
+'billing@247around.com', '', 'anuj@247around.com, nits@247around.com, adityag@gmail.com', '', '1', '2017-10-03 13:05:07');
+
+--Chhavi 06 oct
+ALTER TABLE `employee_relation` ADD `state_id` VARCHAR(50) NOT NULL AFTER `service_centres_id`;
+
+--Chhavi
+CREATE TABLE `pincode_not_found_sf` (
+  `id` int(11) NOT NULL,
+  `pincode` int(10) NOT NULL,
+  `area` varchar(20) NOT NULL,
+  `division` varchar(20) NOT NULL,
+  `region` varchar(20) NOT NULL,
+  `taluk` varchar(20) NOT NULL,
+  `district` varchar(20) NOT NULL,
+  `state` varchar(20) NOT NULL,
+  `rm_id` int(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `pincode_not_found_sf`
+--
+ALTER TABLE `pincode_not_found_sf`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `pincode_not_found_sf`
+--
+ALTER TABLE `pincode_not_found_sf`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
+
+
+
+--Chhavi
+
+  ALTER TABLE `service_centres` ADD `agent_id` INT(10) NULL DEFAULT NULL AFTER `create_date`;
+
+-- sachin 09 oct
+
+CREATE TABLE `email_send_details` 
+( 
+`id` INT(11) NOT NULL AUTO_INCREMENT , 
+`email_from` VARCHAR(64) NOT NULL , 
+`email_to` VARCHAR(256) NOT NULL , 
+`cc` VARCHAR(256) NULL , 
+`bcc` VARCHAR(256) NULL , 
+`subject` VARCHAR(256) NOT NULL , 
+`message` VARCHAR(256) NULL , 
+`attachment_link` VARCHAR(256) NULL , 
+`create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;

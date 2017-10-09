@@ -680,6 +680,7 @@ class Partner extends CI_Controller {
                 }
                 $html .= "</ul>";
                 $to = ANUJ_EMAIL_ID;
+                $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
 
                 $html .= $state_html;
 
@@ -690,7 +691,7 @@ class Partner extends CI_Controller {
                 $this->email->from('booking@247around.com', '247around Team');
                 $this->email->to($to);
 
-                $this->email->subject("Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name);
+                $this->email->subject($subject);
                 $this->email->message($html);
 
                 if (isset($attachment_contract)) {
@@ -713,6 +714,7 @@ class Partner extends CI_Controller {
                 }
 
                 if ($this->email->send()) {
+                    $this->notify->add_email_send_details('booking@247around.com',$to,"","",$subject,$html,"");
                     log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
                 } else {
                     log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
@@ -896,6 +898,7 @@ class Partner extends CI_Controller {
                     }
                     $html .= "</ul>";
                     $to = ANUJ_EMAIL_ID;
+                    $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
 
                     //Cleaning Email Variables
                     $this->email->clear(TRUE);
@@ -903,8 +906,9 @@ class Partner extends CI_Controller {
                     //Send report via email
                     $this->email->from('booking@247around.com', '247around Team');
                     $this->email->to($to);
+                    
 
-                    $this->email->subject("New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name);
+                    $this->email->subject($subject);
                     $this->email->message($html);
 
                     if (isset($attachment_contract)) {
@@ -918,6 +922,7 @@ class Partner extends CI_Controller {
                     }
 
                     if ($this->email->send()) {
+                        $this->notify->add_email_send_details('booking@247around.com',$to,"","",$subject,$html,"");
                         log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
                     } else {
                         log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
