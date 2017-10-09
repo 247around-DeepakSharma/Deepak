@@ -3,34 +3,12 @@
         text-align: right;
     }
     .col-md-3 {
-        width: 22%;
-    }
-
-    @keyframes blink {
-        50% { opacity: 0.0; }
-    }
-    @-webkit-keyframes blink {
-        50% { opacity: 0.0; }
+        width: 18%;
     }
     
-    .blink {
-        animation: blink 1s step-start 0s infinite;
-        -webkit-animation: blink 1s step-start 0s infinite;
-    }
-
-    .esclate {
-        width: auto;
-        height: 17px;
-        background-color: #F73006;
-        color: #fff;
-        margin-left: 0px;
-        font-weight: bold;
-        margin-right: 0px;
-        font-size: 12px;
-    }
-    
-    .dialog{
-        display: none;
+    .change_background{
+        background-color:rgb(162, 230, 162); 
+        color:#000;
     }
     .select2-container .select2-selection--single{
         height: 34px;
@@ -45,7 +23,7 @@
     .spinner {
         margin: 0px auto;
         width: 50px;
-        height: 50px;
+        height: 40px;
         text-align: center;
         font-size: 10px;
     }
@@ -102,12 +80,12 @@
             height: 100%;
             top: 10px;
     }
+    
 </style>
-
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 <div id="page-wrapper" >
     <div class="row">
-        <h1> <?php echo ucfirst($booking_status);?> Bookings</h1>
+        <h1> <?php if($query_status == _247AROUND_CANCELLED){echo ucfirst($query_status);}else{ echo "Pending";}?> Queries</h1>
         <hr>
         <?php
         if ($this->session->userdata('success')) {
@@ -155,18 +133,6 @@
                 <div class="col-md-3">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
-                            <select class="form-control filter_table" id="sf_id">
-                                <option value="" selected="selected" disabled="">Select Service Center</option>
-                                <?php foreach($sf as $val){ ?>
-                                <option value="<?php echo $val['id']?>"><?php echo $val['name']?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="item form-group">
-                        <div class="col-md-12 col-sm-12 col-xs-12">
                             <select class="form-control filter_table" id="appliance">
                                 <option value="" selected="selected" disabled="">Select Services</option>
                                 <?php foreach($services as $val){ ?>
@@ -190,82 +156,48 @@
             <table id="datatable1" class="table table-bordered table-responsive">
                 <thead>
                     <tr>
-                        <th>S.No.</th>
+                        <th>S No.</th>
                         <th>Booking Id</th>
-                        <th>User Name / Phone Number</th>
+                        <th>User Name / Phone No.</th>
                         <th>Service Name</th>
-                        <th>Booking Date</th>
-                        <th>Status</th>
-                        <th>Service Centre</th>
+                        <th>Booking Date / Time</th>
+                        <?php if($query_status != _247AROUND_CANCELLED){?>
+                        <th  >Status</th>
+                         <?php } ?>
+                        <th>City</th>
+                        <th>Query Remarks</th>
+                        <?php if($query_status != _247AROUND_CANCELLED){ ?>
+                            <?php if($pincode_status == PINCODE_NOT_AVAILABLE){ ?>
+                                <th>Pincode</th>
+                            <?php } else { ?>
+                                <th>Vendor Status</th>
+                            <?php } 
+                        } ?>
                         <th>Call</th>
                         <th>View</th>
-                        <th>Reschedule</th>
-                        <th>Cancel</th>
-                        <th>Complete</th>
-                        <th>Job Card</th>
-                        <th>Mail</th>
-                        <th>Reminder Mail</th>
-                        <th>Edit Booking</th>
-                        <th>Re-assign</th>
-                        <th>Escalate</th>
-                        <th>Remove Penalty</th>
+                        <?php if($query_status != _247AROUND_CANCELLED){?>
+                            <th>Update</th>
+                        <?php } if($query_status == _247AROUND_CANCELLED){ ?>
+                            <th>Un-Cancel</th>
+                        <?php } else{ ?>
+                            <th>Cancel</th>
+                        <?php } ?>
                     </tr>
-                    <tbody></tbody>
                 </thead>
+                <tbody></tbody>
             </table>
         </div>
     </div>
-    
-    <!-- start upcountry model -->
-    <div id="myModal3" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg" id="open_model1">
-            <!-- Modal content-->
-            <div class="modal-content" >
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Upcountry Call</h4>
-                </div>
-                <div class="modal-body" >
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- end upcountry model -->
-    
-    <!--Cancel Modal-->
-    <div id="penaltycancelmodal" class="modal fade" role="dialog">
-      <div class="modal-dialog modal-lg" >
-          <form name="cancellation_form" id="cancellation_form" class="form-horizontal" action="<?php echo base_url() ?>employee/vendor/process_remove_penalty" method="POST">
-
-            <div class="modal-content">
-              <div class="modal-header">
-                <h4 class="modal-title" style="text-align: center"><b>Remove Penalty</b></h4>
-              </div>
-              <div class="modal-body">
-                  <span id="error_message" style="display:none;color: red;margin-bottom:10px;"><b>Please Select At Least 1 Booking</b></span>
-                  <div id="open_model"></div>
-              </div>
-              <div class="modal-footer">
-                 <input type="button" onclick="form_submit()" value="Submit" class="btn btn-info " form="modal-form">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-              </div>
-            </div>
-
-          </form>
-      </div>
-    </div>
-    <!-- end cancel model -->
-    
 </div>
+
+
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script>
     
-    var booking_status = '<?php echo $booking_status;?>';
+    var booking_status = '<?php echo $query_status;?>';
     var booking_id = '<?php echo $booking_id;?>';
+    var pincode_status = '<?php echo $pincode_status;?>';
     var datatable1;
     
     $('#partner_id').select2({
@@ -297,26 +229,65 @@
             "pageLength": 25,
             "ordering": false,
             "ajax": {
-                "url": "<?php echo base_url(); ?>employee/booking/get_bookings_by_status/"+booking_status,
+                "url": "<?php echo base_url(); ?>employee/booking/get_queries_data/"+booking_status,
                 "type": "POST",
                 "data": function(d){
                     d.booking_status =  booking_status;
                     d.booking_id =  '<?php echo $booking_id;?>';
                     d.partner_id =  $('#partner_id').val();
-                    d.sf_id =  $('#sf_id').val();
-                    d.appliance =  $('#appliance').val();
                     d.booking_date =  $('#booking_date').val();
+                    d.appliance =  $('#appliance').val();
+                    d.pincode_status = pincode_status;
                  }
             },
             "deferRender": true,
-            "fnInitComplete": function (oSettings, response) {
-               $('input[type="search"]').attr("name", "search_value");           
-            }        
+            "fnRowCallback": function( nRow , aData) {
+                var cellData = aData[5];
+                if(booking_status !== 'Cancelled' && cellData.split(" ")[1] === '(Missed_call_confirmed)'){
+                    $(nRow).addClass("change_background");
+                    return nRow;
+                }              
+            },
+            "fnDrawCallback": function(){
+                <?php if($query_status  !== "Cancelled" && $pincode_status !== PINCODE_NOT_AVAILABLE){ ?>
+  
+                    var info = datatable1.page.info();
+                    var start = (info.start)+1;
+                    var end = (info.end);    
+                    for(var c = start; c <= end; c++  ){
+                        var index = c;
+                        var service_id = $("#service_id_"+ c).val();
+                        var pincode = $("#pincode_"+ c).val();
+                        if(pincode !== ""){
+                            get_vendor(pincode, service_id, index);
+                        } else {
+                            $("#av_vendor"+index).css("display","none");
+                            $("#av_pincode"+index).css("display","inherit");
+                        }
+                    }
+                <?php } ?> 
+            }       
         });
         
         $('.filter_table').on('change', function(){
             datatable1.ajax.reload();
         });
+        
+        function get_vendor(pincode, service_id, index){
+            $.ajax({
+                    type:"POST",
+                    url:"<?php echo base_url()?>employee/vendor/get_vendor_availability/"+pincode+"/"+service_id,
+                    success: function(data){
+                        if(data !== ""){
+                           $("#av_vendor"+index).html(data); 
+                        } else {
+                            $("#av_vendor"+index).css("display","none");
+                            $("#av_pincode"+index).css("display","inherit");
+                        }
+                    }
+            });
+        }    
+        
     });
 
 </script>
@@ -350,103 +321,16 @@
 
     }
     
-    function open_upcountry_model(sc_id, booking_id, amount_due, sf_rate){
-     
+    function form_submit(booking_id){
         $.ajax({
-          type: 'POST',
-          url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
-          success: function (data) {
-              console.log(data);
-           $("#open_model1").html(data);   
-           $('#myModal3').modal('toggle');
-          }
-        });
-    }
-    
-    function form_submit() {
-        
-        var checkbox_val = [];
-        $(':checkbox:checked').each(function(i){
-          checkbox_val[i] = $(this).val();
-        });
-        if(checkbox_val.length === 0){
-            $('#error_message').css('display','block');
-            return false;
-        }else{
-            $("#cancellation_form").submit();
-        }
-    }  
-    
-    function get_penalty_details(booking_id,status){
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_penalty_details_data/' + booking_id+"/"+status,
-            success: function (data) {
-             $("#open_model").html(data);   
-             $('#penaltycancelmodal').modal('toggle');
-
-            }
-          });
-    }
-    
-    //Function to show the specific popup form
-    function show(id)
-    {
-        var type = id.search("b_notes");
-        var count = id.replace( /^\D+/g, '');
-
-        if (type >= 0) {
-            $('#bookingMailForm'+count).toggle(500);
-        }
-        else {
-            $('#reminderMailForm'+count).toggle(500);
-        }
-    }
-
-    //Function to send email to vendor using ajax
-    function send_email_to_vendor(i)
-    {
-
-        var id = $("#booking_id"+i).val();
-        var additional_note = $("#valueFromMyButton"+i).val();
-
-        $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url(); ?>employee/bookingjobcard/send_mail_to_vendor/' + id + "/" + additional_note,
-                success: function(response) {
-                    var resAlert = response.search("Mail sent to Service Center successfully.");
-
-                    if (resAlert >= 0)
-                        alert("Mail sent to Service Center successfully.")
-                    else
-                        alert("Mail could not be sent, please try again.");
+                type:"POST",
+                data:{booking_id:booking_id},
+                url:"<?php echo base_url()?>employee/vendor/get_add_vendor_to_pincode_form",
+                success: function(data){
+                    $("#page-wrapper").html(data);
                 }
         });
-
-        $("#bookingMailForm"+i).toggle(500);
     }
-
-    //Function to send reminder email to vendor
-    function send_reminder_email_to_vendor(i)
-    {
-        var id = $("#booking_id"+i).val();
-        var additional_note = $("#reminderMailButton"+i).val();
-        $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url(); ?>employee/bookingjobcard/send_reminder_mail_to_vendor/' + id + "/" + additional_note,
-                success: function(response) {
-                    var resAlert = response.search("Reminder mail sent to Service Center successfully.");
-
-                    if (resAlert >= 0)
-                        alert("Reminder mail sent to Service Center successfully.")
-                    else
-                        alert("Reminder mail could not be sent, please try again.");
-                }
-        });
-
-        $("#reminderMailForm"+i).toggle(500);
-    }
-
 
 </script>
 <?php $this->session->unset_userdata('success'); ?>

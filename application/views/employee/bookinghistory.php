@@ -103,15 +103,15 @@
                             //It is a query, check its status and assign appropriate view
                           switch ($row['current_status']) {
                               case 'FollowUp':
-                              $view = 'employee/booking/view_queries/FollowUp/p_all/0/0/'.$row['booking_id'];
+                              $view = 'employee/booking/view_queries/FollowUp/p_all/'.$row['booking_id'];
                               break;
 
                               case 'Cancelled':
-                                $view = 'employee/booking/view_queries/Cancelled/p_all/0/0/'.$row['booking_id'];
+                                $view = 'employee/booking/view_queries/Cancelled/p_all/'.$row['booking_id'];
                                 break;
 
                                 default:
-                                $view = 'employee/booking/view_queries/FollowUp/p_all/0/0/'.$row['booking_id'];
+                                $view = 'employee/booking/view_queries/FollowUp/p_all/'.$row['booking_id'];
                                 break;
                           }
 
