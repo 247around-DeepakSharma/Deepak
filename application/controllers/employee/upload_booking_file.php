@@ -1277,7 +1277,7 @@ class Upload_booking_file extends CI_Controller {
         $row[] = "<a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".
         $file_list->file_name."'>$file_list->file_name</a>";
         $row[] = $file_list->agent_name;
-        $row[] = $file_list->upload_date;
+        $row[] = date('d M Y H:i:s', strtotime($file_list->upload_date));
         
         return $row;
     }

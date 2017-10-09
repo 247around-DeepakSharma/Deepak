@@ -1344,38 +1344,38 @@ class Booking extends CI_Controller {
      *  @param : offset and per page number
      *  @return : list of pending queries according to pagination
      */
-    function view_queries($status, $p_av, $page = 0, $offset = '0', $booking_id = "") {
-        if ($page == 0) {
-            $page = 50;
-        }
-
-        //$offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
-        $config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status . "/" . $p_av . "/" . $page;
-
-        //Get count of all pending queries
-        $total_queries = $this->booking_model->get_queries(0, "All", $status, $p_av, $booking_id);
-
-        $config['total_rows'] = $total_queries[0]->count;
-        if ($offset == "All") {
-            $config['per_page'] = $config['total_rows'];
-        } else {
-            $config['per_page'] = $page;
-        }
-
-        $config['uri_segment'] = 7;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        //Get actual data for all pending queries now
-        $data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
-
-        $data['p_av'] = $p_av;
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/viewpendingqueries', $data);
-    }
+//    function view_queries1($status, $p_av, $page = 0, $offset = '0', $booking_id = "") {
+//        if ($page == 0) {
+//            $page = 50;
+//        }
+//
+//        //$offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
+//        $config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status . "/" . $p_av . "/" . $page;
+//
+//        //Get count of all pending queries
+//        $total_queries = $this->booking_model->get_queries(0, "All", $status, $p_av, $booking_id);
+//
+//        $config['total_rows'] = $total_queries[0]->count;
+//        if ($offset == "All") {
+//            $config['per_page'] = $config['total_rows'];
+//        } else {
+//            $config['per_page'] = $page;
+//        }
+//
+//        $config['uri_segment'] = 7;
+//        $config['first_link'] = 'First';
+//        $config['last_link'] = 'Last';
+//
+//        $this->pagination->initialize($config);
+//        $data['links'] = $this->pagination->create_links();
+//
+//        //Get actual data for all pending queries now
+//        $data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
+//
+//        $data['p_av'] = $p_av;
+//        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+//        $this->load->view('employee/viewpendingqueries', $data);
+//    }
 
     /**
      * @desc: load update booking form to update booking
@@ -2073,7 +2073,7 @@ class Booking extends CI_Controller {
         //Log this state change as well for this booking
         $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP, _247AROUND_CANCELLED, "Cancelled_Query to FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
-        redirect(base_url() . 'employee/booking/view_queries/FollowUp/' . PINCODE_ALL_AVAILABLE . '/0/0/' . $booking_id);
+        redirect(base_url() . 'employee/booking/view_queries/FollowUp/' . PINCODE_ALL_AVAILABLE . '/' . $booking_id);
     }
     
     /**
@@ -2608,7 +2608,7 @@ class Booking extends CI_Controller {
      */
     private function get_bookings_data_by_status($booking_status) {
         $post = $this->get_post_data();
-        $new_post = $this->get_filterd_post_data($post,$booking_status);
+        $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
         
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
@@ -2647,7 +2647,7 @@ class Booking extends CI_Controller {
      *  @param : $booking_status string
      *  @return : $post Array()
      */
-    private function get_filterd_post_data($post,$booking_status){
+    private function get_filterd_post_data($post,$booking_status,$type){
         $partner_id = $this->input->post('partner_id');
         $sf_id = $this->input->post('sf_id');
         $date_range = $this->input->post('booking_date_range');
@@ -2656,14 +2656,20 @@ class Booking extends CI_Controller {
         $appliance = $this->input->post('appliance');
         $booking_date = $this->input->post('booking_date');
         
-        if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
-            $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
-        }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
-            $post['where']  = array("current_status IN ('Pending','Rescheduled')" => NULL,
-                "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1" => NULL );
-            $post['order'] = array(array('column' => 0,'dir' => 'desc'));
-            $post['order_performed_on_count'] = TRUE;
+        if($type == 'booking'){
+            if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
+                $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
+            }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
+                $post['where']  = array("current_status IN ('Pending','Rescheduled')" => NULL,
+                    "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1" => NULL );
+                $post['order'] = array(array('column' => 0,'dir' => 'desc'));
+                $post['order_performed_on_count'] = TRUE;
+            }
+        }else if($type == 'query'){
+            $post['where']['current_status'] = $booking_status;
+            $post['order_by'] = "CASE WHEN booking_details.internal_status = 'Missed_call_confirmed' THEN 'a' WHEN  booking_details.booking_date = '' THEN 'b' WHEN  booking_details.booking_date = '' THEN 'b' ELSE 'c' END , booking_day";
         }
+        
         
         if(!empty($booking_id)){
             $post['where']['booking_details.booking_id'] =  $booking_id;
@@ -2702,7 +2708,7 @@ class Booking extends CI_Controller {
         }
         
         $post['column_order'] = array('booking_day');
-        $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date');
+        $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks');
         
         return $post;
     }
@@ -3087,4 +3093,112 @@ class Booking extends CI_Controller {
         
         return $row;
     }
+    
+    
+    /**
+     *  @desc : This function is used to show queries based on query status
+     *  @param : $status string
+     *  @return : $output JSON
+     */
+    public function view_queries($status, $p_av,$booking_id=""){
+        $data['query_status'] = trim($status);
+        $data['pincode_status'] = trim($p_av);
+        $data['booking_id'] = trim($booking_id);
+        $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',array('is_active'=> '1'));
+        $data['services'] = $this->booking_model->selectservice();
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/view_pending_queries', $data);
+    }
+    
+    /**
+     *  @desc : This function is used to get queries based on query status
+     *  @param : $status string
+     *  @return : $output JSON
+     */
+    public function get_queries_data($status){
+        
+        $booking_status = trim($status);
+        $pincode_status = trim($this->input->post('pincode_status'));
+        $data = $this->get_queries_detailed_data($booking_status,$pincode_status);
+        
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->booking_model->count_all_queries($post,$pincode_status,$booking_status),
+            "recordsFiltered" =>  $this->booking_model->count_filtered_queries($post,$pincode_status,$booking_status),
+            "data" => $data['data'],
+        );
+        
+        echo json_encode($output);
+    }
+    
+    public function get_queries_detailed_data($query_status,$pincode_status) {
+        $post = $this->get_post_data();
+        $new_post = $this->get_filterd_post_data($post, $query_status, "query");
+        
+        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day";
+
+        $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
+        unset($new_post['order_performed_on_count']);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row = $this->get_queries_table($order_list, $no, $query_status,$pincode_status);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $new_post
+        );
+    }
+    
+    private function get_queries_table($order_list, $no, $query_status,$pincode_status){
+        $row = array();
+
+        $row[] = $no." <div><input type = 'hidden' id = 'service_id_".$no."' value = '".$order_list->service_id."'><input type = 'hidden' id = 'pincode_".$no."' value = '".$order_list->booking_pincode."'></div>";
+        $row[] = $order_list->booking_id;
+        $row[] = "<a href='".base_url()."employee/user/finduser/0/0/$order_list->phone_number'>$order_list->customername / <b>$order_list->phone_number </b></a>";
+        $row[] = $order_list->services;
+        $row[] = $order_list->booking_date . "/" . $order_list->booking_timeslot;
+        if($query_status != _247AROUND_CANCELLED){
+            $status = $order_list->current_status;
+            if ($order_list->current_status != $order_list->internal_status){
+                $status .= "<br> (" . $order_list->internal_status . ") <div>";
+            }
+            $row[] = $status;
+        }
+        $row[] = $order_list->city;
+        $row[] = $order_list->query_remarks;
+        if($query_status != _247AROUND_CANCELLED){
+            if($pincode_status == PINCODE_NOT_AVAILABLE){
+               $pincode =  "<a href='javascript:void(0)' style='color: red;' onclick='form_submit(".'"'.$order_list->booking_id.'"'.")'>$order_list->booking_pincode</a>";
+            }else if($pincode_status == PINCODE_ALL_AVAILABLE || $pincode_status == PINCODE_AVAILABLE ){
+                $pincode = "<select id='av_vendor".$no."' style='max-width:100px;'>";
+                $pincode .= "<option>Vendor Available</option>";
+                $pincode .= "</select>";
+                
+                $pincode .= "<a id='av_pincode".$no."' href='javascript:void(0)' style='color: red; display:none;' onclick='form_submit(".'"'.$order_list->booking_id.'"'.")'>$order_list->booking_pincode</a>";
+            }
+            
+            $row[] = $pincode;
+        }
+        $row[] = "<button type='button' class = 'btn btn-sm btn-info' onclick = 'outbound_call($order_list->booking_primary_contact_no)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+        $row[] = "<a id ='view' class ='btn btn-sm btn-primary' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
+        if($query_status != _247AROUND_CANCELLED){
+            $row[]  = "<a class = 'btn btn-sm btn-success' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Update' target ='_blank'><i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
+        }
+        
+        if($query_status == _247AROUND_CANCELLED){
+            $row[]  = "<a class = 'btn btn-sm btn-warning' href = '" . base_url() . "employee/booking/open_cancelled_query/$order_list->booking_id' title = 'Open' target ='_blank'><i class = 'fa fa-calendar' aria-hidden = 'true'></i></a>";
+        }else{
+            $row[]  = "<a class = 'btn btn-sm btn-warning' href = '" . base_url() . "employee/booking/get_cancel_form/$order_list->booking_id/FollowUp' title = 'Cancel' target ='_blank'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
+        }
+        
+        
+        return $row;
+        
+    }
+
 }
