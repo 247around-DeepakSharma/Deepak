@@ -166,6 +166,7 @@
                          <?php } ?>
                         <th>City</th>
                         <th>Query Remarks</th>
+                        <th>Appliance Description</th>
                         <?php if($query_status != _247AROUND_CANCELLED){ ?>
                             <?php if($pincode_status == PINCODE_NOT_AVAILABLE){ ?>
                                 <th>Pincode</th>
