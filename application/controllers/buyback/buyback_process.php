@@ -1902,6 +1902,20 @@ class Buyback_process extends CI_Controller {
         $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
         $this->load->view('dashboard/bb_dashboard_summary', $data_report);
     }
+    
+    function get_bb_svc_balance(){
+        $this->table = 'bb_svc_balance';
+        $this->select = 'tv_balance,la_balance,(tv_balance+la_balance) as total_balance';
+        $this->order_by = array('create_date' => 'DESC');
+        $this->limit = array('length' => 1,'start' => 0);
+        $data = $this->booking_model->get_search_query($this->table,$this->select , NULL,NULL, $this->limit ,$this->order_by);
+        if(!empty($data)){
+            $response = $data->result_array()[0];
+        }else{
+            $response = "no data found";
+        }
+        echo json_encode($response);
+    }
 
     
 }

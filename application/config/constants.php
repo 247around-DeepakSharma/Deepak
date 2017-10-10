@@ -450,5 +450,11 @@ define("QC_HSN_CODE", 998397);
 
 define("TAT_BREACH_DAYS", "-30 days");
 
+// QC Balance Read Email Constant
+define('QC_BALANCE_READ_EMAIL','sachinj@247around.com');
+define('QC_BALANCE_READ_EMAIL_PASSWORD','sachinj');
+define('TV_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000071' Notification");
+define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000029' Notification");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

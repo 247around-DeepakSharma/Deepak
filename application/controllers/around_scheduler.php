@@ -946,5 +946,61 @@ class Around_scheduler extends CI_Controller {
             $this->upcountry_model->upcountry_pincode_services_sf_level($upcountry_data);
         }
     }
+    
+    /**
+    * @desc     Get Buyback QC Balance From Email
+    * @param    void()
+    * @return   void() 
+    */
+    function get_bb_balance_from_email(){
+        $data = array();
+        $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
+        $email = QC_BALANCE_READ_EMAIL;
+        $password = QC_BALANCE_READ_EMAIL_PASSWORD;
+        //create connection for email
+        $conn = $this->email_data_reader->create_email_connection($mail_server,$email,$password);
+        if($conn != 'FALSE'){
+            //get emails for TV Balance
+            $tv_condition = 'SINCE "'.date("d M Y",strtotime(date("Y-m-d"))).'" SUBJECT "'.TV_BALANCE_EMAIL_SUBJECT.'"';
+            $tv_email_data = $this->email_data_reader->get_emails($tv_condition);
+            if(!empty($tv_email_data)){
+                $email_body = $tv_email_data[0]['body'];
+                $match = array();
+                $pattern_new = '/\bRs. (\d*\.?\d+)/';
+                preg_match_all($pattern_new, $email_body, $match);
+                if(!empty($match) && isset($match[1][0])){
+                   $data['tv_balance'] = $match[1][0];
+                }
+            }
+            
+            //get emails for LA Balance
+            $la_condition = 'SINCE "'.date("d M Y",strtotime(date("Y-m-d"))).'" SUBJECT "'.LA_BALANCE_EMAIL_SUBJECT.'"';
+            $la_email_data = $this->email_data_reader->get_emails($la_condition);
+            if(!empty($la_email_data)){
+                $email_body = $la_email_data[0]['body'];
+                $match = array();
+                $pattern_new = '/\bRs. (\d*\.?\d+)/';
+                preg_match_all($pattern_new, $email_body, $match);
+                if(!empty($match) && isset($match[1][0])){
+                   $data['la_balance'] = $match[1][0];
+                }
+            }
+            
+            //if balance is not empty then insert it into datatbase
+            if(!empty($data)){
+                $insert_id = $this->around_scheduler_model->add_bb_svc_balance($data);
+                if($insert_id){
+                    log_message('info',"Amazon SVC balance has been inserted successfully. New Balance = ".print_r($data,true));
+                }else{
+                    log_message('info',"Error in inserting Amazon SVC balance.".print_r($data,true));
+                }
+            }
+            //close email connection
+            $this->email_data_reader->close_email_connection();
+        }
+        else{
+            log_message('info', 'Connection is not created');
+        }
+    }
 
 }
