@@ -9,13 +9,13 @@ body {
 }
 
 .search_fab {
-   width: 50px;
-   height: 50px;
+   width: 45px;
+   height: 45px;
    background-color: #5bc0de;
    border-radius: 50%;
    box-shadow: 0 6px 10px 0 #666;
-   font-size: 20px;
-   line-height: 50px;
+   font-size: 18px;
+   line-height: 45px;
    color: white;
    text-align: center;
    position: fixed;
