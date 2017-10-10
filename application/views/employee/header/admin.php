@@ -507,8 +507,3 @@
             <label class="search_fab " for="search_in"> <i class="fa fa-search" aria-hidden="true" ></i> </label>
 
         </div>
-        <style>
-            
-            
-
-</style>
