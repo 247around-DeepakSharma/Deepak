@@ -143,7 +143,7 @@ $this->session->unset_userdata('brackets_error');
             if ($('#_26_32_' + id[3]).val().match(numbers)) {
                 _26_32 = parseInt($('#_26_32_' + id[3]).val());
                 if(_26_32 > 50){
-                    alert('Only 50 or less than 5 brackets can be order');
+                    alert('50 or less brackets can be ordered');
                     $('#_26_32_' + id[3]).css({'border-color' : 'red'});
                     $('#submitform').attr('disabled', true);
                 }else{
@@ -160,7 +160,7 @@ $this->session->unset_userdata('brackets_error');
             if ($('#_36_42_' + id[3]).val().match(numbers)) {
                 _36_42 = parseInt($('#_36_42_' + id[3]).val());
                 if(_36_42 > 50){
-                    alert('Only 50 or less than 50 brackets can be order');
+                    alert('50 or less brackets can be ordered');
                     $('#_36_42_' + id[3]).css({'border-color' : 'red'});
                     $('#submitform').attr('disabled', true);
                 }else{

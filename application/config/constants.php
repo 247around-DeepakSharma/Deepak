@@ -444,11 +444,13 @@ define('SMS_DEACTIVATION_NO_NEW_REQUEST_MSG','There is not any new request');
 
 
 define("PARTNER_ADVANCE_DESCRIPTION", "Advance Payment");
+define("PARTNER_INVOICE_BUTTON", "CRM Setup Invoice");
+define("CT_INVOICE_BUTTON", "Sweetener Invoice");
 define("QC_INVOICE_DESCRIPTION", "Service Charges for QC");
 define("CRM_SETUP_INVOICE_DESCRIPTION", "Annual Setup Charges");
 define("QC_HSN_CODE", 998397);
 
-define("TAT_BREACH_DAYS", "-30 days");
+define("TAT_BREACH_DAYS", "-45 days");
 
 // QC Balance Read Email Constant
 define('QC_BALANCE_READ_EMAIL','sachinj@247around.com');
