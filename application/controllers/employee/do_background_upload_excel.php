@@ -310,7 +310,7 @@ class Do_background_upload_excel extends CI_Controller {
             // Now we send state, partner_id and service_id 
             $value['Brand'] = isset($value['service_appliance_data']['brand'])?$value['service_appliance_data']['brand'] :$value['Brand'];
             $value['Brand'] = trim(str_replace("'", "", $value['Brand']));
-            $data = $this->_allot_source_partner_id_for_pincode($value['service_id'], $distict_details['state'], $value['Brand']);
+            $data = $this->miscelleneous->_allot_source_partner_id_for_pincode($value['service_id'], $distict_details['state'], $value['Brand'],$default_partner);
             if ($data) {
                 $booking['partner_id'] = $data['partner_id'];
                 $booking['source'] = $data['source'];
@@ -689,8 +689,9 @@ class Do_background_upload_excel extends CI_Controller {
 		exit();
 	    }
             if(!empty($value['Phone'])){
-	    // check mobile number validation
-	        if (!preg_match('/^\d{10}$/', $value['Phone'])) {
+	        // check mobile number validation
+                $phone = explode('/', $value['Phone']);
+	        if (!preg_match('/^\d{10}$/', $phone[0])) {
 		    unset($data[$key]);
 		    array_push($invalid_data, $value);
 	        }
