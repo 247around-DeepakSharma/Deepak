@@ -2721,7 +2721,7 @@ class Booking extends CI_Controller {
         }
         
         $post['column_order'] = array('booking_day');
-        $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks');
+        $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks','booking_unit_details.appliance_brand','booking_unit_details.appliance_category','booking_unit_details.appliance_description');
         
         return $post;
     }
@@ -3149,7 +3149,7 @@ class Booking extends CI_Controller {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post, $query_status, "query");
         
-        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day";
+        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_unit_details.appliance_description";
 
         $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
         unset($new_post['order_performed_on_count']);
@@ -3184,6 +3184,7 @@ class Booking extends CI_Controller {
         }
         $row[] = $order_list->city;
         $row[] = $order_list->query_remarks;
+        $row[] = $order_list->appliance_description;
         if($query_status != _247AROUND_CANCELLED){
             if($pincode_status == PINCODE_NOT_AVAILABLE){
                $pincode =  "<a href='javascript:void(0)' style='color: red;' onclick='form_submit(".'"'.$order_list->booking_id.'"'.")'>$order_list->booking_pincode</a>";

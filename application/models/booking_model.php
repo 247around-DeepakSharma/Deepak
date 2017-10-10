@@ -2048,7 +2048,7 @@ class Booking_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
-        
+        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -2194,6 +2194,7 @@ class Booking_model extends CI_Model {
         $this->db->select($select,FALSE);
         $this->db->join('users', 'users.user_id = booking_details.user_id ');
         $this->db->join('services', 'services.id = booking_details.service_id');
+        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
         
         $this->db->where("booking_details.booking_id LIKE '%Q-%'",NULL);
         $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR booking_details.booking_date = '')",NULL);
