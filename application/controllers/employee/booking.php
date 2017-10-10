@@ -2785,7 +2785,7 @@ class Booking extends CI_Controller {
         
         $row[] = $no.$sn;
         $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
-        $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser/0/0/".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
+        $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = $order_list->services;
         $row[] = "<a href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$order_list->service_centre_name</a>";
         $row[] = $order_list->city;
@@ -3084,7 +3084,7 @@ class Booking extends CI_Controller {
 
         $row[] = $no.$sn;
         $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
-        $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser/0/0/".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
+        $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = $order_list->services;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $escalation." ".$order_list->current_status;
@@ -3172,7 +3172,7 @@ class Booking extends CI_Controller {
 
         $row[] = $no." <div><input type = 'hidden' id = 'service_id_".$no."' value = '".$order_list->service_id."'><input type = 'hidden' id = 'pincode_".$no."' value = '".$order_list->booking_pincode."'></div>";
         $row[] = $order_list->booking_id;
-        $row[] = "<a href='".base_url()."employee/user/finduser/0/0/$order_list->phone_number'>$order_list->customername / <b>$order_list->phone_number </b></a>";
+        $row[] = "<a href='".base_url()."employee/user/finduser?phone_number=$order_list->phone_number'>$order_list->customername / <b>$order_list->phone_number </b></a>";
         $row[] = $order_list->services;
         $row[] = $order_list->booking_date . "/" . $order_list->booking_timeslot;
         if($query_status != _247AROUND_CANCELLED){

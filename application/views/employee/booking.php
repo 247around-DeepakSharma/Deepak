@@ -256,8 +256,8 @@
                             }
                             ?>
                         </td>
-                    <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
-                    <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?= $row->booking_primary_contact_no; ?></a></td>
+                    <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
+                    <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?= $row->booking_primary_contact_no; ?></a></td>
                     <td><?= $row->services; ?></td>
                     <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
                     <td id="status_<?php echo $row->booking_id; ?>">
