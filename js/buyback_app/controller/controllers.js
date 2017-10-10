@@ -17,7 +17,6 @@ uploadfile.controller('uploadOrderDetailsFile', ['$scope', 'fileUpload', functio
                 var uploadUrl = baseUrl + "/buyback/upload_buyback_process/process_upload_order";
                 fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
             }
-
         };
 
     }]);
