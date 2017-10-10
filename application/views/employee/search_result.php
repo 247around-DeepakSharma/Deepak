@@ -31,21 +31,6 @@
     
     }
     
-    //For row color to check if mail is sent to vendor
-    $(document).ready(function()
-    {
-        var count = $('#total_no_rows').val();
-        //alert(count);
-        for(var i=1; i<=count; i++)
-        {
-        var mailsend = $('.mail_to_vendor'+i).val();
-        if(mailsend== 0)
-        {
-            $('#row_color'+i).css("background-color", "#FFEC8B");
-        }
-        }
-    });
-    
     $(document).ready(function()
     {
        $('.dialog').hide();
