@@ -180,7 +180,7 @@
 				    echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
     			    </td>
 
-                    <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
+                    <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                     <td><?= $row->booking_primary_contact_no; ?></td>
                     <td><?= $row->services; ?></td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; ?></a></td>

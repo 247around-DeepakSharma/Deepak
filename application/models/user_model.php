@@ -177,26 +177,6 @@ class User_model extends CI_Model {
       return count($result);
       } */
 
-    /** @description: This funtion searches user with his name
-     * 
-     *   Finds users that match(fully or partially) with the name entered to search.
-     * 
-     *  @param : user name
-     *  @return : array(user details)
-     */
-    function get_searched_user($userName) {
-        $this->db->select('*');
-        $this->db->like('name', $userName);
-        $this->db->from('users');
-        $this->db->order_by('name', 'asc');
-        $query = $this->db->get();
-        $result = $query->result_array();
-        if ($query->num_rows() > 0) {
-            return $result;
-        }
-        return false;
-    }
-
     /** @description : Function to search booking with booking id from find user page
      *  @param : booking id
      *  @return : array(matching bookings)

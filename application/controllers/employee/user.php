@@ -49,71 +49,80 @@ class User extends CI_Controller {
      * @return : print Booking on Booking Page
      */
     
-    function finduser($offset = 0, $page = 0, $phone_number = ''){
-        $booking_id = trim($this->input->post('booking_id'));
-        $order_id = trim($this->input->post('order_id'));
-        $userName = $this->input->post('userName');
-        $partner_id = $this->input->post('partner');
-        if ($this->input->post('phone_number')) {
-            $phone_number = $this->input->post('phone_number');
+    function finduser(){
+        $booking_id = trim($this->input->get('booking_id'));
+        $order_id = trim($this->input->get('order_id'));
+        $userName = trim($this->input->get('userName'));
+        $partner_id = $this->input->get('partner');
+        $search = trim($this->input->get('search_value'));
+        $post['length'] = -1;
+        $phone_number = $this->input->get('phone_number');
+        if (!empty($search)) {
+            if (preg_match("/^[7-9]{1}[0-9]{9}$/", $search)) {
+                $phone_number = $search;
+            } else {
+                $booking_id = $search;
+            }
+        }
+
+        $select = "services.services, service_centres.name as service_centre_name,
+            service_centres.primary_contact_phone_1, service_centres.primary_contact_name,
+            users.phone_number, users.name as customername,booking_details.type,
+            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active";
+        if(!empty($booking_id)){
+            
+            $post['search_value'] = $booking_id;
+            $post['column_search'] = array('booking_details.booking_id');
+            $post['order'] = array(array('column' => 0,'dir' => 'asc'));
+            $post['order_performed_on_count'] = TRUE;
+            $post['column_order'] = array('booking_details.booking_id');
+            $view = "employee/search_result";
+            
+        } else if(!empty($order_id)){
+            $post['search_value'] = $order_id;
+            $post['column_search'] = array('booking_details.order_id');
+            $post['where'] = array('booking_details.partner_id' =>$partner_id);
+            $view = "employee/search_result";
+           
+            
+        } else if(!empty($userName)){
+            
+            $select = "users.name as customername,
+            users.phone_number, users.user_email, users.home_address, users.pincode, users.account_email";
+            $post['search_value'] = $userName;
+            $post['column_search'] = array('users.name');
+            $post['order'] = array(array('column' => 0,'dir' => 'asc'));
+            $post['order_performed_on_count'] = TRUE;
+            $post['column_order'] = array('users.name');
+            $view = "employee/search_user_list";
+            
+            
+        }  else if(!empty($phone_number)){
+            
+            $post['search_value'] = $phone_number;
+            $post['column_search'] = array('booking_details.booking_primary_contact_no',
+                 'booking_alternate_contact_no', 'users.phone_number');
+            $view = "employee/bookinghistory";
+            
+        } else{
+            echo "Please Select Atlease One Input Field.";
+            exit();
         }
         
-        //search user by name
-        if (!empty($userName)) {
-            
-            $this->search_user_by_name();
-            
-        } else if(!empty($booking_id)){ // Search by booking id
-            
-            $where  = array('booking_details.booking_id' => $booking_id );
-            $data['Bookings'] = $this->booking_model->search_bookings($where);
-            $this->load_search_view($data);
-            
-        } else if(!empty($order_id)){ // search by order id
-            $where  = array('order_id' => $order_id );
-            $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
-            $data['search'] = "Search";
-
-            $this->load_search_view($data);
-        } else if(!empty ($phone_number)){ // search by phone number
-            
-                $page = 0;
-                
-                if ($page == 0) {
-                    $page = 50;
-                }
-
-                $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
-
-                $config['base_url'] = base_url() . "employee/user/finduser/" . $offset . "/" . $page . "/" . $phone_number;
-                $output_data = $this->user_model->search_user($phone_number, $offset, $page);
-                if(!empty($output_data)){
-                
-                    $config['total_rows'] = count($output_data);
-                    $config['per_page'] = $page;
-                    $config['uri_segment'] = 5;
-                    $config['first_link'] = 'First';
-                    $config['last_link'] = 'Last';
-
-                    $this->pagination->initialize($config);
-                    $data['links'] = $this->pagination->create_links();
-
-                    $data['data'] = $output_data;
-                    $data['appliance_details'] = $this->user_model->appliance_details($phone_number);
-                    $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details_for_empty_bookings($phone_number);
-
-                    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                    $this->load->view('employee/bookinghistory', $data);
-                } else {
-                    $output['phone_number'] = $phone_number;
-                    $this->loadViews($output);
-                }
-
+        $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select);
+        if(!empty($phone_number) && empty($data['Bookings'])){
+            $output['phone_number'] = $phone_number;
+            $this->loadViews($output);
         } else {
-         
-            echo "Please Select Any Field";
-            
+             $this->load_search_view($data, $view);
         }
+    }
+    
+    function get_sms_Send_detail_and_user_applinace($phone_number){
+        log_message("info", __METHOD__);
+        $data['appliance_details'] = $this->user_model->appliance_details($phone_number);
+        $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details_for_empty_bookings($phone_number);
+        $this->load->view("employee/user_appliance_sms_send_detail", $data);
         
     }
 
@@ -121,26 +130,9 @@ class User extends CI_Controller {
      * @desc: this is used to load view on the basis of booking or query and its current status
      *  @param: Array
      */
-    function load_search_view($data){
-        $view = 'employee/search_result';
+    function load_search_view($data,$view){
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view($view, $data);
-    }
-
-
-    /**
-     * @desc : This function is used to find user by their name
-     *
-     * The name entered to search could be user's complete name or partial name as well.
-     *
-     * @param : void
-     * @return : array of data(searched results) to the view
-     */
-    function search_user_by_name() {
-        $userName = $this->input->post('userName');
-        $this->data['result'] = $this->user_model->get_searched_user(trim($userName));
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-        $this->load->view('employee/search_user_list', $this->data);
     }
 
     /**
@@ -205,7 +197,7 @@ class User extends CI_Controller {
         //Below two queries are running for no use, remove after confermation
 //        $data1 = $this->user_model->search_user($user['phone_number']);
 //        $appliance_details = $this->user_model->appliance_details($user['phone_number']);
-        redirect(base_url() . 'employee/user/finduser/0/0/' . $user['phone_number']);
+        redirect(base_url() . 'employee/user/finduser?phone_number=' . $user['phone_number']);
     }
 
     /**
@@ -268,7 +260,7 @@ class User extends CI_Controller {
         //Logging Details
         log_message('info',__FUNCTION__.' User Details has been updated '.print_r($edit, TRUE));
         
-        redirect(base_url() . 'employee/user/finduser/0/0/' . $edit['phone_number']);
+        redirect(base_url() . 'employee/user/finduser?phone_number=' . $edit['phone_number']);
     }
 
     /**

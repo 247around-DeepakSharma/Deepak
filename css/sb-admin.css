@@ -8,6 +8,62 @@ body {
     background-color: #fff;
 }
 
+.search_fab {
+   width: 45px;
+   height: 45px;
+   background-color: #5bc0de;
+   border-radius: 50%;
+   box-shadow: 0 6px 10px 0 #666;
+   font-size: 18px;
+   line-height: 45px;
+   color: white;
+   text-align: center;
+   position: fixed;
+   right: 50px;
+   top: 120px;
+   z-index: 1000;
+   cursor: pointer;
+   
+  transition: all 0.1s ease-in-out;
+}
+
+.search_fab:hover {
+   box-shadow: 0 6px 14px 0 #666;
+   transform: scale(1.05);
+}
+
+.main_search {
+                
+  padding: 15px 0;
+  text-align: center;
+}
+
+.search_in{
+  
+  vertical-align: bottom;
+  height: 40px;
+}
+
+
+
+.search_in {
+  width: 0;
+  opacity: 0;
+ 
+  border: none;
+}
+
+
+
+.search_in:focus {
+  opacity: 1;
+  width: 250px;
+   right: 105px;
+   top: 127px;
+  
+    z-index: 1000;
+}
+
 
 .custom_pagination a { color:#474747; border:solid 1px #B6B6B6; padding:6px 9px 6px 9px; background:#E6E6E6; background:-moz-linear-gradient(top, #FFFFFF 1px, #F3F3F3 1px, #E6E6E6); background:-webkit-gradient(linear, 0 0, 0 100%, color-stop(0.02, #FFFFFF), color-stop(0.02, #F3F3F3), color-stop(1, #E6E6E6)); }
 .custom_pagination a:hover ,
