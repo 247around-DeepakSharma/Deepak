@@ -10,8 +10,39 @@
     .tile_count .tile_stats_count, ul.quick-list li {
         white-space: normal;
     }
+    .bb_balance {
+        margin-right: -23px;
+        margin-left: -23px;
+    }
 </style>
 <div class="right_col" role="main" ng-app="buyback_dashboard">
+    <?php if($this->session->userdata('user_group') === 'admin'){ ?>
+    <!-- buyback balance -->
+    <div class="row bb_balance">
+        <div class="container-fluid" style="background-color:#fff;" ng-controller="bb_balance">
+            <div ng-if="showLoader">
+                <center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+            </div>
+            <div ng-if="showBuybackBalance">
+                <div class="col-md-8 col-md-offset-4" style="margin-bottom:10px;" ng-cloak="">
+                    <div class="col-md-4 pull-right total_balance">
+                        <b>Total Balance : </b>
+                        Rs. <span>{{total_balance}}</span>
+                    </div>
+                    <div class="col-md-4 pull-right la_balance">
+                        <b>LA Balance : </b>
+                        Rs. <span>{{la_balance}}</span>
+                    </div>
+                    <div class="col-md-4 pull-right tv_balance">
+                        <b>TV Balance : </b>
+                        Rs. <span>{{tv_balance}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /buyback balance -->
+    <?php } ?>
     <!-- top tiles -->
     <div class="row tile_count" id="title_count" ng-controller="bb_dashboard_summary">
         <center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" ></center>

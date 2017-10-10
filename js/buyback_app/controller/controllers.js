@@ -510,3 +510,30 @@ buyback_dashboard.controller('bb_dashboard_summary', function ($scope, $http) {
                
     });
 });
+
+
+//get buyback balance
+buyback_dashboard.controller('bb_balance', function ($scope, $http) {
+    
+    $scope.showLoader = true;
+    $scope.showBuybackBalance = false;
+    var get_url = baseUrl + "/buyback/buyback_process/get_bb_svc_balance";
+    $http.get(get_url)
+        .then(function (response) {
+            var data = angular.fromJson(response.data);
+            if( data === 'no data found'){
+                $scope.tv_balance = '0';
+                $scope.la_balance = '0';
+                $scope.total_balance = '0';
+                $scope.showLoader = false;
+                $scope.showBuybackBalance = true;
+            }else{
+                $scope.tv_balance = data.tv_balance;
+                $scope.la_balance = data.la_balance;
+                $scope.total_balance = data.total_balance;
+                $scope.showLoader = false;
+                $scope.showBuybackBalance = true;
+            }
+            
+    });
+});

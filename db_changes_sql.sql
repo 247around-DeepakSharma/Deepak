@@ -3273,3 +3273,11 @@ CREATE TABLE `email_send_details`
 `message` VARCHAR(256) NULL , 
 `attachment_link` VARCHAR(256) NULL , 
 `create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+--sachin 10 oct
+
+CREATE TABLE `bb_svc_balance` 
+( `id` INT(11) NOT NULL AUTO_INCREMENT , 
+`tv_balance` DECIMAL(10,2) NOT NULL DEFAULT '0.00' , 
+`la_balance` DECIMAL(10,2) NOT NULL DEFAULT '0.00' , 
+`create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
