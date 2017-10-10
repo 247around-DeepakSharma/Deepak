@@ -2300,7 +2300,7 @@ class Booking_model extends CI_Model {
      * @return: Integer 
      */
     function add_email_send_details($data){
-        $this->db->insert('email_send_details', $data);
+        $this->db->insert('email_sent', $data);
         return $this->db->insert_id();
     }
     

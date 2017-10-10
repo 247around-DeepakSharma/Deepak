@@ -2822,6 +2822,7 @@ class Invoice extends CI_Controller {
         $status = $this->send_request_to_create_main_excel($response, "final");
         if($status){
             log_message("info", __METHOD__." Partner Advance Excel generated ".$partner_data['id']);
+            
             $convert = $this->send_request_to_convert_excel_to_pdf($invoice_id, "final");
             $output_pdf_file_name = $convert['main_pdf_file_name'];
             $response['meta']['invoice_file_main'] = $output_pdf_file_name;
@@ -2830,8 +2831,8 @@ class Invoice extends CI_Controller {
             $message = $email_template[0];
             $email_from = $email_template[2];
 
-            $to = $partner_data['invoice_email_to'];
-            $cc = $partner_data['invoice_email_cc'];
+            $to = NITS_ANUJ_EMAIL_ID;
+            $cc = "";
            
             $this->upload_invoice_to_S3($invoice_id, false);
            

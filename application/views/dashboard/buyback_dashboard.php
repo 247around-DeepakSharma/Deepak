@@ -62,8 +62,6 @@
 
                 <div class="x_content">
 
-                    <p>Below Table shows <code>Collection Partner</code> Balance</p>
-
                     <div class="table-responsive" id="table_data">
                         <center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
                     </div>
