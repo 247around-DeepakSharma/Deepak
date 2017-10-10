@@ -176,7 +176,7 @@
                     if(response){
                         //On success page reload and redirect to Find User
                         location.reload();
-                        window.open('<?php echo base_url()?>employee/user/finduser/0/0/'+phone, '_blank');
+                        window.open('<?php echo base_url()?>employee/user/finduser?phone_number='+phone, '_blank');
                         
                     }else{
                         //On Error in Updation

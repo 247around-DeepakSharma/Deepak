@@ -442,5 +442,21 @@ define('SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS','-1 day');
 define('SMS_DEACTIVATION_EMAIL_SUBJECT','has requested for opt-out!');
 define('SMS_DEACTIVATION_NO_NEW_REQUEST_MSG','There is not any new request');
 
+
+define("PARTNER_ADVANCE_DESCRIPTION", "Advance Payment");
+define("PARTNER_INVOICE_BUTTON", "CRM Setup Invoice");
+define("CT_INVOICE_BUTTON", "Sweetener Invoice");
+define("QC_INVOICE_DESCRIPTION", "Service Charges for QC");
+define("CRM_SETUP_INVOICE_DESCRIPTION", "Annual Setup Charges");
+define("QC_HSN_CODE", 998397);
+
+define("TAT_BREACH_DAYS", "-45 days");
+
+// QC Balance Read Email Constant
+define('QC_BALANCE_READ_EMAIL','sachinj@247around.com');
+define('QC_BALANCE_READ_EMAIL_PASSWORD','sachinj');
+define('TV_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000071' Notification");
+define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000029' Notification");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

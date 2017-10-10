@@ -28,7 +28,7 @@
                                 <img src="<?php echo base_url(); ?>images/angry.png">
                                 <?php } ?></td>
                             <td><button type="button" onclick="outbound_call(<?php echo $value['from_number'] ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button></td>
-                            <td><a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $value['from_number'] ?>"><i class="fa fa-bars" aria-hidden="true"></i></a></td>
+                            <td><a class="btn btn-sm btn-success" href="<?php echo base_url();?>employee/user/finduser?phone_number=<?php echo $value['from_number'] ?>"><i class="fa fa-bars" aria-hidden="true"></i></a></td>
                         </tr>
                         <?php
                         $sn++;

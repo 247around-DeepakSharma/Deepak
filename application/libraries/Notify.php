@@ -49,6 +49,7 @@ class Notify {
                     $this->My_CI->email->message($message);
 
                     if ($this->My_CI->email->send()) {
+                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment);
                         return true;
                     } else {
                         return false;
@@ -655,6 +656,31 @@ class Notify {
                 break;
             }
         }
+    }
+    
+    /* This function is used to save send email to the database
+     * params: user_id, user_type, phone no., sms content, booking ID
+     * return: Null
+     */
+
+    function add_email_send_details($email_from, $email_to, $cc, $bcc, $subject, $message, $attachment_link) {
+	$data = array();
+
+	$data['email_from'] = $email_from;
+	$data['email_to'] = $email_to;
+	$data['cc'] = $cc;
+	$data['bcc'] = $bcc;
+	$data['subject'] = $subject;
+        $data['message'] = $message;
+        $data['attachment_link'] = $attachment_link;
+
+	//Add Email to Database
+	$insert_id = $this->My_CI->booking_model->add_email_send_details($data);
+	if (!empty($insert_id)) {
+	    log_message('info', __FUNCTION__ . ' Email has been saved to Database "email_sent" with ID ' . $subject);
+	} else {
+	    log_message('info', __FUNCTION__ . ' Error on saving Email to Database "email_sent" ' . print_r($data, TRUE));
+	}
     }
 
 

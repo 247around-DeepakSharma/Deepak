@@ -342,3 +342,10 @@
             .dropdown-submenu:hover>a:after{border-left-color:#555;}
             .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
         </style>
+         <div class="main_search">
+            <form name="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/user/finduser" method="GET">
+                <input type="search" id="search_in" class="search_in "name="search_value" placeholder="Booking ID/Phone Number" style="position: absolute; padding-left:10px; ">
+            </form>
+            <label class="search_fab " for="search_in"> <i class="fa fa-search" aria-hidden="true" ></i> </label>
+
+        </div>

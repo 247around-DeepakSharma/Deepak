@@ -10,6 +10,7 @@ class Buyback {
         $this->My_CI->load->library("initialized_variable");
         $this->My_CI->load->library("session");
         $this->My_CI->load->library("s3");
+        $this->My_CI->load->library("table");
         $this->My_CI->load->model("service_centre_charges_model");
         $this->My_CI->load->model("bb_model");
         $this->My_CI->load->model("cp_model");
@@ -47,6 +48,7 @@ class Buyback {
         
         $bb_charges = array();
         $service_id = 0;
+        $cp_id = NULL;
         if (!empty($cp_data)) {
             //Get Charges list
             $s_order_key = str_replace(":","",$this->POST_DATA['order_key']);
@@ -62,14 +64,13 @@ class Buyback {
                 $cp_id = $bb_charges[0]['cp_id'];
                 $service_id = $bb_charges[0]['service_id'];
             } else {
-
                 $this->My_CI->initialized_variable->not_assigned_order();
                 $this->My_CI->table->add_row($this->POST_DATA['partner_order_id']);
-
                 $cp_id = NULL;
             }
         } else {
             $this->My_CI->initialized_variable->not_assigned_order();
+            $this->My_CI->table->add_row($this->POST_DATA['partner_order_id']);
         }
         if (empty($service_id)) {
             $service_id = $this->get_service_id_by_appliance();

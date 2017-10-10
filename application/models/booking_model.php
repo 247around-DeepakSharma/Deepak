@@ -858,87 +858,87 @@ class Booking_model extends CI_Model {
      *
      *  @return : Count of Queries or Data for Queries
      */
-    function get_queries($limit, $start, $status, $p_av, $booking_id = "") {
-        $check_vendor_status = "";
-        $where = "";
-        $add_limit = "";
-        $get_field = " services.services,
-            users.name as customername, users.phone_number,
-            bd.* ";
-
-        if ($booking_id != "") {
-            $where = "AND `bd`.`booking_id` = '$booking_id' AND `bd`.current_status='$status'  ";
-            if($start == 'All') {
-                $get_field = " Count(bd.booking_id) as count ";
-            }
-
-        } else {
-            if ($start != 'All') {
-
-                $add_limit = " limit $start, $limit ";
-
-
-            } else if($start == 'All') {
-
-                $get_field = " Count(bd.booking_id) as count ";
-            }
-
-            $where = "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0 OR
-                bd.booking_date='') AND `bd`.current_status='$status' ";
-        }
-
-        if($p_av == PINCODE_AVAILABLE ){
-            $is_exist = ' EXISTS ';
-
-        } else if($p_av == PINCODE_NOT_AVAILABLE){
-            $is_exist = ' NOT EXISTS ';
-        } else if($p_av == PINCODE_ALL_AVAILABLE){
-            $is_exist = '';
-
-        }
-
-        // If request for FollowUp then check Vendor Available or Not
-        if($status != "Cancelled"){
-            if($p_av != PINCODE_ALL_AVAILABLE){
-            $check_vendor_status = " AND $is_exist
-                (SELECT 1
-                FROM (`vendor_pincode_mapping`)
-                JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
-                WHERE `vendor_pincode_mapping`.`Appliance_ID` = bd.service_id
-                AND `vendor_pincode_mapping`.`Pincode` = bd.booking_pincode
-                AND `service_centres`.`active` = '1' AND `service_centres`.on_off = '1')  ";
-            }
-        }
-
-        $sql = "SELECT $get_field
-            from booking_details as bd
-            JOIN  `users` ON  `users`.`user_id` =  `bd`.`user_id`
-            JOIN  `services` ON  `services`.`id` =  `bd`.`service_id`
-            WHERE `bd`.booking_id LIKE '%Q-%' $where
-                $check_vendor_status
-
-            order by
-                CASE
-                WHEN `bd`.internal_status = 'Missed_call_confirmed' THEN 'a'
-
-                WHEN  `bd`.booking_date = '' THEN 'b'
-                ELSE 'c'
-            END, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc $add_limit";
-        
-        $query = $this->db->query($sql);
-        //log_message('info', __METHOD__ . "=> " . $this->db->last_query());
-
-        if($status == "FollowUp" && ($p_av == PINCODE_ALL_AVAILABLE) && !empty($booking_id) && $start !="All"){
-            $temp = $query->result();
-            $data = $this->searchPincodeAvailable($temp, $p_av);
-            return $data;
-
-        }else {
-            return $query->result();
-        }
-
-
-    }
+//    function get_queries($limit, $start, $status, $p_av, $booking_id = "") {
+//        $check_vendor_status = "";
+//        $where = "";
+//        $add_limit = "";
+//        $get_field = " services.services,
+//            users.name as customername, users.phone_number,
+//            bd.* ";
+//
+//        if ($booking_id != "") {
+//            $where = "AND `bd`.`booking_id` = '$booking_id' AND `bd`.current_status='$status'  ";
+//            if($start == 'All') {
+//                $get_field = " Count(bd.booking_id) as count ";
+//            }
+//
+//        } else {
+//            if ($start != 'All') {
+//
+//                $add_limit = " limit $start, $limit ";
+//
+//
+//            } else if($start == 'All') {
+//
+//                $get_field = " Count(bd.booking_id) as count ";
+//            }
+//
+//            $where = "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0 OR
+//                bd.booking_date='') AND `bd`.current_status='$status' ";
+//        }
+//
+//        if($p_av == PINCODE_AVAILABLE ){
+//            $is_exist = ' EXISTS ';
+//
+//        } else if($p_av == PINCODE_NOT_AVAILABLE){
+//            $is_exist = ' NOT EXISTS ';
+//        } else if($p_av == PINCODE_ALL_AVAILABLE){
+//            $is_exist = '';
+//
+//        }
+//
+//        // If request for FollowUp then check Vendor Available or Not
+//        if($status != "Cancelled"){
+//            if($p_av != PINCODE_ALL_AVAILABLE){
+//            $check_vendor_status = " AND $is_exist
+//                (SELECT 1
+//                FROM (`vendor_pincode_mapping`)
+//                JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
+//                WHERE `vendor_pincode_mapping`.`Appliance_ID` = bd.service_id
+//                AND `vendor_pincode_mapping`.`Pincode` = bd.booking_pincode
+//                AND `service_centres`.`active` = '1' AND `service_centres`.on_off = '1')  ";
+//            }
+//        }
+//
+//        $sql = "SELECT $get_field
+//            from booking_details as bd
+//            JOIN  `users` ON  `users`.`user_id` =  `bd`.`user_id`
+//            JOIN  `services` ON  `services`.`id` =  `bd`.`service_id`
+//            WHERE `bd`.booking_id LIKE '%Q-%' $where
+//                $check_vendor_status
+//
+//            order by
+//                CASE
+//                WHEN `bd`.internal_status = 'Missed_call_confirmed' THEN 'a'
+//
+//                WHEN  `bd`.booking_date = '' THEN 'b'
+//                ELSE 'c'
+//            END, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc $add_limit";
+//        
+//        $query = $this->db->query($sql);
+//        //log_message('info', __METHOD__ . "=> " . $this->db->last_query());
+//
+//        if($status == "FollowUp" && ($p_av == PINCODE_ALL_AVAILABLE) && !empty($booking_id) && $start !="All"){
+//            $temp = $query->result();
+//            $data = $this->searchPincodeAvailable($temp, $p_av);
+//            return $data;
+//
+//        }else {
+//            return $query->result();
+//        }
+//
+//
+//    }
 
     /**
      * @desc : In this function, we will pass Array and search active pincode and vendor.
@@ -2048,7 +2048,7 @@ class Booking_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
-        
+        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -2176,6 +2176,130 @@ class Booking_model extends CI_Model {
     function get_advance_search_result_count($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
        $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
        return $this->db->affected_rows();
+    }
+    
+    /**
+     *  @desc : This function is used to get query based on booking status type
+     *  @param : $post string
+     *  @param : $select string
+     *  @return : $output Array()
+     */
+    function _get_queries($post,$pincode_status, $query_status,$select = "") {
+        $this->db->_reserved_identifiers = array('*','CASE','EXISTS','NOT');
+        $this->db->from('booking_details');
+        if (empty($select)) {
+            $select = '*';
+        }
+        
+        $this->db->select($select,FALSE);
+        $this->db->join('users', 'users.user_id = booking_details.user_id ');
+        $this->db->join('services', 'services.id = booking_details.service_id');
+        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
+        
+        $this->db->where("booking_details.booking_id LIKE '%Q-%'",NULL);
+        $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR booking_details.booking_date = '')",NULL);
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        $check_pincode = "(SELECT 1
+                                FROM (vendor_pincode_mapping)
+                                JOIN service_centres ON service_centres.id = vendor_pincode_mapping.Vendor_ID
+                                WHERE vendor_pincode_mapping.Appliance_ID = booking_details.service_id
+                                AND vendor_pincode_mapping.Pincode = booking_details.booking_pincode
+                                AND service_centres.active = '1' AND service_centres.on_off = '1')";
+        
+        if($query_status != _247AROUND_CANCELLED){
+            if($pincode_status == PINCODE_AVAILABLE ){
+                $is_exist = "EXISTS $check_pincode";
+                $this->db->where($is_exist,NULL);
+            } else if($pincode_status == PINCODE_NOT_AVAILABLE){
+                $is_exist = "NOT EXISTS $check_pincode";
+                $this->db->where($is_exist,NULL);
+            }
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        
+        if(isset($post['order_by']) && !empty($post['order_by'])){
+            $this->db->order_by($post['order_by'],'DESC');
+            //$this->db->order_by('booking_day','DESC');
+        }else if(!empty($post['order'])){
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        }else{
+            $this->db->order_by('booking_details.create_date','DESC');
+        }
+    }
+    
+    /**
+     *  @desc : This function is used to get query based on booking status type
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_queries($post, $pincode_status,$query_status,$select = "") {
+        $this->_get_queries($post, $pincode_status,$query_status,$select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        
+        $query = $this->db->get();
+        
+        if( $query_status == _247AROUND_FOLLOWUP && ($pincode_status == PINCODE_ALL_AVAILABLE) && isset($post['where']['booking_details.booking_id']) && !empty($post['where']['booking_details.booking_id'])){
+            $temp = $query->result();
+            $data = $this->searchPincodeAvailable($temp, $pincode_status);
+            $response = $data;
+
+        }else {
+            $response = $query->result();
+        }
+        
+        return $response;
+    }
+    
+    /**
+     *  @desc : This function is used to get total bookings based on booking status type
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_queries($post,$pincode_status,$query_status) {
+        $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day");
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }  
+    
+    /**
+     *  @desc : This function is used to get total filtered bookings based on booking status type
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_queries($post,$pincode_status,$query_status){
+        $this->_get_queries($post,$pincode_status,$query_status,"count(distinct(booking_details.booking_id)) as numrows, STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day");
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    /**
+     * @desc: This function is used to insert Send email to database
+     * @params: $data Array()
+     * @return: Integer 
+     */
+    function add_email_send_details($data){
+        $this->db->insert('email_sent', $data);
+        return $this->db->insert_id();
     }
     
     

@@ -449,6 +449,7 @@ class Around_scheduler extends CI_Controller {
             $this->email->attach($csv, 'attachment');
 
             if ($this->email->send()) {
+                $this->notify->add_email_send_details('booking@247around.com',$to,$cc,"","SF NOT AVAILABLE IN PINCODES LIST",$message,$csv);
                 log_message('info', __METHOD__ . ": Mail sent successfully for PinCode Not Available To RM ");
             } else {
                 log_message('info', __METHOD__ . ": Mail could not be sent to RM");
@@ -465,6 +466,7 @@ class Around_scheduler extends CI_Controller {
             $this->email->message($message);
             $this->email->attach($csv, 'attachment');
             $this->email->send();
+            $this->notify->add_email_send_details('booking@247around.com',$to,ANUJ_EMAIL_ID,"","Pincode Not Available Booking Data",$message,$csv);
             log_message('info', __METHOD__ . ": No booking found for pincode not available ");
         }
     }
@@ -749,7 +751,7 @@ class Around_scheduler extends CI_Controller {
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost'),
             'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime("-45 days")));
+        $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));
         $post['column_search'] = array();
         $select = "bb_order_details.id, bb_order_details.partner_order_id";
         $list = $this->bb_model->get_bb_order_list($post, $select);
@@ -925,7 +927,7 @@ class Around_scheduler extends CI_Controller {
                         break;
                     case SF_DOES_NOT_EXIST:
                         $data['is_upcountry'] = 0;
-                        if(isset($data['vendor_not_found'])){
+                        if(isset($up_details['vendor_not_found'])){
                             $data['remarks'] = SF_DOES_NOT_EXIST;
                              
                         } else {
@@ -942,6 +944,62 @@ class Around_scheduler extends CI_Controller {
             }
             
             $this->upcountry_model->upcountry_pincode_services_sf_level($upcountry_data);
+        }
+    }
+    
+    /**
+    * @desc     Get Buyback QC Balance From Email
+    * @param    void()
+    * @return   void() 
+    */
+    function get_bb_balance_from_email(){
+        $data = array();
+        $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
+        $email = QC_BALANCE_READ_EMAIL;
+        $password = QC_BALANCE_READ_EMAIL_PASSWORD;
+        //create connection for email
+        $conn = $this->email_data_reader->create_email_connection($mail_server,$email,$password);
+        if($conn != 'FALSE'){
+            //get emails for TV Balance
+            $tv_condition = 'SINCE "'.date("d M Y",strtotime(date("Y-m-d"))).'" SUBJECT "'.TV_BALANCE_EMAIL_SUBJECT.'"';
+            $tv_email_data = $this->email_data_reader->get_emails($tv_condition);
+            if(!empty($tv_email_data)){
+                $email_body = $tv_email_data[0]['body'];
+                $match = array();
+                $pattern_new = '/\bRs. (\d*\.?\d+)/';
+                preg_match_all($pattern_new, $email_body, $match);
+                if(!empty($match) && isset($match[1][0])){
+                   $data['tv_balance'] = $match[1][0];
+                }
+            }
+            
+            //get emails for LA Balance
+            $la_condition = 'SINCE "'.date("d M Y",strtotime(date("Y-m-d"))).'" SUBJECT "'.LA_BALANCE_EMAIL_SUBJECT.'"';
+            $la_email_data = $this->email_data_reader->get_emails($la_condition);
+            if(!empty($la_email_data)){
+                $email_body = $la_email_data[0]['body'];
+                $match = array();
+                $pattern_new = '/\bRs. (\d*\.?\d+)/';
+                preg_match_all($pattern_new, $email_body, $match);
+                if(!empty($match) && isset($match[1][0])){
+                   $data['la_balance'] = $match[1][0];
+                }
+            }
+            
+            //if balance is not empty then insert it into datatbase
+            if(!empty($data)){
+                $insert_id = $this->around_scheduler_model->add_bb_svc_balance($data);
+                if($insert_id){
+                    log_message('info',"Amazon SVC balance has been inserted successfully. New Balance = ".print_r($data,true));
+                }else{
+                    log_message('info',"Error in inserting Amazon SVC balance.".print_r($data,true));
+                }
+            }
+            //close email connection
+            $this->email_data_reader->close_email_connection();
+        }
+        else{
+            log_message('info', 'Connection is not created');
         }
     }
 

@@ -144,7 +144,7 @@ class Buyback_process extends CI_Controller {
     function process_in_tansit(){
        
         $post = $this->get_bb_post_view_data();
-        $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-d',strtotime("-30 days")));
+        $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-d',strtotime(TAT_BREACH_DAYS)));
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
@@ -255,7 +255,7 @@ class Buyback_process extends CI_Controller {
     function process_unassigned(){
         //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
-        $post['where'] = array('assigned_cp_id IS NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['where'] = array('assigned_cp_id IS NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
@@ -284,7 +284,7 @@ class Buyback_process extends CI_Controller {
     function process_lost_other(){
         //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
-        $post['where'] = array('order_date >= ' => date('Y-m-d', strtotime("-30 days")));
+        $post['where'] = array('order_date >= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));
         $post['where_in'] = array('current_status' => array('Lost', 'Unknown'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
@@ -1901,6 +1901,20 @@ class Buyback_process extends CI_Controller {
         $data_report['query'] = $this->vendor_model->get_around_dashboard_queries(array('active' => 1,'type'=> 'buyback'));
         $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
         $this->load->view('dashboard/bb_dashboard_summary', $data_report);
+    }
+    
+    function get_bb_svc_balance(){
+        $this->table = 'bb_svc_balance';
+        $this->select = 'tv_balance,la_balance,(tv_balance+la_balance) as total_balance';
+        $this->order_by = array('create_date' => 'DESC');
+        $this->limit = array('length' => 1,'start' => 0);
+        $data = $this->booking_model->get_search_query($this->table,$this->select , NULL,NULL, $this->limit ,$this->order_by);
+        if(!empty($data)){
+            $response = $data->result_array()[0];
+        }else{
+            $response = "no data found";
+        }
+        echo json_encode($response);
     }
 
     

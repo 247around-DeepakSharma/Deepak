@@ -142,18 +142,9 @@
                             <span class=" fa fa-angle-down"></span>
                             </a>
                             <ul class="dropdown-menu dropdown-usermenu pull-right">
-                                <!--                                        <li><a href="javascript:;"> Profile</a></li>
-                                    <li>
-                                        <a href="javascript:;">
-                                            <span class="badge bg-red pull-right">50%</span>
-                                            <span>Settings</span>
-                                        </a>
-                                    </li>
-                                    <li><a href="javascript:;">Help</a></li>-->
                                 <li><a href="<?php echo base_url() ?>employee/login/logout"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                             </ul>
                         </li>
-                        <li><a href="javascript:void(0)">Credit Amount (Rs. <span class="numbers-with-commas">0</span>)</a></li>
                         <li class="col-md-4">
                             <a href="javascript:void(0)" style="background: #EDEDED;">
                            
@@ -170,24 +161,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.3/waypoints.min.js"></script> 
         <script src="<?php echo base_url(); ?>js/jquery.counterup.min.js"></script> 
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
-        <script>
-            jQuery(document).ready(function( $ ) {
-                $.ajax({
-                    type: 'POST',
-                    url: '<?php echo base_url(); ?>buyback/buyback_process/get_credit_amount',
-                   
-                    success: function (data) {
-                        
-                      $('.numbers-with-commas').text(data);
-                      $('.numbers-with-commas').counterUp({
-                        delay: 10, // the delay time in ms
-                        time: 1000 // the speed time in ms
-                       });
-                   }
-                 });
-            
-            });
-            
+        <script>          
             function search_order_id(ele){
                 if(event.keyCode === 13 && ele.value !== '') {
                 

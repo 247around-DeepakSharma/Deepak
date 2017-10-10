@@ -640,10 +640,10 @@ class Upcountry_model extends CI_Model {
      * @return ARray
      */
     function get_upcountry_service_center_id_by_booking($booking_id){
-        $this->db->select('service_center_id, booking_primary_contact_no,user_id');
+        $this->db->select('service_center_id,assigned_vendor_id, booking_primary_contact_no,user_id');
         $this->db->from('booking_details');
         $this->db->where('booking_id',$booking_id);
-       $this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
+        //$this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
         $this->db->join('sub_service_center_details','sub_service_center_details.id = booking_details.sub_vendor_id');
         $query = $this->db->get();
         return $query->result_array();
