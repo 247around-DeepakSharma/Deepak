@@ -195,8 +195,8 @@
                     <input type="hidden" id="<?php echo "service_id_".$count; ?>"  value="<?php echo $row->service_id;?>"/>
                     <input type="hidden" id="<?php echo "pincode_".$count ; ?>" value="<?php echo $row->booking_pincode; ?>" />
                     <td><?= $row->booking_id; ?></td>
-                    <td><a href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
-                    <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
+                    <td><a href="<?php echo base_url(); ?>employee/user/finduser?phone_number=<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
+                    <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
                     <td><?= $row->services; ?></td>
                     <td><?= $row->potential_value; ?></td>
                     <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
@@ -294,8 +294,8 @@
                                 }
                                 ?>
                         </td>
-                        <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
-                        <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?= $row->booking_primary_contact_no; ?></a></td>
+                        <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
+                        <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?= $row->booking_primary_contact_no; ?></a></td>
                         <td><?= $row->services; ?></td>
                         <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
                         <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
@@ -461,7 +461,7 @@
                         <td><?php
                             echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
                         </td>
-                        <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
+                        <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                         <td><?= $row->booking_primary_contact_no; ?></td>
                         <td><?= $row->services; ?></td>
                         <td><?php if(isset($row->service_centre_name)){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; } ?></a></td>
@@ -570,7 +570,7 @@
                         <td><?php
                             echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
                         </td>
-                        <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
+                        <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                         <td><?= $row->booking_primary_contact_no; ?></td>
                         <td><?= $row->services; ?></td>
                         <td>
