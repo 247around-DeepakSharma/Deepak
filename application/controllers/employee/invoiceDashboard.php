@@ -230,8 +230,7 @@ class InvoiceDashboard extends CI_Controller {
                 
             } else if(empty($cash) && !empty($foc)){
                 $this->table->add_row($style.$value['name']."</span>", "", 
-
-                    "", "", round($foc['meta']['total_taxable_value'],0),
+                    "", "", round($foc['meta']['total_taxable_value'],0), 
                     ($foc['meta']['cgst_total_tax_amount'] + $foc['meta']['sgst_total_tax_amount'] + $foc['meta']['igst_total_tax_amount']),
                         "<strong>".$foc['meta']['sub_total_amount']."</strong>");
                 $total_foc_charge += $foc['meta']['sub_total_amount'];

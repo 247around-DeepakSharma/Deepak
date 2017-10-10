@@ -3100,11 +3100,11 @@ class Partner extends CI_Controller {
                 $message = vsprintf($email_template[0], $html_table);
 
                 $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
-
-                if ($sendmail) {
-                    log_message('info', __FUNCTION__ . 'Report Mail has been send to partner ' . $partner['public_name'] . ' successfully');
+                
+                if ($sendmail){
+                    log_message('info', __FUNCTION__ . 'Defective Spares Yet to be Acknowledged Mail has been sent to partner '.$partner['public_name'].' successfully');
                 } else {
-                    log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner ' . $partner['public_name']);
+                    log_message('info', __FUNCTION__ . 'Error in Sending Defective Spares Yet to be Acknowledged Mail to partner '.$partner['public_name']);
                 }
             }
         }
@@ -3148,7 +3148,7 @@ class Partner extends CI_Controller {
 
 
                 //send email
-
+                
                 $email_template = $this->booking_model->get_booking_email_template("auto_acknowledge_defective_parts");
                 $to = !empty($partner['spare_notification_email']) ? $partner['spare_notification_email'] : $partner['primary_contact_email'];
                 $cc = $email_template[3];

@@ -55,7 +55,7 @@ class Around_scheduler extends CI_Controller {
                 $this->notify->add_sms_sent_details($value->type_id, $value->type, $value->booking_primary_contact_no, $value->content, $value->booking_id, $status['content']);
 
                 log_message('info', "Message Not Sent - Booking id: " . $value->booking_id . ",
-                please recheck tag: '" . $tag . "' & Phone Number - " . $value->booking_primary_contact_no);
+        		please recheck tag: '" . $tag . "' & Phone Number - " . $value->booking_primary_contact_no);
 
                 $subject = 'SMS Sending Failed';
                 $message = "Please check SMS tag and phone number. Booking id is : " .

@@ -100,42 +100,28 @@ class Partner_model extends CI_Model {
         return $query->result_array();
     }
 
-    /**
+ /**
  * @desc: this method return partner data if need to call partner api other wise return false
  * @param: booking id
  */
-    function get_data_for_partner_callback($booking_id){
-        $this->db->select('*');
-        $this->db->where('booking_id', $booking_id);
-        $this->db->where('partner_id IS NOT NULL', null, false);
-        $query = $this->db->get('booking_details');
-        if($query->num_rows >0 ){
+function get_data_for_partner_callback($booking_id) {
+        $this->db->select("*");
+        $this->db->from("booking_details");
+        $this->db->where("booking_id", $booking_id);
+        $this->db->join("partner_callback", "partner_callback.partner_id = booking_details.partner_id AND callback_string = partner_source");
+        $this->db->where("partner_callback.active", 1);
+        $query = $this->db->get();
+        if ($query->num_rows > 0) {
 
-           $result = $query->result_array();
-           $this->db->select('*');
-           $this->db->where('partner_id', $result[0]['partner_id']);
-           $this->db->where('callback_string',$result[0]['partner_source']);
-           $this->db->where('active',"1");
-           $query1 = $this->db->get('partner_callback');
-
-           if($query1->num_rows > 0){
-
-               return $result[0];
-
-           } else {
-
-              return false;
-           }
-
-
+            $result = $query->result_array();
+            return $result[0];
         } else {
 
             return false;
         }
-
     }
 
-     /**
+    /**
      * @desc: check partner login and return pending booking
      * @param: Array(username, password)
      * @return : Array(Pending booking)
@@ -420,7 +406,8 @@ class Partner_model extends CI_Model {
 
     //Get partner summary parameters for daily report
     function get_partner_summary_params($partner_id) {
-	$partner_source_code = $this->get_source_code_for_partner($partner_id);
+	$partner_details = $this->getpartner_details('code',array('partners.id' => $partner_id));
+        $partner_source_code = $partner_details[0]["code"];
         
         //count today installation scheduled
         $toady_sql = "SELECT count(DISTINCT booking_id) AS today_install_sched 

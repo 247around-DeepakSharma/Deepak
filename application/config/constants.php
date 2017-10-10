@@ -201,6 +201,8 @@ define('_247AROUND_SNAPDEAL_DELIVERED','Snapdeal-Delivered');
 define('_247AROUND_SNAPDEAL_SHIPPED','Snapdeal-Shipped');
 //Define Constant for Paytm Shipped Excel File Type
 define('_247AROUND_PAYTM_DELIVERED','Paytm-Delivered');
+//Define Constant for Satya File 
+define('_247AROUND_SATYA_DELIVERED','Satya-Delivered');
 //Define Constant for Vendor Pincode Excel File Type
 define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 //Define Constant for Vendor Pincode Excel File Type

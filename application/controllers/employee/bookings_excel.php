@@ -124,7 +124,7 @@ class bookings_excel extends CI_Controller {
             }
 
             //Updating File Uploads table and upload file to s3
-            $this->_update_paytm_file_uploads($_FILES["file"]["tmp_name"]);
+            $this->miscelleneous->update_file_uploads($_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED);
 
             //  Get worksheet dimensions
             //$sheet = $objPHPExcel->setActiveSheetIndexbyName('Sheet1');
@@ -241,7 +241,7 @@ class bookings_excel extends CI_Controller {
 
 
                     $service_id = isset($lead_details['service_id']) ? $lead_details['service_id'] : $this->booking_model->getServiceId($lead_details['Product']);
-                    $data = $this->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $rowData[0]['brand'], "SP");
+                    $data = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $rowData[0]['brand'], PAYTM);
                     if ($data) {
                         //Add this lead into the leads table
                         //Check whether this is a new Lead or Not
@@ -464,87 +464,6 @@ class bookings_excel extends CI_Controller {
     }
     
     /**
-     * @Desc: This function is used to _allot_source_partner_id_for_pincode
-     * @params: String Pincode, brnad, default partner id(SS)
-     * @return : Array
-     * 
-     */
-    private function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_source) {
-        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
-        $data = [];
-
-        $partner_array = $this->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
-
-        if (!empty($partner_array)) {
-
-            foreach ($partner_array as $value) {
-                //Now getting details for each Partner 
-                $filtered_partner_state = $this->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
-                if ($filtered_partner_state) {
-                    //Now assigning this case to Partner
-                    $data['partner_id'] = $value['partner_id'];
-                    $data['source'] = $partner_array[0]['code'];
-                } else {
-                    if ($value['partner_id'] == 247041) {
-                        return false;
-                        
-                    } else if ($default_source == "SS") {
-                        //Now assigning this case to SS
-                        $data['partner_id'] = SNAPDEAL_ID;
-                        $data['source'] = $default_source;
-                    } else if ($default_source == "SP") {
-                        $data['partner_id'] = PAYTM;
-                        $data['source'] = $default_source;
-                    }
-                }
-            }
-        } else {
-            log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
-            //Now assigning this case to SP
-            $data['partner_id'] = PAYTM;
-            $data['source'] = 'SP';
-        }
-
-        return $data;
-    }
-
-    /**
-     * @Desc: This function is used to upload Paytm file to s3 and update file uploads table
-     * @params: String
-     * @return: void
-     * 
-     */
-    private function _update_paytm_file_uploads($tmpFile){
-        //Logging
-        log_message('info', __FUNCTION__ . ' Processing of Paytm Delivered Product Excel File started');
-
-        //Adding Details in File_Uploads table as well
-
-        $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
-        $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
-        $data['agent_id'] = $this->session->userdata('id');
-        $insert_id = $this->partner_model->add_file_upload_details($data);
-        if (!empty($insert_id)) {
-            //Logging success
-            log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
-        } else {
-            //Loggin Error
-            log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
-        }
-
-        //Making process for file upload
-        $delivered_file = $data['file_name'];
-        move_uploaded_file($tmpFile, TMP_FOLDER . $delivered_file);
-
-        //Upload files to AWS
-        $bucket = BITBUCKET_DIRECTORY;
-        $directory_xls = "vendor-partner-docs/" . $delivered_file;
-        $this->s3->putObjectFile(TMP_FOLDER . $delivered_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-        //Logging
-        log_message('info', __FUNCTION__ . ' Paytm Delivered File has been uploaded in S3');
-    }
-    
-    /**
      * @Desc: This function is used to check if user name is empty or not
      * if user name is not empty then return username otherwise check if email is not
      * empty.if email is empty then return mobile number as username otherwise return email as username 
@@ -650,6 +569,18 @@ class bookings_excel extends CI_Controller {
         } else {
             return true;
         }
+    }
+    
+    /*
+     * @desc: This function is to upload the Satya File
+     * @param: void
+     * @return: void
+     */
+
+    public function upload_satya_file() {
+        
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->load->view('employee/upload_satya_file');
     }
     
 }
