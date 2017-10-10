@@ -64,7 +64,7 @@ class User extends CI_Controller {
                 $booking_id = $search;
             }
         }
-        
+
         $select = "services.services, service_centres.name as service_centre_name,
             service_centres.primary_contact_phone_1, service_centres.primary_contact_name,
             users.phone_number, users.name as customername,booking_details.type,
