@@ -11,7 +11,7 @@ body {
 .search_fab {
    width: 45px;
    height: 45px;
-   background-color: #5bc0de;
+   background-color: #7E57C2;
    border-radius: 50%;
    box-shadow: 0 6px 10px 0 #666;
    font-size: 18px;
@@ -505,4 +505,13 @@ table.dataTable thead .sorting:after {
 
 .panel-yellow a:hover {
     color: #df8a13;
+}
+
+.navbar-custom a{
+    color: #fff;
+}
+.navbar-custom .nav>li>a:focus, .navbar-custom .nav>li>a:hover {
+    text-decoration: none;
+    background-color: #4aabaa;
+    color: #fff;
 }
