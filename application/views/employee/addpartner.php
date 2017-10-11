@@ -1076,12 +1076,10 @@
                                     email: true
                                 },
                                 primary_contact_email: {
-                                    required: true,
-                                    email: true
+                                    required: true
                                 },
                                 owner_email: {
-                                    required: true,
-                                    email: true
+                                    required: true
                                 },
                                 invoice_courier_phone_number: {
                                     number: true
