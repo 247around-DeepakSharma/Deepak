@@ -2038,17 +2038,18 @@ class Booking_model extends CI_Model {
      *  @return : $output Array()
      */
     function _get_bookings_by_status($post, $select = "") {
-        $this->db->from('booking_details');
+        
         if (empty($select)) {
             $select = '*';
         }
         $this->db->distinct();
         $this->db->select($select,FALSE);
-        $this->db->join('users', 'users.user_id = booking_details.user_id ');
-        $this->db->join('services', 'services.id = booking_details.service_id');
+        $this->db->from('users');
+        $this->db->join('booking_details', 'booking_details.user_id  = users.user_id', 'left');
+        $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
-        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
+        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'left');
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }

@@ -40,7 +40,7 @@
                                 <th>Un-Cancel</th>
                             </tr>
                         </thead>
-                        <?php $count = 1;  foreach($Bookings as $key =>$row){ ?>
+                        <?php $count = 1; if(!empty($Bookings[0]->booking_id)){  foreach($Bookings as $key =>$row){ ?>
                         <tr>
                             <td><?php echo $count; $count++;?>.</td>
                             <td><?php echo $row->booking_id;?></td>
@@ -63,7 +63,7 @@
                                 <?php } ?>
                             </td>
                         </tr>
-                        <?php }?>
+                        <?php } }?>
                     </table>
                 </div>
                 <div class="row" style="margin-top: 20px;">
