@@ -443,7 +443,6 @@ class BookingSummary extends CI_Controller {
         <td>Requests Scheduled</td>
         <td>To be Followed Up</td>
         <td>Requests Cancelled</td>
-        <td>TAT (%)</td>
         </tr>
 
         <tr>
@@ -453,7 +452,6 @@ class BookingSummary extends CI_Controller {
         <td>$yday_install_sched</td>
         <td>$yday_followup_pend</td>
         <td>$yday_install_cancl</td>
-        <td>NA</td>
         </tr>
 
         <tr>
@@ -463,7 +461,6 @@ class BookingSummary extends CI_Controller {
         <td>$today_install_sched</td>
         <td>$today_followup_pend</td>
         <td>$today_install_cancl</td>
-        <td>NA</td>
         </tr>
 
          <tr>
@@ -473,7 +470,6 @@ class BookingSummary extends CI_Controller {
         <td>$month_install_sched</td>
         <td>$month_followup_pend</td>
         <td>$month_install_cancl</td>
-        <td>NA</td>
         </tr>
 
     </table>

@@ -180,6 +180,8 @@ define('DEFECTIVE_PARTS_REJECTED','Defective Part Rejected By Partner');
 define('SNAPDEAL_ID',1);
 //Jeeves ID
 define("JEEEVES_ID", 247030);
+//Wybor ID
+define("WYBOR_ID", 247010);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
 //Define Email ID to send system health emails
@@ -199,6 +201,8 @@ define('_247AROUND_SNAPDEAL_DELIVERED','Snapdeal-Delivered');
 define('_247AROUND_SNAPDEAL_SHIPPED','Snapdeal-Shipped');
 //Define Constant for Paytm Shipped Excel File Type
 define('_247AROUND_PAYTM_DELIVERED','Paytm-Delivered');
+//Define Constant for Satya File 
+define('_247AROUND_SATYA_DELIVERED','Satya-Delivered');
 //Define Constant for Vendor Pincode Excel File Type
 define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 //Define Constant for Vendor Pincode Excel File Type
@@ -442,6 +446,9 @@ define('SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS','-1 day');
 define('SMS_DEACTIVATION_EMAIL_SUBJECT','has requested for opt-out!');
 define('SMS_DEACTIVATION_NO_NEW_REQUEST_MSG','There is not any new request');
 
+define('PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER','Your Credit is low. Add credit');
+define('PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN','Your Credit is low. Add credit');
+define('PREPAID_LOW_AMOUNT_MSG_FOR_DEALER','Your Credit is low. Add credit');
 
 define("PARTNER_ADVANCE_DESCRIPTION", "Advance Payment");
 define("PARTNER_INVOICE_BUTTON", "CRM Setup Invoice");

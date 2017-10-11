@@ -45,14 +45,13 @@
          <!-- bootstrap-daterangepicker -->
         <script src="<?php echo base_url()?>/js/moment.min.js"></script>
         <script src="<?php echo base_url()?>js/daterangepicker.js"></script>
-
          
     </head>
     <body>
         <div id="wrapper">
         <!-- Navigation -->
         <!-- Navigation -->
-        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0;background-color: lightgrey;">
+        <nav class="navbar navbar-default navbar-custom" role="navigation" style="margin-bottom: 0;">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
@@ -65,11 +64,11 @@
             <!-- /.navbar-header -->
             <ul class="nav navbar-top-links navbar-left">
                 <li>
-                    <a href="<?php echo base_url()?>employee/user"><i class="fa fa-fw fa-edit"></i>Find User</a>
+                    <a href="<?php echo base_url()?>employee/user">Find User</a>
                 </li>
                 <li class="dropdown ">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-fw fa-arrows-v"></i> Queries  <i class="fa fa-caret-down"></i>
+                    Queries  <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu  ">
                         <li >
@@ -93,7 +92,7 @@
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-fw fa-arrows-v"></i> Bookings <i class="fa fa-caret-down"></i>
+                    Bookings <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu ">
                         <li>
@@ -127,7 +126,7 @@
                         
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url()?>employee/booking/update_not_pay_to_sf_booking"><i class="fa fa-fw fa-desktop"></i> <strong>No Installation, Only Stand Given</strong></a>
+                            <a href="<?php echo base_url()?>employee/booking/update_not_pay_to_sf_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Wall Mount Given</strong></a>
                         </li>
                          <li class="divider"></li>
                         <li>
@@ -159,7 +158,7 @@
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-fw fa-arrows-v"></i> Partners <i class="fa fa-caret-down"></i>
+                    Partners <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu ">
                         <li >
@@ -187,6 +186,10 @@
                         </li>
                         <li class="divider"></li>
                         <li >
+                            <a href="<?php echo base_url() ?>/employee/bookings_excel/upload_satya_file"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Satya File</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
                             <a href="<?php echo base_url() ?>employee/service_centre_charges/show_partner_service_price"><i class="fa fa-fw fa-desktop "></i> <strong>Partner Price List</strong></a>
                         </li>
                         <li class="divider"></li>
@@ -201,7 +204,7 @@
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-fw fa-arrows-v"></i> Service Centres <i class="fa fa-caret-down"></i>
+                    Service Centres <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu">
                         <li>
@@ -280,7 +283,7 @@
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-fw fa-arrows-v"></i> Appliances <i class="fa fa-caret-down"></i>
+                    Appliances <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu">
 
@@ -298,7 +301,7 @@
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-fw fa-arrows-v"></i> Invoices <i class="fa fa-caret-down"></i>
+                    Invoices <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu">
                         <li>
@@ -392,7 +395,7 @@
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-fw fa-arrows-v"></i> Reports <i class="fa fa-caret-down"></i>
+                    Reports <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu">
                         <li>
@@ -432,7 +435,7 @@
                 
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-fw fa-arrows-v"></i> Inventory <i class="fa fa-caret-down"></i>
+                    Inventory <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu">
                         <li>
