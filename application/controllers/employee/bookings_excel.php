@@ -491,69 +491,69 @@ class bookings_excel extends CI_Controller {
         $error = false;
         
         if (!array_key_exists('order_id', $rowData)) {
-            $message .= " Order Id Column does not exist.<br/><br/>";
+            $message .= " Order Id Column does not exist. Please use <b>order_id</> as column name.<br/><br/>";
             $this->Columfailed .= " Order Id, ";
             $error = true;
         }
 
         if (!array_key_exists('product_name', $rowData)) {
-            $message .= " Product Name Column does not exist. <br/><br/>";
+            $message .= " Product Name Column does not exist. Please use <b>product_name</> as column name.<br/><br/>";
             $this->Columfailed .= " Product Name, ";
             $error = true;
         }
         
         if (!array_key_exists('category', $rowData)) {
       
-            $message .= " Category Column does not exist. <br/><br/>";
+            $message .= " Category Column does not exist. Please use <b>category</> as column name.<br/><br/>";
             $this->Columfailed .= "category , ";
             $error = true;
         }
          
         if (!array_key_exists('brand', $rowData)) {
        
-            $message .= " Brand Column does not exist. <br/><br/>";
+            $message .= " Brand Column does not exist. Please use <b>brand</> as column name.<br/><br/>";
             $this->Columfailed .= " Brand , ";
             $error = true;
         }
         if (!array_key_exists('customer_firstname', $rowData)) {
 
-            $message .= " Customer First Name Column does not exist. <br/><br/>";
+            $message .= " Customer First Name Column does not exist. Please use <b>customer_firstname</> as column name.<br/><br/>";
             $this->Columfailed .= " Customer First Name , ";
             $error = true;
         }
         if (!array_key_exists('Customer_lastname', $rowData)) {
       
-            $message .= " Customer Last Name does not exist. <br/><br/>";
+            $message .= " Customer Last Name does not exist. Please use <b>Customer_lastname</> as column name.<br/><br/>";
             $this->Columfailed .= "Customer Last Name , ";
             $error = true;
         }
         if (!array_key_exists('contact_number', $rowData)) {
       
-            $message .= " Contact Number Column does not exist. <br/><br/>";
+            $message .= " Contact Number Column does not exist. Please use <b>contact_number</> as column name.<br/><br/>";
             $this->Columfailed .= "Contact Number ";
             $error = true;
         }
         if (!array_key_exists('address', $rowData)) {
       
-            $message .= " Address Column does not exist. <br/><br/>";
+            $message .= " Address Column does not exist. Please use <b>address</> as column name.<br/><br/>";
             $this->Columfailed .= "Address , ";
             $error = true;
         }
         if (!array_key_exists('pincode', $rowData)) {
       
-            $message .= " Pincode Column does not exist. <br/><br/>";
+            $message .= " Pincode Column does not exist. Please use <b>pincode</> as column name.<br/><br/>";
             $this->Columfailed .= "Pincode,";
             $error = true;
         }
         if (!array_key_exists('customer_city', $rowData)) {
       
-            $message .= " Customer City Column does not exist. <br/><br/>";
+            $message .= " Customer City Column does not exist. Please use <b>customer_city</> as column name.<br/><br/>";
             $this->Columfailed .= "Customer City,";
             $error = true;
         }
         if (!array_key_exists('shipped_date', $rowData)) {
       
-            $message .= " Shipped Date Column does not exist. <br/><br/>";
+            $message .= " Shipped Date Column does not exist. Please use <b>shipped_date</> as column name.<br/><br/>";
             $this->Columfailed .= "Shipped Date ";
             $error = true;
         }
