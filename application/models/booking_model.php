@@ -2187,6 +2187,7 @@ class Booking_model extends CI_Model {
      */
     function _get_queries($post,$pincode_status, $query_status,$select = "") {
         $this->db->_reserved_identifiers = array('*','CASE','EXISTS','NOT');
+        $this->db->distinct();
         $this->db->from('booking_details');
         if (empty($select)) {
             $select = '*';
