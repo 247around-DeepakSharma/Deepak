@@ -658,8 +658,8 @@ class Booking_model extends CI_Model {
      *  @param : booking id
      *  @return : all the unit booking detais
      */
-     function get_unit_details($where, $like= FALSE) {
-        $this->db->select('*');
+     function get_unit_details($where, $like= FALSE, $select = "*") {
+        $this->db->select($select);
         if($like == TRUE){
             $this->db->like($where);
         } else {
@@ -2187,6 +2187,7 @@ class Booking_model extends CI_Model {
      */
     function _get_queries($post,$pincode_status, $query_status,$select = "") {
         $this->db->_reserved_identifiers = array('*','CASE','EXISTS','NOT');
+        $this->db->distinct();
         $this->db->from('booking_details');
         if (empty($select)) {
             $select = '*';

@@ -1531,12 +1531,10 @@
             email: true
         },
         primary_contact_email: {
-            required: true,
-            email: true
+            required: true
         },
         owner_email: {
-            required: true,
-            email: true
+            required: true
         }
     },
     messages: {

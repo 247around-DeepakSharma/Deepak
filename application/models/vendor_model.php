@@ -181,8 +181,8 @@ class vendor_model extends CI_Model {
      *         - Id of vendor to whom we would like to deactivate
      * @return: void
      */
-    function deactivate($id) {
-        $sql = "Update service_centres set active= 0 where id='$id'";
+    function deactivate($id,$agentID=NULL) {
+        $sql = "Update service_centres set active= 0,agent_id=".$agentID." where id='$id'";
         $this->db->query($sql);
         //Changing Flag Active to 0 in service centres login table
         $sql1 = "Update service_centers_login set active= 0 where service_center_id='$id'";
@@ -1565,8 +1565,8 @@ class vendor_model extends CI_Model {
      *         
      * @return: void
      */
-    function temporary_on_off_vendor($id,$on_off) {
-        $sql = "Update service_centres set on_off = '$on_off' where id='$id'";
+    function temporary_on_off_vendor($id,$on_off,$agentID=NULL) {
+        $sql = "Update service_centres set on_off = '$on_off',agent_id=".$agentID." where id='$id'";
         $this->db->query($sql);
     }
 

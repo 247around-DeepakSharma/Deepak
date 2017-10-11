@@ -82,7 +82,7 @@
           	<td><?=$row['owner_email'];?></td>
                 <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $row['id']; ?>" target="_blank" class="btn btn-info">Invoice</a></td>
                 <td>
-                    <a href="javascript:void(0)" class="btn btn-md btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)' <?php echo ($row['is_active'] == 0)?'disabled=""':'' ?>  title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>">Login</a>  
+                    <a href="javascript:void(0)" class="btn btn-md btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)'  title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>">Login</a>  
               
                 </td>
           	<td><?php if($row['is_active']==1){ ?>

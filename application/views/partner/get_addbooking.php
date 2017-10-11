@@ -384,15 +384,27 @@
                 </div>
             </div>
             <input type="hidden" id="not_visible" name="not_visible" value="0"/>
+            <?php if(!empty($this->session->userdata('status'))) {?>
             <div class="row">
                 <div class="form-group  col-md-12" >
                     <center>
                         <input type="submit" id="submitform" class="btn btn-primary " onclick="return check_validation()" value="Submit Booking">
-                        <span id="error_not_visible" style="color: red"></span>
+                        <p id="error_not_visible" style="color: red"></p>
                     </center>
                 </div>
             </div>
+            <?php } ?>
         </form>
+        <?php if(empty($this->session->userdata('status'))) { ?>
+            <div class="row">
+                <div class="form-group  col-md-12" >
+                    <center>
+                        <input type="submit" class="btn btn-primary " disabled value="Submit Booking">
+                        <p id="error_not_visible" style="color: red"><?php echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER; ?></p>
+                    </center>
+                </div>
+            </div>
+        <?php }?>
         <!-- end Panel Body  -->
     </div>
 </div>
@@ -535,6 +547,13 @@
             document.getElementById('remarks').style.borderColor = "green";
             document.getElementById('error_remarks').innerHTML = "";  
         }
+        
+        <?php if(empty($this->session->userdata('status'))){ ?>
+                alert("<?php echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;?>");
+                 document.getElementById('error_not_visible').innerHTML = "<?php echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;?>";  
+                
+            return false;
+       <?php } ?>
         
        
     }
