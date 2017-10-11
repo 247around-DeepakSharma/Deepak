@@ -1606,8 +1606,9 @@ class Reporting_utils extends CI_Model {
                              AND partner_id = '"._247AROUND."' AND agent_id= '" . $value['id'] . "' $where1";
             //getting booking query data
             $booking_query = "SELECT count(booking_id) AS query_booking FROM booking_state_change
-                              WHERE booking_state_change.old_state = 'FollowUP' 
-                              AND booking_state_change.new_state='Pending' 
+                              WHERE ((booking_state_change.old_state = 'FollowUP' 
+                              AND booking_state_change.new_state='Pending') OR (booking_state_change.old_state = 'New_Booking' 
+                              AND booking_state_change.new_state='Pending')) 
                               AND partner_id = '"._247AROUND."' AND agent_id= '" . $value['id'] . "' $where1";
             
             //getting outgoing calls data
