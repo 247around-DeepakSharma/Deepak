@@ -2587,9 +2587,9 @@ class Invoice extends CI_Controller {
             
             $response = $this->generate_partner_additional_invoice($partner_data[0], $description,
             $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code);
-            
+
             $basic_sc_charge = $response['meta']['total_taxable_value'];
-            
+
             $invoice_details = array(
                 'invoice_id' => $invoice_id,
                 'type_code' => 'A',
