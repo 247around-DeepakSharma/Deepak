@@ -693,8 +693,14 @@ class invoices_model extends CI_Model {
             $meta['reverse_charge'] = '';
            
             $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
-            $meta['sd'] = date("jS M, Y", strtotime($sd));
-            $meta['ed'] = date("jS M, Y", strtotime($ed));
+            if($result[0]['description'] == QC_INVOICE_DESCRIPTION){
+                $meta['sd'] =  "";
+                $meta['ed'] = "";
+            } else {
+                $meta['sd'] = date("jS M, Y", strtotime($sd));
+                $meta['ed'] = date("jS M, Y", strtotime($ed));
+            }
+            
             if($invoice_date){
                  $meta['invoice_date'] = date("jS M, Y", strtotime($invoice_date));
             } else {
