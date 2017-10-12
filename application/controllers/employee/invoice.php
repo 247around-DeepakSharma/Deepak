@@ -2578,11 +2578,13 @@ class Invoice extends CI_Controller {
                 $hsn_code = QC_HSN_CODE;
                 $type = "Buyback";
                 $invoice_date = $ed;
+                $invoice_id = $this->create_invoice_id_to_insert("Around");
                 
             } else{
                  $invoice_date = date("Y-m-d");
+                 $invoice_id = $this->create_invoice_id_to_insert("Around-PV");
             }
-            $invoice_id = $this->create_invoice_id_to_insert("Around-PB");
+            
             $response = $this->generate_partner_additional_invoice($partner_data[0], $description,
             $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code);
             $basic_sc_charge = 0;
@@ -2591,7 +2593,7 @@ class Invoice extends CI_Controller {
                 
                 $buyback_charge = $response['meta']['total_taxable_value'];
             } else {
-                $basic_sc_charge = $response['meta']['total_taxable_value'];;
+                $basic_sc_charge = $response['meta']['total_taxable_value'];
             }
             
             $invoice_details = array(
@@ -2619,17 +2621,18 @@ class Invoice extends CI_Controller {
                 "igst_tax_rate" => $response['meta']['igst_tax_rate'],
                 "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
                 "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
-                "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"]
+                "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
+                "hsn_code" => $response['meta']['hsn_code']
             );
             
              $this->invoices_model->insert_new_invoice($invoice_details);
              log_message('info', __METHOD__ . ": Invoice ID inserted");
-             $this->session->set_flashdata('file_error', 'CRM SETUP INVOICE GENERATED');
+             $this->session->set_flashdata('file_error', $description.'Invoice Generated');
              redirect(base_url() . "employee/invoice/invoice_partner_view");
 
         } else {
             log_message('info', __METHOD__ . ": Invoice ID inserted");
-            $this->session->set_flashdata('file_error', 'CRM SETUP INVOICE NOT GENERATED');
+            $this->session->set_flashdata('file_error', $description. 'Not Generated');
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
         }
@@ -2748,7 +2751,7 @@ class Invoice extends CI_Controller {
                 $amount_collected_paid = $amount;
                 
             } else {
-                $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-PB");
+                $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-PV");
                 if($tds > 0){
                     $data['tds_amount'] = $tds;
                 }
@@ -2778,6 +2781,7 @@ class Invoice extends CI_Controller {
             $data['amount_collected_paid'] = -$amount_collected_paid;
             $data['agent_id'] = $this->session->userdata('id');
             $data['create_date'] = date("Y-m-d H:i:s");
+            $data['hsn_code'] = HSN_CODE;
 
             $this->invoices_model->action_partner_invoice($data);
             return $data['invoice_id'];
