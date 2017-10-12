@@ -137,7 +137,7 @@ class bookings_excel extends CI_Controller {
             $headings_new = array();
             foreach ($headings as $heading) {
                 $heading = str_replace(array("/", "(", ")", " ", "."), "", $heading);
-                array_push($headings_new, str_replace(array(" "), "_", $heading));
+                array_push($headings_new, array_map('strtolower', str_replace(array(" "), "_", $heading)));
             }
 
             $message = "";
@@ -173,7 +173,7 @@ class bookings_excel extends CI_Controller {
                     
                     if (empty($output)) {
                         //User doesn't exist
-                        $user_name = $this->is_user_name_empty(trim($rowData[0]['customer_firstname'] . " " . $rowData[0]['Customer_lastname']), $rowData[0]['customer_email'], $rowData[0]['contact_number']);
+                        $user_name = $this->is_user_name_empty(trim($rowData[0]['customer_firstname'] . " " . $rowData[0]['customer_lastname']), $rowData[0]['customer_email'], $rowData[0]['contact_number']);
                         $user['name'] = $user_name;
                         $user['phone_number'] = $rowData[0]['contact_number'];
                         $user['user_email'] = $rowData[0]['customer_email'];
@@ -194,7 +194,7 @@ class bookings_excel extends CI_Controller {
                         }
                     } else {
                         //User exists
-                        $user['name'] = trim($rowData[0]['customer_firstname'] . " " . $rowData[0]['Customer_lastname']);
+                        $user['name'] = trim($rowData[0]['customer_firstname'] . " " . $rowData[0]['customer_lastname']);
                         $user['user_email'] = $rowData[0]['customer_email'];
                         $user_id = $output[0]['user_id'];
                     }
@@ -521,9 +521,9 @@ class bookings_excel extends CI_Controller {
             $this->Columfailed .= " Customer First Name , ";
             $error = true;
         }
-        if (!array_key_exists('Customer_lastname', $rowData)) {
+        if (!array_key_exists('customer_lastname', $rowData)) {
       
-            $message .= " Customer Last Name does not exist. Please use <b>Customer_lastname</> as column name.<br/><br/>";
+            $message .= " Customer Last Name does not exist. Please use <b>customer_lastname</> as column name.<br/><br/>";
             $this->Columfailed .= "Customer Last Name , ";
             $error = true;
         }
