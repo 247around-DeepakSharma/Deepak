@@ -216,16 +216,16 @@ class bookings_excel extends CI_Controller {
                         if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
                             $lead_details['Product'] = 'Washing Machine';
                         }
-                        if (stristr($prod, "Television") || stristr($prod, "TV")) {
+                        if (stristr($prod, "Television") || stristr($prod, "TV") ||  stristr($prod, "Tv")) {
                             $lead_details['Product'] = 'Television';
                         }
-                        if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                        if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner") || strstr($prod, "AC")) {
                             $lead_details['Product'] = 'Air Conditioner';
                         }
                         if (stristr($prod, "Refrigerator")) {
                             $lead_details['Product'] = 'Refrigerator';
                         }
-                        if (stristr($prod, "Microwave")) {
+                        if (stristr($prod, "Microwave") || stristr($prod, "Oven")) {
                             $lead_details['Product'] = 'Microwave';
                         }
                         if (stristr($prod, "Purifier")) {
