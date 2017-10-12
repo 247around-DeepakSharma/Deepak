@@ -3329,3 +3329,14 @@ CREATE TABLE `bb_svc_balance`
 `la_balance` DECIMAL(10,2) NOT NULL DEFAULT '0.00' , 
 `create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
+--sachin 12 Oct
+ALTER TABLE `employee` ADD `languages` VARCHAR(256) NULL DEFAULT NULL AFTER `image_link`;
+UPDATE `employee` SET `languages` = 'English, Hindi, Marathi' WHERE `employee`.`id` = 24;
+UPDATE `employee` SET `languages` = 'English, Hindi, Bengali' WHERE `employee`.`id` = 25;
+UPDATE `employee` SET `languages` = 'English, Hindi' WHERE `employee`.`id` = 32;
+UPDATE `employee` SET `languages` = 'English,Tamil,Malayalam,Telugu,Kannada' WHERE `employee`.`id` = 16;
+ALTER TABLE `employee` ADD `office_centre` VARCHAR(128) NULL DEFAULT NULL AFTER `languages`;
+UPDATE `employee` SET `office_centre` = 'Chennai' WHERE `employee`.`id` = 16;
+UPDATE `employee` SET `office_centre` = 'Mumbai' WHERE `employee`.`id` = 24;
+UPDATE `employee` SET `office_centre` = 'Kolkata' WHERE `employee`.`id` = 25;
+UPDATE `employee` SET `office_centre` = 'Delhi' WHERE `employee`.`id` = 32;

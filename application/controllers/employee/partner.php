@@ -2540,9 +2540,7 @@ class Partner extends CI_Controller {
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
 
         $data['spare_parts'] = $total_rows[0]['total_rows'];
-
-        $am_details['account_manager_details'] = $this->get_am_data($partner_id);
-        $this->load->view('partner/header', $am_details);
+        $this->load->view('partner/header');
         $this->load->view('partner/partner_default_page', $data);
     }
 
@@ -3302,6 +3300,12 @@ class Partner extends CI_Controller {
         $userSession = array('status' => $p_details['active']);
         $this->session->set_userdata($userSession);
         return $d;
+    }
+    
+    public function get_contact_us_page($partner_id){
+        $data['account_manager_details'] = $this->get_am_data($partner_id);
+        $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager','active' => 1));
+        $this->load->view('partner/contact_us',$data);
     }
 
 }
