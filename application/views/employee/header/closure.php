@@ -169,7 +169,7 @@
                         </li>
                         <li class="divider"></li>
                         <li >
-                            <a href="<?php echo base_url() ?>/employee/bookings_excel/upload_satya_file"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Satya File</strong></a>
+                            <a href="<?php echo base_url() ?>/employee/bookings_excel/upload_satya_file"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Satya File </strong></a>
                         </li>
                         <li class="divider"></li>
                         
