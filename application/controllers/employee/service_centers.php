@@ -2692,5 +2692,10 @@ class Service_centers extends CI_Controller {
             
     }
     
+    public function get_contact_us_page(){
+        $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager','active' => 1));
+        $this->load->view('service_centers/contact_us',$data);
+    }
+    
 
 }
