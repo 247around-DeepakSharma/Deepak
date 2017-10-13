@@ -1895,6 +1895,7 @@ class Booking_model extends CI_Model {
         $this->db->from('appliance_product_description as apd');
         $this->db->join('services','apd.service_id = services.id');
         $this->db->where('product_description',$product_description);
+        $this->db->where('is_verified',1);
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -2150,7 +2151,7 @@ class Booking_model extends CI_Model {
     function get_search_query($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
         $this->db->select($select);
         if(!empty($where)){
-            $this->db->where($where);
+            $this->db->where($where,FALSE);
         }
         if(!empty($join)){
             foreach ($join as $tableName=>$joinCondition){
