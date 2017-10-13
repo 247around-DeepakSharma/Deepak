@@ -3217,5 +3217,149 @@ class Booking extends CI_Controller {
         return $row;
         
     }
+    
+    /**
+     * @desc: This function is used to show editable grid for non verified appliance data from appliance_description_table
+     * @param: void
+     * @return: void
+     * 
+     */
+    function get_appliance_description_editable_grid(){
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/appliance_description_editable_grid');
+        
+    }
+    /**
+     * @desc: This funtion is called from AJAX to get non verfied appliance details
+     * @params: void
+     * @return: JSON
+     */
+    function get_non_verified_appliance_template() {
+        $page = isset($_POST['page']) ? $_POST['page'] : 1;
+        $limit = isset($_POST['rows']) ? $_POST['rows'] : 10;
+        $sidx = isset($_POST['sidx']) ? $_POST['sidx'] : 'name';
+        $sord = isset($_POST['sord']) ? $_POST['sord'] : '';
+        $start = $limit * $page - $limit;
+        $start = ($start < 0) ? 0 : $start;
+
+        $where['(is_verified = 0 OR is_verified is null)'] = null ;
+        $searchField = isset($_POST['searchField']) ? $_POST['searchField'] : false;
+        $searchOper = isset($_POST['searchOper']) ? $_POST['searchOper'] : false;
+        $searchString = isset($_POST['searchString']) ? $_POST['searchString'] : false;
+
+        if ($_POST['_search'] == 'true') {
+            $ops = array(
+                'eq' => '=',
+                'ne' => '<>',
+                'lt' => '<',
+                'le' => '<=',
+                'gt' => '>',
+                'ge' => '>=',
+                'bw' => 'LIKE',
+                'bn' => 'NOT LIKE',
+                'in' => 'LIKE',
+                'ni' => 'NOT LIKE',
+                'ew' => 'LIKE',
+                'en' => 'NOT LIKE',
+                'cn' => 'LIKE',
+                'nc' => 'NOT LIKE',
+                'nu' => 'IS NULL',
+                'nn' => 'IS NOT NULL'
+            );
+            foreach ($ops as $key => $value) {
+                if ($searchOper == $key) {
+                    $ops = $value;
+                }
+            }
+            if ($searchOper == 'eq'){
+                $searchString = $searchString;   
+            }
+            if ($searchOper == 'bw' || $searchOper == 'bn'){
+                $searchString .= '%';
+            }   
+            if ($searchOper == 'ew' || $searchOper == 'en'){
+                $searchString = '%' . $searchString;
+            }
+            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni'){
+                $searchString = '%' . $searchString . '%';
+            }
+            if ($searchOper == 'nu'){
+                $searchString = $searchString;   
+            }
+            if ($searchOper == 'nn'){
+                $searchString = '';   
+            }
+            
+            if($searchOper == 'nu' || $searchOper == 'nn'){
+                $where["$searchField $ops"] = NULL;
+            }else{
+                $where["$searchField $ops '$searchString'"] = NULL;
+            }
+            
+            
+        }
+
+        if (!$sidx){
+            $sidx = 1;
+        }
+        $count = $this->db->count_all_results('appliance_product_description');
+         
+        if ($count > 0) {
+            $total_pages = ceil($count / $limit);
+        } else {
+            $total_pages = 0;
+        }
+
+        if ($page > $total_pages){
+            $page = $total_pages;
+        }
+       
+        $query = $this->booking_model->get_search_query('appliance_product_description', '*', $where,NULL,array('length' => $limit,'start'=> $start),array($sidx => $sord))->result();
+        $response = new StdClass;
+        $response->page = $page;
+        $response->total = $total_pages;
+        $response->records = $count;
+        $i = 0;
+                
+        foreach ($query as $row) {
+            $response->rows[$i]['id'] = $row->id;
+            $response->rows[$i]['cell'] = array($row->product_description, $row->category, $row->capacity,$row->brand);
+            $i++;
+        }
+ 
+        echo json_encode($response);
+    }
+    
+    /**
+     * @desc: This function is called from AJAX to modify non verified appliance details based on different cases
+     * @params: void
+     * @return: void
+     */
+    function update_appliance_description_template() {
+        $data = $this->input->post();
+        $operation = $data['oper'];
+
+        switch ($operation) {
+            case 'edit':
+                //Initializing array for updating data
+                $update_data = [];
+                //Setting insert array data
+                $update_data['category'] = $data['category'];
+                $update_data['capacity'] = $data['capacity'];
+                $update_data['brand'] = $data['brand'];
+                $update_data['is_verified'] = 1;
+                if(!empty($update_data)){
+                    $update_id = $this->booking_model->update_appliance_description_details($update_data,array('id'=>$data['id']));
+                
+                    if ($update_id) {
+                        log_message('info', __FUNCTION__ . ' Appliance Details has been updated with ID ' . $update_id);
+                    } else {
+                        log_message('info', __FUNCTION__ . ' Err in updating Appliance Details');
+                    }
+                }  
+                
+                break;
+        }
+    }
 
 }

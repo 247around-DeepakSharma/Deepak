@@ -233,6 +233,10 @@
                                 <li>
                                     <a href="<?php echo base_url() ?>employee/vendor/get_vandor_escalation_policy_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> Vendor Escalation Policy Template Grid</strong></a>
                                 </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/booking/get_appliance_description_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong>Appliance Description Template Grid</strong></a>
+                                </li>
                             </ul>
                         </li>
                         <li class="divider"></li>
