@@ -1519,7 +1519,7 @@ class Partner extends CI_Controller {
                 $sf_id = $this->booking_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id' => $escalation['booking_id']))->result_array()[0];
                 $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($sf_id['assigned_vendor_id'])[0]['official_email'];
                 $partner_mail_to = $partner_details['email'];
-                $partner_mail_cc = $rm_mail.NITS_ANUJ_EMAIL_ID . ",escalations@247around.com";
+                $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ,".$rm_mail;
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
                 $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br><b>Booking ID : </b>" . $booking_id . " Escalated <br><br><strong>Remarks : </strong>" . $remarks;
                 $this->notify->sendEmail('booking@247around.com', $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
