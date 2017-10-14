@@ -321,4 +321,18 @@ class dashboard_model extends CI_Model {
         $completed_booking = $query->result_array();
         return $completed_booking;
     }
+/*
+ * This function get data from missing pincode table on the basis of rm id
+ */    
+     function get_pincode_data_for_not_found_sf($rmID,$limit=NULL){
+            $this->db->select('sf.pincode, COUNT(sf.pincode) as pincodeCount,sf.city,sf.state,sf.service_id,services.services');
+            $this->db->group_by('pincode,service_id'); 
+            $this->db->order_by('count(pincode) DESC'); 
+            $this->db->where('rm_id',$rmID); 
+            $this->db->join('services', 'services.id = sf.service_id');
+            if($limit){
+                    $this->db->limit($limit); 
+            }
+            return $this->db->get('sf_not_exist_booking_details sf')->result_array();
+    }
 }

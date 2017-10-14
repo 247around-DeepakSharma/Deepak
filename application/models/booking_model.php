@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 
 class Booking_model extends CI_Model {
@@ -841,23 +842,23 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
-    /** get_queries
-     *
-     *  @desc : Function to get pending queries according to pagination and vendor availability.
-     * It can work in different ways:
-     *
-     * 1. Return count of pending queries
-     * 2. Return data for pending queries
-     *
-     * Queries which have booking date of future are not shown. Queries with
-     * empty booking dates are shown.
-     *
-     * @param : start and limit for the query
-     * @param : $status - Completed or Cancelled
-     * @p_av : Type of queries: Vendor Available or Vendor Not Available
-     *
-     *  @return : Count of Queries or Data for Queries
-     */
+//       /** get_queries
+//     *
+//     *  @desc : Function to get pending queries according to pagination and vendor availability.
+//     * It can work in different ways:
+//     *
+//     * 1. Return count of pending queries
+//     * 2. Return data for pending queries
+//     *
+//     * Queries which have booking date of future are not shown. Queries with
+//     * empty booking dates are shown.
+//     *
+//     * @param : start and limit for the query
+//     * @param : $status - Completed or Cancelled
+//     * @p_av : Type of queries: Vendor Available or Vendor Not Available
+//     *
+//     *  @return : Count of Queries or Data for Queries
+//     */
 //    function get_queries($limit, $start, $status, $p_av, $booking_id = "") {
 //        $check_vendor_status = "";
 //        $where = "";
@@ -2031,14 +2032,13 @@ class Booking_model extends CI_Model {
         $query = $this->db->get('sms_sent_details');
         return $query->result_array();
     }
-    
-    /**
+      /**
      *  @desc : This function is used to get bookings based on booking status type
      *  @param : $post string
      *  @param : $select string
      *  @return : $output Array()
      */
-    function _get_bookings_by_status($post, $select = "") {
+  function _get_bookings_by_status($post, $select = "") {
         
         if (empty($select)) {
             $select = '*';
@@ -2304,6 +2304,9 @@ class Booking_model extends CI_Model {
         $this->db->insert('email_sent', $data);
         return $this->db->insert_id();
     }
-    
+    function pincode_not_found_relevent_data($sql){
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
     
 }

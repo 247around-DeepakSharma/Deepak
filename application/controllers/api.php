@@ -32,6 +32,7 @@ class Api extends CI_Controller {
         $this->load->model('user_model');
         $this->load->model('partner_model');
         $this->load->library('notify');
+        $this->load->library("miscelleneous");
         $this->load->library('booking_utilities');
         $this->load->library('s3');
         $this->load->library('email');
@@ -2004,6 +2005,7 @@ class Api extends CI_Controller {
             $this->sendJsonResponse(array('0000', 'success'));
         } else {
             
+            $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id'=>"Not_Generated",'pincode'=>$requestData["booking_pincode"],'city'=>"Not_recieved",'service_id'=>$searched_service_id));
             $this->sendJsonResponse(array('0008', 'failure'));
         }
     }
