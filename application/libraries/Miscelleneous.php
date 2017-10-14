@@ -1171,4 +1171,14 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         
         return $new_appliance_details;
     }
+    /*
+     * This Function use to update sf_not_found_pincode table
+     * When we upload any new pincode and that pincode with same service_id exist in sf not found table, then this will update its active flag
+     */
+          function update_pincode_not_found_sf_table($pincodeServiceArray){
+              foreach($pincodeServiceArray as $key=>$values){
+                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL;
+              }
+              $this->My_CI->vendor_model->is_pincode_exist_in_not_found_sf_table($pincodeArray);
+          }
 }

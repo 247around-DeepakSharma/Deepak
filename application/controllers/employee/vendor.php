@@ -2451,6 +2451,7 @@ class vendor extends CI_Controller {
             else{
                     $areaArray = $this->vendor_model->get_india_pincode_distinct_area_data($this->input->post('pincode'));
                     $data =  $this->get_structured_array_for_vendor_pincode_processing($this->input->post(),$areaArray);
+                    $this->miscelleneous->update_pincode_not_found_sf_table($data);
                     foreach ($data as $value) {
                               $result = $this->vendor_model->check_vendor_details($value);
                               if($result == 'true'){
@@ -4562,11 +4563,12 @@ class vendor extends CI_Controller {
           function manage_pincode_not_found_sf_table(){
               foreach($this->vendorPinArray as $key=>$values){
                     if($key>0){
-                        $pincodeArray[] = $values[0][6];
+                        $temp['Pincode'] = $values[0][6];
+                        $temp['Appliance_ID'] = $values[0][3];
+                        $pincodeServiceArray[] = $temp;
                     }
               }
-              $uniquePincodeArray = array_unique($pincodeArray);
-              $this->vendor_model->is_pincode_exist_in_not_found_sf_table($uniquePincodeArray);
+              $this->miscelleneous->update_pincode_not_found_sf_table($pincodeServiceArray);
           }
           /*
            * This function update vendor pincode mapping table,before updating it checks following condition
@@ -4581,7 +4583,7 @@ class vendor extends CI_Controller {
                               if($is_saved == 1){
                                         $msgVerfied = $this->is_vendor_pin_code_file_valid($_FILES,$vendorID);
                                         if($msgVerfied == 1){
-                                                       //$this->manage_pincode_not_found_sf_table();
+                                                       $this->manage_pincode_not_found_sf_table();
                                                        $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($_FILES,$vendorID);
                                         }
                                         else{
