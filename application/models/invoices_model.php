@@ -1018,22 +1018,38 @@ class invoices_model extends CI_Model {
                     
                 } else if($c_s_gst){
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
-                    
-                    $data['booking'][$key]['cgst_rate'] =  $data['booking'][$key]['sgst_rate'] = 9;
-                    $data['booking'][$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
-                    $data['booking'][$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
-                    $meta['cgst_total_tax_amount'] +=  $data['booking'][$key]['cgst_tax_amount'];
-                    $meta['sgst_total_tax_amount'] += $data['booking'][$key]['sgst_tax_amount'];
-                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
-                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
+                    if($value['product_or_services'] == "Product"){
+                        $data['booking'][$key]['cgst_rate'] =  $data['booking'][$key]['sgst_rate'] = 14;
+                        $data['booking'][$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.14),2);
+                        $data['booking'][$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.14),2);
+                        $meta['cgst_total_tax_amount'] +=  $data['booking'][$key]['cgst_tax_amount'];
+                        $meta['sgst_total_tax_amount'] += $data['booking'][$key]['sgst_tax_amount'];
+                        $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 14;
+                        $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.28),2);
+                    }else{
+                        $data['booking'][$key]['cgst_rate'] =  $data['booking'][$key]['sgst_rate'] = 9;
+                        $data['booking'][$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
+                        $data['booking'][$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
+                        $meta['cgst_total_tax_amount'] +=  $data['booking'][$key]['cgst_tax_amount'];
+                        $meta['sgst_total_tax_amount'] += $data['booking'][$key]['sgst_tax_amount'];
+                        $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
+                        $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
+                    }
                     
                 } else {
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
+                    if($value['product_or_services'] == "Product"){
+                        $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = 28;
+                        $data['booking'][$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
+                        $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
+                        $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
+                    }else{
+                        $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
+                        $data['booking'][$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
+                        $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
+                        $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
+                    }
                     
-                    $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
-                    $data['booking'][$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
-                    $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
-                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
                 }
                 
                
