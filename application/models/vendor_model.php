@@ -1136,7 +1136,6 @@ class vendor_model extends CI_Model {
      * @return Int ID of inserted data
      */
     function insert_vendor_pincode_mapping($data){
-
         $this->db->insert('vendor_pincode_mapping', $data);
         return $this->db->insert_id();
     }
