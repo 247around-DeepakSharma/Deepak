@@ -3110,7 +3110,11 @@ class Booking extends CI_Controller {
         
         return $row;
     }
-    
+    function update_vendor_pincode_msg($already_exist){
+        echo "<pre>";
+        print_r($already_exist);
+        echo "</pre>";
+    }
     /**
      *  @desc : This function is used to show queries based on query status
      *  @param : $status string

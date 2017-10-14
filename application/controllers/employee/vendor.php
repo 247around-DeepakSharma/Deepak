@@ -2431,55 +2431,59 @@ class vendor extends CI_Controller {
           }
             return $data;
     }
+    function get_pincode_form_display_msg($displayMsgArray){
+        $finalMsg = '';
+        if(isset($displayMsgArray['already_exist'])){
+            $finalMsg .= count($displayMsgArray['already_exist']).' Combination Already Exists In Mapping Table For '.$displayMsgArray['pincode'].'</br>';
+        }
+         if(isset($displayMsgArray['success'])){
+            $finalMsg .= count($displayMsgArray['success']).' Entries Successfully Created For '.$displayMsgArray['pincode'].'</br>';
+        }
+        if(isset($displayMsgArray['failed'])){
+            $finalMsg .= count($displayMsgArray['failed']).' entries failed to insert in table For '.$displayMsgArray['pincode'].'</br>';
+        }
+        return $finalMsg;
+    }
     /**
      *  @desc : This function is used to Process Add Vendor to pincode Form
      *  @param : Array of $_POST data
      *  @return : void
      */
     function process_add_vendor_to_pincode_form(){
-        //Getting Post data
         if($this->input->post()){
-            //Adding Validation Rules
             $this->form_validation->set_rules('pincode', 'Pincode', 'trim|required|numeric|min_length[6]|max_length[6]');
             $this->form_validation->set_rules('vendor_id', 'Vendor_ID', 'required');
-
-            //Check for Validation
-          if ($this->form_validation->run() == FALSE) {
-                    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                    $this->load->view('employee/add_vendor_to_pincode');
-          }
+            if ($this->form_validation->run() == FALSE) {
+                      $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                      $this->load->view('employee/add_vendor_to_pincode');
+            }
             else{
+                    $displayMsgArray['pincode'] = $this->input->post('pincode');
                     $areaArray = $this->vendor_model->get_india_pincode_distinct_area_data($this->input->post('pincode'));
                     $data =  $this->get_structured_array_for_vendor_pincode_processing($this->input->post(),$areaArray);
                     $this->miscelleneous->update_pincode_not_found_sf_table($data);
                     foreach ($data as $value) {
                               $result = $this->vendor_model->check_vendor_details($value);
                               if($result == 'true'){
-                                        //Setting session data on success
-                                        $this->session->userdata('success', 'Pincode Mapped to Vendor successfully.');
-                                         //Insert Data in vendor_pincode_mapping table
                                         $value['create_date'] = date('Y-m-d h:i:s');
                                         $vendor_id = $this->vendor_model->insert_vendor_pincode_mapping($value);
                                         if(!empty($vendor_id)){
-                                            //Logging
                                             log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($value,TRUE));
-                                        }else{
-                                            //Logging
+                                            $displayMsgArray['success'][] = $value; 
+                                        }
+                                        else{
+                                            $displayMsgArray['failed'][] = $value; 
                                             log_message('info',__FUNCTION__.' Error in adding vendor to pincode in vendor_pincode_mapping table '.print_r($value,TRUE));
                                         }
                               } 
                               else {
-                                    //Echoing duplicay error in Log file
                                     log_message('info',__FUNCTION__.'Vendor already assigned to '.$value['Appliance'] );
-                                    //Setting Flash variable on Error
-                                    $this->session->userdata('error','Vendor already assigned to '.$value['Appliance']  );
+                                    $displayMsgArray['already_exist'][] = $value; 
                               }
                     }
-
-
-            //redirect(site_url('employee/booking/view_queries/FollowUp'));
-           //redirect(base_url() . "employee");
-
+                    $finalMsg = $this->get_pincode_form_display_msg($displayMsgArray);
+                    $this->session->set_userdata('pincode_msg',$finalMsg);
+                   redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
             }
 
         }

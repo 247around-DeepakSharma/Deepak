@@ -115,6 +115,9 @@
                    <strong>' . $this->session->userdata('failed') . '</strong>
                </div>';
         }
+        if($this->session->userdata('pincode_msg')){
+            echo "<p style=' text-align: center;color: #15881e; font: bold 20px/24px Century Gothic'>".$this->session->userdata('pincode_msg')."</p>";
+        }
         ?> 
         <div class="table_filter">
             <div class="row">
@@ -337,3 +340,4 @@
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
 <?php $this->session->unset_userdata('failed'); ?>
+<?php $this->session->unset_userdata('pincode_msg'); ?>
