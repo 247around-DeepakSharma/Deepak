@@ -581,9 +581,11 @@ class Miscelleneous {
 
                             $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode']." For Appliance ". $appliance;
                             $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
+                            $message .= "To add Service center for the missing pincode please use below link <br/> "; 
+                            $message .= "<a href=".base_url()."employee/vendor/get_add_vendor_to_pincode_form/".$booking['booking_id'].">Add Service Center</a>";
 
                             $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
-                            
+                            $this->sf_not_exist_for_pincode(array('booking_id'=>$booking['booking_id'],'pincode'=>$booking['booking_pincode'],'city'=>$booking['city'],'service_id'=>$booking['service_id']));
                             return FALSE;
    
                         } else {
@@ -1090,6 +1092,23 @@ class Miscelleneous {
             return false;
         }
     }
+/*
+ * This Functiotn is used to map rm to pincode, for which SF not found
+ * if pincode does'nt have any rm then an email will goes to nitin
+ * @input - An associative array with keys(booking_id,pincode,city,applianceID)
+ */
+    function sf_not_exist_for_pincode($notFoundSfArray){
+          $pincode = $notFoundSfArray['pincode'];
+          $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
+FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('".$pincode."') GROUP BY india_pincode.pincode";
+          $result = $this->My_CI->booking_model->pincode_not_found_relevent_data($sql);
+          if(!empty($result)){
+                    $notFoundSfArray['rm_id'] =  $result[0]['rm_id'];
+                    $notFoundSfArray['state'] =  $result[0]['state'];
+                    $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
+          }
+          
+    }
     
     /**
      * @desc This function is used to verify television appliance data
@@ -1152,5 +1171,4 @@ class Miscelleneous {
         
         return $new_appliance_details;
     }
-
 }

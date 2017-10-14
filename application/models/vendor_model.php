@@ -1138,7 +1138,6 @@ class vendor_model extends CI_Model {
     function insert_vendor_pincode_mapping($data){
 
         $this->db->insert('vendor_pincode_mapping', $data);
-        
         return $this->db->insert_id();
     }
     
@@ -1819,4 +1818,24 @@ class vendor_model extends CI_Model {
           $query = $this->db->get('file_uploads');
           return $query->result_object();
     }
+    
+    function is_pincode_exist_in_not_found_sf_table($where){
+        $this->db->where_in('pincode', $where);
+        $this->db->delete('sf_not_exist_booking_details');
+    }
+    
+    function get_india_pincode_distinct_area_data($pincode) {
+            $this->db->select('state,area,region,district as city');
+            $this->db->where('pincode', $pincode);
+            $this->db->group_by('area,region,district,state');
+            $query = $this->db->get('india_pincode');
+            return $query->result_array();
+     }
+     
+     function get_vendor_brand($vendorID){
+          $this->db->select('brands');
+          $this->db->where('id', $vendorID);
+          $query = $this->db->get('service_centres');
+          return $query->result_array();
+     }
 }

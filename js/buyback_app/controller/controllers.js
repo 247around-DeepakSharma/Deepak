@@ -511,6 +511,24 @@ buyback_dashboard.controller('bb_dashboard_summary', function ($scope, $http) {
 });
 
 
+rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
+    var get_url = baseUrl + "/employee/dashboard/get_buyback_balanced_amount";
+    var pincode_url = baseUrl + "/employee/dashboard/get_pincode_not_found_sf_details/5";
+    $http.get(get_url).then(function (response) {
+            $("#table_data").html(response.data);
+     });
+     $http.get(pincode_url).then(function (response) {
+            $("#pincode_table_data").html(response.data);
+     });
+});
+
+rm_missing_pincode.controller('rm_missing_pincode_controller', function ($scope, $http) {
+    var pincode_url = baseUrl + "/employee/dashboard/get_pincode_not_found_sf_details";
+     $http.get(pincode_url).then(function (response) {
+            $("#pincode_table_data_full_view").html(response.data);
+     });
+     });
+     
 //get buyback balance
 buyback_dashboard.controller('bb_balance', function ($scope, $http) {
     

@@ -3218,47 +3218,17 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 VALUES (NULL, 'low_prepaid_amount', 'Low Balance', 'Dear Partner,<br/><br/> Please recharge your account <br/><br/>Thanks,<br/>247around Team', 
 'billing@247around.com', '', 'anuj@247around.com, nits@247around.com, adityag@gmail.com', '', '1', '2017-10-03 13:05:07');
 
---Chhavi 06 oct
+--Chhavi 6 oct
 ALTER TABLE `employee_relation` ADD `state_id` VARCHAR(50) NOT NULL AFTER `service_centres_id`;
 
---Chhavi
-CREATE TABLE `pincode_not_found_sf` (
-  `id` int(11) NOT NULL,
-  `pincode` int(10) NOT NULL,
-  `area` varchar(20) NOT NULL,
-  `division` varchar(20) NOT NULL,
-  `region` varchar(20) NOT NULL,
-  `taluk` varchar(20) NOT NULL,
-  `district` varchar(20) NOT NULL,
-  `state` varchar(20) NOT NULL,
-  `rm_id` int(10) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+--Chhavi 9th Oct
+ALTER TABLE `sf_not_exist_booking_details` ADD `rm_id` INT NOT NULL AFTER `city`;
 
---
--- Indexes for dumped tables
---
+--Chhavi 9th Oct
+ALTER TABLE `service_centres` ADD `agent_id` INT(10) NULL DEFAULT NULL AFTER `create_date`;
 
---
--- Indexes for table `pincode_not_found_sf`
---
-ALTER TABLE `pincode_not_found_sf`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `pincode_not_found_sf`
---
-ALTER TABLE `pincode_not_found_sf`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
-
-
-
---Chhavi
-
-  ALTER TABLE `service_centres` ADD `agent_id` INT(10) NULL DEFAULT NULL AFTER `create_date`;
+--Chhavi 9th Oct
+ALTER TABLE `sf_not_exist_booking_details` ADD `state` VARCHAR(20) NOT NULL AFTER `create_date`, ADD `service_id` INT(11) NOT NULL AFTER `state`, ADD `active_flag` INT(2) NOT NULL DEFAULT '1' AFTER `appliance_id`;
 
 -- sachin 09 oct
 

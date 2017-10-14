@@ -2376,141 +2376,108 @@ class vendor extends CI_Controller {
     }
 
      /**
-     *  @desc : This function is used to Add Vendor for a particular Pincode
-     *  
-     *  It is being called using AJAX request.
-     * 
-     *  @param : POST data like Pincode, appliance, appliance ID, city, brand
-      *         or Empty for New entry of Vendor Pincode Mapping
-     *  @return : Mixed  
-     *           print variable storing view of Vendor Pincode Form.
+     *  @desc : This function is used to Add Vendor for a particular Pincode Form
+     *  @param bookingID - this can be send using get or post both
+     *  @return : returns a view of form 
      */
 
-    function get_add_vendor_to_pincode_form(){
-        $data = array();
-        if(!empty($this->input->post())){
-        $booking_data  = $this->booking_model->getbooking_history($this->input->post('booking_id'));
-        $data['pincode'] = $booking_data[0]['booking_pincode'];
-        $data['Appliance'] = $booking_data[0]['services'];
-        $data['Appliance_ID'] = $booking_data[0]['service_id'];
-        $data['brand'] = $booking_data[0]['appliance_brand'];
-        $data['city'] = $booking_data[0]['city'];
-        
-        //Getting data from Database using Booking ID
-
-            $data['vendors'] = $this->vendor_model->get_distinct_vendor_details($data['Appliance_ID']);
-            $data['state'] = $this->vendor_model->getall_state();
-        
-        //Loading view in $data for parsin response in Ajax success
-        $data = $this->load->view('employee/add_vendor_to_pincode', $data, TRUE);
-        print_r($data);
-        }else{
-            $select = "service_centres.name, service_centres.id";
-            $data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
-            $data['state'] = $this->vendor_model->getall_state();
-            // Return view for adding of New Vendor to Pincode
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-            $this->load->view('employee/add_vendor_to_pincode',$data);
-        }
+    function get_add_vendor_to_pincode_form($booking_id=NULL){
+                $data = array();
+                if($booking_id == NULL){
+                     if(!empty($this->input->post())){
+                              $booking_id =$this->input->post('booking_id');
+                     }
+                }
+                else{
+                    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                }
+                if($booking_id != NULL){
+                            $booking_data  = $this->booking_model->getbooking_history($booking_id);
+                            $data['pincode'] = $booking_data[0]['booking_pincode'];
+                            $data['selected_appliance'][0] = array('service_id'=>$booking_data[0]['service_id'],'service_name'=>$booking_data[0]['services']);
+                            $data['all_appliance'] = $this->booking_model->selectservice();
+                            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
+                            $this->load->view('employee/add_vendor_to_pincode',$data);
+                }
 
     }
 
+    /*
+     * This function is used to create vendor mapping pincode tables possible rows
+     * @input - $receivedData(Data we recieved directly from form submission),$areaArray(This array contains area,state,city,region for that particular pincode)
+     * @output - $Data(This array will contain all possible combination by merging the input data)
+     */
+    
+
+    function get_structured_array_for_vendor_pincode_processing($receivedData,$areaArray){
+        foreach($receivedData['appliance'] as $appliance_data){
+                    $temp = explode("__",$appliance_data);
+                    $appliance['Appliance_ID'] = $temp[0];
+                    $appliance['Appliance'] = $temp[1];
+                    $tempVendor =  explode("__",$receivedData['vendor_id']);
+                    $appliance['Vendor_ID'] = $tempVendor[0];
+                    $appliance['Vendor_Name'] = $tempVendor[1];
+                    $appliance['Pincode'] = $receivedData['pincode'];
+                    foreach ($receivedData['brands_'.$temp[0]] as $brand){
+                              $appliance['Brand'] = $brand ;
+                              foreach($areaArray as $areaData){
+                                  $appliance['state'] = $areaData['state'] ;
+                                  $appliance['area'] = $areaData['area'] ;
+                                  $appliance['region'] = $areaData['region'] ;
+                                  $appliance['city'] = $areaData['city'] ;
+                                  $data[] = $appliance;
+                              }
+                    }
+          }
+            return $data;
+    }
     /**
      *  @desc : This function is used to Process Add Vendor to pincode Form
      *  @param : Array of $_POST data
      *  @return : void
      */
-
     function process_add_vendor_to_pincode_form(){
         //Getting Post data
         if($this->input->post()){
             //Adding Validation Rules
             $this->form_validation->set_rules('pincode', 'Pincode', 'trim|required|numeric|min_length[6]|max_length[6]');
-            $this->form_validation->set_rules('city', 'City', 'trim|required');
-            $this->form_validation->set_rules('area', 'Area', 'trim|required');
-            $this->form_validation->set_rules('state', 'State', 'trim|required');
-            $this->form_validation->set_rules('vendor_id', 'Vendor Id', 'required');
-            $this->form_validation->set_rules('brand', 'Brand', 'trim|required');
-            $this->form_validation->set_rules('choice', 'Services', 'required');
+            $this->form_validation->set_rules('vendor_id', 'Vendor_ID', 'required');
 
             //Check for Validation
-            if ($this->form_validation->run() == FALSE) {
-
-            $data = $this->input->post();
-            $select = "service_centres.name, service_centres.id";
-            $data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
-            $data['state'] = $this->vendor_model->getall_state();    
-            
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-            $this->load->view('employee/add_vendor_to_pincode', $data);
-
-            }else{
-
-            $choice = $this->input->post('choice');
-
-            $vendor_mapping = array(
-
-                                'Vendor_ID'=>$this->input->post('vendor_id'),
-                                'Brand'=>$this->input->post('brand'),
-                                'Pincode'=>$this->input->post('pincode'),
-                                'Region'=>'Region',
-                                'Area'=>$this->input->post('area'),
-                                'City'=>$this->input->post('city'),
-                                'State'=>$this->input->post('state'),
-                                'create_date'=>date('Y-m-d h:m:i'),
-                                'active'=>1
-                );
-            //Looping through Appliance's Selected
-            foreach ($choice as $value) {
-                    //Getting Appliance Name
-                    $appliance = $this->booking_model->selectservicebyid($value);
-                    //Getting Vendor Name
-                    $where = array("id" => $this->input->post('vendor_id'));
-                    $select = "service_centres.name, service_centres.id";
-                    $vendor_name = $this->vendor_model->getVendorDetails($select, $where);
-                    //Appending Array
-                    $vendor_mapping['Vendor_Name'] = $vendor_name[0]['name'];
-                    $vendor_mapping['Appliance'] = $appliance[0]['services'];
-                    $vendor_mapping['Appliance_ID'] = $value;
-
-                    //Checking for already entered Record
-                    $result = $this->vendor_model->check_vendor_details($vendor_mapping);
-
-                    if($result){
-                        //Setting Flash data on success
-                        $this->session->set_flashdata('success', 'Pincode Mapped to Vendor successfully.');
-
-                          //Insert Data in vendor_pincode_mapping table
-                        $vendor_id = $this->vendor_model->insert_vendor_pincode_mapping($vendor_mapping);
-                        if(!empty($vendor_id)){
-                            //Logging
-                            log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($vendor_mapping,TRUE));
-                        }else{
-                            //Logging
-                            log_message('info',__FUNCTION__.' Error in adding vendor to pincode in vendor_pincode_mapping table '.print_r($vendor_mapping,TRUE));
-                        }
-                        
-                        //Replicating data in 247Aroung_vendor_pincode_mapping table
-                        $_247_vendor_id = $this->vendor_model->insert_247Around_vendor_pincode_mapping($vendor_mapping);
-                        if(!empty($_247_vendor_id)){
-                            //Logging
-                            log_message('info',__FUNCTION__.'Vendor assigned to Pincode in 247Around_vendor_pincode_mapping table. '.print_r($vendor_mapping,TRUE));
-                        }else{
-                            //Logging
-                            log_message('info',__FUNCTION__.'Error in addding vendor to pincode in 247Around_vendor_pincode_mapping table '.print_r($vendor_mapping,TRUE));
-                        }
-
-                    } else {
-                        //Echoing duplicay error in Log file
-                        log_message('info',__FUNCTION__.'Vendor already assigned to '.$vendor_mapping['Appliance'] );
-                        //Setting Flash variable on Error
-                        $this->session->set_flashdata('error','Vendor already assigned to '.$vendor_mapping['Appliance']  );
+          if ($this->form_validation->run() == FALSE) {
+                    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                    $this->load->view('employee/add_vendor_to_pincode');
+          }
+            else{
+                    $areaArray = $this->vendor_model->get_india_pincode_distinct_area_data($this->input->post('pincode'));
+                    $data =  $this->get_structured_array_for_vendor_pincode_processing($this->input->post(),$areaArray);
+                    foreach ($data as $value) {
+                              $result = $this->vendor_model->check_vendor_details($value);
+                              if($result == 'true'){
+                                        //Setting session data on success
+                                        $this->session->userdata('success', 'Pincode Mapped to Vendor successfully.');
+                                         //Insert Data in vendor_pincode_mapping table
+                                        $value['create_date'] = date('Y-m-d h:i:s');
+                                        $vendor_id = $this->vendor_model->insert_vendor_pincode_mapping($value);
+                                        if(!empty($vendor_id)){
+                                            //Logging
+                                            log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($value,TRUE));
+                                        }else{
+                                            //Logging
+                                            log_message('info',__FUNCTION__.' Error in adding vendor to pincode in vendor_pincode_mapping table '.print_r($value,TRUE));
+                                        }
+                              } 
+                              else {
+                                    //Echoing duplicay error in Log file
+                                    log_message('info',__FUNCTION__.'Vendor already assigned to '.$value['Appliance'] );
+                                    //Setting Flash variable on Error
+                                    $this->session->userdata('error','Vendor already assigned to '.$value['Appliance']  );
+                              }
                     }
-            }
 
 
             //redirect(site_url('employee/booking/view_queries/FollowUp'));
-            redirect(base_url() . DEFAULT_SEARCH_PAGE);
+           //redirect(base_url() . "employee");
 
             }
 
@@ -2535,6 +2502,16 @@ class vendor extends CI_Controller {
         //Returning data in Json Encoded form
         print_r(json_encode($data));
 
+     }
+     /*
+      * This function use to print json data of brands associated to a vendor
+      * @input - vendorID
+      * @output - json of all brands which are related to input vendor ID 
+      */
+     function get_vendor_brands($vendor_id){
+          $brands = $this->vendor_model->get_vendor_brand($vendor_id);
+          $data['brands'] = explode(",",$brands[0]['brands']);
+          print_r(json_encode($data));
      }
 
     /**
@@ -4581,15 +4558,31 @@ class vendor extends CI_Controller {
                         return $deleteMsg;
                     }
           }
+          
+          function manage_pincode_not_found_sf_table(){
+              foreach($this->vendorPinArray as $key=>$values){
+                    if($key>0){
+                        $pincodeArray[] = $values[0][6];
+                    }
+              }
+              $uniquePincodeArray = array_unique($pincodeArray);
+              $this->vendor_model->is_pincode_exist_in_not_found_sf_table($uniquePincodeArray);
+          }
+          /*
+           * This function update vendor pincode mapping table,before updating it checks following condition
+           * Is file excel?,Is pincode valid,file must contains the data only for 1 vendor
+           * @input - pincode excel file and vendor ID
+           */
           function process_upload_pin_code_vendor(){
-                     if(!empty($_FILES['file']['tmp_name'])){  
+                      if(!empty($_FILES['file']['tmp_name'])){  
                               $tempName = $_FILES['file']['tmp_name'];
                               $vendorID = $this->input->post('vendorID');
                               $is_saved = $this->save_vendor_pin_code_file($tempName,$vendorID);
                               if($is_saved == 1){
                                         $msgVerfied = $this->is_vendor_pin_code_file_valid($_FILES,$vendorID);
                                         if($msgVerfied == 1){
-                                                  $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($_FILES,$vendorID);
+                                                       //$this->manage_pincode_not_found_sf_table();
+                                                       $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($_FILES,$vendorID);
                                         }
                                         else{
                                                   $finalMsg =  $msgVerfied;
@@ -4605,6 +4598,22 @@ class vendor extends CI_Controller {
                     $msg['final_msg'] = $finalMsg;
                     $this->session->set_userdata($msg);
                     redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
+          }
+         
+          /*
+           * This function use to create pincode update form when data comes from rm dashboard
+           * @input - post data pincode and service related to that pincode in json format
+           * @output - it will create the pincode form view
+           */
+          function insert_pincode_form(){
+            $data = $this->input->post();
+            if(!empty(json_decode($data['service']))){
+                   $data['selected_appliance'] = json_decode($data['service'],TRUE);
+            }
+            $data['all_appliance'] = $this->booking_model->selectservice();
+            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view('employee/add_vendor_to_pincode',$data);
           }
 }
 
