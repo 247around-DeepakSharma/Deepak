@@ -443,7 +443,6 @@ class BookingSummary extends CI_Controller {
         <td>Requests Scheduled</td>
         <td>To be Followed Up</td>
         <td>Requests Cancelled</td>
-        <td>TAT (%)</td>
         </tr>
 
         <tr>
@@ -453,7 +452,6 @@ class BookingSummary extends CI_Controller {
         <td>$yday_install_sched</td>
         <td>$yday_followup_pend</td>
         <td>$yday_install_cancl</td>
-        <td>NA</td>
         </tr>
 
         <tr>
@@ -463,7 +461,6 @@ class BookingSummary extends CI_Controller {
         <td>$today_install_sched</td>
         <td>$today_followup_pend</td>
         <td>$today_install_cancl</td>
-        <td>NA</td>
         </tr>
 
          <tr>
@@ -473,7 +470,6 @@ class BookingSummary extends CI_Controller {
         <td>$month_install_sched</td>
         <td>$month_followup_pend</td>
         <td>$month_install_cancl</td>
-        <td>NA</td>
         </tr>
 
     </table>
@@ -1089,7 +1085,7 @@ EOD;
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $subject = "SF Crimes Report " . date("d-M-Y");
                         $to = $value['official_email'];
-                        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $view, "");
                     } else {
                         log_message('info', __FUNCTION__ . " Empty Data get");
                     }
@@ -1138,7 +1134,7 @@ EOD;
                         $cc = "";
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
                        
-                        $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $view, $file_path . ".txt");
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt");
                         exec("rm -rf " . escapeshellarg($file_path));
                         
                     } else {
@@ -1172,7 +1168,7 @@ EOD;
             $view = $this->load->view('employee/unassigned_table', $data, TRUE);
             $to = NITS_ANUJ_EMAIL_ID;
             $subject = "SF Engineer Assigned Report " . date("d-M-Y");
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $view, "");
         }
     }
 
@@ -1187,7 +1183,7 @@ EOD;
             $to = $value['primary_contact_email'] . "," . $value['owner_email'];
             //$to = "abhaya@247around.com";
             $subject = $value['service_center_name'] . " Assigned Report " . date("d-M-Y");
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $view, "");
         }
     }
 
@@ -1362,7 +1358,7 @@ EOD;
             $to = rtrim($to, ', ');
 
             $subject = " RM Crimes Report " . date("d-M-Y");
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $report_view, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $report_view, "");
 
             //Logging
             log_message('info', __FUNCTION__ . ' RM Crime Report has been sent successfully');

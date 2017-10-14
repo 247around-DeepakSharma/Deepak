@@ -130,6 +130,40 @@
                             </div>
                         </div>
                     </div>
+                     <div class="col-md-6">
+                         <div  class="form-group <?php
+                        if (form_error('languages')) {
+                            echo 'has-error';
+                        }
+                        ?>">
+                            <label  for="languages" class="col-md-4">Language Known</label>
+                            <div class="col-md-7">
+                                <input  type="text" class="form-control" id="languages" name="languages" value = "<?php
+                                if (isset($query[0]['languages'])) {
+                                    echo $query[0]['languages'];
+                                }
+                                ?>" placeholder="Language Known">
+                                        <?php echo form_error('languages'); ?>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="col-md-6">
+                         <div  class="form-group <?php
+                        if (form_error('office_centre')) {
+                            echo 'has-error';
+                        }
+                        ?>">
+                            <label  for="office_centre" class="col-md-4">Office Centre</label>
+                            <div class="col-md-7">
+                                <input  type="text" class="form-control" id="office_centre" name="office_centre" value = "<?php
+                                if (isset($query[0]['office_centre'])) {
+                                    echo $query[0]['office_centre'];
+                                }
+                                ?>" placeholder="Office Centre">
+                                        <?php echo form_error('office_centre'); ?>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-md-6">
                          <div  class="form-group <?php
                         if (form_error('personal_email')) {
@@ -168,6 +202,7 @@
                             </div>
                         </div>
                     </div>
+                     
                     <div class="col-md-12">
                         <div style="margin-left:48%;">
                                 <input type="Submit" value="<?php

@@ -561,10 +561,9 @@ class invoices_model extends CI_Model {
                 `partners`.company_name, product_or_services,
                 `partners`.address as company_address, partners.pincode, partners.district,
                 `partners`.state,
-                `partners`.gst_number, state_code
-                FROM  `booking_unit_details` AS ud, services, partners,state_code
+                `partners`.gst_number
+                FROM  `booking_unit_details` AS ud, services, partners
                 WHERE `partner_net_payable` >0
-                And state_code.state = partners.state
                 AND ud.partner_id =  '$partner_id'
                 AND ud.booking_status =  'Completed'
                 AND ud.ud_closed_date >=  '$from_date'
@@ -629,8 +628,21 @@ class invoices_model extends CI_Model {
 
         if (!empty($result_data['result'])) {
             $result =  $result_data['result'];
-           
-            $c_s_gst =$this->check_gst_tax_type($result[0]['state']);
+            $response = $this->_set_partner_excel_invoice_data($result,$from_date_tmp,$to_date_tmp);
+
+            $data['booking'] = $response['booking'];
+            $data['meta'] = $response['meta'];
+            $data['courier'] = $result_data['courier'];
+            $data['upcountry'] = $result_data['upcountry'];
+          
+            return $data;
+        } else {
+            return FALSE;
+        }
+    }
+    
+    function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_date = false){
+         $c_s_gst =$this->check_gst_tax_type($result[0]['state']);
             
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
                     $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
@@ -650,7 +662,7 @@ class invoices_model extends CI_Model {
                    
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
-                    $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = 18;
+                    $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
                     $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
                     $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
                 }
@@ -681,26 +693,32 @@ class invoices_model extends CI_Model {
             $meta['reverse_charge'] = '';
            
             $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
-            $meta['sd'] = date("jS M, Y", strtotime($from_date_tmp));
-            $meta['ed'] = date("jS M, Y", strtotime($to_date_tmp));
-            $meta['invoice_date'] = date("jS M, Y");
+            if($result[0]['description'] == QC_INVOICE_DESCRIPTION){
+                $meta['sd'] =  "";
+                $meta['ed'] = "";
+            } else {
+                $meta['sd'] = date("jS M, Y", strtotime($sd));
+                $meta['ed'] = date("jS M, Y", strtotime($ed));
+            }
+            
+            if($invoice_date){
+                 $meta['invoice_date'] = date("jS M, Y", strtotime($invoice_date));
+            } else {
+                 $meta['invoice_date'] = date("jS M, Y");
+            }
+           
             $meta['company_name'] = $result[0]['company_name'];
             $meta['company_address'] = $result[0]['company_address'] . ", " .
                     $result[0]['district'] . ", Pincode -" . $result[0]['pincode'] . ", " . $result[0]['state'];
             $meta['reference_invoice_id'] = "";
            
-            $meta['state_code'] = $result[0]['state_code'];
+            $meta['state_code'] = $this->get_state_code(array('state' => $result[0]['state']))[0]['state_code'];
             $meta['state'] = $result[0]['state'];
             
-            $data['booking'] = $result;
-            $data['meta'] = $meta;
-            $data['courier'] = $result_data['courier'];
-            $data['upcountry'] = $result_data['upcountry'];
-          
-            return $data;
-        } else {
-            return FALSE;
-        }
+            return array(
+                "meta" => $meta,
+                "booking" => $result
+            );
     }
     
     /**
@@ -720,13 +738,12 @@ class invoices_model extends CI_Model {
                     CONCAT(  "", GROUP_CONCAT( DISTINCT (brackets.order_id) ) ,  "" ) AS order_id,
                     brackets.order_received_from as vendor_id,
                     sc.address as company_address, sc.owner_phone_1 as owner_phone_1,
-                    sc.state, state_code, gst_no as gst_number
+                    sc.state, gst_no as gst_number
                     
-                    FROM brackets,service_centres as sc, state_code  WHERE brackets.received_date >= "' . $from_date . '" 
+                    FROM brackets,service_centres as sc  WHERE brackets.received_date >= "' . $from_date . '" 
                     AND brackets.received_date <= "' . $to_date . '" AND brackets.is_received= "1" 
                     AND brackets.order_received_from = "' . $vendor_id . '" 
                     AND invoice_id IS NULL
-                    AND state_code.state = sc.state
                     AND sc.id = brackets.order_received_from GROUP BY brackets.order_received_from';
         $query = $this->db->query($sql);
 
@@ -1013,7 +1030,7 @@ class invoices_model extends CI_Model {
                 } else {
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
                     
-                    $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = 18;
+                    $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
                     $data['booking'][$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
                     $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
                     $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
@@ -1156,12 +1173,11 @@ class invoices_model extends CI_Model {
             }
             $sql = "SELECT  
                 $select
-                state_code, sc.gst_no as gst_number, sc.state, sc.company_name,sc.address as company_address,
+                sc.gst_no as gst_number, sc.state, sc.company_name,sc.address as company_address,
                 sc.primary_contact_email, sc.owner_email, 
                 sc.owner_phone_1, sc.primary_contact_phone_1
-                FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc,state_code
+                FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                 WHERE ud.booking_status =  'Completed'
-                AND state_code.state = sc.state
                 AND ud.booking_id = bd.booking_id
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
@@ -1218,7 +1234,7 @@ class invoices_model extends CI_Model {
                   $meta['upcountry_distance'] = $upcountry_data[0]['total_distance'];
             }
             
-            $tax_charge = $this->booking_model->get_calculated_tax_charge( $commission_charge[0]['toal_amount'], 18);
+            $tax_charge = $this->booking_model->get_calculated_tax_charge( $commission_charge[0]['toal_amount'], DEFAULT_TAX_RATE);
             $commission_charge[0]['taxable_value'] = round($commission_charge[0]['toal_amount']  - $tax_charge,0);
             $c_s_gst =$this->check_gst_tax_type($meta['state']);
             $meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] =   $meta['cgst_total_tax_amount']  = $meta['sgst_total_tax_amount'] =
@@ -1233,7 +1249,7 @@ class invoices_model extends CI_Model {
             } else {
                 $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                 $commission_charge[0]['igst_tax_amount'] = $meta['igst_total_tax_amount'] = round($tax_charge,0);
-                $commission_charge[0]['igst_rate'] = $meta['igst_tax_rate'] = 18;
+                $commission_charge[0]['igst_rate'] = $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
            
             }
             
@@ -1288,7 +1304,7 @@ class invoices_model extends CI_Model {
             $meta['company_name'] = $commission_charge[0]['company_name'];
             $meta['company_address'] = $commission_charge[0]['company_address'];
             $meta['state'] = $commission_charge[0]['state'];
-            $meta['state_code'] = $commission_charge[0]['state_code'];
+            $meta['state_code'] = $this->get_state_code(array('state'=> $commission_charge[0]['state']))[0]['state_code'];
             $meta['gst_number'] = $commission_charge[0]['gst_no'];
             $meta['owner_email'] = $commission_charge[0]['owner_email'];
             $meta['primary_contact_email'] = $commission_charge[0]['primary_contact_email'];
@@ -1317,7 +1333,7 @@ class invoices_model extends CI_Model {
                 WHEN (bb_unit_details.service_id = 50) THEN (8415)
                 WHEN (bb_unit_details.service_id = 28) THEN (8450)
                 WHEN (bb_unit_details.service_id = 37) THEN (8418) ELSE '' END As hsn_code, owner_phone_1, gst_no,
-                sc.company_name, sc.address as company_address, sc.state,state_code,
+                sc.company_name, sc.address as company_address, sc.state,
                 sc.owner_email, sc.primary_contact_email, sc.owner_phone_1";
         $group_by = " GROUP BY bb_unit_details.service_id ";
         if($is_unit){
@@ -1333,13 +1349,12 @@ class invoices_model extends CI_Model {
         $sql = "SELECT $select
                 
                 
-                FROM `bb_order_details`, bb_unit_details, services, service_centres as sc, state_code WHERE 
+                FROM `bb_order_details`, bb_unit_details, services, service_centres as sc WHERE 
                 `assigned_cp_id` = '$vendor_id' 
                 AND bb_unit_details.`order_status` = 'Delivered' 
                 AND CASE WHEN (acknowledge_date IS NOT NULL) THEN (acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date' ) 
                 ELSE (`delivery_date` >= '$from_date' AND `delivery_date`< '$to_date') END
                 AND sc.id = assigned_cp_id
-                AND sc.state = state_code.state
                 AND bb_order_details.partner_order_id =  bb_unit_details.partner_order_id
                 AND bb_unit_details.service_id = services.id $group_by ";
         
@@ -1451,6 +1466,13 @@ class invoices_model extends CI_Model {
             //IGST
             return FALSE;
         }
+    }
+    
+    function get_state_code($where){
+        $this->db->select("state_code, state");
+        $this->db->where($where);
+        $query = $this->db->get("state_code");
+        return $query->result_array();
     }
     
 }

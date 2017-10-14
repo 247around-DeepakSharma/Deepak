@@ -1606,8 +1606,9 @@ class Reporting_utils extends CI_Model {
                              AND partner_id = '"._247AROUND."' AND agent_id= '" . $value['id'] . "' $where1";
             //getting booking query data
             $booking_query = "SELECT count(booking_id) AS query_booking FROM booking_state_change
-                              WHERE booking_state_change.old_state = 'FollowUP' 
-                              AND booking_state_change.new_state='Pending' 
+                              WHERE ((booking_state_change.old_state = 'FollowUP' 
+                              AND booking_state_change.new_state='Pending') OR (booking_state_change.old_state = 'New_Booking' 
+                              AND booking_state_change.new_state='Pending')) 
                               AND partner_id = '"._247AROUND."' AND agent_id= '" . $value['id'] . "' $where1";
             
             //getting outgoing calls data
@@ -1784,7 +1785,7 @@ class Reporting_utils extends CI_Model {
     function get_uploaded_file_history($post_data)
     {
       
-        $sql = "SELECT e.full_name as agent_name,p.file_name,DATE(p.create_date) AS upload_date
+        $sql = "SELECT e.full_name as agent_name,p.file_name,p.create_date AS upload_date
                 FROM file_uploads AS p 
                 JOIN employee AS e ON p.agent_id = e.id 
                 WHERE file_type= '".$post_data['file_type']."'

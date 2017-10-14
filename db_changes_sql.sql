@@ -3230,4 +3230,37 @@ ALTER TABLE `service_centres` ADD `agent_id` INT(10) NULL DEFAULT NULL AFTER `cr
 --Chhavi 9th Oct
 ALTER TABLE `sf_not_exist_booking_details` ADD `state` VARCHAR(20) NOT NULL AFTER `create_date`, ADD `service_id` INT(11) NOT NULL AFTER `state`, ADD `active_flag` INT(2) NOT NULL DEFAULT '1' AFTER `appliance_id`;
 
+-- sachin 09 oct
 
+CREATE TABLE `email_send_details` 
+( 
+`id` INT(11) NOT NULL AUTO_INCREMENT , 
+`email_from` VARCHAR(64) NOT NULL , 
+`email_to` VARCHAR(256) NOT NULL , 
+`cc` VARCHAR(256) NULL , 
+`bcc` VARCHAR(256) NULL , 
+`subject` VARCHAR(256) NOT NULL , 
+`message` VARCHAR(256) NULL , 
+`attachment_link` VARCHAR(256) NULL , 
+`create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+--sachin 10 oct
+
+CREATE TABLE `bb_svc_balance` 
+( `id` INT(11) NOT NULL AUTO_INCREMENT , 
+`tv_balance` DECIMAL(10,2) NOT NULL DEFAULT '0.00' , 
+`la_balance` DECIMAL(10,2) NOT NULL DEFAULT '0.00' , 
+`create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+
+--sachin 12 Oct
+ALTER TABLE `employee` ADD `languages` VARCHAR(256) NULL DEFAULT NULL AFTER `image_link`;
+UPDATE `employee` SET `languages` = 'English, Hindi, Marathi' WHERE `employee`.`id` = 24;
+UPDATE `employee` SET `languages` = 'English, Hindi, Bengali' WHERE `employee`.`id` = 25;
+UPDATE `employee` SET `languages` = 'English, Hindi' WHERE `employee`.`id` = 32;
+UPDATE `employee` SET `languages` = 'English,Tamil,Malayalam,Telugu,Kannada' WHERE `employee`.`id` = 16;
+ALTER TABLE `employee` ADD `office_centre` VARCHAR(128) NULL DEFAULT NULL AFTER `languages`;
+UPDATE `employee` SET `office_centre` = 'Chennai' WHERE `employee`.`id` = 16;
+UPDATE `employee` SET `office_centre` = 'Mumbai' WHERE `employee`.`id` = 24;
+UPDATE `employee` SET `office_centre` = 'Kolkata' WHERE `employee`.`id` = 25;
+UPDATE `employee` SET `office_centre` = 'Delhi' WHERE `employee`.`id` = 32;

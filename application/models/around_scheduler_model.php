@@ -459,5 +459,15 @@ class Around_scheduler_model extends CI_Model {
         $query = $this->db->get('users');
         return $query->result_array();
     }
+    
+    /**
+    * @desc     Insert Buyback SVC Balance
+    * @param    $data array
+    * @return   insert_id 
+    */
+    function add_bb_svc_balance($data){
+        $this->db->insert('bb_svc_balance', $data);
+        return $this->db->insert_id();
+    }
 
 }

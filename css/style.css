@@ -167,3 +167,19 @@ legend {
     font-size: 18px;
     font-weight: 400;
 }
+
+
+/* --------------------------
+   --------------------------
+
+        CRM Button CSS
+
+   --------------------------
+   --------------------------
+*/
+
+.btn-color{
+    background-color: #00695C;
+    border-color: #00695C;
+    color:#fff;
+}

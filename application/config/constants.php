@@ -180,10 +180,10 @@ define('DEFECTIVE_PARTS_REJECTED','Defective Part Rejected By Partner');
 define('SNAPDEAL_ID',1);
 //Jeeves ID
 define("JEEEVES_ID", 247030);
-//Jeeves ID
+//WYBOR_ID
 define("WYBOR_ID", 247010);
 //Define Developer Email id
-define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com');
+define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
 //Define Email ID to send system health emails
 define('SYS_HEALTH_NAME','247around Health Monitor');
 define('SYS_HEALTH_EMAIL','health@247around.com');
@@ -332,6 +332,8 @@ define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
 
+//Default email id for sending internal emails
+define('NOREPLY_EMAIL_ID', 'noreply@247around.com');
 
 //ADIL EMIL ID
 define("ADIL_EMAIL_ID", "adila@247around.com");
@@ -340,14 +342,11 @@ define("ADIL_EMAIL_ID", "adila@247around.com");
 define('RATING_NEW_STATE','Completed_With_Rating');
 
 //Regional Managers Email ID
-define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,nilanjan@247around.com");
+define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com, nilanjan@247around.com, arunk@247around.com");
 
 //Email IDs when SF is not found in Vendor Pincode Mapping file
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com");
-
-
-
 
 //promotional sms constant
 define('COMPLETED_PROMOTINAL_SMS_1','completed_promotional_sms_1');
@@ -450,6 +449,22 @@ define('SMS_DEACTIVATION_NO_NEW_REQUEST_MSG','There is not any new request');
 define('PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER','Your Credit is low. Add credit');
 define('PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN','Your Credit is low. Add credit');
 define('PREPAID_LOW_AMOUNT_MSG_FOR_DEALER','Your Credit is low. Add credit');
+
+define("PARTNER_ADVANCE_DESCRIPTION", "Advance Payment");
+define("PARTNER_INVOICE_BUTTON", "CRM Setup Invoice");
+define("CT_INVOICE_BUTTON", "Sweetener Invoice");
+define("QC_INVOICE_DESCRIPTION", "Service Charges for QC");
+define("CRM_SETUP_INVOICE_DESCRIPTION", "Annual Setup Charges");
+define("QC_HSN_CODE", 998397);
+define("TAT_BREACH_DAYS", "-45 days");
+
+// QC Balance Read Email Constant
+define('QC_BALANCE_READ_EMAIL','sachinj@247around.com');
+define('QC_BALANCE_READ_EMAIL_PASSWORD','sachinj');
+define('TV_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000071' Notification");
+define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000029' Notification");
+
+define('SPARE_OOW_REQUEST','Spare Estimated Cost Request');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

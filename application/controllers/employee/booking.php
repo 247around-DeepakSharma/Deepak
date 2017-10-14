@@ -197,25 +197,41 @@ class Booking extends CI_Controller {
                 /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
                  * */
                 if (!empty($appliances_details['description'])) {
-                    $check_product_type = $this->booking_model->get_service_id_by_appliance_details(trim($appliances_details['description']));
+                    // check appliance description exist and it is not verified earlier 
+                    $check_product_type = $this->booking_model->get_search_query('appliance_product_description','*',array('product_description' => trim($appliances_details['description'])))->result_array();
+                    
+                    //verify appliance details
                     $verified_capacity = $this->miscelleneous->verified_applicance_capacity($appliances_details);
+                    
+                    /*
+                     * if appliance description does not exist then insert the verified data else update the verified data
+                     */
                     if (empty($check_product_type)) {
                         $insert_data = array('service_id' => $appliances_details['service_id'],
-                            'category' => $appliances_details['category'],
-                            'capacity' => $appliances_details['capacity'],
-                            'brand' => $appliances_details['brand'],
+                            'category' => isset($verified_capacity['category'])?$verified_capacity['category']:$appliances_details['category'],
+                            'capacity' => isset($verified_capacity['capacity'])?$verified_capacity['capacity']:$appliances_details['capacity'],
+                            'brand' => isset($verified_capacity['brand'])?$verified_capacity['brand']:$appliances_details['brand'],
                             'product_description' => trim($appliances_details['description']),
                             'is_verified' => $verified_capacity['is_verified']);
                         $this->booking_model->insert_appliance_details($insert_data);
                     }else{
-                        $this->booking_model->update_appliance_description_details(array('is_verified' => $verified_capacity['is_verified']),
-                                array('service_id' => $appliances_details['service_id'],
+                        $new_appliance_data = array(
+                                    'category' => isset($verified_capacity['category'])?$verified_capacity['category']:$appliances_details['category'],
+                                    'capacity' => isset($verified_capacity['capacity'])?$verified_capacity['capacity']:$appliances_details['capacity'],
+                                    'brand' => isset($verified_capacity['brand'])?$verified_capacity['brand']:$appliances_details['brand'],
+                                    'is_verified' => $verified_capacity['is_verified']
+                                );
+                            
+                        $appliance_where = array(
                                     'category' => $appliances_details['category'],
                                     'capacity' => $appliances_details['capacity'],
                                     'product_description' => trim($appliances_details['description']),
-                                    'brand' => $appliances_details['brand'],
-                                    ));
+                                    'brand' => $appliances_details['brand']
+                                );
+                        $this->booking_model->update_appliance_description_details($new_appliance_data,$appliance_where);
                     }
+                    
+                    exit();
                 }
 
                 if (isset($appliance_id[$key])) {
@@ -1345,38 +1361,38 @@ class Booking extends CI_Controller {
      *  @param : offset and per page number
      *  @return : list of pending queries according to pagination
      */
-    function view_queries($status, $p_av, $page = 0, $offset = '0', $booking_id = "") {
-        if ($page == 0) {
-            $page = 50;
-        }
-
-        //$offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
-        $config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status . "/" . $p_av . "/" . $page;
-
-        //Get count of all pending queries
-        $total_queries = $this->booking_model->get_queries(0, "All", $status, $p_av, $booking_id);
-
-        $config['total_rows'] = $total_queries[0]->count;
-        if ($offset == "All") {
-            $config['per_page'] = $config['total_rows'];
-        } else {
-            $config['per_page'] = $page;
-        }
-
-        $config['uri_segment'] = 7;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        //Get actual data for all pending queries now
-        $data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
-
-        $data['p_av'] = $p_av;
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/viewpendingqueries', $data);
-    }
+//    function view_queries1($status, $p_av, $page = 0, $offset = '0', $booking_id = "") {
+//        if ($page == 0) {
+//            $page = 50;
+//        }
+//
+//        //$offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
+//        $config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status . "/" . $p_av . "/" . $page;
+//
+//        //Get count of all pending queries
+//        $total_queries = $this->booking_model->get_queries(0, "All", $status, $p_av, $booking_id);
+//
+//        $config['total_rows'] = $total_queries[0]->count;
+//        if ($offset == "All") {
+//            $config['per_page'] = $config['total_rows'];
+//        } else {
+//            $config['per_page'] = $page;
+//        }
+//
+//        $config['uri_segment'] = 7;
+//        $config['first_link'] = 'First';
+//        $config['last_link'] = 'Last';
+//
+//        $this->pagination->initialize($config);
+//        $data['links'] = $this->pagination->create_links();
+//
+//        //Get actual data for all pending queries now
+//        $data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
+//
+//        $data['p_av'] = $p_av;
+//        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+//        $this->load->view('employee/viewpendingqueries', $data);
+//    }
 
     /**
      * @desc: load update booking form to update booking
@@ -2074,7 +2090,7 @@ class Booking extends CI_Controller {
         //Log this state change as well for this booking
         $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP, _247AROUND_CANCELLED, "Cancelled_Query to FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
-        redirect(base_url() . 'employee/booking/view_queries/FollowUp/' . PINCODE_ALL_AVAILABLE . '/0/0/' . $booking_id);
+        redirect(base_url() . 'employee/booking/view_queries/FollowUp/' . PINCODE_ALL_AVAILABLE . '/' . $booking_id);
     }
     
     /**
@@ -2609,7 +2625,7 @@ class Booking extends CI_Controller {
      */
     private function get_bookings_data_by_status($booking_status) {
         $post = $this->get_post_data();
-        $new_post = $this->get_filterd_post_data($post,$booking_status);
+        $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
         
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
@@ -2648,7 +2664,7 @@ class Booking extends CI_Controller {
      *  @param : $booking_status string
      *  @return : $post Array()
      */
-    private function get_filterd_post_data($post,$booking_status){
+    private function get_filterd_post_data($post,$booking_status,$type){
         $partner_id = $this->input->post('partner_id');
         $sf_id = $this->input->post('sf_id');
         $date_range = $this->input->post('booking_date_range');
@@ -2657,14 +2673,20 @@ class Booking extends CI_Controller {
         $appliance = $this->input->post('appliance');
         $booking_date = $this->input->post('booking_date');
         
-        if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
-            $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
-        }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
-            $post['where']  = array("current_status IN ('Pending','Rescheduled')" => NULL,
-                "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1" => NULL );
-            $post['order'] = array(array('column' => 0,'dir' => 'desc'));
-            $post['order_performed_on_count'] = TRUE;
+        if($type == 'booking'){
+            if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
+                $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
+            }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
+                $post['where']  = array("current_status IN ('Pending','Rescheduled')" => NULL,
+                    "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1" => NULL );
+                $post['order'] = array(array('column' => 0,'dir' => 'desc'));
+                $post['order_performed_on_count'] = TRUE;
+            }
+        }else if($type == 'query'){
+            $post['where']['current_status'] = $booking_status;
+            $post['order_by'] = "CASE WHEN booking_details.internal_status = 'Missed_call_confirmed' THEN 'a' WHEN  booking_details.booking_date = '' THEN 'b' WHEN  booking_details.booking_date = '' THEN 'b' ELSE 'c' END , booking_day";
         }
+        
         
         if(!empty($booking_id)){
             $post['where']['booking_details.booking_id'] =  $booking_id;
@@ -2703,7 +2725,7 @@ class Booking extends CI_Controller {
         }
         
         $post['column_order'] = array('booking_day');
-        $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date');
+        $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks','booking_unit_details.appliance_brand','booking_unit_details.appliance_category','booking_unit_details.appliance_description');
         
         return $post;
     }
@@ -2743,7 +2765,7 @@ class Booking extends CI_Controller {
             $sn = "";
         }
         
-        $call_btn = "<button type='button' class='btn btn-sm btn-info' onclick='";
+        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
         $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
         $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
         
@@ -2754,40 +2776,40 @@ class Booking extends CI_Controller {
         }
         
         if(empty($order_list->penalty_active)){
-            $penalty_row = "<a class='btn btn-sm col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='background:#FFEB3B;margin-top:10px;cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+            $penalty_row = "<a class='btn btn-sm btn-color col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='margin-top:10px;cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
         }else if($order_list->penalty_active === '1'){
             $penalty_modal = "onclick='";
             $penalty_modal .= "get_penalty_details(".'"'.$order_list->booking_id.'"';
             $penalty_modal .= ', "'.$booking_status.'"';
             $penalty_modal .= ")' ";
-            $penalty_row = "<a class='btn btn-sm col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='background:#FFEB3B;margin-top:10px;' $penalty_modal><i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+            $penalty_row = "<a class='btn btn-sm btn-color col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='margin-top:10px;' $penalty_modal><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
         }
         
         
         
         $row[] = $no.$sn;
         $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
-        $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser/0/0/".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
+        $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = $order_list->services;
         $row[] = "<a href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$order_list->service_centre_name</a>";
         $row[] = $order_list->city;
         $row[] = date("d-m-Y", strtotime($order_list->closed_date));
         $row[] = $call_btn;
         if($booking_status === _247AROUND_COMPLETED){
-            $row[] = "<a id='edit' class='btn btn-sm btn-success' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
-            $row[] = "<a id='cancel' class='btn btn-sm btn-danger' href='".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>";
+            $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+            $row[] = "<a id='cancel' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>";
         }else if($booking_status === _247AROUND_CANCELLED){
-            $row[] = "<a id='edit' class='btn btn-sm btn-success' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+            $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
         }
         
-        $row[] = "<a id='open' class='btn btn-sm btn-warning' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
-        $row[] = "<a id='view' class='btn btn-sm btn-primary' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title='view' target='_blank'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+        $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+        $row[] = "<a id='view' class='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title='view' target='_blank'><i class='fa fa-eye' aria-hidden='true'></i></a>";
         
         if($booking_status === _247AROUND_COMPLETED){
-            $row[] = "<a class='btn btn-sm btn-danger' href='".base_url()."employee/booking/get_rating_form/".$order_list->booking_id."/".$booking_status."' title='Rating' target='_blank' $rating_btn_disabled><i class='fa fa-star-o' aria-hidden='true' ></i></a>";
+            $row[] = "<a class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_rating_form/".$order_list->booking_id."/".$booking_status."' title='Rating' target='_blank' $rating_btn_disabled><i class='fa fa-star-o' aria-hidden='true' ></i></a>";
         }
         
-        $row[] = "<a class='btn btn-sm col-md-12' href='".base_url()."employee/vendor/get_escalate_booking_form/".$order_list->booking_id."/".$booking_status."' title='Add Penalty' target='_blank' style='background:#D81B60;'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
+        $row[] = "<a class='btn btn-sm btn-color col-md-12' href='".base_url()."employee/vendor/get_escalate_booking_form/".$order_list->booking_id."/".$booking_status."' title='Add Penalty' target='_blank'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
         
         
         return $row;
@@ -2949,7 +2971,7 @@ class Booking extends CI_Controller {
             $sn = "";
         }
         
-        $call_btn = "<button type='button' class='btn btn-sm btn-info' onclick='";
+        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
         $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
         $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
         
@@ -2960,13 +2982,13 @@ class Booking extends CI_Controller {
         }
         
         if(empty($order_list->penalty_active)){
-            $penalty_row = "<a class='btn btn-sm col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='background:#FFEB3B;margin-top:10px;cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+            $penalty_row = "<a class='btn btn-sm btn-color col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='margin-top:10px;cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
         }else if($order_list->penalty_active === '1'){
             $penalty_modal = "onclick='";
             $penalty_modal .= "get_penalty_details(".'"'.$order_list->booking_id.'"';
             $penalty_modal .= ', "'.$booking_status.'"';
             $penalty_modal .= ")' ";
-            $penalty_row = "<a class='btn btn-sm col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='background:#FFEB3B;margin-top:10px;' $penalty_modal><i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+            $penalty_row = "<a class='btn btn-sm btn-color col-md-12' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='margin-top:10px;' $penalty_modal><i class='fa fa-plus-square' aria-hidden='true'></i></a>";
         }
         
         if($order_list->count_escalation > 0){
@@ -2982,23 +3004,23 @@ class Booking extends CI_Controller {
         }
         
         if ($order_list->assigned_vendor_id == "") {
-            $complete =  "<a target='_blank' class='btn btn-sm btn-danger btn-sm disabled' "
+            $complete =  "<a target='_blank' class='btn btn-sm btn-color btn-sm disabled' "
             . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
         } else {
             if ($order_list->current_status == 'Pending' || $order_list->current_status == 'Rescheduled') {
-                $complete = "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
+                $complete = "<a target='_blank' class='btn btn-sm btn-color btn-sm' "
                 . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
             } else if ($order_list->current_status == 'Review') {
-                $complete = "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
+                $complete = "<a target='_blank' class='btn btn-sm btn-color btn-sm' "
                 . "href=" . base_url() . "employee/booking/review_bookings/$order_list->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true' ></i></a>";
             } else {
-                $complete = "<a target='_blank' class='btn btn-sm btn-danger btn-sm disabled' "
+                $complete = "<a target='_blank' class='btn btn-sm btn-color btn-sm disabled' "
                 . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
             }
         }
         
         if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor == 0)) {
-            $mail =  "<a  id='b_notes" . $no . "' class='btn btn-sm btn-success' onclick='show(this.id)' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>";
+            $mail =  "<a  id='b_notes" . $no . "' class='btn btn-sm btn-color' onclick='show(this.id)' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>";
             $mail .= "<div class='dialog' id='bookingMailForm" . $no . "'>";
             $mail .= "<form class='mailform'>";
             $mail .= "<textarea style='width:200px;height:80px;' id='valueFromMyButton" . $no . "' name='valueFromMyButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
@@ -3009,11 +3031,11 @@ class Booking extends CI_Controller {
             $mail .= "</form>";
             $mail .= "</div>";
         } else {
-            $mail = "<a class='btn btn-sm btn-success disabled' href='" . base_url() . "employee/bookingjobcard/send_mail_to_vendor/$order_list->booking_id' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true' ></i></a>";
+            $mail = "<a class='btn btn-sm btn-color disabled' href='" . base_url() . "employee/bookingjobcard/send_mail_to_vendor/$order_list->booking_id' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true' ></i></a>";
         }
         
         if (!is_null($order_list->assigned_vendor_id) && !is_null($order_list->booking_jobcard_filename) && ($order_list->mail_to_vendor)) {
-            $r_mail = "<a id='r_notes" . $no . "' class='btn btn-sm btn-warning' onclick='show(this.id)' title='Remainder Mail' ><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
+            $r_mail = "<a id='r_notes" . $no . "' class='btn btn-sm btn-color' onclick='show(this.id)' title='Remainder Mail' ><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
             $r_mail .= "<div class='dialog' id='reminderMailForm" . $no . "'>";
             $r_mail .= "<form class='remindermailform'>";
             $r_mail .= "<textarea style='width:200px;height:80px;' id='reminderMailButton" . $no . "' name='reminderMailButton" . $no . "' placeholder='Enter Additional Notes'></textarea>";
@@ -3024,7 +3046,7 @@ class Booking extends CI_Controller {
             $r_mail .= "</form>";
             $r_mail .= "</div>";
         } else {
-            $r_mail = "<a class='btn btn-sm btn-warning disabled' href = '" . base_url() . "employee/bookingjobcard/send_reminder_mail_to_vendor/$order_list->booking_id ' title = 'Reminder Mail'><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
+            $r_mail = "<a class='btn btn-sm btn-color disabled' href = '" . base_url() . "employee/bookingjobcard/send_reminder_mail_to_vendor/$order_list->booking_id ' title = 'Reminder Mail'><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
         }
         
         if(is_null($order_list->assigned_vendor_id)){
@@ -3066,28 +3088,277 @@ class Booking extends CI_Controller {
 
         $row[] = $no.$sn;
         $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
-        $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser/0/0/".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
+        $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = $order_list->services;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $escalation." ".$order_list->current_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
         $row[] = $call_btn;
-        $row[] = "<a id ='view' class ='btn btn-sm btn-primary' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-success' "
+        $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
+        $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color' "
             . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";
-        $row[] = "<a target = '_blank' id = 'cancel' class = 'btn btn-sm btn-warning' href = '".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title = 'Cancel'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
+        $row[] = "<a target = '_blank' id = 'cancel' class = 'btn btn-sm btn-color' href = '".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title = 'Cancel'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
         $row[] = $complete;
-        $row[] ="<a target = '_blank' class = 'btn btn-sm btn-info' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
+        $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = $mail;
         $row[] = $r_mail;
-        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-primary' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-success' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target = '_blank' class = 'btn btn-sm btn-danger' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
+        $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
         $row[] = $penalty_row;
         
         
         return $row;
     }
     
+    /**
+     *  @desc : This function is used to show queries based on query status
+     *  @param : $status string
+     *  @return : $output JSON
+     */
+    public function view_queries($status, $p_av,$booking_id=""){
+        $data['query_status'] = trim($status);
+        $data['pincode_status'] = trim($p_av);
+        $data['booking_id'] = trim($booking_id);
+        $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',array('is_active'=> '1'));
+        $data['services'] = $this->booking_model->selectservice();
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/view_pending_queries', $data);
+    }
     
+    /**
+     *  @desc : This function is used to get queries based on query status
+     *  @param : $status string
+     *  @return : $output JSON
+     */
+    public function get_queries_data($status){
+        
+        $booking_status = trim($status);
+        $pincode_status = trim($this->input->post('pincode_status'));
+        $data = $this->get_queries_detailed_data($booking_status,$pincode_status);
+        
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->booking_model->count_all_queries($post,$pincode_status,$booking_status),
+            "recordsFiltered" =>  $this->booking_model->count_filtered_queries($post,$pincode_status,$booking_status),
+            "data" => $data['data'],
+        );
+        
+        echo json_encode($output);
+    }
+    
+    public function get_queries_detailed_data($query_status,$pincode_status) {
+        $post = $this->get_post_data();
+        $new_post = $this->get_filterd_post_data($post, $query_status, "query");
+        
+        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_unit_details.appliance_description";
+
+        $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
+        unset($new_post['order_performed_on_count']);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row = $this->get_queries_table($order_list, $no, $query_status,$pincode_status);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $new_post
+        );
+    }
+    
+    private function get_queries_table($order_list, $no, $query_status,$pincode_status){
+        $row = array();
+
+        $row[] = $no." <div><input type = 'hidden' id = 'service_id_".$no."' value = '".$order_list->service_id."'><input type = 'hidden' id = 'pincode_".$no."' value = '".$order_list->booking_pincode."'></div>";
+        $row[] = $order_list->booking_id;
+        $row[] = "<a href='".base_url()."employee/user/finduser?phone_number=$order_list->phone_number'>$order_list->customername / <b>$order_list->phone_number </b></a>";
+        $row[] = $order_list->services;
+        $row[] = $order_list->booking_date . "/" . $order_list->booking_timeslot;
+        if($query_status != _247AROUND_CANCELLED){
+            $status = $order_list->current_status;
+            if ($order_list->current_status != $order_list->internal_status){
+                $status .= "<br> (" . $order_list->internal_status . ") <div>";
+            }
+            $row[] = $status;
+        }
+        $row[] = $order_list->city;
+        $row[] = $order_list->query_remarks;
+        $row[] = $order_list->appliance_description;
+        if($query_status != _247AROUND_CANCELLED){
+            if($pincode_status == PINCODE_NOT_AVAILABLE){
+               $pincode =  "<a href='javascript:void(0)' style='color: red;' onclick='form_submit(".'"'.$order_list->booking_id.'"'.")'>$order_list->booking_pincode</a>";
+            }else if($pincode_status == PINCODE_ALL_AVAILABLE || $pincode_status == PINCODE_AVAILABLE ){
+                $pincode = "<select id='av_vendor".$no."' style='max-width:100px;'>";
+                $pincode .= "<option>Vendor Available</option>";
+                $pincode .= "</select>";
+                
+                $pincode .= "<a id='av_pincode".$no."' href='javascript:void(0)' style='color: red; display:none;' onclick='form_submit(".'"'.$order_list->booking_id.'"'.")'>$order_list->booking_pincode</a>";
+            }
+            
+            $row[] = $pincode;
+        }
+        $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'outbound_call($order_list->booking_primary_contact_no)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+        $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
+        if($query_status != _247AROUND_CANCELLED){
+            $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Update' target ='_blank'><i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
+        }
+        
+        if($query_status == _247AROUND_CANCELLED){
+            $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/open_cancelled_query/$order_list->booking_id' title = 'Open' target ='_blank'><i class = 'fa fa-calendar' aria-hidden = 'true'></i></a>";
+        }else{
+            $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_cancel_form/$order_list->booking_id/FollowUp' title = 'Cancel' target ='_blank'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
+        }
+        
+        
+        return $row;
+        
+    }
+    
+    /**
+     * @desc: This function is used to show editable grid for non verified appliance data from appliance_description_table
+     * @param: void
+     * @return: void
+     * 
+     */
+    function get_appliance_description_editable_grid(){
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/appliance_description_editable_grid');
+        
+    }
+    /**
+     * @desc: This funtion is called from AJAX to get non verfied appliance details
+     * @params: void
+     * @return: JSON
+     */
+    function get_non_verified_appliance_template() {
+        $page = isset($_POST['page']) ? $_POST['page'] : 1;
+        $limit = isset($_POST['rows']) ? $_POST['rows'] : 10;
+        $sidx = isset($_POST['sidx']) ? $_POST['sidx'] : 'name';
+        $sord = isset($_POST['sord']) ? $_POST['sord'] : '';
+        $start = $limit * $page - $limit;
+        $start = ($start < 0) ? 0 : $start;
+
+        $where['(is_verified = 0 OR is_verified is null)'] = null ;
+        $searchField = isset($_POST['searchField']) ? $_POST['searchField'] : false;
+        $searchOper = isset($_POST['searchOper']) ? $_POST['searchOper'] : false;
+        $searchString = isset($_POST['searchString']) ? $_POST['searchString'] : false;
+
+        if ($_POST['_search'] == 'true') {
+            $ops = array(
+                'eq' => '=',
+                'ne' => '<>',
+                'lt' => '<',
+                'le' => '<=',
+                'gt' => '>',
+                'ge' => '>=',
+                'bw' => 'LIKE',
+                'bn' => 'NOT LIKE',
+                'in' => 'LIKE',
+                'ni' => 'NOT LIKE',
+                'ew' => 'LIKE',
+                'en' => 'NOT LIKE',
+                'cn' => 'LIKE',
+                'nc' => 'NOT LIKE',
+                'nu' => 'IS NULL',
+                'nn' => 'IS NOT NULL'
+            );
+            foreach ($ops as $key => $value) {
+                if ($searchOper == $key) {
+                    $ops = $value;
+                }
+            }
+            if ($searchOper == 'eq'){
+                $searchString = $searchString;   
+            }
+            if ($searchOper == 'bw' || $searchOper == 'bn'){
+                $searchString .= '%';
+            }   
+            if ($searchOper == 'ew' || $searchOper == 'en'){
+                $searchString = '%' . $searchString;
+            }
+            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni'){
+                $searchString = '%' . $searchString . '%';
+            }
+            if ($searchOper == 'nu'){
+                $searchString = $searchString;   
+            }
+            if ($searchOper == 'nn'){
+                $searchString = '';   
+            }
+            
+            if($searchOper == 'nu' || $searchOper == 'nn'){
+                $where["$searchField $ops"] = NULL;
+            }else{
+                $where["$searchField $ops '$searchString'"] = NULL;
+            }
+            
+            
+        }
+
+        if (!$sidx){
+            $sidx = 1;
+        }
+        $count = $this->db->count_all_results('appliance_product_description');
+         
+        if ($count > 0) {
+            $total_pages = ceil($count / $limit);
+        } else {
+            $total_pages = 0;
+        }
+
+        if ($page > $total_pages){
+            $page = $total_pages;
+        }
+       
+        $query = $this->booking_model->get_search_query('appliance_product_description', '*', $where,NULL,array('length' => $limit,'start'=> $start),array($sidx => $sord))->result();
+        $response = new StdClass;
+        $response->page = $page;
+        $response->total = $total_pages;
+        $response->records = $count;
+        $i = 0;
+                
+        foreach ($query as $row) {
+            $response->rows[$i]['id'] = $row->id;
+            $response->rows[$i]['cell'] = array($row->product_description, $row->category, $row->capacity,$row->brand);
+            $i++;
+        }
+ 
+        echo json_encode($response);
+    }
+    
+    /**
+     * @desc: This function is called from AJAX to modify non verified appliance details based on different cases
+     * @params: void
+     * @return: void
+     */
+    function update_appliance_description_template() {
+        $data = $this->input->post();
+        $operation = $data['oper'];
+
+        switch ($operation) {
+            case 'edit':
+                //Initializing array for updating data
+                $update_data = [];
+                //Setting insert array data
+                $update_data['category'] = $data['category'];
+                $update_data['capacity'] = $data['capacity'];
+                $update_data['brand'] = $data['brand'];
+                $update_data['is_verified'] = 1;
+                if(!empty($update_data)){
+                    $update_id = $this->booking_model->update_appliance_description_details($update_data,array('id'=>$data['id']));
+                
+                    if ($update_id) {
+                        log_message('info', __FUNCTION__ . ' Appliance Details has been updated with ID ' . $update_id);
+                    } else {
+                        log_message('info', __FUNCTION__ . ' Err in updating Appliance Details');
+                    }
+                }  
+                
+                break;
+        }
+    }
 }

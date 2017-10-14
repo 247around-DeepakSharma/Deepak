@@ -17,7 +17,6 @@ uploadfile.controller('uploadOrderDetailsFile', ['$scope', 'fileUpload', functio
                 var uploadUrl = baseUrl + "/buyback/upload_buyback_process/process_upload_order";
                 fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
             }
-
         };
 
     }]);
@@ -528,4 +527,30 @@ rm_missing_pincode.controller('rm_missing_pincode_controller', function ($scope,
      $http.get(pincode_url).then(function (response) {
             $("#pincode_table_data_full_view").html(response.data);
      });
+     });
+     
+//get buyback balance
+buyback_dashboard.controller('bb_balance', function ($scope, $http) {
+    
+    $scope.showLoader = true;
+    $scope.showBuybackBalance = false;
+    var get_url = baseUrl + "/buyback/buyback_process/get_bb_svc_balance";
+    $http.get(get_url)
+        .then(function (response) {
+            var data = angular.fromJson(response.data);
+            if( data === 'no data found'){
+                $scope.tv_balance = '0';
+                $scope.la_balance = '0';
+                $scope.total_balance = '0';
+                $scope.showLoader = false;
+                $scope.showBuybackBalance = true;
+            }else{
+                $scope.tv_balance = data.tv_balance;
+                $scope.la_balance = data.la_balance;
+                $scope.total_balance = data.total_balance;
+                $scope.showLoader = false;
+                $scope.showBuybackBalance = true;
+            }
+            
+    });
 });

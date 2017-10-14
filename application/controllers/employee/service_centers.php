@@ -2501,7 +2501,7 @@ class Service_centers extends CI_Controller {
      * @return array
      */
     function get_sf_charges_data(){
-        $this->check_BB_UserSession();
+        $this->checkUserSession();
         //Getting SC ID from session
         $service_center_id  =  $this->session->userdata('service_center_id');
         if(!empty($service_center_id)){
@@ -2690,6 +2690,11 @@ class Service_centers extends CI_Controller {
         $list['list'] = $this->cp_model->get_bb_cp_order_list($post);
         $this->load->view('service_centers/search_for_buyback',$list);
             
+    }
+    
+    public function get_contact_us_page(){
+        $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager','active' => 1));
+        $this->load->view('service_centers/contact_us',$data);
     }
     
 

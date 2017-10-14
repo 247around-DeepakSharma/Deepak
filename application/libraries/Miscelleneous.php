@@ -871,16 +871,11 @@ class Miscelleneous {
     function verified_applicance_capacity($appliances_details){
         switch ($appliances_details['service_id']){
             case '46':
-                $match = array();
-                preg_match('/[0-9]+/', $appliances_details['capacity'],$match);
-                if( !empty($match) && (strpos($appliances_details['description'],$match[0]) !== False) && (strpos($appliances_details['description'],$appliances_details['brand']) !== False)){
-                    $return_data['status'] = TRUE;
-                    $return_data['is_verified'] = '1';
-                }else{
-                    $return_data['status'] = FALSE;
-                    $return_data['is_verified'] = '0';
-                }
+                $return_data = $this->verifiy_tv_description($appliances_details);
                 break;
+            case '28':
+                $return_data = $this->verifiy_washing_machine_description($appliances_details);
+                break;    
             default :
                 $return_data['status'] = FALSE;
                 $return_data['is_verified'] = '0';
@@ -1115,4 +1110,65 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
           
     }
     
+    /**
+     * @desc This function is used to verify television appliance data
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verifiy_tv_description($appliances_details) {
+        $match = array();
+        $new_appliance_details = array();
+        
+        preg_match('/[0-9]+/', $appliances_details['capacity'], $match);
+        if (!empty($match) && (strpos($appliances_details['description'], $match[0]) !== False) && (strpos($appliances_details['description'], $appliances_details['brand']) !== False)) {
+            $new_appliance_details['category'] = $appliances_details['category'];
+            $new_appliance_details['capacity'] = $appliances_details['capacity'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
+        } else {
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
+    
+    /**
+     * @desc This function is used to verify washing_machine appliance data
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verifiy_washing_machine_description($appliances_details){
+        $new_appliance_details = array();
+        if(((stripos($appliances_details['description'],'semiautomatic') !== False) || (stripos($appliances_details['description'],'semi automatic') !== False) ) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+            $new_appliance_details['category'] = 'Semiautomatic';
+            $new_appliance_details['capacity'] = $appliances_details['capacity'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
+        }else if(((stripos($appliances_details['description'],'fullyautomatic') !== False) || (stripos($appliances_details['description'],'Fully Automatic') !== False) || (stripos($appliances_details['description'],'Fully Automatic') !== False)) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+                 if(stripos($appliances_details['description'],'front') !== False){
+                    $new_appliance_details['category'] = 'Front Load';
+                    $new_appliance_details['capacity'] = $appliances_details['capacity'];
+                    $new_appliance_details['brand'] = $appliances_details['brand'];
+                    $new_appliance_details['status'] = TRUE;
+                    $new_appliance_details['is_verified'] = '1';
+                 }else if(stripos($appliances_details['description'],'top') !== False){
+                    $new_appliance_details['category'] = 'Top Load';
+                    $new_appliance_details['capacity'] = $appliances_details['capacity'];
+                    $new_appliance_details['brand'] = $appliances_details['brand'];
+                    $new_appliance_details['status'] = TRUE;
+                    $new_appliance_details['is_verified'] = '1';
+                 }else{
+                    $new_appliance_details['status'] = FALSE;
+                    $new_appliance_details['is_verified'] = '0';
+                 }
+        }else{
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
 }

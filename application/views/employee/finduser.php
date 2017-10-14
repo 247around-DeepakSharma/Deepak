@@ -71,7 +71,7 @@
                     <h1 class="page-header">
                        Search User
                    </h1>
-                   <form name="myForm" class="form-horizontal" action="<?php echo base_url()?>employee/user/finduser" method="POST" onsubmit="return phonevalidate()" ;>
+                   <form name="myForm" class="form-horizontal" action="<?php echo base_url()?>employee/user/finduser" method="GET" onsubmit="return phonevalidate()" ;>
                     <div class="form-group <?php if( form_error('phone_number') ) { echo 'has-error';} ?>">
                         <label for="phone_number" class="col-md-2">Phone Number</label>
                         <div class="col-md-4">

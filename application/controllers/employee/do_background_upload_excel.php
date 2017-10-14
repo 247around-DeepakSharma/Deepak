@@ -758,10 +758,10 @@ class Do_background_upload_excel extends CI_Controller {
                 if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
 		$data['valid_data'][$key]['appliance'] = 'Washing Machine';
                 }
-                if (stristr($prod, "Television")) {
+                if (stristr($prod, "Television") || stristr($prod, "TV") ||  stristr($prod, "Tv")) {
                     $data['valid_data'][$key]['appliance'] = 'Television';
                 }
-                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner") || strstr($prod, "AC")) {
                     $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
                 }
                 if (stristr($prod, "Refrigerator")) {
@@ -1269,45 +1269,45 @@ class Do_background_upload_excel extends CI_Controller {
         $message = "";
         $error = false;
         if (!in_array('itemcode', $rowData)) {
-            $message .= " Itemcode Column does not exist.<br/><br/>";
+            $message .= " Itemcode Column does not exist.  Please use <b>itemcode</> as column name.<br/><br/>";
             $this->ColumnFailed .= " Itemcode, ";
             $error = TRUE;
         }
 
         if (!in_array('docno', $rowData)) {
-            $message .= " DocNo Column does not exist. <br/><br/>";
+            $message .= " DocNo Column does not exist. Please use <b>docno</> as column name.<br/><br/>";
             $this->ColumnFailed .= " DocNo, ";
             $error = TRUE;
         }
 
         if (!in_array('customer', $rowData)) {
 
-            $message .= " Customer Column does not exist. <br/><br/>";
+            $message .= " Customer Column does not exist. Please use <b>customer</> as column name.<br/><br/>";
             $this->ColumnFailed .= "Customer , ";
             $error = TRUE;
         }
 
         if (!in_array('phno', $rowData)) {
 
-            $message .= " PHNo Column does not exist. <br/><br/>";
+            $message .= " PHNo Column does not exist. Please use <b>phno</> as column name.<br/><br/>";
             $this->ColumnFailed .= " PHNo , ";
             $error = TRUE;
         }
         if (!in_array('address', $rowData)) {
 
-            $message .= " Address Column does not exist. <br/><br/>";
+            $message .= " Address Column does not exist. Please use <b>address</> as column name.<br/><br/>";
             $this->ColumnFailed .= " Address , ";
             $error = TRUE;
         }
         if (!in_array('zipcodeb', $rowData)) {
 
-            $message .= " ZipCodeB Column does not exist. <br/><br/>";
+            $message .= " ZipCodeB Column does not exist. Please use <b>zipcodeb</> as column name.<br/><br/>";
             $this->ColumnFailed .= "ZipCodeB , ";
             $error = TRUE;
         }
         if (!in_array('item_name', $rowData)) {
 
-            $message .= " Item Name Column does not exist. <br/><br/>";
+            $message .= " Item Name Column does not exist. Please use <b>item_name</> as column name.<br/><br/>";
             $this->ColumnFailed .= "Item Name ";
             $error = TRUE;
         }
