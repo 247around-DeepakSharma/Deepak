@@ -1820,8 +1820,9 @@ class vendor_model extends CI_Model {
     }
     
     function is_pincode_exist_in_not_found_sf_table($where){
-        $this->db->where_in('pincode', $where);
-        $this->db->delete('sf_not_exist_booking_details');
+        $this->db->or_where($where,FALSE);
+        $this->db->set('active_flag',0);
+        $this->db->UPDATE('sf_not_exist_booking_details');
     }
     
     function get_india_pincode_distinct_area_data($pincode) {
