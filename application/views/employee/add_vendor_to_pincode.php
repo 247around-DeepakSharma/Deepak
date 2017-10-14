@@ -13,6 +13,16 @@ select[multiple], select[size]{
   width:38%;
   font-size:75%;
 }
+#appliance_container{
+    display: inline;
+}
+#appliance_brand_container{
+    clear: both;
+    margin: 10px;
+}
+#brand_container{
+    display: inline;
+}
 </style>
 <div id="page-wrapper" >
    <div class="container" >
@@ -32,7 +42,7 @@ select[multiple], select[size]{
                                             <option value="">Select Vendor</option>
                                             <?php if (isset($vendors)){?>
                                             <?php foreach ($vendors as $key => $values) { ?>
-                                             <option  value="<?php echo $values['Vendor_ID']."__".$values['Vendor_Name']; ?>" > <?php echo $values['Vendor_Name']; } ?></option>
+                                            <option  value="<?php echo $values['Vendor_ID']."__".$values['Vendor_Name']; ?>" > <?php echo $values['Vendor_Name']; } ?></option>
                                             <?php } ?>
                                </select>
                            </div>
@@ -50,8 +60,8 @@ select[multiple], select[size]{
                               <?php if(isset($all_appliance)){ ?>
                                     <p style="display:none;" id="appliance_count_helper"><?php echo count($all_appliance); ?></p>
                                                 <div class="form-group">
-                           <label for="appliance" class="col-md-4">Appliance</label>
-                           <div class="col-md-6">
+                                                    <label for="appliance" class="col-md-4" style="margin:0px 0px 20px 0px;">Appliance*</label>
+                                                    <label for="appliance" class="col-md-4" style="margin:0px 0px 20px 0px;">Brands*</label>
                             <?php foreach($all_appliance as $key=>$values){
                                                   $checked="";
                                                   $disabled="disabled";
@@ -62,33 +72,37 @@ select[multiple], select[size]{
                                                                       } 
                                                              }
                                                   }?>
-                               <input  id="<?php echo $key?>" onclick="handleBrandDisplay(<?php echo "'".$key."'"?>)" type="checkbox" name="appliance[]" value="<?php echo $values->id."__".$values->services ?>" <?php echo $checked?>><?php echo $values->services;?>
-                                                  <select <?php echo $disabled ?> multiple style="width:300px" class="brands" id="brands_<?php echo $key ?>" name="brands_<?php echo $values->id.'[]"'?>>
+                               <div id="appliance_brand_container">
+                                   <div id="appliance_container" class="col-md-4">
+                               <input  id="<?php echo $key?>" onclick="handleBrandDisplay(<?php echo "'".$key."'"?>)" style="display:inline" type="checkbox" name="appliance[]" value="<?php echo $values->id."__".$values->services ?>" <?php echo $checked?>><?php echo $values->services;?>
+                               </div>
+                                   <div id="brand_container">
+                               <select <?php echo $disabled ?> multiple style="width:300px" class="brands" id="brands_<?php echo $key ?>" name="brands_<?php echo $values->id.'[]'?>">
                                                           <option>First,Please select Any vendor</option>
                                                           </select>
-                                                  <?php echo "</br>";
-                                       } ?>
-                           
-                      </div>
+                                       </div>
+                               </div>
+                                                 
+                                       <?php } ?>
                            </div>
                               <?php } ?>
-                       
-                        <div class="form-group">
-                          <center>
-                         <input type="submit" id="submitform" class="btn btn-info " value="Save"/>
-                         </center>
-                       </div>
          			</div>
 
          		</div>
          		</div>
           </form>
+                            <div class="form-group">
+                          <center>
+                              <input type="button" id="submitform" class="btn btn-info " onclick="formValidation()" value="Save"/>
+                         </center>
+                       </div>
          		</div>
 
         	</div>
     	</div>
     </div>
 </div>
+    </div>
 
 <script type="text/javascript">
 $(".brands").select2();
@@ -143,5 +157,35 @@ function handleBrandDisplay(serviceNumber){
                 document.getElementById("brands_"+serviceNumber).disabled=true;
             }
             
+        }
+        function formValidation(){
+            var applianceCount = document.getElementById("appliance_count_helper").innerHTML;
+            var vendor = document.getElementById("vendor").value;
+            if(!vendor){
+                alert("Please select any vendor");
+                exit();
+            }
+           var  is_empty=0;
+            var selectedAppliance =0;
+            for(var x=0;x<applianceCount;x++){
+                     isChecked = document.getElementById(x).checked;
+                      if(isChecked == true){
+                          var selectedAppliance = 1;
+                          var selectedBrands = document.getElementById("brands_"+x).value;
+                          if(!selectedBrands){
+                              var is_empty = 1;
+                          }
+                      }
+                  }
+                  if(selectedAppliance==0){
+                      alert("Please Select Atleast 1 Appliance");
+                      exit();
+                  }
+                  if(is_empty == 1){
+                      alert("Please Select Atleast 1  Brand For Every Selected Appliance");
+                  }
+                  else{
+                        document.getElementById("vendor_form").submit();
+                  }
         }
 </script>
