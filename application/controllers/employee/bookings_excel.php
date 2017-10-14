@@ -141,10 +141,12 @@ class bookings_excel extends CI_Controller {
             }
 
             $message = "";
-            $total_bookings = 0;
+            $total_bookings_came = 0;
+            $total_bookings_inserted = 0;
             
             for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
                 //  Read a row of data into an array
+                $total_bookings_came++;
                 $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
                 $rowData[0] = array_combine($headings_new[0], $rowData[0]);
                 $this->Columfailed = "";
@@ -382,7 +384,7 @@ class bookings_excel extends CI_Controller {
                                     $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
                                     $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
                                 }
-                                $total_bookings++;
+                                $total_bookings_inserted++;
                             }
 
 
@@ -405,12 +407,14 @@ class bookings_excel extends CI_Controller {
             }else{
                 $to = NITS_ANUJ_EMAIL_ID.', sales@247around.com';
                 $cc = "abhaya@247around.com,sachinj@247around.com";
-                $subject = "Paytm File is uploaded by " . $this->session->userdata('employee_id');
-                $message = "Paytm File Uploaded Successfully <br/><br/>";
-                $message .= "Total Booking Inserted = $total_bookings";
+                $subject  = "Paytm File is uploaded by " . $this->session->userdata('employee_id');
+                $message  = "Paytm File Uploaded Successfully <br/><br/>";
+                $message .= "Upload File Name ".$_FILES["file"]["name"]." <br/><br/>";
+                $message .= "Total Booking In the file = $total_bookings_came";
+                $message .= "<br/><br/>Total Booking Inserted = $total_bookings_inserted";
 
                 $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
-                log_message('info', 'paytm file uploaded successfully. total booking inserted = '.$total_bookings) ;
+                log_message('info', 'paytm file uploaded successfully.'.$message) ;
             }
         }else{
             echo $msg;
@@ -491,69 +495,69 @@ class bookings_excel extends CI_Controller {
         $error = false;
         
         if (!array_key_exists('order_id', $rowData)) {
-            $message .= " Order Id Column does not exist. Please use <b>order_id</> as column name.<br/><br/>";
+            $message .= " Order Id Column does not exist. Please use <b>order_id</b> as column name.<br/><br/>";
             $this->Columfailed .= " Order Id, ";
             $error = true;
         }
 
         if (!array_key_exists('product_name', $rowData)) {
-            $message .= " Product Name Column does not exist. Please use <b>product_name</> as column name.<br/><br/>";
+            $message .= " Product Name Column does not exist. Please use <b>product_name</b> as column name.<br/><br/>";
             $this->Columfailed .= " Product Name, ";
             $error = true;
         }
         
         if (!array_key_exists('category', $rowData)) {
       
-            $message .= " Category Column does not exist. Please use <b>category</> as column name.<br/><br/>";
+            $message .= " Category Column does not exist. Please use <b>category</b> as column name.<br/><br/>";
             $this->Columfailed .= "category , ";
             $error = true;
         }
          
         if (!array_key_exists('brand', $rowData)) {
        
-            $message .= " Brand Column does not exist. Please use <b>brand</> as column name.<br/><br/>";
+            $message .= " Brand Column does not exist. Please use <b>brand</b> as column name.<br/><br/>";
             $this->Columfailed .= " Brand , ";
             $error = true;
         }
         if (!array_key_exists('customer_firstname', $rowData)) {
 
-            $message .= " Customer First Name Column does not exist. Please use <b>customer_firstname</> as column name.<br/><br/>";
+            $message .= " Customer First Name Column does not exist. Please use <b>customer_firstname</b> as column name.<br/><br/>";
             $this->Columfailed .= " Customer First Name , ";
             $error = true;
         }
         if (!array_key_exists('customer_lastname', $rowData)) {
       
-            $message .= " Customer Last Name does not exist. Please use <b>customer_lastname</> as column name.<br/><br/>";
+            $message .= " Customer Last Name does not exist. Please use <b>customer_lastname</b> as column name.<br/><br/>";
             $this->Columfailed .= "Customer Last Name , ";
             $error = true;
         }
         if (!array_key_exists('contact_number', $rowData)) {
       
-            $message .= " Contact Number Column does not exist. Please use <b>contact_number</> as column name.<br/><br/>";
+            $message .= " Contact Number Column does not exist. Please use <b>contact_number</b> as column name.<br/><br/>";
             $this->Columfailed .= "Contact Number ";
             $error = true;
         }
         if (!array_key_exists('address', $rowData)) {
       
-            $message .= " Address Column does not exist. Please use <b>address</> as column name.<br/><br/>";
+            $message .= " Address Column does not exist. Please use <b>address</b> as column name.<br/><br/>";
             $this->Columfailed .= "Address , ";
             $error = true;
         }
         if (!array_key_exists('pincode', $rowData)) {
       
-            $message .= " Pincode Column does not exist. Please use <b>pincode</> as column name.<br/><br/>";
+            $message .= " Pincode Column does not exist. Please use <b>pincode</b> as column name.<br/><br/>";
             $this->Columfailed .= "Pincode,";
             $error = true;
         }
         if (!array_key_exists('customer_city', $rowData)) {
       
-            $message .= " Customer City Column does not exist. Please use <b>customer_city</> as column name.<br/><br/>";
+            $message .= " Customer City Column does not exist. Please use <b>customer_city</b> as column name.<br/><br/>";
             $this->Columfailed .= "Customer City,";
             $error = true;
         }
         if (!array_key_exists('shipped_date', $rowData)) {
       
-            $message .= " Shipped Date Column does not exist. Please use <b>shipped_date</> as column name.<br/><br/>";
+            $message .= " Shipped Date Column does not exist. Please use <b>shipped_date</b> as column name.<br/><br/>";
             $this->Columfailed .= "Shipped Date ";
             $error = true;
         }
