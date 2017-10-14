@@ -108,4 +108,37 @@ var ad_table;
      * End of advance search
      */
     
+     function submitPincodeForm(data){
+         console.log(JSON.stringify(data));
+        document.getElementById("pincode").value=data.pincode;
+        document.getElementById("city").value=data.city;
+        document.getElementById("state").value=data.state;
+        document.getElementById("service").value=JSON.stringify(data.service);
+        document.getElementById("pincodeForm").submit();
+    }
+    
+    function missingPincodeDetailedView(data){
+        var table = document.getElementById("mssingPincodeTable");
+        var rowCount = table.rows.length;
+        for (var x = rowCount-1; x >0; x--) {
+                     table.deleteRow(x);
+        }
+        var count = data.service.length;
+        for(var i=0;i<count;i++){
+            var row = table.insertRow(i+1);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            var cell4 = row.insertCell(3);
+            var cell5 = row.insertCell(4);
+            cell1.innerHTML = data.pincode;
+            cell2.innerHTML = data.city;
+            cell3.innerHTML = data.state;
+            cell4.innerHTML = data.service[i].service_name;
+           cell5.innerHTML = data.service[i].pincodeCount;
+        }
+        
+        
+    }
+    
      

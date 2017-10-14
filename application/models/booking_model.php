@@ -2178,5 +2178,8 @@ class Booking_model extends CI_Model {
        return $this->db->affected_rows();
     }
     
-    
+    function pincode_not_found_relevent_data($sql){
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 }

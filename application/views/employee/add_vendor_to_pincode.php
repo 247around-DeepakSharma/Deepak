@@ -25,106 +25,59 @@ select[multiple], select[size]{
          			<div class="container">
          				<div class="col-md-12">
          			<div class="col-md-7">
-               <input type="hidden" value="<?php echo isset($Appliance)?$Appliance:''?>" name="Appliance"/>   
-                   <input type="hidden" value="<?php echo isset($Appliance_ID)?$Appliance_ID:''?>" name="Appliance_ID"/>    
-               
-                              <?php if(isset($Appliance_ID) && $Appliance_ID){ ?>
-         				<div class="form-group">
-                           <label for="name" class="col-md-4">Appliance</label>
-                           <div class="col-md-6">
-                              <select type="text" class="form-control"  id="service_id" name="service_id[]" value = "<?php echo set_value('service_id'); ?>" readonly>
-                                
-                                  <option value=<?= $Appliance_ID; ?>>
-                                                <?php echo $Appliance; 
-                                                ?>
-                                  </option>
-                               </select>
-
-                           </div>
-                      </div>
-                              <?php }?>
-
-                       <div class="form-group <?php if( form_error('brand') ) { echo 'has-error';} ?>">
-                           <label for="name" class="col-md-4">Brand*</label>
-                           <div class="col-md-6">
-                              <input type="text" class="form-control" id="brand" name="brand" value = "<?php if (isset($brand)) {echo $brand; }  ?>" >
-                           </div>
-                           <div style="margin-left:40%;margin-top:40px;"><?php echo form_error('brand'); ?></div>
-                        </div>
-
-                        <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
-                           <label for="name" class="col-md-4">Pincode*</label>
-                           <div class="col-md-6">
-                            <input type="text" class="form-control" id="pincode" name="pincode" value = "<?php if (isset($pincode)) {echo $pincode; } ?>" >
-                           </div>
-                           <div style="margin-left:25%;margin-top:40px;"><?php echo form_error('pincode'); ?></div>
-                        </div>
-                        <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
-                           <label for="name" class="col-md-4">City*</label>
-                           <div class="col-md-6">
-                           <input type="text" class="form-control" id="city" name="city" value = "<?php if (isset($city)) {echo $city; } ?>" >
-                           </div>
-                           <div style="margin-left:40%;margin-top:40px;"><?php echo form_error('city'); ?></div>
-                        </div>
-                        <div class="form-group <?php if( form_error('area') ) { echo 'has-error';} ?>">
-                           <label for="name" class="col-md-4">Area*</label>
-                           <div class="col-md-6">
-                               <input type="text" class="form-control" id="area" name="area" value = "<?php if (isset($area)) {echo $area; } ?>" >
-                           </div>
-                           <div style="margin-left:40%;margin-top:40px;"><?php echo form_error('area'); ?></div>
-                        </div>
-                        <div class="form-group <?php if( form_error('state') ) { echo 'has-error';} ?>">
-                           <label for="name" class="col-md-4">State*</label>
-                           <div class="col-md-6">
-                            <select type="text" class="form-control"  class="form-control" id="state" name="state" >
-                                <option value="">Select State</option>
-                                            <?php foreach ($state as $key => $value) { ?>
-                                             <option  value=<?= $value['state']; ?> <?php echo (isset($Appliance_ID)&& $Appliance_ID)?(isset($state))?'selected="selected"':'':''?> > <?php echo $value['state']; } ?></option>
-                               </select>
-                           </div>
-                           <div style="margin-left:40%;margin-top:40px;"> <?php echo form_error('state'); ?></div>
-                        </div>
-                        <div class="form-group <?php if( form_error('vendor_id') ) { echo 'has-error';} ?>">
+                                    <div class="form-group <?php if( form_error('vendor_id') ) { echo 'has-error';} ?>">
                            <label for="name" class="col-md-4">Vendor*</label>
                            <div class="col-md-6">
-                               <select type="text" class="form-control"  id="vendor" name="vendor_id">
+                               <select type="text" class="form-control"  id="vendor" name="vendor_id" required>
                                             <option value="">Select Vendor</option>
                                             <?php if (isset($vendors)){?>
                                             <?php foreach ($vendors as $key => $values) { ?>
-                                             <option  value=<?= $values['Vendor_ID']; ?> <?php if(isset($vendor_id)){ if(!empty($vendor_id)){ echo "selected"; } }?> > <?php echo $values['Vendor_Name']; } ?></option>
-                                            <?php } else { ?>
-                                             <?php foreach ($vendor_details as $key => $values) { ?>
-                                             <option  value=<?= $values['id']; ?> <?php if(isset($vendor_id)){ if(!empty($vendor_id)){ echo "selected"; } }?> > <?php echo $values['name']; } ?></option>
-                                            <?php }?>
+                                             <option  value="<?php echo $values['Vendor_ID']."__".$values['Vendor_Name']; ?>" > <?php echo $values['Vendor_Name']; } ?></option>
+                                            <?php } ?>
                                </select>
                            </div>
                            <div style="margin-left:40%;margin-top:40px;"><?php echo form_error('vendor_id'); ?></div>
-                        </div>
+                        </div> 
+                                    
+                          <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
+                           <label for="name" class="col-md-4">Pincode*</label>
+                           <div class="col-md-6">
+                               <input type="text" class="form-control" id="pincode" name="pincode" value = "<?php if (isset($pincode)) {echo $pincode; } ?>" readonly="" required>
+                           </div>
+                           <div style="margin-left:25%;margin-top:40px;"><?php echo form_error('pincode'); ?></div>
+                        </div>  
+               
+                              <?php if(isset($all_appliance)){ ?>
+                                    <p style="display:none;" id="appliance_count_helper"><?php echo count($all_appliance); ?></p>
+                                                <div class="form-group">
+                           <label for="appliance" class="col-md-4">Appliance</label>
+                           <div class="col-md-6">
+                            <?php foreach($all_appliance as $key=>$values){
+                                                  $checked="";
+                                                  $disabled="disabled";
+                                                  if(isset($selected_appliance)){
+                                                            foreach($selected_appliance as $applianceData){
+                                                                      if($applianceData['service_id'] == $values->id){
+                                                                                $checked="checked";
+                                                                      } 
+                                                             }
+                                                  }?>
+                               <input  id="<?php echo $key?>" onclick="handleBrandDisplay(<?php echo "'".$key."'"?>)" type="checkbox" name="appliance[]" value="<?php echo $values->id."__".$values->services ?>" <?php echo $checked?>><?php echo $values->services;?>
+                                                  <select <?php echo $disabled ?> multiple style="width:300px" class="brands" id="brands_<?php echo $key ?>" name="brands_<?php echo $values->id.'[]"'?>>
+                                                          <option>First,Please select Any vendor</option>
+                                                          </select>
+                                                  <?php echo "</br>";
+                                       } ?>
+                           
+                      </div>
+                           </div>
+                              <?php } ?>
+                       
                         <div class="form-group">
                           <center>
                          <input type="submit" id="submitform" class="btn btn-info " value="Save"/>
                          </center>
                        </div>
-         			</div>
-
-         			<div class="col-md-5">
-         				<div class="form-group <?php if( form_error('choice') ) { echo 'has-error';} ?>">
-         					<label for="name">Vendor Available Services*</label><hr>
-
-                   <?php if(!empty(form_error('choice'))){?>
-                      <div class="alert alert-danger">
-                        <?php echo form_error('choice'); ?>
-                      </div>
-                  <?php }?>
-
-         					<div id="vendor_services">
-         						 <span>No Vendor Selected</span>
-         					</div>
-                    
-         				</div>
-                    <!-- <div style="color:red;border:1px solid maroon;">
-                    <span><?php echo form_error('choice'); ?></span>
-                  </div> -->
          			</div>
 
          		</div>
@@ -138,7 +91,7 @@ select[multiple], select[size]{
 </div>
 
 <script type="text/javascript">
-
+$(".brands").select2();
 //Making request Onchange 
 $('#vendor').on('change',function(){
 
@@ -154,22 +107,24 @@ $(document).ready(function () {
 
 function call_get_vendor_services(){
   var vendor_id = $('#vendor').val();
-  if(vendor_id !=""){
+  if(vendor_id !==""){
     $.ajax({
         type: "GET",
-        url: '<?php echo base_url()?>employee/vendor/get_vendor_services/' + vendor_id,
+        url: '<?php echo base_url()?>employee/vendor/get_vendor_brands/' + vendor_id,
         success: function(data){
-          var appliance = JSON.parse(data).Appliance;
-          var appliance_id = JSON.parse(data).Appliance_ID;
-
-            //Assigning value to div
-            $("#vendor_services" ).empty();
-            $('#vendor_services').append("<ul id='newList'></ul>");
-              for (cnt = 0; cnt < appliance.length; cnt++) {
-                $("#newList").append("<li><input type='checkbox'  name='choice[]' value='"+appliance_id[cnt]+"' />&nbsp;&nbsp;"+appliance[cnt] +"</li>");
-                // $("#newList").append("<li>"+appliance[cnt] +"</li>");
-              }
-
+                      var brands = JSON.parse(data).brands;
+                      var dropDown = "";
+           for(var i=0;i<brands.length;i++){
+                  var dropDown = dropDown+"<option value='"+brands[i]+"'>"+brands[i]+"</optinon>";
+            } 
+            var applianceCount = document.getElementById("appliance_count_helper").innerHTML;
+            for(var x=0;x<applianceCount;x++){
+                     isChecked = document.getElementById(x).checked;
+                      if(isChecked == true){
+                          document.getElementById("brands_"+x).disabled=false;
+                      }
+                     document.getElementById("brands_"+x).innerHTML = dropDown;
+             }
           }
 
       });
@@ -179,5 +134,14 @@ function call_get_vendor_services(){
 
 }
 
-
+function handleBrandDisplay(serviceNumber){
+            isChecked = document.getElementById(serviceNumber).checked;
+            if(isChecked == true){
+                document.getElementById("brands_"+serviceNumber).disabled=false;
+            }
+            else{
+                document.getElementById("brands_"+serviceNumber).disabled=true;
+            }
+            
+        }
 </script>
