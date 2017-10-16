@@ -3110,7 +3110,6 @@ class Booking extends CI_Controller {
         
         return $row;
     }
-    
     /**
      *  @desc : This function is used to show queries based on query status
      *  @param : $status string
