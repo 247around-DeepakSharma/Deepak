@@ -997,7 +997,7 @@ class Miscelleneous {
      * 
      * 
      */
-    public function update_file_uploads($tmpFile, $type) {
+    public function update_file_uploads($tmpFile, $type, $result = "") {
         switch ($type) {
             case _247AROUND_SNAPDEAL_DELIVERED:
                 $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
@@ -1017,6 +1017,7 @@ class Miscelleneous {
                 break;
         }
         $data['agent_id'] = $this->My_CI->session->userdata('id');
+        $data['result'] = $result;
         
         $insert_id = $this->My_CI->partner_model->add_file_upload_details($data);
         

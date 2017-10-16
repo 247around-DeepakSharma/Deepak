@@ -466,5 +466,8 @@ define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '701485101000
 
 define('SPARE_OOW_REQUEST','Spare Estimated Cost Request');
 
+define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
+define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

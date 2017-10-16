@@ -3264,3 +3264,6 @@ UPDATE `employee` SET `office_centre` = 'Chennai' WHERE `employee`.`id` = 16;
 UPDATE `employee` SET `office_centre` = 'Mumbai' WHERE `employee`.`id` = 24;
 UPDATE `employee` SET `office_centre` = 'Kolkata' WHERE `employee`.`id` = 25;
 UPDATE `employee` SET `office_centre` = 'Delhi' WHERE `employee`.`id` = 32;
+
+-- sachin 16 oct 
+ALTER TABLE `file_uploads` ADD `result` VARCHAR(64) NULL AFTER `agent_id`;
