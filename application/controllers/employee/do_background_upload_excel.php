@@ -758,10 +758,10 @@ class Do_background_upload_excel extends CI_Controller {
                 if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
 		$data['valid_data'][$key]['appliance'] = 'Washing Machine';
                 }
-                if (stristr($prod, "Television")) {
+                if (stristr($prod, "Television") || stristr($prod, "TV") ||  stristr($prod, "Tv")) {
                     $data['valid_data'][$key]['appliance'] = 'Television';
                 }
-                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner") || strstr($prod, "AC")) {
                     $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
                 }
                 if (stristr($prod, "Refrigerator")) {
