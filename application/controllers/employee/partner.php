@@ -1516,8 +1516,10 @@ class Partner extends CI_Controller {
                 $bcc = "";
                 $attachment = "";
                 $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];
+                $sf_id = $this->booking_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id' => $escalation['booking_id']))->result_array()[0];
+                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($sf_id['assigned_vendor_id'])[0]['official_email'];
                 $partner_mail_to = $partner_details['email'];
-                $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com";
+                $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ,".$rm_mail;
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
                 $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br><b>Booking ID : </b>" . $booking_id . " Escalated <br><br><strong>Remarks : </strong>" . $remarks;
                 $this->notify->sendEmail('booking@247around.com', $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
@@ -2540,9 +2542,7 @@ class Partner extends CI_Controller {
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
 
         $data['spare_parts'] = $total_rows[0]['total_rows'];
-
-        $am_details['account_manager_details'] = $this->get_am_data($partner_id);
-        $this->load->view('partner/header', $am_details);
+        $this->load->view('partner/header');
         $this->load->view('partner/partner_default_page', $data);
     }
 
@@ -3302,6 +3302,12 @@ class Partner extends CI_Controller {
         $userSession = array('status' => $p_details['active']);
         $this->session->set_userdata($userSession);
         return $d;
+    }
+    
+    public function get_contact_us_page($partner_id){
+        $data['account_manager_details'] = $this->get_am_data($partner_id);
+        $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager','active' => 1));
+        $this->load->view('partner/contact_us',$data);
     }
 
 }

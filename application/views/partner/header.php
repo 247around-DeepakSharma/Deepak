@@ -59,111 +59,13 @@
         $userdata = $CI->session->all_userdata();
         $partner_name = $this->session->userdata('partner_name');
         ?>
-        <div id="contactussfmodal" class="modal fade" role="dialog">
+        <div id="contactUsModal" class="modal fade" role="dialog">
             <div class="modal-dialog modal-lg">
 
                 <!-- Modal content-->
                 <div class="modal-content">
-
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">247around Point of Contacts:</h4>
-                    </div>
-
-                    <div class="modal-header">
-                        <h4 class="modal-title"> First Escalation Point</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="card">
-                            <div class="container">
-                                <?php if(isset($account_manager_details) && !empty($account_manager_details)) { ?> 
-                                <h5><b><?php echo $account_manager_details[0]['full_name']?></b></h5> 
-                                <p><?php echo $account_manager_details[0]['phone']?></p>
-                                <p><?php echo $account_manager_details[0]['official_email']?></p>
-                                <?php } else { ?> 
-                                <h5><b>Mr. Vikas Singh</b></h5> 
-                                <p>9910043586</p>
-                                <p>escalations@247around.com</p>
-                                <?php } ?>
-                                
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-header">
-                        <h4 class="modal-title"> Second Escalation Point</h4>
-                    </div>
-                    <div class="modal-body">
-
-                        <div class="long-card">
-                            <div class="container">
-                                <h5><b>Mr. K Suresh</b></h5> 
-                                <p>Escalation South India</p>
-                                <p>Regional Service Head South India</p>
-                                <p>Chennai Office <span>9840492171</span></p>
-                                <p>English, Tamil, Malayalam,</p><p>Telugu and Kannada</p>
-                                <p>suresh@247around.com</p>
-                            </div>
-                        </div>
-
-                        <div class="long-card">
-                            <div class="container">
-                                <h5><b>Mr. Rajendra Oza</b></h5> 
-                                <p>Escalation West India</p>
-                                <p>Regional Service Head West India</p>
-                                <p>Mumbai Office <span>9223274602</span></p>
-                                <p>English, Hindi and Marathi</p>
-                                <p>oza@247around.com</p>
-                            </div>
-                        </div>
-                        <div class="long-card">
-                            <div class="container">
-                                <h5><b>Mr. Nilanjan Das</b></h5> 
-                                <p>Escalation East India</p>
-                                <p>Regional Service Head East India</p>
-                                <p>Kolkata Office <span>9051159966</span></p>
-                                <p> English, Hindi and Bengali</p>
-                                <p>nilanjan@247around.com</p>
-                            </div>
-                        </div>
-                        <div class="long-card" style="margin-top:10px;">
-                            <div class="container">
-                                <h5><b>Mr. Nitin Malhotra</b></h5> 
-                                <p>Escalation North India</p>
-                                <p>Director & CEO</p>
-                                <p>Delhi Office 9810872244</p>
-                                <p>English, Hindi and Punjabi</p>
-                                <p>nits@247around.com</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-header">
-                        <h4 class="modal-title">Technical – CRM Related</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="card">
-                            <div class="container">
-                                <h4><b>Anuj Aggarwal</b></h4> 
-                                <p>Director & CTO</p>
-                                <p>8826423424</p>
-                                <p>anuj@247around.com</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">247around Invoices Related</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="card">
-                            <div class="container">
-                                <h5><b>Mr. Adil Akhtar</b></h5> 
-                                <p>Back Office Closure Champion</p>
-                                <p>Delhi Office</p>
-                                <p>9716960840 <span> <strong>|</strong> English and Hindi</span></p>
-                                <p>adila@247around.com</p>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="contactUsModalData"></div>
+                   
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
@@ -255,7 +157,7 @@
                         </li>
 
                         <li>
-                            <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactussfmodal"><i class="fa fa-phone"></i>&nbsp;Contact Us&nbsp;</a>
+                            <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactUsModal"><i class="fa fa-phone"></i>&nbsp;Contact Us&nbsp;</a>
                         </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
@@ -329,14 +231,22 @@
 </script>
         <script type="text/javascript">
             (function($){
-            $(document).ready(function(){
-            $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            $(this).parent().siblings().removeClass('open');
-            $(this).parent().toggleClass('open');
-            });
-            });
+                $(document).ready(function(){
+                    $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        $(this).parent().siblings().removeClass('open');
+                        $(this).parent().toggleClass('open');
+                    });
+                });
+                
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/partner/get_contact_us_page/<?php echo $this->session->userdata('partner_id')?>',
+                    success: function (data) {
+                        $("#contactUsModalData").html(data);   
+                    }
+                });
             })(jQuery);
         </script>
         <style type="text/css">

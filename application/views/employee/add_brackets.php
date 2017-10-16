@@ -184,7 +184,7 @@ $this->session->unset_userdata('brackets_error');
 
         $('#total_' + id[3]).val( _26_32 + _36_42);
         
-        if($('#_26_32_' + id[3]).val() <= 5 && $('#_36_42_' + id[3]).val() <= 10 && $('#total_' + id[3]).val() <= 15){
+        if($('#_26_32_' + id[3]).val() <= 50 && $('#_36_42_' + id[3]).val() <= 50 && $('#total_' + id[3]).val() <= 100){
            $('#submitform').attr('disabled', false);
         }else{
             $('#submitform').attr('disabled', true);

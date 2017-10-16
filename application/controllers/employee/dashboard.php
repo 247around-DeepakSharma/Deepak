@@ -592,5 +592,124 @@ class Dashboard extends CI_Controller {
         $json_data['completed_booking'] = implode(",", $completed_booking);
         echo json_encode($json_data);
     }
+    /*
+     * This is a helper function to create missing pincodes view for rm
+     * This function use to create a hidden form which will be submit when rm will click on action button
+     * This function will send required data through post to the add pincode to sf form
+     */
+    function get_pincode_form(){
+        $form = "<form method='post' action=".base_url()."employee/vendor/insert_pincode_form id='pincodeForm' target='_blank'>";
+        $form .=  "<input type='hidden' value='' name='pincode' id='pincode'>";
+        $form .=  "<input type='hidden' value='' name='city' id='city'>";
+        $form .=  "<input type='hidden' value='' name='state' id='state'>";
+        $form .=  "<input type='hidden' value='' name='service' id='service'>";
+        $form .=  "</form>";
+        return $form;
+    }
+    /*
+     * This is a helper function to create missing pincodes view for rm
+     * This Function contains the html for detailed view 
+     * Dynamically Javascript will change the number for this view
+     */
+    function get_missing_pincode_detailed_view(){
+        ?>
+        <div id="missingPincodeDetails" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Missing Pincodes Detailed View</h4>
+      </div>
+      <div class="modal-body">
+          <table class="table table-bordered" id="mssingPincodeTable">
+    <thead>
+      <tr>
+        <th>Pincode</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Service</th>
+        <th>PincodeCount</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+          </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+     <?php   
+    }
+    /*
+     * This is a helper function to create missing pincodes view for rm
+     * This function convert data (which we get directly from db) into a structured format
+     */
+    function get_missing_pincode_data_structured_format($pincodeResult){
+            $structuredArray = array();
+          foreach($pincodeResult as $key=>$data){   
+                    if(array_key_exists($data['pincode'], $structuredArray)){
+                              $structuredArray[$data['pincode']]['totalCount'] = $structuredArray[$data['pincode']]['totalCount']+$data['pincodeCount'];
+                    }
+                    else{
+                        
+                              $structuredArray[$data['pincode']]['totalCount'] = $data['pincodeCount'];
+                    }   
+                    $structuredArray[$data['pincode']]['pincode'] = $data['pincode'];
+                    $structuredArray[$data['pincode']]['city'] = $data['city'];
+                    $structuredArray[$data['pincode']]['state'] = $data['state'];
+                    $temp['service_id'] = $data['service_id'];
+                    $temp['pincodeCount'] = $data['pincodeCount'];
+                    $temp['service_name'] = $data['services'];
+                    $structuredArray[$data['pincode']]['service'][] = $temp;
+          }
+            return $structuredArray;
+    }
+    /*
+     * This function use to create the missing pincode RM view
+     * @input Limit - Number which defines how many records will get returned
+     * @output - Table View for missing pincodes 
+     */
+    function get_pincode_not_found_sf_details($limit=NULL){
+        $agentID = $this->session->userdata('id');
+        $pincodeResult =  $this->dashboard_model->get_pincode_data_for_not_found_sf($agentID,$limit);
+        $template = array(
+        'table_open' => '<table  '
+            . ' class="table table-striped table-bordered jambo_table bulk_action">'
+        );
+        $this->table->set_template($template);
+        $this->table->set_heading(array('S.N','Pincode', 'Pending Bookings','action'));
+        echo $this->get_pincode_form();
+        $this->get_missing_pincode_detailed_view();
+        $structuredPincodeArray = $this->get_missing_pincode_data_structured_format($pincodeResult);
+        $i=1;
+        foreach($structuredPincodeArray as $pincode=>$structuredData){   
+                   $this->table->add_row($i,$pincode,"<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>","<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"); 
+                   $i++;
+        }
+       
+        echo $this->table->generate();
+    }
+    /*
+     * This function use to create a dashboard for RM
+     */
+    function rm_dashboard(){
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/rm_dashboard');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    /*
+     * This function use to create full view of missing pincode table
+     */
+    function missing_pincode_full_view(){
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/missing_pincodes_full_view');
+        $this->load->view('dashboard/dashboard_footer');
+    }
     
 }

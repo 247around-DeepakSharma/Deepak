@@ -581,9 +581,11 @@ class Miscelleneous {
 
                             $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode']." For Appliance ". $appliance;
                             $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
+                            $message .= "To add Service center for the missing pincode please use below link <br/> "; 
+                            $message .= "<a href=".base_url()."employee/vendor/get_add_vendor_to_pincode_form/".$booking['booking_id'].">Add Service Center</a>";
 
                             $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
-                            
+                            $this->sf_not_exist_for_pincode(array('booking_id'=>$booking['booking_id'],'pincode'=>$booking['booking_pincode'],'city'=>$booking['city'],'service_id'=>$booking['service_id']));
                             return FALSE;
    
                         } else {
@@ -869,16 +871,11 @@ class Miscelleneous {
     function verified_applicance_capacity($appliances_details){
         switch ($appliances_details['service_id']){
             case '46':
-                $match = array();
-                preg_match('/[0-9]+/', $appliances_details['capacity'],$match);
-                if( !empty($match) && (strpos($appliances_details['description'],$match[0]) !== False) && (strpos($appliances_details['description'],$appliances_details['brand']) !== False)){
-                    $return_data['status'] = TRUE;
-                    $return_data['is_verified'] = '1';
-                }else{
-                    $return_data['status'] = FALSE;
-                    $return_data['is_verified'] = '0';
-                }
+                $return_data = $this->verifiy_tv_description($appliances_details);
                 break;
+            case '28':
+                $return_data = $this->verifiy_washing_machine_description($appliances_details);
+                break;    
             default :
                 $return_data['status'] = FALSE;
                 $return_data['is_verified'] = '0';
@@ -1000,7 +997,7 @@ class Miscelleneous {
      * 
      * 
      */
-    public function update_file_uploads($tmpFile, $type) {
+    public function update_file_uploads($tmpFile, $type, $result = "") {
         switch ($type) {
             case _247AROUND_SNAPDEAL_DELIVERED:
                 $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
@@ -1020,6 +1017,7 @@ class Miscelleneous {
                 break;
         }
         $data['agent_id'] = $this->My_CI->session->userdata('id');
+        $data['result'] = $result;
         
         $insert_id = $this->My_CI->partner_model->add_file_upload_details($data);
         
@@ -1095,5 +1093,93 @@ class Miscelleneous {
             return false;
         }
     }
-
+/*
+ * This Functiotn is used to map rm to pincode, for which SF not found
+ * if pincode does'nt have any rm then an email will goes to nitin
+ * @input - An associative array with keys(booking_id,pincode,city,applianceID)
+ */
+    function sf_not_exist_for_pincode($notFoundSfArray){
+          $pincode = $notFoundSfArray['pincode'];
+          $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
+FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('".$pincode."') GROUP BY india_pincode.pincode";
+          $result = $this->My_CI->booking_model->pincode_not_found_relevent_data($sql);
+          if(!empty($result)){
+                    $notFoundSfArray['rm_id'] =  $result[0]['rm_id'];
+                    $notFoundSfArray['state'] =  $result[0]['state'];
+                    $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
+          }
+          
+    }
+    
+    /**
+     * @desc This function is used to verify television appliance data
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verifiy_tv_description($appliances_details) {
+        $match = array();
+        $new_appliance_details = array();
+        
+        preg_match('/[0-9]+/', $appliances_details['capacity'], $match);
+        if (!empty($match) && (strpos($appliances_details['description'], $match[0]) !== False) && (strpos($appliances_details['description'], $appliances_details['brand']) !== False)) {
+            $new_appliance_details['category'] = $appliances_details['category'];
+            $new_appliance_details['capacity'] = $appliances_details['capacity'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
+        } else {
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
+    
+    /**
+     * @desc This function is used to verify washing_machine appliance data
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verifiy_washing_machine_description($appliances_details){
+        $new_appliance_details = array();
+        if(((stripos($appliances_details['description'],'semiautomatic') !== False) || (stripos($appliances_details['description'],'semi automatic') !== False) ) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+            $new_appliance_details['category'] = 'Semiautomatic';
+            $new_appliance_details['capacity'] = $appliances_details['capacity'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
+        }else if(((stripos($appliances_details['description'],'fullyautomatic') !== False) || (stripos($appliances_details['description'],'Fully Automatic') !== False) || (stripos($appliances_details['description'],'Fully Automatic') !== False)) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+                 if(stripos($appliances_details['description'],'front') !== False){
+                    $new_appliance_details['category'] = 'Front Load';
+                    $new_appliance_details['capacity'] = $appliances_details['capacity'];
+                    $new_appliance_details['brand'] = $appliances_details['brand'];
+                    $new_appliance_details['status'] = TRUE;
+                    $new_appliance_details['is_verified'] = '1';
+                 }else if(stripos($appliances_details['description'],'top') !== False){
+                    $new_appliance_details['category'] = 'Top Load';
+                    $new_appliance_details['capacity'] = $appliances_details['capacity'];
+                    $new_appliance_details['brand'] = $appliances_details['brand'];
+                    $new_appliance_details['status'] = TRUE;
+                    $new_appliance_details['is_verified'] = '1';
+                 }else{
+                    $new_appliance_details['status'] = FALSE;
+                    $new_appliance_details['is_verified'] = '0';
+                 }
+        }else{
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
+    /*
+     * This Function use to update sf_not_found_pincode table
+     * When we upload any new pincode and that pincode with same service_id exist in sf not found table, then this will update its active flag
+     */
+          function update_pincode_not_found_sf_table($pincodeServiceArray){
+              foreach($pincodeServiceArray as $key=>$values){
+                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL;
+              }
+              $this->My_CI->vendor_model->is_pincode_exist_in_not_found_sf_table($pincodeArray);
+          }
 }
