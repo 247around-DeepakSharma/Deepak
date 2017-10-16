@@ -446,7 +446,7 @@ class Around_scheduler_model extends CI_Model {
     
     function get_non_verified_appliance_description_data(){
         $this->db->select('*');
-        $this->db->where('is_verified',1);
+        $this->db->where('is_verified',0);
         $query = $this->db->get('appliance_product_description');
         return $query->result_array();
     }
