@@ -31,6 +31,7 @@
                         <th>Booked Queries</th>
                         <th>Outgoing Calls</th>
                         <th>Incoming Calls</th>
+                        <th>Rating</th>
                     </tr>
                     <tbody>
                         <?php foreach ($data as $key => $value) { ?>
@@ -40,10 +41,12 @@
                                 <td id="input_count"><?php echo $value['followup_to_pending']; ?></td>
                                 <td id="input_count"><?php echo $value['calls_placed']; ?></td>
                                 <td id="input_count"><?php echo $value['calls_recevied']; ?></td>
+                                <td id="input_count"><?php echo $value['rating']; ?></td>
                             </tr>
                         <?php } ?>
                         <tr class="totalColumn info">
                             <td><b>Total<b></td>
+                                        <td class="totalCol">-</td>
                                         <td class="totalCol">-</td>
                                         <td class="totalCol">-</td>
                                         <td class="totalCol">-</td>
@@ -93,31 +96,19 @@
                                         <!-- create chart using MySQL data -->
                                         <script>
                                             var agent_name = [];
-                                            //                                 var query_insert = [];
-                                            //                                 var query_update = [];
                                             var query_cancel = [];
                                             var query_booking = [];
-                                            //                                 var booking_insert = [];
-                                            //                                 var booking_cancel = [];
-                                            //                                 var booking_completed = [];
-                                            //                                 var booking_rescheduled = [];
-                                            //                                 var escalation = [];
                                             var calls_placed = [];
                                             var calls_received = [];
+                                            var ratings = [];
 
 <?php foreach ($data as $value) { ?>
                                                 agent_name.push("<?php echo $value['employee_id']; ?>");
-                                                //query_insert.push(parseInt("<?php //echo $value['new_query_to_followup']; ?>"));
-                                                //query_update.push(parseInt("<?php //echo $value['followup_to_followup']; ?>"));
                                                 query_cancel.push(parseInt("<?php echo $value['followup_to_cancel']; ?>"));
                                                 query_booking.push(parseInt("<?php echo $value['followup_to_pending']; ?>"));
-                                                //booking_insert.push(parseInt("<?php //echo $value['booking_insert']; ?>"));
-                                                //booking_cancel.push(parseInt("<?php //echo $value['pending_to_cancel']; ?>"));
-                                                //booking_completed.push(parseInt("<?php // echo $value['pending_to_completed']; ?>"));
-                                                //booking_rescheduled.push(parseInt("<?php // echo $value['pending_to_rescheduled']; ?>"));
-                                                //escalation.push(parseInt("<?php //echo $value['pending_to_escalation']; ?>"));
                                                 calls_placed.push(parseInt("<?php echo $value['calls_placed']; ?>"));
                                                 calls_received.push(parseInt("<?php echo $value['calls_recevied']; ?>"));
+                                                ratings.push(parseInt("<?php echo $value['rating']; ?>"));
 
 
 <?php } ?>
@@ -163,13 +154,6 @@
                                                     borderWidth: 0
                                                 },
                                                 series: [
-                                                    //                                            {
-                                                    //                                            name: 'Query Insert',
-                                                    //                                            data: query_insert
-                                                    //                                        }, {
-                                                    //                                            name: 'Query Update',
-                                                    //                                            data: query_update
-                                                    //                                        }, 
                                                     {
                                                         name: 'Cancelled Queries',
                                                         data: query_cancel
@@ -177,28 +161,15 @@
                                                         name: 'Booked Queries',
                                                         data: query_booking
                                                     },
-                                                    //                                        {
-                                                    //                                            name: 'Booking Insert',
-                                                    //                                            data: booking_insert
-                                                    //                                        }, {
-                                                    //                                            name: 'Booking Cancel',
-                                                    //                                            data: booking_cancel
-                                                    //                                        }, {
-                                                    //                                            name: 'Booking Completed',
-                                                    //                                            data: booking_completed
-                                                    //                                        }, {
-                                                    //                                            name: 'Booking Rescheduled',
-                                                    //                                            data: booking_rescheduled
-                                                    //                                        }, {
-                                                    //                                            name: 'Escalation',
-                                                    //                                            data: escalation
-                                                    //                                        }, 
                                                     {
                                                         name: 'Outgoing Calls',
                                                         data: calls_placed
                                                     }, {
                                                         name: 'Incoming Calls',
                                                         data: calls_received
+                                                    }, {
+                                                        name: 'Rating',
+                                                        data: ratings
                                                     }]
                                             });
 
