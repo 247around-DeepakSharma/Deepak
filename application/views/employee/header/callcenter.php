@@ -174,6 +174,18 @@
                             </ul>
                             <!-- /.dropdown-user -->
                         </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Reports <i class="fa fa-caret-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="<?php echo base_url() ?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
+                                </li>
+
+                            </ul>
+                            <!-- /.dropdown-user -->
+                        </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li>

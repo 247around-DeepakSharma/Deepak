@@ -1015,6 +1015,10 @@ class Miscelleneous {
                 $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
                 $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
                 break;
+            case _247AROUND_SF_PRICE_LIST:
+                $data['file_name'] = "Service-Price-List-" . date('Y-m-d-H-i-s') . '.xlsx';
+                $data['file_type'] = _247AROUND_SF_PRICE_LIST;
+                break;
         }
         $data['agent_id'] = $this->My_CI->session->userdata('id');
         $data['result'] = $result;
