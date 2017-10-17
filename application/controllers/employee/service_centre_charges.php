@@ -38,6 +38,7 @@ class service_centre_charges extends CI_Controller {
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_utilities');
         $this->load->library('notify');
+        $this->load->library("miscelleneous");
 
         $this->load->model('user_model');
         $this->load->model('booking_model');
@@ -183,39 +184,20 @@ class service_centre_charges extends CI_Controller {
             //Logging
             log_message('info', __FUNCTION__ . ' Processing of Service Price List Excel File started');
             
-            //Making process for file upload
             $tmpFile = $_FILES['file']['tmp_name'];
-            $price_file = "Service-Price-List-" . date('Y-m-d-H-i-s') . '.xlsx';
-            //move_uploaded_file($tmpFile, TMP_FOLDER . $price_file);
-
             //Processing File
             $response = $this->process_upload_service_price_file($tmpFile);
             
             //Adding Details in File_Uploads table as well
             if($response){
-                $data['file_name'] = $price_file;
-                $data['file_type'] = _247AROUND_SF_PRICE_LIST;
-                $data['agent_id'] = $this->session->userdata('id');
-                $insert_id = $this->partner_model->add_file_upload_details($data);
-                if (!empty($insert_id)) {
-                    //Logging success
-                    log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
-                } else {
-                    //Loggin Error
-                    log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
-                }
-
-                //Upload files to AWS
-                $bucket = BITBUCKET_DIRECTORY;
-                $directory_xls = "vendor-partner-docs/" . $price_file;
-                $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                //Logging
-                log_message('info', __FUNCTION__ . ' File has been uploaded in S3');
-
+                //save file and upload on s3
+                $this->miscelleneous->update_file_uploads($tmpFile, _247AROUND_SF_PRICE_LIST,FILE_UPLOAD_SUCCESS_STATUS);
                 $userSession = array('success' => "File Uploaded Successfully");
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
             }else{
+                //save file and upload on s3
+                $this->miscelleneous->update_file_uploads($tmpFile, _247AROUND_SF_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS);
                 $userSession = array('error' => 'Error In File Uploading. Please Try Again');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
