@@ -1596,7 +1596,7 @@ class Invoice extends CI_Controller {
                         'total_service_charge' => 0,
                         'total_additional_service_charge' => 0,
                         'service_tax' => 0,
-                        'parts_cost' => $invoice['meta']['taxable_value'],
+                        'parts_cost' => $invoice['meta']['total_taxable_value'],
                         'vat' => 0,
                         'total_amount_collected' => $invoice['meta']['sub_total_amount'],
                         'rating' => 0,
