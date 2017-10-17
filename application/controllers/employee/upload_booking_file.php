@@ -1272,12 +1272,21 @@ class Upload_booking_file extends CI_Controller {
      */
     private function upload_file_table_data($file_list, $no)
     {
+        if($file_list->result === FILE_UPLOAD_SUCCESS_STATUS){
+            $result = "<div class='label label-success'>$file_list->result</div>";
+        }else if($file_list->result === FILE_UPLOAD_FAILED_STATUS){
+            $result = "<div class='label label-danger'>$file_list->result</div>";
+        }else{
+            $result = $file_list->result;
+        }
+        
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".
         $file_list->file_name."'>$file_list->file_name</a>";
         $row[] = $file_list->agent_name;
         $row[] = date('d M Y H:i:s', strtotime($file_list->upload_date));
+        $row[] = $result;
         
         return $row;
     }
