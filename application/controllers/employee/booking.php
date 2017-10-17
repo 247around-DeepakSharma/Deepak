@@ -231,7 +231,6 @@ class Booking extends CI_Controller {
                         $this->booking_model->update_appliance_description_details($new_appliance_data,$appliance_where);
                     }
                     
-                    exit();
                 }
 
                 if (isset($appliance_id[$key])) {
