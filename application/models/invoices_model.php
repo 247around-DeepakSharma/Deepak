@@ -785,6 +785,7 @@ class invoices_model extends CI_Model {
 
             $meta['reverse_charge'] = 0;
             $meta['reverse_charge_type'] = 'N';
+            $meta['state_code'] = $this->get_state_code(array('state'=> $meta['state']))[0]['state_code'];
             $meta['sub_total_amount'] = round( $meta['sub_total_amount'], 0); 
             $meta['total_taxable_value'] = round( $meta['total_taxable_value'], 0);
             $meta['sgst_total_tax_amount'] = round($meta['sgst_total_tax_amount'], 0);
@@ -1281,7 +1282,7 @@ class invoices_model extends CI_Model {
             $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
             $meta['invoice_date'] = date("jS M, Y");
             $meta['reference_invoice_id'] = "";
-            
+            $meta['state_code'] = $this->get_state_code(array('state'=> $meta['state']))[0]['state_code'];
             $r_data['booking'] = $commission_charge;
             $r_data['meta'] = $meta;
             $r_data['upcountry'] = $upcountry_data;
