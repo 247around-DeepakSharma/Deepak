@@ -178,7 +178,7 @@ viewTemp = viewTemp+'</ul>';
         document.getElementById("value_holder").value = document.getElementById("value_holder").value+",,";
     }
     function resetValues(fieldNameArray){
-        fieldNameArray = ['area'];
+            fieldNameArray = ['area'];
          for(var x=0;x<fieldNameArray.length;x++){
                document.getElementById(fieldNameArray[x]).value='';
         }
