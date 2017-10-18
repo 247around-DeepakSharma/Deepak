@@ -10,9 +10,10 @@
         white-space: normal;
     }
 </style>
+<?php $rmID = $this->input->get('rm_id'); 
+$this->session->set_userdata('rm_id',$rmID);
+?>
 <div class="right_col" role="main" ng-app="rm_missing_pincode">
-    
-
     <div class="row" ng-controller="rm_missing_pincode_controller">
 
         <div class="clearfix"></div>
