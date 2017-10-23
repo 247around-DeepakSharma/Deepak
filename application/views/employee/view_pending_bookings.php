@@ -3,7 +3,7 @@
         text-align: right;
     }
     .col-md-3 {
-        width: 22%;
+        width: 19%;
     }
 
     @keyframes blink {
@@ -179,6 +179,18 @@
                 <div class="col-md-3">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
+                            <select class="form-control filter_table" id="city">
+                                <option value="" selected="selected" disabled="">Select City</option>
+                                <?php foreach($cities as $val){ ?>
+                                <option value="<?php echo $val['city']?>"><?php echo $val['city']?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
                             <input type="text" class="form-control filter_table" id="booking_date" placeholder="Booking Date">
                         </div>
                     </div>
@@ -280,6 +292,10 @@
         placeholder: "Select Appliance",
         allowClear: true
     });
+    $('#city').select2({
+        placeholder: "Select City",
+        allowClear: true
+    });
     $(document).ready(function(){
         
         datatable1 = $('#datatable1').DataTable({
@@ -306,6 +322,7 @@
                     d.sf_id =  $('#sf_id').val();
                     d.appliance =  $('#appliance').val();
                     d.booking_date =  $('#booking_date').val();
+                    d.city =  $('#city').val();
                  }
             },
             "deferRender": true,
