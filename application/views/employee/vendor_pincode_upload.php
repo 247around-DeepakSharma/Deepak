@@ -68,6 +68,7 @@
                                     <th>Download</th>
                                     <th>Uploaded By</th>
                                     <th>Uploaded Date</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
