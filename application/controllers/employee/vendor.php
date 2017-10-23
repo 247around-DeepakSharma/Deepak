@@ -15,6 +15,7 @@ require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php
 
 class vendor extends CI_Controller {
    var  $vendorPinArray = array();
+   var  $filePath = "";
     function __Construct() {
         parent::__Construct();
         $this->load->model('employee_model');
@@ -4389,11 +4390,11 @@ class vendor extends CI_Controller {
           function save_vendor_pin_code_file($tempName,$vendorID){
                     $msg = FALSE;
                     $bucket = BITBUCKET_DIRECTORY;
-                    $filePath = "vendor_pincode_mapping_".rand(10,100)."_".date('j-M-Y')."_".$vendorID.".xlsx";
-                    $directory_xls = "vendor-partner-docs/".$filePath;
+                    $this->filePath = "vendor_pincode_mapping_".rand(10,100)."_".date('j-M-Y')."_".$vendorID.".xlsx";
+                    $directory_xls = "vendor-partner-docs/".$this->filePath;
                     $is_success = $this->s3->putObjectFile($tempName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     if($is_success){
-                              $affected_rows =  $this->vendor_model->vendor_pin_code_uploads_insert("file_uploads",array("file_name"=>$filePath,"file_type"=>"vendor_pincode_".$vendorID,"agent_id"=>$this->session->userdata['id']));
+                              $affected_rows =  $this->vendor_model->vendor_pin_code_uploads_insert("file_uploads",array("file_name"=>$this->filePath,"file_type"=>"vendor_pincode_".$vendorID,"agent_id"=>$this->session->userdata['id']));
                               if($affected_rows>0){
                                         $msg =  TRUE; 
                               }
@@ -4564,10 +4565,15 @@ class vendor extends CI_Controller {
                               if($is_saved == 1){
                                         $msgVerfied = $this->is_vendor_pin_code_file_valid($_FILES,$vendorID);
                                         if($msgVerfied == 1){
+                                                       $fileStatus = 'Failure';
                                                        $this->manage_pincode_not_found_sf_table();
                                                        $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($_FILES,$vendorID);
+                                                       if($finalMsg == 'Successfully Done'){
+                                                           $fileStatus = 'Success';
+                                                       }
                                         }
                                         else{
+                                                  $fileStatus = 'Invalid';
                                                   $finalMsg =  $msgVerfied;
                                         }
                               }
@@ -4578,6 +4584,7 @@ class vendor extends CI_Controller {
                     else{
                         
                     }
+                    $this->vendor_model->update_file_status($fileStatus,$this->filePath);
                     $msg['final_msg'] = $finalMsg;
                     $this->session->set_userdata($msg);
                     redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
