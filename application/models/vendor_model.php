@@ -1844,4 +1844,11 @@ class vendor_model extends CI_Model {
           $query = $this->db->get('service_centres');
           return $query->result_array();
      }
+     
+     function update_file_status($status,$fileName){
+         $data=array('result'=>$status);
+         $this->db->where('file_name',$fileName);
+        $this->db->update("file_uploads",$data);
+        echo $this->db->last_query();
+     }
 }
