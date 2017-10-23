@@ -384,7 +384,7 @@ class Upcountry_model extends CI_Model {
             $invoice_check =" AND upcountry_vendor_invoice_id IS NULL ";
         }
         
-        $sql = "SELECT DISTINCT ( bd.booking_id) As booking_id, "
+        $sql = "SELECT DISTINCT ( bd.booking_id) As booking_id, 'Upcountry Services' AS product_or_services, "
                 . " upcountry_distance, bd.city, services, "
                 . " '0.00' AS additional_charges, "
                 . " '0.00' AS parts_cost, "

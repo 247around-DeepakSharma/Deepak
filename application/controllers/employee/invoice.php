@@ -1798,8 +1798,10 @@ class Invoice extends CI_Controller {
                     $invoices['meta']['r_sc'] += $value['service_charges'];
                     $invoices['meta']['r_asc'] += $value['additional_charges'];
                     $invoices['meta']['r_pc'] += $value['parts_cost'];
-                    if($value['product_or_services'] == "Product"){
-                        $parts_count++;
+                    if(isset($value['product_or_services'])){
+                        if($value['product_or_services'] == "Product"){
+                            $parts_count++;
+                        }
                     }
                    
                     $total_amount_paid += $value['amount_paid'];

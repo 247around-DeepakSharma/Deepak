@@ -3,9 +3,8 @@
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
-
-error_reporting(E_ALL);
 ini_set('display_errors', '1');
+error_reporting(E_ALL);
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
 
@@ -2369,10 +2368,13 @@ class vendor extends CI_Controller {
                 if($booking_id != NULL){
                             $booking_data  = $this->booking_model->getbooking_history($booking_id);
                             $data['pincode'] = $booking_data[0]['booking_pincode'];
-                            $data['selected_appliance'][0] = array('service_id'=>$booking_data[0]['service_id'],'service_name'=>$booking_data[0]['services']);
-                            $data['all_appliance'] = $this->booking_model->selectservice();
-                            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
-                            $this->load->view('employee/add_vendor_to_pincode',$data);
+                            $pincodeAvaliablity = $this->is_pincode_available_in_india_pincode_table($data['pincode']);
+                            if($pincodeAvaliablity){
+                                    $data['selected_appliance'][0] = array('service_id'=>$booking_data[0]['service_id'],'service_name'=>$booking_data[0]['services']);
+                                    $data['all_appliance'] = $this->booking_model->selectservice();
+                                    $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
+                                    $this->load->view('employee/add_vendor_to_pincode',$data);
+                            }
                 }
 
     }
@@ -4580,7 +4582,6 @@ class vendor extends CI_Controller {
                     $this->session->set_userdata($msg);
                     redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
           }
-         
           /*
            * This function use to create pincode update form when data comes from rm dashboard
            * @input - post data pincode and service related to that pincode in json format
@@ -4588,15 +4589,57 @@ class vendor extends CI_Controller {
            */
           function insert_pincode_form(){
             $data = $this->input->post();
-            if(!empty(json_decode($data['service']))){
-                   $data['selected_appliance'] = json_decode($data['service'],TRUE);
-            }
-            $data['all_appliance'] = $this->booking_model->selectservice();
-            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-            $this->load->view('employee/add_vendor_to_pincode',$data);
+            $pincodeAvaliablity = $this->is_pincode_available_in_india_pincode_table($data['pincode']);
+                    if($pincodeAvaliablity){
+                            if(!empty(json_decode($data['service']))){
+                                   $data['selected_appliance'] = json_decode($data['service'],TRUE);
+                            }
+                            $data['all_appliance'] = $this->booking_model->selectservice();
+                            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
+                            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                            $this->load->view('employee/add_vendor_to_pincode',$data);
+                    }
           }
           
+          function is_pincode_available_in_india_pincode_table($pincode){
+                  $state  =   $this->vendor_model->get_state_from_india_pincode($pincode);
+                  if(empty($state['state'])){
+                     $states  =   $this->vendor_model->getall_state();
+                     $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                     $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states));
+                     return false;
+                  }
+                  else{
+                      return true;
+                  }
+          }
+          
+          function add_new_pincode(){
+               $data = $this->input->post();
+               $pincode = $data['pincode'];
+               $state = $data['states'];
+               $areaArray = explode(",,,",$data['value_holder']);
+               $length = count($areaArray);
+               for($i=0;$i<$length;$i++){
+                   $singleAreaArray = explode(",",$areaArray[$i]);
+                   for($j=0;$j<count($singleAreaArray);$j++){
+                              $tempArray['district'] = $singleAreaArray[0];
+                              $tempArray['taluk'] = $singleAreaArray[1];
+                              $tempArray['region'] = $singleAreaArray[2];
+                              $tempArray['division'] = $singleAreaArray[3];
+                              $tempArray['area'] = $singleAreaArray[4   ];
+                              $tempArray['state'] = $state;
+                              $tempArray['pincode'] = $pincode;
+                   }
+                   $insertArray[] = $tempArray;
+               }
+               $insertResult = $this->vendor_model->insert_india_pincode_in_batch($insertArray);
+               if($insertResult){
+                   $finalMsg = $insertResult." Rows has been inserted for the pincode ".$pincode." , Now You can assign SF to ".$pincode;
+                   $this->session->set_userdata('pincode_msg',$finalMsg);
+                   redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
+               }
+          }  
     function save_file_into_database($newZipFileName, $csv, $status) {
         //Adding Details in File_Uploads table as well
         $data_uploads['file_name'] = "vendor_pincode_mapping_temp_" . date('j-M-Y') . ".zip";
@@ -4624,6 +4667,5 @@ class vendor extends CI_Controller {
         unlink($csv);
         unlink($newZipFileName);
     }
-
 }
 
