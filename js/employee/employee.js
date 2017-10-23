@@ -56,7 +56,7 @@ var ad_table;
         });
         
         
-        ad_table = $('#datatable1').DataTable({
+        ad_table = $('#datatable2').DataTable({
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
