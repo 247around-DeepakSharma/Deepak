@@ -746,4 +746,11 @@ class Dashboard extends CI_Controller {
         }
         echo $this->table->generate();
     }
+    
+    function download_missing_sf_pincode_excel($rmID){
+        ob_start();
+        $pincodeArray =  $this->dashboard_model->get_pincode_data_for_not_found_sf($rmID);
+        $config = array('template' => "missing_sf_pincode.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
+        $this->miscelleneous->downloadExcel($pincodeArray,$config);
+    }
 }

@@ -27,6 +27,7 @@
         <link href="https://cdn.datatables.net/buttons/1.4.0/css/buttons.dataTables.min.css" rel="stylesheet">
         <script src="<?php echo base_url() ?>js/jquery.min.js"></script>
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
+        <script src="<?php echo base_url();?>js/employee/employee.js"></script>
          <link href="<?php echo base_url()?>css/select2.min.css" rel="stylesheet" />
         <!-- Highchart.js -->
         <script src="https://code.highcharts.com/highcharts.js"></script>
