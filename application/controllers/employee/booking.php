@@ -2583,6 +2583,7 @@ class Booking extends CI_Controller {
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',array('is_active'=> '1'));
         $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
         $data['services'] = $this->booking_model->selectservice();
+        $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         
         if(strtolower($data['booking_status']) == 'pending'){
@@ -2670,6 +2671,7 @@ class Booking extends CI_Controller {
         $ratings = $this->input->post('ratings');
         $appliance = $this->input->post('appliance');
         $booking_date = $this->input->post('booking_date');
+        $city = $this->input->post('city');
         
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
@@ -2722,8 +2724,12 @@ class Booking extends CI_Controller {
             $post['where']['booking_details.booking_date = '] =  trim($booking_date);
         }
         
+        if(!empty($city)){
+            $post['where']['booking_details.city = '] =  trim($city);
+        }
+        
         $post['column_order'] = array('booking_day');
-        $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks','booking_unit_details.appliance_brand','booking_unit_details.appliance_category','booking_unit_details.appliance_description');
+        $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks','booking_unit_details.appliance_brand','booking_unit_details.appliance_category','booking_unit_details.appliance_description','booking_details.city');
         
         return $post;
     }
@@ -3121,6 +3127,7 @@ class Booking extends CI_Controller {
         $data['booking_id'] = trim($booking_id);
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',array('is_active'=> '1'));
         $data['services'] = $this->booking_model->selectservice();
+        $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/view_pending_queries', $data);
     }
