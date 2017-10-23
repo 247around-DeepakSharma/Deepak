@@ -61,7 +61,7 @@
                     
                     <div class="col-md-12" style="margin-top:20px;">
                         <h3>File Upload History</h3>
-                        <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                        <table id="datatable_upload_pincode" class="table table-striped table-bordered table-hover" style="width: 100%;">
                             <thead>
                                 <tr>
                                     <th>S.No.</th>
@@ -85,7 +85,7 @@
         $(document).ready(function () {
 
             //datatables
-            table = $('#datatable1').DataTable({
+            table = $('#datatable_upload_pincode').DataTable({
                 processing: true, //Feature control the processing indicator.
                 serverSide: true, //Feature control DataTables' server-side processing mode.
                 order: [], //Initial no order.
