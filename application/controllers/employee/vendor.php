@@ -4625,19 +4625,16 @@ class vendor extends CI_Controller {
                $data = $this->input->post();
                $pincode = $data['pincode'];
                $state = $data['states'];
-               $areaArray = explode(",,,",$data['value_holder']);
-               $length = count($areaArray);
+               $districtArray = explode(",",$data['district']);
+               $length = count($districtArray);
                for($i=0;$i<$length;$i++){
-                   $singleAreaArray = explode(",",$areaArray[$i]);
-                   for($j=0;$j<count($singleAreaArray);$j++){
-                              $tempArray['district'] = $singleAreaArray[0];
-                              $tempArray['taluk'] = $singleAreaArray[1];
-                              $tempArray['region'] = $singleAreaArray[2];
-                              $tempArray['division'] = $singleAreaArray[3];
-                              $tempArray['area'] = $singleAreaArray[4   ];
+                              $tempArray['district'] = $districtArray[$i];
+                              $tempArray['taluk'] = $districtArray[$i];
+                              $tempArray['region'] = $districtArray[$i];
+                              $tempArray['division'] = $districtArray[$i];
+                              $tempArray['area'] = $districtArray[$i];
                               $tempArray['state'] = $state;
                               $tempArray['pincode'] = $pincode;
-                   }
                    $insertArray[] = $tempArray;
                }
                $insertResult = $this->vendor_model->insert_india_pincode_in_batch($insertArray);

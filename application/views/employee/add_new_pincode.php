@@ -11,7 +11,7 @@
     padding: 20px 0px;
     }
     .view_container{
-        width: 185.7px;
+        width: 557px;
         text-align: center; 
     }
     .ul_holder{
@@ -20,7 +20,6 @@
     margin: 10px;
     }
     #view_display_holder{
-        border: 1px solid #2c9d9c;
     margin: 10px;
     padding: 0px;
     }
@@ -29,17 +28,10 @@
 <div class="container" >
 <div class="panel panel-info" style="margin-top:20px;">
     <div class="panel-heading"style="text-align:center;font: bold 20px/28px Arial"><b>Before Assigning the SF to Pincode, Please enter Pincode details</b></div>
-    <div id="view_display_holder">
-    <ul class="list-inline ul_holder" style="margin: 0px auto;background: #2c9d9c;border: 0px;">
-        <li class="list-inline-item view_container" ><b>District</b></li>
-        <li class="list-inline-item view_container" style="margin-left: -4px;"><b>Taluk</b></li>
-        <li class="list-inline-item view_container" style="margin-left: -4px;"><b>Region</b></li>
-        <li class="list-inline-item view_container" style="margin-left: -4px;"><b>Division</b></li>
-        <li class="list-inline-item view_container" style="margin-left: -4px;"><b>Area</b></li>
-        <li class="list-inline-item view_container" style="margin-left: -3.6px;"><b>Cancel</b></li>
-</ul>
+        <div id="view_display_holder">
         <div style="clear:both"></div>
     </div>
+
  <div class="panel-body">
      <div style="clear:both"></div>
         	<div class="row">
@@ -48,7 +40,7 @@
                     <div class="form-group">
                            <label for="pincode" class="col-md-4">Pincode*</label>
                            <div class="col-md-6">
-                               <input type="text" class="form-control" id="pincode" name="pincode" value = "<?php if (isset($pincode)) {echo $pincode; } ?>" readonly="" required>
+                               <input type="text" class="form-control" id="pincode" name="pincode" <?php if (isset($pincode)) { echo "value =".$pincode." readonly='' required";   } ?>>
                            </div>
                         </div>  
                      <div class="form-group <?php if( form_error('vendor_id') ) { echo 'has-error';} ?>">
@@ -66,43 +58,17 @@
                         </div> 
                        <div class="repeat_input_container">
                            <div class="form-group">
-                           <label for="district" class="col-md-4">District*</label>
+                           <label for="district" class="col-md-4">District/City*</label>
                            <div class="col-md-6">
                                <input type="text" class="form-control" id="district" name="district" value = "">
+                                <input style='float:right;margin-top: 16px;' type="button" id="submitform" class="btn btn-info " onclick="addNewInputFields()" value="Add More District/City"/>
                            </div>
-                        </div>  
-                           <div class="form-group">
-                           <label for="taluk" class="col-md-4">Taluk*</label>
-                           <div class="col-md-6">
-                               <input type="text" class="form-control" id="taluk" name="taluk" value = "" >
-                           </div>
-                        </div>  
-                           <div class="form-group">
-                           <label for="region" class="col-md-4">Region*</label>
-                           <div class="col-md-6">
-                               <input type="text" class="form-control" id="region" name="region" value = "" >
-                           </div>
-                        </div>  
-                           <div class="form-group">
-                           <label for="division" class="col-md-4">Division*</label>
-                           <div class="col-md-6">
-                               <input type="text" class="form-control" id="division" name="division" value = "">
-                           </div>
-                        </div> 
-                           <div class="form-group">
-                           <label for="area" class="col-md-4">Area*</label>
-                           <div class="col-md-6">
-                               <input type="text" class="form-control" id="area" name="area" value = "" >
-                           </div>
-                        </div>  
-                           <input type="hidden" id="value_holder" value="" name="value_holder">
-                           <p id="last_value_holder" style="display:none;"></p>
+                        </div>
                        </div>
                    </div>
                </form>
                     <div class="button_container">
-                        <input style='float:left;' type="button" id="submitform" class="btn btn-info " onclick="addNewInputFields()" value="Add More Area"/>
-                        <input style='float:right' type="button" id="submitform" class="btn btn-info " onclick="savePincode()" value="Save"/>
+                        <input type="button" id="submitform" class="btn btn-info " onclick="savePincode()" value="Save"/>
                     </div>
                         
   </div>
@@ -111,106 +77,58 @@
 </div>
 </div>
 <script type="text/javascript">
-    function checkNotEmpty(fieldNameArray){
-        var state = document.getElementById("states").value;
-        if(!state){
-            alert("Please Select the state");
-                    return false;
+    var district = [];
+    function isEmpty(id){
+        var value = document.getElementById(id).value;
+        if(!value){
+            alert(id+" Should Not be blank");
+            return false;
         }
-        else{
-            document.getElementById("states").readOnly = true;
-        }
-        for(var i=0;i<fieldNameArray.length;i++){
-               var value = document.getElementById(fieldNameArray[i]).value;
-               if(!value){
-                  alert(fieldNameArray[i]+" Should not be blank");
-                    return false;
-               }
-        }
-        return true;
+        return value;
     }
-    function deleteDetails(rowNumber){
-         var all_old_values = document.getElementById("value_holder").value;
-         var temp = [];
-        temp = all_old_values.split(",,,");
-        headingHolder = '<ul class="list-inline ul_holder" style="margin: 0px auto;background: #2c9d9c;border: 0px;">';
-        headingHolder = headingHolder+'<li class="list-inline-item view_container" ><b>District</b></li>';
-        headingHolder = headingHolder+'<li class="list-inline-item view_container" ><b>Taluk</b></li>';
-        headingHolder = headingHolder+'<li class="list-inline-item view_container" ><b>Region</b></li>';
-        headingHolder = headingHolder+'<li class="list-inline-item view_container"><b>Division</b></li>';
-        headingHolder = headingHolder+'<li class="list-inline-item view_container" ><b>Area</b></li>';
-        headingHolder = headingHolder+' <li class="list-inline-item view_container" style="margin-left:-4px;"><b>Cancel</b></li>';
-        headingHolder = headingHolder+'</ul>';
-        headingHolder = headingHolder+'<div style="clear:both"></div>';
-        document.getElementById("view_display_holder").innerHTML=headingHolder;
-        document.getElementById("value_holder").value='';
-        document.getElementById("last_value_holder").innerHTML='';
-        for(var m=0;m<(temp.length-1);m++){
-            if(m != (rowNumber-1)){
-           document.getElementById("value_holder").value = document.getElementById("value_holder").value+temp[m]+",,,";
-           document.getElementById("last_value_holder").innerHTML = temp[m];
-           createView();
-       }
-         }
-     }
+     function cancel(index){
+            district.splice(index, 1);
+            createView();
+    }
     function createView(){
-      var old_values = document.getElementById("last_value_holder").innerHTML;
-      var ul_count = document.getElementsByClassName("ul_holder").length;
-      viewArray = old_values.split(",");
-      var viewTemp='';
-      viewTemp = '<ul class="list-inline ul_holder" style="">';
-      viewTemp = viewTemp+ '<li class="list-inline-item view_container" style="width: 181px;">'+viewArray[0]+'</li>';
-      viewTemp = viewTemp+ '<li class="list-inline-item view_container" style="width: 181px;">'+viewArray[1]+'</li>';
-      viewTemp = viewTemp+ '<li class="list-inline-item view_container" style="width: 181px;">'+viewArray[2]+'</li>';
-      viewTemp = viewTemp+ ' <li class="list-inline-item view_container" style="margin-left: -4px;width: 181px;">'+viewArray[3]+'</li>';
-      viewTemp = viewTemp+ '<li class="list-inline-item view_container" style="width: 181px;">'+viewArray[4]+'</li>';
-      viewTemp = viewTemp+ '<li class="list-inline-item view_container" onclick=deleteDetails('+ul_count+')><span class="glyphicon glyphicon-remove-circle"></span></li>';
-viewTemp = viewTemp+'</ul>';
-       document.getElementById("view_display_holder").innerHTML = document.getElementById("view_display_holder").innerHTML+viewTemp;
-    }
-    function setElementValuesArray(fieldNameArray){
-        document.getElementById("last_value_holder").innerHTML = "";
-        for(var x=0;x<fieldNameArray.length;x++){
-               var fieldValue = document.getElementById(fieldNameArray[x]).value;
-               document.getElementById("value_holder").value = document.getElementById("value_holder").value+fieldValue+",";
-               document.getElementById("last_value_holder").innerHTML = document.getElementById("last_value_holder").innerHTML+fieldValue+",";
+        document.getElementById("view_display_holder").style.border = "1px solid #2c9d9c";
+        var view = '<ul class="list-inline ul_holder" style="margin: 0px auto;background: #2c9d9c;border: 0px;">';
+        var view = view+'<li class="list-inline-item view_container" ><b>City/District</b></li>';
+        var view = view+'<li class="list-inline-item view_container" style="margin-left: -3.6px;"><b>Cancel</b></li>';
+        var view = view+'</ul>';
+        var length = district.length;
+        for(var i = 0;i<length;i++){
+            var view = view+'<ul class="list-inline ul_holder" style="margin: 0px auto;border: 0px;">';
+            view = view+'<li class="list-inline-item view_container" >'+district[i]+'</li>';
+            view = view+'<li class="list-inline-item view_container" onclick="cancel('+i+')">Cancel</li>';
+            view = view+'</ul>';
+            view = view+'<hr style="margin: 0px;">';
         }
-        document.getElementById("value_holder").value = document.getElementById("value_holder").value+",,";
-    }
-    function resetValues(fieldNameArray){
-            fieldNameArray = ['area'];
-         for(var x=0;x<fieldNameArray.length;x++){
-               document.getElementById(fieldNameArray[x]).value='';
-        }
+        document.getElementById("view_display_holder").innerHTML = view;
     }
     function addNewInputFields(){
-        var fieldNameArray = ['district','taluk','region','division','area'];
-        var is_empty = checkNotEmpty(fieldNameArray);
-        if(is_empty){
-           setElementValuesArray(fieldNameArray); 
-           resetValues(fieldNameArray);
-           createView();
-        }
+             districtValue = isEmpty("district");
+             if(districtValue){
+                    var length = district.length;
+                    district[length] = document.getElementById("district").value;
+                    document.getElementById("district").value = '';
+                    document.getElementById("states").disabled = true;
+                    createView();
+        } 
     }
- 
-    function savePincode(){
-        var state = document.getElementById("states").value;
-        if(!state){
-            alert("Please Select the state");
-             return false;
-        }
-        var fieldNameArray = ['district','taluk','region','division','area'];
-            var is_empty = checkNotEmpty(fieldNameArray);
-            if(is_empty){
-                 for(var x=0;x<fieldNameArray.length;x++){
-                        var fieldValue = document.getElementById(fieldNameArray[x]).value;
-                        document.getElementById("value_holder").value = document.getElementById("value_holder").value+fieldValue+",";
-                        document.getElementById("last_value_holder").innerHTML = document.getElementById("last_value_holder").innerHTML+fieldValue+",";
-                     }
-                }
-                else{
-                    return false;
-                }
-      document.getElementById("pincode_form").submit();
+    function savePincode(){  
+        var  stateValue  = isEmpty("states");
+        var  pincode  = isEmpty("pincode");
+        if(stateValue && pincode){
+            var length = district.length;
+             if(length>0){
+                document.getElementById("district").value = district.toString();
+                document.getElementById("states").disabled = false;
+                document.getElementById("pincode_form").submit();
+             }
+             else{
+                 alert("Please Add atleast 1 District/City");
+             }
+    }
     }
     </script>
