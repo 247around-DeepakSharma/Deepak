@@ -1014,7 +1014,7 @@
                                         ?>">
                                         <label  for="bank_name" class="col-md-4">Bank Name</label>
                                         <div class="col-md-6">
-                                            <select class="form-control" id="bank_name" name="bank_name">
+                                            <select class="form-control" id="bank_name" name="bank_name" onchange="manageAccountNameField(this.value)" >
                                                 <option selected disabled>Select Bank</option>
                                                 <?php foreach($results['bank_name'] as $key => $value) { ?> 
                                                 <option value="<?php echo $value['bank_name']; ?>" 
@@ -1054,7 +1054,7 @@
                                         ?>">
                                         <label for="bank_account" class="col-md-4">Bank Account</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control allowNumericWithDecimal"  id = "bank_account" name="bank_account" value = "<?php
+                                            <input type="text" class="form-control allowNumericWithDecimal" <?php if (!isset($query[0]['bank_name'])) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
                                                 if (isset($query[0]['bank_account'])) {
                                                     echo $query[0]['bank_account'];
                                                 }
@@ -1273,6 +1273,9 @@
 </div>
 <?php $this->session->unset_userdata('checkbox')?>
 <script type="text/javascript">
+    function manageAccountNameField(value){
+        document.getElementById("bank_account").disabled = false;
+    }
     /*$(".js-example-placeholder-single").select2({
       placeholder: "Select a state",
       allowClear: true
@@ -1644,6 +1647,6 @@
             }
 
         });
-    });
+    }); 
     
 </script>
