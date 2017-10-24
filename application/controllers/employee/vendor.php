@@ -4411,7 +4411,7 @@ class vendor extends CI_Controller {
           }
           
           function is_file_less_then_size($fileSize){
-                    $msg = "File Size is more then 2 MB";
+                    $msg = "File Size Should be less then 2 MB";
                     $MB = 1048576;
                     if ($fileSize > 0 && $fileSize < 2 * $MB) {
                               $msg = TRUE;
@@ -4428,40 +4428,21 @@ class vendor extends CI_Controller {
                     }
                     return $readerVersion;
           }
-          function excel_to_Array_converter($file,$readerVersion){
-                    $objReader = PHPExcel_IOFactory::createReader($readerVersion);
-                    $objPHPExcel = $objReader->load($file['file']['tmp_name']);
-                    $sheet = $objPHPExcel->getSheet(0);
-                    $highestRow = $sheet->getHighestDataRow();
-                    $highestColumn = $sheet->getHighestDataColumn();
-                    $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
-                    $heading = str_replace(array("/", "(", ")", " ", "."), "", $headings[0]);
-                    $newHeading[0][0] = str_replace(array(" "), "_", $heading);
-                    $excelDataArray=array();
-                    for($i=2;$i<=$highestRow;$i++){
-                              $excelDataArray[] = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
-                    }
-                    $finalExcelDataArray = array_merge($newHeading, $excelDataArray);
-                    return $finalExcelDataArray;
-          }
           
           function is_file_contains_only_valid_vendor($vendorID,$excelDataArray){
                     $msg = TRUE;
                     foreach($excelDataArray as $index=>$data){
-                              if($index>0){
-                                                  if($data[0][1] != $vendorID){
-                                                            $msg = "This file Contains more then 1 Vendor Please check file and upload it after correction";
-                                                  }
-                              }
+                            if($data['vendor_id'] != $vendorID){
+                                      $msg = "File Contains more then 1 Vendor, Error at line ".($index+2);
+                            }
                    }
                    return $msg;
           }
           
           function is_uploded_file_blank($excelDataArray){
                     $msg = TRUE;
-                    $length = count($excelDataArray);
-                    if($length<2){
-                              $msg = "File does not contains any records";
+                    if(empty($excelDataArray)){
+                              $msg = "File Does'nt Contains Any Record";
                     }
                    return $msg;
           }
@@ -4469,13 +4450,30 @@ class vendor extends CI_Controller {
           function is_pin_code_valid($excelDataArray){
                     $msg = TRUE;
                     foreach($excelDataArray as $index=>$data){
-                              if($index>0){
-                                    if(strlen($data[0][6]) != 6){
-                                              $msg = "This file Contains invalid pincodes";
-                                    }
-                              }
+                            if(strlen($data['pincode']) != 6){
+                                      $msg = "File Contains invalid pincode. Error at line ".($index+2);
+                            }
+                            else{
+                                if(!is_numeric($data['pincode'])){
+                                    $msg = "File Contains invalid pincode. Error at line ".($index+2);
+                                }
+                            }
                    }
                    return $msg;
+          }
+          function is_pincode_service_area_unique($excelDataArray){
+              $msg = true;
+              $tempArray = array();
+              foreach($excelDataArray as $index=>$data){
+                    $uniqueString = $data['pincode'].",".$data['area'].",".$data['appliance_id'];
+                    if(array_key_exists($uniqueString, $tempArray)){
+                              $msg = "Pincode, Appliance_ID, Area Combination Should be unique. Error at line ".($index+2);
+                    }
+                    else{
+                        $tempArray[$uniqueString] = NULL;
+                    }
+             }
+             return $msg;
           }
           
           function  is_vendor_pin_code_file_valid($file,$vendorID){
@@ -4484,13 +4482,19 @@ class vendor extends CI_Controller {
                               $msg['size'] = $this->is_file_less_then_size($file['file']['size']);
                                         if($msg['size'] == 1){
                                                   $readerVersion = $this->get_excel_reader_version($file['file']['name']);
-                                                  $this->vendorPinArray =  $this->excel_to_Array_converter($file,$readerVersion);
+                                                  $this->vendorPinArray =  $this->miscelleneous->excel_to_Array_converter($file,$readerVersion);
                                                   $msg['blank'] = $this->is_uploded_file_blank($this->vendorPinArray);
                                                   if($msg['blank'] == 1){
                                                             $msg['vendor'] = $this->is_file_contains_only_valid_vendor($vendorID,$this->vendorPinArray );  
                                                             if($msg['vendor']){
                                                                        $msg['pin_code'] = $this->is_pin_code_valid($this->vendorPinArray);
-                                                                       return $msg['pin_code'];
+                                                                       if($msg['pin_code']){
+                                                                                $msg['unique_combination'] = $this->is_pincode_service_area_unique($this->vendorPinArray);
+                                                                                          return $msg['unique_combination'];
+                                                                       }
+                                                                       else{
+                                                                                return $msg['pin_code'];
+                                                                       }
                                                             }
                                                             else{
                                                                       return $msg['vendor'];
@@ -4513,19 +4517,17 @@ class vendor extends CI_Controller {
                     if($deleteMsg == TRUE){
                               $finalInsertArray = array();
                               foreach($this->vendorPinArray as $key=>$data){
-                                        if($key>0){
-                                                  $insertArray['Vendor_Name'] = $data[0][0];
-                                                  $insertArray['Vendor_ID'] = $data[0][1];
-                                                  $insertArray['Appliance'] = $data[0][2];
-                                                  $insertArray['Appliance_ID'] = $data[0][3];
-                                                  $insertArray['Brand'] = $data[0][4];
-                                                  $insertArray['Area'] = $data[0][5];
-                                                  $insertArray['Pincode'] = $data[0][6];
-                                                  $insertArray['Region'] = $data[0][7];
-                                                  $insertArray['City'] = $data[0][8];
-                                                  $insertArray['State'] = $data[0][9];
-                                                  $finalInsertArray[] = $insertArray;
-                                        }
+                                        $insertArray['Vendor_Name'] = $data['vendor_name'];
+                                        $insertArray['Vendor_ID'] = $data['vendor_id'];
+                                        $insertArray['Appliance'] = $data['appliance'];
+                                        $insertArray['Appliance_ID'] = $data['appliance_id'];
+                                        $insertArray['Brand'] = $data['brand'];
+                                        $insertArray['Area'] = $data['area'];
+                                        $insertArray['Pincode'] = $data['pincode'];
+                                        $insertArray['Region'] = $data['region'];
+                                        $insertArray['City'] = $data['city'];
+                                        $insertArray['State'] = $data['state'];
+                                        $finalInsertArray[] = $insertArray;
                               }
                               if(!empty($finalInsertArray)){
                                        $affectedRows =  $this->vendor_model->insert_vendor_pincode_in_bulk($finalInsertArray);
@@ -4533,7 +4535,7 @@ class vendor extends CI_Controller {
                                                   return "Successfully Done";
                                        }
                                        else{
-                                                  return "Something Wrong Happens";
+                                                  return "Something Went Wrong Please Contact to admin";
                                        }
                               }
                     }
@@ -4544,11 +4546,9 @@ class vendor extends CI_Controller {
           
           function manage_pincode_not_found_sf_table(){
               foreach($this->vendorPinArray as $key=>$values){
-                    if($key>0){
-                        $temp['Pincode'] = $values[0][6];
-                        $temp['Appliance_ID'] = $values[0][3];
+                        $temp['Pincode'] = $values['pincode'];
+                        $temp['Appliance_ID'] = $values['appliance_id'];
                         $pincodeServiceArray[] = $temp;
-                    }
               }
               $this->miscelleneous->update_pincode_not_found_sf_table($pincodeServiceArray);
           }

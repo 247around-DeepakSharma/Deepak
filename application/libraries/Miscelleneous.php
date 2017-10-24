@@ -1188,4 +1188,28 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
               }
               $this->My_CI->vendor_model->is_pincode_exist_in_not_found_sf_table($pincodeArray);
           }
+          /*
+           * This Function convert excel data into array, 1st row of excel data will be keys of returning array
+           * @input - filePath and reader Version
+           */
+          function excel_to_Array_converter($file,$readerVersion){
+                    $finalExcelDataArray = array();
+                    $objReader = PHPExcel_IOFactory::createReader($readerVersion);
+                    $objPHPExcel = $objReader->load($file['file']['tmp_name']);
+                    $sheet = $objPHPExcel->getSheet(0);
+                    $highestRow = $sheet->getHighestDataRow();
+                    $highestColumn = $sheet->getHighestDataColumn();
+                    $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+                    $heading = str_replace(array("/", "(", ")", " ", "."), "", $headings[0]);
+                    $newHeading = str_replace(array(" "), "_", $heading);
+                    $excelDataArray=array();
+                    for($i=2;$i<=$highestRow;$i++){
+                              $excelDataArray = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
+                              foreach($excelDataArray[0] as $key=>$data){
+                                        $excelAssociatedArray[$newHeading[$key]] = trim($data);
+                              }
+                              $finalExcelDataArray[] = $excelAssociatedArray;
+                    }
+                    return $finalExcelDataArray;
+          }
 }
