@@ -4432,9 +4432,14 @@ class vendor extends CI_Controller {
           function is_file_contains_only_valid_vendor($vendorID,$excelDataArray){
                     $msg = TRUE;
                     foreach($excelDataArray as $index=>$data){
-                            if($data['vendor_id'] != $vendorID){
-                                      $msg = "File Contains more then 1 Vendor, Error at line ".($index+2);
-                            }
+                        if($data['vendor_id'] !=''){
+                                if($data['vendor_id'] !== $vendorID){
+                                          $msg = "File Contains more then 1 Vendor, Error at line ".($index+2);
+                                }
+                        }
+                        else{
+                                           $msg = "File Contains Blank Vendor_ID, Error at line ".($index+2);
+                        }
                    }
                    return $msg;
           }
@@ -4475,6 +4480,17 @@ class vendor extends CI_Controller {
              }
              return $msg;
           }
+          function is_any_field_blank($excelDataArray){
+                    $msg = true;
+                    foreach($excelDataArray as $index=>$data){
+                              foreach($data as $value){
+                                        if(!$value){
+                                            $msg = "File Contains Blank Values. Error at line ".($index+2);
+                                        }
+                              }
+                    }
+                    return $msg;
+          }
           
           function  is_vendor_pin_code_file_valid($file,$vendorID){
                    $msg['extension']=$this->is_file_extension_excel($file['file']['name']);
@@ -4486,11 +4502,17 @@ class vendor extends CI_Controller {
                                                   $msg['blank'] = $this->is_uploded_file_blank($this->vendorPinArray);
                                                   if($msg['blank'] == 1){
                                                             $msg['vendor'] = $this->is_file_contains_only_valid_vendor($vendorID,$this->vendorPinArray );  
-                                                            if($msg['vendor']){
+                                                            if($msg['vendor'] == 1){
                                                                        $msg['pin_code'] = $this->is_pin_code_valid($this->vendorPinArray);
-                                                                       if($msg['pin_code']){
+                                                                       if($msg['pin_code'] == 1){
                                                                                 $msg['unique_combination'] = $this->is_pincode_service_area_unique($this->vendorPinArray);
+                                                                                if($msg['unique_combination'] ==1){
+                                                                                          $msg['field_blank'] = $this->is_any_field_blank($this->vendorPinArray);
+                                                                                          return $msg['field_blank'];
+                                                                                }
+                                                                                else{
                                                                                           return $msg['unique_combination'];
+                                                                                }
                                                                        }
                                                                        else{
                                                                                 return $msg['pin_code'];
