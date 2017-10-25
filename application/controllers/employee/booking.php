@@ -23,6 +23,7 @@ class Booking extends CI_Controller {
         $this->load->model('employee_model');
         $this->load->model('booking_model');
         $this->load->model('user_model');
+        $this->load->model('reusable_model');
         $this->load->model('vendor_model');
         $this->load->model('invoices_model');
         $this->load->model('service_centers_model');
@@ -198,7 +199,7 @@ class Booking extends CI_Controller {
                  * */
                 if (!empty($appliances_details['description'])) {
                     // check appliance description exist and it is not verified earlier 
-                    $check_product_type = $this->booking_model->get_search_query('appliance_product_description','*',array('product_description' => trim($appliances_details['description'])))->result_array();
+                    $check_product_type = $this->reusable_model->get_search_query('appliance_product_description','*',array('product_description' => trim($appliances_details['description'])))->result_array();
                     
                     //verify appliance details
                     $verified_capacity = $this->miscelleneous->verified_applicance_capacity($appliances_details);
@@ -3319,7 +3320,7 @@ class Booking extends CI_Controller {
             $page = $total_pages;
         }
        
-        $query = $this->booking_model->get_search_query('appliance_product_description', '*', $where,NULL,array('length' => $limit,'start'=> $start),array($sidx => $sord))->result();
+        $query = $this->reusable_model->get_search_query('appliance_product_description', '*', $where,NULL,array('length' => $limit,'start'=> $start),array($sidx => $sord))->result();
         $response = new StdClass;
         $response->page = $page;
         $response->total = $total_pages;
