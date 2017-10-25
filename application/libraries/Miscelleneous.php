@@ -13,6 +13,7 @@ class Miscelleneous {
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('s3');
 	$this->My_CI->load->model('vendor_model');
+                    $this->My_CI->load->model('reusable_model');
 	$this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
         $this->My_CI->load->model('partner_model');
@@ -583,7 +584,6 @@ class Miscelleneous {
                             $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
                             $message .= "To add Service center for the missing pincode please use below link <br/> "; 
                             $message .= "<a href=".base_url()."employee/vendor/get_add_vendor_to_pincode_form/".$booking['booking_id'].">Add Service Center</a>";
-
                             $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
                             $this->sf_not_exist_for_pincode(array('booking_id'=>$booking['booking_id'],'pincode'=>$booking['booking_pincode'],'city'=>$booking['city'],'service_id'=>$booking['service_id']));
                             return FALSE;
@@ -1107,13 +1107,12 @@ class Miscelleneous {
           $pincode = $notFoundSfArray['pincode'];
           $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
 FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('".$pincode."') GROUP BY india_pincode.pincode";
-          $result = $this->My_CI->booking_model->pincode_not_found_relevent_data($sql);
+          $result = $this->My_CI->reusable_model->execute_custom_select_query($sql);
           if(!empty($result)){
                     $notFoundSfArray['rm_id'] =  $result[0]['rm_id'];
                     $notFoundSfArray['state'] =  $result[0]['state'];
-                    $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
           }
-          
+          $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
     }
     
     /**
@@ -1189,13 +1188,16 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
           }
           /*
            * This Function convert excel data into array, 1st row of excel data will be keys of returning array
-           * @input - filePath and reader Version
+           * @input - filePath and reader Version and index of sheet in case of multiple sheet excel
            */
-          function excel_to_Array_converter($file,$readerVersion){
+          function excel_to_Array_converter($file,$readerVersion,$sheetIndex=NULL){
+                    if(!$sheetIndex){
+                            $sheetIndex = 0;
+                    }
                     $finalExcelDataArray = array();
                     $objReader = PHPExcel_IOFactory::createReader($readerVersion);
                     $objPHPExcel = $objReader->load($file['file']['tmp_name']);
-                    $sheet = $objPHPExcel->getSheet(0);
+                    $sheet = $objPHPExcel->getSheet($sheetIndex);
                     $highestRow = $sheet->getHighestDataRow();
                     $highestColumn = $sheet->getHighestDataColumn();
                     $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);

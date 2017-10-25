@@ -16,6 +16,7 @@ class Partner extends CI_Controller {
 
         $this->load->model('booking_model');
         $this->load->model('partner_model');
+        $this->load->model('reusable_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
         $this->load->model('invoices_model');
@@ -1516,7 +1517,7 @@ class Partner extends CI_Controller {
                 $bcc = "";
                 $attachment = "";
                 $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];
-                $sf_id = $this->booking_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id' => $escalation['booking_id']))->result_array()[0];
+                $sf_id = $this->reusable_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id' => $escalation['booking_id']))->result_array()[0];
                 $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($sf_id['assigned_vendor_id'])[0]['official_email'];
                 $partner_mail_to = $partner_details['email'];
                 $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ,".$rm_mail;
