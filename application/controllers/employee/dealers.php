@@ -365,8 +365,8 @@ class Dealers extends CI_Controller {
         $post['amount_due'] = $this->input->post('grand_total');
         $post['product_type'] = "Delivered";
         $post['appliance_name'] = $this->input->post('appliance_name');
-        $post['dealer_name'] = $this->input->post('dealer_name');
-        $post['dealer_phone_number'] = $this->input->post('dealer_phone_number');
+        $post['dealer_name'] = $this->session->userdata('dealer_name');
+        $post['dealer_phone_number'] = $this->session->userdata('dealer_phone_number');
         $post['dealer_id'] = $this->session->userdata('dealer_id');
         $post['appliance_unit'] = $this->input->post("appliance_unit");
         

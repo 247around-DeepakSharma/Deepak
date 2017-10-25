@@ -475,6 +475,24 @@ class Notify {
 		    $sms['type_id'] = $query1[0]['user_id'];
 
 		    $this->send_sms_msg91($sms);
+                    
+                    //send sms to dealer
+                    if(!empty($query1[0]['dealer_id'])){
+                        $dealerPhoneNumber = $this->My_CI->booking_model->get_search_query('dealer_details','dealer_phone_number_1' , array('dealer_id'=>$query1[0]['dealer_id']),NULL, NULL ,NULL)->result_array()[0]['dealer_phone_number_1'];
+                        $dealerSms['phone_no'] = $dealerPhoneNumber;
+                        $dealerSms['tag'] = "booking_details_to_dealer";
+                        $dealerSms['type'] = "dealer";
+                        $dealerSms['type_id'] = $query1[0]['dealer_id'];
+                        $dealerSms['booking_id'] = $query1[0]['booking_id'];
+                        $dealerSms['smsData']['service'] = $query1[0]['services']. " ".$call_type[0];
+                        $dealerSms['smsData']['customer_name'] = substr($query1[0]['name'], 0, 20);
+                        $dealerSms['smsData']['booking_date'] = date("d/M", strtotime($query1[0]['booking_date']));
+                        $dealerSms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
+                        $dealerSms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                        $dealerSms['smsData']['customer_phone_no'] = $query1[0]['booking_primary_contact_no'];
+                        
+                        $this->send_sms_msg91($dealerSms);
+                    }
 
 		    break;
 

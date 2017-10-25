@@ -3267,3 +3267,17 @@ UPDATE `employee` SET `office_centre` = 'Delhi' WHERE `employee`.`id` = 32;
 
 -- sachin 16 oct 
 ALTER TABLE `file_uploads` ADD `result` VARCHAR(64) NULL AFTER `agent_id`;
+
+-- sachin 23 Oct
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'resend_login_details', 'New Login details', 'please find below your login details.<br><br>
+<b>Username: </b>%s<br><b>Password: </b>%s<br><br>
+Please use the ERP panel for your closures going forward. In case of any issues, write to us or call us.<br><br>
+Regards,<br> 247around Team', 'booking@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+-- sachin 24 Oct
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'booking_details_to_dealer', 'New Request for %s from %s is confirmed for %s,%s. Booking Id is %s.Please Contact Customer@%s.', 
+'Send sms To dealer When New booking created', '1', CURRENT_TIMESTAMP);
