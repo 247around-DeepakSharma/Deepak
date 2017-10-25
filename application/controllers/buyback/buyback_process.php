@@ -24,6 +24,7 @@ class Buyback_process extends CI_Controller {
         $this->load->library('buyback');
         $this->load->model('vendor_model');
         $this->load->model('booking_model');
+        $this->load->model('reusable_model');
         $this->load->model("service_centre_charges_model");
         $this->load->library('PHPReport');
 
@@ -1908,7 +1909,7 @@ class Buyback_process extends CI_Controller {
         $this->select = 'tv_balance,la_balance,(tv_balance+la_balance) as total_balance';
         $this->order_by = array('create_date' => 'DESC');
         $this->limit = array('length' => 1,'start' => 0);
-        $data = $this->booking_model->get_search_query($this->table,$this->select , NULL,NULL, $this->limit ,$this->order_by);
+        $data = $this->reusable_model->get_search_query($this->table,$this->select , NULL,NULL, $this->limit ,$this->order_by);
         if(!empty($data)){
             $response = $data->result_array()[0];
         }else{
