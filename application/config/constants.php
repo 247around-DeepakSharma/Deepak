@@ -469,5 +469,14 @@ define('SPARE_OOW_REQUEST','Spare Estimated Cost Request');
 define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
 define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
 
+define("REPEAT_BOOKING_TAG", "Repeat Booking");
+define("_247AROUND_PRODUCT_TAG", "Product");
+define('REPAIR_OOW_PARTS_PRICE_TAGS','Spare Parts');
+define('REPAIR_OOW_VENDOR_PERCENTAGE','15');
+
+define("REPAIR_OOW_TAG", "Repair - Out Of Warranty");
+define("NOT_UPCOUNTRY_PRICE_TAG", "-1");
+define("PARTNER_PROVIDE_UPCOUNTRY_PRICE_TAG", "1"); 
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
