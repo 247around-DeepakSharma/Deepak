@@ -4625,6 +4625,39 @@ class vendor extends CI_Controller {
         unlink($csv);
         unlink($newZipFileName);
     }
+    
+    /**
+     * @desc : This function is used to resend the login details on request.
+     * @param : $type employee/SF/partner string
+     * @param : $id employee_id/sf_id/partner_id string
+     * @return : void
+     */
+    function resend_login_details($type, $id) {
+        $agent = $this->service_centers_model->get_sc_login_details_by_id($id);
+        if(!empty($agent)){
+            $template = $this->booking_model->get_booking_email_template("resend_login_details");
+            if (!empty($template)) {
+                $sf_details = $this->vendor_model->getVendorDetails('primary_contact_email,owner_email',array('id'=>$id));
+                $rm_email = $this->vendor_model->get_rm_sf_relation_by_sf_id($id)[0]['official_email'];
+                $login_details['username'] = $agent[0]['user_name'];
+                $login_details['password'] = $agent[0]['user_name'];
+                $subject = $template[4];
+                $emailBody = vsprintf($template[0], $login_details);
+                $to = $this->session->userdata('official_email').",".$sf_details[0]['primary_contact_email'].",".$sf_details[0]['owner_email'];
+                $cc = $rm_email.",".$template[3];
+                $this->notify->sendEmail($template[2],$to , $cc, '', $subject, $emailBody, "");
+                $this->session->set_userdata('success','Login Details Send To Registered Email Id');
+                redirect(base_url() . 'employee/vendor/viewvendor'); 
+            }else{
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '','', 'Email Template Not Found', 'resend_login_details email template not found. Please update this into the database.', "");
+                $this->session->set_userdata('error','Error!!! Please Try Again...');
+                redirect(base_url() . 'employee/vendor/viewvendor');  
+            }
+        }else{
+            echo "Service Center Not Found";
+        }
+        
+    }
 
 }
 
