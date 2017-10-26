@@ -1995,6 +1995,7 @@ class Service_centers extends CI_Controller {
      * @desc This is used to insert gst for data.
      */
     function process_gst_update() {
+        
         //$this->checkUserSession();
         log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
         $this->load->library('table');
@@ -2013,8 +2014,9 @@ class Service_centers extends CI_Controller {
             $is_gst = $this->input->post('is_gst');
             $is_gst_number = NULL;
             $gst_file_name = NULL;
+            
             if ($is_gst == 1) {
-                $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|trim|min_length[15]|max_length[15]');
+                $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|trim|min_length[15]|max_length[15]|regex_match[/^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[a-zA-Z0-9]{1}/]');
                 $this->form_validation->set_rules('file', 'Company GST File', 'callback_upload_gst_certificate_file');
 
                 if ($this->form_validation->run() === false) {
@@ -2026,6 +2028,8 @@ class Service_centers extends CI_Controller {
                     $gst_file_name = $this->input->post('gst_cer_file');
                 }
             }
+            
+            
             // It not Accessed When validation failed above
             if ($status_flag) {
                 $gst_details['service_center_id'] = $this->session->userdata('service_center_id');
