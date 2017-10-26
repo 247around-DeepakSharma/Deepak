@@ -3,7 +3,7 @@
         text-align: right;
     }
     .col-md-3 {
-        width: 22%;
+        width: 19%;
     }
 
     @keyframes blink {
@@ -31,6 +31,76 @@
     
     .dialog{
         display: none;
+    }
+    .select2-container .select2-selection--single{
+        height: 34px;
+        border: 1px solid #ccc;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow{
+        height: 30px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered{
+        line-height: 32px;
+    }
+    .spinner {
+        margin: 0px auto;
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        font-size: 10px;
+    }
+
+    .spinner > div {
+        height: 100%;
+        width: 6px;
+        display: inline-block;
+
+        -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+        animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    }
+
+    .spinner .rect2 {
+        -webkit-animation-delay: -1.1s;
+        animation-delay: -1.1s;
+    }
+
+    .spinner .rect3 {
+        -webkit-animation-delay: -1.0s;
+        animation-delay: -1.0s;
+    }
+
+    .spinner .rect4 {
+        -webkit-animation-delay: -0.9s;
+        animation-delay: -0.9s;
+    }
+
+    .spinner .rect5 {
+        -webkit-animation-delay: -0.8s;
+        animation-delay: -0.8s;
+    }
+
+    @-webkit-keyframes sk-stretchdelay {
+        0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+        20% { -webkit-transform: scaleY(1.0) }
+    }
+
+    @keyframes sk-stretchdelay {
+        0%, 40%, 100% { 
+            transform: scaleY(0.4);
+            -webkit-transform: scaleY(0.4);
+        }  20% { 
+            transform: scaleY(1.0);
+            -webkit-transform: scaleY(1.0);
+        }
+    }
+    
+    #datatable1_processing{
+            position: absolute;
+            z-index: 999999;
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            height: 100%;
+            top: 10px;
     }
 </style>
 
@@ -101,6 +171,18 @@
                                 <option value="" selected="selected" disabled="">Select Services</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val->id?>"><?php echo $val->services?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <select class="form-control filter_table" id="city">
+                                <option value="" selected="selected" disabled="">Select City</option>
+                                <?php foreach($cities as $val){ ?>
+                                <option value="<?php echo $val['city']?>"><?php echo $val['city']?></option>
                                 <?php } ?>
                             </select>
                         </div>
@@ -210,23 +292,25 @@
         placeholder: "Select Appliance",
         allowClear: true
     });
+    $('#city').select2({
+        placeholder: "Select City",
+        allowClear: true
+    });
     $(document).ready(function(){
         
-//        $('#booking_date').daterangepicker({
-//            autoUpdateInput: false,
-//            singleDatePicker: true,
-//            showDropdowns: true
-//        });
-//        $('#booking_date').on('apply.daterangepicker', function (ev, picker) {
-//            $(this).val(picker.startDate.format('MM/DD/YYYY'));
-//            datatable1.ajax.reload();
-//        });
-        
         datatable1 = $('#datatable1').DataTable({
-            "processing": true, 
+            "processing": true,
+            "language":{ 
+                "processing": "<div class='spinner'>\n\
+                                    <div class='rect1' style='background-color:#db3236'></div>\n\
+                                    <div class='rect2' style='background-color:#4885ed'></div>\n\
+                                    <div class='rect3' style='background-color:#f4c20d'></div>\n\
+                                    <div class='rect4' style='background-color:#3cba54'></div>\n\
+                                </div>"
+            },
             "serverSide": true, 
             "order": [], 
-            "pageLength": 50,
+            "pageLength": 25,
             "ordering": false,
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/booking/get_bookings_by_status/"+booking_status,
@@ -238,8 +322,10 @@
                     d.sf_id =  $('#sf_id').val();
                     d.appliance =  $('#appliance').val();
                     d.booking_date =  $('#booking_date').val();
+                    d.city =  $('#city').val();
                  }
             },
+            "deferRender": true,
             "fnInitComplete": function (oSettings, response) {
                $('input[type="search"]').attr("name", "search_value");           
             }        

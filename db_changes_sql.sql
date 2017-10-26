@@ -3231,14 +3231,130 @@ INSERT INTO `bb_query_report` (`id`, `description`, `query`, `active`, `create_d
 
 --Abhay 27 Sept
 ALTER TABLE `partners` ADD `is_prepaid` INT(1) NOT NULL DEFAULT '0' AFTER `is_def_spare_required`;
-ALTER TABLE `partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
+ALTER TABLE `partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace_period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 ALTER TABLE `partners` ADD `prepaid_grace_amount` INT(128) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 
 ALTER TABLE `trigger_partners` ADD `is_prepaid` INT(1) NOT NULL DEFAULT '0' AFTER `is_def_spare_required`;
-ALTER TABLE `trigger_partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
+ALTER TABLE `trigger_partners` ADD `prepaid_amount_limit` INT(128) NOT NULL DEFAULT '0' AFTER `is_prepaid`, ADD `grace_period` INT(11) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 ALTER TABLE `trigger_partners` ADD `prepaid_grace_amount` INT(128) NOT NULL DEFAULT '0' AFTER `prepaid_amount_limit`;
 
 
 --Abhay 29 Sep
 ALTER TABLE `vendor_partner_invoices` ADD `parts_count` INT(11) NOT NULL DEFAULT '0' AFTER `num_bookings`;
 ALTER TABLE `trigger_vendor_partner_invoices` ADD `parts_count` INT(11) NOT NULL DEFAULT '0' AFTER `num_bookings`;
+
+INSERT INTO `query_report` (`id`, `description`, `query`, `active`, `type`, `create_date`) VALUES
+(null, 'debit_note_raised', 'select count(partner_order_id) as count from bb_order_details where current_status = \'Claim Debit Note Raised\'', 1, 'buyback','2017-09-20 13:05:48'),
+(null, 'debot_note_raised_amt', 'select round(COALESCE(sum(partner_basic_charge),0)) as count from bb_order_details join bb_unit_details on bb_order_details.partner_order_id = bb_unit_details.partner_order_id where current_status = \'Claim Debit Note Raised\'', 1, 'buyback','2017-09-20 13:16:26'),
+(null, 'debit_note_not_raised', 'select count(partner_order_id) as count from bb_order_details where current_status = \'Claim Approved\'', 1,'buyback', '2017-09-20 13:17:59'),
+(null, 'debit_note_not_raised_amt', 'select round(COALESCE(sum(partner_basic_charge),0)) as count from bb_order_details join bb_unit_details on bb_order_details.partner_order_id = bb_unit_details.partner_order_id where current_status = \'Claim Approved\'', 1,'buyback', '2017-09-20 13:17:59'),
+(null, 'last_month_order', 'SELECT (in_transit_count+deliverd_count) as count\nFROM ( \n    SELECT SUM(CASE\n        WHEN current_status = \'Delivered\' AND delivery_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 1 MONTH, \'%Y/%m/01\' ) AND delivery_date < DATE_FORMAT( CURRENT_DATE, \'%Y/%m/01\' )THEN 1\n        ELSE 0\n    END) AS \'deliverd_count\',\n    SUM(CASE\n       WHEN current_status IN (\'In-Transit\', \'New Item In-transit\', \'Attempted\') AND order_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 1 MONTH, \'%Y/%m/01\' ) AND order_date < DATE_FORMAT( CURRENT_DATE, \'%Y/%m/01\' ) THEN 1\n        ELSE 0\n    END) AS \'in_transit_count\' FROM bb_order_details) as a', 1,'buyback', '2017-09-21 06:06:22'),
+(null, 'this_month_order', 'SELECT (in_transit_count+deliverd_count) as count\nFROM ( \n    SELECT SUM(CASE\n        WHEN current_status = \'Delivered\' AND delivery_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 0 MONTH, \'%Y/%m/01\' ) THEN 1\n        ELSE 0\n    END) AS \'deliverd_count\',\n    SUM(CASE\n       WHEN current_status IN (\'In-Transit\', \'New Item In-transit\', \'Attempted\') AND order_date >= DATE_FORMAT( CURRENT_DATE - INTERVAL 0 MONTH, \'%Y/%m/01\' ) THEN 1\n        ELSE 0\n    END) AS \'in_transit_count\' FROM bb_order_details) as a', 1, 'buyback','2017-09-21 06:09:34'),
+(null, 'avg_buying_price', 'SELECT round(AVG(partner_basic_charge+partner_tax_charge)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id', 1, 'buyback','2017-09-21 06:48:40'),
+(null, 'avg_selling_price', 'SELECT round(AVG(cp_basic_charge+cp_tax_charge)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id', 1,'buyback', '2017-09-21 06:48:40');
+
+--sachin 29 sep
+ALTER TABLE `query_report` ADD `type` VARCHAR(64) NOT NULL AFTER `active`;
+UPDATE `query_report` SET `type` = 'service' 
+
+--Abhay 03 oct
+ALTER TABLE `partners` CHANGE `prepaid_grace_amount` `prepaid_notification_amount` INT(128) NOT NULL DEFAULT '0';
+ALTER TABLE `partners` CHANGE `grace_period` `grace_period_date` DATE NULL DEFAULT NULL;
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'low_prepaid_amount', 'Low Balance', 'Dear Partner,<br/><br/> Please recharge your account <br/><br/>Thanks,<br/>247around Team', 
+'billing@247around.com', '', 'anuj@247around.com, nits@247around.com, adityag@gmail.com', '', '1', '2017-10-03 13:05:07');
+
+
+--Chhavi 06 oct
+ALTER TABLE `employee_relation` ADD `state_id` VARCHAR(50) NOT NULL AFTER `service_centres_id`;
+
+--Chhavi
+CREATE TABLE `pincode_not_found_sf` (
+  `id` int(11) NOT NULL,
+  `pincode` int(10) NOT NULL,
+  `area` varchar(20) NOT NULL,
+  `division` varchar(20) NOT NULL,
+  `region` varchar(20) NOT NULL,
+  `taluk` varchar(20) NOT NULL,
+  `district` varchar(20) NOT NULL,
+  `state` varchar(20) NOT NULL,
+  `rm_id` int(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `pincode_not_found_sf`
+--
+ALTER TABLE `pincode_not_found_sf`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `pincode_not_found_sf`
+--
+ALTER TABLE `pincode_not_found_sf`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
+
+
+
+--Chhavi
+
+  ALTER TABLE `service_centres` ADD `agent_id` INT(10) NULL DEFAULT NULL AFTER `create_date`;
+
+-- sachin 09 oct
+
+CREATE TABLE `email_send_details` 
+( 
+`id` INT(11) NOT NULL AUTO_INCREMENT , 
+`email_from` VARCHAR(64) NOT NULL , 
+`email_to` VARCHAR(256) NOT NULL , 
+`cc` VARCHAR(256) NULL , 
+`bcc` VARCHAR(256) NULL , 
+`subject` VARCHAR(256) NOT NULL , 
+`message` VARCHAR(256) NULL , 
+`attachment_link` VARCHAR(256) NULL , 
+`create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+--sachin 10 oct
+
+CREATE TABLE `bb_svc_balance` 
+( `id` INT(11) NOT NULL AUTO_INCREMENT , 
+`tv_balance` DECIMAL(10,2) NOT NULL DEFAULT '0.00' , 
+`la_balance` DECIMAL(10,2) NOT NULL DEFAULT '0.00' , 
+`create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+--sachin 12 Oct
+ALTER TABLE `employee` ADD `languages` VARCHAR(256) NULL DEFAULT NULL AFTER `image_link`;
+UPDATE `employee` SET `languages` = 'English, Hindi, Marathi' WHERE `employee`.`id` = 24;
+UPDATE `employee` SET `languages` = 'English, Hindi, Bengali' WHERE `employee`.`id` = 25;
+UPDATE `employee` SET `languages` = 'English, Hindi' WHERE `employee`.`id` = 32;
+UPDATE `employee` SET `languages` = 'English,Tamil,Malayalam,Telugu,Kannada' WHERE `employee`.`id` = 16;
+ALTER TABLE `employee` ADD `office_centre` VARCHAR(128) NULL DEFAULT NULL AFTER `languages`;
+UPDATE `employee` SET `office_centre` = 'Chennai' WHERE `employee`.`id` = 16;
+UPDATE `employee` SET `office_centre` = 'Mumbai' WHERE `employee`.`id` = 24;
+UPDATE `employee` SET `office_centre` = 'Kolkata' WHERE `employee`.`id` = 25;
+UPDATE `employee` SET `office_centre` = 'Delhi' WHERE `employee`.`id` = 32;
+
+-- sachin 16 oct 
+ALTER TABLE `file_uploads` ADD `result` VARCHAR(64) NULL AFTER `agent_id`;
+
+
+-- sachin 23 Oct
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'resend_login_details', 'New Login details', 'please find below your login details.<br><br>
+<b>Username: </b>%s<br><b>Password: </b>%s<br><br>
+Please use the ERP panel for your closures going forward. In case of any issues, write to us or call us.<br><br>
+Regards,<br> 247around Team', 'booking@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+-- sachin 24 Oct
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'booking_details_to_dealer', 'New Request for %s from %s is confirmed for %s,%s. Booking Id is %s.Please Contact Customer@%s.', 
+'Send sms To dealer When New booking created', '1', CURRENT_TIMESTAMP);

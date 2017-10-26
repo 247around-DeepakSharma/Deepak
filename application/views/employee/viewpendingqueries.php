@@ -115,8 +115,8 @@ function outbound_call(phone_number){
                     <td><?= $row->booking_id; ?></td>
                     <input type="hidden" id="<?php echo "service_id_".($key +1); ?>"  value="<?php echo $row->service_id;?>"/>
                     <input type="hidden" id="<?php echo "pincode_".($key +1); ?>" value="<?php echo $row->booking_pincode; ?>" />
-                    <td><a href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
-                    <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
+                    <td><a href="<?php echo base_url(); ?>employee/user/finduser?phone_number=<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
+                    <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
              
                     <td><?= $row->services;  ?></td>
                    

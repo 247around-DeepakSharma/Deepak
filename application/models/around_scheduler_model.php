@@ -446,7 +446,7 @@ class Around_scheduler_model extends CI_Model {
     
     function get_non_verified_appliance_description_data(){
         $this->db->select('*');
-        $this->db->where('is_verified',1);
+        $this->db->where('is_verified',0);
         $query = $this->db->get('appliance_product_description');
         return $query->result_array();
     }
@@ -458,6 +458,16 @@ class Around_scheduler_model extends CI_Model {
         $this->db->where('ndnc',0);
         $query = $this->db->get('users');
         return $query->result_array();
+    }
+    
+    /**
+    * @desc     Insert Buyback SVC Balance
+    * @param    $data array
+    * @return   insert_id 
+    */
+    function add_bb_svc_balance($data){
+        $this->db->insert('bb_svc_balance', $data);
+        return $this->db->insert_id();
     }
 
 }

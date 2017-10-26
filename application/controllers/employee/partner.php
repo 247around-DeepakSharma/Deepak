@@ -187,7 +187,7 @@ class Partner extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') && !empty($this->session->userdata('partner_id')) && ($this->session->userdata('status') == 1)) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') && !empty($this->session->userdata('partner_id'))) {
             return TRUE;
         } else {
             $this->session->sess_destroy();
@@ -572,30 +572,7 @@ class Partner extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Service Tax FILE is being uploaded sucessfully.');
                 }
 
-                //Checking for Upcountry
-                $upcountry = $this->input->post('is_upcountry');
-                if (isset($upcountry) && $upcountry == 'on') {
-                    //Setting Flag as 1
-                    $edit_partner_data['partner']['is_upcountry'] = 1;
-                    $edit_partner_data['partner']['upcountry_rate'] = $this->input->post('upcountry_rate');
-                    $edit_partner_data['partner']['upcountry_min_distance_threshold'] = $this->input->post('upcountry_min_distance_threshold');
-                    $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $this->input->post('upcountry_max_distance_threshold');
-                    $edit_partner_data['partner']['upcountry_rate1'] = $this->input->post('upcountry_rate1');
-                    $edit_partner_data['partner']['upcountry_mid_distance_threshold'] = $this->input->post('upcountry_mid_distance_threshold');
-                    $edit_partner_data['partner']['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
-                    $upcountry_approval = $this->input->post('upcountry_approval');
-                    $edit_partner_data['partner']['upcountry_approval'] = (!empty($upcountry_approval)) ? 1 : 0;
-                } else {
-                    $edit_partner_data['partner']['is_upcountry'] = 0;
-                    $edit_partner_data['partner']['upcountry_rate'] = 0;
-                    $edit_partner_data['partner']['upcountry_min_distance_threshold'] = 0;
-                    $edit_partner_data['partner']['upcountry_max_distance_threshold'] = 0;
-                    $edit_partner_data['partner']['upcountry_rate1'] = 0;
-                    $edit_partner_data['partner']['upcountry_mid_distance_threshold'] = 0;
-                    $edit_partner_data['partner']['upcountry_approval_email'] = NULL;
-                    $edit_partner_data['partner']['upcountry_approval'] = 0;
-                }
-
+               
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
 
@@ -680,6 +657,7 @@ class Partner extends CI_Controller {
                 }
                 $html .= "</ul>";
                 $to = ANUJ_EMAIL_ID;
+                $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
 
                 $html .= $state_html;
 
@@ -690,7 +668,7 @@ class Partner extends CI_Controller {
                 $this->email->from('booking@247around.com', '247around Team');
                 $this->email->to($to);
 
-                $this->email->subject("Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name);
+                $this->email->subject($subject);
                 $this->email->message($html);
 
                 if (isset($attachment_contract)) {
@@ -713,6 +691,7 @@ class Partner extends CI_Controller {
                 }
 
                 if ($this->email->send()) {
+                    $this->notify->add_email_send_details('booking@247around.com',$to,"","",$subject,$html,"");
                     log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
                 } else {
                     log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
@@ -734,30 +713,7 @@ class Partner extends CI_Controller {
                     $return_data['partner']['agreement_end_date'] = $this->input->post('agreement_end_date');
                 }
 
-                //Checking for Upcountry
-                $upcountry = $this->input->post('is_upcountry');
-                if (isset($upcountry) && $upcountry == 'on') {
-                    //Setting Flag as 1
-                    $return_data['partner']['is_upcountry'] = 1;
-                    $return_data['partner']['upcountry_rate'] = $this->input->post('upcountry_rate');
-                    $return_data['partner']['upcountry_min_distance_threshold'] = $this->input->post('upcountry_min_distance_threshold');
-                    $return_data['partner']['upcountry_max_distance_threshold'] = $this->input->post('upcountry_max_distance_threshold');
-                    $return_data['partner']['upcountry_rate1'] = $this->input->post('upcountry_rate1');
-                    $return_data['partner']['upcountry_mid_distance_threshold'] = $this->input->post('upcountry_mid_distance_threshold');
-                    $return_data['partner']['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
-                    $upcountry_approval = $this->input->post('upcountry_approval');
-                    $return_data['partner']['upcountry_approval'] = (!empty($upcountry_approval)) ? 1 : 0;
-                } else {
-                    $return_data['partner']['is_upcountry'] = 0;
-                    $return_data['partner']['upcountry_rate'] = 0;
-                    $return_data['partner']['upcountry_min_distance_threshold'] = 0;
-                    $return_data['partner']['upcountry_max_distance_threshold'] = 0;
-                    $return_data['partner']['upcountry_rate1'] = 0;
-                    $return_data['partner']['upcountry_mid_distance_threshold'] = 0;
-                    $return_data['partner']['upcountry_approval_email'] = NULL;
-                    $return_data['partner']['upcountry_approval'] = 0;
-                }
-
+                
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
 
@@ -896,6 +852,7 @@ class Partner extends CI_Controller {
                     }
                     $html .= "</ul>";
                     $to = ANUJ_EMAIL_ID;
+                    $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
 
                     //Cleaning Email Variables
                     $this->email->clear(TRUE);
@@ -903,8 +860,9 @@ class Partner extends CI_Controller {
                     //Send report via email
                     $this->email->from('booking@247around.com', '247around Team');
                     $this->email->to($to);
+                    
 
-                    $this->email->subject("New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name);
+                    $this->email->subject($subject);
                     $this->email->message($html);
 
                     if (isset($attachment_contract)) {
@@ -918,6 +876,7 @@ class Partner extends CI_Controller {
                     }
 
                     if ($this->email->send()) {
+                        $this->notify->add_email_send_details('booking@247around.com',$to,"","",$subject,$html,"");
                         log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
                     } else {
                         log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
@@ -1021,7 +980,16 @@ class Partner extends CI_Controller {
         $partner_code = $this->input->post('partner_code');
         $return_data['account_manager_id'] = $this->input->post('account_manager_id');
         $return_data['spare_notification_email'] = $this->input->post('spare_notification_email');
-
+        $return_data['prepaid_amount_limit'] = $this->input->post('prepaid_amount_limit');
+        $return_data['prepaid_notification_amount'] = $this->input->post('prepaid_notification_amount');
+        $return_data['grace_period_date'] = $this->input->post('grace_period_date');
+        $is_prepaid = $this->input->post('is_prepaid');
+        if(!empty($is_prepaid)){
+            $return_data['is_prepaid']  = 1;
+        } else {
+             $return_data['is_prepaid']  = 0;
+        }
+        
         if (empty($partner_code)) {
             $return_data['is_active'] = 0;
         }
@@ -1031,6 +999,31 @@ class Partner extends CI_Controller {
         } else {
             $return_data['is_reporting_mail'] = '0';
         }
+        
+        //Checking for Upcountry
+        $upcountry = $this->input->post('is_upcountry');
+        if (isset($upcountry) && $upcountry == 'on') {
+            //Setting Flag as 1
+            $return_data['is_upcountry'] = 1;
+            $return_data['upcountry_rate'] = $this->input->post('upcountry_rate');
+            $return_data['upcountry_min_distance_threshold'] = $this->input->post('upcountry_min_distance_threshold');
+            $return_data['upcountry_max_distance_threshold'] = $this->input->post('upcountry_max_distance_threshold');
+            $return_data['upcountry_rate1'] = $this->input->post('upcountry_rate1');
+            $return_data['upcountry_mid_distance_threshold'] = $this->input->post('upcountry_mid_distance_threshold');
+            $return_data['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
+            $upcountry_approval = $this->input->post('upcountry_approval');
+            $return_data['upcountry_approval'] = (!empty($upcountry_approval)) ? 1 : 0;
+        } else {
+            $return_data['is_upcountry'] = 0;
+            $return_data['upcountry_rate'] = 0;
+            $return_data['upcountry_min_distance_threshold'] = 0;
+            $return_data['upcountry_max_distance_threshold'] = 0;
+            $return_data['upcountry_rate1'] = 0;
+            $return_data['upcountry_mid_distance_threshold'] = 0;
+            $return_data['upcountry_approval_email'] = NULL;
+            $return_data['upcountry_approval'] = 0;
+        }
+                
 //        $partner_data_final['partner'] = $return_data;
         return $return_data;
     }
@@ -1523,8 +1516,10 @@ class Partner extends CI_Controller {
                 $bcc = "";
                 $attachment = "";
                 $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];
+                $sf_id = $this->booking_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id' => $escalation['booking_id']))->result_array()[0];
+                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($sf_id['assigned_vendor_id'])[0]['official_email'];
                 $partner_mail_to = $partner_details['email'];
-                $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com";
+                $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ,".$rm_mail;
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
                 $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br><b>Booking ID : </b>" . $booking_id . " Escalated <br><br><strong>Remarks : </strong>" . $remarks;
                 $this->notify->sendEmail('booking@247around.com', $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
@@ -2547,9 +2542,7 @@ class Partner extends CI_Controller {
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
 
         $data['spare_parts'] = $total_rows[0]['total_rows'];
-
-        $am_details['account_manager_details'] = $this->get_am_data($partner_id);
-        $this->load->view('partner/header', $am_details);
+        $this->load->view('partner/header');
         $this->load->view('partner/partner_default_page', $data);
     }
 
@@ -2696,72 +2689,76 @@ class Partner extends CI_Controller {
 
         $data = $this->upcountry_model->get_upcountry_service_center_id_by_booking($booking_id);
         if (!empty($data)) {
-            $this->booking_model->update_booking($booking_id, array('upcountry_partner_approved' => '1'));
+            if ($data[0]['upcountry_partner_approved'] == 0 & empty($data[0]['assigned_vendor_id'])) {
+                log_message('info', __FUNCTION__ . " => On Approval Booking Id" . $booking_id );
+                $this->booking_model->update_booking($booking_id, array('upcountry_partner_approved' => '1'));
 
-            if ($status == 0) {// means request from mail
-                $agent_id = _247AROUND_DEFAULT_AGENT;
-                $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
-                $partner_id = _247AROUND;
-                $type = " Email";
-            } else {
-                $agent_id = $this->session->userdata('agent_id');
-                $agent_name = $this->session->userdata('partner_name');
-                $partner_id = $this->session->userdata('partner_id');
-                $type = " Panel";
-            }
-            // Insert log into booking state change
-            $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, $partner_id);
-
-            $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id);
-            if ($assigned) {
-
-                log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
-                //Send SMS to customer
-                $sms['tag'] = "service_centre_assigned";
-                $sms['phone_no'] = $data[0]['booking_primary_contact_no'];
-                $sms['booking_id'] = $booking_id;
-                $sms['type'] = "user";
-                $sms['type_id'] = $data[0]['user_id'];
-                $sms['smsData'] = "";
-
-                $this->notify->send_sms_msg91($sms);
-                log_message('info', "Send SMS to customer: " . $booking_id);
-
-                //Prepare job card
-                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
-                log_message('info', "Async Process to create Job card: " . $booking_id);
-
-                $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, UPCOUNTRY_CHARGES_APPROVED, "Service Center Id: " . $data[0]['service_center_id'], $agent_id, $agent_name, $partner_id);
-
-                if ($status == 0) {
-                    echo "<script>alert('Thanks For Approving Upcountry Charges');</script>";
+                if ($status == 0) {// means request from mail
+                    $agent_id = _247AROUND_DEFAULT_AGENT;
+                    $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
+                    $partner_id = _247AROUND;
+                    $type = " Email";
                 } else {
-                    $userSession = array('error' => 'Booking Approved Successfully.');
-                    $this->session->set_userdata($userSession);
-                    redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
+                    $agent_id = $this->session->userdata('agent_id');
+                    $agent_name = $this->session->userdata('partner_name');
+                    $partner_id = $this->session->userdata('partner_id');
+                    $type = " Panel";
+                }
+                // Insert log into booking state change
+                $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, $partner_id);
+
+                $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id);
+                if ($assigned) {
+
+                    log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
+                    //Send SMS to customer
+                    $sms['tag'] = "service_centre_assigned";
+                    $sms['phone_no'] = $data[0]['booking_primary_contact_no'];
+                    $sms['booking_id'] = $booking_id;
+                    $sms['type'] = "user";
+                    $sms['type_id'] = $data[0]['user_id'];
+                    $sms['smsData'] = "";
+
+                    $this->notify->send_sms_msg91($sms);
+                    log_message('info', "Send SMS to customer: " . $booking_id);
+
+                    //Prepare job card
+                    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                    $this->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
+                    log_message('info', "Async Process to create Job card: " . $booking_id);
+
+                    $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, UPCOUNTRY_CHARGES_APPROVED, "Service Center Id: " . $data[0]['service_center_id'], $agent_id, $agent_name, $partner_id);
+
+                    if ($status == 0) {
+                        echo "<script>alert('Thanks For Approving Upcountry Charges');</script>";
+                    } else {
+                        $userSession = array('success' => 'Booking Approved Successfully.');
+                        $this->session->set_userdata($userSession);
+                        redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
+                    }
+                } else {
+                    log_message('info', __FUNCTION__ . " => Not Assigned Booking Id" . $booking_id );
+                    $msg = "Thanks, Booking Has Been Already Approved.";
                 }
             } else {
-                if ($status == 0) {
-                    echo "<script>alert('Thanks, Booking Has Been Already Approved.');</script>";
-                } else {
-                    $userSession = array('error' => 'Booking Has Been Already Approved');
-                    $this->session->set_userdata($userSession);
-                    redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
-                }
+                log_message('info', __FUNCTION__ . " => Already Approve Booking Id" . $booking_id );
+                $msg = "Thanks, Booking Has Been Already Approved.";
             }
         } else {
+            log_message('info', __FUNCTION__ . " => Failed: Partner try to approve Booking Id" . $booking_id );
             $to = NITS_ANUJ_EMAIL_ID;
             $cc = "vijaya@247around.com, abhaya@247around.com";
             $message = "Partner try to approve Booking Id " . $booking_id . " but somehow it failed. <br/>Please check this booking.";
             $this->notify->sendEmail('booking@247around.com', $to, $cc, '', 'UpCountry Approval Failed', $message, '');
-            if ($status == 0) {
-                echo "<script>alert('Thanks, Booking Has Been Already Approved.');</script>";
-            } else {
-                $userSession = array('error' => 'Booking Not Found');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
-            }
+            $msg = "Your request has been submitted. We will fix it shortly.";
+        }
+
+        if ($status == 0) {
+            echo "<script>alert('" . $msg . "');</script>";
+        } else {
+            $userSession = array('error' => $msg);
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
         }
     }
 
@@ -3103,11 +3100,11 @@ class Partner extends CI_Controller {
                 $message = vsprintf($email_template[0], $html_table);
 
                 $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
-
-                if ($sendmail) {
-                    log_message('info', __FUNCTION__ . 'Report Mail has been send to partner ' . $partner['public_name'] . ' successfully');
+                
+                if ($sendmail){
+                    log_message('info', __FUNCTION__ . 'Defective Spares Yet to be Acknowledged Mail has been sent to partner '.$partner['public_name'].' successfully');
                 } else {
-                    log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner ' . $partner['public_name']);
+                    log_message('info', __FUNCTION__ . 'Error in Sending Defective Spares Yet to be Acknowledged Mail to partner '.$partner['public_name']);
                 }
             }
         }
@@ -3151,7 +3148,7 @@ class Partner extends CI_Controller {
 
 
                 //send email
-
+                
                 $email_template = $this->booking_model->get_booking_email_template("auto_acknowledge_defective_parts");
                 $to = !empty($partner['spare_notification_email']) ? $partner['spare_notification_email'] : $partner['primary_contact_email'];
                 $cc = $email_template[3];
@@ -3201,6 +3198,10 @@ class Partner extends CI_Controller {
         
         //get escalation percentage
         $data['escalation_percentage'] = $this->partner_model->get_booking_escalation_percantage($partner_id);
+        if(!empty($this->session->userdata('is_prepaid'))){
+            $data['prepaid_amount'] = $this->get_prepaid_amount($partner_id);
+        }
+        
         $this->load->view('partner/show_partner_booking_summary',$data);
         
     }
@@ -3278,6 +3279,35 @@ class Partner extends CI_Controller {
             exec("rm -rf " . escapeshellarg($csv));
             exit;
         }
+    }
+    
+    /**
+     * @desc This is used to get prepaid amount for requested partner 
+     * @param int $partner_id
+     * @return Array
+     */
+    function get_prepaid_amount($partner_id) {
+        log_message("info",__METHOD__." Partner Id ".$partner_id);
+        $p_details = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+        
+        if($p_details['is_notification']){
+            
+            $d['prepaid_amount'] = '<strong class="blink" style="color:red; font-size: 16px;">Rs. ' . $p_details['prepaid_amount'] . '</strong> ';
+        } else {
+             $d['prepaid_amount'] = '<strong style="color:green; font-size: 16px;">Rs. ' . $p_details['prepaid_amount'] . '</strong>';
+        }
+
+        $d['prepaid_msg'] = $p_details['prepaid_msg'];
+ 
+        $userSession = array('status' => $p_details['active']);
+        $this->session->set_userdata($userSession);
+        return $d;
+    }
+    
+    public function get_contact_us_page($partner_id){
+        $data['account_manager_details'] = $this->get_am_data($partner_id);
+        $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager','active' => 1));
+        $this->load->view('partner/contact_us',$data);
     }
 
 }

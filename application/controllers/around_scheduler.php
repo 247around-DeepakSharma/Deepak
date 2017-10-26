@@ -16,6 +16,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->model('user_model');
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
+        $this->load->model('invoices_model');
         $this->load->model('employee_model');
         $this->load->model('bb_model');
         $this->load->model('cp_model');
@@ -26,8 +27,8 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('PHPReport');
         $this->load->library('table');
         $this->load->library('buyback');
-        $this->load->library('miscelleneous');
         $this->load->library('email_data_reader');
+        $this->load->library('miscelleneous');
         $this->load->helper(array('form', 'url', 'file'));
         $this->load->dbutil();
     }
@@ -62,7 +63,7 @@ class Around_scheduler extends CI_Controller {
                         . " " . $status['content'];
                 $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
 
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
+                $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
             }
         }
         // Inserting values in scheduler tasks log
@@ -449,6 +450,7 @@ class Around_scheduler extends CI_Controller {
             $this->email->attach($csv, 'attachment');
 
             if ($this->email->send()) {
+                $this->notify->add_email_send_details('booking@247around.com',$to,$cc,"","SF NOT AVAILABLE IN PINCODES LIST",$message,$csv);
                 log_message('info', __METHOD__ . ": Mail sent successfully for PinCode Not Available To RM ");
             } else {
                 log_message('info', __METHOD__ . ": Mail could not be sent to RM");
@@ -465,6 +467,7 @@ class Around_scheduler extends CI_Controller {
             $this->email->message($message);
             $this->email->attach($csv, 'attachment');
             $this->email->send();
+            $this->notify->add_email_send_details('booking@247around.com',$to,ANUJ_EMAIL_ID,"","Pincode Not Available Booking Data",$message,$csv);
             log_message('info', __METHOD__ . ": No booking found for pincode not available ");
         }
     }
@@ -749,7 +752,7 @@ class Around_scheduler extends CI_Controller {
         $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost'),
             'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
-        $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime("-45 days")));
+        $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));
         $post['column_search'] = array();
         $select = "bb_order_details.id, bb_order_details.partner_order_id";
         $list = $this->bb_model->get_bb_order_list($post, $select);
@@ -762,6 +765,52 @@ class Around_scheduler extends CI_Controller {
             $this->buyback->insert_bb_state_change($value->partner_order_id, _247AROUND_BB_TO_BE_CLAIMED, _247AROUND_BB_ORDER_TAT_BREACH, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
 
             $this->cp_model->update_bb_cp_order_action($where, array('current_status' => _247AROUND_BB_NOT_DELIVERED, 'internal_status' => _247AROUND_BB_247APPROVED_STATUS));
+        }
+    }
+    
+     /*
+      *@desc: This function is use to process sms deactivation request from user 
+      *This Function fetch deactivation request from email, and update user table for requested numbers
+      *This Function calls by cron
+     */
+    function process_sms_deactivation_request(){
+        $to_date = date('Y-m-d');
+        $from_date = date('Y-m-d',(strtotime (SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS , strtotime($to_date))));
+        //create connection for email
+        $conn = $this->email_data_reader->create_email_connection(SMS_DEACTIVATION_MAIL_SERVER,SMS_DEACTIVATION_EMAIL,SMS_DEACTIVATION_PASSWORD);
+        if($conn != 'FALSE'){
+            //get emails for previous day
+            $email_data = $this->email_data_reader->fetch_emails_between_two_dates($to_date,$from_date);
+            //get numbers array, from which we get deactivation request before 1 day
+            $count = count($email_data);
+            $numbers = array();
+            for($i=0;$i<$count;$i++){
+                if (strpos($email_data[$i][0]->subject, SMS_DEACTIVATION_EMAIL_SUBJECT) !== false) {
+                    //get numbers
+                    $numbers[] = substr(trim(explode(SMS_DEACTIVATION_EMAIL_SUBJECT,$email_data[$i][0]->subject)[0]),-10);
+                }
+            }
+            //update sms_activation status for requested numbers
+            if(!empty($numbers)){
+                $updated_rows = $this->user_model->update_sms_deactivation_status($numbers);
+                if($updated_rows>0){
+                    $length = count($numbers);
+                    for($j=0;$j<$length;$j++){
+                        log_message('info', 'NDNC has been activated for '.$numbers[$j]);
+                    }
+                }
+                else{
+                    log_message('info', 'NDNC already activated');
+                }
+            }
+            else{
+                log_message('info', 'There is not any new request for NDNC');
+            }
+            //close email connection
+            $this->email_data_reader->close_email_connection();
+        }
+        else{
+            log_message('info', 'Connection is not created');
         }
     }
     
@@ -822,8 +871,8 @@ class Around_scheduler extends CI_Controller {
             $to = NITS_ANUJ_EMAIL_ID;
             $subject = $email_template[4];
             $message = vsprintf($email_template[0], $html_table);
-            
-	    $sendmail = $this->notify->sendEmail($email_template[2], $to, "", "", $subject, $message, "");
+
+            $sendmail = $this->notify->sendEmail($email_template[2], $to, "", "", $subject, $message, "");
 
             if ($sendmail) {
                 log_message('info', __FUNCTION__ . 'Report Mail has been send successfully');
@@ -832,51 +881,31 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-    
-     /*
-      *@desc: This function is use to process sms deactivation request from user 
-      *This Function fetch deactivation request from email, and update user table for requested numbers
-      *This Function calls by cron
+    /**
+     * @desc This method is used to send notification email to partner whose account type is prepaid and have low balance.
      */
-    function process_sms_deactivation_request(){
-        $to_date = date('Y-m-d');
-        $from_date = date('Y-m-d',(strtotime (SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS , strtotime($to_date))));
-        //create connection for email
-        $conn = $this->email_data_reader->create_email_connection(SMS_DEACTIVATION_MAIL_SERVER,SMS_DEACTIVATION_EMAIL,SMS_DEACTIVATION_PASSWORD);
-        if($conn != 'FALSE'){
-            //get emails for previous day
-            $email_data = $this->email_data_reader->fetch_emails_between_two_dates($to_date,$from_date);
-            //get numbers array, from which we get deactivation request before 1 day
-            $count = count($email_data);
-            $numbers = array();
-            for($i=0;$i<$count;$i++){
-                if (strpos($email_data[$i][0]->subject, SMS_DEACTIVATION_EMAIL_SUBJECT) !== false) {
-                    //get numbers
-                    $numbers[] = substr(trim(explode(SMS_DEACTIVATION_EMAIL_SUBJECT,$email_data[$i][0]->subject)[0]),-10);
+    function send_notification_for_low_balance() {
+        $partner_details = $this->partner_model->getpartner_details("partners.id, prepaid_notification_amount, "
+                . "is_active, is_prepaid,prepaid_amount_limit,grace_period_date,invoice_email_to ",
+                array('is_prepaid' => 1,'is_active' => 1));
+        foreach ($partner_details as $value) {
+            $final_amount = $this->miscelleneous->get_partner_prepaid_amount($value['id']);
+            if ($value['prepaid_notification_amount'] > $final_amount) {
+                $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
+                $to = $value['invoice_email_to'];
+                $subject = $email_template[4];
+                $message = $email_template[0];
+                $cc = $email_template[3];
+                $sendmail = $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, "");
+                if ($sendmail) {
+                    log_message('info', __FUNCTION__ . 'Mail has been send successfully. Partner id => '. $value['id']);
+                } else {
+                    log_message('info', __FUNCTION__ . 'Error in Sending Mail to partner Partner Id => '. $value['id']);
                 }
             }
-            //update sms_activation status for requested numbers
-            if(!empty($numbers)){
-                $updated_rows = $this->user_model->update_sms_deactivation_status($numbers);
-                if($updated_rows>0){
-                    $length = count($numbers);
-                    for($j=0;$j<$length;$j++){
-                        log_message('info', 'NDNC has been activated for '.$numbers[$j]);
-                    }
-                }
-                else{
-                    log_message('info', 'NDNC already activated');
-                }
-            }
-            else{
-                log_message('info', 'There is not any new request for NDNC');
-            }
-            //close email connection
-            $this->email_data_reader->close_email_connection();
         }
-        else{
-            log_message('info', 'Connection is not created');
-        }
+            
+        
     }
     /**
      * @desc This funnction is used to calculate upcountry from India Pincode File
@@ -925,7 +954,7 @@ class Around_scheduler extends CI_Controller {
                         break;
                     case SF_DOES_NOT_EXIST:
                         $data['is_upcountry'] = 0;
-                        if(isset($data['vendor_not_found'])){
+                        if(isset($up_details['vendor_not_found'])){
                             $data['remarks'] = SF_DOES_NOT_EXIST;
                              
                         } else {
@@ -944,5 +973,62 @@ class Around_scheduler extends CI_Controller {
             $this->upcountry_model->upcountry_pincode_services_sf_level($upcountry_data);
         }
     }
+    
+    /**
+    * @desc     Get Buyback QC Balance From Email
+    * @param    void()
+    * @return   void() 
+    */
+    function get_bb_balance_from_email(){
+        $data = array();
+        $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
+        $email = QC_BALANCE_READ_EMAIL;
+        $password = QC_BALANCE_READ_EMAIL_PASSWORD;
+        //create connection for email
+        $conn = $this->email_data_reader->create_email_connection($mail_server,$email,$password);
+        if($conn != 'FALSE'){
+            //get emails for TV Balance
+            $tv_condition = 'SINCE "'.date("d M Y",strtotime(date("Y-m-d"))).'" SUBJECT "'.TV_BALANCE_EMAIL_SUBJECT.'"';
+            $tv_email_data = $this->email_data_reader->get_emails($tv_condition);
+            if(!empty($tv_email_data)){
+                $email_body = $tv_email_data[0]['body'];
+                $match = array();
+                $pattern_new = '/\bRs. (\d*\.?\d+)/';
+                preg_match_all($pattern_new, $email_body, $match);
+                if(!empty($match) && isset($match[1][0])){
+                   $data['tv_balance'] = $match[1][0];
+                }
+            }
+            
+            //get emails for LA Balance
+            $la_condition = 'SINCE "'.date("d M Y",strtotime(date("Y-m-d"))).'" SUBJECT "'.LA_BALANCE_EMAIL_SUBJECT.'"';
+            $la_email_data = $this->email_data_reader->get_emails($la_condition);
+            if(!empty($la_email_data)){
+                $email_body = $la_email_data[0]['body'];
+                $match = array();
+                $pattern_new = '/\bRs. (\d*\.?\d+)/';
+                preg_match_all($pattern_new, $email_body, $match);
+                if(!empty($match) && isset($match[1][0])){
+                   $data['la_balance'] = $match[1][0];
+                }
+            }
+            
+            //if balance is not empty then insert it into datatbase
+            if(!empty($data)){
+                $insert_id = $this->around_scheduler_model->add_bb_svc_balance($data);
+                if($insert_id){
+                    log_message('info',"Amazon SVC balance has been inserted successfully. New Balance = ".print_r($data,true));
+                }else{
+                    log_message('info',"Error in inserting Amazon SVC balance.".print_r($data,true));
+                }
+            }
+            //close email connection
+            $this->email_data_reader->close_email_connection();
+        }
+        else{
+            log_message('info', 'Connection is not created');
+        }
+    }
 
 }
+

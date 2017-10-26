@@ -469,6 +469,14 @@
                                     $("#appliance_category_1 option[value !='option1']").remove();
                                     $('#appliance_category_1').html(data.category).change();
                                     get_capacity();
+                                   
+                                } else  if(data.code === '0003'){
+                                    $('#category_loading').css("display", "inherit");
+                                     $('#submitform').attr('disabled',true);
+                                    alert(data.msg);
+                                    return false;
+                                } else {
+                                    
                                 }
                                 
                                 

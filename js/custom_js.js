@@ -20,12 +20,19 @@ function getAppliance(service_id) {
 
     sendAjaxRequest(postData, applianceUrl + service_id).done(function (data) {
         var data1 = jQuery.parseJSON(data);
-        $("#partner_type").val(data1.partner_type);
 
-        $("#service_id").html(data1.services).change();
+        if(data1.code === 247){
+            $("#partner_type").val(data1.partner_type);
 
-        getBrandForService();
+            $("#service_id").html(data1.services).change();
 
+            getBrandForService();
+        } else if(data1.code === -247){
+            $("#service_id").html('<option selected disabled></option>').change();
+            alert(data1.prepaid_msg);
+            return false;
+        }
+       
     });
 }
 

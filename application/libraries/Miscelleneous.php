@@ -11,9 +11,11 @@ class Miscelleneous {
         $this->My_CI->load->library('asynchronous_lib');
         $this->My_CI->load->library('booking_utilities');
         $this->My_CI->load->library('notify');
+        $this->My_CI->load->library('s3');
 	$this->My_CI->load->model('vendor_model');
 	$this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
+        $this->My_CI->load->model('partner_model');
        
         $this->My_CI->load->model('service_centers_model');
     }
@@ -708,10 +710,11 @@ class Miscelleneous {
         if ($httpcode >= 200 && $httpcode < 300){
             return $result;
         }else{
-            $to = DEVELOPER_EMAIL;
+            $to = 'vijaya@247around.com';
+            $cc = DEVELOPER_EMAIL;
             $subject = "Stag01 Server Might Be Down";
             $msg = "There are some issue while creating pdf for booking_id/invoice_id $id from stag01 server. Check the issue and fix it immediately";
-            $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $msg, $output_file_excel);
+            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $msg, $output_file_excel);
             return $result;
         }
         
@@ -867,16 +870,11 @@ class Miscelleneous {
     function verified_applicance_capacity($appliances_details){
         switch ($appliances_details['service_id']){
             case '46':
-                $match = array();
-                preg_match('/[0-9]+/', $appliances_details['capacity'],$match);
-                if( !empty($match) && (strpos($appliances_details['description'],$match[0]) !== False) && (strpos($appliances_details['description'],$appliances_details['brand']) !== False)){
-                    $return_data['status'] = TRUE;
-                    $return_data['is_verified'] = '1';
-                }else{
-                    $return_data['status'] = FALSE;
-                    $return_data['is_verified'] = '0';
-                }
+                $return_data = $this->verifiy_tv_description($appliances_details);
                 break;
+            case '28':
+                $return_data = $this->verifiy_washing_machine_description($appliances_details);
+                break;    
             default :
                 $return_data['status'] = FALSE;
                 $return_data['is_verified'] = '0';
@@ -936,5 +934,229 @@ class Miscelleneous {
                      } 
          
      }
+     /* @Desc: This function is used to _allot_source_partner_id_for_pincode
+     * @params: String Pincode, brnad, default partner id(SS)
+     * @return : Array
+     * 
+     */
+     function _allot_source_partner_id_for_pincode($service_id, $state, $brand,$default_partner) {
+        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
+        $data = [];
+        $flag = FALSE;
+
+        $partner_array = $this->My_CI->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
+        
+        if (!empty($partner_array)) {
+
+            foreach ($partner_array as $value) {
+                //Now getting details for each Partner 
+                $filtered_partner_state = $this->My_CI->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
+                if ($filtered_partner_state) {
+                    //Now assigning this case to Partner
+                    $data['partner_id'] = $value['partner_id'];
+                    $data['source'] = $partner_array[0]['code'];
+                    $flag = FALSE;
+                } else {
+                    if($value['partner_id'] == 247041){
+                        return false;
+                    } else {
+                        $flag = TRUE;
+                    }
+                }
+            }
+        } else {
+            log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
+            $flag = TRUE;
+        }
+        
+        if($flag){
+            switch ($default_partner){
+                case SNAPDEAL_ID:
+                    $data['partner_id'] = SNAPDEAL_ID;
+                    $data['source'] = 'SS';
+                    break;
+                case WYBOR_ID:
+                    $data['partner_id'] = WYBOR_ID;
+                    $data['source'] = 'SY';
+                    break;
+                case PAYTM:
+                    $data['partner_id'] = PAYTM;
+                    $data['source'] = 'SP';
+                    break;
+            }
+        }
+        
+        return $data;
+    }
+    
+    /**
+     * @Desc: This function is used to Add details in File Uploads table
+     * @params: String, String
+     * @return: Void
+     * 
+     * 
+     */
+    public function update_file_uploads($tmpFile, $type, $result = "") {
+        switch ($type) {
+            case _247AROUND_SNAPDEAL_DELIVERED:
+                $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
+                $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
+                break;
+            case _247AROUND_SNAPDEAL_SHIPPED:
+                $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '.xlsx';
+                $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
+                break;
+            case _247AROUND_SATYA_DELIVERED:
+                $data['file_name'] = "Satya-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
+                $data['file_type'] = _247AROUND_SATYA_DELIVERED;
+                break;
+            case _247AROUND_PAYTM_DELIVERED:
+                $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
+                $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
+                break;
+            case _247AROUND_SF_PRICE_LIST:
+                $data['file_name'] = "Service-Price-List-" . date('Y-m-d-H-i-s') . '.xlsx';
+                $data['file_type'] = _247AROUND_SF_PRICE_LIST;
+                break;
+        }
+        $data['agent_id'] = $this->My_CI->session->userdata('id');
+        $data['result'] = $result;
+        
+        $insert_id = $this->My_CI->partner_model->add_file_upload_details($data);
+        
+        if (!empty($insert_id)) {
+            //Logging success
+            log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
+        } else {
+            //Loggin Error
+            log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+        }
+
+        //Making process for file upload
+        move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
+
+        //Upload files to AWS
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/" . $data['file_name'];
+        $this->My_CI->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+
+        //Logging
+        log_message('info', __FUNCTION__ . 'File has been uploaded in S3');
+        unlink(TMP_FOLDER . $data['file_name']);
+    }
+        
+    /**
+     * @desc This is used to get the balance of partner account
+     * @param int $partner_id
+     * @return int
+     */
+    function get_partner_prepaid_amount($partner_id) {
+        $partner_details = $this->My_CI->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,"
+                . "grace_period_date,prepaid_notification_amount ", array('partners.id' => $partner_id));
+        if (!empty($partner_details)) {
+            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id,
+                'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) '
+                    . 'THEN ( amount_collected_paid -`amount_paid`) END)  AS amount');
+            $where = array(
+                'partner_id' => $partner_id,
+                'partner_invoice_id is null' => NULL,
+                'booking_status IN ("' . _247AROUND_PENDING . '", "' . _247AROUND_FOLLOWUP . '", "' . _247AROUND_COMPLETED . '")' => NULL
+            );
+            $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
+
+            $final_amount = $invoice_amount[0]['amount'] - $service_amount[0]['amount'];
+
+
+
+            log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
+            $d['prepaid_amount'] = $final_amount;
+
+            if ($final_amount > $partner_details[0]['prepaid_notification_amount']) {
+
+                $d['is_notification'] = FALSE;
+            } else {
+                $d['is_notification'] = TRUE;
+            }
+            $d['prepaid_msg'] = "";
+            $d['active'] = $partner_details[0]['is_active'];
+
+            if (($partner_details[0]['is_prepaid'] == 1) & $partner_details[0]['prepaid_amount_limit'] > $final_amount) {
+                $d['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;
+
+                if (!empty($partner_details[0]['grace_period_date']) && (date("Y-m-d") > date("Y-m-d", strtotime($partner_details[0]['grace_period_date'])))) {
+                    $d['active'] = 0;
+                } else if (empty($partner_details[0]['grace_period_date'])) {
+
+                    $d['active'] = 0;
+                }
+            }
+
+            return $d;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * @desc This function is used to verify television appliance data
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verifiy_tv_description($appliances_details) {
+        $match = array();
+        $new_appliance_details = array();
+        
+        preg_match('/[0-9]+/', $appliances_details['capacity'], $match);
+        if (!empty($match) && (strpos($appliances_details['description'], $match[0]) !== False) && (strpos($appliances_details['description'], $appliances_details['brand']) !== False)) {
+            $new_appliance_details['category'] = $appliances_details['category'];
+            $new_appliance_details['capacity'] = $appliances_details['capacity'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
+        } else {
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
+    
+    /**
+     * @desc This function is used to verify washing_machine appliance data
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verifiy_washing_machine_description($appliances_details){
+        $new_appliance_details = array();
+        if(((stripos($appliances_details['description'],'semiautomatic') !== False) || (stripos($appliances_details['description'],'semi automatic') !== False) ) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+            $new_appliance_details['category'] = 'Semiautomatic';
+            $new_appliance_details['capacity'] = $appliances_details['capacity'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
+        }else if(((stripos($appliances_details['description'],'fullyautomatic') !== False) || (stripos($appliances_details['description'],'Fully Automatic') !== False) || (stripos($appliances_details['description'],'Fully Automatic') !== False)) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+                 if(stripos($appliances_details['description'],'front') !== False){
+                    $new_appliance_details['category'] = 'Front Load';
+                    $new_appliance_details['capacity'] = $appliances_details['capacity'];
+                    $new_appliance_details['brand'] = $appliances_details['brand'];
+                    $new_appliance_details['status'] = TRUE;
+                    $new_appliance_details['is_verified'] = '1';
+                 }else if(stripos($appliances_details['description'],'top') !== False){
+                    $new_appliance_details['category'] = 'Top Load';
+                    $new_appliance_details['capacity'] = $appliances_details['capacity'];
+                    $new_appliance_details['brand'] = $appliances_details['brand'];
+                    $new_appliance_details['status'] = TRUE;
+                    $new_appliance_details['is_verified'] = '1';
+                 }else{
+                    $new_appliance_details['status'] = FALSE;
+                    $new_appliance_details['is_verified'] = '0';
+                 }
+        }else{
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
 
 }

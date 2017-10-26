@@ -359,16 +359,18 @@ class vendor extends CI_Controller {
             {
                 $_POST['is_verified'] = '0';
             }
+         
             
             
             //Getting RM Official Email details to send Welcome Mails to them as well
             $rm_official_email = $this->employee_model->getemployeefromid($rm)[0]['official_email'];
+            $agentID = $this->session->userdata('id');
                 
             if (!empty($this->input->post('id'))) {
                 
                 //if vendor exists, details are edited
                 $vendor_data = $this->get_vendor_form_data();
-
+                $vendor_data['agent_id'] = $agentID;
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
       
                 //Log Message
@@ -407,6 +409,7 @@ class vendor extends CI_Controller {
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
                 
                 $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
+                $vendor_data['agent_id'] = $agentID;
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
@@ -808,14 +811,11 @@ class vendor extends CI_Controller {
         $this->email->to($to);
         
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
-           
-            $this->email->subject("Vendor Updated : " . $_POST['name'] . ' - By ' . $logged_user_name);
-        
+           $subject = "Vendor Updated : " . $_POST['name'] . ' - By ' . $logged_user_name;
         }else{
-            
-            $this->email->subject("New Vendor Added : " . $_POST['name'] . ' - By ' . $logged_user_name);
+            $subject = "New Vendor Added : " . $_POST['name'] . ' - By ' . $logged_user_name;
         }
-        
+        $this->email->subject($subject);
         $this->email->message($html);
 
         if (!empty($updated_vendor_details[0]['address_proof_file'])) {
@@ -853,6 +853,7 @@ class vendor extends CI_Controller {
         }
 
         if ($this->email->send()) {
+            $this->notify->add_email_send_details('booking@247around.com',$to,"","",$subject,$html,"");
             log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
             $flag = TRUE;
         } else {
@@ -1072,7 +1073,8 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function deactivate($id) {
-        $this->vendor_model->deactivate($id);
+        $agentID = $this->session->userdata('id');
+        $this->vendor_model->deactivate($id,$agentID);
         
         //Getting Vendor Details
         $sf_details = $this->vendor_model->getVendorContact($id);
@@ -1550,30 +1552,7 @@ class vendor extends CI_Controller {
 
                 $this->vendor_model->execute_query($sql_commands1);
 
-                //Adding Details in File_Uploads table as well
-                $data_uploads['file_name'] = "vendor_pincode_mapping_temp_".date('j-M-Y').".zip";
-                $data_uploads['file_type'] = _247AROUND_VENDOR_PINCODE;
-                $data_uploads['agent_id'] = $this->session->userdata('id');
-                $insert_id = $this->partner_model->add_file_upload_details($data_uploads);
-                if (!empty($insert_id)) {
-                    //Logging success
-                    log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data_uploads, TRUE));
-                } else {
-                    //Loggin Error
-                    log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data_uploads, TRUE));
-                }
-
-
-                //Upload files to AWS
-                $bucket = BITBUCKET_DIRECTORY;
-                $directory_xls = "vendor-partner-docs/"."vendor_pincode_mapping_temp_".date('j-M-Y').".zip";
-                $this->s3->putObjectFile($newZipFileName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                //Logging
-                log_message('info', __FUNCTION__ . ' Vendor Pincode Zipped File has been uploaded in S3');
-                
-                //remove file from system
-                unlink($csv);
-                unlink($newZipFileName);
+                $this->save_file_into_database($newZipFileName, $csv,FILE_UPLOAD_SUCCESS_STATUS);
                 
                 log_message('info', __FUNCTION__ . ' => All queries executed: ');
                 
@@ -1581,9 +1560,7 @@ class vendor extends CI_Controller {
                 redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
             }else{
                 
-                //remove file from system
-                unlink($csv);
-                unlink($newZipFileName);
+                $this->save_file_into_database($newZipFileName, $csv,FILE_UPLOAD_FAILED_STATUS);
                 
                 $this->session->set_flashdata('file_error','Pincode File Is Not Valid Please Check And Upload Again');
                 redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
@@ -3292,7 +3269,8 @@ class vendor extends CI_Controller {
      */
     function temporary_on_off_vendor($id, $on_off) {
         log_message('info',__FUNCTION__.' id: '.$id.' on_off: '.$on_off);
-        $this->vendor_model->temporary_on_off_vendor($id,$on_off);
+        $agentID = $this->session->userdata('id');
+        $this->vendor_model->temporary_on_off_vendor($id,$on_off,$agentID);
         
         //Check on off
         if($on_off == 1){
@@ -4603,5 +4581,83 @@ class vendor extends CI_Controller {
                     $this->session->set_userdata($msg);
                     redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
           }
+         
+          /*
+           * This function use to create pincode update form when data comes from rm dashboard
+           * @input - post data pincode and service related to that pincode in json format
+           * @output - it will create the pincode form view
+           */
+          function insert_pincode_form(){
+            $data = $this->input->post();
+            if(!empty(json_decode($data['service']))){
+                   $data['selected_appliance'] = json_decode($data['service'],TRUE);
+            }
+            $data['all_appliance'] = $this->booking_model->selectservice();
+            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view('employee/add_vendor_to_pincode',$data);
+          }
+          
+    function save_file_into_database($newZipFileName, $csv, $status) {
+        //Adding Details in File_Uploads table as well
+        $data_uploads['file_name'] = "vendor_pincode_mapping_temp_" . date('j-M-Y') . ".zip";
+        $data_uploads['file_type'] = _247AROUND_VENDOR_PINCODE;
+        $data_uploads['agent_id'] = $this->session->userdata('id');
+        $data_uploads['result'] = $status;
+        $insert_id = $this->partner_model->add_file_upload_details($data_uploads);
+        if (!empty($insert_id)) {
+            //Logging success
+            log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data_uploads, TRUE));
+        } else {
+            //Loggin Error
+            log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data_uploads, TRUE));
+        }
+
+
+        //Upload files to AWS
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/" . "vendor_pincode_mapping_temp_" . date('j-M-Y') . ".zip";
+        $this->s3->putObjectFile($newZipFileName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        //Logging
+        log_message('info', __FUNCTION__ . ' Vendor Pincode Zipped File has been uploaded in S3');
+
+        //remove file from system
+        unlink($csv);
+        unlink($newZipFileName);
+    }
+    
+    /**
+     * @desc : This function is used to resend the login details on request.
+     * @param : $type employee/SF/partner string
+     * @param : $id employee_id/sf_id/partner_id string
+     * @return : void
+     */
+    function resend_login_details($type, $id) {
+        $agent = $this->service_centers_model->get_sc_login_details_by_id($id);
+        if(!empty($agent)){
+            $template = $this->booking_model->get_booking_email_template("resend_login_details");
+            if (!empty($template)) {
+                $sf_details = $this->vendor_model->getVendorDetails('primary_contact_email,owner_email',array('id'=>$id));
+                $rm_email = $this->vendor_model->get_rm_sf_relation_by_sf_id($id)[0]['official_email'];
+                $login_details['username'] = $agent[0]['user_name'];
+                $login_details['password'] = $agent[0]['user_name'];
+                $subject = $template[4];
+                $emailBody = vsprintf($template[0], $login_details);
+                $to = $this->session->userdata('official_email').",".$sf_details[0]['primary_contact_email'].",".$sf_details[0]['owner_email'];
+                $cc = $rm_email.",".$template[3];
+                $this->notify->sendEmail($template[2],$to , $cc, '', $subject, $emailBody, "");
+                $this->session->set_userdata('success','Login Details Send To Registered Email Id');
+                redirect(base_url() . 'employee/vendor/viewvendor'); 
+            }else{
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '','', 'Email Template Not Found', 'resend_login_details email template not found. Please update this into the database.', "");
+                $this->session->set_userdata('error','Error!!! Please Try Again...');
+                redirect(base_url() . 'employee/vendor/viewvendor');  
+            }
+        }else{
+            echo "Service Center Not Found";
+        }
+        
+    }
+
 }
 

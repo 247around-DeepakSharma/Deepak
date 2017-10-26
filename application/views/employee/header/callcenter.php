@@ -121,7 +121,7 @@
                                 </li>
                                 <li class="divider"></li>
                                 <li>
-                                    <a href="<?php echo base_url()?>employee/booking/update_not_pay_to_sf_booking"><i class="fa fa-fw fa-desktop"></i> <strong>No Installation, Only Stand Given</strong></a>
+                                    <a href="<?php echo base_url()?>employee/booking/update_not_pay_to_sf_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Wall Mount Given</strong></a>
                                 </li>
                                  <li class="divider"></li>
                                 <li>
@@ -174,6 +174,18 @@
                             </ul>
                             <!-- /.dropdown-user -->
                         </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Reports <i class="fa fa-caret-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="<?php echo base_url() ?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
+                                </li>
+
+                            </ul>
+                            <!-- /.dropdown-user -->
+                        </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li>
@@ -219,3 +231,10 @@
             .dropdown-submenu:hover>a:after{border-left-color:#555;}
             .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
         </style>
+         <div class="main_search">
+            <form name="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/user/finduser" method="GET">
+                <input type="search" id="search_in" class="search_in "name="search_value" placeholder="Booking ID/Phone Number" style="position: absolute; padding-left:10px; ">
+            </form>
+            <label class="search_fab " for="search_in"> <i class="fa fa-search" aria-hidden="true" ></i> </label>
+
+        </div>

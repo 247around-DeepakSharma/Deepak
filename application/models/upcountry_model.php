@@ -384,7 +384,7 @@ class Upcountry_model extends CI_Model {
             $invoice_check =" AND upcountry_vendor_invoice_id IS NULL ";
         }
         
-        $sql = "SELECT DISTINCT ( bd.booking_id) As booking_id, "
+        $sql = "SELECT DISTINCT ( bd.booking_id) As booking_id, 'Upcountry Services' AS product_or_services, "
                 . " upcountry_distance, bd.city, services, "
                 . " '0.00' AS additional_charges, "
                 . " '0.00' AS parts_cost, "
@@ -640,10 +640,10 @@ class Upcountry_model extends CI_Model {
      * @return ARray
      */
     function get_upcountry_service_center_id_by_booking($booking_id){
-        $this->db->select('service_center_id, booking_primary_contact_no,user_id');
+        $this->db->select('service_center_id,assigned_vendor_id, booking_primary_contact_no,user_id');
         $this->db->from('booking_details');
         $this->db->where('booking_id',$booking_id);
-       $this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
+        //$this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
         $this->db->join('sub_service_center_details','sub_service_center_details.id = booking_details.sub_vendor_id');
         $query = $this->db->get();
         return $query->result_array();

@@ -219,7 +219,7 @@ class Login extends CI_Controller {
             $select = 'partner_id, dealer_name,dealer_phone_number_1';
             $condition = array(
             "where" => array('dealer_details.dealer_id' => $agent[0]['entity_id'],'dealer_brand_mapping.dealer_id' => $agent[0]['entity_id'], 
-                'dealer_brand_mapping.active' => 1, 'dealer_details.active'=> 1),
+                'dealer_brand_mapping.active' => 1, 'dealer_details.active'=> 1, "partners.is_active" => 1),
             "where_in" => array(),
             "search" => array(),
             "order_by" => "");
@@ -318,9 +318,10 @@ class Login extends CI_Controller {
         
         if (!empty($agent)) {
             //get partner details now
-            $partner_details = $this->partner_model->getpartner($partner_id);
+            $partner_details = $this->partner_model->getpartner($partner_id, false);
 
-            $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'], $partner_details[0]['is_active']);
+            $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], 
+                    $agent[0]['agent_id'], $partner_details[0]['is_active'], $partner_details[0]['is_prepaid']);
             log_message('info', 'Partner loggedIn  partner id' .
                     $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
             
@@ -336,7 +337,7 @@ class Login extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setPartnerSession($partner_id, $partner_name, $agent_id,$status) {
+    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid) {
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
             'partner_id' => $partner_id,
@@ -344,6 +345,7 @@ class Login extends CI_Controller {
             'agent_id' => $agent_id,
             'sess_expiration' => 600000,
             'loggedIn' => TRUE,
+            'is_prepaid' =>$is_prepaid,
             'userType' => 'partner',
             'status' => $status
         );
@@ -380,17 +382,12 @@ class Login extends CI_Controller {
             $partner_details = $this->partner_model->getpartner($agent[0]['entity_id'],FALSE);
             if($partner_details){
                 $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
-                        $partner_details[0]['is_active']);
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid']);
                 log_message('info', 'Partner loggedIn  partner id' .
                         $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
                 //Adding Log Details
-                if ($partner_details[0]['is_active'] == 1) {
-                    
-                    redirect(base_url() . "partner/home");
-                } else  if ($partner_details[0]['is_active'] == 0) { 
-                    redirect(base_url() . "partner/invoice");
-                } 
+                 redirect(base_url() . "partner/home");
 
             }else{
                 $userSession = array('error' => 'Sorry, your Login has been De-Activated');

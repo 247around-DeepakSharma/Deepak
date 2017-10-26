@@ -41,18 +41,6 @@ class Partner_model extends CI_Model {
       return $this->db->insert_id();
     }
 
-    function get_partner_lead_by_id($id) {
-      $this->db->where(array("id" => $id));
-      $query = $this->db->get("partner_leads");
-      $results = $query->result_array();
-
-      if (count($results) > 0) {
-        return $results[0];
-      } else {
-        return NULL;
-      }
-    }
-
     //Find order id for a partner
     function get_order_id_for_partner($partner_id, $order_id, $booking_id = "") {
       $this->db->where(array("partner_id" => $partner_id, "order_id" => $order_id));
@@ -67,74 +55,6 @@ class Partner_model extends CI_Model {
       } else {
         return NULL;
       }
-    }
-
-    //Find OrderID for 247aroundBooking ID
-    function get_order_id_by_booking_id($booking_id) {
-      $this->db->like(array("booking_id" => $booking_id));
-      $query = $this->db->get("booking_details");
-      $results = $query->result_array();
-
-      if (count($results) > 0) {
-        return $results[0];
-      } else {
-        return NULL;
-      }
-    }
-
-    function update_partner_lead($array_where, $array_data) {
-      /*
-       * Standard method of Update wasn't working because of the LIKE clause
-       * hence using this method.
-       */
-
-      $booking_id = $array_where['247aroundBookingID'];
-      $where = "247aroundBookingID LIKE '%$booking_id%'";
-      $sql = $this->db->update_string('partner_leads', $array_data, $where);
-
-      if ($this->db->query($sql) === FALSE) {
-        log_message('error', __METHOD__ . "=> Update command failed" . $this->db->last_query());
-      } else {
-        $result = (bool) ($this->db->affected_rows() > 0);
-        log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
-      }
-    }
-
-    //Return true/false depending on lead with order_id and some case for partner id exists or not
-    function check_partner_lead_exists_by_order_id($order_id, $partner_id ="") {
-        if($partner_id !="")
-            $this->db->where("PartnerID", $partner_id);
-
-      $this->db->where("OrderID" , $order_id);
-      $query = $this->db->get('partner_leads');
-
-      if (count($query->result_array()) > 0)
-        return TRUE;
-      else
-        return FALSE;
-    }
-
-    //return booking source code
-    function get_source_code_for_partner($partner_id) {
-  $this->db->where(array("partner_id" => $partner_id));
-  $query = $this->db->get('bookings_sources');
-  $results = $query->result_array();
-
-  if (count($results) > 0) {
-      return $results[0]['code'];
-  } else {
-      return "SB";
-  }
-    }
-
-    //Return Partner ID from Booking Source
-    //Default 'Other'
-    function get_partner_id_from_booking_source_code($source) {
-  $this->db->where(array("code" => $source));
-  $query = $this->db->get('bookings_sources');
-  $results = $query->result_array();
-
-  return $results[0]['partner_id'];
     }
 
     function get_all_partner_source($flag="", $source= ""){
@@ -180,42 +100,28 @@ class Partner_model extends CI_Model {
         return $query->result_array();
     }
 
-    /**
+ /**
  * @desc: this method return partner data if need to call partner api other wise return false
  * @param: booking id
  */
-    function get_data_for_partner_callback($booking_id){
-        $this->db->select('*');
-        $this->db->where('booking_id', $booking_id);
-        $this->db->where('partner_id IS NOT NULL', null, false);
-        $query = $this->db->get('booking_details');
-        if($query->num_rows >0 ){
+function get_data_for_partner_callback($booking_id) {
+        $this->db->select("*");
+        $this->db->from("booking_details");
+        $this->db->where("booking_id", $booking_id);
+        $this->db->join("partner_callback", "partner_callback.partner_id = booking_details.partner_id AND callback_string = partner_source");
+        $this->db->where("partner_callback.active", 1);
+        $query = $this->db->get();
+        if ($query->num_rows > 0) {
 
-           $result = $query->result_array();
-           $this->db->select('*');
-           $this->db->where('partner_id', $result[0]['partner_id']);
-           $this->db->where('callback_string',$result[0]['partner_source']);
-           $this->db->where('active',"1");
-           $query1 = $this->db->get('partner_callback');
-
-           if($query1->num_rows > 0){
-
-               return $result[0];
-
-           } else {
-
-              return false;
-           }
-
-
+            $result = $query->result_array();
+            return $result[0];
         } else {
 
             return false;
         }
-
     }
 
-     /**
+    /**
      * @desc: check partner login and return pending booking
      * @param: Array(username, password)
      * @return : Array(Pending booking)
@@ -500,7 +406,8 @@ class Partner_model extends CI_Model {
 
     //Get partner summary parameters for daily report
     function get_partner_summary_params($partner_id) {
-	$partner_source_code = $this->get_source_code_for_partner($partner_id);
+	$partner_details = $this->getpartner_details('code',array('partners.id' => $partner_id));
+        $partner_source_code = $partner_details[0]["code"];
         
         //count today installation scheduled
         $toady_sql = "SELECT count(DISTINCT booking_id) AS today_install_sched 
@@ -700,6 +607,7 @@ class Partner_model extends CI_Model {
 
 	return $query->result_array();
     }
+     
     
     /**
      * @desc: This is used to get required Spare Parts Booking
@@ -880,12 +788,13 @@ class Partner_model extends CI_Model {
      */
     function get_active_partner_id_by_service_id_brand($brands, $service_id){
         $this->db->distinct();
-        $this->db->select('partner_appliance_details.partner_id');
+        $this->db->select('partner_appliance_details.partner_id, bookings_sources.code');
         $this->db->where('partner_appliance_details.brand',$brands);
         $this->db->where('partner_appliance_details.service_id',$service_id);
         $this->db->where('partner_appliance_details.active',1);
         $this->db->where('partners.is_active',1);
         $this->db->join('partners','partner_appliance_details.partner_id = partners.id');
+        $this->db->join('bookings_sources','bookings_sources.partner_id = partners.id');
         $query = $this->db->get('partner_appliance_details');
         
         return $query->result_array();

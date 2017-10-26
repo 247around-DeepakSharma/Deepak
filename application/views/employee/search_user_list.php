@@ -18,18 +18,18 @@
                   </tr>
                </thead>
                <tbody>
-                  <?php $count = 1; if(!empty($result)){ foreach($result as $key =>$user_details) {?>
+                  <?php $count = 1; if(!empty($Bookings)){ foreach($Bookings as $key =>$user_details) {?>
                   <tr>
                      <td><?php echo $count;?></td>
-                     <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo  $user_details['phone_number']; ?>"><?php echo $user_details['name']; ?></a></td>
-                     <td><?php if(!empty($user_details['alternate_phone_number'])){
-                        echo $user_details['phone_number'].", ". $user_details['phone_number'];
+                     <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?php echo  $user_details->phone_number; ?>"><?php echo $user_details->customername; ?></a></td>
+                     <td><?php if(!empty($user_details->alternate_phone_number)){
+                        echo $user_details->phone_number.", ". $user_details->phone_number;
                         } else {
-                        echo $user_details['phone_number'];
+                        echo $user_details->phone_number;
                         } ?></td>
                      <?php  $count = $count+1;  ?>
-                     <td><?php echo $user_details['user_email'] . " / " . $user_details['account_email']; ?></td>
-                     <td><?php echo $user_details['home_address'] . ", " . $user_details['pincode']; ?></td>
+                     <td><?php echo $user_details->user_email . " / " . $user_details->account_email; ?></td>
+                     <td><?php echo $user_details->home_address . ", " . $user_details->pincode; ?></td>
                   </tr>
                   <?php }} ?>
                </tbody>

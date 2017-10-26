@@ -23,6 +23,7 @@
          <th>Amount to be Paid By 247Around</th>
          <th>Amount to be Paid By Partner</th>
          <th>Amount Paid</th> 
+         <th>Remarks</th> 
          <th>Select</th>
          <th>ReGenerate</th>
          <th>Update</th>
@@ -74,7 +75,7 @@
          <td id="<?php echo 'pay_partner'.$count; ?>"><?php if($invoice['amount_collected_paid'] > 0){ echo round($invoice['amount_collected_paid'],0); $pay_by_partner += $invoice['amount_collected_paid'];} else {echo "0.00";} ?></td>
         
          <td id="<?php echo 'amount_paid_'.$count; ?>"><?php echo round($invoice['amount_paid'],0) ?></td>
-         
+         <td><?php echo $invoice['remarks']; ?></td>
         
          <td ><?php if($invoice['settle_amount'] == 0){ ?><input type="checkbox" class="form-control" name ="invoice_id[]" value="<?php echo $invoice['invoice_id'] ?>" id="<?php echo 'checkbox_'.$count; ?>" onclick="sum_amount()" />
              
@@ -134,7 +135,7 @@
          <td></td>
          <td id="final_amount_selected"></td>
          <td><input type="submit" class="form-control btn btn-sm btn-primary" value="Pay"></td>
-          <td> </td>
+          <td> </td><td> </td>
         
        
          

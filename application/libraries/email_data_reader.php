@@ -54,4 +54,49 @@ class email_data_reader  {
         }
         return $email_data_holder;
     }
+    
+    /**
+    * @desc     Get email according to the search criteria
+    *           By Default It search All email
+    * @param    $search_criteria  string
+    * @return   $response   array 
+    */
+    public function get_emails($search_criteria = "ALL"){
+        $response = array();
+        $emails = imap_search($this->connection, $search_criteria);
+        if(!empty($emails)){
+            //sort $emails to get the latest data first
+            rsort($emails);
+            $no_of_emails = $emails ? count($emails) : 0;
+            for ($i = 0; $i < $no_of_emails; $i++) {
+                //get email headers
+                $header = imap_header($this->connection, $emails[$i]);
+                // get email send from
+                $from = $header->fromaddress;
+                //get email subject
+                $subject = $header->subject;
+                //get email structure
+                $structure = imap_fetchstructure($this->connection, $emails[$i]);
+                //if structure is not empty then get email body
+                if (!empty($structure->parts)) {
+                    for ($j = 0, $k = count($structure->parts); $j < $k; $j++) {
+                        $part = $structure->parts[$j];
+                        if ($part->subtype == 'PLAIN') {
+                            $body = imap_fetchbody($this->connection, $emails[$i], $j + 1);
+                        }else{
+                            $body = imap_body($this->connection, $emails[$i]);
+                        }
+                    }
+                } else {
+                    $body = imap_body($this->connection, $emails[$i]);
+                }
+                
+                //make return array
+                array_push($response, array('email_no' => $emails[$i], 'from' => $from, 'subject' => $subject, 'body' => $body));
+            }
+        }
+        
+        //return response
+        return $response;
+    }
 }

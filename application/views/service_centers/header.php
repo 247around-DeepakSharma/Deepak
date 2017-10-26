@@ -61,173 +61,11 @@
     <body>
         <nav class="navbar navbar-custom">
             <!-- Modal -->
-            <div id="contactusmodal" class="modal fade" role="dialog">
+            <div id="contactUsModal" class="modal fade" role="dialog">
                 <div class="modal-dialog modal-lg">
                     <!-- Modal content-->
                     <div class="modal-content">
-                        
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">247around Call Center - 9555000247</h4>
-                        </div>       
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Calls & CRM Issues:</h4>
-                        </div>
-                       
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="card">
-                                                <div class="container">
-                                                  <h5><b>Mr. Devendra</b></h5> 
-                                                  <p>Back Office Closure Champion</p>
-                                                  <p>Delhi Office</p>
-                                                  <p>8130572244 <span> <strong>|</strong> English and Hindi</span></p>
-                                                  <p>booking@247around.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="card">
-                                                <div class="container">
-                                                  <h5><b>Mrs. Ranju</b></h5> 
-                                                  <p>Back Office Closure</p>
-                                                  <p>Delhi Office</p>
-                                                  <p>8130572244 <span> <strong>|</strong> Bengali and Hindi</span></p>
-                                                  <p>booking@247around.com</p>
-                                                </div>
-                                            </div>
-                                    
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Regional Contacts:</h4>
-                        </div>
-                        
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="long-card">
-                                                <div class="container">
-                                                  <h5><b>Mr. K Suresh</b></h5> 
-                                                  <p>Escalation South India</p>
-                                                  <p>Regional Service Head South India</p>
-                                                  <p>Chennai Office <span>9840492171</span></p>
-                                                  <p style="width:250px;word-wrap:break-word;">English, Tamil, Malayalam, Telugu and Kannada</p>
-                                                  <p>suresh@247around.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="long-card">
-                                                <div class="container">
-                                                  <h5><b>Mr. Rajendra Oza</b></h5> 
-                                                  <p>Escalation West India</p>
-                                                  <p>Regional Service Head West India</p>
-                                                  <p>Mumbai Office <span>9223274602</span></p>
-                                                  <p>English, Hindi and Marathi</p>
-                                                  <p>oza@247around.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="long-card">
-                                                <div class="container">
-                                                  <h5><b>Mr. Nilanjan Das</b></h5> 
-                                                  <p>Escalation East India</p>
-                                                  <p>Regional Service Head East India</p>
-                                                  <p>Kolkata Office <span>9051159966</span></p>
-                                                  <p> English, Hindi and Bengali</p>
-                                                  <p>nilanjan@247around.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="clearfix"></div>
-                                        <div class="col-md-4">
-                                            <div class="long-card" style="margin-top:20px;">
-                                                <div class="container">
-                                                  <h5><b>Mr. Nitin Malhotra</b></h5> 
-                                                  <p>Escalation North India</p>
-                                                  <p>Director & CEO</p>
-                                                  <p>Delhi Office 9810872244</p>
-                                                  <p>English, Hindi and Punjabi</p>
-                                                  <p>nits@247around.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Escalation Resolution Contact:</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card" style="width:40%;">
-                                        <div class="container">
-                                            <h5><b>Mr. Jaidev Sharma</b></h5> 
-                                            <p>Delhi Office</p>
-                                            <p>9582528116 <span> <strong>|</strong> English and Hindi</span></p>
-                                            <p>jaidevs@247around.com</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">TV Bracket Ordering:</h4>
-                        </div>
-                        
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card" style="width:40%;">
-                                        <div class="container">
-                                            <h5><b>Ms. Vijaya</b></h5> 
-                                            <p>Back Office Closure Champion</p>
-                                            <p>Delhi Office</p>
-                                            <p>0120-4540185 <span> <strong>|</strong> English and Hindi</span></p>
-                                            <p>vijaya@247around.com,booking@247around.com</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">247around Invoices Related:</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card" style="width:40%;">
-                                        <div class="container">
-                                            <h5><b>Mr. Adil Akhtar</b></h5> 
-                                            <p>Back Office Closure Champion</p>
-                                            <p>Delhi Office</p>
-                                            <p>9716960840 <span> <strong>|</strong> English and Hindi</span></p>
-                                            <p>adila@247around.com</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
+                        <div id="contactUsModalData"></div>
                         <div class="modal-header text-center" style="background-color:#E5E5FF;">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h4 class="modal-title">247around Call Center - 9555000247</h4>
@@ -329,7 +167,7 @@
                             <a href="<?php echo base_url();?>service_center/gst_details"  >GST</a>
                         </li>
                         <li>
-                            <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactusmodal"><i class="fa fa-phone"></i>&nbsp;Contact Us&nbsp;</a>
+                            <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactUsModal"><i class="fa fa-phone"></i>&nbsp;Contact Us&nbsp;</a>
                         </li>
                         
                     </ul>
@@ -383,6 +221,16 @@
 </html>
 
 <script>
+    $(document).ready(function(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/service_centers/get_contact_us_page',
+            success: function (data) {
+                    $("#contactUsModalData").html(data);   
+            }
+        });
+    });
+    
 function search_order_id(ele){
     if(event.keyCode === 13 && ele.value !== '') {
 

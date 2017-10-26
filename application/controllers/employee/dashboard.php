@@ -454,8 +454,14 @@ class Dashboard extends CI_Controller {
     function get_buyback_balanced_amount(){
         
         if($this->session->userdata('user_group') === 'regionalmanager'){
-            $sf_id = $this->vendor_model->get_employee_relation($this->session->userdata('id'))[0]['service_centres_id'];
-            $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1, "id IN ($sf_id)" => null));
+            $sf_id = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
+            if(!empty($sf_id)){
+                $sf_id = $sf_id[0]['service_centres_id'];
+                $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1, "id IN ($sf_id)" => null));
+            }else{
+                $cp = '';
+            }
+            
         }else{
             $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1));
         }
@@ -474,53 +480,55 @@ class Dashboard extends CI_Controller {
         $this->table->set_template($template);
         $this->table->set_heading(array('Name', 'Advance Paid', 'Un-Settle Invoice (Rs)', 'Un-billed Delivered (Rs)', 'Un-billed In-transit (Rs)', 'Balance (Rs)'));
 
-        foreach ($cp as  $value) {
-           $amount_cr_deb = $this->miscelleneous->get_cp_buyback_credit_debit($value['id']);
+        if(!empty($cp)){
+            foreach ($cp as  $value) {
+                $amount_cr_deb = $this->miscelleneous->get_cp_buyback_credit_debit($value['id']);
 
-            $shop_data = $this->cp_model->get_cp_shop_address_list(array('where' => array('cp_id' => $value['id'])));
-            $star = "";
-            $name = "";
-            $name  = "<div class='dropdown'>
-                            <a class='dropdown-toggle' data-toggle='dropdown' data-hover='dropdown' style='cursor: pointer;'>".$value['name']."
-                           </a>
-                            <ul class='dropdown-menu' >
-                            <li role='presentation'><a  href='#' style='font-weight:bold; font-size:16px;'>Region</a></li>
-                           
-                            ";
-            
-            foreach ($shop_data as $shop){
-                if($shop->active == 1){
-                    $star .= '    <i class="fa fa-star" style="color:green;" aria-hidden="true"></i>';
-                    $name .= " <li role='presentation'><a href='#' style='color:green;font-size:16px;'>".$shop->shop_address_region."</a></li>";
-                } else{
-                    
-                   $star .= '    <i class="fa fa-star" style="color:red;" aria-hidden="true"></i>';
-                   $name .= " <li role='presentation'><a href='#' style='color:red;font-size:16px;'>".$shop->shop_address_region."</a></li>";
+                 $shop_data = $this->cp_model->get_cp_shop_address_list(array('where' => array('cp_id' => $value['id'])));
+                 $star = "";
+                 $name = "";
+                 $name  = "<div class='dropdown'>
+                                 <a class='dropdown-toggle' data-toggle='dropdown' data-hover='dropdown' style='cursor: pointer;'>".$value['name']."
+                                </a>
+                                 <ul class='dropdown-menu' >
+                                 <li role='presentation'><a  href='#' style='font-weight:bold; font-size:16px;'>Region</a></li>
 
-                }
-               
-            }
-            $name .= "</ul></div>";
-           
-            $class ="";
-            
-            if($amount_cr_deb['total_balance'] > 0){
-                $class = ' <i class="success pull-right fa fa-caret-up fa-2x text-success"></i>';
-            } else if($amount_cr_deb['total_balance'] < 0){
-               $class = ' <i class="error pull-right fa fa-caret-down fa-2x text-danger"></i>'; 
-            }
-            
-            $total_advance_paid += abs($amount_cr_deb['advance']);
-            $total_un_settle += $amount_cr_deb['unbilled'];
-            $total_un_billed_delivered += $amount_cr_deb['cp_delivered'];
-            $total_un_billed_in_transit += $amount_cr_deb['cp_transit'];
-            $total_balance += $amount_cr_deb['total_balance'];
-            
-            $this->table->add_row($name .$star,abs($amount_cr_deb['advance']),-$amount_cr_deb['unbilled'], 
-                    -$amount_cr_deb['cp_delivered'],-$amount_cr_deb['cp_transit'], 
-                    "<a target='_blank' href='".  base_url()."employee/invoice/invoice_summary/vendor/".$value['id']."'>".
-                    $amount_cr_deb['total_balance'].$class. "</a>");
-          
+                                 ";
+
+                 foreach ($shop_data as $shop){
+                     if($shop->active == 1){
+                         $star .= '    <i class="fa fa-star" style="color:green;" aria-hidden="true"></i>';
+                         $name .= " <li role='presentation'><a href='#' style='color:green;font-size:16px;'>".$shop->shop_address_region."</a></li>";
+                     } else{
+
+                        $star .= '    <i class="fa fa-star" style="color:red;" aria-hidden="true"></i>';
+                        $name .= " <li role='presentation'><a href='#' style='color:red;font-size:16px;'>".$shop->shop_address_region."</a></li>";
+
+                     }
+
+                 }
+                 $name .= "</ul></div>";
+
+                 $class ="";
+
+                 if($amount_cr_deb['total_balance'] > 0){
+                     $class = ' <i class="success pull-right fa fa-caret-up fa-2x text-success"></i>';
+                 } else if($amount_cr_deb['total_balance'] < 0){
+                    $class = ' <i class="error pull-right fa fa-caret-down fa-2x text-danger"></i>'; 
+                 }
+
+                 $total_advance_paid += abs($amount_cr_deb['advance']);
+                 $total_un_settle += $amount_cr_deb['unbilled'];
+                 $total_un_billed_delivered += $amount_cr_deb['cp_delivered'];
+                 $total_un_billed_in_transit += $amount_cr_deb['cp_transit'];
+                 $total_balance += $amount_cr_deb['total_balance'];
+
+                 $this->table->add_row($name .$star,abs($amount_cr_deb['advance']),-$amount_cr_deb['unbilled'], 
+                         -$amount_cr_deb['cp_delivered'],-$amount_cr_deb['cp_transit'], 
+                         "<a target='_blank' href='".  base_url()."employee/invoice/invoice_summary/vendor/".$value['id']."'>".
+                         $amount_cr_deb['total_balance'].$class. "</a>");
+
+             }
         }
         
         $this->table->add_row("<b>Total</b>",

@@ -1531,12 +1531,13 @@
             email: true
         },
         primary_contact_email: {
-            required: true,
-            email: true
+            required: true
         },
         owner_email: {
-            required: true,
-            email: true
+            required: true
+        },
+        bank_account:{
+            number: true
         }
     },
     messages: {
@@ -1556,7 +1557,8 @@
         owner_name: "Please fill Name",
         email: "Please fill correct email",
         primary_contact_email: "Please fill correct email",
-        owner_email: "Please fill correct email"
+        owner_email: "Please fill correct email",
+        bank_account: "Please fill correct Bank Account Number"
     },
         submitHandler: function (form) {
             //Checking registration number validation

@@ -34,6 +34,7 @@ class Dealer_model extends CI_Model {
         $this->db->from('dealer_details');
         $this->db->join('dealer_brand_mapping', 'dealer_details.dealer_id = dealer_brand_mapping.dealer_id',"Left");
         $this->db->join('services', 'services.id = dealer_brand_mapping.service_id');
+        $this->db->join('partners', 'partners.id = dealer_brand_mapping.partner_id');
         
         if(!empty($condition['where'])){
              $this->db->where($condition['where']);

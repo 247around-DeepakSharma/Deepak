@@ -385,8 +385,8 @@ $this->session->unset_userdata('brackets_update_error');
         } else {
             if ($('#26_32_requested').val().match(numbers)) {
                 _26_32 = parseInt($('#26_32_requested').val());
-                if(_26_32 > 5){
-                    alert('Only 5 or less than 5 brackets can be order');
+                if(_26_32 > 50){
+                    alert('50 or less brackets can be ordered');
                     $('#26_32_requested').css({'border-color' : 'red'});
                     $('#submitform').attr('disabled', true);
                 }else{
@@ -402,8 +402,8 @@ $this->session->unset_userdata('brackets_update_error');
         } else {
             if ($('#36_42_requested').val().match(numbers)) {
                 _36_42 = parseInt($('#36_42_requested').val());
-                if(_36_42 > 10){
-                    alert('Only 10 or less than 10 brackets can be order');
+                if(_36_42 > 50){
+                    alert('50 or less brackets can be ordered');
                     $('#36_42_requested').css({'border-color' : 'red'});
                     $('#submitform').attr('disabled', true);
                 }else{
@@ -428,7 +428,7 @@ $this->session->unset_userdata('brackets_update_error');
 
         $('#total_requested').val(_26_32 + _36_42);
         
-        if($('#26_32_requested').val() <= 5 && $('#36_42_requested').val() <= 10 && $('#total_requested').val() <= 15){
+        if($('#26_32_requested').val() <= 50 && $('#36_42_requested').val() <= 50 && $('#total_requested').val() <= 100){
            $('#submitform').attr('disabled', false);
         }else{
             $('#submitform').attr('disabled', true);
