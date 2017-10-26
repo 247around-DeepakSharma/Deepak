@@ -737,7 +737,7 @@ class Dashboard extends CI_Controller {
             . ' class="table table-striped table-bordered jambo_table bulk_action">'
         );
         $this->table->set_template($template);
-        $this->table->set_heading(array('S.N','RM', 'Pending Bookings'));
+        $this->table->set_heading(array('S.N','RM', 'Pending Queries'));
         $rmDataArray = $this->get_missing_pincode_admin_data_structured_format($pincodeResult);
         $i=1;
         foreach($rmDataArray as $rm=>$rmData){  
