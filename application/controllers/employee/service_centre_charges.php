@@ -189,7 +189,7 @@ class service_centre_charges extends CI_Controller {
             $response = $this->process_upload_service_price_file($tmpFile);
             
             //Adding Details in File_Uploads table as well
-            if($response){
+            if($response['status']){
                 //save file and upload on s3
                 $this->miscelleneous->update_file_uploads($tmpFile, _247AROUND_SF_PRICE_LIST,FILE_UPLOAD_SUCCESS_STATUS);
                 $userSession = array('success' => "File Uploaded Successfully");
@@ -198,7 +198,7 @@ class service_centre_charges extends CI_Controller {
             }else{
                 //save file and upload on s3
                 $this->miscelleneous->update_file_uploads($tmpFile, _247AROUND_SF_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS);
-                $userSession = array('error' => 'Error In File Uploading. Please Try Again');
+                $userSession = array('error' => 'Error In File Uploading. '.$response['msg']);
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
             }
@@ -597,7 +597,7 @@ class service_centre_charges extends CI_Controller {
             $objPHPExcel = $objReader->load($inputFileName);
             $i = 0;
             foreach ($objPHPExcel->getAllSheets() as $sheet) {
-                $highestRow = $data = $sheet->getHighestRow();
+                $highestRow = $data = $sheet->getHighestDataRow();
                 $highestColumn = $sheet->getHighestDataColumn();
                 $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE,FALSE);
                 
@@ -619,28 +619,49 @@ class service_centre_charges extends CI_Controller {
                         $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE,FALSE);
                         $newRowData = array_combine($headings_new1, $rowData[0]);
                         if(!empty($newRowData['partner_id'])){
-                            $subArray = $this->get_sub_array($newRowData,array('partner_id','brand','product_id','category','capacity','service_category','customer_net_payable'));
-                            array_push($sheetUniqueRowData, implode('_', str_replace(' ','_', $subArray)));
-                            array_push($sheetData, $newRowData);
-                            $rowNotEmpty++;
-                            $this->make_final_service_price_data($newRowData);
+                            if($newRowData['service_category'] !== REPEAT_BOOKING_TAG  && $newRowData['service_category'] !== REPAIR_OOW_TAG && $newRowData['sf_percentage'] == 0){
+                                log_message('info', $sheet->getTitle().' sheet has SF Percentage 0 for non repeat booking');
+                                $msg = $sheet->getTitle().' sheet has SF Percentage 0 for non repeat booking';
+                                $flag = FALSE;
+                                break;
+                                
+                            }else if($newRowData['sf_percentage'] == 100){
+                                log_message('info', $sheet->getTitle().' sheet has SF Percentage 100');
+                                $msg = $sheet->getTitle().' sheet has SF Percentage 100';
+                                $flag = FALSE;
+                                break;
+                            }else{
+                                $subArray = $this->get_sub_array($newRowData,array('partner_id','brand','product_id','category','capacity','service_category','customer_net_payable'));
+                                array_push($sheetUniqueRowData, implode('_', str_replace(' ','_', $subArray)));
+                                array_push($sheetData, $newRowData);
+                                $rowNotEmpty++;
+                                $this->make_final_service_price_data($newRowData);
+                                $flag = TRUE;
+                            }
+                            
                         }
                     }
-
-                    $currentSheetPartnerIdArr = array_column($sheetData, 'partner_id');
-                    $isDiffrentPartnerId = count(array_unique($currentSheetPartnerIdArr));
-                    $d = count(array_unique($sheetUniqueRowData));
-                    $arr_duplicates = array_diff_assoc($sheetUniqueRowData, array_unique($sheetUniqueRowData));
-                    if($isDiffrentPartnerId == 1 && empty($arr_duplicates)){
-                        $flag = TRUE;
-                        unset($currentSheetPartnerIdArr);
-                        unset($isDiffrentPartnerId);
+                    
+                    if($flag){
+                        $currentSheetPartnerIdArr = array_column($sheetData, 'partner_id');
+                        $isDiffrentPartnerId = count(array_unique($currentSheetPartnerIdArr));
+                        $arr_duplicates = array_diff_assoc($sheetUniqueRowData, array_unique($sheetUniqueRowData));
+                        if($isDiffrentPartnerId == 1 && empty($arr_duplicates)){
+                            $flag = TRUE;
+                            unset($currentSheetPartnerIdArr);
+                            unset($isDiffrentPartnerId);
+                        }else{
+                            log_message('info', $sheet->getTitle().' sheet either has different partner id or same data in any two or more row');
+                            $msg = $sheet->getTitle().' sheet has either different partner id or same data';
+                            $flag = FALSE;
+                            break;
+                        }
                     }else{
-                        log_message('info', $sheet->getTitle().' sheet either has different partner id or same data in any two or more row');
-                        $msg = $sheet->getTitle().' sheet has either different partner id or same data';
                         $flag = FALSE;
                         break;
                     }
+
+                    
                 }else{
                     log_message('info','Column Not Found');
                     $msg = $response['msg']."in the ".$sheet->getTitle()." sheet";
@@ -662,7 +683,10 @@ class service_centre_charges extends CI_Controller {
                 $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $msg, "");
             }
             
-            return $flag;
+            $return_response['status'] = $flag;
+            $return_response['msg'] = $msg;
+            
+            return $return_response;
             
         } catch (Exception $e) {
             die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
@@ -861,6 +885,7 @@ class service_centre_charges extends CI_Controller {
     
     function make_final_service_price_data($newRowData){
         
+        
         $final_data['partner_id'] = $newRowData['partner_id'];
         $final_data['state'] = $newRowData['state'];
         $final_data['brand'] = $newRowData['brand'];
@@ -887,9 +912,32 @@ class service_centre_charges extends CI_Controller {
         $final_data['pod'] = $newRowData['serial_number_mandatory'];
         $final_data['is_upcountry'] = $newRowData['upcountry'];
         $final_data['vendor_basic_percentage'] = $newRowData['sf_percentage'];
-        
+        if($newRowData['service_category'] == REPAIR_OOW_TAG){
+            $this->oow_spare_parts($final_data);
+        }
         array_push($this->dataToInsert, $final_data);
         
+    }
+    
+    public function oow_spare_parts($data){
+        $data['service_category'] = REPAIR_OOW_PARTS_PRICE_TAGS;
+        $data['product_or_services'] = _247AROUND_PRODUCT_TAG;
+        $data['product_type'] = REPAIR_OOW_PARTS_PRICE_TAGS;
+        $data['tax_code'] = 'VAT';
+        $data['vendor_basic_charges'] = 0;
+        $data['vendor_tax_basic_charges'] = 0;
+        $data['vendor_total'] = 0;
+        $data['around_basic_charges'] = 0;
+        $data['around_tax_basic_charges'] = 0;
+        $data['around_total'] = 0;
+        $data['customer_total'] = 0;
+        $data['partner_payable_basic'] = 0;
+        $data['partner_payable_tax'] = 0;
+        $data['partner_net_payable'] = 0;
+        $data['customer_net_payable'] = 0;
+        $data['vendor_basic_percentage'] = 0;
+        
+        array_push($this->dataToInsert, $data);
     }
 
 }
