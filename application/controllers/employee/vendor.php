@@ -2428,6 +2428,7 @@ class vendor extends CI_Controller {
      *  @return : void
      */
     function process_add_vendor_to_pincode_form(){
+        log_message('info',__FUNCTION__);
         if($this->input->post()){
             $this->form_validation->set_rules('pincode', 'Pincode', 'trim|required|numeric|min_length[6]|max_length[6]');
             $this->form_validation->set_rules('vendor_id', 'Vendor_ID', 'required');
@@ -2448,6 +2449,10 @@ class vendor extends CI_Controller {
                                         if(!empty($vendor_id)){
                                             log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($value,TRUE));
                                             $displayMsgArray['success'][] = $value; 
+                                            $cc = "anuj@247around.com";
+                                            $to = "chhavid@247around.com";
+                                            $subject = "Add new Combination in vendor pincode mapping";
+                                            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $value, "");
                                         }
                                         else{
                                             $displayMsgArray['failed'][] = $value; 
@@ -4379,6 +4384,7 @@ class vendor extends CI_Controller {
                     ob_start();
                     $pincodeArray =  $this->vendor_model->check_vendor_details(array("Vendor_ID"=>$vendorID));
                     $config = array('template' => "vendor_pin_code.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
+                    log_message('info', __FUNCTION__ . ' Download Data ' . print_r($pincodeArray, TRUE));
                     $this->miscelleneous->downloadExcel($pincodeArray,$config);
           } 
          
@@ -4590,8 +4596,13 @@ class vendor extends CI_Controller {
                                                        $fileStatus = 'Failure';
                                                        $this->manage_pincode_not_found_sf_table();
                                                        $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($_FILES,$vendorID);
+                                                       log_message('info', __FUNCTION__ . ' Uploaded Data ' . print_r($this->vendorPinArray, TRUE));
                                                        if($finalMsg == 'Successfully Done'){
                                                            $fileStatus = 'Success';
+                                                           $cc = "anuj@247around.com";
+                                                            $to = "chhavid@247around.com";
+                                                            $subject = "Vendor pincode mapping file upload";
+                                                            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $this->vendorPinArray, "");
                                                        }
                                         }
                                         else{
