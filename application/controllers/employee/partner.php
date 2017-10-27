@@ -16,13 +16,13 @@ class Partner extends CI_Controller {
 
         $this->load->model('booking_model');
         $this->load->model('partner_model');
-        $this->load->model('reusable_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
         $this->load->model('invoices_model');
         $this->load->model('dealer_model');
         $this->load->model('service_centers_model');
         $this->load->model('penalty_model');
+        $this->load->model("inventory_model");
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->library('form_validation');
@@ -1889,13 +1889,12 @@ class Partner extends CI_Controller {
     function update_spare_parts_form($id) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Spare Parts ID: " . $id);
         $this->checkUserSession();
-        $partner_id = $this->session->userdata('partner_id');
-
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
-                . " AND spare_parts_details.id = '" . $id . "' "
-                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
-
+        $where['length'] = -1;
+        $where['where'] = array('spare_parts_details.id' => $id);
+        $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, estimate_purchase_cost, estimate_cost_given_date";
+        
+        $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $this->load->view('partner/header');
         $this->load->view('partner/update_spare_parts_form', $data);
     }
@@ -1912,19 +1911,24 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('remarks_by_partner', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
+        $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
 
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner ' . $this->session->userdata('partner_id') .
                     " Spare id " . $id . " Data" . print_r($this->input->post(), true));
             $this->update_spare_parts_form($id);
         } else { // if ($this->form_validation->run() == FALSE) {
+            
             $partner_id = $this->session->userdata('partner_id');
             $data['parts_shipped'] = $this->input->post('shipped_parts_name');
             $data['courier_name_by_partner'] = $this->input->post('courier_name');
             $data['awb_by_partner'] = $this->input->post('awb');
             $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
             $data['shipped_date'] = $this->input->post('shipment_date');
-
+            $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
+            if(!empty($incoming_invoice_pdf)){
+                $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
+            }
             $data['status'] = "Shipped";
             $where = array('id' => $id, 'partner_id' => $partner_id);
             $response = $this->service_centers_model->update_spare_parts($where, $data);
@@ -1946,6 +1950,38 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
             }
+        }
+    }
+    /**
+     * @desc This is used to upload and send Repair OOW Parts Invoice
+     * @return boolean
+     */
+    function spare_incoming_invoice() {
+        log_message('info', __FUNCTION__ );
+        
+        $request_type = $this->input->post("request_type");
+        $booking_id = $this->input->post("booking_id");
+        
+        if ($request_type == REPAIR_OOW_TAG) {
+            $allowedExts = array("PDF", "pdf");
+            $invoice_name = $this->miscelleneous->upload_file_to_s3($_FILES["incoming_invoice"], 
+                    "sp_parts_invoice", $allowedExts, $booking_id, "misc-images", "incoming_invoice_pdf");
+            if (!empty($invoice_name)) {
+                $to = ANUJ_EMAIL_ID.", adityag@247around.com";
+                $cc = "abhaya@247around.com";
+                $subject = "Repair OOW Parts Sent By Partner For Booking ID: ". $booking_id;
+                $message = "Spare Invoice Estimate Givend is ". $this->input->post("invoice_amount");
+                $attachment = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$invoice_name;
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, $attachment);
+                
+                return true;
+            } else {
+                 $this->form_validation->set_message('spare_incoming_invoice', 'File size or file type is not supported. Allowed extentions is "pdf". '
+		    . 'Maximum file size is 5 MB.');
+                 return FALSE;
+            }
+        } else {
+            return true;
         }
     }
 

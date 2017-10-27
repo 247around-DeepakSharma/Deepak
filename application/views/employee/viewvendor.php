@@ -172,12 +172,12 @@
           	<td><?php if($row['active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-danger' "
-                                    . "href=" . base_url() . "employee/vendor/deactivate/$row[id]>Deactivate</a>";                
+                                    . "href=" . base_url() . "employee/vendor/vendor_activate_deactivate/$row[id]/0>Deactivate</a>";                
                 }
                 else
                 {
                   echo "<a id='edit' class='btn btn-small btn-primary' "
-                                    . "href=" . base_url() . "employee/vendor/activate/$row[id]>Activate</a>";                
+                                    . "href=" . base_url() . "employee/vendor/vendor_activate_deactivate/$row[id]/1>Activate</a>";                
                 }
               ?>
             </td>

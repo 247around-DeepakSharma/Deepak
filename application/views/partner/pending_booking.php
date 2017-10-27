@@ -68,7 +68,7 @@
                                                 echo "Installation";
                                                  break;
                                             case "Repair - In Warranty":
-                                            case "Repair - Out Of Warranty":
+                                            case REPAIR_OOW_TAG:
                                                 echo "Repair";
                                                  break;
                                             default:

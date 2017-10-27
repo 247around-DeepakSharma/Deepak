@@ -188,7 +188,6 @@ class Upcountry_model extends CI_Model {
     
     function mark_upcountry_vendor($upcountry_vendor_details, $partner_data) {
          log_message('info', __FUNCTION__ );
-        
         $up_data = array();
         
         if ($partner_data[0]['is_upcountry'] == 1) {
@@ -227,6 +226,7 @@ class Upcountry_model extends CI_Model {
                 'vendor_id' => $upcountry_vendor_details['vendor_id'],
                 'partner_upcountry_rate' => $partner_upcountry_rate,
                 'partner_upcountry_approval' =>$partner_upcountry_approval,
+                'upcountry_approval_email' => $partner_data[0]['upcountry_approval_email'],
                 'is_upcountry' => 1);
 
             $up_data['message'] = UPCOUNTRY_BOOKING;
@@ -241,6 +241,7 @@ class Upcountry_model extends CI_Model {
                 'vendor_id' => $upcountry_vendor_details['vendor_id'],
                 'partner_upcountry_rate' => $partner_upcountry_rate,
                 'partner_upcountry_approval' =>$partner_upcountry_approval,
+                'upcountry_approval_email' => $partner_data[0]['upcountry_approval_email'],
                 'is_upcountry' => 1);
            $up_data['message'] = UPCOUNTRY_LIMIT_EXCEED; 
            log_message('info', __FUNCTION__ ." Upcountry Limit Exceed ". print_r($up_data, true) );
@@ -623,15 +624,20 @@ class Upcountry_model extends CI_Model {
      * @return Array|boolean
      */
     function is_upcountry_booking($booking_id){
-        $this->db->select('booking_id, is_upcountry');
+        $this->db->_reserved_identifiers = array('*','CASE','WHEN');
+        $this->db->select('booking_id, sc.is_upcountry');
         $this->db->from('booking_unit_details AS ud');
         $this->db->join('service_centre_charges AS sc','ud.partner_id = sc.partner_id '
                 . ' AND ud.price_tags = sc.service_category '
                 . ' AND ud.`appliance_category` = sc.category '
                 . ' AND ud.`appliance_capacity` = sc.capacity');
+        $this->db->join('bookings_sources','CASE WHEN partner_type = "OEM" '
+                . 'THEN (bookings_sources.partner_id = ud.partner_id AND sc.brand = ud.appliance_brand) '
+                . 'ELSE (bookings_sources.partner_id = ud.partner_id) END ');
         $this->db->where('booking_id', $booking_id);
-        $this->db->where('sc.is_upcountry', '1');
+        $this->db->where_in('sc.is_upcountry', array('1',NOT_UPCOUNTRY_PRICE_TAG));
         $query = $this->db->get();
+        echo $this->db->last_query();
         return $query->result_array();
     }
     /**

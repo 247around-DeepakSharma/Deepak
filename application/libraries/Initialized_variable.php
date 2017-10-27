@@ -23,7 +23,7 @@ class Initialized_variable {
         $select = "partners.id, bookings_sources.partner_id,bookings_sources.partner_type, bookings_sources.source, bookings_sources.code, "
                                 . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
                                 . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
-                                . " upcountry_rate1, upcountry_rate, partners.is_upcountry, public_name, partners.auth_token";
+                                . " upcountry_rate1, upcountry_rate, partners.is_upcountry, public_name, partners.auth_token, upcountry_approval_email";
         $this->PartnerData = $this->My_CI->partner_model->getpartner_details($select, $where_get_partner);
     }
     /**

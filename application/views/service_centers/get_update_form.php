@@ -65,11 +65,18 @@
                             <?php if ($spare_flag == 1) { ?>
                             <div class="radio ">
                                 <label>
-                                <input type="radio" id="spare_parts" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="Spare Parts Required" >
-                                Spare Parts Required
+                                <input type="radio" id="spare_parts" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo SPARE_PARTS_REQUIRED;?>" >
+                                <?php echo SPARE_PARTS_REQUIRED;?>
                                 </label>
                             </div>
-                            <?php } ?>
+                            <?php } else if($spare_flag == 2){ ?>
+                                <div class="radio ">
+                                <label>
+                                <input type="radio" id="spare_parts" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo SPARE_OOW_EST_REQUESTED;?>" >
+                                <?php echo SPARE_OOW_REQUEST_TEXT; ?>
+                                </label>
+                            </div>
+                           <?php } ?>
                            
                         </div>
                     </div>

@@ -35,6 +35,11 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
         <!-- Loading Noty script library -->
         <script type="text/javascript" src="<?php echo base_url()?>js/plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
+          <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+
+        <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
         <style>
             .navbar{
             min-height: 80px;
@@ -106,6 +111,10 @@
                                 <li class="divider"></li>
                                 <li>
                                     <a href="<?php echo base_url() ?>employee/inventory/get_spare_parts"><i class="fa fa-fw fa-desktop"></i> <strong> Spare Parts Booking</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/booking/get_oow_booking"><i class="fa fa-fw fa-desktop"></i> <strong> OOW Booking</strong></a>
                                 </li>
                                 <li class="divider"></li>
                                 <li>

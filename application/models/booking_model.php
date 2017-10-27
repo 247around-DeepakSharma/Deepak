@@ -508,7 +508,7 @@ class Booking_model extends CI_Model {
         
         if($partner_id === true){
             $where .= " AND partner_id IN ('"._247AROUND."') ";
-            $where .=" AND request_type IN ('Repair','Repair - In Warranty','Repair - Out of Warranty')";
+            $where .=" AND request_type IN ('Repair','Repair - In Warranty','".REPAIR_OOW_TAG."')";
         }
 
         $query = $this->db->query("Select count(*) as count from booking_details
@@ -550,7 +550,7 @@ class Booking_model extends CI_Model {
         
         if($partner_id === true){
             $where .= " AND partner_id IN ('"._247AROUND."') ";
-            $where .=" AND request_type IN ('Repair','Repair - In Warranty','Repair - Out of Warranty')";
+            $where .=" AND request_type IN ('Repair','Repair - In Warranty','".REPAIR_OOW_TAG."')";
         }
 
         $add_limit = "";
@@ -1697,11 +1697,15 @@ class Booking_model extends CI_Model {
     function insert_data_in_booking_unit_details($services_details, $state, $update_key) {
 	log_message('info', __FUNCTION__);
 	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
-
-//        log_message('info', __METHOD__ . " Get Price with Taxes" . print_r($data, true));
-
+        
         $result = array_merge($data[0], $services_details);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
+        
+        return $this->_insert_data_in_booking_unit_details($result, $update_key, $data['DEFAULT_TAX_RATE']);
+        
+    }
+    
+    function _insert_data_in_booking_unit_details($result, $update_key, $detault_tax_rate_flag){
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
         $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
         
@@ -1717,16 +1721,16 @@ class Booking_model extends CI_Model {
      
 //        log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
 	$this->db->insert('booking_unit_details', $result);
-       // $result['id'] = $this->db->insert_id();
+        $result['unit_id'] = $this->db->insert_id();
         //Update request type If price tags is installation OR repair
         if ($update_key == 0) {
             $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
              
         } 
         
-        $result['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
+        $result['DEFAULT_TAX_RATE'] = $detault_tax_rate_flag;
         return $result;
-        }
+    }
 
     /**
      * @desc: this method inser new line item while booking completion
@@ -2262,7 +2266,7 @@ class Booking_model extends CI_Model {
         }
         
         $query = $this->db->get();
-        
+
         if( $query_status == _247AROUND_FOLLOWUP && ($pincode_status == PINCODE_ALL_AVAILABLE) && isset($post['where']['booking_details.booking_id']) && !empty($post['where']['booking_details.booking_id'])){
             $temp = $query->result();
             $data = $this->searchPincodeAvailable($temp, $pincode_status);
