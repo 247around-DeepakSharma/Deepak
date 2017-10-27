@@ -64,8 +64,19 @@ class reusable_model extends CI_Model {
         if($where){
             $this->db->where($where);
         }
-        $this->db->update($table,$data);
-       echo  $this->db->last_query();
-       echo "</br>";
+       return $this->db->update($table,$data);
+    }
+    
+    function insert_into_table($table,$data){
+        $this->db->insert($table, $data);
+    }
+    
+     function get_search_result_data($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
+       $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
+      return $query->result_array(); 
+    }
+    function get_search_result_count($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
+       $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
+       return $this->db->affected_rows();
     }
 }

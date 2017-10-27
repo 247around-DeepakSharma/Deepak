@@ -3382,5 +3382,49 @@ class Partner extends CI_Controller {
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager','active' => 1));
         $this->load->view('partner/contact_us',$data);
     }
-
+    
+    function stand_allocation(){
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/stand_allocation');
+    }
+    
+    function get_stand_allocation_data(){
+        $receieved_Data = $this->input->post();
+        $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
+         $joinDataArray = array("partners"=>"partners.id=is_stand_over_brand_partner.partner_id");
+        $result =  $this->reusable_model->get_search_result_data("is_stand_over_brand_partner","brand,partners.public_name,is_stand,partner_id",array(),$joinDataArray,$limitArray,array("brand"=>"ASC"));
+         for($i=0;$i<count($result);$i++){
+            $index = $receieved_Data['start']+($i+1);
+            $link = "<button type='button' class='btn btn-info' data-toggle='modal' data-target='#myModal' onclick=createStandEditForm('".$result[$i]['brand']."','".$result[$i]['partner_id']."','".$result[$i]['is_stand']."') style='margin:0px 10px;'>Edit</button>";
+            unset($result[$i]['partner_id']);
+            $tempArray = array_values($result[$i]);
+            array_push($tempArray,$link);
+            array_unshift($tempArray, $index);
+            $finalArray[] = $tempArray;
+        }
+        $data['draw'] = $receieved_Data['draw'];
+        $data['recordsTotal'] = $this->reusable_model->get_search_result_count("is_stand_over_brand_partner","brand,partners.public_name,is_stand",NULL,$joinDataArray,NULL,array("brand"=>"ASC"));
+        $data['recordsFiltered'] = $this->reusable_model->get_search_result_count("is_stand_over_brand_partner","brand,partners.public_name,is_stand",NULL,$joinDataArray,NULL,array("brand"=>"ASC"));
+        $data['data'] = $finalArray;    
+        echo json_encode($data);
+    }
+    function get_stand_allocation_form_data(){
+        $data['partner'] = $this->booking_model->get_advance_search_result_data("partners","id,public_name",NULL,NULL,NULL,array('public_name'=>'ASC'));
+        $data['brand'] = $this->booking_model->get_advance_search_result_data("appliance_brands","DISTINCT(brand_name)",NULL,NULL,NULL,array('brand_name'=>'ASC'));
+        echo json_encode($data);
+    }
+    function process_stand_combination(){
+        $data = $this->input->post();
+        if($data['add_delete']=='add'){
+            unset($data['add_delete']);
+            $this->reusable_model->insert_into_table('is_stand_over_brand_partner',$data);
+        }
+        else{
+            $is_stand = $data['is_stand'];
+            unset($data['add_delete']);
+            unset($data['is_stand']);
+            $this->reusable_model->update_table('is_stand_over_brand_partner',array('is_stand'=>$is_stand),$data);
+        }
+        redirect(base_url() . "employee/partner/stand_allocation");
+    }
 }

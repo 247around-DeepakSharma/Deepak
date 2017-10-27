@@ -9,3 +9,4 @@ var buyback_dashboard = angular.module("buyback_dashboard", []);
 var taggingUntaggingBbOrders = angular.module("tagUntagBbOrders", []);
 var rm_dashboard = angular.module("rm_dashboard", []);
 var rm_missing_pincode = angular.module("rm_missing_pincode", []);
+var stand_allocation = angular.module("stand_allocation", []);
