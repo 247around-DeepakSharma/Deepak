@@ -529,6 +529,14 @@ rm_missing_pincode.controller('rm_missing_pincode_controller', function ($scope,
      });
      });
      
+     stand_allocation.controller('standAllocationController', function ($scope, $http) {
+    var stand_url = baseUrl + "/employee/partner/get_stand_allocation_form_data";
+     $http.get(stand_url).then(function (response) {
+             $scope.partner_list = response.data.partner;
+             $scope.brand_list = response.data.brand;
+     });
+     });
+     
 //get buyback balance
 buyback_dashboard.controller('bb_balance', function ($scope, $http) {
     
