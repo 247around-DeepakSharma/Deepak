@@ -1505,7 +1505,8 @@ class Partner extends CI_Controller {
                                             $this->vendor_model->insert_booking_details_sf_not_exist(array(
                                                 "booking_id" => $booking['booking_id'],
                                                 "city" => $booking['city'],
-                                                "pincode" => $booking['booking_pincode']
+                                                "pincode" => $booking['booking_pincode'],
+                                                 "service_id" => NULL
                                             ));
                                         }
                                         break;

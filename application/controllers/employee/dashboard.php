@@ -45,7 +45,6 @@ class Dashboard extends CI_Controller {
      * @return void
      */
     function index() {
-
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('dashboard/main_dashboard');
         $this->load->view('dashboard/dashboard_footer');
@@ -651,7 +650,7 @@ class Dashboard extends CI_Controller {
      * This function convert data (which we get directly from db) into a structured format
      */
     function get_missing_pincode_data_structured_format($pincodeResult){
-            $structuredArray = array();
+          $structuredArray = array();
           foreach($pincodeResult as $key=>$data){   
                     if(array_key_exists($data['pincode'], $structuredArray)){
                               $structuredArray[$data['pincode']]['totalCount'] = $structuredArray[$data['pincode']]['totalCount']+$data['pincodeCount'];
@@ -663,6 +662,7 @@ class Dashboard extends CI_Controller {
                     $structuredArray[$data['pincode']]['pincode'] = $data['pincode'];
                     $structuredArray[$data['pincode']]['city'] = $data['city'];
                     $structuredArray[$data['pincode']]['state'] = $data['state'];
+                    $structuredArray[$data['pincode']]['rm'] = $data['full_name'];
                     $temp['service_id'] = $data['service_id'];
                     $temp['pincodeCount'] = $data['pincodeCount'];
                     $temp['service_name'] = $data['services'];
@@ -676,7 +676,13 @@ class Dashboard extends CI_Controller {
      * @output - Table View for missing pincodes 
      */
     function get_pincode_not_found_sf_details($limit=NULL){
-        $agentID = $this->session->userdata('id');
+        if($this->session->userdata('rm_id')){
+            $agentID = $this->session->userdata('rm_id');
+            $this->session->unset_userdata('rm_id');
+        }
+        else{
+                $agentID = $this->session->userdata('id');
+        }
         $pincodeResult =  $this->dashboard_model->get_pincode_data_for_not_found_sf($agentID,$limit);
         $template = array(
         'table_open' => '<table  '
@@ -692,7 +698,6 @@ class Dashboard extends CI_Controller {
                    $this->table->add_row($i,$pincode,"<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>","<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"); 
                    $i++;
         }
-       
         echo $this->table->generate();
     }
     /*
@@ -711,5 +716,41 @@ class Dashboard extends CI_Controller {
         $this->load->view('dashboard/missing_pincodes_full_view');
         $this->load->view('dashboard/dashboard_footer');
     }
+    function get_missing_pincode_admin_data_structured_format($pincodeResult){
+        $rmDataArray = array();
+        foreach($pincodeResult as $data){
+            if(array_key_exists($data['full_name'], $rmDataArray)){
+                     $rmDataArray[$data['full_name']]['count'] = $rmDataArray[$data['full_name']]['count']+$data['pincodeCount'];
+            }
+            else{
+                   $rmDataArray[$data['full_name']]['count'] = $data['pincodeCount'];
+                   $rmDataArray[$data['full_name']]['id'] = $data['rm_id'];
+            }
+        }
+        arsort($rmDataArray);
+        return $rmDataArray;
+    }
+    function get_pincode_not_found_sf_details_admin(){
+        $pincodeResult =  $this->dashboard_model->get_pincode_data_for_not_found_sf();
+        $template = array(
+        'table_open' => '<table  '
+            . ' class="table table-striped table-bordered jambo_table bulk_action">'
+        );
+        $this->table->set_template($template);
+        $this->table->set_heading(array('S.N','RM', 'Pending Queries'));
+        $rmDataArray = $this->get_missing_pincode_admin_data_structured_format($pincodeResult);
+        $i=1;
+        foreach($rmDataArray as $rm=>$rmData){  
+                  $this->table->add_row($i,"<a target='_blank' href=".base_url()."employee/dashboard/missing_pincode_full_view?rm_id=".$rmData['id']." style='margin: 0px;padding: 6px;' class='btn btn-info'>".$rm."</a>",$rmData['count']); 
+                   $i++;
+        }
+        echo $this->table->generate();
+    }
     
+    function download_missing_sf_pincode_excel($rmID){
+        ob_start();
+        $pincodeArray =  $this->dashboard_model->get_pincode_data_for_not_found_sf($rmID);
+        $config = array('template' => "missing_sf_pincode.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
+        $this->miscelleneous->downloadExcel($pincodeArray,$config);
+    }
 }

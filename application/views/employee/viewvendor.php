@@ -125,7 +125,8 @@
                 <th class='jumbotron'>Go To Invoice Page</th>
           	<th class="jumbotron">Temporary</th>
           	<th class="jumbotron">Permanent</th>
-                    <th class="jumbotron">Add Pin Code</th> 
+                <th class="jumbotron">Add Pin Code</th>
+                <th class="jumbotron">Resend Login Details</th>
           </tr>
 
           
@@ -181,6 +182,7 @@
               ?>
             </td>
             <td><button type="button" class="btn btn-small btn-success" id="<?php echo $row['id']; ?>" data-toggle="modal" data-target="#pin_code" onclick="createPinCodeForm(this.id,<?php echo "'".$row['name']."'"  ?>)">Pin Code</button></td>
+            <td><a class="btn btn-warning" href="<?php echo base_url();?>employee/vendor/resend_login_details/vendor/<?php echo $row['id']?>">Resend Login Details</a></td>
           </tr>
           <?php } ?>
         </table>

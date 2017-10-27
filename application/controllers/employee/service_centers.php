@@ -1974,6 +1974,7 @@ class Service_centers extends CI_Controller {
      * @desc This is used to insert gst for data.
      */
     function process_gst_update() {
+        
         //$this->checkUserSession();
         log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
         $this->load->library('table');
@@ -1992,8 +1993,9 @@ class Service_centers extends CI_Controller {
             $is_gst = $this->input->post('is_gst');
             $is_gst_number = NULL;
             $gst_file_name = NULL;
+            
             if ($is_gst == 1) {
-                $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|trim|min_length[15]|max_length[15]');
+                $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|trim|min_length[15]|max_length[15]|regex_match[/^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[a-zA-Z0-9]{1}/]');
                 $this->form_validation->set_rules('file', 'Company GST File', 'callback_upload_gst_certificate_file');
 
                 if ($this->form_validation->run() === false) {
@@ -2005,6 +2007,8 @@ class Service_centers extends CI_Controller {
                     $gst_file_name = $this->input->post('gst_cer_file');
                 }
             }
+            
+            
             // It not Accessed When validation failed above
             if ($status_flag) {
                 $gst_details['service_center_id'] = $this->session->userdata('service_center_id');
@@ -2394,23 +2398,29 @@ class Service_centers extends CI_Controller {
         $data = array();
         //get delivered charges by month
         $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));
-        $select = "SUM(cp_basic_charge + cp_tax_charge) as cp_delivered_charge, count(bb_order_details.partner_order_id) as total_delivered_order";
+        $select = "SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
+                THEN (bb_unit_details.cp_claimed_price) 
+                ELSE (bb_unit_details.cp_basic_charge) END ) as cp_delivered_charge, count(bb_order_details.partner_order_id) as total_delivered_order";
         for ($i = 0; $i < 3; $i++) {
             if ($i == 0) {
-                $delivery_date = "bb_order_details.delivery_date >=  '" . date('Y-m-01') . "'";
+                //$delivery_date = "bb_order_details.delivery_date >=  '" . date('Y-m-01') . "'";
+                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN `bb_order_details`.`acknowledge_date` >= '" . date('Y-m-01') . "' ELSE `bb_order_details`.`delivery_date` >= '" . date('Y-m-01') . "'  END)";
                 $select .= ", date(now()) As month";
             }else if ($i == 1) {
-                $delivery_date = "bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
-			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+			    AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() ,'%Y-%m-01') END) ";
                 $select .= ", DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month";
             }else if ($i == 2) {
-                $delivery_date = "bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
-			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+			    AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') END)";
                 $select .= ", DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month";
             }
             
             $where['where'] = array('assigned_cp_id' => $cp_id,"$delivery_date" => NULL);
             $cp_delivered_charge[$i] = $this->bb_model->get_bb_order_list($where, $select);
+            
         }
         
         //get total delivered charges data
@@ -2419,7 +2429,9 @@ class Service_centers extends CI_Controller {
         
         //get in_transit data by month
         $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
-        $select_in_transit = "SUM(cp_basic_charge + cp_tax_charge) as cp_in_transit_charge,count(bb_order_details.partner_order_id) as total_inTransit_order";
+        $select_in_transit = "SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
+                THEN (bb_unit_details.cp_claimed_price) 
+                ELSE (bb_unit_details.cp_basic_charge) END ) as cp_in_transit_charge,count(bb_order_details.partner_order_id) as total_inTransit_order";
         for ($i = 0; $i < 3; $i++) {
             if ($i == 0) {
                 $in_transit_date = "bb_order_details.order_date >=  '" . date('Y-m-01') . "'";

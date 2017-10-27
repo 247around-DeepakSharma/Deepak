@@ -22,6 +22,7 @@ class Partner extends CI_Controller {
         $this->load->model('dealer_model');
         $this->load->model('service_centers_model');
         $this->load->model("inventory_model");
+        $this->load->model('penalty_model');
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->library('form_validation');
@@ -1508,7 +1509,7 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
 
             //inserts vendor escalation details
-            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
+           $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
 
             $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
             if ($escalation_id) {
@@ -1517,8 +1518,7 @@ class Partner extends CI_Controller {
                 $bcc = "";
                 $attachment = "";
                 $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];
-                $sf_id = $this->booking_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id' => $escalation['booking_id']))->result_array()[0];
-                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($sf_id['assigned_vendor_id'])[0]['official_email'];
+                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($bookinghistory[0]['assigned_vendor_id'])[0]['official_email'];
                 $partner_mail_to = $partner_details['email'];
                 $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ,".$rm_mail;
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
@@ -1530,6 +1530,42 @@ class Partner extends CI_Controller {
                 $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team' => 1), true);
 
                 $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
+                
+                //Processing Penalty on Escalations when Booking Time solt exceed 1hour
+                $last_booking_time_slots =trim(explode('-', $escalation['booking_time'])[1]);
+                
+                $time_limit = '';
+                if($last_booking_time_slots == '1PM'){
+                    $time = $escalation['booking_date']. ' 14:01:00';
+                    $time_limit = strtotime(date($time));
+                }else if($last_booking_time_slots == '4PM'){
+                    $time = $escalation['booking_date']. ' 16:01:00';
+                    $time_limit = strtotime($time);
+                }else if($last_booking_time_slots == '7PM'){
+                    $time = $escalation['booking_date']. ' 21:01:00';
+                    $time_limit = strtotime(date($time));
+                }
+                
+                if(!empty($time_limit)){
+                    $time_difference = $time_limit - strtotime(date('Y-m-d H:i:s'));
+                }else{
+                    $time_difference = "";
+                }
+                
+                if(!empty($time_difference) && $time_difference < 0){
+                    $value['booking_id'] = $escalation['booking_id'];
+                    $value['assigned_vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
+                    $value['current_state'] = "Escalation";
+                    $value['agent_id'] = $partner_details['entity_id'];
+                    $value['agent_type'] = 'partner';
+                    $value['remarks'] = $escalation_remarks;
+                    $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
+                    //Adding values in penalty on booking table
+                    $this->penalty_model->get_data_penalty_on_booking($value, $where);
+    
+                    log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
+                }
+                
             }
 
             log_message('info', __FUNCTION__ . " Exiting");

@@ -1253,11 +1253,12 @@ class Upload_booking_file extends CI_Controller {
             $row =  $this->upload_file_table_data($file_list, $no);
             $table_data[] = $row;
         }
-        
+        $allRecords = $this->reporting_utils->get_uploaded_file_history();
+        $allFilteredRecords = $this->reporting_utils->get_uploaded_file_history(array('length' =>NULL,'start' =>NULL,'file_type' =>$this->input->post('file_type')));
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => '',
-            "recordsFiltered" =>  '',
+            "recordsTotal" => count($allRecords),
+            "recordsFiltered" =>  count($allFilteredRecords),
             "data" => $table_data,
         );
         unset($post_data);

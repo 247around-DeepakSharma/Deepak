@@ -23,6 +23,7 @@ class Booking extends CI_Controller {
         $this->load->model('employee_model');
         $this->load->model('booking_model');
         $this->load->model('user_model');
+        $this->load->model('reusable_model');
         $this->load->model('vendor_model');
         $this->load->model('invoices_model');
         $this->load->model('service_centers_model');
@@ -198,7 +199,7 @@ class Booking extends CI_Controller {
                  * */
                 if (!empty($appliances_details['description'])) {
                     // check appliance description exist and it is not verified earlier 
-                    $check_product_type = $this->booking_model->get_search_query('appliance_product_description','*',array('product_description' => trim($appliances_details['description'])))->result_array();
+                    $check_product_type = $this->reusable_model->get_search_query('appliance_product_description','*',array('product_description' => trim($appliances_details['description'])))->result_array();
                     
                     //verify appliance details
                     $verified_capacity = $this->miscelleneous->verified_applicance_capacity($appliances_details);
@@ -1244,19 +1245,7 @@ class Booking extends CI_Controller {
         if(!empty($data['booking_history'])){
             $unit_where = array('booking_id' => $booking_id);
             $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
-
             $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
-            foreach ($data['penalty'] as $key => $value) {
-                if ($value['active'] == 0) {
-                    $where = array('id' => $value['penalty_remove_agent_id']);
-                    $data1 = $this->employee_model->get_employee_by_group($where);
-                    $data['penalty'][$key]['agent_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
-                } else if ($value['active'] == 1) {
-                    $where = array('id' => $value['agent_id']);
-                    $data1 = $this->employee_model->get_employee_by_group($where);
-                    $data['penalty'][$key]['agent_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
-                }
-            }
             if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
                 $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
             }
@@ -2584,6 +2573,7 @@ class Booking extends CI_Controller {
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',array('is_active'=> '1'));
         $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
         $data['services'] = $this->booking_model->selectservice();
+        $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         
         if(strtolower($data['booking_status']) == 'pending'){
@@ -2671,6 +2661,7 @@ class Booking extends CI_Controller {
         $ratings = $this->input->post('ratings');
         $appliance = $this->input->post('appliance');
         $booking_date = $this->input->post('booking_date');
+        $city = $this->input->post('city');
         
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
@@ -2723,8 +2714,12 @@ class Booking extends CI_Controller {
             $post['where']['booking_details.booking_date = '] =  trim($booking_date);
         }
         
+        if(!empty($city)){
+            $post['where']['booking_details.city = '] =  trim($city);
+        }
+        
         $post['column_order'] = array('booking_day');
-        $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks','booking_unit_details.appliance_brand','booking_unit_details.appliance_category','booking_unit_details.appliance_description');
+        $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks','booking_unit_details.appliance_brand','booking_unit_details.appliance_category','booking_unit_details.appliance_description','booking_details.city');
         
         return $post;
     }
@@ -3120,6 +3115,7 @@ class Booking extends CI_Controller {
         $data['booking_id'] = trim($booking_id);
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',array('is_active'=> '1'));
         $data['services'] = $this->booking_model->selectservice();
+        $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/view_pending_queries', $data);
     }
@@ -3312,7 +3308,7 @@ class Booking extends CI_Controller {
             $page = $total_pages;
         }
        
-        $query = $this->booking_model->get_search_query('appliance_product_description', '*', $where,NULL,array('length' => $limit,'start'=> $start),array($sidx => $sord))->result();
+        $query = $this->reusable_model->get_search_query('appliance_product_description', '*', $where,NULL,array('length' => $limit,'start'=> $start),array($sidx => $sord))->result();
         $response = new StdClass;
         $response->page = $page;
         $response->total = $total_pages;

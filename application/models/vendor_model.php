@@ -1644,7 +1644,13 @@ class vendor_model extends CI_Model {
     }
     
     function insert_india_pincode_in_batch($rows) {
-	$query = $this->db->insert_batch('india_pincode', $rows);
+        $query = $this->db->insert_batch('india_pincode', $rows);
+        if($this->db->affected_rows() > 0){
+            return $this->db->affected_rows() ;
+        }
+        else{
+            return false;
+        }
     }
     
     /**
@@ -1813,5 +1819,12 @@ class vendor_model extends CI_Model {
           $this->db->where('id', $vendorID);
           $query = $this->db->get('service_centres');
           return $query->result_array();
+     }
+     
+     function update_file_status($status,$fileName){
+         $data=array('result'=>$status);
+         $this->db->where('file_name',$fileName);
+        $this->db->update("file_uploads",$data);
+        echo $this->db->last_query();
      }
 }

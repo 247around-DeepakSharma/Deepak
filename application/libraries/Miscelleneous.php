@@ -13,6 +13,7 @@ class Miscelleneous {
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('s3');
 	$this->My_CI->load->model('vendor_model');
+                    $this->My_CI->load->model('reusable_model');
 	$this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
         $this->My_CI->load->model('partner_model');
@@ -511,12 +512,17 @@ class Miscelleneous {
      * @param String $partner_data
      * @return boolean
      */
-    function check_upcountry($booking, $appliance, $is_price, $file_type) {
+    function check_upcountry($booking,$appliance, $is_price, $file_type) {
         log_message('info', __FUNCTION__ .' booking_data: '.  print_r($booking,true).' appliance: '. print_r($appliance,true).' file_type: '.$file_type);
         $partner_data = $this->My_CI->initialized_variable->get_partner_data();
+        $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
+        if(isset($data['vendor_not_found'])){
+            if($data['vendor_not_found'] ==1){
+                    $this->sf_not_exist_for_pincode($booking,$appliance);
+            }
+        }
         if (!empty($is_price)) {
             log_message('info', __FUNCTION__ . ' Price Exist');
-            $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
             $charges = 0;
                 log_message('info', __FUNCTION__ . ' Upcountry  Provide');
                 switch ($data['message']) {
@@ -600,18 +606,7 @@ class Miscelleneous {
                     
                         log_message('info', __FUNCTION__ . SF_DOES_NOT_EXIST );
                         if(isset($data['vendor_not_found'])){
-                            $to = RM_EMAIL.", ". SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
-                            $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
-
-                            $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode']." For Appliance ". $appliance;
-                            $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
-                            $message .= "To add Service center for the missing pincode please use below link <br/> "; 
-                            $message .= "<a href=".base_url()."employee/vendor/get_add_vendor_to_pincode_form/".$booking['booking_id'].">Add Service Center</a>";
-
-                            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
-                            $this->sf_not_exist_for_pincode(array('booking_id'=>$booking['booking_id'],'pincode'=>$booking['booking_pincode'],'city'=>$booking['city'],'service_id'=>$booking['service_id']));
-                            return FALSE;
-   
+                                return FALSE;
                         } else {
                             $price = $is_price['customer_net_payable'];
                             if($price >0){
@@ -736,10 +731,12 @@ class Miscelleneous {
         if ($httpcode >= 200 && $httpcode < 300){
             return $result;
         }else{
-            $to = DEVELOPER_EMAIL.", vijaya@247around.com";
+            $to = 'vijaya@247around.com';
+            $cc = DEVELOPER_EMAIL;
+
             $subject = "Stag01 Server Might Be Down";
             $msg = "There are some issue while creating pdf for booking_id/invoice_id $id from stag01 server. Check the issue and fix it immediately";
-            $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $msg, $output_file_excel);
+            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $msg, $output_file_excel);
             return $result;
         }
         
@@ -1121,21 +1118,38 @@ class Miscelleneous {
             return false;
         }
     }
+    /*
+ * This Functiotn is used to send sf not found emailto associated rm
+ */
+    function send_sf_not_found_email_to_rm($booking,$appliance,$rm_email){
+            $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
+            $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode']." For Appliance ". $appliance;
+            $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
+            $message .= "To add Service center for the missing pincode please use below link <br/> "; 
+            $message .= "<a href=".base_url()."employee/vendor/get_add_vendor_to_pincode_form/".$booking['booking_id'].">Add Service Center</a>";
+            $this->My_CI->notify->sendEmail("booking@247around.com", $rm_email, $cc, "", $subject, $message, "");
+    }
 /*
  * This Functiotn is used to map rm to pincode, for which SF not found
  * if pincode does'nt have any rm then an email will goes to nitin
  * @input - An associative array with keys(booking_id,pincode,city,applianceID)
  */
-    function sf_not_exist_for_pincode($notFoundSfArray){
+    function sf_not_exist_for_pincode($booking,$appliance=NULL){
+         $notFoundSfArray = array('booking_id'=>$booking['booking_id'],'pincode'=>$booking['booking_pincode'],'city'=>$booking['city'],'service_id'=>$booking['service_id']);
           $pincode = $notFoundSfArray['pincode'];
           $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
 FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('".$pincode."') GROUP BY india_pincode.pincode";
-          $result = $this->My_CI->booking_model->pincode_not_found_relevent_data($sql);
+          $result = $this->My_CI->reusable_model->execute_custom_select_query($sql);
           if(!empty($result)){
                     $notFoundSfArray['rm_id'] =  $result[0]['rm_id'];
                     $notFoundSfArray['state'] =  $result[0]['state'];
-                    $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
+                    if($appliance){
+                               $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']));
+                               $rm_email  = $query->result_array(); 
+                               $this->send_sf_not_found_email_to_rm($booking,$appliance,$rm_email[0]['official_email']);
+                    }
           }
+          $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
           
     }
     
@@ -1205,6 +1219,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * When we upload any new pincode and that pincode with same service_id exist in sf not found table, then this will update its active flag
      */
 
+
     function update_pincode_not_found_sf_table($pincodeServiceArray) {
         foreach ($pincodeServiceArray as $values) {
             $pincodeArray['(pincode=' . $values['Pincode'] . ' AND service_id=' . $values['Appliance_ID'] . ')'] = NULL;
@@ -1252,6 +1267,48 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
 	    return FALSE;
         }
         log_message('info', __FUNCTION__. " Exit ");
+    }
+
+
+    function update_pincode_not_found_sf_table($pincodeServiceArray) {
+        foreach ($pincodeServiceArray as $key => $values) {
+            $pincodeArray['(pincode=' . $values['Pincode'] . ' AND service_id=' . $values['Appliance_ID'] . ')'] = NULL;
+            log_message('info', __FUNCTION__ . 'Deactivate following Combination From sf not found table. ' . $values['Pincode'] . "," . $values['Appliance_ID']);
+        }
+        $this->My_CI->vendor_model->is_pincode_exist_in_not_found_sf_table($pincodeArray);
+        $cc = "anuj@247around.com";
+        $to = "chhavid@247around.com";
+        $subject = "Get SF for following combinations";
+        $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $pincodeArray, "");
+    }
+
+    /*
+     * This Function convert excel data into array, 1st row of excel data will be keys of returning array
+     * @input - filePath and reader Version and index of sheet in case of multiple sheet excel
+     */
+
+    function excel_to_Array_converter($file, $readerVersion, $sheetIndex = NULL) {
+        if (!$sheetIndex) {
+            $sheetIndex = 0;
+        }
+        $finalExcelDataArray = array();
+        $objReader = PHPExcel_IOFactory::createReader($readerVersion);
+        $objPHPExcel = $objReader->load($file['file']['tmp_name']);
+        $sheet = $objPHPExcel->getSheet($sheetIndex);
+        $highestRow = $sheet->getHighestDataRow();
+        $highestColumn = $sheet->getHighestDataColumn();
+        $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+        $heading = str_replace(array("/", "(", ")", " ", "."), "", $headings[0]);
+        $newHeading = str_replace(array(" "), "_", $heading);
+        $excelDataArray = array();
+        for ($i = 2; $i <= $highestRow; $i++) {
+            $excelDataArray = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
+            foreach ($excelDataArray[0] as $key => $data) {
+                $excelAssociatedArray[$newHeading[$key]] = trim($data);
+            }
+            $finalExcelDataArray[] = $excelAssociatedArray;
+        }
+        return $finalExcelDataArray;
     }
 
 }

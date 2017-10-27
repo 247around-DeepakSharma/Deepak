@@ -142,7 +142,7 @@ class accounting_model extends CI_Model {
                     pan_no, owner_name, vpi.total_service_charge, 
                     vpi.total_additional_service_charge, vpi.service_tax,
                     vpi.total_amount_collected,(total_amount_collected - ph.tds_amount) as net_amount,
-                    ph.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid ";
+                    ph.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no ";
         } else {
             $select = "company_name,company_type,name_on_pan,pan_no,SUM(ph.tds_amount) as tds_amount,
                     tds_rate";

@@ -324,12 +324,19 @@ class dashboard_model extends CI_Model {
 /*
  * This function get data from missing pincode table on the basis of rm id
  */    
-     function get_pincode_data_for_not_found_sf($rmID,$limit=NULL){
-            $this->db->select('sf.pincode, COUNT(sf.pincode) as pincodeCount,sf.city,sf.state,sf.service_id,services.services');
-            $this->db->group_by('pincode,service_id'); 
-            $this->db->order_by('count(pincode) DESC'); 
-            $this->db->where('rm_id',$rmID); 
+     function get_pincode_data_for_not_found_sf($rmID=NULL,$limit=NULL){
+            $this->db->select('sf.pincode, COUNT(sf.pincode) as pincodeCount,sf.city,sf.state,sf.service_id,sf.rm_id,employee.full_name,services.services');
+            if($rmID){
+                $this->db->group_by('pincode,service_id'); 
+                $this->db->where('rm_id',$rmID); 
+            }
+            else{
+                 $this->db->group_by('rm_id,pincode,service_id'); 
+            }
+            $this->db->order_by('count(pincode) DESC');
+            $this->db->where('active_flag',1); 
             $this->db->join('services', 'services.id = sf.service_id');
+            $this->db->join('employee', 'employee.id = sf.rm_id');
             if($limit){
                     $this->db->limit($limit); 
             }

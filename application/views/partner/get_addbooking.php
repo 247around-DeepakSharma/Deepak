@@ -209,7 +209,7 @@
                                     
                                 </div>
                                  
-                                <div class="form-group col-md-7  <?php if( form_error('product_type') ) { echo 'has-error';} ?>">
+<!--                                <div class="form-group col-md-7  <?php //if( form_error('product_type') ) { echo 'has-error';} ?>">
                                    <label for="Product Type">Product Type *</label>
                                      <label class="radio-inline">
                                         <input type="radio" name="product_type" value="Delivered" checked>Delivered
@@ -217,8 +217,8 @@
                                       <label class="radio-inline">
                                           <input type="radio" name="product_type" value="Shipped">Shipped
                                       </label>
-                                    <?php echo form_error('product_type'); ?>
-                                </div>
+                                    <?php //echo form_error('product_type'); ?>
+                                </div>-->
                             </div>
 
                             <!-- end col-md-6 -->
@@ -384,6 +384,7 @@
                 </div>
             </div>
             <input type="hidden" id="not_visible" name="not_visible" value="0"/>
+            <input type="hidden" name="product_type" value="Delivered"/>
             <?php if(!empty($this->session->userdata('status'))) {?>
             <div class="row">
                 <div class="form-group  col-md-12" >

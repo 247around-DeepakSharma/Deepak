@@ -36,6 +36,7 @@
                     <th>SGST Tax Amount</th>
                     <th>IGST Tax Amount</th>
                     <th>GST Rate</th>
+                    <th>GST Number</th>
                     <th>Vat %</th>
                     <th>Total Amount Collected</th>
                 </tr>
@@ -70,6 +71,7 @@
                             <td><?php echo round($value['sgst_tax_amount'],0); ?></td>
                             <td><?php echo round($value['igst_tax_amount'],0); ?></td>
                             <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
+                            <td><?php echo $value['gst_number']; ?></td>
                             <td><?php if($value['parts_cost'] != 0) { echo round(($value['vat']*100)/$value['parts_cost'],0); } ?></td>
                              <td><?php echo round($value['total_amount_collected'] - $value['tds_amount'],0); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
                         </tr>
@@ -94,6 +96,7 @@
                             <td><?php echo $num_bookings; ?></td>
                             <td><?php echo $debit_penalty; ?></td>
                             <td><?php echo $credit_penalty; ?></td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -125,6 +128,7 @@
                     <th>SGST Tax Amount</th>
                     <th>IGST Tax Amount</th>
                     <th>GST Rate</th>
+                    <th>GST Number</th>
                     <th>Total Amount Collected</th>
                 </tr>
             </thead>
@@ -151,6 +155,7 @@
                             <td><?php echo round($value['sgst_tax_amount'],0); ?></td>
                             <td><?php echo round($value['igst_tax_amount'],0); ?></td>
                             <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
+                            <td><?php echo $value['gst_number']; ?></td>
                             <td><?php echo round($value['total_amount_collected'],0); $t_ac += $value['total_amount_collected']; ?></td>
                         </tr>
                         <?php $sn++;
@@ -169,7 +174,7 @@
                             <td><?php echo $credit_penalty; ?></td>
                             <td><b><?php echo round($t_ar,0); ?></b></td>
                             <td><b><?php echo round($t_sc,0); ?></b></td>
-                             <td></td> <td></td> <td></td> <td></td>
+                            <td></td> <td></td> <td></td> <td></td><td></td>
                             <td><b><?php echo round($t_ac,0); ?></b></td>
                         </tr>
         <?php } ?>
@@ -190,6 +195,7 @@
                         <th>Invoice Date</th>
                         <th>Name on PAN</th>
                         <th>PAN</th>
+                        <th>GST Number</th>
                         <th>Owner Name</th>
                         <th>Service Charges</th>
                         <th>Total Additional Service Charge</th>
@@ -215,6 +221,7 @@
                                 <td><?php echo $value['invoice_date']; ?></td>
                                 <td><?php echo $value['name_on_pan']; ?></td>
                                 <td><?php echo $value['pan_no']; ?></td>
+                                <td><?php echo $value['gst_no']; ?></td>
                                 <td><?php echo $value['owner_name']; ?></td>
                                 <td><?php echo round($value['total_service_charge'],0); $total_sc += $value['total_service_charge']; ?></td>
                                 <td><?php echo round($value['total_additional_service_charge'],0); $total_asc += $value['total_additional_service_charge']; ?></td>
@@ -231,6 +238,7 @@
                             <tr>
                                 <td><b>Total</b></td>
                                
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>

@@ -3,9 +3,8 @@
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
-
-error_reporting(E_ALL);
 ini_set('display_errors', '1');
+error_reporting(E_ALL);
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
 
@@ -16,6 +15,7 @@ require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php
 
 class vendor extends CI_Controller {
    var  $vendorPinArray = array();
+   var  $filePath = "";
     function __Construct() {
         parent::__Construct();
         $this->load->model('employee_model');
@@ -1662,6 +1662,7 @@ class vendor extends CI_Controller {
                 $value['current_state'] = "Escalation";
                 $value['agent_id'] = $this->session->userdata('id');
                 $value['remarks'] = $escalation_reason_final;
+                $value['agent_type'] = 'admin';
                 $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
                 //Adding values in penalty on booking table
                 $this->penalty_model->get_data_penalty_on_booking($value, $where);
@@ -2344,10 +2345,13 @@ class vendor extends CI_Controller {
                 if($booking_id != NULL){
                             $booking_data  = $this->booking_model->getbooking_history($booking_id);
                             $data['pincode'] = $booking_data[0]['booking_pincode'];
-                            $data['selected_appliance'][0] = array('service_id'=>$booking_data[0]['service_id'],'service_name'=>$booking_data[0]['services']);
-                            $data['all_appliance'] = $this->booking_model->selectservice();
-                            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
-                            $this->load->view('employee/add_vendor_to_pincode',$data);
+                            $pincodeAvaliablity = $this->is_pincode_available_in_india_pincode_table($data['pincode']);
+                            if($pincodeAvaliablity){
+                                    $data['selected_appliance'][0] = array('service_id'=>$booking_data[0]['service_id'],'service_name'=>$booking_data[0]['services']);
+                                    $data['all_appliance'] = $this->booking_model->selectservice();
+                                    $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
+                                    $this->load->view('employee/add_vendor_to_pincode',$data);
+                            }
                 }
 
     }
@@ -2400,6 +2404,7 @@ class vendor extends CI_Controller {
      *  @return : void
      */
     function process_add_vendor_to_pincode_form(){
+        log_message('info',__FUNCTION__);
         if($this->input->post()){
             $this->form_validation->set_rules('pincode', 'Pincode', 'trim|required|numeric|min_length[6]|max_length[6]');
             $this->form_validation->set_rules('vendor_id', 'Vendor_ID', 'required');
@@ -2420,6 +2425,10 @@ class vendor extends CI_Controller {
                                         if(!empty($vendor_id)){
                                             log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($value,TRUE));
                                             $displayMsgArray['success'][] = $value; 
+                                            $cc = "anuj@247around.com";
+                                            $to = "chhavid@247around.com";
+                                            $subject = "Add new Combination in vendor pincode mapping";
+                                            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $value, "");
                                         }
                                         else{
                                             $displayMsgArray['failed'][] = $value; 
@@ -3884,6 +3893,7 @@ class vendor extends CI_Controller {
                 $value['assigned_vendor_id'] = $escalation['vendor_id'];
                 $value['agent_id'] = $this->session->userdata('id');
                 $value['remarks'] = $escalation_reason_final;
+                $value['agent_type'] = 'admin';
                 if($penalty_active == 0 && $penalty_active != Null){
                     $value['penalty_active'] =$penalty_active;
                 }
@@ -4358,6 +4368,7 @@ class vendor extends CI_Controller {
                     ob_start();
                     $pincodeArray =  $this->vendor_model->check_vendor_details(array("Vendor_ID"=>$vendorID));
                     $config = array('template' => "vendor_pin_code.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
+                    log_message('info', __FUNCTION__ . ' Download Data ' . print_r($pincodeArray, TRUE));
                     $this->miscelleneous->downloadExcel($pincodeArray,$config);
           } 
          
@@ -4369,11 +4380,11 @@ class vendor extends CI_Controller {
           function save_vendor_pin_code_file($tempName,$vendorID){
                     $msg = FALSE;
                     $bucket = BITBUCKET_DIRECTORY;
-                    $filePath = "vendor_pincode_mapping_".rand(10,100)."_".date('j-M-Y')."_".$vendorID.".xlsx";
-                    $directory_xls = "vendor-partner-docs/".$filePath;
+                    $this->filePath = "vendor_pincode_mapping_".rand(10,100)."_".date('j-M-Y')."_".$vendorID.".xlsx";
+                    $directory_xls = "vendor-partner-docs/".$this->filePath;
                     $is_success = $this->s3->putObjectFile($tempName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     if($is_success){
-                              $affected_rows =  $this->vendor_model->vendor_pin_code_uploads_insert("file_uploads",array("file_name"=>$filePath,"file_type"=>"vendor_pincode_".$vendorID,"agent_id"=>$this->session->userdata['id']));
+                              $affected_rows =  $this->vendor_model->vendor_pin_code_uploads_insert("file_uploads",array("file_name"=>$this->filePath,"file_type"=>"vendor_pincode_".$vendorID,"agent_id"=>$this->session->userdata['id']));
                               if($affected_rows>0){
                                         $msg =  TRUE; 
                               }
@@ -4390,7 +4401,7 @@ class vendor extends CI_Controller {
           }
           
           function is_file_less_then_size($fileSize){
-                    $msg = "File Size is more then 2 MB";
+                    $msg = "File Size Should be less then 2 MB";
                     $MB = 1048576;
                     if ($fileSize > 0 && $fileSize < 2 * $MB) {
                               $msg = TRUE;
@@ -4407,40 +4418,26 @@ class vendor extends CI_Controller {
                     }
                     return $readerVersion;
           }
-          function excel_to_Array_converter($file,$readerVersion){
-                    $objReader = PHPExcel_IOFactory::createReader($readerVersion);
-                    $objPHPExcel = $objReader->load($file['file']['tmp_name']);
-                    $sheet = $objPHPExcel->getSheet(0);
-                    $highestRow = $sheet->getHighestDataRow();
-                    $highestColumn = $sheet->getHighestDataColumn();
-                    $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
-                    $heading = str_replace(array("/", "(", ")", " ", "."), "", $headings[0]);
-                    $newHeading[0][0] = str_replace(array(" "), "_", $heading);
-                    $excelDataArray=array();
-                    for($i=2;$i<=$highestRow;$i++){
-                              $excelDataArray[] = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
-                    }
-                    $finalExcelDataArray = array_merge($newHeading, $excelDataArray);
-                    return $finalExcelDataArray;
-          }
           
           function is_file_contains_only_valid_vendor($vendorID,$excelDataArray){
                     $msg = TRUE;
                     foreach($excelDataArray as $index=>$data){
-                              if($index>0){
-                                                  if($data[0][1] != $vendorID){
-                                                            $msg = "This file Contains more then 1 Vendor Please check file and upload it after correction";
-                                                  }
-                              }
+                        if($data['vendor_id'] !=''){
+                                if($data['vendor_id'] !== $vendorID){
+                                          $msg = "File Contains more then 1 Vendor, Error at line ".($index+2);
+                                }
+                        }
+                        else{
+                                           $msg = "File Contains Blank Vendor_ID, Error at line ".($index+2);
+                        }
                    }
                    return $msg;
           }
           
           function is_uploded_file_blank($excelDataArray){
                     $msg = TRUE;
-                    $length = count($excelDataArray);
-                    if($length<2){
-                              $msg = "File does not contains any records";
+                    if(empty($excelDataArray)){
+                              $msg = "File Does'nt Contains Any Record";
                     }
                    return $msg;
           }
@@ -4448,13 +4445,41 @@ class vendor extends CI_Controller {
           function is_pin_code_valid($excelDataArray){
                     $msg = TRUE;
                     foreach($excelDataArray as $index=>$data){
-                              if($index>0){
-                                    if(strlen($data[0][6]) != 6){
-                                              $msg = "This file Contains invalid pincodes";
-                                    }
-                              }
+                            if(strlen($data['pincode']) != 6){
+                                      $msg = "File Contains invalid pincode. Error at line ".($index+2);
+                            }
+                            else{
+                                if(!is_numeric($data['pincode'])){
+                                    $msg = "File Contains invalid pincode. Error at line ".($index+2);
+                                }
+                            }
                    }
                    return $msg;
+          }
+          function is_pincode_service_area_unique($excelDataArray){
+              $msg = true;
+              $tempArray = array();
+              foreach($excelDataArray as $index=>$data){
+                    $uniqueString = $data['pincode'].",".$data['area'].",".$data['appliance_id'];
+                    if(array_key_exists($uniqueString, $tempArray)){
+                              $msg = "Pincode, Appliance_ID, Area Combination Should be unique. Error at line ".($index+2);
+                    }
+                    else{
+                        $tempArray[$uniqueString] = NULL;
+                    }
+             }
+             return $msg;
+          }
+          function is_any_field_blank($excelDataArray){
+                    $msg = true;
+                    foreach($excelDataArray as $index=>$data){
+                              foreach($data as $value){
+                                        if(!$value){
+                                            $msg = "File Contains Blank Values. Error at line ".($index+2);
+                                        }
+                              }
+                    }
+                    return $msg;
           }
           
           function  is_vendor_pin_code_file_valid($file,$vendorID){
@@ -4463,13 +4488,25 @@ class vendor extends CI_Controller {
                               $msg['size'] = $this->is_file_less_then_size($file['file']['size']);
                                         if($msg['size'] == 1){
                                                   $readerVersion = $this->get_excel_reader_version($file['file']['name']);
-                                                  $this->vendorPinArray =  $this->excel_to_Array_converter($file,$readerVersion);
+                                                  $this->vendorPinArray =  $this->miscelleneous->excel_to_Array_converter($file,$readerVersion);
                                                   $msg['blank'] = $this->is_uploded_file_blank($this->vendorPinArray);
                                                   if($msg['blank'] == 1){
                                                             $msg['vendor'] = $this->is_file_contains_only_valid_vendor($vendorID,$this->vendorPinArray );  
-                                                            if($msg['vendor']){
+                                                            if($msg['vendor'] == 1){
                                                                        $msg['pin_code'] = $this->is_pin_code_valid($this->vendorPinArray);
-                                                                       return $msg['pin_code'];
+                                                                       if($msg['pin_code'] == 1){
+                                                                                $msg['unique_combination'] = $this->is_pincode_service_area_unique($this->vendorPinArray);
+                                                                                if($msg['unique_combination'] ==1){
+                                                                                          $msg['field_blank'] = $this->is_any_field_blank($this->vendorPinArray);
+                                                                                          return $msg['field_blank'];
+                                                                                }
+                                                                                else{
+                                                                                          return $msg['unique_combination'];
+                                                                                }
+                                                                       }
+                                                                       else{
+                                                                                return $msg['pin_code'];
+                                                                       }
                                                             }
                                                             else{
                                                                       return $msg['vendor'];
@@ -4492,19 +4529,17 @@ class vendor extends CI_Controller {
                     if($deleteMsg == TRUE){
                               $finalInsertArray = array();
                               foreach($this->vendorPinArray as $key=>$data){
-                                        if($key>0){
-                                                  $insertArray['Vendor_Name'] = $data[0][0];
-                                                  $insertArray['Vendor_ID'] = $data[0][1];
-                                                  $insertArray['Appliance'] = $data[0][2];
-                                                  $insertArray['Appliance_ID'] = $data[0][3];
-                                                  $insertArray['Brand'] = $data[0][4];
-                                                  $insertArray['Area'] = $data[0][5];
-                                                  $insertArray['Pincode'] = $data[0][6];
-                                                  $insertArray['Region'] = $data[0][7];
-                                                  $insertArray['City'] = $data[0][8];
-                                                  $insertArray['State'] = $data[0][9];
-                                                  $finalInsertArray[] = $insertArray;
-                                        }
+                                        $insertArray['Vendor_Name'] = $data['vendor_name'];
+                                        $insertArray['Vendor_ID'] = $data['vendor_id'];
+                                        $insertArray['Appliance'] = $data['appliance'];
+                                        $insertArray['Appliance_ID'] = $data['appliance_id'];
+                                        $insertArray['Brand'] = $data['brand'];
+                                        $insertArray['Area'] = $data['area'];
+                                        $insertArray['Pincode'] = $data['pincode'];
+                                        $insertArray['Region'] = $data['region'];
+                                        $insertArray['City'] = $data['city'];
+                                        $insertArray['State'] = $data['state'];
+                                        $finalInsertArray[] = $insertArray;
                               }
                               if(!empty($finalInsertArray)){
                                        $affectedRows =  $this->vendor_model->insert_vendor_pincode_in_bulk($finalInsertArray);
@@ -4512,7 +4547,7 @@ class vendor extends CI_Controller {
                                                   return "Successfully Done";
                                        }
                                        else{
-                                                  return "Something Wrong Happens";
+                                                  return "Something Went Wrong Please Contact to admin";
                                        }
                               }
                     }
@@ -4523,11 +4558,9 @@ class vendor extends CI_Controller {
           
           function manage_pincode_not_found_sf_table(){
               foreach($this->vendorPinArray as $key=>$values){
-                    if($key>0){
-                        $temp['Pincode'] = $values[0][6];
-                        $temp['Appliance_ID'] = $values[0][3];
+                        $temp['Pincode'] = $values['pincode'];
+                        $temp['Appliance_ID'] = $values['appliance_id'];
                         $pincodeServiceArray[] = $temp;
-                    }
               }
               $this->miscelleneous->update_pincode_not_found_sf_table($pincodeServiceArray);
           }
@@ -4544,10 +4577,20 @@ class vendor extends CI_Controller {
                               if($is_saved == 1){
                                         $msgVerfied = $this->is_vendor_pin_code_file_valid($_FILES,$vendorID);
                                         if($msgVerfied == 1){
+                                                       $fileStatus = 'Failure';
                                                        $this->manage_pincode_not_found_sf_table();
                                                        $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($_FILES,$vendorID);
+                                                       log_message('info', __FUNCTION__ . ' Uploaded Data ' . print_r($this->vendorPinArray, TRUE));
+                                                       if($finalMsg == 'Successfully Done'){
+                                                           $fileStatus = 'Success';
+                                                           $cc = "anuj@247around.com";
+                                                            $to = "chhavid@247around.com";
+                                                            $subject = "Vendor pincode mapping file upload";
+                                                            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $this->vendorPinArray, "");
+                                                       }
                                         }
                                         else{
+                                                  $fileStatus = 'Invalid';
                                                   $finalMsg =  $msgVerfied;
                                         }
                               }
@@ -4558,11 +4601,11 @@ class vendor extends CI_Controller {
                     else{
                         
                     }
+                    $this->vendor_model->update_file_status($fileStatus,$this->filePath);
                     $msg['final_msg'] = $finalMsg;
                     $this->session->set_userdata($msg);
                     redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
           }
-         
           /*
            * This function use to create pincode update form when data comes from rm dashboard
            * @input - post data pincode and service related to that pincode in json format
@@ -4570,15 +4613,54 @@ class vendor extends CI_Controller {
            */
           function insert_pincode_form(){
             $data = $this->input->post();
-            if(!empty(json_decode($data['service']))){
-                   $data['selected_appliance'] = json_decode($data['service'],TRUE);
-            }
-            $data['all_appliance'] = $this->booking_model->selectservice();
-            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-            $this->load->view('employee/add_vendor_to_pincode',$data);
+            $pincodeAvaliablity = $this->is_pincode_available_in_india_pincode_table($data['pincode']);
+                    if($pincodeAvaliablity){
+                            if(!empty(json_decode($data['service']))){
+                                   $data['selected_appliance'] = json_decode($data['service'],TRUE);
+                            }
+                            $data['all_appliance'] = $this->booking_model->selectservice();
+                            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
+                            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                            $this->load->view('employee/add_vendor_to_pincode',$data);
+                    }
           }
           
+          function is_pincode_available_in_india_pincode_table($pincode){
+                  $state  =   $this->vendor_model->get_state_from_india_pincode($pincode);
+                  if(empty($state['state'])){
+                     $states  =   $this->vendor_model->getall_state();
+                     $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                     $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states));
+                     return false;
+                  }
+                  else{
+                      return true;
+                  }
+          }
+          
+          function add_new_pincode(){
+               $data = $this->input->post();
+               $pincode = $data['pincode'];
+               $state = $data['states'];
+               $districtArray = explode(",",$data['district']);
+               $length = count($districtArray);
+               for($i=0;$i<$length;$i++){
+                              $tempArray['district'] = $districtArray[$i];
+                              $tempArray['taluk'] = $districtArray[$i];
+                              $tempArray['region'] = $districtArray[$i];
+                              $tempArray['division'] = $districtArray[$i];
+                              $tempArray['area'] = $districtArray[$i];
+                              $tempArray['state'] = $state;
+                              $tempArray['pincode'] = $pincode;
+                   $insertArray[] = $tempArray;
+               }
+               $insertResult = $this->vendor_model->insert_india_pincode_in_batch($insertArray);
+               if($insertResult){
+                   $finalMsg = $insertResult." Rows has been inserted for the pincode ".$pincode." , Now You can assign SF to ".$pincode;
+                   $this->session->set_userdata('pincode_msg',$finalMsg);
+                   redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
+               }
+          }  
     function save_file_into_database($newZipFileName, $csv, $status) {
         //Adding Details in File_Uploads table as well
         $data_uploads['file_name'] = "vendor_pincode_mapping_temp_" . date('j-M-Y') . ".zip";
@@ -4605,6 +4687,39 @@ class vendor extends CI_Controller {
         //remove file from system
         unlink($csv);
         unlink($newZipFileName);
+    }
+    
+    /**
+     * @desc : This function is used to resend the login details on request.
+     * @param : $type employee/SF/partner string
+     * @param : $id employee_id/sf_id/partner_id string
+     * @return : void
+     */
+    function resend_login_details($type, $id) {
+        $agent = $this->service_centers_model->get_sc_login_details_by_id($id);
+        if(!empty($agent)){
+            $template = $this->booking_model->get_booking_email_template("resend_login_details");
+            if (!empty($template)) {
+                $sf_details = $this->vendor_model->getVendorDetails('primary_contact_email,owner_email',array('id'=>$id));
+                $rm_email = $this->vendor_model->get_rm_sf_relation_by_sf_id($id)[0]['official_email'];
+                $login_details['username'] = $agent[0]['user_name'];
+                $login_details['password'] = $agent[0]['user_name'];
+                $subject = $template[4];
+                $emailBody = vsprintf($template[0], $login_details);
+                $to = $this->session->userdata('official_email').",".$sf_details[0]['primary_contact_email'].",".$sf_details[0]['owner_email'];
+                $cc = $rm_email.",".$template[3];
+                $this->notify->sendEmail($template[2],$to , $cc, '', $subject, $emailBody, "");
+                $this->session->set_userdata('success','Login Details Send To Registered Email Id');
+                redirect(base_url() . 'employee/vendor/viewvendor'); 
+            }else{
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '','', 'Email Template Not Found', 'resend_login_details email template not found. Please update this into the database.', "");
+                $this->session->set_userdata('error','Error!!! Please Try Again...');
+                redirect(base_url() . 'employee/vendor/viewvendor');  
+            }
+        }else{
+            echo "Service Center Not Found";
+        }
+        
     }
 
     /**

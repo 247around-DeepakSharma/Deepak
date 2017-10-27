@@ -146,7 +146,9 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/show_missed_call_rating_data"><i class="fa fa-fw fa-desktop"></i> <strong>Missed Call Rating</strong></a>
                         </li>
-                  
+                  <li>
+                            <a href="<?php echo base_url()?>employee/booking/booking_advance_search"><i class="fa fa-fw fa-desktop"></i> <strong>Advanced Search</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-tasks -->
                 </li>

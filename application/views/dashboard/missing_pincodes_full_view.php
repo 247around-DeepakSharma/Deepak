@@ -10,9 +10,16 @@
         white-space: normal;
     }
 </style>
+<?php 
+if($this->input->get('rm_id')) {
+    $rmID = $this->input->get('rm_id'); 
+}
+else{
+    $rmID = $this->session->userdata('id');
+}
+$this->session->set_userdata('rm_id',$rmID);
+?>
 <div class="right_col" role="main" ng-app="rm_missing_pincode">
-    
-
     <div class="row" ng-controller="rm_missing_pincode_controller">
 
         <div class="clearfix"></div>
@@ -20,6 +27,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Missing Pincodes</h2>
+                    <a id="download_pin_code" class="btn btn-info" href="download_missing_sf_pincode_excel/<?php echo $rmID ?>" style="float:right">Download Excel</a>
                     <div class="clearfix"></div>
                 </div>
 
