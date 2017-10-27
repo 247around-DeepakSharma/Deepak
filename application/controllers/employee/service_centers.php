@@ -96,6 +96,7 @@ class Service_centers extends CI_Controller {
             $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
 
         }
+        $data['service_center_id'] = $service_center_id;
         $this->load->view('service_centers/pending_on_tab', $data);
     }
 
@@ -684,7 +685,11 @@ class Service_centers extends CI_Controller {
                 //around_flag 1 means. This booking is our booking otherwise partner's booking 
                 $data['around_flag'] = 0;
                 foreach ($unit_details as $value) {
-                    if (stristr($value['price_tags'], "Repair")) {
+                    if (strcasecmp($value['price_tags'], REPAIR_OOW_TAG) == 0) {
+                        $data['spare_flag'] = 2;
+                        $data['price_tags'] = $value['price_tags'];
+                    } else if (stristr($value['price_tags'], "Repair")) {
+                        
                         $data['spare_flag'] = 1;
                         $data['price_tags'] = $value['price_tags'];
                     }
@@ -731,10 +736,11 @@ class Service_centers extends CI_Controller {
                     break;
 
                 case SPARE_PARTS_REQUIRED:
-                    log_message('info', __FUNCTION__. " Spare Parts Required Request: ". $this->session->userdata('service_center_id'));
+                case SPARE_OOW_EST_REQUESTED: 
+                    log_message('info', __FUNCTION__. " ".SPARE_OOW_EST_REQUESTED." :". $this->session->userdata('service_center_id'));
                     $this->update_spare_parts();
                     break;
-
+                 
                  case CUSTOMER_NOT_REACHABLE:
                      log_message('info', __FUNCTION__. CUSTOMER_NOT_REACHABLE. $this->session->userdata('service_center_id'));
                         $day = $this->input->post('days');
@@ -831,6 +837,7 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required|xss_clean');
         if ($this->form_validation->run()) {
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
             $booking_id = $this->input->post('booking_id');
             $data['model_number'] = $this->input->post('model_number');
             $data['serial_number'] = $this->input->post('serial_number');
@@ -843,14 +850,20 @@ class Service_centers extends CI_Controller {
             if (stristr($price_tags, "Out Of Warranty")) {
                 
                 $data['defective_part_required'] = 0;
+                $status = SPARE_OOW_EST_REQUESTED;
+                $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                 
             } else {
                 $data['defective_part_required'] = $this->partner_model->getpartner_details("is_def_spare_required", 
                 array('partners.id' => $data['partner_id']))[0]['is_def_spare_required'];
+                
+                $status = SPARE_PARTS_REQUESTED;
+                $sc_data['internal_status'] = $reason;
             }
 
             if (isset($_FILES["invoice_image"])) {
-                $invoice_name = $this->upload_spare_pic($_FILES["invoice_image"], "Invoice");
+                $invoice_name = $this->miscelleneous->upload_file_to_s3($_FILES["invoice_image"], 
+                        "Invoice", $allowedExts, $booking_id, "misc-images", "sp_parts");
                 if (isset($invoice_name)) {
                     $data['invoice_pic'] = $invoice_name;
                 }
@@ -858,7 +871,8 @@ class Service_centers extends CI_Controller {
 
             if (isset($_FILES["serial_number_pic"])) {
 
-                $serial_number_pic = $this->upload_spare_pic($_FILES["serial_number_pic"], "Serial_NO");
+                $serial_number_pic = $this->miscelleneous->upload_file_to_s3($_FILES["serial_number_pic"], 
+                        "Serial_NO", $allowedExts, $booking_id, "misc-images", "sp_parts");
                 if (isset($serial_number_pic)) {
                     $data['serial_number_pic'] = $serial_number_pic;
                 }
@@ -866,7 +880,8 @@ class Service_centers extends CI_Controller {
 
             if (isset($_FILES["defective_parts_pic"])) {
 
-                $defective_parts_pic = $this->upload_spare_pic($_FILES["defective_parts_pic"], "Defective_Parts");
+                $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["defective_parts_pic"], 
+                        "Defective_Parts", $allowedExts, $booking_id, "misc-images", "sp_parts");
                 if (isset($defective_parts_pic)) {
                     $data['defective_parts_pic'] = $defective_parts_pic;
                 }
@@ -877,7 +892,7 @@ class Service_centers extends CI_Controller {
             $data['remarks_by_sc'] = $this->input->post('reason_text');
             
             $data['booking_id'] = $booking_id;
-            $data['status'] = SPARE_PARTS_REQUESTED;
+            $data['status'] = $status;
             $data['service_center_id'] = $this->session->userdata('service_center_id');
             //$where = array('booking_id' => $booking_id, 'service_center_id' => $data['service_center_id']);
             $status_spare = $this->service_centers_model->insert_data_into_spare_parts($data);
@@ -886,9 +901,8 @@ class Service_centers extends CI_Controller {
                 $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc']);
 
                 $sc_data['current_status'] = "InProcess";
-                $sc_data['internal_status'] = $reason;
-
-                if ($booking_date != "") {
+                
+                if (!empty($booking_date) ) {
                     $sc_data['current_status'] = "Pending";
                     $sc_data['booking_date'] = date('Y-m-d H:i:s', strtotime($booking_date));
                     $sc_data['reschedule_reason'] = $data['remarks_by_sc'];
@@ -924,7 +938,10 @@ class Service_centers extends CI_Controller {
     }
     
     function upload_defective_spare_pic(){
-        $defective_courier_receipt = $this->upload_spare_pic($_FILES["defective_courier_receipt"], "defective_courier_receipt");
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $booking_id = $this->input->post("booking_id");
+        $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["defective_courier_receipt"], 
+                "defective_courier_receipt", $allowedExts, $booking_id, "misc-images", "sp_parts");
         if($defective_courier_receipt){
            return true;
         } else {
@@ -932,44 +949,6 @@ class Service_centers extends CI_Controller {
 		    . 'Maximum file size is 5 MB.');
             return false;
         }
-    }
-
-    /**
-     * @esc: This method upload invoice image OR panel image to S3
-     * @param _FILE $file
-     * @return boolean|string
-     */
-     public function upload_spare_pic($file, $type) {
-         log_message('info', __FUNCTION__. " Enterring Service_center ID: ". $this->session->userdata('service_center_id'));
-        $this->checkUserSession();
-	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
-	$temp = explode(".", $file['name']);
-	$extension = end($temp);
-	//$filename = prev($temp);
-
-	if ($file["name"] != null) {
-	    if (($file["size"] < 5e+6) && in_array($extension, $allowedExts)) {
-		if ($file["error"] > 0) {
-		    $this->form_validation->set_message('upload_spare_pic', $file["error"]);
-		} else {
-                   
-		    $pic = str_replace(' ', '-', $this->input->post('booking_id'));
-		    $picName = $type. rand(10,100).$pic . "." . $extension;
-                    $_POST['sp_parts'] = $picName;
-		    $bucket = BITBUCKET_DIRECTORY;
-                    
-		    $directory = "misc-images/" . $picName;
-		    $this->s3->putObjectFile($file["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
-
-		    return $picName;
-		}
-	    } else {
-		$this->form_validation->set_message('upload_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 2 MB.');
-		return FALSE;
-	    }
-	}
-        log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
     }
     
     /**
@@ -2708,6 +2687,29 @@ class Service_centers extends CI_Controller {
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager','active' => 1));
         $this->load->view('service_centers/contact_us',$data);
     }
-    
+    /**
+     * @desc This is used to Approve Spare Estimate by SF
+     * @param int $sp_id
+     * @param String $booking_id
+     */
+    function approve_oow($sp_id, $booking_id) {
+        if (!empty($sp_id) && !empty($booking_id)) {
+
+            $sc['current_status'] = "InProcess";
+            $sc['update_date'] = date('Y-m-d H:i:s');
+            $sc['internal_status'] = SPARE_PARTS_REQUIRED;
+            // UPDATE SC Action Table
+            $this->service_centers_model->update_service_centers_action_table($booking_id, $sc);
+
+            // UPDATE Spare Parts
+            $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array("status" => SPARE_PARTS_REQUESTED, 'date_of_request' => date('Y-m-d')));
+
+            $this->insert_details_in_state_change($booking_id, SPARE_PARTS_REQUESTED, "Estimate Approved By Customer");
+
+            echo "Success";
+        } else {
+            echo "Error";
+        }
+    }
 
 }

@@ -46,6 +46,7 @@ define('addtitional_percentage', .85);
 define('parts_percentage', .95);
 define('SERVICE_TAX_RATE', 0.18);
 define('DEFAULT_TAX_RATE', 18);
+define('DEFAULT_PARTS_TAX_RATE', 28);
 
 //Agent ID used when Partner inserts a Booking by calling our API
 define('DEFAULT_PARTNER_AGENT', 978978);
@@ -464,10 +465,18 @@ define('QC_BALANCE_READ_EMAIL_PASSWORD','sachinj');
 define('TV_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000071' Notification");
 define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000029' Notification");
 
-define('SPARE_OOW_REQUEST','Spare Estimated Cost Request');
+define('SPARE_OOW_REQUEST_TEXT','Spare Estimate Cost Request');
+define('SPARE_OOW_EST_REQUESTED','Spare Estimate Cost Requested');
+define('SPARE_OOW_EST_GIVEN','Spare Estimate Cost Given');
+define('SPARE_OOW_EST_MARGIN','0.25');
+define('REPAIR_OOW_PARTS_PRICE_TAGS','Spare Parts');
+define('REPAIR_OOW_VENDOR_PERCENTAGE','15');
 
 define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
 define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
+define("REPAIR_OOW_TAG", "Repair - Out Of Warranty");
+define("NOT_UPCOUNTRY_PRICE_TAG", "-1");
+define("PARTNER_PROVIDE_UPCOUNTRY_PRICE_TAG", "1");
 
 define("REPEAT_BOOKING_TAG", "Repeat Booking");
 define("_247AROUND_PRODUCT_TAG", "Product");

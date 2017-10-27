@@ -19,7 +19,16 @@
         <script src="<?php echo base_url(); ?>js/select2.min.js"></script>
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-        <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+        <script src="<?php echo base_url()?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
+        <script src="<?php echo base_url()?>assest/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+
+        <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+        <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+        <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+
+        <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
         <style type="text/css">
             .navbar{
                 min-height: 80px;

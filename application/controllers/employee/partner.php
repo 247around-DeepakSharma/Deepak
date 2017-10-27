@@ -16,12 +16,13 @@ class Partner extends CI_Controller {
 
         $this->load->model('booking_model');
         $this->load->model('partner_model');
-        $this->load->model('reusable_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
         $this->load->model('invoices_model');
         $this->load->model('dealer_model');
         $this->load->model('service_centers_model');
+        $this->load->model("inventory_model");
+        $this->load->model('penalty_model');
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->library('form_validation');
@@ -1508,7 +1509,7 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
 
             //inserts vendor escalation details
-            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
+           $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
 
             $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
             if ($escalation_id) {
@@ -1517,8 +1518,7 @@ class Partner extends CI_Controller {
                 $bcc = "";
                 $attachment = "";
                 $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];
-                $sf_id = $this->reusable_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id' => $escalation['booking_id']))->result_array()[0];
-                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($sf_id['assigned_vendor_id'])[0]['official_email'];
+                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($bookinghistory[0]['assigned_vendor_id'])[0]['official_email'];
                 $partner_mail_to = $partner_details['email'];
                 $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ,".$rm_mail;
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
@@ -1530,6 +1530,42 @@ class Partner extends CI_Controller {
                 $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team' => 1), true);
 
                 $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
+                
+                //Processing Penalty on Escalations when Booking Time solt exceed 1hour
+                $last_booking_time_slots =trim(explode('-', $escalation['booking_time'])[1]);
+                
+                $time_limit = '';
+                if($last_booking_time_slots == '1PM'){
+                    $time = $escalation['booking_date']. ' 14:01:00';
+                    $time_limit = strtotime(date($time));
+                }else if($last_booking_time_slots == '4PM'){
+                    $time = $escalation['booking_date']. ' 16:01:00';
+                    $time_limit = strtotime($time);
+                }else if($last_booking_time_slots == '7PM'){
+                    $time = $escalation['booking_date']. ' 21:01:00';
+                    $time_limit = strtotime(date($time));
+                }
+                
+                if(!empty($time_limit)){
+                    $time_difference = $time_limit - strtotime(date('Y-m-d H:i:s'));
+                }else{
+                    $time_difference = "";
+                }
+                
+                if(!empty($time_difference) && $time_difference < 0){
+                    $value['booking_id'] = $escalation['booking_id'];
+                    $value['assigned_vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
+                    $value['current_state'] = "Escalation";
+                    $value['agent_id'] = $partner_details['entity_id'];
+                    $value['agent_type'] = 'partner';
+                    $value['remarks'] = $escalation_remarks;
+                    $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
+                    //Adding values in penalty on booking table
+                    $this->penalty_model->get_data_penalty_on_booking($value, $where);
+    
+                    log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
+                }
+                
             }
 
             log_message('info', __FUNCTION__ . " Exiting");
@@ -1853,13 +1889,12 @@ class Partner extends CI_Controller {
     function update_spare_parts_form($id) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Spare Parts ID: " . $id);
         $this->checkUserSession();
-        $partner_id = $this->session->userdata('partner_id');
-
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
-                . " AND spare_parts_details.id = '" . $id . "' "
-                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
-
+        $where['length'] = -1;
+        $where['where'] = array('spare_parts_details.id' => $id);
+        $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, estimate_purchase_cost, estimate_cost_given_date";
+        
+        $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $this->load->view('partner/header');
         $this->load->view('partner/update_spare_parts_form', $data);
     }
@@ -1876,19 +1911,24 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('remarks_by_partner', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
+        $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
 
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner ' . $this->session->userdata('partner_id') .
                     " Spare id " . $id . " Data" . print_r($this->input->post(), true));
             $this->update_spare_parts_form($id);
         } else { // if ($this->form_validation->run() == FALSE) {
+            
             $partner_id = $this->session->userdata('partner_id');
             $data['parts_shipped'] = $this->input->post('shipped_parts_name');
             $data['courier_name_by_partner'] = $this->input->post('courier_name');
             $data['awb_by_partner'] = $this->input->post('awb');
             $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
             $data['shipped_date'] = $this->input->post('shipment_date');
-
+            $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
+            if(!empty($incoming_invoice_pdf)){
+                $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
+            }
             $data['status'] = "Shipped";
             $where = array('id' => $id, 'partner_id' => $partner_id);
             $response = $this->service_centers_model->update_spare_parts($where, $data);
@@ -1910,6 +1950,38 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
             }
+        }
+    }
+    /**
+     * @desc This is used to upload and send Repair OOW Parts Invoice
+     * @return boolean
+     */
+    function spare_incoming_invoice() {
+        log_message('info', __FUNCTION__ );
+        
+        $request_type = $this->input->post("request_type");
+        $booking_id = $this->input->post("booking_id");
+        
+        if ($request_type == REPAIR_OOW_TAG) {
+            $allowedExts = array("PDF", "pdf");
+            $invoice_name = $this->miscelleneous->upload_file_to_s3($_FILES["incoming_invoice"], 
+                    "sp_parts_invoice", $allowedExts, $booking_id, "misc-images", "incoming_invoice_pdf");
+            if (!empty($invoice_name)) {
+                $to = ANUJ_EMAIL_ID.", adityag@247around.com";
+                $cc = "abhaya@247around.com";
+                $subject = "Repair OOW Parts Sent By Partner For Booking ID: ". $booking_id;
+                $message = "Spare Invoice Estimate Givend is ". $this->input->post("invoice_amount");
+                $attachment = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$invoice_name;
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, $attachment);
+                
+                return true;
+            } else {
+                 $this->form_validation->set_message('spare_incoming_invoice', 'File size or file type is not supported. Allowed extentions is "pdf". '
+		    . 'Maximum file size is 5 MB.');
+                 return FALSE;
+            }
+        } else {
+            return true;
         }
     }
 

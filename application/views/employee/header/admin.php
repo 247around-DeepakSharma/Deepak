@@ -45,6 +45,11 @@
          <!-- bootstrap-daterangepicker -->
         <script src="<?php echo base_url()?>/js/moment.min.js"></script>
         <script src="<?php echo base_url()?>js/daterangepicker.js"></script>
+        <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+
+        <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
          
     </head>
     <body>
@@ -101,6 +106,10 @@
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/inventory/get_spare_parts"><i class="fa fa-fw fa-desktop"></i> <strong> Spare Parts Booking</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/booking/get_oow_booking"><i class="fa fa-fw fa-desktop"></i> <strong> OOW Booking</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>

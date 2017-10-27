@@ -3253,6 +3253,7 @@ CREATE TABLE `bb_svc_balance`
 `create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 
+
 --sachin 12 Oct
 ALTER TABLE `employee` ADD `languages` VARCHAR(256) NULL DEFAULT NULL AFTER `image_link`;
 UPDATE `employee` SET `languages` = 'English, Hindi, Marathi' WHERE `employee`.`id` = 24;
@@ -3268,6 +3269,15 @@ UPDATE `employee` SET `office_centre` = 'Delhi' WHERE `employee`.`id` = 32;
 -- sachin 16 oct 
 ALTER TABLE `file_uploads` ADD `result` VARCHAR(64) NULL AFTER `agent_id`;
 
+
+--Abhay 12 OCT
+ALTER TABLE `spare_parts_details` ADD `estimate_cost_given` DECIMAL(10,2) NOT NULL AFTER `date_of_request`;
+ALTER TABLE `spare_parts_details` ADD `estimate_cost_given_date` DATE NULL DEFAULT NULL AFTER `estimate_cost_given`;
+ALTER TABLE `spare_parts_details` ADD `incoming_invoice_pdf` VARCHAR(128) NULL DEFAULT NULL AFTER `estimate_cost_given_date`;
+ALTER TABLE `spare_parts_details` CHANGE `estimate_cost_given` `estimate_purchase_cost` DECIMAL(10,2) NOT NULL;
+ALTER TABLE `spare_parts_details` ADD `estimate_sell_cost` DECIMAL(10,2) NULL DEFAULT '0' AFTER `estimate_purchase_cost`;
+
+
 -- sachin 23 Oct
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
@@ -3281,3 +3291,8 @@ Regards,<br> 247around Team', 'booking@247around.com', '', '', '', '1', CURRENT_
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
 VALUES (NULL, 'booking_details_to_dealer', 'New Request for %s from %s is confirmed for %s,%s. Booking Id is %s.Please Contact Customer@%s.', 
 'Send sms To dealer When New booking created', '1', CURRENT_TIMESTAMP);
+
+--sachin 27 Oct
+ALTER TABLE `penalty_on_booking` ADD `agent_type` VARCHAR(128) NOT NULL AFTER `agent_id`;
+UPDATE penalty_on_booking SET agent_type = 'admin'
+

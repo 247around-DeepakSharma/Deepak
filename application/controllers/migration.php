@@ -125,7 +125,7 @@ class Migration extends CI_Controller {
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
 		    $data['appliance_description'] = $value['appliance_description'];
-		    $data['price_tags'] = "Repair - Out Of Warranty";
+		    $data['price_tags'] = REPAIR_OOW_TAG;
 
 		    $this->migration_model->update_booking_unit_details($booking_id, $data);
 		    break;

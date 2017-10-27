@@ -691,7 +691,7 @@ class Do_background_upload_excel extends CI_Controller {
             if(!empty($value['Phone'])){
 	        // check mobile number validation
                 $phone = explode('/', $value['Phone']);
-	        if (!preg_match('/^\d{10}$/', $phone[0])) {
+	        if (!preg_match('/^\d{10}$/', trim($phone[0]))) {
 		    unset($data[$key]);
 		    array_push($invalid_data, $value);
 	        }
