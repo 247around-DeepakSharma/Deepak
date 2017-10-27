@@ -141,6 +141,7 @@ class Penalty_model extends CI_Model {
             $data['penalty_amount'] = $penalty_details['penalty_amount'];
             $data['active'] = 1;
             $data['create_date'] = date('Y-m-d H:i:s');
+            $data['agent_type'] = $value['agent_type'];
             $this->insert_penalty_on_booking($data);
             if ($data['criteria_id'] == '2') {
                 $this->booking_model->update_booking($data['booking_id'], array('is_penalty' => '1'));
@@ -245,6 +246,7 @@ class Penalty_model extends CI_Model {
                             $where = array('criteria' => BOOKING_NOT_UPDATED_BY_SERVICE_CENTER, 'active' => '1');
                             $data1['booking_id'] = $booking_id;
                             $data1['assigned_vendor_id'] = $value['assigned_vendor_id'];
+                            $data1['agent_type'] = 'admin';
                             $this->get_data_penalty_on_booking($data1, $where);
                             $booking_not_update++;
                         }
@@ -292,9 +294,29 @@ class Penalty_model extends CI_Model {
     function get_penalty_on_booking_by_booking_id($booking_id) {
         $this->db->select('*');
         $this->db->where('booking_id', $booking_id);
-        //$this->db->join('employee','penalty_on_booking.penalty_remove_agent_id = employee.id');
         $query = $this->db->get('penalty_on_booking');
-        return $query->result_array();
+        $result=  $query->result_array();
+        if(!empty($result)){
+            foreach ($result as $key => $value){
+                if($value['agent_type'] == 'admin'){
+                     if ($value['active'] == 0) {
+                        $where = array('id' => $value['penalty_remove_agent_id']);
+                        $data1 = $this->employee_model->get_employee_by_group($where);
+                        $result[$key]['agent_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
+                    } else if ($value['active'] == 1) {
+                        $where = array('id' => $value['agent_id']);
+                        $data1 = $this->employee_model->get_employee_by_group($where);
+                        $result[$key]['agent_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
+                    }
+                }else if($value['agent_type'] == 'partner'){
+                    $where = array('partners.id' => $value['agent_id']);
+                    $data1 = $this->partner_model->getpartner_details('public_name',$where);
+                    $result[$key]['agent_name'] = isset($data1[0]['public_name']) ? $data1[0]['public_name'] : '';
+                }
+            }
+        }
+        
+        return $result;
     }
 
     /**

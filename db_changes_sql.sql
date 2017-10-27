@@ -3281,3 +3281,7 @@ Regards,<br> 247around Team', 'booking@247around.com', '', '', '', '1', CURRENT_
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
 VALUES (NULL, 'booking_details_to_dealer', 'New Request for %s from %s is confirmed for %s,%s. Booking Id is %s.Please Contact Customer@%s.', 
 'Send sms To dealer When New booking created', '1', CURRENT_TIMESTAMP);
+
+--sachin 27 Oct
+ALTER TABLE `penalty_on_booking` ADD `agent_type` VARCHAR(128) NOT NULL AFTER `agent_id`;
+UPDATE penalty_on_booking SET agent_type = 'admin'

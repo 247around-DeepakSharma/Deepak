@@ -1691,6 +1691,7 @@ class vendor extends CI_Controller {
                 $value['current_state'] = "Escalation";
                 $value['agent_id'] = $this->session->userdata('id');
                 $value['remarks'] = $escalation_reason_final;
+                $value['agent_type'] = 'admin';
                 $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
                 //Adding values in penalty on booking table
                 $this->penalty_model->get_data_penalty_on_booking($value, $where);
@@ -3906,6 +3907,7 @@ class vendor extends CI_Controller {
                 $value['assigned_vendor_id'] = $escalation['vendor_id'];
                 $value['agent_id'] = $this->session->userdata('id');
                 $value['remarks'] = $escalation_reason_final;
+                $value['agent_type'] = 'admin';
                 if($penalty_active == 0 && $penalty_active != Null){
                     $value['penalty_active'] =$penalty_active;
                 }
