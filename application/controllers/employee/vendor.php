@@ -59,6 +59,7 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function index() {
+        $this->checkUserSession();
         $vendor = [];
         //Getting rm id from post data
         $rm = $this->input->post('rm');
@@ -674,7 +675,7 @@ class vendor extends CI_Controller {
     }
     
     function send_update_sf_mail($sf_id,$rm_email) {
-        
+        $this->checkUserSession();
         $s3_url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/";
         
         //Getting Logged Employee Full Name
@@ -932,6 +933,7 @@ class vendor extends CI_Controller {
      * @return : array(result) to view
      */
     function add_vendor() {
+        $this->checkUserSession();
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->getall_state();
@@ -953,6 +955,7 @@ class vendor extends CI_Controller {
      * @return : array(of details) to view
      */
     function editvendor($id) {
+        $this->checkUserSession();
         log_message('info',__FUNCTION__.' id: '.$id);
         $query = $this->vendor_model->editvendor($id);
         if(!empty($query)){
@@ -991,6 +994,7 @@ class vendor extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewvendor($vendor_id = "") {
+        $this->checkUserSession();
         $id = $this->session->userdata('id');   
         $active = "1";
         $data['active_state'] = $active;
@@ -1024,91 +1028,54 @@ class vendor extends CI_Controller {
      * @param: vendor id
      * @return : void
      */
-    function activate($id) {
-        if(!empty($id)){
-        $this->vendor_model->activate($id);
-        
-        //Getting Vendor Details
-        $sf_details = $this->vendor_model->getVendorContact($id);
-        $sf_name = $sf_details[0]['name'];
-        
-        //Sending Mail to corresponding RM and admin group 
-        $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
-        if (!empty($employee_relation)) {
-            $rm_details = $this->employee_model->getemployeefromid($employee_relation[0]['agent_id']);
-            $to = $rm_details[0]['official_email'];
+    function vendor_activate_deactivate($id, $is_active) {
+        $this->checkUserSession();
+        if (!empty($id)) {
+            $vendor['active'] = $is_active;
+            $vendor['agent_id'] = $this->session->userdata("id");
+            $this->vendor_model->edit_vendor($vendor, $id);
+            
+            $this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
 
-            //Getting template from Database
-            $template = $this->booking_model->get_booking_email_template("sf_permanent_on_off");
-            if (!empty($template)) {
-                $email['rm_name'] = $rm_details[0]['full_name'];
-                $email['sf_name'] = ucfirst($sf_name);
-                $email['on_off'] = 'ON';
-                $subject = " Permanent ON Vendor " . $sf_name;
-                $emailBody = vsprintf($template[0], $email);
-                $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
+            //Getting Vendor Details
+            $sf_details = $this->vendor_model->getVendorContact($id);
+            $sf_name = $sf_details[0]['name'];
+
+            //Sending Mail to corresponding RM and admin group 
+            $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
+            if (!empty($employee_relation)) {
+            $to = $employee_relation[0]['official_email'];
+            
+                //Getting template from Database
+                $template = $this->booking_model->get_booking_email_template("sf_permanent_on_off");
+                if (!empty($template)) {
+                    $email['rm_name'] = $employee_relation[0]['full_name'];
+                    $email['sf_name'] = ucfirst($sf_name);
+                    if($is_active == 1){
+                        $email['on_off'] = 'ON';
+                        $subject = " Permanent ON Vendor " . $sf_name;
+                    } else {
+                       $email['on_off'] = 'OFF';
+                       $subject = " Permanent OFF Vendor " . $sf_name;
+                    }
+                    
+                    $emailBody = vsprintf($template[0], $email);
+                    $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
+                }
+
+                log_message('info', __FUNCTION__ . ' Permanent ON/OFF of Vendor' . $sf_name. " status ". $is_active);
             }
 
-            log_message('info', __FUNCTION__ . ' Permanent ON of Vendor' . $sf_name);
+
+            $log = array(
+                "entity" => "vendor",
+                "entity_id" => $id,
+                "agent_id" => $this->session->userdata('id'),
+                "action" => ($is_active ==1)? _247AROUND_VENDOR_ACTIVATED: _247AROUND_VENDOR_DEACTIVATED
+            );
+            $this->vendor_model->insert_log_action_on_entity($log);
+            redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
         }
-        
-        
-        $log = array(
-            "entity" => "vendor",
-            "entity_id" => $id,
-            "agent_id" => $this->session->userdata('id'),
-            "action" =>  _247AROUND_VENDOR_ACTIVATED
-        );
-        $this->vendor_model->insert_log_action_on_entity($log);
-        redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
-        } 
-    }
-
-    /**
-     * @desc: This function is to deactivate a particular vendor
-     *
-     * For this the vendor must be already registered with us and should be active(Active = 1)
-     *
-     * @param: vendor id
-     * @return : void
-     */
-    function deactivate($id) {
-        $agentID = $this->session->userdata('id');
-        $this->vendor_model->deactivate($id,$agentID);
-        
-        //Getting Vendor Details
-        $sf_details = $this->vendor_model->getVendorContact($id);
-        $sf_name = $sf_details[0]['name'];
-        
-        //Sending Mail to corresponding RM and admin group 
-        $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
-        if (!empty($employee_relation)) {
-            $rm_details = $this->employee_model->getemployeefromid($employee_relation[0]['agent_id']);
-            $to = $rm_details[0]['official_email'];
-
-            //Getting template from Database
-            $template = $this->booking_model->get_booking_email_template("sf_permanent_on_off");
-            if (!empty($template)) {
-                $email['rm_name'] = $rm_details[0]['full_name'];
-                $email['sf_name'] = ucfirst($sf_name);
-                $email['on_off'] = 'OFF';
-                $subject = " Permanent OFF Vendor " . $sf_name;
-                $emailBody = vsprintf($template[0], $email);
-                $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
-            }
-
-            log_message('info', __FUNCTION__ . ' Permanent OFF of Vendor' . $sf_name);
-        }
-        
-        
-        $log = array(
-            "entity" => "vendor",
-            "entity_id" => $id,
-            "agent_id" => $this->session->userdata('id'),
-            "action" =>  _247AROUND_VENDOR_DEACTIVATED
-        );
-        $this->vendor_model->insert_log_action_on_entity($log);
-        redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
 
     /**
@@ -1471,6 +1438,7 @@ class vendor extends CI_Controller {
      *  @return : displays the view
      */
     function get_master_pincode_excel_upload_form() {
+        $this->checkUserSession();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/upload_master_pincode_excel');
     }
@@ -1481,6 +1449,7 @@ class vendor extends CI_Controller {
      *  @return : void
      */
     function process_pincode_excel_upload_form() {
+        $this->checkUserSession();
         if(!empty($_FILES['file']['tmp_name'])){    
             $inputFileName = $_FILES['file']['tmp_name'];
             log_message('info', __FUNCTION__ . ' => Input ZIP file: ' . $inputFileName);
@@ -1584,6 +1553,7 @@ class vendor extends CI_Controller {
      * @return : Takes to view
      */
     function get_vendor_escalation_form($booking_id) {
+        $this->checkUserSession();
         //get escalation reasons for 247around
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'247around','active'=> '1','process_type'=>'escalation'));
         $data['vendor_details'] = $this->vendor_model->getVendor($booking_id);
@@ -1602,6 +1572,7 @@ class vendor extends CI_Controller {
      * @return : Takes to view
      */
     function process_vendor_escalation_form() {
+        $this->checkUserSession();
         log_message('info',__FUNCTION__);
         $escalation['booking_id'] = $this->input->post('booking_id');
         $escalation['vendor_id'] = $this->input->post('vendor_id');
@@ -1855,6 +1826,7 @@ class vendor extends CI_Controller {
      * @return : Array of pincode to the view
      */
     function vendor_availability_form() {
+        $this->checkUserSession();
         $data = $this->vendor_model->get_services_category_city_pincode();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/searchvendor', $data);
@@ -1904,6 +1876,7 @@ class vendor extends CI_Controller {
      * @return : loads the view
      */
     function vendor_performance_view() {
+        $this->checkUserSession();
         $data = $this->vendor_model->get_vendor_city_appliance();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/vendorperformance', $data);
@@ -1943,6 +1916,7 @@ class vendor extends CI_Controller {
      * @return : loads the view with booking charges(Array of charges)
      */
     function review_bookings() {
+        $this->checkUserSession();
         $charges['charges'] = $this->vendor_model->getbooking_charges();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/review_booking_complete_cancel', $charges);
@@ -1954,6 +1928,7 @@ class vendor extends CI_Controller {
      * @return: void
      */
     function getcancellation_reason($vendor_id) {
+        $this->checkUserSession();
         $reason['reason'] = $this->vendor_model->getcancellation_reason($vendor_id);
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/vendor_cancellation_reason', $reason);
@@ -3020,6 +2995,7 @@ class vendor extends CI_Controller {
      * return: view
      */
     function show_service_center_report(){
+        $this->checkUserSession();
         //Getting employee sf relation
         $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
         if(!empty($sf_list)){
@@ -3037,6 +3013,7 @@ class vendor extends CI_Controller {
      * return : Boolean
      */
     function send_report_to_mail(){
+        $this->checkUserSession();
         $user =$this->session->userdata;
         $employee_details = $this->employee_model->getemployeefromid($user['id']);
         if(isset($employee_details[0]['official_email']) && $employee_details[0]['official_email']){
@@ -3076,6 +3053,7 @@ class vendor extends CI_Controller {
      * return: view
      */
     function new_service_center_report(){
+        $this->checkUserSession();
         //Getting employee sf relation
         $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
         if (!empty($sf_list)) {
@@ -3250,9 +3228,12 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function temporary_on_off_vendor($id, $on_off) {
+        $this->checkUserSession();
         log_message('info',__FUNCTION__.' id: '.$id.' on_off: '.$on_off);
         $agentID = $this->session->userdata('id');
-        $this->vendor_model->temporary_on_off_vendor($id,$on_off,$agentID);
+        $vendor['on_off'] = $on_off;
+        $vendor['agent_id'] = $agentID;
+        $this->vendor_model->edit_vendor($vendor, $id);
         
         //Check on off
         if($on_off == 1){
@@ -3272,13 +3253,12 @@ class vendor extends CI_Controller {
         //Sending Mail to corresponding RM and admin group 
         $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
         if (!empty($employee_relation)) {
-            $rm_details = $this->employee_model->getemployeefromid($employee_relation[0]['agent_id']);
-            $to = $rm_details[0]['official_email'];
+            $to = $employee_relation[0]['official_email'];
 
             //Getting template from Database
             $template = $this->booking_model->get_booking_email_template("sf_temporary_on_off");
             if (!empty($template)) {
-                $email['rm_name'] = $rm_details[0]['full_name'];
+                $email['rm_name'] = $employee_relation[0]['full_name'];
                 $email['sf_name'] = ucfirst($sf_name);
                 $email['on_off'] = $on_off_value;
                 $subject = " Temporary " . $on_off_value . " Vendor " . $sf_name;
@@ -3306,6 +3286,7 @@ class vendor extends CI_Controller {
      * 
      */
     function show_vendor_documents_view(){
+        $this->checkUserSession();
         //Getting RM Lists
         $rm = $this->employee_model->get_rm_details();
 
@@ -4297,6 +4278,7 @@ class vendor extends CI_Controller {
     }
     
     function get_filterd_sf_cp_data(){
+        $this->checkUserSession();
         if($this->input->post()){
             
             $sf_cp_type = $this->input->post('sf_cp');
@@ -4625,5 +4607,19 @@ class vendor extends CI_Controller {
         unlink($newZipFileName);
     }
 
+    /**
+     * @desc: This funtion will check Session
+     * @param: void
+     * @return: true if details matches else session is distroyed.
+     */
+    function checkUserSession() {
+         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "employee/login");
+        }
+    }
 }
 
