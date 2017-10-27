@@ -31,7 +31,7 @@
                             <div class='col-md-6'>                    
 <!--                                <div class='col-md-12'>
                                     <b><i>Last Pincode Added</i></b>
-                                    <div class="pull-right">Total Pincode&nbsp;:&nbsp;&nbsp;<b><?php echo $total_pincode?></b></div>
+                                    <div class="pull-right">Total Pincode&nbsp;:&nbsp;&nbsp;<b><?php //echo $total_pincode?></b></div>
                                 </div><hr>-->
                                 <div class="col-md-12">
                                     <table class='table table-condensed table-bordered'>
