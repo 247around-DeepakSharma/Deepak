@@ -914,6 +914,7 @@ class Around_scheduler extends CI_Controller {
         $pincode_array = $this->vendor_model->getPincode_from_india_pincode();
         $partner_data = array();
         $partner_data[0]['is_upcountry'] = 0;
+        $partner_data[0]['upcountry_approval_email'] = '';
         $services = $this->booking_model->selectservice();
         foreach ($services as $service_id) {
         $upcountry_data = array();

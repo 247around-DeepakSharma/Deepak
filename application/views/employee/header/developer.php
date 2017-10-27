@@ -98,6 +98,10 @@
                         </li>
                         <li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url() ?>employee/booking/get_oow_booking"><i class="fa fa-fw fa-desktop"></i> <strong> OOW Booking</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>Completed Booking</strong></a>
                         </li>
                         <li class="divider"></li>

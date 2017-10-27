@@ -616,7 +616,7 @@ function get_data_for_partner_callback($booking_id) {
      */
     function get_spare_parts_booking($where){
         $sql = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, "
-                . " booking_details.booking_address,booking_details.initial_booking_date,"
+                . " booking_details.booking_address,booking_details.initial_booking_date,booking_details.request_type"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "
                 . " service_centres.pincode, service_centres.district"
                 . " FROM spare_parts_details,booking_details,users, "

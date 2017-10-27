@@ -804,6 +804,7 @@
     console.log(upcountry_data);
     is_upcountry = 0;
     count = 0;
+    non_upcountry = 0;
     $("input[type=checkbox]:checked").each(function (i) {
         count = count + 1;
 
@@ -813,10 +814,19 @@
 
         if (Number(up_val) === 1) {
             is_upcountry = 1;
+        } else  if (Number(up_val) === -1) {
+            non_upcountry = -1;
         }
     });
     if (count > 0) {
-        if (is_upcountry === 1) {
+        if(non_upcountry === -1){
+            $("#upcountry_charges").text("0.00");
+            $("#checkbox_upcountry").val("upcountry_0_0");
+           document.getElementById("checkbox_upcountry").checked = false;
+           final_price();
+           $('#submitform').attr('disabled', false);
+             
+        } else if (is_upcountry === 1) {
             
             var data1 = jQuery.parseJSON(upcountry_data);
             console.log(data1);

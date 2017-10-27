@@ -158,36 +158,12 @@ class vendor_model extends CI_Model {
 
         return $query->result();
     }
-
-    /**
-     * @desc: This function is to activate vendor who is already registered with us and are inactive/deactivated.
-     *
-     * @param: $id
-     *         - Id of vendor to whom we would like to activate
-     * @return: void
-     */
-    function activate($id) {
-        $sql = "Update service_centres set active= 1 where id='$id'";
-        $this->db->query($sql);
-        //Changing Flag Active to 1 in service centres login table
-        $sql = "Update service_centers_login set active= 1 where service_center_id='$id'";
-        $this->db->query($sql);
+    
+    function update_service_centers_login($where, $data){
+        $this->db->where($where);
+        $this->db->update("service_centers_login", $data);
     }
 
-    /**
-     * @desc: This function is to deactivate vendor who is already registered with us and are active.
-     *
-     * @param: $id
-     *         - Id of vendor to whom we would like to deactivate
-     * @return: void
-     */
-    function deactivate($id,$agentID=NULL) {
-        $sql = "Update service_centres set active= 0,agent_id=".$agentID." where id='$id'";
-        $this->db->query($sql);
-        //Changing Flag Active to 0 in service centres login table
-        $sql1 = "Update service_centers_login set active= 0 where service_center_id='$id'";
-        $this->db->query($sql1);
-    }
 
     /**
      * @desc: This function is to activate vendor who is already registered with us.
@@ -1611,7 +1587,7 @@ class vendor_model extends CI_Model {
      * 
      */
     function get_rm_sf_relation_by_sf_id($sf_id){
-        $sql = "Select employee_relation.*, employee.official_email from employee_relation,employee "
+        $sql = "Select employee_relation.*, employee.official_email, employee.full_name from employee_relation,employee "
                 . "where FIND_IN_SET($sf_id,employee_relation.service_centres_id) "
                 . "AND employee.groups != '"._247AROUND_ADMIN."' "
                 . "AND employee_relation.agent_id = employee.id";

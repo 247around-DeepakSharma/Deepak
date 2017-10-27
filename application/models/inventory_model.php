@@ -1,6 +1,8 @@
 <?php
 
 class Inventory_model extends CI_Model {
+    
+      var $order = array('spare_parts_details.date_of_request' => 'desc'); 
 
     /**
      * @desc load both db
@@ -320,6 +322,79 @@ class Inventory_model extends CI_Model {
         $this->db->from('brackets');
         $query = $this->db->get();
         return $query->result_array();
+    }
+    
+    public function _get_spare_parts_query($post) {
+        $this->db->from('spare_parts_details');
+        $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(estimate_cost_given_date, '%Y-%m-%d')) AS age_of_est_given", FALSE);
+
+        $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
+        $this->db->join('users','users.user_id = booking_details.user_id');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where'], FALSE);
+        }
+        if(isset($post['where_in'])){
+            foreach ($post['where_in'] as $index => $value) {
+
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+
+        if (!empty($post['search']['value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+                   
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+                   
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) { // here order processing
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else if (isset($this->order)) {
+            $order = $this->order;
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+    }
+    
+    function get_spare_parts_query($post) {
+        $this->_get_spare_parts_query($post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    public function count_spare_parts($post) {
+        $this->db->from('spare_parts_details');
+        $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
+        $this->db->join('users','users.user_id = booking_details.user_id');
+        if(isset($post['where'])){
+             $this->db->where($post['where']);
+        }
+       
+        $query = $this->db->count_all_results();
+
+        return $query;
+
+    }
+
+    function count_spare_filtered($post) {
+        $this->_get_spare_parts_query($post);
+
+        $query = $this->db->get();
+        return $query->num_rows();
     }
 
 }
