@@ -1195,9 +1195,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
           function update_pincode_not_found_sf_table($pincodeServiceArray){
               foreach($pincodeServiceArray as $key=>$values){
-                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL;
-                        log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.$values['Pincode'].",".$values['Appliance_ID']);
+                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL; 
               }
+            log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
             $this->My_CI->vendor_model->is_pincode_exist_in_not_found_sf_table($pincodeArray);
             $cc = "anuj@247around.com";
             $to = "chhavid@247around.com";
