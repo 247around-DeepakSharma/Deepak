@@ -205,6 +205,10 @@
                         <li >
                             <a href="<?php echo base_url() ?>employee/dealers/show_dealer_list"><i class="fa fa-fw fa-desktop "></i> <strong>View Dealer List</strong></a>
                         </li>
+                        <li class="divider"></li>
+                         <li >
+                            <a href="<?php echo base_url() ?>employee/partner/stand_allocation"><i class="fa fa-fw fa-desktop "></i> <strong>Add Stand Data</strong></a>
+                        </li>
 
                     </ul>
                     <!-- /.dropdown-alerts -->

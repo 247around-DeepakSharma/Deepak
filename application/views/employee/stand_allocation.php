@@ -81,13 +81,12 @@
 
 <script>
     function createStandEditForm(brand,partner,is_stand){
+        document.getElementById("add_update").value = 'update';
         document.getElementById("brand").value = brand;
-        //document.getElementById("brand").disabled = true;
+        document.getElementById("brand").disabled = true;
          document.getElementById("partner").value = partner; 
-         // document.getElementById("partner").disabled = true; 
+         document.getElementById("partner").disabled = true; 
           document.getElementById("is_stand").value = is_stand;
-          document.getElementById("add_update").value = update;
-         
     }
 
             ad_table = $('#stand_allocation_table').DataTable({
@@ -112,6 +111,8 @@
             alert("please select all fields");
         }
         else{
+          document.getElementById("brand").disabled = false;
+          document.getElementById("partner").disabled = false;
           document.getElementById("stand_allocation_form").submit();
     }
     }
