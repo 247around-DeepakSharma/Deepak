@@ -1020,29 +1020,25 @@ class Miscelleneous {
      * 
      * 
      */
-    public function update_file_uploads($tmpFile, $type, $result = "") {
+    public function update_file_uploads($file_name,$tmpFile, $type, $result = "") {
         switch ($type) {
             case _247AROUND_SNAPDEAL_DELIVERED:
-                $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
                 $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
                 break;
             case _247AROUND_SNAPDEAL_SHIPPED:
-                $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '.xlsx';
                 $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
                 break;
             case _247AROUND_SATYA_DELIVERED:
-                $data['file_name'] = "Satya-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
                 $data['file_type'] = _247AROUND_SATYA_DELIVERED;
                 break;
             case _247AROUND_PAYTM_DELIVERED:
-                $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
                 $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
                 break;
             case _247AROUND_SF_PRICE_LIST:
-                $data['file_name'] = "Service-Price-List-" . date('Y-m-d-H-i-s') . '.xlsx';
                 $data['file_type'] = _247AROUND_SF_PRICE_LIST;
                 break;
         }
+        $data['file_name'] = $file_name;
         $data['agent_id'] = $this->My_CI->session->userdata('id');
         $data['result'] = $result;
         
