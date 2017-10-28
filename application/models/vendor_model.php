@@ -1531,19 +1531,7 @@ class vendor_model extends CI_Model {
             return FALSE;
         }
     }
-    
-     /**
-     * @desc: This function is to suspend vendor who is already registered with us 
-     *
-     * @param: $id,$on_off
-     *         
-     * @return: void
-     */
-    function temporary_on_off_vendor($id,$on_off,$agentID=NULL) {
-        $sql = "Update service_centres set on_off = '$on_off',agent_id=".$agentID." where id='$id'";
-        $this->db->query($sql);
-    }
-
+   
     /**
      * 
      * @Desc: This function is used to get employee_relation if present in employee_relation
