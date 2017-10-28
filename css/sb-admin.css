@@ -19,8 +19,7 @@ body {
    color: white;
    text-align: center;
    position: fixed;
-   right: 50px;
-   top: 120px;
+   
    z-index: 1000;
    cursor: pointer;
    
@@ -35,13 +34,15 @@ body {
 .main_search {
                 
   padding: 15px 0;
-  text-align: center;
+  margin-left: 49px;
+  margin-bottom: 32px;
 }
 
 .search_in{
   
   vertical-align: bottom;
   height: 40px;
+  margin-left: 60px;
 }
 
 
@@ -58,8 +59,6 @@ body {
 .search_in:focus {
   opacity: 1;
   width: 250px;
-   right: 105px;
-   top: 127px;
   
     z-index: 1000;
 }
