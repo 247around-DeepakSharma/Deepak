@@ -1018,29 +1018,25 @@ class Miscelleneous {
      * 
      * 
      */
-    public function update_file_uploads($tmpFile, $type, $result = "") {
+    public function update_file_uploads($file_name,$tmpFile, $type, $result = "") {
         switch ($type) {
             case _247AROUND_SNAPDEAL_DELIVERED:
-                $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
                 $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
                 break;
             case _247AROUND_SNAPDEAL_SHIPPED:
-                $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '.xlsx';
                 $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
                 break;
             case _247AROUND_SATYA_DELIVERED:
-                $data['file_name'] = "Satya-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
                 $data['file_type'] = _247AROUND_SATYA_DELIVERED;
                 break;
             case _247AROUND_PAYTM_DELIVERED:
-                $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
                 $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
                 break;
             case _247AROUND_SF_PRICE_LIST:
-                $data['file_name'] = "Service-Price-List-" . date('Y-m-d-H-i-s') . '.xlsx';
                 $data['file_type'] = _247AROUND_SF_PRICE_LIST;
                 break;
         }
+        $data['file_name'] = $file_name;
         $data['agent_id'] = $this->My_CI->session->userdata('id');
         $data['result'] = $result;
         
@@ -1256,8 +1252,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                     }
                     return $finalExcelDataArray;
           }
-    
-    /**
+
+    /*
      * @esc: This method upload invoice image OR panel image to S3
      * @param _FILE $file
      * @return boolean|string
@@ -1298,4 +1294,26 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
         log_message('info', __FUNCTION__. " Exit ");
     }
+    
+    /**
+     * @Desc: This function is used to check if user name is empty or not
+     * if user name is not empty then return username otherwise check if email is not
+     * empty.if email is empty then return mobile number as username otherwise return email as username 
+     * @params: String
+     * @return: void
+     * 
+     */
+    public function is_user_name_empty($userName , $userEmail,$userContactNo){
+        if(empty($userName)){
+            if(empty($userEmail)){
+                $user_name = $userContactNo;
+            }else{
+                $user_name = $userEmail;
+            }
+        }else{
+            $user_name = $userName;
+        }
+        
+        return $user_name;
+    } 
 }

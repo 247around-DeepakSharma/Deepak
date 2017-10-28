@@ -132,11 +132,11 @@ class bookings_excel extends CI_Controller {
                 log_message('info', 'paytm file uploaded successfully.' . print_r($response,true));
                 
                 //Updating File Uploads table and upload file to s3
-                $this->miscelleneous->update_file_uploads($_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS);
+                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS);
             }else{
                 log_message('info', "empty");
                 //Updating File Uploads table and upload file to s3
-                $this->miscelleneous->update_file_uploads($_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
+                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
             }
         } else {
             echo $msg;
@@ -183,28 +183,6 @@ class bookings_excel extends CI_Controller {
            log_message('info', __FUNCTION__." Booking is not inserted into Partner Leads table:". print_r($partner_booking, true));
     	}
 
-    }
-    
-    /**
-     * @Desc: This function is used to check if user name is empty or not
-     * if user name is not empty then return username otherwise check if email is not
-     * empty.if email is empty then return mobile number as username otherwise return email as username 
-     * @params: String
-     * @return: void
-     * 
-     */
-    private function is_user_name_empty($userName , $userEmail,$userContactNo){
-        if(empty($userName)){
-            if(empty($userEmail)){
-                $user_name = $userContactNo;
-            }else{
-                $user_name = $userEmail;
-            }
-        }else{
-            $user_name = $userName;
-        }
-        
-        return $user_name;
     }
     
     function check_column_exist($rowData){
@@ -381,7 +359,7 @@ class bookings_excel extends CI_Controller {
 
                     if (empty($output)) {
                         //User doesn't exist
-                        $user_name = $this->is_user_name_empty(trim($rowData[0]['customer_firstname'] . " " . $rowData[0]['customer_lastname']), $rowData[0]['customer_email'], $rowData[0]['contact_number']);
+                        $user_name = $this->miscelleneous->is_user_name_empty(trim($rowData[0]['customer_firstname'] . " " . $rowData[0]['customer_lastname']), $rowData[0]['customer_email'], $rowData[0]['contact_number']);
                         $user['name'] = $user_name;
                         $user['phone_number'] = $rowData[0]['contact_number'];
                         $user['user_email'] = $rowData[0]['customer_email'];
