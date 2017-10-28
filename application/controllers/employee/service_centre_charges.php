@@ -191,13 +191,13 @@ class service_centre_charges extends CI_Controller {
             //Adding Details in File_Uploads table as well
             if($response['status']){
                 //save file and upload on s3
-                $this->miscelleneous->update_file_uploads($tmpFile, _247AROUND_SF_PRICE_LIST,FILE_UPLOAD_SUCCESS_STATUS);
+                $this->miscelleneous->update_file_uploads($_FILES['file']['name'],$tmpFile, _247AROUND_SF_PRICE_LIST,FILE_UPLOAD_SUCCESS_STATUS);
                 $userSession = array('success' => "File Uploaded Successfully");
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
             }else{
                 //save file and upload on s3
-                $this->miscelleneous->update_file_uploads($tmpFile, _247AROUND_SF_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS);
+                $this->miscelleneous->update_file_uploads($_FILES['file']['name'],$tmpFile, _247AROUND_SF_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS);
                 $userSession = array('error' => 'Error In File Uploading. '.$response['msg']);
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
@@ -520,7 +520,7 @@ class service_centre_charges extends CI_Controller {
             }
             //Making process for file upload
             $tmpFile = $_FILES['file']['tmp_name'];
-            $appliance_file = "Partner-Appliance-Details-" . date('Y-m-d-H-i-s') . '.xlsx';
+            $appliance_file = $_FILES['file']['name'];
             move_uploaded_file($tmpFile, TMP_FOLDER . $appliance_file);
 
 

@@ -132,11 +132,11 @@ class bookings_excel extends CI_Controller {
                 log_message('info', 'paytm file uploaded successfully.' . print_r($response,true));
                 
                 //Updating File Uploads table and upload file to s3
-                $this->miscelleneous->update_file_uploads($_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS);
+                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS);
             }else{
                 log_message('info', "empty");
                 //Updating File Uploads table and upload file to s3
-                $this->miscelleneous->update_file_uploads($_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
+                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
             }
         } else {
             echo $msg;
