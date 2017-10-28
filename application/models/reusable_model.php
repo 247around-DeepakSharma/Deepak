@@ -64,11 +64,13 @@ class reusable_model extends CI_Model {
         if($where){
             $this->db->where($where);
         }
-       return $this->db->update($table,$data);
+       $this->db->update($table,$data);
+       return $this->db->affected_rows();
     }
     
     function insert_into_table($table,$data){
         $this->db->insert($table, $data);
+        return $this->db->affected_rows();
     }
     
      function get_search_result_data($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){

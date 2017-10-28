@@ -140,7 +140,7 @@ class Do_background_upload_excel extends CI_Controller {
         }else{
             $type = _247AROUND_SNAPDEAL_SHIPPED;
         }
-        $this->miscelleneous->update_file_uploads($_FILES["file"]["tmp_name"],$type);
+        $this->miscelleneous->update_file_uploads($file_name,$_FILES["file"]["tmp_name"],$type);
         
 	$headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
 	$headings_new = array();
@@ -1247,12 +1247,12 @@ class Do_background_upload_excel extends CI_Controller {
                 $this->process_upload_sd_file($this->finalArray,'delivered', $file_name,WYBOR_ID);
                 
                 //save file and upload on s3
-                $this->miscelleneous->update_file_uploads($_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS);
+                $this->miscelleneous->update_file_uploads($file_name,$_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS);
             }
             
         } else {
             //save file and upload on s3
-            $this->miscelleneous->update_file_uploads($_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
+            $this->miscelleneous->update_file_uploads($file_name,$_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
             $to = $this->session->userdata('official_email');
             $cc = DEVELOPER_EMAIL;
             $subject = "Failed! Satya File is uploaded by " . $this->session->userdata('employee_id');
