@@ -34,7 +34,6 @@ class Do_background_upload_excel extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library('s3');
         $this->load->library('PHPReport');
-        $this->load->library('notify');
         $this->load->library('partner_utilities');
         $this->load->library('booking_utilities');
 
@@ -91,8 +90,6 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function upload_snapdeal_file($file_type) {
 	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . ", Beginning processing...");
-        $status_data = array();
-        
 
 	if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
 	    $pathinfo = pathinfo($_FILES["file"]["name"]);
@@ -224,7 +221,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @param boolean $validation
      */
     function send_mail_column($subject, $message, $validation){
-        $to = NITS_ANUJ_EMAIL_ID.", sales@247around.com";
+        $to = NITS_ANUJ_EMAIL_ID.", sales@247around.com ,".$this->session->userdata('official_email');
         $from = "noreply@247around.com";
         $cc = "abhaya@247around.com";
         $bcc = "";
@@ -277,12 +274,12 @@ class Do_background_upload_excel extends CI_Controller {
 
 	    if (empty($output)) {
 		//User doesn't exist
-		$user['name'] = $value['Customer_Name'];
+                $user['user_email'] = (isset($value['Email_ID']) ? $value['Email_ID'] : "");
+                $user['name'] = $this->miscelleneous->is_user_name_empty(trim($value['Customer_Name']), $user['user_email'], $phone[0]);
 		$user['phone_number'] = $phone[0];
                 if(isset($phone[1])){
                     $user['alternate_phone_number'] = $phone[1];
                 }
-		$user['user_email'] = (isset($value['Email_ID']) ? $value['Email_ID'] : "");
 		$user['home_address'] = $value['Customer_Address'];
 		$user['pincode'] = trim($value['Pincode']);
 		$user['city'] = $value['CITY'];
@@ -1043,7 +1040,7 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name) {
         
-	$to = NITS_ANUJ_EMAIL_ID.", sales@247around.com";
+	$to = NITS_ANUJ_EMAIL_ID.", sales@247around.com,".$this->session->userdata('official_email');
         $from = "noreply@247around.com";
 	$cc = "abhaya@247around.com";
 	$bcc = "";
