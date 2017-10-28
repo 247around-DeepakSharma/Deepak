@@ -3417,14 +3417,19 @@ class Partner extends CI_Controller {
         $data = $this->input->post();
         if($data['add_delete']=='add'){
             unset($data['add_delete']);
-            $this->reusable_model->insert_into_table('is_stand_over_brand_partner',$data);
+            $affectedRows = $this->reusable_model->insert_into_table('is_stand_over_brand_partner',$data);
         }
         else{
             $is_stand = $data['is_stand'];
             unset($data['add_delete']);
             unset($data['is_stand']);
-            $this->reusable_model->update_table('is_stand_over_brand_partner',array('is_stand'=>$is_stand),$data);
+            $affectedRows = $this->reusable_model->update_table('is_stand_over_brand_partner',array('is_stand'=>$is_stand),$data);
         }
+        $msg = "Somethong Went wrong, Please try again";
+        if($affectedRows>0){
+            $msg = 'Successfully Done';
+        }
+        $this->session->set_userdata(array('stand_msg'=>$msg));
         redirect(base_url() . "employee/partner/stand_allocation");
     }
 }
