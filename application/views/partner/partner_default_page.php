@@ -1,3 +1,6 @@
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+
+<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <script type="text/javascript">
     var spare_parts = '<?php echo $spare_parts?>';
     $(function () {
@@ -11,7 +14,7 @@
             //Loading Pending Bookings in Else case
             load_view('employee/partner/pending_booking/0/1', 'tabs-1');
         }
-
+    
     });
     
     
@@ -31,21 +34,19 @@
 </script>
 <style type="text/css">
     .ui-tabs .ui-tabs-nav {
-        margin: -7px !important;
-        padding: 0.2em 0.2em 0.2em !important;
+    margin: -7px !important;
+    padding: 0.2em 0.2em 0.2em !important;
     }
     .ui-widget-header{
-        border:0px !important;
-        background:none !important;
+    border:0px !important;
+    background:none !important;
     }
     .ui-tabs-nav.ui-helper-reset.ui-helper-clearfix.ui-widget-header.ui-corner-all{
-        margin-bottom:-36px !important;
+    margin-bottom:-36px !important;
     }
 </style>
-
 <div class="container-fluid">
     <div class="row" style="margin-top: 10px;">
-        
         <div class="col-md-12" id="booking_summary" style="margin-top:10px;">
             <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
         </div>
@@ -68,39 +69,63 @@
                 </div>';
                 }
                 ?>
-            
-            <div id="tabs" style="border:0px solid #fff;"> 
+         
+            <div id="tabs" style="border:0px solid #fff;">
                 <div class="col-md-12" style="    margin-left: -10px;">
                     <ul>
                         <li><a href="#tabs-1" onclick="load_view('partner/pending_booking/0/1', 'tabs-1')"><span class="panel-title">Pending Bookings</span></a></li>
                         <li><a href="#tabs-2" onclick="load_view('partner/get_spare_parts_booking/0/1', 'tabs-2')"><span class="panel-title">Pending Spares</span></a></li>
                         <li><a href="#tabs-3" onclick="load_view('partner/get_waiting_defective_parts/0/1', 'tabs-3')"><span class="panel-title">Shipped Spares by SF</span></a></li>
                         <li><a href="#tabs-4" onclick="load_view('partner/get_waiting_for_approval_upcountry_charges', 'tabs-4')"><span class="panel-title">Waiting Approval Upcountry Charges</span></a></li>
-
+                        <li><a href="#tabs-5" ><span class="panel-title">Update OOW Estimate</span></a></li>
                     </ul>
                 </div>
-                 
-
-                  
-                        <style type="text/css">
-
-                            .ui-widget-content a{
-                                color:#ffffff ;
-                            }
-                            .ui-tabs .ui-tabs-panel {
-                                padding:0px;
-                            }
-                        </style>
-                        <div id="loading-image" class="col-md-offset-2" ><img src="<?php echo base_url() ?>images/loader.gif" style="    margin-top: 2%;
-                                                                              height: 79px;;"></div>
-                        <div id="tabs-1" style="font-size:90%"></div>
-                        <div id="tabs-2" ></div>
-                        <div id="tabs-3" ></div>
-                        <div id="tabs-4" ></div>
-                       
-                           
+                <style type="text/css">
+                    .ui-widget-content a{
+                    color:#ffffff ;
+                    }
+                    .ui-tabs .ui-tabs-panel {
+                    padding:0px;
+                    }
+                </style>
+                <div id="loading-image" class="col-md-offset-2" ><img src="<?php echo base_url() ?>images/loader.gif" style="    margin-top: 2%;
+                    height: 79px;;"></div>
+                <div id="tabs-1" style="font-size:90%"></div>
+                <div id="tabs-2" ></div>
+                <div id="tabs-3" ></div>
+                <div id="tabs-4" ></div>
+                <div id="tabs-5"  >
+                    <!--                    <div class="container-fluid">-->
+                    <div class="row" style="margin-top: 40px;">
+                        <div class="col-md-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Upcountry Booking</h1>
+                                </div>
+                                <div class="panel-body">
+                                    <!--                                        <div class="table-responsive">-->
+                                    <table id="datatable1" class="table table-striped table-bordered" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>No.</th>
+                                                <th>Spare Part</th>
+                                                <th>Age Of Requested</th>
+                                                <th>Model No</th>
+                                                <th>Serial No</th>
+                                                <th>Estimate Cost</th>
+                                                <th>Submit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                    <!--                                        </div>-->
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                
+                    <!--                    </div>-->
+                </div>
             </div>
         </div>
     </div>
@@ -109,7 +134,6 @@
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content" id="modal-content1">
-            
         </div>
     </div>
 </div>
@@ -123,45 +147,46 @@
                 <h4 class="modal-title">Escalate Form</h4>
             </div>
             <div class="modal-body">
-                 <center><h4 id ="failed_validation" style="color:red;margin-top: 0px;margin-bottom: 35px;"></h4></center>
+                <center>
+                    <h4 id ="failed_validation" style="color:red;margin-top: 0px;margin-bottom: 35px;"></h4>
+                </center>
                 <div class="container">
-                   
                     <!--<div class="row">-->
-                        <div class="col-md-8">
-                            <form class="form-horizontal" action="#" method="POST" target="_blank" >
-                            <div class="form-group">
-                                <label for="Booking Id" class="col-md-2">Booking Id</label>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="booking_id" id="ec_booking_id" placeholder = "Booking Id"  readonly>
-                                </div>
-                            </div>
-                            <div class="form-group  <?php if( form_error('escalation_reason_id') ) { echo 'has-error';} ?>">
-                                <label for="Service" class="col-md-2">Reason</label>
-                                <div class="col-md-6">
-                                    <select class=" form-control" name ="escalation_reason_id" id="escalation_reason_id">
-                                        <option selected disabled>----------- Select Reason ------------</option>
-                                        <?php 
-                                            foreach ($escalation_reason as $reason) {     
-                                            ?>
-                                        <option value = "<?php echo $reason['id']?>">
-                                            <?php echo $reason['escalation_reason'];?>
-                                        </option>
-                                        <?php } ?>
-                                    </select>
-                                    <?php echo form_error('escalation_reason_id'); ?>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="Escalation Remarks" class="col-md-2">Remarks</label>
-                                <div class="col-md-6">
-                                    <textarea  class="form-control" id="es_remarks" name="escalation_remarks" placeholder = "Remarks" ></textarea>
-                                </div>
-                            </div>
-                            <div class="form-group ">
-                                <input type= "submit"  onclick="return form_submit()" class=" col-md-3 col-md-offset-4 btn btn-primary btn-lg" value ="Save" style="background-color:#2C9D9C; border-color:#2C9D9C;">
+                    <div class="col-md-8">
+                        <form class="form-horizontal" action="#" method="POST" target="_blank" >
+                        <div class="form-group">
+                            <label for="Booking Id" class="col-md-2">Booking Id</label>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control"  name="booking_id" id="ec_booking_id" placeholder = "Booking Id"  readonly>
                             </div>
                         </div>
+                        <div class="form-group  <?php if( form_error('escalation_reason_id') ) { echo 'has-error';} ?>">
+                            <label for="Service" class="col-md-2">Reason</label>
+                            <div class="col-md-6">
+                                <select class=" form-control" name ="escalation_reason_id" id="escalation_reason_id">
+                                    <option selected disabled>----------- Select Reason ------------</option>
+                                    <?php 
+                                        foreach ($escalation_reason as $reason) {     
+                                        ?>
+                                    <option value = "<?php echo $reason['id']?>">
+                                        <?php echo $reason['escalation_reason'];?>
+                                    </option>
+                                    <?php } ?>
+                                </select>
+                                <?php echo form_error('escalation_reason_id'); ?>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Escalation Remarks" class="col-md-2">Remarks</label>
+                            <div class="col-md-6">
+                                <textarea  class="form-control" id="es_remarks" name="escalation_remarks" placeholder = "Remarks" ></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group ">
+                            <input type= "submit"  onclick="return form_submit()" class=" col-md-3 col-md-offset-4 btn btn-primary btn-lg" value ="Save" style="background-color:#2C9D9C; border-color:#2C9D9C;">
+                        </div>
                     </div>
+                </div>
                 <!--</div>-->
             </div>
         </div>
@@ -170,6 +195,7 @@
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
 <script>
+    var oow_spare;
     
     $(document).on("click", ".open-AddBookDialog", function () {
         var myBookId = $(this).data('id');
@@ -261,7 +287,7 @@
                 data: {escalation_reason_id: escalation_id,escalation_remarks:remarks},
                 success: function (data) {
                   //console.log(data);
-
+    
                 }
               });
             
@@ -270,7 +296,7 @@
         return false;
     }
     
-  function check_checkbox(number){
+    function check_checkbox(number){
       
       if(number === 1){
         var d_m = $('input[name="download_courier_manifest[]"]:checked');
@@ -287,13 +313,113 @@
          }
       }
       
-  }
-  
-  function confirm_received(){
+    }
+    
+    function confirm_received(){
     var c = confirm("Continue?");
     if(!c){
         return false;
     }
-}
+    }
+    
+    $(document).ready(function () {
+        $("#datatable1_filter").hide();
+        
+        <?php $data = array('booking_details.partner_id' => $this->session->userdata('partner_id'), 'status' => SPARE_OOW_EST_REQUESTED);
+        ?>
+         <?php $column = array(NULL,NUll,"age_of_request", NULL,NULL);?>
+         var column_order = <?php echo json_encode($column);?>;
+         var obj = '<?php echo json_encode($data); ?>';
+         var select = '<?php echo "parts_requested, model_number, serial_number, assigned_vendor_id, amount_due, spare_parts_details.id, spare_parts_details.booking_id"; ?>';
+         oow_spare = $('#datatable1').DataTable({
+            "processing": true, //Feature control the processing indicator.
+            "serverSide": true, //Feature control DataTables' server-side processing mode.
+            "order": [], //Initial no order.
+            "pageLength": 50,
+           
+            // Load data for the table's content from an Ajax source
+            "ajax": {
+                type: "POST",
+          
+              data : {requestType:'<?php echo SPARE_OOW_EST_REQUESTED;?>', 'crmType': 'Partner',
+                  'select':select,'where':obj, column_order:column_order},
+              url: "<?php echo base_url();?>apiDataRequest"
+    
+            },
+            
+            //Set column definition initialisation properties.
+            "columnDefs": [
+                {
+                    "targets": [0,1,3,4,5,6], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],
+           "fnInitComplete": function (oSettings, response) {
+             $("#datatable1_filter").hide();
+          }
+            
+        });
+        
+    });
+    
+    function update_spare_estimate_cost(spare_id, booking_id, assigned_vendor_id, amount_due){
+       var estimate_cost = $("#estimate_cost").val();
+      
+       if(estimate_cost > 1){
+            swal({
+                title: "Do You Want To Continue?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                closeOnConfirm: true
+                
+            },
+            function(){
+           $.ajax({
+            type: "POST",
+            beforeSend: function(){
+                 swal("Thanks!", "Please Wait..", "success");
+                    $('body').loadingModal({
+                    position: 'auto',
+                    text: 'Loading Please Wait...',
+                    color: '#fff',
+                    opacity: '0.7',
+                    backgroundColor: 'rgb(0,0,0)',
+                    animation: 'wave'
+                  });
 
+             },
+            data:{'estimate_cost':estimate_cost, booking_id:booking_id,assigned_vendor_id:assigned_vendor_id,amount_due:amount_due, 
+            agent_id:'<?php echo $this->session->userdata('agent_id');?>', 
+            partner_id: '<?php echo $this->session->userdata('partner_id');?>', 'sp_id':spare_id, requestType:'UPDATE_OOW_EST'},
+            url: "<?php echo base_url() ?>apiDataRequest",
+            success: function (data) {
+                
+                if(data === 'Success'){
+                    oow_spare.ajax.reload(null, false);
+                    swal("Thanks!", "Booking updated successfully!", "success");
+               
+                } else {
+                    swal("Oops", "There is something issues, Please Conatct 247Around Team", "error");
+                    
+                }
+                $('body').loadingModal('destroy');
+            }
+          });
+          });
+       } else {
+           swal("Oops", "Please Provide Estimate Cost", "error");
+           //alert("Please Provide Estimate Cost");
+       }
+      
+       return false;
+    }
+    
+    function isNumberKey(evt){
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+    
 </script>

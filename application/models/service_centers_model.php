@@ -89,7 +89,9 @@ class Service_centers_model extends CI_Model {
                 . " bd.is_penalty, "
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
-                . " services," 
+                . " services,"
+                 . "CASE WHEN (SELECT 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
+                    . "AND price_tags = 'Wall Mount Stand' AND bu1.service_id = 46 ) THEN (1) ELSE 0 END as is_bracket, " 
                     
                  . " CASE WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer =0 AND bd.sub_vendor_id IS NOT NULL)  "
                  . " THEN (SELECT  ( round((bd.upcountry_distance * bd.sf_upcountry_rate)/(count(b.id)),2)) "
@@ -301,7 +303,7 @@ class Service_centers_model extends CI_Model {
      * @return type Array
      */
     function get_updated_spare_parts_booking($sc_id){
-        $sql = "SELECT sp.* "
+        $sql = "SELECT distinct sp.* "
                 . " FROM spare_parts_details as sp, service_center_booking_action as sc "
                 . " WHERE  sp.booking_id = sc.booking_id "
                 . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = 'Shipped') AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"

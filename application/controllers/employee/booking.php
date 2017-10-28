@@ -3355,4 +3355,12 @@ class Booking extends CI_Controller {
                 break;
         }
     }
+    /**
+     * @desc This is used to get Repair- OOW Booking
+     */
+    function get_oow_booking(){
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/get_oow_booking');
+    }
+    
 }
