@@ -36,6 +36,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    
                                     <?php $sn_no = 1; ?>
                                     <?php foreach($bookings[1] as $key =>$row){?>
                                     <tr  style="text-align: center;"  >
@@ -54,6 +55,10 @@
                                                 <?php if($row->count_reschedule > 0){ ?>
                                                 <span style="color:#F26722; font-size:13px;"><?php echo $row->count_reschedule; ?> times rescheduled</span>
                                                 <?php } ?>
+                                                <br/>
+                                                <?php if($row->is_bracket == 1){ ?>
+                                                <img src="<?php echo base_url(); ?>images/Bracket.png" style="width:30%"/>
+                                                <?php }?>
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
@@ -212,6 +217,10 @@
                                                 <?php if($row->count_reschedule > 0){ ?>
                                                 <span style="color:#F26722; font-size:13px;"><?php echo $row->count_reschedule; ?> times rescheduled</span>
                                                 <?php } ?>
+                                                <br/>
+                                                <?php if($row->is_bracket == 1){ ?>
+                                                <img src="<?php echo base_url(); ?>images/Bracket.png" style="width:30%"/>
+                                                <?php }?>
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
@@ -364,6 +373,10 @@
                                                 <?php if($row->count_reschedule > 0){ ?>
                                                 <span style="color:#F26722; font-size:13px;"><?php echo $row->count_reschedule; ?> times rescheduled</span>
                                                 <?php } ?>
+                                                <br/>
+                                                <?php if($row->is_bracket == 1){ ?>
+                                                <img src="<?php echo base_url(); ?>images/Bracket.png" style="width:30%"/>
+                                                <?php }?>
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
