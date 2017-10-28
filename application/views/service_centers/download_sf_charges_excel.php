@@ -91,6 +91,23 @@
 
 <script>
     
+    $("#service_id").select2({
+        placeholder: "Select Product",
+        allowClear:true
+    });
+    $("#category").select2({
+        placeholder: "Select Category",
+        allowClear:true
+    });
+    $("#capacity").select2({
+        placeholder: "Select Capacity",
+        allowClear:true
+    });
+    $("#service_category").select2({
+        placeholder: "Select Service",
+        allowClear:true
+    });
+    
     var chargesTable = "";
     $(document).ready(function(){
         chargesTable = $('#chargesTable').DataTable({
