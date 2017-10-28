@@ -333,7 +333,6 @@ class service_centre_charges_model extends CI_Model {
             $this->db->limit($post['length'], $post['start']);
         }
         $query = $this->db->get();
-        log_message('info',$this->db->last_query());
         return $query->result();
     }
     
