@@ -1218,14 +1218,44 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * This Function use to update sf_not_found_pincode table
      * When we upload any new pincode and that pincode with same service_id exist in sf not found table, then this will update its active flag
      */
-
-
-    function update_pincode_not_found_sf_table($pincodeServiceArray) {
-        foreach ($pincodeServiceArray as $values) {
-            $pincodeArray['(pincode=' . $values['Pincode'] . ' AND service_id=' . $values['Appliance_ID'] . ')'] = NULL;
-        }
-        $this->My_CI->vendor_model->is_pincode_exist_in_not_found_sf_table($pincodeArray);
-    }
+          function update_pincode_not_found_sf_table($pincodeServiceArray){
+              foreach($pincodeServiceArray as $key=>$values){
+                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL; 
+              }
+            log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
+            $this->My_CI->vendor_model->is_pincode_exist_in_not_found_sf_table($pincodeArray);
+            $cc = "anuj@247around.com";
+            $to = "chhavid@247around.com";
+            $subject = "Get SF for following combinations";
+            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $pincodeArray, "");
+          }
+          /*
+           * This Function convert excel data into array, 1st row of excel data will be keys of returning array
+           * @input - filePath and reader Version and index of sheet in case of multiple sheet excel
+           */
+          function excel_to_Array_converter($file,$readerVersion,$sheetIndex=NULL){
+                    if(!$sheetIndex){
+                            $sheetIndex = 0;
+                    }
+                    $finalExcelDataArray = array();
+                    $objReader = PHPExcel_IOFactory::createReader($readerVersion);
+                    $objPHPExcel = $objReader->load($file['file']['tmp_name']);
+                    $sheet = $objPHPExcel->getSheet($sheetIndex);
+                    $highestRow = $sheet->getHighestDataRow();
+                    $highestColumn = $sheet->getHighestDataColumn();
+                    $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+                    $heading = str_replace(array("/", "(", ")", " ", "."), "", $headings[0]);
+                    $newHeading = str_replace(array(" "), "_", $heading);
+                    $excelDataArray=array();
+                    for($i=2;$i<=$highestRow;$i++){
+                              $excelDataArray = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
+                              foreach($excelDataArray[0] as $key=>$data){
+                                        $excelAssociatedArray[$newHeading[$key]] = trim($data);
+                              }
+                              $finalExcelDataArray[] = $excelAssociatedArray;
+                    }
+                    return $finalExcelDataArray;
+          }
     
     /**
      * @esc: This method upload invoice image OR panel image to S3
@@ -1268,47 +1298,4 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
         log_message('info', __FUNCTION__. " Exit ");
     }
-
-
-    function update_pincode_not_found_sf_table($pincodeServiceArray) {
-        foreach ($pincodeServiceArray as $key => $values) {
-            $pincodeArray['(pincode=' . $values['Pincode'] . ' AND service_id=' . $values['Appliance_ID'] . ')'] = NULL;
-            log_message('info', __FUNCTION__ . 'Deactivate following Combination From sf not found table. ' . $values['Pincode'] . "," . $values['Appliance_ID']);
-        }
-        $this->My_CI->vendor_model->is_pincode_exist_in_not_found_sf_table($pincodeArray);
-        $cc = "anuj@247around.com";
-        $to = "chhavid@247around.com";
-        $subject = "Get SF for following combinations";
-        $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $pincodeArray, "");
-    }
-
-    /*
-     * This Function convert excel data into array, 1st row of excel data will be keys of returning array
-     * @input - filePath and reader Version and index of sheet in case of multiple sheet excel
-     */
-
-    function excel_to_Array_converter($file, $readerVersion, $sheetIndex = NULL) {
-        if (!$sheetIndex) {
-            $sheetIndex = 0;
-        }
-        $finalExcelDataArray = array();
-        $objReader = PHPExcel_IOFactory::createReader($readerVersion);
-        $objPHPExcel = $objReader->load($file['file']['tmp_name']);
-        $sheet = $objPHPExcel->getSheet($sheetIndex);
-        $highestRow = $sheet->getHighestDataRow();
-        $highestColumn = $sheet->getHighestDataColumn();
-        $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
-        $heading = str_replace(array("/", "(", ")", " ", "."), "", $headings[0]);
-        $newHeading = str_replace(array(" "), "_", $heading);
-        $excelDataArray = array();
-        for ($i = 2; $i <= $highestRow; $i++) {
-            $excelDataArray = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
-            foreach ($excelDataArray[0] as $key => $data) {
-                $excelAssociatedArray[$newHeading[$key]] = trim($data);
-            }
-            $finalExcelDataArray[] = $excelAssociatedArray;
-        }
-        return $finalExcelDataArray;
-    }
-
 }
