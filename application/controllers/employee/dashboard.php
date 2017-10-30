@@ -722,6 +722,10 @@ class Dashboard extends CI_Controller {
         $this->load->view('dashboard/missing_pincodes_full_view');
         $this->load->view('dashboard/dashboard_footer');
     }
+    /*
+     * This is a helper function for admin missing pincode view
+     * Pass Group by rm query data, it will return a associatve array in which rm will be key
+     */
     function get_missing_pincode_admin_data_structured_format($pincodeResult){
         $rmDataArray = array();
         foreach($pincodeResult as $data){
@@ -736,6 +740,10 @@ class Dashboard extends CI_Controller {
         arsort($rmDataArray);
         return $rmDataArray;
     }
+    /*
+     * This function use to create sf_not_found  view for admin
+     * It will shows missing pincode pending queries group by rm 
+     */
     function get_pincode_not_found_sf_details_admin(){
         $pincodeResult =  $this->dashboard_model->get_pincode_data_for_not_found_sf();
         $template = array(
@@ -755,7 +763,11 @@ class Dashboard extends CI_Controller {
         }
         echo $this->table->generate();
     }
-    
+    /*
+    * This function willl download the missing pincode data on the basis of rm
+     * @input - rm_id
+     * @output - Excel
+     */
     function download_missing_sf_pincode_excel($rmID){
         ob_start();
         $pincodeArray =  $this->dashboard_model->get_pincode_data_for_not_found_sf($rmID);
