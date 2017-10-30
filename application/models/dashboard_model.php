@@ -325,10 +325,17 @@ class dashboard_model extends CI_Model {
  * This function get data from missing pincode table on the basis of rm id
  */    
      function get_pincode_data_for_not_found_sf($rmID=NULL,$limit=NULL){
-            $this->db->select('sf.pincode, COUNT(sf.pincode) as pincodeCount,sf.city,sf.state,sf.service_id,sf.rm_id,employee.full_name,services.services');
+         $this->db->_reserved_identifiers = array('*','CASE');
+            $this->db->select('sf.pincode, COUNT(sf.pincode) as pincodeCount,sf.city,sf.state,sf.service_id,sf.rm_id,'
+                    . 'CASE  WHEN employee.full_name IS NULL THEN "NOT FOUND RM" ELSE employee.full_name END AS full_name,services.services');
             if($rmID){
-                $this->db->group_by('pincode,service_id'); 
-                $this->db->where('rm_id',$rmID); 
+                $this->db->group_by('pincode,service_id');
+                if($rmID == -1){
+                        $this->db->where('rm_id IS NULL'); 
+                }
+                else{
+                     $this->db->where('rm_id',$rmID); 
+                }
             }
             else{
                  $this->db->group_by('rm_id,pincode,service_id'); 
@@ -336,7 +343,7 @@ class dashboard_model extends CI_Model {
             $this->db->order_by('count(pincode) DESC');
             $this->db->where('active_flag',1); 
             $this->db->join('services', 'services.id = sf.service_id');
-            $this->db->join('employee', 'employee.id = sf.rm_id');
+            $this->db->join('employee', 'employee.id = sf.rm_id',"left");
             if($limit){
                     $this->db->limit($limit); 
             }
