@@ -521,41 +521,19 @@ class service_centre_charges extends CI_Controller {
             //Making process for file upload
             $tmpFile = $_FILES['file']['tmp_name'];
             $appliance_file = $_FILES['file']['name'];
-            move_uploaded_file($tmpFile, TMP_FOLDER . $appliance_file);
-
-
             //Processing File 
-            $this->upload_excel(TMP_FOLDER . $appliance_file, "appliance", $flag);
+            $this->upload_excel($tmpFile, "appliance", $flag);
 
             //Adding Details in File_Uploads table as well
-
-            $data['file_name'] = $appliance_file;
-            $data['file_type'] = _247AROUND_PARTNER_APPLIANCE_DETAILS;
-            $data['agent_id'] = $this->session->userdata('id');
-            $insert_id = $this->partner_model->add_file_upload_details($data);
-            if (!empty($insert_id)) {
-                //Logging success
-                log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
-            } else {
-                //Loggin Error
-                log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
-            }
-
-            //Upload files to AWS
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $appliance_file;
-            $this->s3->putObjectFile(TMP_FOLDER . $appliance_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-            //Logging
-            log_message('info', __FUNCTION__ . ' File has been uploaded in S3');
-
+            $this->miscelleneous->update_file_uploads($appliance_file,$tmpFile,_247AROUND_PARTNER_APPLIANCE_DETAILS);
+            
             //check brand_name and service_id is exist in appliance_brand table or not
             $not_exist_data = $this->booking_model->get_not_exist_appliance_brand_data();
             if ($not_exist_data) {
                 $this->booking_model->insert_not_exist_appliance_brand_data($not_exist_data);
                 log_message('info', __FUNCTION__ . 'Not exist brand name and service id added into the table appliance_brand');
             }
-
-
+            
             $this->redirect_upload_form();
         } else {
             $this->upload_excel_form($return);

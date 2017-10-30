@@ -417,14 +417,14 @@ function onsubmit_form(upcountry_flag, number_of_div) {
     });
     if (Number(number_of_div) !== div_count) {
         alert('Please Select All Services Delivered Or Not Delivered.');
-        $flag = 1;
+        flag = 1;
         return false;
     }
     if ($.inArray('completed', is_completed_checkbox) !== -1) {
 
     } else {
         alert('Please Select atleast one Completed or Delivered checkbox.');
-        $flag = 1;
+        flag = 1;
         return false;
 
     }
