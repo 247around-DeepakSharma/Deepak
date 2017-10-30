@@ -518,7 +518,7 @@ class Miscelleneous {
         $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
         if(isset($data['vendor_not_found'])){
             if($data['vendor_not_found'] ==1){
-                    $this->sf_not_exist_for_pincode($booking,$appliance);
+                    $this->sf_not_exist_for_pincode($booking);
             }
         }
         if (!empty($is_price)) {
@@ -1117,9 +1117,9 @@ class Miscelleneous {
     /*
  * This Functiotn is used to send sf not found emailto associated rm
  */
-    function send_sf_not_found_email_to_rm($booking,$appliance,$rm_email){
+    function send_sf_not_found_email_to_rm($booking,$rm_email){
             $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
-            $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode']." For Appliance ". $appliance;
+            $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode'];
             $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
             $message .= "To add Service center for the missing pincode please use below link <br/> "; 
             $message .= "<a href=".base_url()."employee/vendor/get_add_vendor_to_pincode_form/".$booking['booking_id'].">Add Service Center</a>";
@@ -1130,7 +1130,7 @@ class Miscelleneous {
  * if pincode does'nt have any rm then an email will goes to nitin
  * @input - An associative array with keys(booking_id,pincode,city,applianceID)
  */
-    function sf_not_exist_for_pincode($booking,$appliance=NULL){
+    function sf_not_exist_for_pincode($booking){
          $notFoundSfArray = array('booking_id'=>$booking['booking_id'],'pincode'=>$booking['booking_pincode'],'city'=>$booking['city'],'service_id'=>$booking['service_id']);
           $pincode = $notFoundSfArray['pincode'];
           $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
@@ -1139,11 +1139,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
           if(!empty($result)){
                     $notFoundSfArray['rm_id'] =  $result[0]['rm_id'];
                     $notFoundSfArray['state'] =  $result[0]['state'];
-                    if($appliance){
-                               $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']));
-                               $rm_email  = $query->result_array(); 
-                               $this->send_sf_not_found_email_to_rm($booking,$appliance,$rm_email[0]['official_email']);
-                    }
+                    $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']));
+                    $rm_email  = $query->result_array(); 
+                    $this->send_sf_not_found_email_to_rm($booking,$rm_email[0]['official_email']);
           }
           $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
           
