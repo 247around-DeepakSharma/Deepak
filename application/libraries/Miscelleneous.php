@@ -1019,24 +1019,9 @@ class Miscelleneous {
      * 
      */
     public function update_file_uploads($file_name,$tmpFile, $type, $result = "") {
-        switch ($type) {
-            case _247AROUND_SNAPDEAL_DELIVERED:
-                $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
-                break;
-            case _247AROUND_SNAPDEAL_SHIPPED:
-                $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
-                break;
-            case _247AROUND_SATYA_DELIVERED:
-                $data['file_type'] = _247AROUND_SATYA_DELIVERED;
-                break;
-            case _247AROUND_PAYTM_DELIVERED:
-                $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
-                break;
-            case _247AROUND_SF_PRICE_LIST:
-                $data['file_type'] = _247AROUND_SF_PRICE_LIST;
-                break;
-        }
-        $data['file_name'] = $file_name;
+        
+        $data['file_type'] = $type;
+        $data['file_name'] = date('d-M-Y-H-i-s')."-".$file_name;
         $data['agent_id'] = $this->My_CI->session->userdata('id');
         $data['result'] = $result;
         
@@ -1050,17 +1035,13 @@ class Miscelleneous {
             log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
         }
 
-        //Making process for file upload
-        move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
-
         //Upload files to AWS
         $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "vendor-partner-docs/" . $data['file_name'];
-        $this->My_CI->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $this->My_CI->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
         //Logging
         log_message('info', __FUNCTION__ . 'File has been uploaded in S3');
-        unlink(TMP_FOLDER . $data['file_name']);
     }
         
     /**
@@ -1260,13 +1241,14 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
      public function upload_file_to_s3($file, $type, $allowedExts, $pic_type_name, $s3_directory, $post_name) {
         log_message('info', __FUNCTION__. " Enterring ");
-      
+        
+        $MB = 1048576;
 	$temp = explode(".", $file['name']);
 	$extension = end($temp);
 	//$filename = prev($temp);
 
 	if ($file["name"] != null) {
-	    if (($file["size"] < 5e+6) && in_array($extension, $allowedExts)) {
+	    if (($file["size"] < 2 * $MB) && in_array($extension, $allowedExts)) {
 		if ($file["error"] > 0) {
                     
 		    $this->My_CI->form_validation->set_message('upload_file_to_s3', $file["error"]);

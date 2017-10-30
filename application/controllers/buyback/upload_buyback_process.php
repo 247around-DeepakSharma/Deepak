@@ -30,6 +30,7 @@ class Upload_buyback_process extends CI_Controller {
         $this->load->library('partner_utilities');
         $this->load->library('s3');
         $this->load->library('notify');
+        $this->load->library("miscelleneous");
 
         $this->load->model("partner_model");
         $this->load->model('reporting_utils');
@@ -114,8 +115,8 @@ class Upload_buyback_process extends CI_Controller {
         } else {
            
             $order_file = $_FILES["file"]["name"];
-            $to = NITS_ANUJ_EMAIL_ID . "," . ADIL_EMAIL_ID;
-            $cc = "abhaya@247around.com";
+            $to = $this->session->userdata('official_email');
+            $cc = "abhaya@247around.com , ".NITS_ANUJ_EMAIL_ID;
 
             $message = "";
             $subject = "Buyback Order is uploaded by " . $this->session->userdata('employee_id');
@@ -131,7 +132,7 @@ class Upload_buyback_process extends CI_Controller {
            
             $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
 
-            $this->upload_file_to_S3($order_file, _247AROUND_BB_ORDER_LIST, $_FILES['file']['tmp_name']);
+            $this->miscelleneous->update_file_uploads($order_file, $_FILES['file']['tmp_name'],_247AROUND_BB_ORDER_LIST);
             $response = array("code" => 247, "msg" => "File sucessfully processed.");
             echo json_encode($response);
         }
@@ -357,28 +358,14 @@ class Upload_buyback_process extends CI_Controller {
         if ($error) {
             $message .= " Please check and upload again.";
             $this->Columfailed .= " column does not exist.";
-            $to = NITS_ANUJ_EMAIL_ID . "," . ADIL_EMAIL_ID;
-            $cc = "abhaya@247around.com";
+            $to =  $this->session->userdata('official_email');
+            $cc = "abhaya@247around.com,".NITS_ANUJ_EMAIL_ID;
             $subject = "Failure! Buyback Order is uploaded by " . $this->session->userdata('employee_id');
             $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
             return false;
         } else {
             return true;
         }
-    }
-    
-    function upload_file_to_S3($file_name, $file_type, $file_path){
-        $data['file_name'] = $file_name;
-        $data['file_type'] = $file_type;
-        $data['agent_id'] = $this->session->userdata('id');
-        $insert_id = $this->partner_model->add_file_upload_details($data);
-        if ($insert_id) {
-            //Upload files to AWS
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $file_name;
-            $this->s3->putObjectFile($file_path, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-        }
-        return true;
     }
 
     /**
@@ -499,17 +486,7 @@ class Upload_buyback_process extends CI_Controller {
                 if ($is_insert) {
 
                     //Adding Details in File_Uploads table as well
-                    $data['file_name'] = $_FILES['file']['name'];
-                    $data['file_type'] = _247AROUND_BB_PRICE_LIST;
-                    $data['agent_id'] = $this->session->userdata('id');
-                    $insert_id = $this->partner_model->add_file_upload_details($data);
-                    if ($insert_id) {
-                        //Upload files to AWS
-                        $bucket = BITBUCKET_DIRECTORY;
-                        $directory_xls = "vendor-partner-docs/" . $_FILES['file']['name'];
-                        $this->s3->putObjectFile($inputFileName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    }
-
+                    $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_SUCCESS_STATUS);
                     //Return success Message
                     $msg = "File Uploaded Successfully.";
                     $response = array("code" => '247', "msg" => $msg);
@@ -520,6 +497,7 @@ class Upload_buyback_process extends CI_Controller {
                     echo json_encode($response);
                 }
             } else {
+                $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS);
                 $msg = "Error!!! Please Try Again...";
                 $response = array("code" => '-247', "msg" => $this->Columfailed);
             }
