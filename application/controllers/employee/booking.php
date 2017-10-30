@@ -76,7 +76,6 @@ class Booking extends CI_Controller {
             $primary_contact_no = $this->input->post('booking_primary_contact_no');
             //Check Validation
             $checkValidation = $this->validate_booking();
-
             if ($checkValidation) {
                 log_message('info', __FUNCTION__);
                 log_message('info', " Booking Insert User ID: " . $user_id);
@@ -125,7 +124,6 @@ class Booking extends CI_Controller {
         $appliance_brand = $this->input->post('appliance_brand');
         $upcountry_data_json = $this->input->post('upcountry_data');
         $upcountry_data = json_decode($upcountry_data_json, TRUE);
-
         $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
         if ($booking) {
 
@@ -164,7 +162,6 @@ class Booking extends CI_Controller {
             $user['user_email'] = $this->input->post('user_email');
             $result = array();
             $result['DEFAULT_TAX_RATE'] = 0;
-
             foreach ($appliance_brand as $key => $value) {
 
                 $services_details = array();
@@ -320,20 +317,6 @@ class Booking extends CI_Controller {
 
                             break;
                         case SF_DOES_NOT_EXIST:
-                            if(isset($upcountry_data['vendor_not_found'])){
-                                $to = RM_EMAIL.", ". SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
-                                $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
-
-                                $subject = "SF Does Not Exist In Pincode: ".$booking['booking_pincode'];
-                                $message = "Booking ID ".$booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
-                                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
-                                $this->miscelleneous->sf_not_exist_for_pincode(array(
-                                    "booking_id" => $booking['booking_id'],
-                                    "city" => $booking['city'],
-                                    "pincode" => $booking['booking_pincode'],
-                                     "service_id" => $appliances_details['service_id']
-                                ));
-                            }
                             break;
                     }
                 } else if ($booking['is_send_sms'] == 2 || $booking_id != INSERT_NEW_BOOKING) {
@@ -345,7 +328,14 @@ class Booking extends CI_Controller {
                     $this->asynchronous_lib->do_background_process($url, $async_data);
                 }
             }
-
+            if(isset($upcountry_data['vendor_not_found'])){
+                                $this->miscelleneous->sf_not_exist_for_pincode(array(
+                                    "booking_id" => $booking['booking_id'],
+                                    "city" => $booking['city'],
+                                    "booking_pincode" => $booking['booking_pincode'],
+                                     "service_id" => $appliances_details['service_id']
+                                ));
+                            }
             return $booking;
         } else {
             log_message('info', __FUNCTION__ . " Booking Failed!");

@@ -518,7 +518,7 @@ class Miscelleneous {
         $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
         if(isset($data['vendor_not_found'])){
             if($data['vendor_not_found'] ==1){
-                    $this->sf_not_exist_for_pincode($booking,$appliance);
+                    $this->sf_not_exist_for_pincode($booking);
             }
         }
         if (!empty($is_price)) {
@@ -1019,24 +1019,9 @@ class Miscelleneous {
      * 
      */
     public function update_file_uploads($file_name,$tmpFile, $type, $result = "") {
-        switch ($type) {
-            case _247AROUND_SNAPDEAL_DELIVERED:
-                $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
-                break;
-            case _247AROUND_SNAPDEAL_SHIPPED:
-                $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
-                break;
-            case _247AROUND_SATYA_DELIVERED:
-                $data['file_type'] = _247AROUND_SATYA_DELIVERED;
-                break;
-            case _247AROUND_PAYTM_DELIVERED:
-                $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
-                break;
-            case _247AROUND_SF_PRICE_LIST:
-                $data['file_type'] = _247AROUND_SF_PRICE_LIST;
-                break;
-        }
-        $data['file_name'] = $file_name;
+        
+        $data['file_type'] = $type;
+        $data['file_name'] = date('d-M-Y-H-i-s')."-".$file_name;
         $data['agent_id'] = $this->My_CI->session->userdata('id');
         $data['result'] = $result;
         
@@ -1050,17 +1035,13 @@ class Miscelleneous {
             log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
         }
 
-        //Making process for file upload
-        move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
-
         //Upload files to AWS
         $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "vendor-partner-docs/" . $data['file_name'];
-        $this->My_CI->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $this->My_CI->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
         //Logging
         log_message('info', __FUNCTION__ . 'File has been uploaded in S3');
-        unlink(TMP_FOLDER . $data['file_name']);
     }
         
     /**
@@ -1117,9 +1098,9 @@ class Miscelleneous {
     /*
  * This Functiotn is used to send sf not found emailto associated rm
  */
-    function send_sf_not_found_email_to_rm($booking,$appliance,$rm_email){
+    function send_sf_not_found_email_to_rm($booking,$rm_email){
             $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
-            $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode']." For Appliance ". $appliance;
+            $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode'];
             $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
             $message .= "To add Service center for the missing pincode please use below link <br/> "; 
             $message .= "<a href=".base_url()."employee/vendor/get_add_vendor_to_pincode_form/".$booking['booking_id'].">Add Service Center</a>";
@@ -1130,7 +1111,7 @@ class Miscelleneous {
  * if pincode does'nt have any rm then an email will goes to nitin
  * @input - An associative array with keys(booking_id,pincode,city,applianceID)
  */
-    function sf_not_exist_for_pincode($booking,$appliance=NULL){
+    function sf_not_exist_for_pincode($booking){
          $notFoundSfArray = array('booking_id'=>$booking['booking_id'],'pincode'=>$booking['booking_pincode'],'city'=>$booking['city'],'service_id'=>$booking['service_id']);
           $pincode = $notFoundSfArray['pincode'];
           $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
@@ -1139,11 +1120,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
           if(!empty($result)){
                     $notFoundSfArray['rm_id'] =  $result[0]['rm_id'];
                     $notFoundSfArray['state'] =  $result[0]['state'];
-                    if($appliance){
-                               $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']));
-                               $rm_email  = $query->result_array(); 
-                               $this->send_sf_not_found_email_to_rm($booking,$appliance,$rm_email[0]['official_email']);
-                    }
+                    $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']));
+                    $rm_email  = $query->result_array(); 
+                    $this->send_sf_not_found_email_to_rm($booking,$rm_email[0]['official_email']);
           }
           $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
           
@@ -1260,13 +1239,14 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
      public function upload_file_to_s3($file, $type, $allowedExts, $pic_type_name, $s3_directory, $post_name) {
         log_message('info', __FUNCTION__. " Enterring ");
-      
+        
+        $MB = 1048576;
 	$temp = explode(".", $file['name']);
 	$extension = end($temp);
 	//$filename = prev($temp);
 
 	if ($file["name"] != null) {
-	    if (($file["size"] < 5e+6) && in_array($extension, $allowedExts)) {
+	    if (($file["size"] < 2 * $MB) && in_array($extension, $allowedExts)) {
 		if ($file["error"] > 0) {
                     
 		    $this->My_CI->form_validation->set_message('upload_file_to_s3', $file["error"]);
