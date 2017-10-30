@@ -322,7 +322,7 @@ class dashboard_model extends CI_Model {
         return $completed_booking;
     }
 /*
- * This function get data from missing pincode table on the basis of rm id
+ * This function get data from missing pincode table on the basis of rm id if rm id is null then it will return data group by on rm
  */    
      function get_pincode_data_for_not_found_sf($rmID=NULL,$limit=NULL){
          $this->db->_reserved_identifiers = array('*','CASE');
