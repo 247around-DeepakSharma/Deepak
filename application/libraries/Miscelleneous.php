@@ -1110,7 +1110,7 @@ class Miscelleneous {
         }
     }
     /*
- * This Functiotn is used to send sf not found emailto associated rm
+ * This Functiotn is used to send sf not found email to associated rm
  */
     function send_sf_not_found_email_to_rm($booking,$rm_email){
             $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;

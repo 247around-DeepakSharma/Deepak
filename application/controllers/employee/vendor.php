@@ -1185,6 +1185,7 @@ class vendor extends CI_Controller {
         
         $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
     }
+    
    
 
     /**
@@ -4481,6 +4482,9 @@ class vendor extends CI_Controller {
                     }
                     return $msg;
           }
+          /*
+           * This function is used to check is uploded file (Vendor pincode mapping) valid or not
+           */
           
           function  is_vendor_pin_code_file_valid($file,$vendorID){
                    $msg['extension']=$this->is_file_extension_excel($file['file']['name']);
@@ -4524,6 +4528,9 @@ class vendor extends CI_Controller {
                               return $msg['extension'];
                    }
           }
+          /*
+           * This function is used to Update vendor pincode mapping table on the basis of uploded excel
+           */
           function update_vendor_pin_code_file($file,$vendorID){
                     $deleteMsg = $this->vendor_model->delete_vendor_pin_codes(array('Vendor_ID'=>$vendorID));
                     if($deleteMsg == TRUE){
@@ -4555,6 +4562,10 @@ class vendor extends CI_Controller {
                         return $deleteMsg;
                     }
           }
+          /*
+           * Update india pincode table if any updated  pincode exist in not found sf table
+           * It will change the flag for all bookings which has the uploded pincode
+           */
           
           function manage_pincode_not_found_sf_table(){
               foreach($this->vendorPinArray as $key=>$values){
@@ -4607,9 +4618,9 @@ class vendor extends CI_Controller {
                     redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
           }
           /*
-           * This function use to create pincode update form when data comes from rm dashboard
+           * This function use to create pincode update form
            * @input - post data pincode and service related to that pincode in json format
-           * @output - it will create the pincode form view
+           * @output - it will create the pincode form view and if pincode is not found in india pincode then it will automatically redirect to add pincode form
            */
           function insert_pincode_form(){
             $data = $this->input->post();
@@ -4624,7 +4635,51 @@ class vendor extends CI_Controller {
                             $this->load->view('employee/add_vendor_to_pincode',$data);
                     }
           }
-          
+          /*
+           * This function will check is_pincode available in india pincode
+           * If yes then it will redirect the pincode to add pincode in india pincode table form
+           * if not then it will return false
+           */
+          function is_pincode_available_in_india_pincode_table($pincode){
+                  $state  =   $this->vendor_model->get_state_from_india_pincode($pincode);
+                  if(empty($state['state'])){
+                     $states  =   $this->vendor_model->getall_state();
+                     $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                     $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states));
+                     return false;
+                  }
+                  else{
+                      return true;
+                  }
+          }
+          /*
+           * This Function used to add new pincode in India Pincode Table
+           * will get pincode, state, city from post
+           * save district, taluk,region,division,area value as city value in dataBase table
+           */
+          function add_new_pincode(){
+               $data = $this->input->post();
+               $pincode = $data['pincode'];
+               $state = $data['states'];
+               $districtArray = explode(",",$data['district']);
+               $length = count($districtArray);
+               for($i=0;$i<$length;$i++){
+                              $tempArray['district'] = $districtArray[$i];
+                              $tempArray['taluk'] = $districtArray[$i];
+                              $tempArray['region'] = $districtArray[$i];
+                              $tempArray['division'] = $districtArray[$i];
+                              $tempArray['area'] = $districtArray[$i];
+                              $tempArray['state'] = $state;
+                              $tempArray['pincode'] = $pincode;
+                   $insertArray[] = $tempArray;
+               }
+               $insertResult = $this->vendor_model->insert_india_pincode_in_batch($insertArray);
+               if($insertResult){
+                   $finalMsg = $insertResult." Rows has been inserted for the pincode ".$pincode." , Now You can assign SF to ".$pincode;
+                   $this->session->set_userdata('pincode_msg',$finalMsg);
+                   redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
+               }
+          }  
     function save_file_into_database($newZipFileName, $csv, $status) {
         //Adding Details in File_Uploads table as well
         $data_uploads['file_name'] = "vendor_pincode_mapping_temp_" . date('j-M-Y') . ".zip";
@@ -4686,44 +4741,6 @@ class vendor extends CI_Controller {
         }
         
     }
-          function is_pincode_available_in_india_pincode_table($pincode){
-                  $state  =   $this->vendor_model->get_state_from_india_pincode($pincode);
-                  if(empty($state['state'])){
-                     $states  =   $this->vendor_model->getall_state();
-                     $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                     $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states));
-                     return false;
-                  }
-                  else{
-                      return true;
-                  }
-          }
-          
-          function add_new_pincode(){
-               $data = $this->input->post();
-               $pincode = $data['pincode'];
-               $state = $data['states'];
-               $districtArray = explode(",",$data['district']);
-               $length = count($districtArray);
-               for($i=0;$i<$length;$i++){
-                              $tempArray['district'] = $districtArray[$i];
-                              $tempArray['taluk'] = $districtArray[$i];
-                              $tempArray['region'] = $districtArray[$i];
-                              $tempArray['division'] = $districtArray[$i];
-                              $tempArray['area'] = $districtArray[$i];
-                              $tempArray['state'] = $state;
-                              $tempArray['pincode'] = $pincode;
-                   $insertArray[] = $tempArray;
-               }
-               $insertResult = $this->vendor_model->insert_india_pincode_in_batch($insertArray);
-               if($insertResult){
-                   $finalMsg = $insertResult." Rows has been inserted for the pincode ".$pincode." , Now You can assign SF to ".$pincode;
-                   $this->session->set_userdata('pincode_msg',$finalMsg);
-                   redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
-               }
-          } 
-
-
     /**
      * @desc: This funtion will check Session
      * @param: void
