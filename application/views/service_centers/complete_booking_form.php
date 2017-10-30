@@ -319,13 +319,14 @@
                     </div>
                     <div class="form-group  col-md-12" >
                         <center style="margin-top:60px;">
-                            <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>')" class="btn btn-lg" style="background-color: #2C9D9A;
+                            <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>')" class="btn btn-lg" style="background-color: #2C9D9A;
                                 border-color: #2C9D9A; color:#fff;" value="Complete Booking">
                     </div>
                     </center>
             </div>
             </form>
-               
+               <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>')" class="btn btn-lg" style="background-color: #2C9D9A;
+                                border-color: #2C9D9A; color:#fff;" value="Complete Booking">
             <!-- end Panel Body  -->
         </div>
     </div>
@@ -333,124 +334,144 @@
 </div>
 <script>
     $("#service_id").select2();
-    $("#booking_city").select2();
-    
-    
-    $(document).ready(function () {
+$("#booking_city").select2();
+
+
+$(document).ready(function() {
     //called when key is pressed in textbox
-    $(".cost").keypress(function (e) {
-     //if the letter is not digit then display error and don't type anything
-     if (e.which !== 8 && e.which !== 0 && (e.which < 48 || e.which > 57)) {
-    //display error message
-    $(".error_msg").html("Digits Only").show().fadeOut("slow");
-    return false;
-     }
+    $(".cost").keypress(function(e) {
+        //if the letter is not digit then display error and don't type anything
+        if (e.which !== 8 && e.which !== 0 && (e.which < 48 || e.which > 57)) {
+            //display error message
+            $(".error_msg").html("Digits Only").show().fadeOut("slow");
+            return false;
+        }
     });
-    
-    });
-    
-    
-    $(document).on('keyup', '.cost', function (e) {
+
+});
+
+
+$(document).on('keyup', '.cost', function(e) {
 
     var price = 0;
-    $("input.cost").each(function () {
-     price += Number($(this).val());
-    
+    $("input.cost").each(function() {
+        price += Number($(this).val());
+
     });
 
     $("#grand_total_price").val(price);
-    });
-    
-    
-    function onsubmit_form(upcountry_flag) {
+});
+
+
+function onsubmit_form(upcountry_flag, number_of_div) {
+
     var flag = 0;
+    var div_count = 0;
     var is_completed_checkbox = [];
-    $(':radio:checked').each(function (i) {
-     //console.log($(this).val());
-     var div_no = this.id.split('_');
-     is_completed_checkbox[i] = div_no[0];
-     if (div_no[0] === "completed") {
-    //if POD is also 1, only then check for serial number.
-    if (div_no[1] === "1") {
-      var serial_number = $("#serial_number" + div_no[2]).val();
-      if (serial_number === "") {
-    
-    document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
-    flag = 1;
-      }
-    
-      if (serial_number === "0" ) {
-    document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
-    flag = 1;
-      }
-    
-      var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
-      if (numberRegex.test(serial_number)) {
-    if (serial_number > 0) {
-       flag = 0;
-    } else {
-       document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
-       flag = 1;
-    }
-      }
-    }
-                
-    var amount_due = $("#amount_due"+div_no[2]).text();
-    var basic_charge = $("#basic_charge"+div_no[2]).val();
-    var additional_charge = $("#extra_charge"+div_no[2]).val();
-    var parts_cost =$("#parts_cost"+div_no[2]).val();
-    if(Number(amount_due) > 0){
-        var total_sf = Number(basic_charge) + Number(additional_charge) + Number(parts_cost);
-        if(Number(total_sf) === 0){
-            alert("Please fill amount collected from customer, Amount Due: Rs."+ amount_due );
-            flag = 1;
+    var serial_number_tmp = [];
+    $(':radio:checked').each(function(i) {
+        div_count = div_count + 1;
+
+        //console.log($(this).val());
+        var div_no = this.id.split('_');
+        is_completed_checkbox[i] = div_no[0];
+        if (div_no[0] === "completed") {
+            //if POD is also 1, only then check for serial number.
+            if (div_no[1] === "1") {
+                var serial_number = $("#serial_number" + div_no[2]).val();
+                serial_number_tmp.push(serial_number);
+                if (serial_number === "") {
+
+                    document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                    flag = 1;
+                }
+
+                if (serial_number === "0") {
+                    document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                    flag = 1;
+                }
+
+                var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
+                if (numberRegex.test(serial_number)) {
+                    if (serial_number > 0) {
+                        flag = 0;
+                    } else {
+                        document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                        flag = 1;
+                    }
+                }
+            }
+
+            var amount_due = $("#amount_due" + div_no[2]).text();
+            var basic_charge = $("#basic_charge" + div_no[2]).val();
+            var additional_charge = $("#extra_charge" + div_no[2]).val();
+            var parts_cost = $("#parts_cost" + div_no[2]).val();
+            if (Number(amount_due) > 0) {
+                var total_sf = Number(basic_charge) + Number(additional_charge) + Number(parts_cost);
+                if (Number(total_sf) === 0) {
+                    alert("Please fill amount collected from customer, Amount Due: Rs." + amount_due);
+                    flag = 1;
+                }
+            }
         }
-    }
-     }
     });
-    
-    if ($.inArray('completed', is_completed_checkbox) !== -1)
-    {
-    
+    if (Number(number_of_div) !== div_count) {
+        alert('Please Select All Services Delivered Or Not Delivered.');
+        $flag = 1;
+        return false;
+    }
+    if ($.inArray('completed', is_completed_checkbox) !== -1) {
+
     } else {
-     alert('Please Select atleast one Completed or Delivered checkbox.');
-     $flag = 0;
-     return false;
-    
+        alert('Please Select atleast one Completed or Delivered checkbox.');
+        $flag = 1;
+        return false;
+
     }
-    var is_sp_required = $("#spare_parts_required").val();   
-   
-    if(Number(is_sp_required) === 1){
-         alert("Ship Defective Spare Parts");
+    temp = [];
+    $.each(serial_number_tmp, function(key, value) {
+        if ($.inArray(value, temp) === -1) {
+            temp.push(value);
+        } else {
+            alert(value + " is a Duplicate Serial Number");
+            flag = 1;
+            return false;
+        }
+    });
+
+    var is_sp_required = $("#spare_parts_required").val();
+
+    if (Number(is_sp_required) === 1) {
+        alert("Ship Defective Spare Parts");
     }
-         
-    if(Number(upcountry_flag) === 1) {
+
+    if (Number(upcountry_flag) === 1) {
         var upcountry_charges = $("#upcountry_charges").val();
-        if(Number(upcountry_charges) === 0 ){
-            flag =1;
+        if (Number(upcountry_charges) === 0) {
+            flag = 1;
             document.getElementById('upcountry_charges').style.borderColor = "red";
             alert("Please Enter Upcountry Charges which Paid by Customer");
             return false;
-        } else if(Number(upcountry_charges)> 0 ){
-            flag =0;
+        } else if (Number(upcountry_charges) > 0) {
+            flag = 0;
             document.getElementById('upcountry_charges').style.borderColor = "green";
         }
-    }   
-    var closing_remarks =$("#closing_remarks").val();        
-    if(closing_remarks === ""){
+    }
+    var closing_remarks = $("#closing_remarks").val();
+    if (closing_remarks === "") {
         alert("Please Enter Remarks");
         document.getElementById('closing_remarks').style.borderColor = "red";
-        flag= 0;
+        flag = 1;
         return false;
     }
     if (flag === 0) {
-     return true;
-    
+        return true;
+
     } else if (flag === 1) {
-    
-     return false;
+
+        return false;
     }
-    }
+}
 </script>
 <style type="text/css">
     .panel-info>.panel-heading {
