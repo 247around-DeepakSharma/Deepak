@@ -1526,7 +1526,7 @@ class vendor_model extends CI_Model {
                 . " AND  service_centres.id = booking_details.assigned_vendor_id ";
         $query = $this->db->query($sql);
         if($query->num_rows > 0){
-            return TRUE;
+            return $query->result_array();
         } else {
             return FALSE;
         }
