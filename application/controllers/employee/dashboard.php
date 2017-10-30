@@ -746,7 +746,10 @@ class Dashboard extends CI_Controller {
         $this->table->set_heading(array('S.N','RM', 'Pending Queries'));
         $rmDataArray = $this->get_missing_pincode_admin_data_structured_format($pincodeResult);
         $i=1;
-        foreach($rmDataArray as $rm=>$rmData){  
+        foreach($rmDataArray as $rm=>$rmData){
+            if($rmData){
+                $rmData['id'] = -1;
+            }
                   $this->table->add_row($i,"<a target='_blank' href=".base_url()."employee/dashboard/missing_pincode_full_view?rm_id=".$rmData['id']." style='margin: 0px;padding: 6px;' class='btn btn-info'>".$rm."</a>",$rmData['count']); 
                    $i++;
         }
