@@ -312,42 +312,44 @@ class Dashboard extends CI_Controller {
         }
         foreach ($rm_array as $value) {
 
-            $sf_list = $this->vendor_model->get_employee_relation($value['id'])[0];
-            $region_data = $this->dashboard_model->get_booking_data_by_rm_region($startDate, $endDate, $sf_list['service_centres_id'], $partner_id);
-            array_push($rm, $value['full_name']);
-            foreach ($region_data[0] as $key => $value){
-                switch ($key){
-                    case 'Cancelled':
-                        if(!empty($value)){
-                            array_push($cancelled, $value);
-                        }else{
-                            array_push($cancelled, '0');
-                        }
-                        break;
-                    case 'Completed':
-                        if(!empty($value)){
-                            array_push($completed, $value);
-                        }else{
-                            array_push($completed, '0');
-                        }
-                        break;
-                    case 'Pending':
-                        if(!empty($value)){
-                            array_push($pending, $value);
-                        }else{
-                            array_push($pending, '0');
-                        }
-                        break;
-                    case 'Total':
-                        if(!empty($value)){
-                            array_push($total, $value);
-                        }else{
-                            array_push($total, '0');
-                        }
-                        break;
+            $sf_list = $this->vendor_model->get_employee_relation($value['id']);
+            if (!empty($sf_list)) {
+                $sf_id = $sf_list[0]['service_centres_id'];
+                $region_data = $this->dashboard_model->get_booking_data_by_rm_region($startDate, $endDate, $sf_id, $partner_id);
+                array_push($rm, $value['full_name']);
+                foreach ($region_data[0] as $key => $value) {
+                    switch ($key) {
+                        case 'Cancelled':
+                            if (!empty($value)) {
+                                array_push($cancelled, $value);
+                            } else {
+                                array_push($cancelled, '0');
+                            }
+                            break;
+                        case 'Completed':
+                            if (!empty($value)) {
+                                array_push($completed, $value);
+                            } else {
+                                array_push($completed, '0');
+                            }
+                            break;
+                        case 'Pending':
+                            if (!empty($value)) {
+                                array_push($pending, $value);
+                            } else {
+                                array_push($pending, '0');
+                            }
+                            break;
+                        case 'Total':
+                            if (!empty($value)) {
+                                array_push($total, $value);
+                            } else {
+                                array_push($total, '0');
+                            }
+                            break;
+                    }
                 }
             }
-            
         }
         $json_data['rm'] = implode(",", $rm);
         $json_data['cancelled'] = implode(",", $cancelled);
@@ -356,7 +358,7 @@ class Dashboard extends CI_Controller {
         $json_data['total'] = implode(",", $total);
         echo json_encode($json_data);
     }
-    
+
     /**
      * @desc: This function is used to get booking entered and scheduled data
      * @param string
@@ -413,6 +415,8 @@ class Dashboard extends CI_Controller {
             array_push($year, $value['year']);
             array_push($completed_booking, $value['completed_booking']);
         }
+        array_shift($month);
+        array_shift($completed_booking);
         $json_data['month'] = implode(",", $month);
         $json_data['completed_booking'] = implode(",", $completed_booking);
         echo json_encode($json_data);
@@ -587,6 +591,8 @@ class Dashboard extends CI_Controller {
             array_push($year, $value['year']);
             array_push($completed_booking, $value['completed_booking']);
         }
+        array_shift($month);
+        array_shift($completed_booking);
         $json_data['month'] = implode(",", $month);
         $json_data['completed_booking'] = implode(",", $completed_booking);
         echo json_encode($json_data);
