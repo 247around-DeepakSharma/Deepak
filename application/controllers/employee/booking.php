@@ -2909,7 +2909,7 @@ class Booking extends CI_Controller {
         if($receieved_Data['service']){
             $whereInArray['booking_details.service'] = $serviceArray;
         }
-        $JoinTypeTableArray = array('service_centres'=>'left');
+        $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left');
        //process query and get result from database
         $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),$whereInArray,$JoinTypeTableArray);
         //convert database result into a required formate needed for datatales
@@ -2924,7 +2924,7 @@ class Booking extends CI_Controller {
         //get all records from table
         $data['recordsTotal'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,NULL,$joinDataArray,NULL,NULL,NULL,$JoinTypeTableArray);
        // get filtered records from tabble
-        $data['recordsFiltered'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,$whereArray,$joinDataArray,NULL,NULL,$whereInArray,$joinDataArray);
+        $data['recordsFiltered'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,$whereArray,$joinDataArray,NULL,NULL,$whereInArray,$JoinTypeTableArray);
         $data['data'] = $finalArray;
         return $data;
     }   
@@ -3361,5 +3361,56 @@ class Booking extends CI_Controller {
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/get_oow_booking');
     }
-    
+  
+    function booking_bulk_search(){
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/bulk_booking_search');
+    }
+    function get_bulk_search_result_data($receieved_Data){
+        $finalArray = array();
+        $joinDataArray = array("bookings_sources"=>"bookings_sources.partner_id=booking_details.partner_id","service_centres"=>"service_centres.id=booking_details.assigned_vendor_id","services"=>"services.id=booking_details.service_id","booking_unit_details"=>"booking_unit_details.booking_id=booking_details.booking_id");
+        // select field to display
+        $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details.current_status";
+        // limit array for pagination
+        $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
+        //where in array
+        $inputBulkData = explode("\n",$receieved_Data['bulk_input']);
+        $whereArray = NULL;
+        $whereInArray = NULL;
+        if($receieved_Data['select_type'] == 'mobile'){
+            $fieldName = 'booking_details.booking_primary_contact_no';
+        }
+        else if($receieved_Data['select_type'] == 'order_id'){
+            $fieldName = 'booking_details.order_id';
+        }
+        else{
+            $fieldName = 'booking_details.booking_id';
+        }
+        if($receieved_Data['bulk_input']){
+            $whereInArray[$fieldName] = $inputBulkData;
+        }
+        $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left');
+       //process query and get result from database
+        $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),$whereInArray,$JoinTypeTableArray);
+        //convert database result into a required formate needed for datatales
+        for($i=0;$i<count($result);$i++){
+            $index = $receieved_Data['start']+($i+1);
+            $tempArray = array_values($result[$i]);
+            array_unshift($tempArray, $index);
+            $finalArray[] = $tempArray;
+        }
+        //create final array required for database table\
+        $data['draw'] = $receieved_Data['draw'];
+        //get all records from table
+        $data['recordsTotal'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,NULL,$joinDataArray,NULL,NULL,NULL,$JoinTypeTableArray);
+       // get filtered records from tabble
+        $data['recordsFiltered'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,$whereArray,$joinDataArray,NULL,NULL,$whereInArray,$JoinTypeTableArray);
+        $data['data'] = $finalArray;
+        return $data;
+    }
+    function get_bulk_search_result_view(){
+        $receieved_Data = $this->input->post(); 
+       $data = $this->get_bulk_search_result_data($receieved_Data);
+        echo json_encode($data);
+    }
 }
