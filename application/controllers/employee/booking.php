@@ -196,7 +196,7 @@ class Booking extends CI_Controller {
                  * */
                 if (!empty($appliances_details['description'])) {
                     // check appliance description exist and it is not verified earlier 
-                    $check_product_type = $this->reusable_model->get_search_query('appliance_product_description','*',array('product_description' => trim($appliances_details['description'])),NULL,NULL,NULL)->result_array();
+                    $check_product_type = $this->reusable_model->get_search_query('appliance_product_description','*',array('product_description' => trim($appliances_details['description'])),NULL,NULL,NULL,NULL,NULL)->result_array();
                     
                     //verify appliance details
                     $verified_capacity = $this->miscelleneous->verified_applicance_capacity($appliances_details);
@@ -2820,7 +2820,7 @@ class Booking extends CI_Controller {
         $data['brands'] = $this->booking_model->get_advance_search_result_data("appliance_brands","brand_name",NULL,NULL,NULL,array('brand_name'=>'ASC'));
         $data['category'] = $this->booking_model->get_advance_search_result_data("service_centre_charges","DISTINCT(category)",NULL,NULL,NULL,array('category'=>'ASC'));
         $data['capacity'] = $this->booking_model->get_advance_search_result_data("service_centre_charges","DISTINCT(capacity)",NULL,NULL,NULL,array('capacity'=>'ASC'));
-        $data['request_type'] = $this->booking_model->get_advance_search_result_data("service_centre_charges","DISTINCT(service_category) as request_type",NULL,NULL,NULL,array('service_category'=>'ASC'));
+        $data['request_type'] = $this->booking_model->get_advance_search_result_data("booking_unit_details","DISTINCT(price_tags) as request_type",NULL,NULL,NULL,array('price_tags'=>'ASC'));
         $data['is_upcountry'] = array(array("option"=>'yes',"value"=>'1'),array("option"=>'No',"value"=>'0'));
         $data['paid_by'] = array(array("option"=>'Customer'),array("option"=>'Partner'));
         $data['product_or_service'] = array(array("option"=>'Product'),array("option"=>'Service'));
@@ -2881,8 +2881,6 @@ class Booking extends CI_Controller {
         }
         return $whereArray;
     }
-    
-    
     /*
      * This function use to send search result data back to filter
      * @output - it's print required json, which is automatically used by dataTables
@@ -2890,19 +2888,30 @@ class Booking extends CI_Controller {
     function get_advance_search_result_data($receieved_Data){
         $finalArray = array();
         //array of filter options name and affected database field by them
-        $dbfield_mapinning_option = array('booking_date'=>'booking_details.booking_date', 'close_date'=>'booking_details.closed_date', 'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status','internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry','rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity','brand'=>'booking_unit_details.appliance_brand','paid_by'=>'booking_unit_details.customer_net_payable','request_type'=>'booking_details.request_type');
+        $dbfield_mapinning_option = array('booking_date'=>'booking_details.booking_date', 'close_date'=>'booking_details.closed_date', 'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status','internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry','rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity','brand'=>'booking_unit_details.appliance_brand','paid_by'=>'booking_unit_details.customer_net_payable','request_type'=>'booking_unit_details.price_tags');
         // array of filtered options and there selected values (which can be handled by direct where condition)
-        $whereOptionArray = elements(array('partner','city','sf','current_status','internal_status','product_or_service','upcountry','rating','service','categories','capacity','brand','request_type'), $receieved_Data);
+        $whereOptionArray = elements(array('partner','city','sf','internal_status','product_or_service','upcountry','rating','categories','capacity','brand','request_type'), $receieved_Data);
         //join condition array table name and join condition
         $joinDataArray = array("bookings_sources"=>"bookings_sources.partner_id=booking_details.partner_id","service_centres"=>"service_centres.id=booking_details.assigned_vendor_id","services"=>"services.id=booking_details.service_id","booking_unit_details"=>"booking_unit_details.booking_id=booking_details.booking_id");
         // select field to display
-        $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_details.request_type,booking_unit_details.product_or_services";
+        $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details.current_status";
         // limit array for pagination
         $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
        // all where condition array
         $whereArray = $this->get_all_where_array_for_advance_search($dbfield_mapinning_option,$whereOptionArray,$receieved_Data);
+        //where in array
+        $currentStatusArray = explode(",",$receieved_Data['current_status']);
+        $serviceArray = explode(",",$receieved_Data['service']);
+        $whereInArray = NULL;
+        if($receieved_Data['current_status']){
+            $whereInArray['booking_details.current_status'] = $currentStatusArray;
+        }
+        if($receieved_Data['service']){
+            $whereInArray['booking_details.service'] = $serviceArray;
+        }
+        $JoinTypeTableArray = array('service_centres'=>'left');
        //process query and get result from database
-        $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"));
+        $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),$whereInArray,$JoinTypeTableArray);
         //convert database result into a required formate needed for datatales
         for($i=0;$i<count($result);$i++){
             $index = $receieved_Data['start']+($i+1);
@@ -2913,14 +2922,14 @@ class Booking extends CI_Controller {
         //create final array required for database table\
         $data['draw'] = $receieved_Data['draw'];
         //get all records from table
-        $data['recordsTotal'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,NULL,$joinDataArray);
+        $data['recordsTotal'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,NULL,$joinDataArray,NULL,NULL,NULL,$JoinTypeTableArray);
        // get filtered records from tabble
-        $data['recordsFiltered'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,$whereArray,$joinDataArray);
+        $data['recordsFiltered'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,$whereArray,$joinDataArray,NULL,NULL,$whereInArray,$joinDataArray);
         $data['data'] = $finalArray;
         return $data;
     }   
     function get_advance_search_result_view(){
-        $receieved_Data = $this->input->post();
+        $receieved_Data = $this->input->post(); 
         $data = $this->get_advance_search_result_data($receieved_Data);
         echo json_encode($data);
     }
@@ -3298,7 +3307,7 @@ class Booking extends CI_Controller {
             $page = $total_pages;
         }
        
-        $query = $this->reusable_model->get_search_query('appliance_product_description', '*', $where,NULL,array('length' => $limit,'start'=> $start),array($sidx => $sord))->result();
+        $query = $this->reusable_model->get_search_query('appliance_product_description', '*', $where,NULL,array('length' => $limit,'start'=> $start),array($sidx => $sord),NULL,NULL)->result();
         $response = new StdClass;
         $response->page = $page;
         $response->total = $total_pages;
