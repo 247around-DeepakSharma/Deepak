@@ -4457,11 +4457,11 @@ class vendor extends CI_Controller {
                    }
                    return $msg;
           }
-          function is_pincode_service_area_unique($excelDataArray){
+          function is_pincode_service_brand_area_unique($excelDataArray){
               $msg = true;
               $tempArray = array();
               foreach($excelDataArray as $index=>$data){
-                    $uniqueString = $data['pincode'].",".$data['area'].",".$data['appliance_id'];
+                    $uniqueString = $data['pincode'].",".$data['area'].",".$data['appliance_id'].",".$data['brand'];
                     if(array_key_exists($uniqueString, $tempArray)){
                               $msg = "Pincode, Appliance_ID, Area Combination Should be unique. Error at line ".($index+2);
                     }
@@ -4499,7 +4499,7 @@ class vendor extends CI_Controller {
                                                             if($msg['vendor'] == 1){
                                                                        $msg['pin_code'] = $this->is_pin_code_valid($this->vendorPinArray);
                                                                        if($msg['pin_code'] == 1){
-                                                                                $msg['unique_combination'] = $this->is_pincode_service_area_unique($this->vendorPinArray);
+                                                                                $msg['unique_combination'] = $this->is_pincode_service_brand_area_unique($this->vendorPinArray);
                                                                                 if($msg['unique_combination'] ==1){
                                                                                           $msg['field_blank'] = $this->is_any_field_blank($this->vendorPinArray);
                                                                                           return $msg['field_blank'];
