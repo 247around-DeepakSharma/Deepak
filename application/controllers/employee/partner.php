@@ -3382,12 +3382,16 @@ class Partner extends CI_Controller {
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager','active' => 1));
         $this->load->view('partner/contact_us',$data);
     }
-    
+    /*
+     * This function load the view for bracket allocation
+     */
     function bracket_allocation(){
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/bracket_allocation');
     }
-    
+    /*
+     * This function return data to show bracket allocation table view 
+     */
     function get_bracket_allocation_data(){
         $receieved_Data = $this->input->post();
         $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
@@ -3408,11 +3412,17 @@ class Partner extends CI_Controller {
         $data['data'] = $finalArray;    
         echo json_encode($data);
     }
+    /*
+     * This functrion return the data needed to create Insert bracket allocation form
+     */
     function get_bracket_allocation_form_data(){
         $data['partner'] = $this->booking_model->get_advance_search_result_data("partners","id,public_name",NULL,NULL,NULL,array('public_name'=>'ASC'));
         $data['brand'] = $this->booking_model->get_advance_search_result_data("appliance_brands","DISTINCT(brand_name)",NULL,NULL,NULL,array('brand_name'=>'ASC'));
         echo json_encode($data);
     }
+    /*
+     * This function update or insert the data for bracket allocation
+     */
     function process_bracket_combination(){
         $data = $this->input->post();
         if($data['add_delete']=='add'){
