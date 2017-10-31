@@ -207,7 +207,7 @@
                         </li>
                         <li class="divider"></li>
                          <li >
-                            <a href="<?php echo base_url() ?>employee/partner/stand_allocation"><i class="fa fa-fw fa-desktop "></i> <strong>Add Stand Data</strong></a>
+                            <a href="<?php echo base_url() ?>employee/partner/bracket_allocation"><i class="fa fa-fw fa-desktop "></i> <strong>Add Brackets Data</strong></a>
                         </li>
 
                     </ul>

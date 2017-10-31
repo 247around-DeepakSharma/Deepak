@@ -1,5 +1,5 @@
 <style>
-    #stand_allocation_table_filter{
+    #bracket_allocation_table_filter{
         display:none;
     }
 </style>
@@ -12,22 +12,22 @@
 <div class="right_col" role="main"  >
     <h3 align="center">Stand allocation for partner and brand</h3>
     <?php
-    if($this->session->userdata('stand_msg')){
-        echo '<h3 align="center" style="color:green">'.$this->session->userdata('stand_msg').'</h3>';
-        $this->session->unset_userdata('stand_msg');
+    if($this->session->userdata('bracket_msg')){
+        echo '<h3 align="center" style="color:green">'.$this->session->userdata('bracket_msg').'</h3>';
+        $this->session->unset_userdata('bracket_msg');
     }
      ?>
     <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" style="margin:0px 10px;">Add New Records</button>
     <div class="row" >
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel" style="height: auto;">
-                            <table id="stand_allocation_table" class="table table-striped table-bordered">
+                            <table id="bracket_allocation_table" class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
                                         <th>S.N</th>
-                                        <th>Brand</th>
                                         <th>Partner</th>
-                                        <th>Stand</th>
+                                        <th>Brand</th>
+                                        <th>Is_Brackets</th>
                                         <th>Edit</th>
                                     </tr>
                                 </thead>
@@ -46,13 +46,13 @@
   <div class="modal-dialog">
 
     <!-- Modal content-->
-    <div class="modal-content" ng-app="stand_allocation">
+    <div class="modal-content" ng-app="bracket_allocation">
       <div class="modal-header" >
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h4 class="modal-title" style="text-align:center;">Add New Combination</h4>
       </div>
-      <div class="modal-body" ng-controller="standAllocationController">
-          <form action='process_stand_combination' method='POST' id="stand_allocation_form">
+      <div class="modal-body" ng-controller="bracketAllocationController">
+          <form action='process_bracket_combination' method='POST' id="bracket_allocation_form">
               <select style="width:100%" name="partner_id" ui-select2 id="partner"  class="form-control data_change" data-placeholder="Select Partner">
                                                <option value="" ng-show="false">Select Partner</option>
                                                 <option ng-repeat="y in partner_list" value="{{y.id}}">{{y.public_name}}</option>
@@ -61,8 +61,8 @@
                                                 <option value="" ng-show="false">Select Brand</option>
                                                 <option ng-repeat="y in brand_list" value="{{y.brand_name}}">{{y.brand_name}}</option>
                                             </select>
-               <select style="width:100%; margin-top:15px;" name="is_stand" ui-select2 id="is_stand"  class="form-control data_change" data-placeholder="is_stand">
-                                                <option value="" ng-show="false">Is_stand</option>
+               <select style="width:100%; margin-top:15px;" name="is_bracket" ui-select2 id="is_bracket"  class="form-control data_change" data-placeholder="is_bracket">
+                                                <option value="" ng-show="false">Is_bracket</option>
                                                 <option value="0">No</option>
                                                 <option value="1">Yes</option>
                                             </select>
@@ -80,23 +80,23 @@
 
 
 <script>
-    function createStandEditForm(brand,partner,is_stand){
+    function createStandEditForm(brand,partner,is_bracket){
         document.getElementById("add_update").value = 'update';
         document.getElementById("brand").value = brand;
         document.getElementById("brand").disabled = true;
          document.getElementById("partner").value = partner; 
          document.getElementById("partner").disabled = true; 
-          document.getElementById("is_stand").value = is_stand;
+          document.getElementById("is_bracket").value = is_bracket;
     }
 
-            ad_table = $('#stand_allocation_table').DataTable({
+            ad_table = $('#bracket_allocation_table').DataTable({
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
             "deferLoading": 0,
             "ajax": {
-                "url": baseUrl+"/employee/partner/get_stand_allocation_data",
+                "url": baseUrl+"/employee/partner/get_bracket_allocation_data",
                 "type": "POST"
             }
         });
@@ -106,14 +106,14 @@
     function validation(){
         brand= document.getElementById("brand").value;
         partner = document.getElementById("partner").value;
-        is_stand = document.getElementById("is_stand").value;
-        if(!brand || !partner || !is_stand){
+        is_bracket = document.getElementById("is_bracket").value;
+        if(!brand || !partner || !is_bracket){
             alert("please select all fields");
         }
         else{
           document.getElementById("brand").disabled = false;
           document.getElementById("partner").disabled = false;
-          document.getElementById("stand_allocation_form").submit();
+          document.getElementById("bracket_allocation_form").submit();
     }
     }
     </script>
