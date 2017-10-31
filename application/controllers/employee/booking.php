@@ -196,7 +196,7 @@ class Booking extends CI_Controller {
                  * */
                 if (!empty($appliances_details['description'])) {
                     // check appliance description exist and it is not verified earlier 
-                    $check_product_type = $this->reusable_model->get_search_query('appliance_product_description','*',array('product_description' => trim($appliances_details['description'])))->result_array();
+                    $check_product_type = $this->reusable_model->get_search_query('appliance_product_description','*',array('product_description' => trim($appliances_details['description'])),NULL,NULL,NULL)->result_array();
                     
                     //verify appliance details
                     $verified_capacity = $this->miscelleneous->verified_applicance_capacity($appliances_details);

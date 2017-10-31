@@ -1135,7 +1135,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
           if(!empty($result)){
                     $notFoundSfArray['rm_id'] =  $result[0]['rm_id'];
                     $notFoundSfArray['state'] =  $result[0]['state'];
-                    $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']));
+                    $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']),NULL,NULL,NULL);
                     $rm_email  = $query->result_array(); 
                     $this->send_sf_not_found_email_to_rm($booking,$rm_email[0]['official_email']);
           }
@@ -1213,7 +1213,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                         $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL; 
               }
             log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
-            $this->My_CI->vendor_model->is_pincode_exist_in_not_found_sf_table($pincodeArray);
+            $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray);
             $cc = "anuj@247around.com";
             $to = "chhavid@247around.com";
             $subject = "Get SF for following combinations";
