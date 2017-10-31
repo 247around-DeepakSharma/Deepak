@@ -911,6 +911,9 @@ class Miscelleneous {
             case '37':
                 $return_data = $this->verifiy_refrigerator_description($appliances_details);
                 break;
+            case '32':
+                $return_data = $this->verifiy_geyser_description($appliances_details);
+                break;
             default :
                 $return_data['status'] = FALSE;
                 $return_data['is_verified'] = '0';
@@ -1360,6 +1363,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     
     /**
      * @desc This function is used to verify air conditioner appliance data
+     * check if brand and category exist in the description 
+     * if exist then check for the right capacity and set verified flag to 1
+     * otherwise set verified flag to 0 
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
@@ -1386,31 +1392,101 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
     function verifiy_refrigerator_description($appliances_details){
         $new_appliance_details = array();
+        $flag = FALSE;
         $category = explode(" ", $appliances_details['category']);
+        
+        //extract window/split word from category
         array_pop($category);
+        
+        /*check if brand and category exist in the description
+         * if exist then check for the right capacity and set verified flag to 1
+         * otherwise set verified flag to 0 
+        */
         if((stripos($appliances_details['description'], $category[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
             $match = array();
+            //extract integer before words ltr,Ltr,LTR,ltrs,Ltrs,LTRS,L,l
             preg_match('/(\b(\d*\.?\d+) Ltr)|(\b(\d*\.?\d+) L)/i', $appliances_details['description'], $match);
             if(!empty($match)){
                 $capacity = explode(" ", $match[0])[0];
                 if($capacity >=0 && $capacity <= 250 ){
                     $new_appliance_details['capacity'] = "0-250 Ltr";
+                    $flag  = TRUE;
                 }else if($capacity > 250 && $capacity <= 450){
                     $new_appliance_details['capacity'] = "250-450 Ltr";
+                    $flag  = TRUE;
                 }else if($capacity > 450 && $capacity <= 10000){
                     $new_appliance_details['capacity'] = "450-10000 Ltr";
+                    $flag  = TRUE;
                 }else{
-                    $new_appliance_details['capacity'] = $appliances_details['capacity'];
+                    $flag  = FALSE;
                 }
             }else{
-                $new_appliance_details['capacity'] = $appliances_details['capacity'];
+                $flag  = FALSE;
             }
             
+        }else{
+            $flag  = FALSE;
+        }
+        
+        if($flag){
             $new_appliance_details['category'] = $appliances_details['category'];
             $new_appliance_details['brand'] = $appliances_details['brand'];
             $new_appliance_details['status'] = TRUE;
             $new_appliance_details['is_verified'] = '1';
+        }else{
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
+    
+    /**
+     * @desc This function is used to verify geyser appliance data
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verifiy_geyser_description($appliances_details){
+        $new_appliance_details = array();
+        $flag = FALSE;
+        //extract geyser word from category
+        $category = explode("-", $appliances_details['category']);
+        if(isset($category[1])){
+            array_pop($category);
+        }
+        
+        /*check if brand and category exist in the description
+         * if exist then check for the right capacity and set verified flag to 1
+         * otherwise set verified flag to 0 
+        */
+        if((stripos($appliances_details['description'], $category[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+            $match = array();
+            //extract integer before words ltr,Ltr,LTR,ltrs,Ltrs,LTRS,L,l
+            preg_match('/(\b(\d*\.?\d+) Ltr)|(\b(\d*\.?\d+) L)/i', $appliances_details['description'], $match);
+            if(!empty($match)){
+                $capacity = explode(" ", $match[0])[0];
+                if($capacity >=0 && $capacity <= 15 ){
+                    $new_appliance_details['capacity'] = "15 Ltr and Below";
+                    $flag = TRUE;
+                }else if($capacity > 15){
+                    $new_appliance_details['capacity'] = "16 Ltr and Above";
+                    $flag = TRUE;
+                }else{
+                    $flag = FALSE;
+                }
+            }else{
+                $flag = FALSE;
+            }
             
+        }else{
+            $flag = FALSE;
+        }
+        
+        if($flag){
+            $new_appliance_details['category'] = $appliances_details['category'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
         }else{
             $new_appliance_details['status'] = FALSE;
             $new_appliance_details['is_verified'] = '0';
