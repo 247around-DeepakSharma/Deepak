@@ -34,14 +34,19 @@ class reusable_model extends CI_Model {
      * @output array(result of query satisfied the where condition)
      */
     
-    function get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray){
+    function get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray){
         $this->db->select($select);
         if(!empty($where)){
             $this->db->where($where);
         }
         if(!empty($join)){
             foreach ($join as $tableName=>$joinCondition){
-                $this->db->join($tableName,$joinCondition);
+                if(array_key_exists($tableName, $JoinTypeTableArray)){
+                    $this->db->join($tableName,$joinCondition,$JoinTypeTableArray[$tableName]);
+                }
+                else{
+                    $this->db->join($tableName,$joinCondition);
+                }
             }
         }
         if(!empty($limitArray)){
@@ -52,6 +57,11 @@ class reusable_model extends CI_Model {
         if(!empty($orderBYArray)){
             foreach ($orderBYArray as $fieldName=>$sortingOrder){
                 $this->db->order_by($fieldName, $sortingOrder);
+            }
+        }
+        if(!empty($whereIN)){
+            foreach ($whereIN as $fieldName=>$conditionArray){
+                    $this->db->where_in($fieldName, $conditionArray);
             }
         }
        return $query = $this->db->get($table);   
@@ -73,14 +83,14 @@ class reusable_model extends CI_Model {
         return $this->db->affected_rows();
     }
     
-     function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray){
+     function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray){
        $this->db->_reserved_identifiers = array('*','CASE');
-       $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
+       $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
       return $query->result_array(); 
     }
-    function get_search_result_count($table,$select,$where,$join,$limitArray,$orderBYArray){
+    function get_search_result_count($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray){
        $this->db->_reserved_identifiers = array('*','CASE');
-       $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
+       $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
        return $this->db->affected_rows();
     }
 }

@@ -3396,7 +3396,7 @@ class Partner extends CI_Controller {
         $receieved_Data = $this->input->post();
         $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
          $joinDataArray = array("partners"=>"partners.id=is_bracket_over_brand_partner.partner_id");
-        $result =  $this->reusable_model->get_search_result_data("is_bracket_over_brand_partner","partners.public_name,brand,CASE WHEN is_bracket=0 THEN 'No' ELSE 'YES' END AS is_bracket,partner_id",array(),$joinDataArray,$limitArray,array("partners.public_name"=>"ASC"));
+        $result =  $this->reusable_model->get_search_result_data("is_bracket_over_brand_partner","partners.public_name,brand,CASE WHEN is_bracket=0 THEN 'No' ELSE 'YES' END AS is_bracket,partner_id",array(),$joinDataArray,$limitArray,array("partners.public_name"=>"ASC"),NULL,NULL);
          for($i=0;$i<count($result);$i++){
             $index = $receieved_Data['start']+($i+1);
             $link = "<button type='button' class='btn btn-info' data-toggle='modal' data-target='#myModal' onclick=createStandEditForm('".$result[$i]['brand']."','".$result[$i]['partner_id']."','".$result[$i]['is_bracket']."') style='margin:0px 10px;'>Edit</button>";
@@ -3407,8 +3407,8 @@ class Partner extends CI_Controller {
             $finalArray[] = $tempArray;
         }
         $data['draw'] = $receieved_Data['draw'];
-        $data['recordsTotal'] = $this->reusable_model->get_search_result_count("is_bracket_over_brand_partner","brand,partners.public_name,is_bracket",NULL,$joinDataArray,NULL,array("brand"=>"ASC"));
-        $data['recordsFiltered'] = $this->reusable_model->get_search_result_count("is_bracket_over_brand_partner","brand,partners.public_name,is_bracket",NULL,$joinDataArray,NULL,array("brand"=>"ASC"));
+        $data['recordsTotal'] = $this->reusable_model->get_search_result_count("is_bracket_over_brand_partner","brand,partners.public_name,is_bracket",NULL,$joinDataArray,NULL,array("brand"=>"ASC"),NULL);
+        $data['recordsFiltered'] = $this->reusable_model->get_search_result_count("is_bracket_over_brand_partner","brand,partners.public_name,is_bracket",NULL,$joinDataArray,NULL,array("brand"=>"ASC"),NULL);
         $data['data'] = $finalArray;    
         echo json_encode($data);
     }

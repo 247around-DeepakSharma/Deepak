@@ -476,7 +476,7 @@ class Notify {
                     
                     //send sms to dealer
                     if(!empty($query1[0]['dealer_id'])){
-                        $dealerPhoneNumber = $this->My_CI->booking_model->get_search_query('dealer_details','dealer_phone_number_1' , array('dealer_id'=>$query1[0]['dealer_id']),NULL, NULL ,NULL)->result_array()[0]['dealer_phone_number_1'];
+                        $dealerPhoneNumber = $this->My_CI->reusable_model->get_search_query('dealer_details','dealer_phone_number_1' , array('dealer_id'=>$query1[0]['dealer_id']),NULL, NULL ,NULL,NULL,NULL)->result_array()[0]['dealer_phone_number_1'];
                         $dealerSms['phone_no'] = $dealerPhoneNumber;
                         $dealerSms['tag'] = "booking_details_to_dealer";
                         $dealerSms['type'] = "dealer";
