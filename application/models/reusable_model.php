@@ -34,7 +34,7 @@ class reusable_model extends CI_Model {
      * @output array(result of query satisfied the where condition)
      */
     
-    function get_search_query($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
+    function get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray){
         $this->db->select($select);
         if(!empty($where)){
             $this->db->where($where);
@@ -73,12 +73,13 @@ class reusable_model extends CI_Model {
         return $this->db->affected_rows();
     }
     
-     function get_search_result_data($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
+     function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray){
        $this->db->_reserved_identifiers = array('*','CASE');
        $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
       return $query->result_array(); 
     }
-    function get_search_result_count($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
+    function get_search_result_count($table,$select,$where,$join,$limitArray,$orderBYArray){
+       $this->db->_reserved_identifiers = array('*','CASE');
        $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
        return $this->db->affected_rows();
     }
