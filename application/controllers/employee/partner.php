@@ -3383,19 +3383,19 @@ class Partner extends CI_Controller {
         $this->load->view('partner/contact_us',$data);
     }
     
-    function stand_allocation(){
+    function bracket_allocation(){
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/stand_allocation');
+        $this->load->view('employee/bracket_allocation');
     }
     
-    function get_stand_allocation_data(){
+    function get_bracket_allocation_data(){
         $receieved_Data = $this->input->post();
         $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
-         $joinDataArray = array("partners"=>"partners.id=is_stand_over_brand_partner.partner_id");
-        $result =  $this->reusable_model->get_search_result_data("is_stand_over_brand_partner","brand,partners.public_name,is_stand,partner_id",array(),$joinDataArray,$limitArray,array("brand"=>"ASC"));
+         $joinDataArray = array("partners"=>"partners.id=is_bracket_over_brand_partner.partner_id");
+        $result =  $this->reusable_model->get_search_result_data("is_bracket_over_brand_partner","partners.public_name,brand,CASE WHEN is_bracket=0 THEN 'No' ELSE 'YES' END AS is_bracket,partner_id",array(),$joinDataArray,$limitArray,array("partners.public_name"=>"ASC"));
          for($i=0;$i<count($result);$i++){
             $index = $receieved_Data['start']+($i+1);
-            $link = "<button type='button' class='btn btn-info' data-toggle='modal' data-target='#myModal' onclick=createStandEditForm('".$result[$i]['brand']."','".$result[$i]['partner_id']."','".$result[$i]['is_stand']."') style='margin:0px 10px;'>Edit</button>";
+            $link = "<button type='button' class='btn btn-info' data-toggle='modal' data-target='#myModal' onclick=createStandEditForm('".$result[$i]['brand']."','".$result[$i]['partner_id']."','".$result[$i]['is_bracket']."') style='margin:0px 10px;'>Edit</button>";
             unset($result[$i]['partner_id']);
             $tempArray = array_values($result[$i]);
             array_push($tempArray,$link);
@@ -3403,33 +3403,33 @@ class Partner extends CI_Controller {
             $finalArray[] = $tempArray;
         }
         $data['draw'] = $receieved_Data['draw'];
-        $data['recordsTotal'] = $this->reusable_model->get_search_result_count("is_stand_over_brand_partner","brand,partners.public_name,is_stand",NULL,$joinDataArray,NULL,array("brand"=>"ASC"));
-        $data['recordsFiltered'] = $this->reusable_model->get_search_result_count("is_stand_over_brand_partner","brand,partners.public_name,is_stand",NULL,$joinDataArray,NULL,array("brand"=>"ASC"));
+        $data['recordsTotal'] = $this->reusable_model->get_search_result_count("is_bracket_over_brand_partner","brand,partners.public_name,is_bracket",NULL,$joinDataArray,NULL,array("brand"=>"ASC"));
+        $data['recordsFiltered'] = $this->reusable_model->get_search_result_count("is_bracket_over_brand_partner","brand,partners.public_name,is_bracket",NULL,$joinDataArray,NULL,array("brand"=>"ASC"));
         $data['data'] = $finalArray;    
         echo json_encode($data);
     }
-    function get_stand_allocation_form_data(){
+    function get_bracket_allocation_form_data(){
         $data['partner'] = $this->booking_model->get_advance_search_result_data("partners","id,public_name",NULL,NULL,NULL,array('public_name'=>'ASC'));
         $data['brand'] = $this->booking_model->get_advance_search_result_data("appliance_brands","DISTINCT(brand_name)",NULL,NULL,NULL,array('brand_name'=>'ASC'));
         echo json_encode($data);
     }
-    function process_stand_combination(){
+    function process_bracket_combination(){
         $data = $this->input->post();
         if($data['add_delete']=='add'){
             unset($data['add_delete']);
-            $affectedRows = $this->reusable_model->insert_into_table('is_stand_over_brand_partner',$data);
+            $affectedRows = $this->reusable_model->insert_into_table('is_bracket_over_brand_partner',$data);
         }
         else{
-            $is_stand = $data['is_stand'];
+            $is_bracket = $data['is_bracket'];
             unset($data['add_delete']);
-            unset($data['is_stand']);
-            $affectedRows = $this->reusable_model->update_table('is_stand_over_brand_partner',array('is_stand'=>$is_stand),$data);
+            unset($data['is_bracket']);
+            $affectedRows = $this->reusable_model->update_table('is_bracket_over_brand_partner',array('is_bracket'=>$is_bracket),$data);
         }
         $msg = "Somethong Went wrong, Please try again";
         if($affectedRows>0){
             $msg = 'Successfully Done';
         }
-        $this->session->set_userdata(array('stand_msg'=>$msg));
-        redirect(base_url() . "employee/partner/stand_allocation");
+        $this->session->set_userdata(array('bracket_msg'=>$msg));
+        redirect(base_url() . "employee/partner/bracket_allocation");
     }
 }

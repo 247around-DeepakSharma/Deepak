@@ -74,6 +74,7 @@ class reusable_model extends CI_Model {
     }
     
      function get_search_result_data($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
+       $this->db->_reserved_identifiers = array('*','CASE');
        $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
       return $query->result_array(); 
     }
