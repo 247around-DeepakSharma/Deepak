@@ -982,6 +982,7 @@ class Around_scheduler extends CI_Controller {
     * @return   void() 
     */
     function get_bb_balance_from_email(){
+        log_message('info',__METHOD__);
         $data = array();
         $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
         $email = QC_BALANCE_READ_EMAIL;
@@ -1023,6 +1024,8 @@ class Around_scheduler extends CI_Controller {
                 }else{
                     log_message('info',"Error in inserting Amazon SVC balance.".print_r($data,true));
                 }
+            }else{
+                log_message('info',"Mails Not Found For Today ");
             }
             //close email connection
             $this->email_data_reader->close_email_connection();
