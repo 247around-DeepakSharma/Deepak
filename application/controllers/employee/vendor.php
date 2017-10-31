@@ -4364,7 +4364,10 @@ class vendor extends CI_Controller {
             }
         }
     }
-
+          /*
+           * This Function will return excel containing all pincode mapping combination for a vendor
+           * @input - VendorID
+           */
         function download_vendor_pin_code($vendorID){ 
                     ob_start();
                     $pincodeArray =  $this->vendor_model->check_vendor_details(array("Vendor_ID"=>$vendorID));
@@ -4372,12 +4375,16 @@ class vendor extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Download Data ' . print_r($pincodeArray, TRUE));
                     $this->miscelleneous->downloadExcel($pincodeArray,$config);
           } 
-         
+         /*
+          * This function will return the view to upload the vendor pin code mapping file
+          */
          function upload_pin_code_vendor($vendorID){
                     $this->load->view('employee/header/'.$this->session->userdata('user_group'));
                     $this->load->view('employee/vendor_pincode_upload',array('vendorID'=>$vendorID));
           }
-          
+          /*
+           * This function will save the vendor upload pincode file in file uploads table
+           */
           function save_vendor_pin_code_file($tempName,$vendorID){
                     $msg = FALSE;
                     $bucket = BITBUCKET_DIRECTORY;
@@ -4392,6 +4399,10 @@ class vendor extends CI_Controller {
                     }
                     return $msg;
           }
+          /*
+           *  This function will check is file extension xls
+           * @output (TRUE OR FALSE)
+           */
           function  is_file_extension_excel($fileName){
                     $msg = "Please upload only excel file";
                     $pathinfo = pathinfo($fileName);
@@ -4400,7 +4411,9 @@ class vendor extends CI_Controller {
                     }
                     return $msg;
           }
-          
+          /*
+           * This function will check is uploded file less then 2 MB
+           */
           function is_file_less_then_size($fileSize){
                     $msg = "File Size Should be less then 2 MB";
                     $MB = 1048576;
@@ -4409,6 +4422,9 @@ class vendor extends CI_Controller {
                     }
                     return $msg;
           }
+          /*
+           * Pass the file name to function and it will return file reader version for excel file
+           */
           function get_excel_reader_version($fileName){
                     $pathinfo = pathinfo($fileName);
                     if ($pathinfo['extension'] == 'xlsx') {
@@ -4419,10 +4435,11 @@ class vendor extends CI_Controller {
                     }
                     return $readerVersion;
           }
-          
-          function is_file_contains_only_valid_vendor($vendorID,$excelDataArray){
+          /*
+           * This function checkes uploded vendor mapping pincode file must have only 1 vendor 
+           */
+          function is_file_contains_only_valid_vendor($vendorID,$index,$data){
                     $msg = TRUE;
-                    foreach($excelDataArray as $index=>$data){
                         if($data['vendor_id'] !=''){
                                 if($data['vendor_id'] !== $vendorID){
                                           $msg = "File Contains more then 1 Vendor, Error at line ".($index+2);
@@ -4431,10 +4448,11 @@ class vendor extends CI_Controller {
                         else{
                                            $msg = "File Contains Blank Vendor_ID, Error at line ".($index+2);
                         }
-                   }
                    return $msg;
           }
-          
+          /*
+           * This function checks is Uploded file blank
+           */
           function is_uploded_file_blank($excelDataArray){
                     $msg = TRUE;
                     if(empty($excelDataArray)){
@@ -4442,10 +4460,11 @@ class vendor extends CI_Controller {
                     }
                    return $msg;
           }
-          
-          function is_pin_code_valid($excelDataArray){
+          /*
+           * This function checks pincode must be 6 digit and it should be numaric
+           */
+          function is_pin_code_valid($index,$data){
                     $msg = TRUE;
-                    foreach($excelDataArray as $index=>$data){
                             if(strlen($data['pincode']) != 6){
                                       $msg = "File Contains invalid pincode. Error at line ".($index+2);
                             }
@@ -4454,16 +4473,18 @@ class vendor extends CI_Controller {
                                     $msg = "File Contains invalid pincode. Error at line ".($index+2);
                                 }
                             }
-                   }
                    return $msg;
           }
+          /*
+           * This function checks area_brand_pincode_serviceID Combination must be unique in uploded vendor pincode mapping file
+           */
           function is_pincode_service_brand_area_unique($excelDataArray){
               $msg = true;
               $tempArray = array();
               foreach($excelDataArray as $index=>$data){
                     $uniqueString = $data['pincode'].",".$data['area'].",".$data['appliance_id'].",".$data['brand'];
                     if(array_key_exists($uniqueString, $tempArray)){
-                              $msg = "Pincode, Appliance_ID, Area Combination Should be unique. Error at line ".($index+2);
+                              $msg = "Pincode, Appliance_ID, Area, Brand Combination Should be unique. Error at line ".($index+2);
                     }
                     else{
                         $tempArray[$uniqueString] = NULL;
@@ -4471,15 +4492,16 @@ class vendor extends CI_Controller {
              }
              return $msg;
           }
-          function is_any_field_blank($excelDataArray){
+          /*
+           * This function checks is there any blank field in uploded excel file
+           */
+          function is_any_field_blank($index,$data){
                     $msg = true;
-                    foreach($excelDataArray as $index=>$data){
                               foreach($data as $value){
                                         if(!$value){
                                             $msg = "File Contains Blank Values. Error at line ".($index+2);
                                         }
                               }
-                    }
                     return $msg;
           }
           /*
@@ -4495,29 +4517,33 @@ class vendor extends CI_Controller {
                                                   $this->vendorPinArray =  $this->miscelleneous->excel_to_Array_converter($file,$readerVersion);
                                                   $msg['blank'] = $this->is_uploded_file_blank($this->vendorPinArray);
                                                   if($msg['blank'] == 1){
-                                                            $msg['vendor'] = $this->is_file_contains_only_valid_vendor($vendorID,$this->vendorPinArray );  
-                                                            if($msg['vendor'] == 1){
-                                                                       $msg['pin_code'] = $this->is_pin_code_valid($this->vendorPinArray);
-                                                                       if($msg['pin_code'] == 1){
-                                                                                $msg['unique_combination'] = $this->is_pincode_service_brand_area_unique($this->vendorPinArray);
-                                                                                if($msg['unique_combination'] ==1){
-                                                                                          $msg['field_blank'] = $this->is_any_field_blank($this->vendorPinArray);
-                                                                                          return $msg['field_blank'];
+                                                            $msg['unique_combination'] = $this->is_pincode_service_brand_area_unique($this->vendorPinArray);
+                                                             if($msg['unique_combination'] == 1){
+                                                            foreach($this->vendorPinArray as $index=>$data){
+                                                                        $msg['vendor'] = $this->is_file_contains_only_valid_vendor($vendorID,$index,$data); 
+                                                                        if($msg['vendor'] == 1){
+                                                                                $msg['pin_code'] = $this->is_pin_code_valid($index,$data);
+                                                                                if($msg['pin_code'] == 1){
+                                                                                          $msg['field_blank'] = $this->is_any_field_blank($index,$data);
+                                                                                          if($msg['field_blank'] != 1 ){
+                                                                                                    return $msg['field_blank']; 
+                                                                                          }
                                                                                 }
                                                                                 else{
-                                                                                          return $msg['unique_combination'];
+                                                                                          return $msg['pin_code'];
                                                                                 }
-                                                                       }
-                                                                       else{
-                                                                                return $msg['pin_code'];
-                                                                       }
+                                                                        }
+                                                                        else{
+                                                                                return $msg['vendor'];
+                                                                        }
                                                             }
-                                                            else{
-                                                                      return $msg['vendor'];
-                                                            }
+                                                             }
+                                                             else{
+                                                                      return $msg['unique_combination'];
+                                                             }
                                                   }
                                                   else{
-                                                            return $msg['blank'];
+                                                             return $msg['blank'];
                                                   }
                                         }
                                         else{
@@ -4527,6 +4553,7 @@ class vendor extends CI_Controller {
                    else{
                               return $msg['extension'];
                    }
+                   return TRUE;
           }
           /*
            * This function is used to Update vendor pincode mapping table on the basis of uploded excel
