@@ -4657,7 +4657,7 @@ class vendor extends CI_Controller {
                                    $data['selected_appliance'] = json_decode($data['service'],TRUE);
                             }
                             $data['all_appliance'] = $this->booking_model->selectservice();
-                            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
+                            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name',array('active'=>1));
                             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
                             $this->load->view('employee/add_vendor_to_pincode',$data);
                     }
