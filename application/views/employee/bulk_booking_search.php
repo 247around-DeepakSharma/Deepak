@@ -8,8 +8,10 @@
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="container" >
-            <form >
+                
+                <form method="POST" action="<?php echo base_url();?>employee/booking/download_booking_bulk_search_snapshot">
                 <div class="form-group">
+                    <input type="submit" class="btn btn-small btn-success" id="download" style="float: right;margin: 10px 0px;" value="Download CSV">
   <label for="sel1">Select Type:</label>
   <select class="form-control" name="select_type" id="select_type">
     <option>Select Type</option>
@@ -28,12 +30,13 @@
             </form>
                 </div>
             <div class="x_panel" style="height: auto;">
-                        <form action="#" method="POST" id="reAssignForm" name="reAssignForm">
                             <table id="bulk_search_table" class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
                                         <th>No.</th>
                                         <th>Booking ID</th>
+                                        <th>OrderID</th>
+                                        <th>Contact No.</th>
                                         <th>Partner</th>
                                         <th>City</th>
                                         <th>Service Center</th>
@@ -49,7 +52,6 @@
                                 <tbody>
                                 </tbody>
                             </table>
-                        </form>
                     </div>
                    
                 </div>
