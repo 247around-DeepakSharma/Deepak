@@ -337,7 +337,7 @@ class Login extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid) {
+    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_login_by_247=1) {
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
             'partner_id' => $partner_id,
@@ -360,6 +360,7 @@ class Login extends CI_Controller {
         $login_data['entity_type'] = $this->session->all_userdata()['userType'];
         $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
         $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
+        $login_data['is_login_by_247'] =$is_login_by_247;
 
         $login_id = $this->employee_model->add_login_logout_details($login_data);
         //Adding Log Details
@@ -382,7 +383,7 @@ class Login extends CI_Controller {
             $partner_details = $this->partner_model->getpartner($agent[0]['entity_id'],FALSE);
             if($partner_details){
                 $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
-                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid']);
+                        $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],0);
                 log_message('info', 'Partner loggedIn  partner id' .
                         $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
@@ -439,7 +440,7 @@ class Login extends CI_Controller {
      * @param: is update
      * @return: void
      */
-    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$is_gst_doc) {
+    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$is_gst_doc,$is_login_by_247=1) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
@@ -465,7 +466,7 @@ class Login extends CI_Controller {
         $login_data['entity_type'] = $this->session->all_userdata()['userType'];
         $login_data['agent_id'] = $this->session->all_userdata()['service_center_agent_id'];
         $login_data['entity_id'] = $this->session->all_userdata()['service_center_id'];
-
+        $login_data['is_login_by_247'] = $is_login_by_247;
         $login_id = $this->employee_model->add_login_logout_details($login_data);
         //Adding Log Details
         if ($login_id) {
@@ -500,7 +501,7 @@ class Login extends CI_Controller {
                         $agent['id'], $sc_details[0]['is_update'], 
                         $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], 
                         $sc_details[0]['is_cp'],
-                        $is_gst_exist);
+                        $is_gst_exist,0);
                 
                 if($this->session->userdata('is_sf') === '1'){
                     redirect(base_url() . "service_center/pending_booking");
