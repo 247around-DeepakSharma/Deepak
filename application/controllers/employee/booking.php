@@ -3376,11 +3376,22 @@ class Booking extends CI_Controller {
         $finalArray = array();
         $joinDataArray = array("bookings_sources"=>"bookings_sources.partner_id=booking_details.partner_id","service_centres"=>"service_centres.id=booking_details.assigned_vendor_id","services"=>"services.id=booking_details.service_id","booking_unit_details"=>"booking_unit_details.booking_id=booking_details.booking_id");
         // select field to display
-        $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details.current_status";
+        $select = "booking_details.booking_id,booking_details.order_id,booking_details.booking_primary_contact_no,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details.current_status";
         // limit array for pagination
         $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
         //where in array
-        $inputBulkData = explode("\n",$receieved_Data['bulk_input']);
+        $inputBulkDataTemp = explode("\n",$receieved_Data['bulk_input']);
+        $result = array_map('trim', $inputBulkDataTemp);
+        foreach($inputBulkDataTemp as $value){
+            $value = str_replace('.', '', $value); // remove dots
+            $value = str_replace(' ', '', $value); // remove spaces
+            $value = str_replace("\t", '', $value); // remove tabs
+            $value = str_replace("\n", '', $value); // remove new lines
+            $value = str_replace("\r", '', $value);
+            if($value){
+                    $inputBulkData[]=$value;
+            }
+        }
         $whereArray = NULL;
         $whereInArray = NULL;
         if($receieved_Data['select_type'] == 'mobile'){
@@ -3415,8 +3426,18 @@ class Booking extends CI_Controller {
         return $data;
     }
     function get_bulk_search_result_view(){
-        $receieved_Data = $this->input->post(); 
+       $receieved_Data = $this->input->post(); 
        $data = $this->get_bulk_search_result_data($receieved_Data);
         echo json_encode($data);
+    }
+    function download_booking_bulk_search_snapshot(){
+       ob_start();
+       $receieved_Data = $this->input->post();
+       $receieved_Data['length'] = -1;
+       $receieved_Data['start'] = 0;
+       $receieved_Data['draw'] = 1;
+       $data = $this->get_bulk_search_result_data($receieved_Data);
+       $headings = array("S.no","Booking ID","OrderID","Contact","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service");
+       $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_bulk_search_summary");   
     }
 }
