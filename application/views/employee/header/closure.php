@@ -155,6 +155,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/booking_advance_search"><i class="fa fa-fw fa-desktop"></i> <strong>Advanced Search</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/booking_bulk_search"><i class="fa fa-fw fa-desktop"></i> <strong>Bulk Search</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-tasks -->
                 </li>
