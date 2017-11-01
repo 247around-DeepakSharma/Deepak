@@ -192,41 +192,47 @@ class Booking extends CI_Controller {
                 $services_details['partner_id'] = $booking['partner_id'];
 
                 log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
-                /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
+                /* if appliance id exist the initialize appliance id in array and update appliance 
+                 * details other wise insert appliance details and return appliance id
                  * */
                 if (!empty($appliances_details['description'])) {
-                    // check appliance description exist and it is not verified earlier 
+                    // check appliance description exist
                     $check_product_type = $this->reusable_model->get_search_query('appliance_product_description','*',array('product_description' => trim($appliances_details['description'])),NULL,NULL,NULL,NULL,NULL)->result_array();
                     
-                    //verify appliance details
-                    $verified_capacity = $this->miscelleneous->verified_applicance_capacity($appliances_details);
-                    
-                    /*
-                     * if appliance description does not exist then insert the verified data else update the verified data
-                     */
-                    if (empty($check_product_type)) {
-                        $insert_data = array('service_id' => $appliances_details['service_id'],
-                            'category' => isset($verified_capacity['category'])?$verified_capacity['category']:$appliances_details['category'],
-                            'capacity' => isset($verified_capacity['capacity'])?$verified_capacity['capacity']:$appliances_details['capacity'],
-                            'brand' => isset($verified_capacity['brand'])?$verified_capacity['brand']:$appliances_details['brand'],
-                            'product_description' => trim($appliances_details['description']),
-                            'is_verified' => $verified_capacity['is_verified']);
-                        $this->booking_model->insert_appliance_details($insert_data);
-                    }else{
-                        $new_appliance_data = array(
-                                    'category' => isset($verified_capacity['category'])?$verified_capacity['category']:$appliances_details['category'],
-                                    'capacity' => isset($verified_capacity['capacity'])?$verified_capacity['capacity']:$appliances_details['capacity'],
-                                    'brand' => isset($verified_capacity['brand'])?$verified_capacity['brand']:$appliances_details['brand'],
-                                    'is_verified' => $verified_capacity['is_verified']
-                                );
-                            
-                        $appliance_where = array(
-                                    'category' => $appliances_details['category'],
-                                    'capacity' => $appliances_details['capacity'],
-                                    'product_description' => trim($appliances_details['description']),
-                                    'brand' => $appliances_details['brand']
-                                );
-                        $this->booking_model->update_appliance_description_details($new_appliance_data,$appliance_where);
+                    /*if appliance description does not exist then verify the details and insert into the table
+                     * and if appliance description exist and not verified then verify the details and update the table
+                     * and if appliance description exist and verified then do not perform any action
+                    */
+                    if((isset($check_product_type[0]['id']) && empty($check_product_type[0]['is_verified'])) || empty($check_product_type)){
+                        
+                        //verify appliance details
+                        $verified_capacity = $this->miscelleneous->verified_applicance_capacity($appliances_details);
+                        
+                        //if appliance description does not exist then insert the verified data else update the verified data
+                        if (empty($check_product_type)) {
+                            $insert_data = array('service_id' => $appliances_details['service_id'],
+                                'category' => isset($verified_capacity['category'])?$verified_capacity['category']:$appliances_details['category'],
+                                'capacity' => isset($verified_capacity['capacity'])?$verified_capacity['capacity']:$appliances_details['capacity'],
+                                'brand' => isset($verified_capacity['brand'])?$verified_capacity['brand']:$appliances_details['brand'],
+                                'product_description' => trim($appliances_details['description']),
+                                'is_verified' => $verified_capacity['is_verified']);
+                            $this->booking_model->insert_appliance_details($insert_data);
+                        }else{
+                            $new_appliance_data = array(
+                                        'category' => isset($verified_capacity['category'])?$verified_capacity['category']:$appliances_details['category'],
+                                        'capacity' => isset($verified_capacity['capacity'])?$verified_capacity['capacity']:$appliances_details['capacity'],
+                                        'brand' => isset($verified_capacity['brand'])?$verified_capacity['brand']:$appliances_details['brand'],
+                                        'is_verified' => $verified_capacity['is_verified']
+                                    );
+
+                            $appliance_where = array(
+                                        'category' => $check_product_type[0]['category'],
+                                        'capacity' => $check_product_type[0]['capacity'],
+                                        'product_description' => trim($appliances_details['description']),
+                                        'brand' => $check_product_type[0]['brand']
+                                    );
+                            $this->booking_model->update_appliance_description_details($new_appliance_data,$appliance_where);
+                        }
                     }
                     
                 }
