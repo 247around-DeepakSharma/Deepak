@@ -1135,7 +1135,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
           if(!empty($result)){
                     $notFoundSfArray['rm_id'] =  $result[0]['rm_id'];
                     $notFoundSfArray['state'] =  $result[0]['state'];
-                    $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']),NULL,NULL,NULL);
+                    $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']),NULL,NULL,NULL,NULL,NULL);
                     $rm_email  = $query->result_array(); 
                     $this->send_sf_not_found_email_to_rm($booking,$rm_email[0]['official_email']);
           }

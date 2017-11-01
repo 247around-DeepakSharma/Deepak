@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
-<style>#datatable1_filter{display: none;}</style>
+<style>.dataTables_filter{display: none;}</style>
 <div class="right_col" role="main"  ng-app="booking_advanced_search">
     <div class="clearfix"></div>
     <div class="row" ng-controller="bookingAdvancedSearchController">
@@ -53,13 +53,13 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select style="width:100%" name="current_status" ui-select2 id="current_status"  class="form-control data_change" data-placeholder="Current Status">
+                                            <select multiple style="width:100%" name="current_status" ui-select2 id="current_status"  class="form-control data_change" data-placeholder="Current Status">
                                                 <option value="" ng-show="false"></option>
                                                 <option ng-repeat="y in current_status_list" value="{{y.current_status}}">{{y.current_status}}</option>   
                                             </select>
                                         </td>
                                         <td>
-                                            <select style="width:100%" name="internal_status" ui-select2 id="internal_status"  class="form-control data_change" data-placeholder="Internal Status">
+                                            <select  style="width:100%" name="internal_status" ui-select2 id="internal_status"  class="form-control data_change" data-placeholder="Internal Status">
                                                 <option value="" ng-show="false"></option>
                                                 <option ng-repeat="y in internal_status_list" value="{{y.status}}">{{y.status}}</option>   
                                             </select>
@@ -85,7 +85,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select style="width:100%" name="service" ui-select2 id="service"  class="form-control data_change" data-placeholder="Service">
+                                            <select multiple style="width:100%" name="service" ui-select2 id="service"  class="form-control data_change" data-placeholder="Service">
                                                 <option value="" ng-show="false"></option>
                                                 <option ng-repeat="y in service_list" value="{{y.id}}">{{y.services}}</option>
                                             </select>
@@ -142,6 +142,7 @@
                                         <th>Capacity</th>
                                         <th>Request Type</th>
                                         <th>Product/Service</th>
+                                        <th>Current Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -187,6 +188,6 @@
 </div>
 <script>
     $('select').on('change', function(){
-         ad_table.ajax.reload( function ( json ) {} );
+        ad_table.ajax.reload( function ( json ) {} );
     });
     </script>

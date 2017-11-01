@@ -318,12 +318,12 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_advance_search_result_data($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
-       $query = $this->reusable_model->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
+    function get_advance_search_result_data($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array(),$whereIN=array(),$JoinTypeTableArray=array()){
+       $query = $this->reusable_model->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
        return $query->result_array();  
     }
-    function get_advance_search_result_count($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array()){
-       $this->reusable_model->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray);
+    function get_advance_search_result_count($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array(),$whereIN=array(),$JoinTypeTableArray=array()){
+       $this->reusable_model->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
        return $this->db->affected_rows();
     }
 
