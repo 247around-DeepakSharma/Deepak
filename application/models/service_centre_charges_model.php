@@ -192,7 +192,7 @@ class service_centre_charges_model extends CI_Model {
      */
     function get_partner_price_data($data){
         
-        $this->db->select('category , capacity , service_category , customer_total , partner_payable_basic , customer_net_payable,vendor_total,pod,is_upcountry');
+        $this->db->select('category , capacity , service_category , customer_total , partner_payable_basic , customer_net_payable,vendor_total,pod,is_upcountry,vendor_basic_percentage');
         $this->db->from('service_centre_charges');
         $this->db->where('partner_id', $data['partner_id']);
         
