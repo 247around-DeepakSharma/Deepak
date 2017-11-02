@@ -1894,7 +1894,7 @@ class Partner extends CI_Controller {
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.id' => $id);
         $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
-                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, estimate_purchase_cost, estimate_cost_given_date";
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date";
         
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $this->load->view('partner/header');
@@ -1969,12 +1969,13 @@ class Partner extends CI_Controller {
             $invoice_name = $this->miscelleneous->upload_file_to_s3($_FILES["incoming_invoice"], 
                     "sp_parts_invoice", $allowedExts, $booking_id, "misc-images", "incoming_invoice_pdf");
             if (!empty($invoice_name)) {
-                $to = ANUJ_EMAIL_ID.", adityag@247around.com";
-                $cc = "abhaya@247around.com";
-                $subject = "Repair OOW Parts Sent By Partner For Booking ID: ". $booking_id;
-                $message = "Spare Invoice Estimate Givend is ". $this->input->post("invoice_amount");
-                $attachment = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$invoice_name;
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, $attachment);
+                $template = $this->booking_model->get_booking_email_template("OOW_invoice_sent");
+                if(!empty($template)){
+                    $attachment = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$invoice_name;
+                    $subject = vsprintf($template[4], $booking_id);
+                    $emailBody =  vsprintf($template[0], $this->input->post("invoice_amount"));
+                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment);
+                }
                 
                 return true;
             } else {

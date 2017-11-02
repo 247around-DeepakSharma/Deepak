@@ -259,7 +259,7 @@ class Notify {
     function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, $partner_id) {
 	//Log this state change as well for this booking
 	$state_change['booking_id'] = $booking_id;
-	//$state_change['old_state'] = $old_state;
+	$state_change['old_state'] = $old_state;
 	$state_change['new_state'] = $new_state;
         $state_change['remarks'] = $remarks;
 	$state_change['agent_id'] = $agent_id;
@@ -269,13 +269,13 @@ class Notify {
          * Send correct old_state from the calling function instead, do not change
          * the old state here
          * */
-        $booking_state_change = $this->My_CI->booking_model->get_booking_state_change($state_change['booking_id']);
-        
-        if ($booking_state_change > 0) {
-            $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-        } else { //count($booking_state_change)
-            $state_change['old_state'] = $old_state;
-        }
+//        $booking_state_change = $this->My_CI->booking_model->get_booking_state_change($state_change['booking_id']);
+//        
+//        if ($booking_state_change > 0) {
+//            $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+//        } else { //count($booking_state_change)
+//            $state_change['old_state'] = $old_state;
+//        }
         
 	$insert_id = $this->My_CI->booking_model->insert_booking_state_change($state_change);
         

@@ -94,6 +94,7 @@ class Booking_model extends CI_Model {
              $data['around_st_or_vat_basic_charges'] = 0;
              $data['around_comm_basic_charges'] = 0;
         }
+        
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
     }
@@ -1352,13 +1353,18 @@ class Booking_model extends CI_Model {
      *  @param : void
      *  @return : all internal status present in database
      */
-    function get_internal_status($where) {
+    function get_internal_status($where, $is_array) {
         $this->db->select('*');
         $this->db->where($where);
         $query = $this->db->get('internal_status');
         
         if($query->num_rows > 0){
-            return $query->result();   
+            if($is_array){
+                return $query->result_array();
+            } else {
+                return $query->result();   
+            }
+            
         } else {
             return FALSE;
         }
@@ -1707,7 +1713,7 @@ class Booking_model extends CI_Model {
         
     }
     
-    function _insert_data_in_booking_unit_details($result, $update_key, $detault_tax_rate_flag){
+    function _insert_data_in_booking_unit_details($result, $update_key, $default_tax_rate_flag){
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
         $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
         
@@ -1730,7 +1736,7 @@ class Booking_model extends CI_Model {
              
         } 
         
-        $result['DEFAULT_TAX_RATE'] = $detault_tax_rate_flag;
+        $result['DEFAULT_TAX_RATE'] = $default_tax_rate_flag;
         return $result;
     }
 
