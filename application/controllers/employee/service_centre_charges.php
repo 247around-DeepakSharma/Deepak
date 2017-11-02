@@ -597,7 +597,7 @@ class service_centre_charges extends CI_Controller {
                         $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE,FALSE);
                         $newRowData = array_combine($headings_new1, $rowData[0]);
                         if(!empty($newRowData['partner_id'])){
-                            if($newRowData['service_category'] !== REPEAT_BOOKING_TAG  && $newRowData['service_category'] !== REPAIR_OOW_TAG && $newRowData['sf_percentage'] == 0){
+                            if($newRowData['service_category'] !== REPEAT_BOOKING_TAG  && $newRowData['sf_percentage'] == 0){
                                 log_message('info', $sheet->getTitle().' sheet has SF Percentage 0 for non repeat booking');
                                 $msg = $sheet->getTitle().' sheet has SF Percentage 0 for non repeat booking';
                                 $flag = FALSE;

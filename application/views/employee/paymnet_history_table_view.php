@@ -24,9 +24,7 @@
                     <th>To Date</th>
                     <th>Total Service Charge</th>
                     <th>Total Additional Service Charge</th>
-                    <th>Service Tax</th>
                     <th>Parts</th>
-                    <th>VAT</th>
                     <th>Conveyance Charge</th>
                     <th>Courier</th>
                     <th>Number Of Bookings</th>
@@ -37,7 +35,6 @@
                     <th>IGST Tax Amount</th>
                     <th>GST Rate</th>
                     <th>GST Number</th>
-                    <th>Vat %</th>
                     <th>Total Amount Collected</th>
                 </tr>
             </thead>
@@ -59,9 +56,7 @@
                             <td><?php echo $value['to_date']; ?></td>
                             <td><?php echo round($value['total_service_charge'],0); $total_sc +=$value['total_service_charge']; ?></td>
                             <td><?php echo round($value['total_additional_service_charge'],0); $total_asc += $value['total_additional_service_charge']; ?></td>
-                            <td><?php echo round($value['service_tax'],0); $total_st +=$value['service_tax']; ?></td>
                             <td><?php echo round($value['parts_cost'],0); $total_pc += $value['parts_cost'];?></td>
-                            <td><?php echo round($value['vat'],0); $total_vat += $value['vat']; ?></td>
                             <td><?php echo round($value['upcountry_price'],0); $total_up_cc += $value['upcountry_price'];?></td>
                             <td><?php echo round($value['courier_charges'],0); $total_courier_charges += $value['courier_charges']; ?></td>
                             <td><?php echo round($value['num_bookings'],0); $num_bookings += $value['num_bookings'];?></td>
@@ -72,8 +67,7 @@
                             <td><?php echo round($value['igst_tax_amount'],0); ?></td>
                             <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
                             <td><?php echo $value['gst_number']; ?></td>
-                            <td><?php if($value['parts_cost'] != 0) { echo round(($value['vat']*100)/$value['parts_cost'],0); } ?></td>
-                             <td><?php echo round($value['total_amount_collected'] - $value['tds_amount'],0); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
+                            <td><?php echo round($value['total_amount_collected'] - $value['tds_amount'],0); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
                         </tr>
                         <?php $sn++;
                     }
@@ -88,22 +82,18 @@
                             <td></td>
                             <td><b><?php echo round($total_sc,0); ?></b></td>
                             <td><b><?php echo round($total_asc,0); ?></b></td>
-                            <td><b><?php echo round($total_st,0); ?></b></td>
                             <td><b><?php echo round($total_pc,0); ?></b></td>
-                            <td><b><?php echo round($total_vat,0); ?></b></td>
                             <td><b><?php echo round($total_up_cc,0); ?></b></td>
                             <td><b><?php echo round($total_courier_charges,0); ?></b></td>
-                            <td><?php echo $num_bookings; ?></td>
-                            <td><?php echo $debit_penalty; ?></td>
-                            <td><?php echo $credit_penalty; ?></td>
-                            <td></td>
+                            <td><b><?php echo $num_bookings; ?></b></td>
+                            <td><b><?php echo $debit_penalty; ?></b></td>
+                            <td><b><?php echo $credit_penalty; ?></b></td>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td><b><?php echo round($grand_total_amount_collected,0); ?></b></td>
-                            <td></td>
                         </tr>
         <?php } ?>
             </tbody>
@@ -123,7 +113,6 @@
                     <th>Debit Penalty</th>
                     <th>Credit Penalty</th>
                     <th>Around Royalty</th>
-                    <th>Service Tax</th>
                     <th>CGST Tax Amount</th>
                     <th>SGST Tax Amount</th>
                     <th>IGST Tax Amount</th>
@@ -150,7 +139,6 @@
                             <td><?php echo round($value['penalty_amount'],0); $debit_penalty += $value['penalty_amount'];?></td>
                             <td><?php echo round($value['credit_penalty_amount'],0); $credit_penalty += $value['credit_penalty_amount'];?></td>
                             <td><?php echo round($value['around_royalty'],0); $t_ar += $value['around_royalty'];?></td>
-                            <td><?php echo round($value['service_tax'],0); $t_sc += $value['service_tax']; ?></td>
                             <td><?php echo round($value['cgst_tax_amount'],0); ?></td>
                             <td><?php echo round($value['sgst_tax_amount'],0); ?></td>
                             <td><?php echo round($value['igst_tax_amount'],0); ?></td>
@@ -173,7 +161,6 @@
                             <td><?php echo $debit_penalty; ?></td>
                             <td><?php echo $credit_penalty; ?></td>
                             <td><b><?php echo round($t_ar,0); ?></b></td>
-                            <td><b><?php echo round($t_sc,0); ?></b></td>
                             <td></td> <td></td> <td></td> <td></td><td></td>
                             <td><b><?php echo round($t_ac,0); ?></b></td>
                         </tr>
@@ -199,7 +186,6 @@
                         <th>Owner Name</th>
                         <th>Service Charges</th>
                         <th>Total Additional Service Charge</th>
-                        <th>Service Tax</th>
                         <th>Total Amount</th>
                         <th>Net Amount</th>
                         <th>TDS Amount</th>
@@ -225,7 +211,6 @@
                                 <td><?php echo $value['owner_name']; ?></td>
                                 <td><?php echo round($value['total_service_charge'],0); $total_sc += $value['total_service_charge']; ?></td>
                                 <td><?php echo round($value['total_additional_service_charge'],0); $total_asc += $value['total_additional_service_charge']; ?></td>
-                                <td><?php echo round($value['service_tax'],0); $total_st += $value['service_tax']; ?></td>
                                 <td><?php echo round($value['total_amount_collected'],0); $grand_tac += $value['total_amount_collected']; ?></td>
                                 <td><?php echo round($value['net_amount'],0); $total_net_amount += $value['net_amount']; ?></td>
                                 <td><?php echo round($value['tds_amount'],0); $total_tds_amount += $value['tds_amount']; ?></td>
@@ -248,7 +233,6 @@
                                 <td></td>
                                 <td><b><?php echo round($total_sc,0); ?></b></td>
                                 <td><b><?php echo round($total_asc,0); ?></b></td>
-                                <td><b><?php echo round($total_st,0); ?></b></td>
                                 <td><b><?php echo round($grand_tac,0); ?></b></td>
                                 <td><b><?php echo round($total_net_amount,0); ?></b></td>
                                 <td><b><?php echo round($total_tds_amount,0); ?></b></td>

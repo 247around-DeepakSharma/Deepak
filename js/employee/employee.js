@@ -67,7 +67,7 @@ var ad_table;
         });
         
         
-        ad_table = $('#datatable2').DataTable({
+        ad_table = $('#advance_booking_search').DataTable({
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
