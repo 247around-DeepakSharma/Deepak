@@ -828,6 +828,7 @@ class Partner extends CI_Controller {
                 }
                 $return_data['partner']['gst_number'] = $this->input->post("gst_number");
 
+                $return_data['partner']['customer_care_contact'] = $this->input->post("customer_care_contact");
                 //Sending data array to Model
                 $partner_id = $this->partner_model->add_partner($return_data['partner']);
                 //Set Flashdata on success or on Error of Data insert in table
@@ -959,6 +960,7 @@ class Partner extends CI_Controller {
         $return_data['pincode'] = $this->input->post('pincode');
         $return_data['primary_contact_name'] = $this->input->post('primary_contact_name');
         $return_data['primary_contact_email'] = $this->input->post('primary_contact_email');
+        $return_data['customer_care_contact'] = $this->input->post('customer_care_contact');
         $return_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
         $return_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
         $return_data['owner_name'] = $this->input->post('owner_name');

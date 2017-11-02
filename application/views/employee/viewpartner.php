@@ -43,6 +43,7 @@
           	<th class='jumbotron' style="text-align: center">PoC Name</th>
           	<th class='jumbotron' style="text-align: center">PoC Phone</th>
           	<th class='jumbotron' style="text-align: center">PoC Email</th>
+                    <th class='jumbotron' style="text-align: center">Customer Care Phone</th>
           	<th class='jumbotron' style="text-align: center">Owner Name</th>
           	<th class='jumbotron' style="text-align: center">Owner Phone</th>
           	<th class='jumbotron' style="text-align: center">Owner Email</th>
@@ -74,6 +75,7 @@
           	    <?=$row['primary_contact_phone_1'];?>
           	</td>
           	<td><?=$row['primary_contact_email'];?></td>
+                <td><?=$row['customer_care_contact'];?></td>
           	<td><?=$row['owner_name'];?></td>
           	<td>
           	    <?=$row['owner_phone_1'];?>
