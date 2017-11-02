@@ -1713,7 +1713,7 @@ class Booking_model extends CI_Model {
         
     }
     
-    function _insert_data_in_booking_unit_details($result, $update_key, $detault_tax_rate_flag){
+    function _insert_data_in_booking_unit_details($result, $update_key, $default_tax_rate_flag){
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
         $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
         
@@ -1736,7 +1736,7 @@ class Booking_model extends CI_Model {
              
         } 
         
-        $result['DEFAULT_TAX_RATE'] = $detault_tax_rate_flag;
+        $result['DEFAULT_TAX_RATE'] = $default_tax_rate_flag;
         return $result;
     }
 
