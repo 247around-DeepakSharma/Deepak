@@ -3390,5 +3390,13 @@ ALTER TABLE `spare_parts_details` ADD `estimate_sell_cost` DECIMAL(10,2) NULL DE
 -- 02 Nov
 ALTER TABLE `spare_parts_details` CHANGE `estimate_purchase_cost` `purchase_price` DECIMAL(10,2) NULL DEFAULT '00', CHANGE `estimate_sell_cost` `sell_price` DECIMAL(10,2) NULL DEFAULT '0.00';
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'OOW_invoice_sent', 'Repair OOW Parts Sent By Partner For Booking ID: %s', 'Spare Invoice Estimate Given %s', 'billing@247around.com', 'anuj@247around.com, adityag@247around.com', 'abhaya@247around', '', '1', '2017-11-02 23:56:57');
+
 ALTER TABLE `login_logout_details` ADD `is_login_by_247` INT NULL DEFAULT '1' AFTER `created_on`;
 
+
+--02 Nov
+ALTER TABLE `login_logout_details` ADD `is_login_by_247` INT NULL DEFAULT '1' AFTER `created_on`;
+
+--02 Nov
+ALTER TABLE `partners` ADD `customer_care_contact` INT NULL DEFAULT NULL AFTER `primary_contact_phone_1`;
+ALTER TABLE `partners` CHANGE `customer_care_contact` `customer_care_contact` VARCHAR(20) NULL DEFAULT NULL;
