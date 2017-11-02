@@ -328,6 +328,13 @@
                                         <?php echo form_error('primary_contact_email'); ?>
                                     </div>
                                 </div>
+                                <div class="form-group <?php if( form_error('customer_care_contact') ) { echo 'has-error';} ?>">
+                                    <label for="customer_care_contact" class="col-md-4">Customer Care Number</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="customer_care_contact" name="customer_care_contact" value = "<?php if (isset($query[0]['customer_care_contact'])){echo $query[0]['customer_care_contact'];}?>">
+                                        <?php echo form_error('customer_care_contact'); ?>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group <?php if( form_error('primary_contact_phone_1') ) { echo 'has-error';} ?>">

@@ -482,5 +482,22 @@ define("REPEAT_BOOKING_TAG", "Repeat Booking");
 define("_247AROUND_PRODUCT_TAG", "Product"); 
 define("SPARE_PART_RADIO_BUTTON_NOT_REQUIRED", "0"); 
 define("ESTIMATE_APPROVED_BY_CUSTOMER", "Spare Estimate Approved By Customer");
+
+
+//tv service id
+define("_247AROUND_TV_SERVICE_ID",'46');
+//washing_machine service id
+define("_247AROUND_WASHING_MACHINE_SERVICE_ID",'28');
+//microwave service id
+define("_247AROUND_MICROWAVE_SERVICE_ID",'42');
+//water_purifier service id
+define("_247AROUND_WATER_PURIFIER_SERVICE_ID",'38');
+//ac service id
+define("_247AROUND_AC_SERVICE_ID",'50');
+//refrigerator service id
+define("_247AROUND_REFRIGERATOR_SERVICE_ID",'37');
+//geyser service id
+define("_247AROUND_GEYSER_SERVICE_ID",'32');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
