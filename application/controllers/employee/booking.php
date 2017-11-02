@@ -2913,7 +2913,7 @@ class Booking extends CI_Controller {
             $whereInArray['booking_details.current_status'] = $currentStatusArray;
         }
         if($receieved_Data['service']){
-            $whereInArray['booking_details.service'] = $serviceArray;
+            $whereInArray['booking_details.service_id'] = $serviceArray;
         }
         $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left');
        //process query and get result from database
