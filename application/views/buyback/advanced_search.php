@@ -22,6 +22,7 @@ var shop_list_details = [];
                           
                         </h2>
                         <ul class="nav navbar-right panel_toolbox">
+                            <input type="hidden" value="" name="search_value" id="search_value" value="">
                             <li>  <input type="submit" class="btn btn-primary" value="Download Orders List" ></li>
                         </ul>
                         <div class="clearfix"></div>
@@ -29,61 +30,52 @@ var shop_list_details = [];
                        
                     </div>
                     <div class="x_content">
-                        <div class="x_content" >
-                           
-                            <table class="table table-striped table-bordered"  >
-                                <thead>
-                                    <tr>
-                                        <td style="width: 22%;"><input type="text" placeholder="Order Date" class="form-control" id="order_date" name="order_date"/></td>
-                                        <td style="width: 22%;"><input type="text" placeholder="Delivery Date" class="form-control" id="delivery_date" name="delivery_date"/></td>
-                                        <td style="width: 22%;">
-                                            <select style="width:100%"  name="city" ui-select2 id="city"  class="form-control data_change" ng-model="tempData.city"
-                                                
-                                                data-placeholder="Select City">
-                                                <option value="" disabled="" ng-show="false"></option>
-                                                <option ng-repeat="y in city_list" value="{{y.district}}">{{y.district}}</option>
-                                                
-                                            </select>
-                                        </td>
-                                        <td  style="width: 22%;">
-                                            <select   name="cp_id" ui-select2 id="cp_id"  class="form-control data_change" ng-model="tempData.cp_id"
-                                               
-                                                data-placeholder="Select CP">
-                                                <option value="" disabled="" ng-show="false"></option>
-                                                <option ng-repeat="y in cp_list" value="{{y.cp_id}}">{{y.cp_name}}</option>
-                                                
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <select style="width:100%"  name="service_id" ui-select2  id="service_id" class="form-control data_change" 
-                                                ng-model="tempData.service_id" 
-                                               
-                                                data-placeholder="Select Appliance">
-                                                <option value="" disabled="" ng-show="false"></option>
-                                                 <option ng-repeat="y in service_list" value="{{y.id}}">{{y.services}}</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <select style="width:100%"  name="current_status" ui-select2  id="current_status" class="form-control data_change" 
-                                                ng-model="tempData.current_status" 
-                                                data-placeholder="Select Status1">
-                                            <option value="" disabled="" ng-show="false"></option>
-                                            <option ng-repeat="y in current_status_list" value="{{y.current_status}}">{{y.current_status}}</option>
-                                        </td>
-                                        <td>
-                                            <select style="width:100%"  name="internal_status" ui-select2  id="internal_status" class="form-control data_change" 
-                                                ng-model="tempData.internal_status" 
-                                               
-                                                data-placeholder="Select Status2">
-                                            <option value="" disabled="" ng-show="false"></option>
-                                            <option ng-repeat="y in internal_status_list" value="{{y.internal_status}}">{{y.internal_status}}</option>
-                                        </td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
+                        <div class="row" >
+                            <div class="col-md-12">
+                                <div class="col-md-4 form-group">
+                                    <input type="text" placeholder="Order Date" class="form-control" id="order_date" name="order_date"/>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <input type="text" placeholder="Delivery Date" class="form-control" id="delivery_date" name="delivery_date"/>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <select multiple style="width:100%" name="city[]" ui-select2 id="city"  class="form-control data_change" data-placeholder="Select City">
+                                        <option value="" ng-show="false"></option>
+                                        <option ng-repeat="y in city_list" value="{{y.district}}">{{y.district}}</option>   
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                
+                                <div class="col-md-4 form-group">
+                                    <select  style="width:100%" name="cp_id" ui-select2 id="cp_id"  class="form-control data_change" data-placeholder="Select CP">
+                                        <option value="" ng-show="false"></option>
+                                        <option ng-repeat="y in cp_list" value="{{y.cp_id}}">{{y.cp_name}}</option>   
+                                    </select>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <select multiple style="width:100%" name="service_id[]" ui-select2 id="service_id"  class="form-control data_change" data-placeholder="Select Appliance">
+                                        <option value="" ng-show="false"></option>
+                                        <option ng-repeat="y in service_list" value="{{y.id}}">{{y.services}}</option>   
+                                    </select>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <select multiple style="width:100%" name="current_status[]" ui-select2 id="current_status"  class="form-control data_change" data-placeholder="Current Status">
+                                        <option value="" ng-show="false"></option>
+                                        <option ng-repeat="y in current_status_list" value="{{y.current_status}}">{{y.current_status}}</option>   
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-4 form-group">
+                                    <select multiple style="width:100%" name="internal_status[]" ui-select2 id="internal_status"  class="form-control data_change" data-placeholder="Internal Status">
+                                        <option value="" ng-show="false"></option>
+                                        <option ng-repeat="y in internal_status_list" value="{{y.internal_status}}">{{y.internal_status}}</option>   
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+                        <hr>
                        </form>
                         <form action="#" method="POST" id="reAssignForm" name="reAssignForm">
                             <table id="datatable1" class="table table-striped table-bordered">
@@ -106,11 +98,11 @@ var shop_list_details = [];
                                 <tbody>
                                 </tbody>
                             </table>
-                        <div class="col-md-12 text-center">
-                           
-                             <a href="javascript:void(0);" class="btn btn-md  btn-success" onclick="reAssign()"  >ReAssign CP</a>
-                        </div>
-                             </form>
+                            <div class="col-md-12 text-center">
+
+                                 <a href="javascript:void(0);" class="btn btn-md  btn-success" onclick="reAssign()"  >ReAssign CP</a>
+                            </div>
+                        </form>
                     </div>
                    
                 </div>
@@ -208,6 +200,11 @@ var shop_list_details = [];
              }
         });
         
+        $('#datatable1').on('search.dt', function() {
+            var s_value = $('.dataTables_filter input').val();
+            $('#search_value').val(s_value);
+        }); 
+        
         
         ad_table = $('#datatable1').DataTable({
             "processing": true, //Feature control the processing indicator.
@@ -223,30 +220,25 @@ var shop_list_details = [];
                    
                     d.order_date = $('input[name="order_date"]').val();
                     d.delivery_date = $('input[name="delivery_date"]').val();
-                    d.city = $("#city option:selected").text();
-                    d.service_id = $("#service_id").val();
-                    d.current_status =  $("#current_status option:selected").text();
-                    d.internal_status = $("#internal_status option:selected").text();
+                    d.city = getMultipleSelectedValues("city");
+                    d.service_id = getMultipleSelectedValues("service_id");
+                    d.current_status =  getMultipleSelectedValues("current_status");
+                    d.internal_status = getMultipleSelectedValues("internal_status");
                     d.cp_id = $("#cp_id").val();
                     d.status =  10;
                     
                  }
             },
             "drawCallback": function( settings ) {
-               $('input[type="search"]').attr("name", "search_value");
                create_dropdown();
             },
-            //Set column definition initialisation properties.
+                      //Set column definition initialisation properties.
             "columnDefs": [
                 {
                     "targets": [0, 1, 2, 7,9,10,11], //first column / numbering column
                     "orderable": false //set not orderable
                 }
-            ],
-            "fnInitComplete": function (oSettings, response) {
-               //$("#count_total_order").text(response.recordsTotal);
-
-            }
+            ]
         });
         
     });
@@ -271,6 +263,18 @@ var shop_list_details = [];
         }
        // console.log(option);
         $(".assign_cp_id").html(option);
+    }
+    
+    function getMultipleSelectedValues(fieldName){
+        fieldObj = document.getElementById(fieldName);
+        var values = [];
+        var length = fieldObj.length;
+        for(var i=0;i<length;i++){
+           if (fieldObj[i].selected == true){
+               values.push(fieldObj[i].value);
+           }
+        }
+       return values.toString();
     }
     
      
