@@ -689,7 +689,7 @@ class Dashboard extends CI_Controller {
         else{
                 $agentID = $this->session->userdata('id');
         }
-        $pincodeResult =  $this->dashboard_model->get_pincode_data_for_not_found_sf($agentID,$limit);
+        $pincodeResult =  $this->dashboard_model->get_pincode_data_for_not_found_sf($agentID,NULL);
         $template = array(
         'table_open' => '<table  '
             . ' class="table table-striped table-bordered jambo_table bulk_action">'
@@ -700,7 +700,12 @@ class Dashboard extends CI_Controller {
         $this->get_missing_pincode_detailed_view();
         $structuredPincodeArray = $this->get_missing_pincode_data_structured_format($pincodeResult);
         $i=1;
-        foreach($structuredPincodeArray as $pincode=>$structuredData){   
+        foreach($structuredPincodeArray as $pincode=>$structuredData){ 
+          if($limit){
+              if($i>$limit){
+                  break;
+              }
+          }
                    $this->table->add_row($i,$pincode,"<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>","<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"); 
                    $i++;
         }
