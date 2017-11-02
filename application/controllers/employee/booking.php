@@ -2943,12 +2943,36 @@ class Booking extends CI_Controller {
     function download_booking_snapshot(){
        ob_start();
        $receieved_Data = $this->input->post();
-       $receieved_Data['length'] = -1;
-       $receieved_Data['start'] = 0;
-       $receieved_Data['draw'] = 1;
-       $data = $this->get_advance_search_result_data($receieved_Data);
-       $headings = array("S.no","Booking ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service");
-       $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_search_summary");   
+       if(isset($receieved_Data['current_status'])){
+            $receieved_Data['current_status'] = implode(',',$receieved_Data['current_status']);
+       }
+       else{
+           $receieved_Data['current_status'] = '';
+       }
+       if(isset($receieved_Data['service'])){
+            $receieved_Data['service'] = implode(',',$receieved_Data['service']);
+       }
+       else{
+           $receieved_Data['service'] = '';
+       }
+       $is_not_empty = FALSE;
+       foreach($receieved_Data as $values){
+           if($values){
+               $is_not_empty = TRUE;
+               break;
+           }
+       }
+       if($is_not_empty){
+                $receieved_Data['length'] = -1;
+                $receieved_Data['start'] = 0;
+                $receieved_Data['draw'] = 1;
+                $data = $this->get_advance_search_result_data($receieved_Data);
+                $headings = array("S.no","Booking ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service","Current_status");
+                $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_search_summary");   
+       }
+       else{
+           redirect(base_url() . "employee/booking/booking_advance_search");
+       }
     }
     
     /**
@@ -3432,7 +3456,6 @@ class Booking extends CI_Controller {
     }
     function download_booking_bulk_search_snapshot(){
        ob_start();
-       $receieved_Data = $this->input->post();
        $receieved_Data['length'] = -1;
        $receieved_Data['start'] = 0;
        $receieved_Data['draw'] = 1;
