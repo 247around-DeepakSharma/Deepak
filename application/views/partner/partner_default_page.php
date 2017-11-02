@@ -112,6 +112,8 @@
                                                 <th>Age Of Requested</th>
                                                 <th>Model No</th>
                                                 <th>Serial No</th>
+                                                <th>Defective Part Pic</th>
+                                                <th>Serial Number Pic</th>
                                                 <th>Estimate Cost</th>
                                                 <th>Submit</th>
                                             </tr>
@@ -330,7 +332,8 @@
          <?php $column = array(NULL,NUll,"age_of_request", NULL,NULL);?>
          var column_order = <?php echo json_encode($column);?>;
          var obj = '<?php echo json_encode($data); ?>';
-         var select = '<?php echo "parts_requested, model_number, serial_number, assigned_vendor_id, amount_due, spare_parts_details.id, spare_parts_details.booking_id"; ?>';
+         var select = '<?php echo "parts_requested, model_number, serial_number, assigned_vendor_id, "
+         . "amount_due, spare_parts_details.id, spare_parts_details.booking_id, defective_parts_pic, serial_number_pic"; ?>';
          oow_spare = $('#datatable1').DataTable({
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
@@ -350,7 +353,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1,3,4,5,6], //first column / numbering column
+                    "targets": [0,1,3,4,5,6,7,8], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],

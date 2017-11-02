@@ -75,6 +75,7 @@ class Booking_model extends CI_Model {
              $data['around_st_or_vat_basic_charges'] = 0;
              $data['around_comm_basic_charges'] = 0;
         }
+        
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
     }
@@ -1350,13 +1351,18 @@ class Booking_model extends CI_Model {
      *  @param : void
      *  @return : all internal status present in database
      */
-    function get_internal_status($where) {
+    function get_internal_status($where, $is_array) {
         $this->db->select('*');
         $this->db->where($where);
         $query = $this->db->get('internal_status');
         
         if($query->num_rows > 0){
-            return $query->result();   
+            if($is_array){
+                return $query->result_array();
+            } else {
+                return $query->result();   
+            }
+            
         } else {
             return FALSE;
         }

@@ -224,7 +224,7 @@
                     </div>
                     <div class="col-md-12 text-center">
                         <input type="submit"  <?php if(!is_null($spare_parts[0]->estimate_cost_given_date) || $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?> 
-                        onclick="return check_invoice_amount('<?php echo $spare_parts[0]->estimate_purchase_cost; ?>')" <?php } ?> value="Update Booking" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" class="btn btn-md btn-default" />
+                        onclick="return check_invoice_amount('<?php echo $spare_parts[0]->purchase_price; ?>')" <?php } ?> value="Update Booking" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" class="btn btn-md btn-default" />
                     </div>
                 </form>
             </div>

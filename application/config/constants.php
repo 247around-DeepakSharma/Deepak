@@ -44,6 +44,7 @@ define('short_api_url', 'https://www.googleapis.com/urlshortener/v1/url');
 define('basic_percentage', 0.7);
 define('addtitional_percentage', .85);
 define('parts_percentage', .95);
+define('PART_DELIVERY_PERCENTAGE', .10);
 define('SERVICE_TAX_RATE', 0.18);
 define('DEFAULT_TAX_RATE', 18);
 define('DEFAULT_PARTS_TAX_RATE', 28);
@@ -467,15 +468,12 @@ define('TV_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '701485101000
 define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000029' Notification");
 
 
+define('SPARE_OOW_EST_REQUESTED','Spare Estimate Cost Required');
 
-define('SPARE_OOW_REQUEST','Spare Estimated Cost Request');
-
-define('SPARE_OOW_REQUEST_TEXT','Spare Estimate Cost Request');
-define('SPARE_OOW_EST_REQUESTED','Spare Estimate Cost Requested');
 define('SPARE_OOW_EST_GIVEN','Spare Estimate Cost Given');
 define('SPARE_OOW_EST_MARGIN','0.25');
 define('REPAIR_OOW_PARTS_PRICE_TAGS','Spare Parts');
-define('REPAIR_OOW_VENDOR_PERCENTAGE','15');
+define('REPAIR_OOW_VENDOR_PERCENTAGE','10');
 
 define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
 define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
@@ -484,6 +482,7 @@ define("NOT_UPCOUNTRY_PRICE_TAG", "-1");
 define("PARTNER_PROVIDE_UPCOUNTRY_PRICE_TAG", "1");
 
 define("REPEAT_BOOKING_TAG", "Repeat Booking");
+
 define("_247AROUND_PRODUCT_TAG", "Product");
 
 
@@ -503,5 +502,8 @@ define("_247AROUND_REFRIGERATOR_SERVICE_ID",'37');
 define("_247AROUND_GEYSER_SERVICE_ID",'32');
 
 
+
+define("SPARE_PART_RADIO_BUTTON_NOT_REQUIRED", "0"); 
+define("ESTIMATE_APPROVED_BY_CUSTOMER", "Spare Estimate Approved By Customer");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
