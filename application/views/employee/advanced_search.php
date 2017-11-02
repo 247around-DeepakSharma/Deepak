@@ -128,7 +128,7 @@
                         </div>
                        </form>
                         <form action="#" method="POST" id="reAssignForm" name="reAssignForm">
-                            <table id="datatable2" class="table table-striped table-bordered">
+                            <table id="advance_booking_search" class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
                                         <th>No.</th>
