@@ -206,7 +206,7 @@ class Booking extends CI_Controller {
                     if((isset($check_product_type[0]['id']) && empty($check_product_type[0]['is_verified'])) || empty($check_product_type)){
                         
                         //verify appliance details
-                        $verified_capacity = $this->miscelleneous->verified_applicance_capacity($appliances_details);
+                        $verified_capacity = $this->miscelleneous->verified_appliance_capacity($appliances_details);
                         
                         //if appliance description does not exist then insert the verified data else update the verified data
                         if (empty($check_product_type)) {
