@@ -1788,9 +1788,9 @@ class vendor_model extends CI_Model {
           return $query->result_object();
     }
     
-    function update_not_found_sf_table($where){
+    function update_not_found_sf_table($where,$data){
         $this->db->or_where($where,FALSE);
-        $this->db->set('active_flag',0);
+        $this->db->set($data);
         $this->db->UPDATE('sf_not_exist_booking_details');
     }
     
