@@ -171,7 +171,7 @@ class Buyback_process extends CI_Controller {
         $post1 = $this->get_bb_post_view_data();
         $post = $this->_advanced_bb_search($post1);
         $list = $this->bb_model->get_bb_order_list($post);
-        log_message('info',$this->db->last_query());
+        
         $data = array();
         $no = $post['start'];
         foreach ($list as $order_list) {
