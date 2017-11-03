@@ -171,8 +171,7 @@
                     
           	<td><?php if($row['active']==1)
                 {
-                  echo "<a id='edit' class='btn btn-small btn-danger' "
-                                    . "href=" . base_url() . "employee/vendor/vendor_activate_deactivate/$row[id]/0>Deactivate</a>";                
+                  echo "<a id='edit' class='btn btn-small btn-danger' onclick ='pendingBookings(".$row['id'].")'>Deactivate</a>";                
                 }
                 else
                 {
@@ -261,3 +260,30 @@
 
   </div>
 </div>
+ <script>
+     function permanentVendorOff(vendorID){
+         $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/vendor_activate_deactivate/'+vendorID+'/0',
+                success: function(response) {
+                    location.reload();
+                }
+            });
+     }
+      function pendingBookings(vendorID){
+         $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/pending_bookings_on_vendor/' + vendorID,
+                success: function(response) {
+                    if(response>0){
+                        if(confirm("This Service Center have "+response+" Pending Queries, are you sure you want to delete this vendor")){
+                              permanentVendorOff(vendorID);
+                        }
+                    }
+                    else{
+                        permanentVendorOff(vendorID);
+                    }
+                }
+            });
+     }
+     </script>
