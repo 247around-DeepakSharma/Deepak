@@ -1253,11 +1253,12 @@ class Upload_booking_file extends CI_Controller {
             $row =  $this->upload_file_table_data($file_list, $no);
             $table_data[] = $row;
         }
-        
+        $allRecords = $this->reporting_utils->get_uploaded_file_history();
+        $allFilteredRecords = $this->reporting_utils->get_uploaded_file_history(array('length' =>NULL,'start' =>NULL,'file_type' =>$this->input->post('file_type')));
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => '',
-            "recordsFiltered" =>  '',
+            "recordsTotal" => count($allRecords),
+            "recordsFiltered" =>  count($allFilteredRecords),
             "data" => $table_data,
         );
         unset($post_data);
@@ -1272,12 +1273,21 @@ class Upload_booking_file extends CI_Controller {
      */
     private function upload_file_table_data($file_list, $no)
     {
+        if($file_list->result === FILE_UPLOAD_SUCCESS_STATUS){
+            $result = "<div class='label label-success'>$file_list->result</div>";
+        }else if($file_list->result === FILE_UPLOAD_FAILED_STATUS){
+            $result = "<div class='label label-danger'>$file_list->result</div>";
+        }else{
+            $result = $file_list->result;
+        }
+        
         $row = array();
         $row[] = $no;
         $row[] = "<a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".
         $file_list->file_name."'>$file_list->file_name</a>";
         $row[] = $file_list->agent_name;
         $row[] = date('d M Y H:i:s', strtotime($file_list->upload_date));
+        $row[] = $result;
         
         return $row;
     }

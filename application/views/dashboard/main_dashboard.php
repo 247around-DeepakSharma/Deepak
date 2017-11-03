@@ -16,7 +16,23 @@
          <div class="col-md-12"><center><img id="loader_gif2" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center></div>
     </div>
     <!-- /top tiles -->
+<div class="row" style="margin-top:10px;">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Missing Pincodes</h2>
+                    <div class="clearfix"></div>
+                </div>
 
+                <div class="x_content">
+
+                    <div class="table-responsive" id="pincode_table_data">
+                        <center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="dashboard_graph">
@@ -1332,5 +1348,13 @@
                 }]
         });
     }
+   $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/dashboard/get_pincode_not_found_sf_details_admin',
+                data: {partner_id:''},
+                success: function (response) {
+                     $("#pincode_table_data").html(response);
+                }
+            });
         
 </script>

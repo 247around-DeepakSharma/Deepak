@@ -18,6 +18,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->model('invoices_model');
         $this->load->model('employee_model');
+        $this->load->model('reusable_model');
         $this->load->model('bb_model');
         $this->load->model('cp_model');
         $this->load->model('reporting_utils');
@@ -914,6 +915,7 @@ class Around_scheduler extends CI_Controller {
         $pincode_array = $this->vendor_model->getPincode_from_india_pincode();
         $partner_data = array();
         $partner_data[0]['is_upcountry'] = 0;
+        $partner_data[0]['upcountry_approval_email'] = '';
         $services = $this->booking_model->selectservice();
         foreach ($services as $service_id) {
         $upcountry_data = array();
@@ -980,6 +982,7 @@ class Around_scheduler extends CI_Controller {
     * @return   void() 
     */
     function get_bb_balance_from_email(){
+        log_message('info',__METHOD__);
         $data = array();
         $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
         $email = QC_BALANCE_READ_EMAIL;
@@ -1021,6 +1024,8 @@ class Around_scheduler extends CI_Controller {
                 }else{
                     log_message('info',"Error in inserting Amazon SVC balance.".print_r($data,true));
                 }
+            }else{
+                log_message('info',"Mails Not Found For Today ");
             }
             //close email connection
             $this->email_data_reader->close_email_connection();
@@ -1028,6 +1033,25 @@ class Around_scheduler extends CI_Controller {
         else{
             log_message('info', 'Connection is not created');
         }
+    }
+    
+    function update_india_pincode_table(){
+       $sql = "INSERT INTO india_pincode(area,pincode,division,region,taluk,district,state) SELECT booking_details.city as area,sf.pincode,booking_details.city as division,booking_details.taluk as region,"
+                . "booking_details.taluk,booking_details.district,booking_details.state FROM "
+                . "sf_not_exist_booking_details sf INNER JOIN booking_details  ON sf.booking_id=booking_details.booking_id WHERE sf.rm_id IS NULL  GROUP BY sf.pincode";
+       $affectedRows = $this->reusable_model->execute_custom_insert_update_delete_query($sql);
+        if($affectedRows>0){
+                $getRmSql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
+      FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN (SELECT sf.pincode FROM sf_not_exist_booking_details sf WHERE sf.rm_id IS NULL GROUP BY sf.pincode)
+      GROUP BY india_pincode.pincode";
+            $result = $this->reusable_model->execute_custom_select_query($getRmSql);
+            if($result){
+                foreach($result as $data){
+                      $this->reusable_model->update_table("sf_not_exist_booking_details",$data,array('pincode'=>$data['pincode']));
+                }
+      }
+        }
+        
     }
 
 }

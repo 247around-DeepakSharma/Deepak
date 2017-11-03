@@ -14,6 +14,8 @@
         <link href="<?php echo base_url()?>css/sb-admin.css" rel="stylesheet">
         <!-- Animate CSS -->
         <link href="<?php echo base_url()?>css/animate.css" rel="stylesheet">
+        <!-- bootstrap-daterangepicker -->
+        <link href="<?php echo base_url()?>css/daterangepicker.css" rel="stylesheet">
         <!-- Custom Fonts -->
         <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <script src="<?php echo base_url()?>js/jquery.js"></script>
@@ -40,7 +42,17 @@
 
         <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
-        
+        <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+
+        <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
+           <script src="<?php echo base_url()?>js/daterangepicker.js"></script>
+        <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+
+        <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
         
     </head>
     <body>
@@ -102,6 +114,10 @@
                         </li>
                         <li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url() ?>employee/booking/get_oow_booking"><i class="fa fa-fw fa-desktop"></i> <strong> OOW Booking</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>Completed Booking</strong></a>
                         </li>
                         <li class="divider"></li>
@@ -137,7 +153,14 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/vendor/get_reassign_partner_form"><i class="fa fa-fw fa-desktop"></i> <strong>Reassign Partner</strong></a>
                         </li>
-                  
+                         <li class="divider"></li>
+                  <li>
+                            <a href="<?php echo base_url()?>employee/booking/booking_advance_search"><i class="fa fa-fw fa-desktop"></i> <strong>Advanced Search</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/booking_bulk_search"><i class="fa fa-fw fa-desktop"></i> <strong>Bulk Search</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-tasks -->
                 </li>

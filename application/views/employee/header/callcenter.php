@@ -12,6 +12,8 @@
         <link href="<?php echo base_url()?>css/bootstrap.min.css" rel="stylesheet">
         <!-- Custom CSS -->
         <link href="<?php echo base_url()?>css/sb-admin.css" rel="stylesheet">
+        <!-- bootstrap-daterangepicker -->
+        <link href="<?php echo base_url()?>css/daterangepicker.css" rel="stylesheet">
         <!-- Animate CSS -->
         <link href="<?php echo base_url()?>css/animate.css" rel="stylesheet">
         <!-- Custom Fonts -->
@@ -35,6 +37,11 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
         <!-- Loading Noty script library -->
         <script type="text/javascript" src="<?php echo base_url()?>js/plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
+          <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+
+        <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
         <style>
             .navbar{
             min-height: 80px;
@@ -45,6 +52,13 @@
 
         <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+        <script src="<?php echo base_url()?>/js/moment.min.js"></script>
+        <script src="<?php echo base_url()?>js/daterangepicker.js"></script>
+        <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+
+        <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
     </head>
     <body>
         <?php $CI =& get_instance(); 
@@ -109,6 +123,10 @@
                                 </li>
                                 <li class="divider"></li>
                                 <li>
+                                    <a href="<?php echo base_url() ?>employee/booking/get_oow_booking"><i class="fa fa-fw fa-desktop"></i> <strong> OOW Booking</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
                                     <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>Completed Booking</strong></a>
                                 </li>
                                 <li class="divider"></li>
@@ -131,7 +149,14 @@
                                 <li>
                                     <a href="<?php echo base_url()?>employee/upcountry/get_upcountry_failed_details"><i class="fa fa-fw fa-desktop"></i> <strong>Upcountry Failed Booking</strong></a>
                                 </li>
-                                
+                                 <li class="divider"></li>
+                                <li>
+                            <a href="<?php echo base_url()?>employee/booking/booking_advance_search"><i class="fa fa-fw fa-desktop"></i> <strong>Advanced Search</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/booking_bulk_search"><i class="fa fa-fw fa-desktop"></i> <strong>Bulk Search</strong></a>
+                        </li>
                             </ul>
                             <!-- /.dropdown-tasks -->
                         </li>
@@ -171,6 +196,18 @@
                                 <li>
                                     <a href="<?php echo base_url() ?>employee/booking/get_add_new_brand_form"><i class="fa fa-fw fa-desktop"></i> <strong> Add New Brand</strong></a>
                                 </li>
+                            </ul>
+                            <!-- /.dropdown-user -->
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Reports <i class="fa fa-caret-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="<?php echo base_url() ?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
+                                </li>
+
                             </ul>
                             <!-- /.dropdown-user -->
                         </li>

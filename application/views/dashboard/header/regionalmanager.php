@@ -43,6 +43,7 @@
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
         <!-- sweet Alert JS -->
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+        <script src="<?php echo base_url();?>js/employee/employee.js"></script>
         <style>
              [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
                 display: none !important;

@@ -21,6 +21,8 @@ class Partner extends CI_Controller {
         $this->load->model('invoices_model');
         $this->load->model('dealer_model');
         $this->load->model('service_centers_model');
+        $this->load->model('penalty_model');
+        $this->load->model("inventory_model");
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->library('form_validation');
@@ -826,6 +828,7 @@ class Partner extends CI_Controller {
                 }
                 $return_data['partner']['gst_number'] = $this->input->post("gst_number");
 
+                $return_data['partner']['customer_care_contact'] = $this->input->post("customer_care_contact");
                 //Sending data array to Model
                 $partner_id = $this->partner_model->add_partner($return_data['partner']);
                 //Set Flashdata on success or on Error of Data insert in table
@@ -957,6 +960,7 @@ class Partner extends CI_Controller {
         $return_data['pincode'] = $this->input->post('pincode');
         $return_data['primary_contact_name'] = $this->input->post('primary_contact_name');
         $return_data['primary_contact_email'] = $this->input->post('primary_contact_email');
+        $return_data['customer_care_contact'] = $this->input->post('customer_care_contact');
         $return_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
         $return_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
         $return_data['owner_name'] = $this->input->post('owner_name');
@@ -1507,7 +1511,7 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
 
             //inserts vendor escalation details
-            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
+           $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
 
             $this->notify->insert_state_change($escalation['booking_id'], "Escalation", _247AROUND_PENDING, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
             if ($escalation_id) {
@@ -1516,8 +1520,7 @@ class Partner extends CI_Controller {
                 $bcc = "";
                 $attachment = "";
                 $partner_details = $this->dealer_model->entity_login(array('agent_id' => $this->session->userdata('agent_id')))[0];
-                $sf_id = $this->booking_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id' => $escalation['booking_id']))->result_array()[0];
-                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($sf_id['assigned_vendor_id'])[0]['official_email'];
+                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($bookinghistory[0]['assigned_vendor_id'])[0]['official_email'];
                 $partner_mail_to = $partner_details['email'];
                 $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ,".$rm_mail;
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
@@ -1529,6 +1532,42 @@ class Partner extends CI_Controller {
                 $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team' => 1), true);
 
                 $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
+                
+                //Processing Penalty on Escalations when Booking Time solt exceed 1hour
+                $last_booking_time_slots =trim(explode('-', $escalation['booking_time'])[1]);
+                
+                $time_limit = '';
+                if($last_booking_time_slots == '1PM'){
+                    $time = $escalation['booking_date']. ' 14:01:00';
+                    $time_limit = strtotime(date($time));
+                }else if($last_booking_time_slots == '4PM'){
+                    $time = $escalation['booking_date']. ' 16:01:00';
+                    $time_limit = strtotime($time);
+                }else if($last_booking_time_slots == '7PM'){
+                    $time = $escalation['booking_date']. ' 21:01:00';
+                    $time_limit = strtotime(date($time));
+                }
+                
+                if(!empty($time_limit)){
+                    $time_difference = $time_limit - strtotime(date('Y-m-d H:i:s'));
+                }else{
+                    $time_difference = "";
+                }
+                
+                if(!empty($time_difference) && $time_difference < 0){
+                    $value['booking_id'] = $escalation['booking_id'];
+                    $value['assigned_vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
+                    $value['current_state'] = "Escalation";
+                    $value['agent_id'] = $partner_details['entity_id'];
+                    $value['agent_type'] = 'partner';
+                    $value['remarks'] = $escalation_remarks;
+                    $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
+                    //Adding values in penalty on booking table
+                    $this->penalty_model->get_data_penalty_on_booking($value, $where);
+    
+                    log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
+                }
+                
             }
 
             log_message('info', __FUNCTION__ . " Exiting");
@@ -1852,13 +1891,12 @@ class Partner extends CI_Controller {
     function update_spare_parts_form($id) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Spare Parts ID: " . $id);
         $this->checkUserSession();
-        $partner_id = $this->session->userdata('partner_id');
-
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
-                . " AND spare_parts_details.id = '" . $id . "' "
-                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
-
+        $where['length'] = -1;
+        $where['where'] = array('spare_parts_details.id' => $id);
+        $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date";
+        
+        $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $this->load->view('partner/header');
         $this->load->view('partner/update_spare_parts_form', $data);
     }
@@ -1875,19 +1913,24 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('remarks_by_partner', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
+        $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
 
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner ' . $this->session->userdata('partner_id') .
                     " Spare id " . $id . " Data" . print_r($this->input->post(), true));
             $this->update_spare_parts_form($id);
         } else { // if ($this->form_validation->run() == FALSE) {
+            
             $partner_id = $this->session->userdata('partner_id');
             $data['parts_shipped'] = $this->input->post('shipped_parts_name');
             $data['courier_name_by_partner'] = $this->input->post('courier_name');
             $data['awb_by_partner'] = $this->input->post('awb');
             $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
             $data['shipped_date'] = $this->input->post('shipment_date');
-
+            $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
+            if(!empty($incoming_invoice_pdf)){
+                $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
+            }
             $data['status'] = "Shipped";
             $where = array('id' => $id, 'partner_id' => $partner_id);
             $response = $this->service_centers_model->update_spare_parts($where, $data);
@@ -1909,6 +1952,39 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
             }
+        }
+    }
+    /**
+     * @desc This is used to upload and send Repair OOW Parts Invoice
+     * @return boolean
+     */
+    function spare_incoming_invoice() {
+        log_message('info', __FUNCTION__ );
+        
+        $request_type = $this->input->post("request_type");
+        $booking_id = $this->input->post("booking_id");
+        
+        if ($request_type == REPAIR_OOW_TAG) {
+            $allowedExts = array("PDF", "pdf");
+            $invoice_name = $this->miscelleneous->upload_file_to_s3($_FILES["incoming_invoice"], 
+                    "sp_parts_invoice", $allowedExts, $booking_id, "misc-images", "incoming_invoice_pdf");
+            if (!empty($invoice_name)) {
+                $template = $this->booking_model->get_booking_email_template("OOW_invoice_sent");
+                if(!empty($template)){
+                    $attachment = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$invoice_name;
+                    $subject = vsprintf($template[4], $booking_id);
+                    $emailBody =  vsprintf($template[0], $this->input->post("invoice_amount"));
+                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment);
+                }
+                
+                return true;
+            } else {
+                 $this->form_validation->set_message('spare_incoming_invoice', 'File size or file type is not supported. Allowed extentions is "pdf". '
+		    . 'Maximum file size is 5 MB.');
+                 return FALSE;
+            }
+        } else {
+            return true;
         }
     }
 
@@ -3309,5 +3385,64 @@ class Partner extends CI_Controller {
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager','active' => 1));
         $this->load->view('partner/contact_us',$data);
     }
-
+    /*
+     * This function load the view for bracket allocation
+     */
+    function bracket_allocation(){
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/bracket_allocation');
+    }
+    /*
+     * This function return data to show bracket allocation table view 
+     */
+    function get_bracket_allocation_data(){
+        $receieved_Data = $this->input->post();
+        $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
+         $joinDataArray = array("partners"=>"partners.id=is_bracket_over_brand_partner.partner_id");
+        $result =  $this->reusable_model->get_search_result_data("is_bracket_over_brand_partner","partners.public_name,brand,CASE WHEN is_bracket=0 THEN 'No' ELSE 'YES' END AS is_bracket,partner_id",array(),$joinDataArray,$limitArray,array("partners.public_name"=>"ASC"),NULL,NULL);
+         for($i=0;$i<count($result);$i++){
+            $index = $receieved_Data['start']+($i+1);
+            $link = "<button type='button' class='btn btn-info' data-toggle='modal' data-target='#myModal' onclick=createStandEditForm('".$result[$i]['brand']."','".$result[$i]['partner_id']."','".$result[$i]['is_bracket']."') style='margin:0px 10px;'>Edit</button>";
+            unset($result[$i]['partner_id']);
+            $tempArray = array_values($result[$i]);
+            array_push($tempArray,$link);
+            array_unshift($tempArray, $index);
+            $finalArray[] = $tempArray;
+        }
+        $data['draw'] = $receieved_Data['draw'];
+        $data['recordsTotal'] = $this->reusable_model->get_search_result_count("is_bracket_over_brand_partner","brand,partners.public_name,is_bracket",NULL,$joinDataArray,NULL,array("brand"=>"ASC"),NULL);
+        $data['recordsFiltered'] = $this->reusable_model->get_search_result_count("is_bracket_over_brand_partner","brand,partners.public_name,is_bracket",NULL,$joinDataArray,NULL,array("brand"=>"ASC"),NULL);
+        $data['data'] = $finalArray;    
+        echo json_encode($data);
+    }
+    /*
+     * This functrion return the data needed to create Insert bracket allocation form
+     */
+    function get_bracket_allocation_form_data(){
+        $data['partner'] = $this->booking_model->get_advance_search_result_data("partners","id,public_name",NULL,NULL,NULL,array('public_name'=>'ASC'));
+        $data['brand'] = $this->booking_model->get_advance_search_result_data("appliance_brands","DISTINCT(brand_name)",NULL,NULL,NULL,array('brand_name'=>'ASC'));
+        echo json_encode($data);
+    }
+    /*
+     * This function update or insert the data for bracket allocation
+     */
+    function process_bracket_combination(){
+        $data = $this->input->post();
+        if($data['add_delete']=='add'){
+            unset($data['add_delete']);
+            $affectedRows = $this->reusable_model->insert_into_table('is_bracket_over_brand_partner',$data);
+        }
+        else{
+            $is_bracket = $data['is_bracket'];
+            unset($data['add_delete']);
+            unset($data['is_bracket']);
+            $affectedRows = $this->reusable_model->update_table('is_bracket_over_brand_partner',array('is_bracket'=>$is_bracket),$data);
+        }
+        $msg = "Somethong Went wrong, Please try again";
+        if($affectedRows>0){
+            $msg = 'Successfully Done';
+        }
+        $this->session->set_userdata(array('bracket_msg'=>$msg));
+        redirect(base_url() . "employee/partner/bracket_allocation");
+    }
 }

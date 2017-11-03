@@ -115,6 +115,9 @@
                    <strong>' . $this->session->userdata('failed') . '</strong>
                </div>';
         }
+        if($this->session->userdata('pincode_msg')){
+            echo "<p style=' text-align: center;color: #15881e; font: bold 20px/24px Century Gothic'>".$this->session->userdata('pincode_msg')."</p>";
+        }
         ?> 
         <div class="table_filter">
             <div class="row">
@@ -137,6 +140,18 @@
                                 <option value="" selected="selected" disabled="">Select Services</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val->id?>"><?php echo $val->services?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <select class="form-control filter_table" id="city">
+                                <option value="" selected="selected" disabled="">Select City</option>
+                                <?php foreach($cities as $val){ ?>
+                                <option value="<?php echo $val['city']?>"><?php echo $val['city']?></option>
                                 <?php } ?>
                             </select>
                         </div>
@@ -213,6 +228,10 @@
         placeholder: "Select Appliance",
         allowClear: true
     });
+    $('#city').select2({
+        placeholder: "Select City",
+        allowClear: true
+    });
     $(document).ready(function(){
         
         datatable1 = $('#datatable1').DataTable({
@@ -239,6 +258,7 @@
                     d.booking_date =  $('#booking_date').val();
                     d.appliance =  $('#appliance').val();
                     d.pincode_status = pincode_status;
+                    d.city =  $('#city').val();
                  }
             },
             "deferRender": true,
@@ -337,3 +357,4 @@
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
 <?php $this->session->unset_userdata('failed'); ?>
+<?php $this->session->unset_userdata('pincode_msg'); ?>

@@ -13,10 +13,11 @@ class Miscelleneous {
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('s3');
 	$this->My_CI->load->model('vendor_model');
+                    $this->My_CI->load->model('reusable_model');
 	$this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
         $this->My_CI->load->model('partner_model');
-       
+        $this->My_CI->load->library('form_validation');
         $this->My_CI->load->model('service_centers_model');
     }
     /**
@@ -152,6 +153,7 @@ class Miscelleneous {
         $vendor_data = array();
         if (!empty($query1[0]['assigned_vendor_id'])) {
             $vendor_data[0]['vendor_id'] = $query1[0]['assigned_vendor_id'];
+            //SF Min Upcountry Distance
             $vendor_data[0]['min_upcountry_distance'] = $query1[0]['min_upcountry_distance'];
 
             if (!empty($query1[0]['district'])) {
@@ -160,151 +162,11 @@ class Miscelleneous {
                 $vendor_data[0]['city'] = $this->My_CI->vendor_model->get_distict_details_from_india_pincode($query1[0]['booking_pincode'])['district'];
             }
                 
-            $return_status = 0;
             $p_where = array("id" =>$query1[0]['partner_id']);
             $partner_details = $this->My_CI->partner_model->get_all_partner($p_where);
             $data = $this->My_CI->upcountry_model->action_upcountry_booking($query1[0]['city'], $query1[0]['booking_pincode'], $vendor_data, $partner_details);
-            $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
-            $cus_net_payable = 0;
-            foreach ($unit_details as $value) {
-                $cus_net_payable += $value['customer_net_payable'];
-            }
-            switch ($data['message']) {
-                case UPCOUNTRY_BOOKING:
-                case UPCOUNTRY_LIMIT_EXCEED:
-                    log_message('info', __METHOD__ . " => " . $data['message'] . " booking_id " . $booking_id);
-
-                    $booking['is_upcountry'] = 1;
-                    $booking['upcountry_pincode'] = $data['upcountry_pincode'];
-                    $booking['sub_vendor_id'] = $data['sub_vendor_id'];
-                    $booking['upcountry_distance'] = $data['upcountry_distance'];
-                    $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
-                    $booking['partner_upcountry_rate'] = $data['partner_upcountry_rate'];
-                    
-                    $is_upcountry = $this->My_CI->upcountry_model->is_upcountry_booking($booking_id);
-                    if (!empty($is_upcountry)) {
-
-                        if ($data['message'] !== UPCOUNTRY_LIMIT_EXCEED) {
-
-                            log_message('info', __METHOD__ . " => Upcountry Booking Free Booking " . $booking_id);
-                            $booking['upcountry_paid_by_customer'] = 0;
-                            $booking['amount_due'] = $cus_net_payable;
-                            $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                            $return_status = TRUE;
-                        } else if ($data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
-
-                            log_message('info', __METHOD__ . " => Upcountry Waiting for Approval " . $booking_id);
-                            $booking['assigned_vendor_id'] = NULL;
-                            $booking['internal_status'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
-                            $booking['upcountry_partner_approved'] = '0';
-                            $booking['upcountry_paid_by_customer'] = 0;
-                            $booking['amount_due'] = $cus_net_payable;
-
-                            $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                            $this->My_CI->service_centers_model->delete_booking_id($booking_id);
-
-                            $this->My_CI->notify->insert_state_change($booking_id, "Waiting Partner Approval", _247AROUND_PENDING, "Waiting Upcountry to Approval", $agent_id, $agent_name, _247AROUND);
-                            $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
-
-                            $up_mail_data['name'] = $query1[0]['name'];
-                            $up_mail_data['appliance'] = $query1[0]['services'];
-                            $up_mail_data['booking_address'] = $query1[0]['booking_address'];
-                            $up_mail_data['city'] = $query1[0]['city'];
-                            $up_mail_data['state'] = $query1[0]['state'];
-                            $up_mail_data['booking_pincode'] = $query1[0]['booking_pincode'];
-                            $up_mail_data['booking_id'] = $query1[0]['booking_id'];
-                            $up_mail_data['booking_primary_contact_no'] = $query1[0]['booking_primary_contact_no'];
-                            $up_mail_data['price_tags'] = $unit_details[0]['price_tags'];
-                            $up_mail_data['appliance_brand'] = $unit_details[0]['appliance_brand'];
-                            $up_mail_data['appliance_category'] = $unit_details[0]['appliance_category'];
-                            $up_mail_data['appliance_capacity'] = $unit_details[0]['appliance_capacity'];
-                            $up_mail_data['upcountry_distance'] = $booking['upcountry_distance'];
-                            $up_mail_data['partner_upcountry_rate'] = $booking['partner_upcountry_rate'];
-
-                            $message1 = $this->My_CI->load->view('employee/upcountry_approval_template', $up_mail_data, true);
-
-
-                            if ($booking['upcountry_distance'] > 300) {
-                                $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                                $to = NITS_ANUJ_EMAIL_ID;
-                                $cc = "abhaya@247around.com";
-                            } else {
-                                $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
-                                $to = $partner_details[0]['upcountry_approval_email'];
-                                $cc = NITS_ANUJ_EMAIL_ID;
-                            }
-
-                            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
-
-                            $return_status = FALSE;
-                        } else if ($data['partner_upcountry_approval'] == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
-
-                            log_message('info', __METHOD__ . " => Upcountry, partner does not provide approval" . $booking_id);
-                            $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                            $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id']);
-
-                            $to = NITS_ANUJ_EMAIL_ID;
-                            $cc = "abhaya@247around.com";
-                            $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
-                                    . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'].
-                                    " Upcountry Pincode ".$data['upcountry_pincode']. " SF Name ".$query1[0]['vendor_name'];
-                            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
-
-                            $return_status = FALSE;
-                        }
-                    } else {
-
-                        log_message('info', __METHOD__ . " => Partner does not provide Upcountry charges " . $booking_id);
-                        $booking['upcountry_paid_by_customer'] = 1;
-                        $booking['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
-
-                        log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
-                        $booking['amount_due'] = $cus_net_payable + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
-                        
-
-                        $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                        $return_status = TRUE;
-                    }
-
-                    break;
-
-                case NOT_UPCOUNTRY_BOOKING:
-                    $booking['is_upcountry'] = 0;
-                    $booking['upcountry_pincode'] = NULL;
-                    $booking['sub_vendor_id'] = NULL;
-                    $booking['upcountry_distance'] = NULL;
-                    $booking['sf_upcountry_rate'] = NULL;
-                    $booking['partner_upcountry_rate'] = NULL;
-                    $booking['upcountry_paid_by_customer'] = '0';
-                    $booking['upcountry_partner_approved'] = '1';
-                   
-                    log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
-                    $booking['amount_due'] = $cus_net_payable;
-
-                    $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                    log_message('info', __METHOD__ . " => Not Upcountry Booking" . $booking_id);
-                    $return_status = TRUE;
-                    break;
-                case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
-
-                    log_message('info', __METHOD__ . " => Upcountry distance cannot calculate" . $booking_id);
-                    // Assigned Vendor Id is Not NULL or sub vendor id is NULl
-                    $booking['is_upcountry'] = 0;
-                    $booking['upcountry_pincode'] = $data['upcountry_pincode'];
-                    $booking['sub_vendor_id'] = $data['sub_vendor_id'];
-                    $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
-                    $booking['amount_due'] = $cus_net_payable;
-
-                    $this->My_CI->booking_model->update_booking($booking_id, $booking);
-
-                    $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com";
-                    $cc = "sachinj@247around.com, abhaya@247around.com";
-                    $message1 = "Upcountry did not calculate for " . $booking_id;
-                    $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Failed', $message1, "");
-
-                    $return_status = TRUE;
-                    break;
-            }
+            
+            $return_status = $this->_assign_upcountry_booking($booking_id, $data, $query1, $agent_id, $agent_name);
 
             if ($return_status) {
                 log_message('info', __METHOD__ . " => Upcountry return True" . $booking_id);
@@ -315,6 +177,169 @@ class Miscelleneous {
             }
         } else {
             log_message('info', __METHOD__ . " => Booking is not Assigned" . $booking_id);
+        }
+    }
+    
+    function _assign_upcountry_booking($booking_id, $data, $query1, $agent_id, $agent_name) {
+        $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
+        $cus_net_payable = 0;
+        foreach ($unit_details as $value) {
+            $cus_net_payable += $value['customer_net_payable'];
+        }
+
+        switch ($data['message']) {
+            case UPCOUNTRY_BOOKING:
+            case UPCOUNTRY_LIMIT_EXCEED:
+                log_message('info', __METHOD__ . " => " . $data['message'] . " booking_id " . $booking_id);
+
+                $booking['is_upcountry'] = 1;
+                $booking['upcountry_pincode'] = $data['upcountry_pincode'];
+                $booking['sub_vendor_id'] = $data['sub_vendor_id'];
+                $booking['upcountry_distance'] = $data['upcountry_distance'];
+                $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
+                $booking['partner_upcountry_rate'] = $data['partner_upcountry_rate'];
+
+                $is_upcountry = $this->My_CI->upcountry_model->is_upcountry_booking($booking_id);
+                if (empty($is_upcountry)) {
+                    log_message('info', __METHOD__ . " => Customer will pay upcountry charges " . $booking_id);
+                    $booking['upcountry_paid_by_customer'] = 1;
+                    $booking['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
+
+                    log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
+                    $booking['amount_due'] = $cus_net_payable + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
+
+
+                    $this->My_CI->booking_model->update_booking($booking_id, $booking);
+                    $return_status = TRUE;
+                    
+                } else if (array_search(-1, array_column($is_upcountry, 'is_upcountry')) !== False) {
+                    log_message('info', __METHOD__ . " => Customer or Partner does not pay upcountry charges " . $booking_id);
+                    $booking['is_upcountry'] = 0;
+                    $booking['upcountry_pincode'] = NULL;
+                    $booking['sub_vendor_id'] = NULL;
+                    $booking['upcountry_distance'] = NULL;
+                    $booking['sf_upcountry_rate'] = NULL;
+                    $booking['partner_upcountry_rate'] = NULL;
+                    $booking['upcountry_paid_by_customer'] = '0';
+                    $booking['upcountry_partner_approved'] = '1';
+
+                    log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
+                    $booking['amount_due'] = $cus_net_payable;
+
+                    $this->My_CI->booking_model->update_booking($booking_id, $booking);
+                    log_message('info', __METHOD__ . " => Not Upcountry Booking" . $booking_id);
+                    $return_status = TRUE;
+                    break;
+                } else if (!empty($is_upcountry)) {
+
+                    if ($data['message'] !== UPCOUNTRY_LIMIT_EXCEED) {
+
+                        log_message('info', __METHOD__ . " => Upcountry Booking Free Booking " . $booking_id);
+                        $booking['upcountry_paid_by_customer'] = 0;
+                        $booking['amount_due'] = $cus_net_payable;
+                        $this->My_CI->booking_model->update_booking($booking_id, $booking);
+                        $return_status = TRUE;
+                    } else if ($data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
+
+                        log_message('info', __METHOD__ . " => Upcountry Waiting for Approval " . $booking_id);
+                        $booking['assigned_vendor_id'] = NULL;
+                        $booking['internal_status'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
+                        $booking['upcountry_partner_approved'] = '0';
+                        $booking['upcountry_paid_by_customer'] = 0;
+                        $booking['amount_due'] = $cus_net_payable;
+
+                        $this->My_CI->booking_model->update_booking($booking_id, $booking);
+                        $this->My_CI->service_centers_model->delete_booking_id($booking_id);
+
+                        $this->My_CI->notify->insert_state_change($booking_id, "Waiting Partner Approval", _247AROUND_PENDING, "Waiting Upcountry to Approval", $agent_id, $agent_name, _247AROUND);
+                        $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
+
+                        $up_mail_data['name'] = $query1[0]['name'];
+                        $up_mail_data['appliance'] = $query1[0]['services'];
+                        $up_mail_data['booking_address'] = $query1[0]['booking_address'];
+                        $up_mail_data['city'] = $query1[0]['city'];
+                        $up_mail_data['state'] = $query1[0]['state'];
+                        $up_mail_data['booking_pincode'] = $query1[0]['booking_pincode'];
+                        $up_mail_data['booking_id'] = $query1[0]['booking_id'];
+                        $up_mail_data['booking_primary_contact_no'] = $query1[0]['booking_primary_contact_no'];
+                        $up_mail_data['price_tags'] = $unit_details[0]['price_tags'];
+                        $up_mail_data['appliance_brand'] = $unit_details[0]['appliance_brand'];
+                        $up_mail_data['appliance_category'] = $unit_details[0]['appliance_category'];
+                        $up_mail_data['appliance_capacity'] = $unit_details[0]['appliance_capacity'];
+                        $up_mail_data['upcountry_distance'] = $booking['upcountry_distance'];
+                        $up_mail_data['partner_upcountry_rate'] = $booking['partner_upcountry_rate'];
+
+                        $message1 = $this->My_CI->load->view('employee/upcountry_approval_template', $up_mail_data, true);
+
+
+                        if ($booking['upcountry_distance'] > 300) {
+                            $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
+                            $to = NITS_ANUJ_EMAIL_ID;
+                            $cc = "abhaya@247around.com";
+                        } else {
+                            $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
+                            $to = $data['upcountry_approval_email'];
+                            $cc = NITS_ANUJ_EMAIL_ID;
+                        }
+
+                        $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
+
+                        $return_status = FALSE;
+                    } else if ($data['partner_upcountry_approval'] == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
+
+                        log_message('info', __METHOD__ . " => Upcountry, partner does not provide approval" . $booking_id);
+                        $this->My_CI->booking_model->update_booking($booking_id, $booking);
+                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id']);
+
+                        $to = NITS_ANUJ_EMAIL_ID;
+                        $cc = "abhaya@247around.com";
+                        $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
+                                . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'] .
+                                " Upcountry Pincode " . $data['upcountry_pincode'] . " SF Name " . $query1[0]['vendor_name'];
+                        $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
+
+                        $return_status = FALSE;
+                    }
+                }
+
+                break;
+
+            case NOT_UPCOUNTRY_BOOKING:
+                $booking['is_upcountry'] = 0;
+                $booking['upcountry_pincode'] = NULL;
+                $booking['sub_vendor_id'] = NULL;
+                $booking['upcountry_distance'] = NULL;
+                $booking['sf_upcountry_rate'] = NULL;
+                $booking['partner_upcountry_rate'] = NULL;
+                $booking['upcountry_paid_by_customer'] = '0';
+                $booking['upcountry_partner_approved'] = '1';
+
+                log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
+                $booking['amount_due'] = $cus_net_payable;
+
+                $this->My_CI->booking_model->update_booking($booking_id, $booking);
+                log_message('info', __METHOD__ . " => Not Upcountry Booking" . $booking_id);
+                $return_status = TRUE;
+                break;
+            case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+
+                log_message('info', __METHOD__ . " => Upcountry distance cannot calculate" . $booking_id);
+                // Assigned Vendor Id is Not NULL or sub vendor id is NULl
+                $booking['is_upcountry'] = 0;
+                $booking['upcountry_pincode'] = $data['upcountry_pincode'];
+                $booking['sub_vendor_id'] = $data['sub_vendor_id'];
+                $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
+                $booking['amount_due'] = $cus_net_payable;
+
+                $this->My_CI->booking_model->update_booking($booking_id, $booking);
+
+                $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com";
+                $cc = "sachinj@247around.com, abhaya@247around.com";
+                $message1 = "Upcountry did not calculate for " . $booking_id;
+                $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Failed', $message1, "");
+
+                $return_status = TRUE;
+                break;
         }
     }
 
@@ -487,12 +512,17 @@ class Miscelleneous {
      * @param String $partner_data
      * @return boolean
      */
-    function check_upcountry($booking, $appliance, $is_price, $file_type) {
+    function check_upcountry($booking,$appliance, $is_price, $file_type) {
         log_message('info', __FUNCTION__ .' booking_data: '.  print_r($booking,true).' appliance: '. print_r($appliance,true).' file_type: '.$file_type);
         $partner_data = $this->My_CI->initialized_variable->get_partner_data();
+        $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
+        if(isset($data['vendor_not_found'])){
+            if($data['vendor_not_found'] ==1){
+                    $this->sf_not_exist_for_pincode($booking);
+            }
+        }
         if (!empty($is_price)) {
             log_message('info', __FUNCTION__ . ' Price Exist');
-            $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
             $charges = 0;
                 log_message('info', __FUNCTION__ . ' Upcountry  Provide');
                 switch ($data['message']) {
@@ -576,16 +606,7 @@ class Miscelleneous {
                     
                         log_message('info', __FUNCTION__ . SF_DOES_NOT_EXIST );
                         if(isset($data['vendor_not_found'])){
-                            $to = RM_EMAIL.", ". SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
-                            $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
-
-                            $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode']." For Appliance ". $appliance;
-                            $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
-
-                            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
-                            
-                            return FALSE;
-   
+                                return FALSE;
                         } else {
                             $price = $is_price['customer_net_payable'];
                             if($price >0){
@@ -710,10 +731,14 @@ class Miscelleneous {
         if ($httpcode >= 200 && $httpcode < 300){
             return $result;
         }else{
-            $to = DEVELOPER_EMAIL;
+
+            $to = 'vijaya@247around.com';
+            $cc = DEVELOPER_EMAIL;
+
+
             $subject = "Stag01 Server Might Be Down";
             $msg = "There are some issue while creating pdf for booking_id/invoice_id $id from stag01 server. Check the issue and fix it immediately";
-            $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $msg, $output_file_excel);
+            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $msg, $output_file_excel);
             return $result;
         }
         
@@ -866,14 +891,29 @@ class Miscelleneous {
      * @param $appliances_details array()
      * @return $return_data array()
      */
-    function verified_applicance_capacity($appliances_details){
+    function verified_appliance_capacity($appliances_details){
         switch ($appliances_details['service_id']){
-            case '46':
-                $return_data = $this->verifiy_tv_description($appliances_details);
+            case _247AROUND_TV_SERVICE_ID:
+                $return_data = $this->verify_tv_description($appliances_details);
                 break;
-            case '28':
-                $return_data = $this->verifiy_washing_machine_description($appliances_details);
-                break;    
+            case _247AROUND_WASHING_MACHINE_SERVICE_ID:
+                $return_data = $this->verify_washing_machine_description($appliances_details);
+                break;
+            case _247AROUND_MICROWAVE_SERVICE_ID:
+                $return_data = $this->verify_microwave_description($appliances_details);
+                break;
+            case _247AROUND_WATER_PURIFIER_SERVICE_ID:
+                $return_data = $this->verify_water_purifier_description($appliances_details);
+                break;
+            case _247AROUND_AC_SERVICE_ID:
+                $return_data = $this->verify_ac_description($appliances_details);
+                break;
+            case _247AROUND_REFRIGERATOR_SERVICE_ID:
+                $return_data = $this->verify_refrigerator_description($appliances_details);
+                break;
+            case _247AROUND_GEYSER_SERVICE_ID:
+                $return_data = $this->verify_geyser_description($appliances_details);
+                break;
             default :
                 $return_data['status'] = FALSE;
                 $return_data['is_verified'] = '0';
@@ -995,25 +1035,10 @@ class Miscelleneous {
      * 
      * 
      */
-    public function update_file_uploads($tmpFile, $type, $result = "") {
-        switch ($type) {
-            case _247AROUND_SNAPDEAL_DELIVERED:
-                $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
-                $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
-                break;
-            case _247AROUND_SNAPDEAL_SHIPPED:
-                $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '.xlsx';
-                $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
-                break;
-            case _247AROUND_SATYA_DELIVERED:
-                $data['file_name'] = "Satya-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
-                $data['file_type'] = _247AROUND_SATYA_DELIVERED;
-                break;
-            case _247AROUND_PAYTM_DELIVERED:
-                $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
-                $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
-                break;
-        }
+    public function update_file_uploads($file_name,$tmpFile, $type, $result = "") {
+        
+        $data['file_type'] = $type;
+        $data['file_name'] = date('d-M-Y-H-i-s')."-".$file_name;
         $data['agent_id'] = $this->My_CI->session->userdata('id');
         $data['result'] = $result;
         
@@ -1027,17 +1052,13 @@ class Miscelleneous {
             log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
         }
 
-        //Making process for file upload
-        move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
-
         //Upload files to AWS
         $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "vendor-partner-docs/" . $data['file_name'];
-        $this->My_CI->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $this->My_CI->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
         //Logging
         log_message('info', __FUNCTION__ . 'File has been uploaded in S3');
-        unlink(TMP_FOLDER . $data['file_name']);
     }
         
     /**
@@ -1091,18 +1112,50 @@ class Miscelleneous {
             return false;
         }
     }
+    /*
+ * This Functiotn is used to send sf not found email to associated rm
+ */
+    function send_sf_not_found_email_to_rm($booking,$rm_email){
+            $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
+            $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode'];
+            $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
+            $message .= "To add Service center for the missing pincode please use below link <br/> "; 
+            $message .= "<a href=".base_url()."employee/vendor/get_add_vendor_to_pincode_form/".$booking['booking_id'].">Add Service Center</a>";
+            $this->My_CI->notify->sendEmail("booking@247around.com", $rm_email, $cc, "", $subject, $message, "");
+    }
+/*
+ * This Functiotn is used to map rm to pincode, for which SF not found
+ * if pincode does'nt have any rm then an email will goes to nitin
+ * @input - An associative array with keys(booking_id,pincode,city,applianceID)
+ */
+    function sf_not_exist_for_pincode($booking){
+         $notFoundSfArray = array('booking_id'=>$booking['booking_id'],'pincode'=>$booking['booking_pincode'],'city'=>$booking['city'],'service_id'=>$booking['service_id']);
+          $pincode = $notFoundSfArray['pincode'];
+          $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
+FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('".$pincode."') GROUP BY india_pincode.pincode";
+          $result = $this->My_CI->reusable_model->execute_custom_select_query($sql);
+          if(!empty($result)){
+                    $notFoundSfArray['rm_id'] =  $result[0]['rm_id'];
+                    $notFoundSfArray['state'] =  $result[0]['state'];
+                    $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']),NULL,NULL,NULL,NULL,NULL);
+                    $rm_email  = $query->result_array(); 
+                    $this->send_sf_not_found_email_to_rm($booking,$rm_email[0]['official_email']);
+          }
+          $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
+          
+    }
     
     /**
      * @desc This function is used to verify television appliance data
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verifiy_tv_description($appliances_details) {
+    function verify_tv_description($appliances_details) {
         $match = array();
         $new_appliance_details = array();
         
         preg_match('/[0-9]+/', $appliances_details['capacity'], $match);
-        if (!empty($match) && (strpos($appliances_details['description'], $match[0]) !== False) && (strpos($appliances_details['description'], $appliances_details['brand']) !== False)) {
+        if (!empty($match) && (stripos($appliances_details['description'], $match[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)) {
             $new_appliance_details['category'] = $appliances_details['category'];
             $new_appliance_details['capacity'] = $appliances_details['capacity'];
             $new_appliance_details['brand'] = $appliances_details['brand'];
@@ -1121,7 +1174,7 @@ class Miscelleneous {
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verifiy_washing_machine_description($appliances_details){
+    function verify_washing_machine_description($appliances_details){
         $new_appliance_details = array();
         if(((stripos($appliances_details['description'],'semiautomatic') !== False) || (stripos($appliances_details['description'],'semi automatic') !== False) ) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
             $new_appliance_details['category'] = 'Semiautomatic';
@@ -1153,5 +1206,290 @@ class Miscelleneous {
         
         return $new_appliance_details;
     }
+    
+    /*
+     * This Function use to update sf_not_found_pincode table
+     * When we upload any new pincode and that pincode with same service_id exist in sf not found table, then this will update its active flag
+     */
 
+          function update_pincode_not_found_sf_table($pincodeServiceArray){
+              foreach($pincodeServiceArray as $key=>$values){
+                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL; 
+              }
+            log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
+            $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray,array('active_flag'=>0));
+            $cc = "anuj@247around.com";
+            $to = "chhavid@247around.com";
+            $subject = "Get SF for following combinations";
+            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $pincodeArray, "");
+          }
+          /*
+           * This Function convert excel data into array, 1st row of excel data will be keys of returning array
+           * @input - filePath and reader Version and index of sheet in case of multiple sheet excel
+           */
+          function excel_to_Array_converter($file,$readerVersion,$sheetIndex=NULL){
+                    if(!$sheetIndex){
+                            $sheetIndex = 0;
+                    }
+                    $finalExcelDataArray = array();
+                    $objReader = PHPExcel_IOFactory::createReader($readerVersion);
+                    $objPHPExcel = $objReader->load($file['file']['tmp_name']);
+                    $sheet = $objPHPExcel->getSheet($sheetIndex);
+                    $highestRow = $sheet->getHighestDataRow();
+                    $highestColumn = $sheet->getHighestDataColumn();
+                    $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+                    $heading = str_replace(array("/", "(", ")", " ", "."), "", $headings[0]);
+                    $newHeading = str_replace(array(" "), "_", $heading);
+                    $excelDataArray=array();
+                    for($i=2;$i<=$highestRow;$i++){
+                              $excelDataArray = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
+                              foreach($excelDataArray[0] as $key=>$data){
+                                        $excelAssociatedArray[$newHeading[$key]] = trim($data);
+                              }
+                              $finalExcelDataArray[] = $excelAssociatedArray;
+                    }
+                    return $finalExcelDataArray;
+          }
+    
+    /**
+     * @esc: This method upload invoice image OR panel image to S3
+     * @param _FILE $file
+     * @return boolean|string
+     */
+     public function upload_file_to_s3($file, $type, $allowedExts, $pic_type_name, $s3_directory, $post_name) {
+        log_message('info', __FUNCTION__. " Enterring ");
+        
+        $MB = 1048576;
+	$temp = explode(".", $file['name']);
+	$extension = end($temp);
+	//$filename = prev($temp);
+
+	if ($file["name"] != null) {
+	    if (($file["size"] < 2 * $MB) && in_array($extension, $allowedExts)) {
+		if ($file["error"] > 0) {
+                    
+		    $this->My_CI->form_validation->set_message('upload_file_to_s3', $file["error"]);
+		} else {
+		    $pic = str_replace(' ', '-', $pic_type_name);
+		    $picName = $type. rand(10,100).$pic . "." . $extension;
+                    $_POST[$post_name] = $picName;
+		    $bucket = BITBUCKET_DIRECTORY;
+                    
+		    $directory = $s3_directory."/" . $picName;
+		    $this->My_CI->s3->putObjectFile($file["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+		    return $picName;
+		}
+	    } else {
+		$this->My_CI->form_validation->set_message('upload_file_to_s3', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+		    . 'Maximum file size is 2 MB.');
+		return FALSE;
+	    }
+        } else{
+           
+            $this->My_CI->form_validation->set_message('upload_file_to_s3', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+		    . 'Maximum file size is 2 MB.');
+	    return FALSE;
+        }
+        log_message('info', __FUNCTION__. " Exit ");
+    }
+
+    
+    /**
+     * @Desc: This function is used to check if user name is empty or not
+     * if user name is not empty then return username otherwise check if email is not
+     * empty.if email is empty then return mobile number as username otherwise return email as username 
+     * @params: String
+     * @return: void
+     * 
+     */
+    public function is_user_name_empty($userName , $userEmail,$userContactNo){
+        if(empty($userName)){
+            if(empty($userEmail)){
+                $user_name = $userContactNo;
+            }else{
+                $user_name = $userEmail;
+            }
+        }else{
+            $user_name = $userName;
+        }
+        
+        return $user_name;
+    }
+    
+    /**
+     * @desc This function is used to verify microwave appliance data
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verify_microwave_description($appliances_details){
+        $new_appliance_details = array();
+        if((stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+            $new_appliance_details['category'] = $appliances_details['category'];
+            $new_appliance_details['capacity'] = $appliances_details['capacity'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
+        }else{
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
+    
+    /**
+     * @desc This function is used to verify water_purifier appliance data
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verify_water_purifier_description($appliances_details){
+        $new_appliance_details = array();
+        if((stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+            $new_appliance_details['category'] = $appliances_details['category'];
+            $new_appliance_details['capacity'] = $appliances_details['capacity'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
+        }else{
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
+    
+    /**
+     * @desc This function is used to verify air conditioner appliance data
+     * check if brand and category exist in the description 
+     * if exist then check for the right capacity and set verified flag to 1
+     * otherwise set verified flag to 0 
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verify_ac_description($appliances_details){
+        $new_appliance_details = array();
+        if((stripos($appliances_details['description'], $appliances_details['capacity']) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False) && (stripos($appliances_details['description'], explode('-', $appliances_details['category'])[1]) !== False)){
+            $new_appliance_details['category'] = $appliances_details['category'];
+            $new_appliance_details['capacity'] = $appliances_details['capacity'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
+        }else{
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
+    
+    /**
+     * @desc This function is used to verify refrigerator appliance data
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verify_refrigerator_description($appliances_details){
+        $new_appliance_details = array();
+        $flag = FALSE;
+        $category = explode(" ", $appliances_details['category']);
+        
+        //extract window/split word from category
+        array_pop($category);
+        
+        /*check if brand and category exist in the description
+         * if exist then check for the right capacity and set verified flag to 1
+         * otherwise set verified flag to 0 
+        */
+        if((stripos($appliances_details['description'], $category[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+            $match = array();
+            //extract integer before words ltr,Ltr,LTR,ltrs,Ltrs,LTRS,L,l
+            preg_match('/(\b(\d*\.?\d+) Ltr)|(\b(\d*\.?\d+) L)/i', $appliances_details['description'], $match);
+            if(!empty($match)){
+                $capacity = explode(" ", $match[0])[0];
+                if($capacity >=0 && $capacity <= 250 ){
+                    $new_appliance_details['capacity'] = "0-250 Ltr";
+                    $flag  = TRUE;
+                }else if($capacity > 250 && $capacity <= 450){
+                    $new_appliance_details['capacity'] = "250-450 Ltr";
+                    $flag  = TRUE;
+                }else if($capacity > 450 && $capacity <= 10000){
+                    $new_appliance_details['capacity'] = "450-10000 Ltr";
+                    $flag  = TRUE;
+                }else{
+                    $flag  = FALSE;
+                }
+            }else{
+                $flag  = FALSE;
+            }
+            
+        }else{
+            $flag  = FALSE;
+        }
+        
+        if($flag){
+            $new_appliance_details['category'] = $appliances_details['category'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
+        }else{
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
+    
+    /**
+     * @desc This function is used to verify geyser appliance data
+     * @param $appliances_details array()
+     * @return $new_appliance_details array()
+     */
+    function verify_geyser_description($appliances_details){
+        $new_appliance_details = array();
+        $flag = FALSE;
+        //extract geyser word from category
+        $category = explode("-", $appliances_details['category']);
+        if(isset($category[1])){
+            array_pop($category);
+        }
+        
+        /*check if brand and category exist in the description
+         * if exist then check for the right capacity and set verified flag to 1
+         * otherwise set verified flag to 0 
+        */
+        if((stripos($appliances_details['description'], $category[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+            $match = array();
+            //extract integer before words ltr,Ltr,LTR,ltrs,Ltrs,LTRS,L,l
+            preg_match('/(\b(\d*\.?\d+) Ltr)|(\b(\d*\.?\d+) L)/i', $appliances_details['description'], $match);
+            if(!empty($match)){
+                $capacity = explode(" ", $match[0])[0];
+                if($capacity >=0 && $capacity <= 15 ){
+                    $new_appliance_details['capacity'] = "15 Ltr and Below";
+                    $flag = TRUE;
+                }else if($capacity > 15){
+                    $new_appliance_details['capacity'] = "16 Ltr and Above";
+                    $flag = TRUE;
+                }else{
+                    $flag = FALSE;
+                }
+            }else{
+                $flag = FALSE;
+            }
+            
+        }else{
+            $flag = FALSE;
+        }
+        
+        if($flag){
+            $new_appliance_details['category'] = $appliances_details['category'];
+            $new_appliance_details['brand'] = $appliances_details['brand'];
+            $new_appliance_details['status'] = TRUE;
+            $new_appliance_details['is_verified'] = '1';
+        }else{
+            $new_appliance_details['status'] = FALSE;
+            $new_appliance_details['is_verified'] = '0';
+        }
+        
+        return $new_appliance_details;
+    }
 }

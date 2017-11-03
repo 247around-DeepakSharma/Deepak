@@ -38,6 +38,7 @@ class service_centre_charges extends CI_Controller {
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_utilities');
         $this->load->library('notify');
+        $this->load->library("miscelleneous");
 
         $this->load->model('user_model');
         $this->load->model('booking_model');
@@ -183,40 +184,21 @@ class service_centre_charges extends CI_Controller {
             //Logging
             log_message('info', __FUNCTION__ . ' Processing of Service Price List Excel File started');
             
-            //Making process for file upload
             $tmpFile = $_FILES['file']['tmp_name'];
-            $price_file = "Service-Price-List-" . date('Y-m-d-H-i-s') . '.xlsx';
-            //move_uploaded_file($tmpFile, TMP_FOLDER . $price_file);
-
             //Processing File
             $response = $this->process_upload_service_price_file($tmpFile);
             
             //Adding Details in File_Uploads table as well
-            if($response){
-                $data['file_name'] = $price_file;
-                $data['file_type'] = _247AROUND_SF_PRICE_LIST;
-                $data['agent_id'] = $this->session->userdata('id');
-                $insert_id = $this->partner_model->add_file_upload_details($data);
-                if (!empty($insert_id)) {
-                    //Logging success
-                    log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
-                } else {
-                    //Loggin Error
-                    log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
-                }
-
-                //Upload files to AWS
-                $bucket = BITBUCKET_DIRECTORY;
-                $directory_xls = "vendor-partner-docs/" . $price_file;
-                $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                //Logging
-                log_message('info', __FUNCTION__ . ' File has been uploaded in S3');
-
+            if($response['status']){
+                //save file and upload on s3
+                $this->miscelleneous->update_file_uploads($_FILES['file']['name'],$tmpFile, _247AROUND_SF_PRICE_LIST,FILE_UPLOAD_SUCCESS_STATUS);
                 $userSession = array('success' => "File Uploaded Successfully");
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
             }else{
-                $userSession = array('error' => 'Error In File Uploading. Please Try Again');
+                //save file and upload on s3
+                $this->miscelleneous->update_file_uploads($_FILES['file']['name'],$tmpFile, _247AROUND_SF_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS);
+                $userSession = array('error' => 'Error In File Uploading. '.$response['msg']);
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
             }
@@ -538,42 +520,20 @@ class service_centre_charges extends CI_Controller {
             }
             //Making process for file upload
             $tmpFile = $_FILES['file']['tmp_name'];
-            $appliance_file = "Partner-Appliance-Details-" . date('Y-m-d-H-i-s') . '.xlsx';
-            move_uploaded_file($tmpFile, TMP_FOLDER . $appliance_file);
-
-
+            $appliance_file = $_FILES['file']['name'];
             //Processing File 
-            $this->upload_excel(TMP_FOLDER . $appliance_file, "appliance", $flag);
+            $this->upload_excel($tmpFile, "appliance", $flag);
 
             //Adding Details in File_Uploads table as well
-
-            $data['file_name'] = $appliance_file;
-            $data['file_type'] = _247AROUND_PARTNER_APPLIANCE_DETAILS;
-            $data['agent_id'] = $this->session->userdata('id');
-            $insert_id = $this->partner_model->add_file_upload_details($data);
-            if (!empty($insert_id)) {
-                //Logging success
-                log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
-            } else {
-                //Loggin Error
-                log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
-            }
-
-            //Upload files to AWS
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $appliance_file;
-            $this->s3->putObjectFile(TMP_FOLDER . $appliance_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-            //Logging
-            log_message('info', __FUNCTION__ . ' File has been uploaded in S3');
-
+            $this->miscelleneous->update_file_uploads($appliance_file,$tmpFile,_247AROUND_PARTNER_APPLIANCE_DETAILS);
+            
             //check brand_name and service_id is exist in appliance_brand table or not
             $not_exist_data = $this->booking_model->get_not_exist_appliance_brand_data();
             if ($not_exist_data) {
                 $this->booking_model->insert_not_exist_appliance_brand_data($not_exist_data);
                 log_message('info', __FUNCTION__ . 'Not exist brand name and service id added into the table appliance_brand');
             }
-
-
+            
             $this->redirect_upload_form();
         } else {
             $this->upload_excel_form($return);
@@ -615,7 +575,7 @@ class service_centre_charges extends CI_Controller {
             $objPHPExcel = $objReader->load($inputFileName);
             $i = 0;
             foreach ($objPHPExcel->getAllSheets() as $sheet) {
-                $highestRow = $data = $sheet->getHighestRow();
+                $highestRow = $data = $sheet->getHighestDataRow();
                 $highestColumn = $sheet->getHighestDataColumn();
                 $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE,FALSE);
                 
@@ -637,28 +597,49 @@ class service_centre_charges extends CI_Controller {
                         $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE,FALSE);
                         $newRowData = array_combine($headings_new1, $rowData[0]);
                         if(!empty($newRowData['partner_id'])){
-                            $subArray = $this->get_sub_array($newRowData,array('partner_id','brand','product_id','category','capacity','service_category','customer_net_payable'));
-                            array_push($sheetUniqueRowData, implode('_', str_replace(' ','_', $subArray)));
-                            array_push($sheetData, $newRowData);
-                            $rowNotEmpty++;
-                            $this->make_final_service_price_data($newRowData);
+                            if($newRowData['service_category'] !== REPEAT_BOOKING_TAG  && $newRowData['sf_percentage'] == 0){
+                                log_message('info', $sheet->getTitle().' sheet has SF Percentage 0 for non repeat booking');
+                                $msg = $sheet->getTitle().' sheet has SF Percentage 0 for non repeat booking';
+                                $flag = FALSE;
+                                break;
+                                
+                            }else if($newRowData['sf_percentage'] == 100){
+                                log_message('info', $sheet->getTitle().' sheet has SF Percentage 100');
+                                $msg = $sheet->getTitle().' sheet has SF Percentage 100';
+                                $flag = FALSE;
+                                break;
+                            }else{
+                                $subArray = $this->get_sub_array($newRowData,array('partner_id','brand','product_id','category','capacity','service_category','customer_net_payable'));
+                                array_push($sheetUniqueRowData, implode('_', str_replace(' ','_', $subArray)));
+                                array_push($sheetData, $newRowData);
+                                $rowNotEmpty++;
+                                $this->make_final_service_price_data($newRowData);
+                                $flag = TRUE;
+                            }
+                            
                         }
                     }
-
-                    $currentSheetPartnerIdArr = array_column($sheetData, 'partner_id');
-                    $isDiffrentPartnerId = count(array_unique($currentSheetPartnerIdArr));
-                    $d = count(array_unique($sheetUniqueRowData));
-                    $arr_duplicates = array_diff_assoc($sheetUniqueRowData, array_unique($sheetUniqueRowData));
-                    if($isDiffrentPartnerId == 1 && empty($arr_duplicates)){
-                        $flag = TRUE;
-                        unset($currentSheetPartnerIdArr);
-                        unset($isDiffrentPartnerId);
+                    
+                    if($flag){
+                        $currentSheetPartnerIdArr = array_column($sheetData, 'partner_id');
+                        $isDiffrentPartnerId = count(array_unique($currentSheetPartnerIdArr));
+                        $arr_duplicates = array_diff_assoc($sheetUniqueRowData, array_unique($sheetUniqueRowData));
+                        if($isDiffrentPartnerId == 1 && empty($arr_duplicates)){
+                            $flag = TRUE;
+                            unset($currentSheetPartnerIdArr);
+                            unset($isDiffrentPartnerId);
+                        }else{
+                            log_message('info', $sheet->getTitle().' sheet either has different partner id or same data in any two or more row');
+                            $msg = $sheet->getTitle().' sheet has either different partner id or same data';
+                            $flag = FALSE;
+                            break;
+                        }
                     }else{
-                        log_message('info', $sheet->getTitle().' sheet either has different partner id or same data in any two or more row');
-                        $msg = $sheet->getTitle().' sheet has either different partner id or same data';
                         $flag = FALSE;
                         break;
                     }
+
+                    
                 }else{
                     log_message('info','Column Not Found');
                     $msg = $response['msg']."in the ".$sheet->getTitle()." sheet";
@@ -680,7 +661,10 @@ class service_centre_charges extends CI_Controller {
                 $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $msg, "");
             }
             
-            return $flag;
+            $return_response['status'] = $flag;
+            $return_response['msg'] = $msg;
+            
+            return $return_response;
             
         } catch (Exception $e) {
             die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
@@ -879,6 +863,7 @@ class service_centre_charges extends CI_Controller {
     
     function make_final_service_price_data($newRowData){
         
+        
         $final_data['partner_id'] = $newRowData['partner_id'];
         $final_data['state'] = $newRowData['state'];
         $final_data['brand'] = $newRowData['brand'];
@@ -905,9 +890,32 @@ class service_centre_charges extends CI_Controller {
         $final_data['pod'] = $newRowData['serial_number_mandatory'];
         $final_data['is_upcountry'] = $newRowData['upcountry'];
         $final_data['vendor_basic_percentage'] = $newRowData['sf_percentage'];
-        
+        if($newRowData['service_category'] == REPAIR_OOW_TAG){
+            $this->oow_spare_parts($final_data);
+        }
         array_push($this->dataToInsert, $final_data);
         
+    }
+    
+    public function oow_spare_parts($data){
+        $data['service_category'] = REPAIR_OOW_PARTS_PRICE_TAGS;
+        $data['product_or_services'] = _247AROUND_PRODUCT_TAG;
+        $data['product_type'] = REPAIR_OOW_PARTS_PRICE_TAGS;
+        $data['tax_code'] = 'VAT';
+        $data['vendor_basic_charges'] = 0;
+        $data['vendor_tax_basic_charges'] = 0;
+        $data['vendor_total'] = 0;
+        $data['around_basic_charges'] = 0;
+        $data['around_tax_basic_charges'] = 0;
+        $data['around_total'] = 0;
+        $data['customer_total'] = 0;
+        $data['partner_payable_basic'] = 0;
+        $data['partner_payable_tax'] = 0;
+        $data['partner_net_payable'] = 0;
+        $data['customer_net_payable'] = 0;
+        $data['vendor_basic_percentage'] = 0;
+        
+        array_push($this->dataToInsert, $data);
     }
 
 }

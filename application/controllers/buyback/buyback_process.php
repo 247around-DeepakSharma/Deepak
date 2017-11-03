@@ -24,6 +24,7 @@ class Buyback_process extends CI_Controller {
         $this->load->library('buyback');
         $this->load->model('vendor_model');
         $this->load->model('booking_model');
+        $this->load->model('reusable_model');
         $this->load->model("service_centre_charges_model");
         $this->load->library('PHPReport');
 
@@ -170,6 +171,7 @@ class Buyback_process extends CI_Controller {
         $post1 = $this->get_bb_post_view_data();
         $post = $this->_advanced_bb_search($post1);
         $list = $this->bb_model->get_bb_order_list($post);
+        
         $data = array();
         $no = $post['start'];
         foreach ($list as $order_list) {
@@ -193,6 +195,7 @@ class Buyback_process extends CI_Controller {
         $internal_status = $this->input->post("internal_status");
         $cp_id = $this->input->post("cp_id");
         $post['where'] = array();
+        $post['where_in'] = array();
         if(!empty($date_range)){
             $order_date = explode("-", $date_range);
             $post['where']['order_date >= '] =  date("Y-m-d", strtotime(trim($order_date[0])));
@@ -204,24 +207,24 @@ class Buyback_process extends CI_Controller {
             $post['where']['delivery_date < '] = date('Y-m-d', strtotime('+1 day', strtotime(trim($d_date[1]))));
         }
         if(!empty($city)){
-             $post['where']['city'] = $city;
+             $post['where_in']['city'] = !is_array($city)?explode(',', $city):$city;
         }
         if(!empty($service_id)){
-             $post['where']['service_id'] = $service_id;
+             $post['where_in']['service_id'] = !is_array($service_id)?explode(',', $service_id):$service_id;
         }
         if(!empty($internal_status)){
-             $post['where']['internal_status'] = $internal_status;
+             $post['where_in']['internal_status'] = !is_array($internal_status)?explode(',', $internal_status):$internal_status;;
         }
        
         if(!empty($current_status)){
-             $post['where']['current_status'] = $current_status;
+             $post['where_in']['current_status'] = !is_array($current_status)?explode(',', $current_status):$current_status;;
         }
         
         if(!empty($cp_id)){
              $post['where']['assigned_cp_id'] = $cp_id;
         }
         
-        $post['where_in'] = array();
+        
         $post['column_order'] = array( NULL, NULL,NULL,'services','category', 'city','order_date',NULL, 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','category','services', 'city','order_date','current_status');
         
@@ -1611,6 +1614,7 @@ class Buyback_process extends CI_Controller {
 
         $post['length'] = -1;
         $post['search_value'] = $this->input->post('search_value');
+        
         $post['order'] = "";
         $select = "partner_order_id, services, category,city, order_date, delivery_date, current_status, internal_status, partner_basic_charge, cp_basic_charge";
         $post1 = $this->_advanced_bb_search($post, $select);
@@ -1908,7 +1912,7 @@ class Buyback_process extends CI_Controller {
         $this->select = 'tv_balance,la_balance,(tv_balance+la_balance) as total_balance';
         $this->order_by = array('create_date' => 'DESC');
         $this->limit = array('length' => 1,'start' => 0);
-        $data = $this->booking_model->get_search_query($this->table,$this->select , NULL,NULL, $this->limit ,$this->order_by);
+        $data = $this->reusable_model->get_search_query($this->table,$this->select , NULL,NULL, $this->limit ,$this->order_by,NULL,NULL);
         if(!empty($data)){
             $response = $data->result_array()[0];
         }else{

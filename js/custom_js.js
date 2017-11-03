@@ -530,6 +530,7 @@ function set_upcountry() {
     var upcountry_data = $("#upcountry_data").val();
     console.log(upcountry_data);
     is_upcountry = 0;
+    non_upcountry = 0;
     count = 0;
     $("input[type=checkbox]:checked").each(function (i) {
         count = count + 1;
@@ -537,13 +538,20 @@ function set_upcountry() {
         var id = this.id.split('checkbox_');
 
         var up_val = $("#is_up_val_" + id[1]).val();
-
         if (Number(up_val) === 1) {
             is_upcountry = 1;
+        } else  if (Number(up_val) === -1) {
+            non_upcountry = -1;
         }
     });
     if (count > 0) {
-        if (is_upcountry === 1) {
+        
+        if(non_upcountry === -1){
+            $("#upcountry_charges").val("0");
+            $('#submitform').attr('disabled', false);
+            final_price();
+             
+        } else if (is_upcountry === 1) {
             var total_price = $("#grand_total_price").val();
             var data1 = jQuery.parseJSON(upcountry_data);
             console.log(data1);
@@ -563,12 +571,11 @@ function set_upcountry() {
                 // $("#upcountry_charges").val("0");
                 $('#submitform').attr('disabled', false);
             }
-
+            
 
         } else {
             var data1 = jQuery.parseJSON(upcountry_data);
             if (data1.message === "UPCOUNTRY BOOKING" || data1.message === "UPCOUNTRY LIMIT EXCEED") {
-
 
                 var upcountry_charges = (Number(DEFAULT_UPCOUNTRY_RATE) * Number(data1.upcountry_distance)).toFixed(2);
                 total_price = $("#grand_total_price").val();
@@ -580,6 +587,7 @@ function set_upcountry() {
             }
             $('#submitform').attr('disabled', false);
         }
+        final_price();
     } else {
         final_price();
         $("#upcountry_charges").val("0");

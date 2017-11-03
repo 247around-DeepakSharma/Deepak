@@ -14,6 +14,8 @@
         <link href="<?php echo base_url()?>css/sb-admin.css" rel="stylesheet">
         <!-- Animate CSS -->
         <link href="<?php echo base_url()?>css/animate.css" rel="stylesheet">
+        <!-- bootstrap-daterangepicker -->
+        <link href="<?php echo base_url()?>css/daterangepicker.css" rel="stylesheet">
         <!-- Custom Fonts -->
         <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <script src="<?php echo base_url()?>js/jquery.js"></script>
@@ -40,6 +42,13 @@
 
         <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+        <script src="<?php echo base_url()?>/js/moment.min.js"></script>
+        <script src="<?php echo base_url()?>js/daterangepicker.js"></script>
+        <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+
+        <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
     </head>
     <body>
         <div id="wrapper">
@@ -98,6 +107,10 @@
                         </li>
                         <li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url() ?>employee/booking/get_oow_booking"><i class="fa fa-fw fa-desktop"></i> <strong> OOW Booking</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>Completed Booking</strong></a>
                         </li>
                         <li class="divider"></li>
@@ -142,7 +155,14 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/show_missed_call_rating_data"><i class="fa fa-fw fa-desktop"></i> <strong>Missed Call Rating</strong></a>
                         </li>
-                  
+                         <li class="divider"></li>
+                  <li>
+                            <a href="<?php echo base_url()?>employee/booking/booking_advance_search"><i class="fa fa-fw fa-desktop"></i> <strong>Advanced Search</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/booking_bulk_search"><i class="fa fa-fw fa-desktop"></i> <strong>Bulk Search</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-tasks -->
                 </li>
@@ -326,38 +346,46 @@
                         <li class="dropdown dropdown-submenu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Partner</strong></a>
                             <ul class="dropdown-menu">
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/invoice/insert_update_invoice/partner" ><i class="fa fa-fw fa-desktop"></i> <strong> Create Partner Invoice</strong></a>
+                                </li>
+                                <li class="divider"></li>
                                 <li >
-                            <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
-                        </li>
-                            <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Transactions</strong></a>
-                        </li>
-                            <li class="divider"></li>   
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Check</strong></a>
-                        </li>
+                                    <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
+                                </li>
+                                    <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Transactions</strong></a>
+                                </li>
+                                    <li class="divider"></li>   
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Check</strong></a>
+                                </li>
                             </ul>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown dropdown-submenu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Service Center</strong></a>
                             <ul class="dropdown-menu">
-                            <li>
-                            <a href="<?php echo base_url() ?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Invoices</strong></a>
-                        </li>
-                            <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Transactions</strong></a>
-                        </li>
-                            <li class="divider"></li>
-                       <li>
-                            <a href="<?php echo base_url() ?>employee/invoiceDashboard/service_center_invoice"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Check</strong></a>
-                        </li>
-                         <li class="divider"></li>
-                         <li>
-                            <a href="<?php echo base_url() ?>employee/invoiceDashboard/get_invoice_summary_for_sf"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Summary</strong></a>
-                        </li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/invoice/insert_update_invoice/vendor" ><i class="fa fa-fw fa-desktop"></i> <strong> Create SF Invoice</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                <a href="<?php echo base_url() ?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Invoices</strong></a>
+                                </li>
+                                    <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Transactions</strong></a>
+                                </li>
+                                    <li class="divider"></li>
+                               <li>
+                                    <a href="<?php echo base_url() ?>employee/invoiceDashboard/service_center_invoice"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Check</strong></a>
+                                </li>
+                                 <li class="divider"></li>
+                                 <li>
+                                    <a href="<?php echo base_url() ?>employee/invoiceDashboard/get_invoice_summary_for_sf"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Summary</strong></a>
+                                </li>
                             </ul>
                         </li>
                             <li class="divider"></li>

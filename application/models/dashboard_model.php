@@ -259,7 +259,7 @@ class dashboard_model extends CI_Model {
         $sql = "SELECT DATE_FORMAT(closed_date, '%b') AS month,DATE_FORMAT(closed_date, '%Y') AS year, COUNT(*) as completed_booking
                 FROM booking_details
                 WHERE $where
-                AND closed_date >= (NOW() - INTERVAL 11 MONTH)
+                AND closed_date >= (NOW() - INTERVAL 12 MONTH)
                 GROUP BY DATE_FORMAT(closed_date, '%m-%Y') 
                 ORDER BY YEAR(closed_date),MONTH(closed_date)";
         $query = $this->db->query($sql);
@@ -314,11 +314,39 @@ class dashboard_model extends CI_Model {
         $sql = "SELECT DATE_FORMAT(ud_closed_date, '%b') AS month,DATE_FORMAT(ud_closed_date, '%Y') AS year, COUNT(*) as completed_booking
                 FROM booking_unit_details
                 WHERE $where
-                AND ud_closed_date >= (NOW() - INTERVAL 11 MONTH)
+                AND ud_closed_date >= (NOW() - INTERVAL 12 MONTH)
                 GROUP BY DATE_FORMAT(ud_closed_date, '%m-%Y') 
                 ORDER BY YEAR(ud_closed_date),MONTH(ud_closed_date)";
         $query = $this->db->query($sql);
         $completed_booking = $query->result_array();
         return $completed_booking;
+    }
+/*
+ * This function get data from missing pincode table on the basis of rm id if rm id is null then it will return data group by on rm
+ */    
+     function get_pincode_data_for_not_found_sf($rmID=NULL,$limit=NULL){
+         $this->db->_reserved_identifiers = array('*','CASE');
+            $this->db->select('sf.pincode, COUNT(sf.pincode) as pincodeCount,sf.city,sf.state,sf.service_id,sf.rm_id,'
+                    . 'CASE  WHEN employee.full_name IS NULL THEN "NOT FOUND RM" ELSE employee.full_name END AS full_name,services.services');
+            if($rmID){
+                $this->db->group_by('pincode,service_id');
+                if($rmID == -1){
+                        $this->db->where('rm_id IS NULL'); 
+                }
+                else{
+                     $this->db->where('rm_id',$rmID); 
+                }
+            }
+            else{
+                 $this->db->group_by('rm_id,pincode,service_id'); 
+            }
+            $this->db->order_by('count(pincode) DESC');
+            $this->db->where('active_flag',1); 
+            $this->db->join('services', 'services.id = sf.service_id','left');
+            $this->db->join('employee', 'employee.id = sf.rm_id',"left");
+            if($limit){
+                    $this->db->limit($limit); 
+            }
+            return $this->db->get('sf_not_exist_booking_details sf')->result_array();
     }
 }

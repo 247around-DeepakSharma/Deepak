@@ -209,22 +209,22 @@
                                     
                                 </div>
 
-                                <div class="form-group col-md-7  <?php if( form_error('product_type') ) { echo 'has-error';} ?>">
+<!--                                <div class="form-group col-md-7  <?php //if( form_error('product_type') ) { echo 'has-error';} ?>">
                                      <label for="Product Type">Product Type *</label>
-                                   <?php if(empty($booking_history[0]['assigned_vendor_id'])){ ?>
+                                   <?php //if(empty($booking_history[0]['assigned_vendor_id'])){ ?>
                                      <label class="radio-inline">
                                         <input type="radio" name="product_type" value="Delivered" checked>Delivered
                                       </label>
                                       <label class="radio-inline">
                                           <input type="radio" name="product_type" value="Shipped">Shipped
                                       </label>
-                                   <?php } else  {?>
+                                   <?php //} else  {?>
                                     <label class="radio-inline">
                                         <input type="radio" name="product_type" value="Delivered" checked>Delivered
                                       </label>
-                                   <?php } ?>
-                                    <?php echo form_error('product_type'); ?>
-                                </div>
+                                   <?php //} ?>
+                                    <?php //echo form_error('product_type'); ?>
+                                </div>-->
                             </div>
                             
                             <!-- end col-md-6 -->
@@ -399,6 +399,7 @@
             <div class="row">
                 <div class="form-group  col-md-12" >
                     <center>
+                        <input type="hidden" name="product_type" value="Delivered"/>
                         <input type="submit" id="submitform" class="btn btn-primary "<?php if(count($unique_appliance) > 1){ echo "disabled";}?> onclick="return check_validation()" value="Submit Booking">
                     </center>
                 </div>
@@ -804,6 +805,7 @@
     console.log(upcountry_data);
     is_upcountry = 0;
     count = 0;
+    non_upcountry = 0;
     $("input[type=checkbox]:checked").each(function (i) {
         count = count + 1;
 
@@ -813,10 +815,19 @@
 
         if (Number(up_val) === 1) {
             is_upcountry = 1;
+        } else  if (Number(up_val) === -1) {
+            non_upcountry = -1;
         }
     });
     if (count > 0) {
-        if (is_upcountry === 1) {
+        if(non_upcountry === -1){
+            $("#upcountry_charges").text("0.00");
+            $("#checkbox_upcountry").val("upcountry_0_0");
+           document.getElementById("checkbox_upcountry").checked = false;
+           final_price();
+           $('#submitform').attr('disabled', false);
+             
+        } else if (is_upcountry === 1) {
             
             var data1 = jQuery.parseJSON(upcountry_data);
             console.log(data1);

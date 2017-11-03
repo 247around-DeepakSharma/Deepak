@@ -96,6 +96,7 @@ class Service_centers extends CI_Controller {
             $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
 
         }
+        $data['service_center_id'] = $service_center_id;
         $this->load->view('service_centers/pending_on_tab', $data);
     }
 
@@ -657,39 +658,51 @@ class Service_centers extends CI_Controller {
 
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
+            
 
             if (!empty($data['bookinghistory'][0])) {
-
+                $data['internal_status'] = array();
                 $current_date = date_create(date('Y-m-d'));
                 $current_booking_date = date_create(date('Y-m-d', strtotime($data['bookinghistory'][0]['booking_date'])));
+                $is_est_approved = false;
+                if (isset($data['bookinghistory']['spare_parts'])) {
 
+                    foreach ($data['bookinghistory']['spare_parts'] as $sp) {
+                        if ($sp['status'] == SPARE_OOW_EST_GIVEN) {
+                            array_push($data['internal_status'], array("status" => ESTIMATE_APPROVED_BY_CUSTOMER));
+                            $is_est_approved = true; 
+                        }
+                    }
+                }
                 $date_diff = date_diff($current_date, $current_booking_date);
-                 $data['Service_Center_Visit'] = 0;
+                $data['Service_Center_Visit'] = 0;
                 // We will not display internal status after 1st day.
                 if ($date_diff->days < 1) {
-                    $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
+                    $int = $this->booking_model->get_internal_status($where_internal_status, true);
+                    $data['internal_status'] = array_merge($data['internal_status'], $int);
                     $data['days'] = 0;
                 } else if ($date_diff->days < 3) {
                     $data['days'] = $date_diff->days;
-                    $arr = array('status' => CUSTOMER_NOT_REACHABLE);
-                    $data['internal_status'] = Array((object) $arr);
+                    array_push($data['internal_status'], array('status' => CUSTOMER_NOT_REACHABLE));
                 } else {
-                    $data['internal_status'] = array();
+
                     $data['days'] = 0;
                 }
 
-                //IF spare parts is zero then we will not display spare parts checkbox.
-                // Its check price tags. If Price tags is Repair then we will set spare_flag 1 and we will display spare parts checkbox. 
-                $data['spare_flag'] = 0;
-                //around_flag 1 means. This booking is our booking otherwise partner's booking 
-                $data['around_flag'] = 0;
+                $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
                 foreach ($unit_details as $value) {
-                    if (stristr($value['price_tags'], "Repair")) {
-                        $data['spare_flag'] = 1;
+                    if (strcasecmp($value['price_tags'], REPAIR_OOW_TAG) == 0) {
+                        if(!$is_est_approved){
+                            $data['spare_flag'] = SPARE_OOW_EST_REQUESTED;
+                            $data['price_tags'] = $value['price_tags'];
+                        }
+                    } else if (stristr($value['price_tags'], "Repair")) {
+
+                        $data['spare_flag'] = SPARE_PARTS_REQUIRED;
                         $data['price_tags'] = $value['price_tags'];
                     }
-                    if(stristr($value['price_tags'], "Service Center Visit")){
-                        $data['Service_Center_Visit'] = 1;
+                    if (stristr($value['price_tags'], "Service Center Visit")) {
+                        array_push($data['internal_status'], array("status" => CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER));
                     }
                 }
 
@@ -729,12 +742,18 @@ class Service_centers extends CI_Controller {
                     log_message('info', __FUNCTION__.PRODUCT_NOT_DELIVERED_TO_CUSTOMER. " Request: ". $this->session->userdata('service_center_id'));
                     $this->save_reschedule_request();
                     break;
+                  case ESTIMATE_APPROVED_BY_CUSTOMER:
+                      log_message('info', __FUNCTION__.ESTIMATE_APPROVED_BY_CUSTOMER. " Request: ". $this->session->userdata('service_center_id'));
+                      $booking_id = $this->input->post('booking_id');
+                      $this->approve_oow($booking_id);
+                      break;
 
                 case SPARE_PARTS_REQUIRED:
-                    log_message('info', __FUNCTION__. " Spare Parts Required Request: ". $this->session->userdata('service_center_id'));
+                case SPARE_OOW_EST_REQUESTED: 
+                    log_message('info', __FUNCTION__. " ".SPARE_OOW_EST_REQUESTED." :". $this->session->userdata('service_center_id'));
                     $this->update_spare_parts();
                     break;
-
+                 
                  case CUSTOMER_NOT_REACHABLE:
                      log_message('info', __FUNCTION__. CUSTOMER_NOT_REACHABLE. $this->session->userdata('service_center_id'));
                         $day = $this->input->post('days');
@@ -831,6 +850,7 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required|xss_clean');
         if ($this->form_validation->run()) {
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
             $booking_id = $this->input->post('booking_id');
             $data['model_number'] = $this->input->post('model_number');
             $data['serial_number'] = $this->input->post('serial_number');
@@ -843,14 +863,20 @@ class Service_centers extends CI_Controller {
             if (stristr($price_tags, "Out Of Warranty")) {
                 
                 $data['defective_part_required'] = 0;
+                $status = SPARE_OOW_EST_REQUESTED;
+                $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                 
             } else {
                 $data['defective_part_required'] = $this->partner_model->getpartner_details("is_def_spare_required", 
                 array('partners.id' => $data['partner_id']))[0]['is_def_spare_required'];
+                
+                $status = SPARE_PARTS_REQUESTED;
+                $sc_data['internal_status'] = $reason;
             }
 
             if (isset($_FILES["invoice_image"])) {
-                $invoice_name = $this->upload_spare_pic($_FILES["invoice_image"], "Invoice");
+                $invoice_name = $this->miscelleneous->upload_file_to_s3($_FILES["invoice_image"], 
+                        "Invoice", $allowedExts, $booking_id, "misc-images", "sp_parts");
                 if (isset($invoice_name)) {
                     $data['invoice_pic'] = $invoice_name;
                 }
@@ -858,7 +884,8 @@ class Service_centers extends CI_Controller {
 
             if (isset($_FILES["serial_number_pic"])) {
 
-                $serial_number_pic = $this->upload_spare_pic($_FILES["serial_number_pic"], "Serial_NO");
+                $serial_number_pic = $this->miscelleneous->upload_file_to_s3($_FILES["serial_number_pic"], 
+                        "Serial_NO", $allowedExts, $booking_id, "misc-images", "sp_parts");
                 if (isset($serial_number_pic)) {
                     $data['serial_number_pic'] = $serial_number_pic;
                 }
@@ -866,7 +893,8 @@ class Service_centers extends CI_Controller {
 
             if (isset($_FILES["defective_parts_pic"])) {
 
-                $defective_parts_pic = $this->upload_spare_pic($_FILES["defective_parts_pic"], "Defective_Parts");
+                $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["defective_parts_pic"], 
+                        "Defective_Parts", $allowedExts, $booking_id, "misc-images", "sp_parts");
                 if (isset($defective_parts_pic)) {
                     $data['defective_parts_pic'] = $defective_parts_pic;
                 }
@@ -877,7 +905,7 @@ class Service_centers extends CI_Controller {
             $data['remarks_by_sc'] = $this->input->post('reason_text');
             
             $data['booking_id'] = $booking_id;
-            $data['status'] = SPARE_PARTS_REQUESTED;
+            $data['status'] = $status;
             $data['service_center_id'] = $this->session->userdata('service_center_id');
             //$where = array('booking_id' => $booking_id, 'service_center_id' => $data['service_center_id']);
             $status_spare = $this->service_centers_model->insert_data_into_spare_parts($data);
@@ -886,9 +914,8 @@ class Service_centers extends CI_Controller {
                 $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc']);
 
                 $sc_data['current_status'] = "InProcess";
-                $sc_data['internal_status'] = $reason;
-
-                if ($booking_date != "") {
+                
+                if (!empty($booking_date) ) {
                     $sc_data['current_status'] = "Pending";
                     $sc_data['booking_date'] = date('Y-m-d H:i:s', strtotime($booking_date));
                     $sc_data['reschedule_reason'] = $data['remarks_by_sc'];
@@ -908,14 +935,14 @@ class Service_centers extends CI_Controller {
             } else { // if($status_spare){
                 log_message('info', __FUNCTION__ . " Not update Spare parts Service_center ID: " . $this->session->userdata('service_center_id') . " Data: " . print_r($data));
 
-                $userSession = array('success' => 'Booking Not Updated');
+                $userSession = array('error' => 'Booking Not Updated');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/pending_booking");
             }
         } else {
             log_message('info', __FUNCTION__ . " Not update Spare parts Service_center ID: " . $this->session->userdata('service_center_id') . " Data: " . print_r($data));
 
-            $userSession = array('success' => 'Booking Not Updated');
+            $userSession = array('error' => 'Booking Not Updated');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "service_center/pending_booking");
         }
@@ -924,7 +951,10 @@ class Service_centers extends CI_Controller {
     }
     
     function upload_defective_spare_pic(){
-        $defective_courier_receipt = $this->upload_spare_pic($_FILES["defective_courier_receipt"], "defective_courier_receipt");
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $booking_id = $this->input->post("booking_id");
+        $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["defective_courier_receipt"], 
+                "defective_courier_receipt", $allowedExts, $booking_id, "misc-images", "sp_parts");
         if($defective_courier_receipt){
            return true;
         } else {
@@ -932,44 +962,6 @@ class Service_centers extends CI_Controller {
 		    . 'Maximum file size is 5 MB.');
             return false;
         }
-    }
-
-    /**
-     * @esc: This method upload invoice image OR panel image to S3
-     * @param _FILE $file
-     * @return boolean|string
-     */
-     public function upload_spare_pic($file, $type) {
-         log_message('info', __FUNCTION__. " Enterring Service_center ID: ". $this->session->userdata('service_center_id'));
-        $this->checkUserSession();
-	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
-	$temp = explode(".", $file['name']);
-	$extension = end($temp);
-	//$filename = prev($temp);
-
-	if ($file["name"] != null) {
-	    if (($file["size"] < 5e+6) && in_array($extension, $allowedExts)) {
-		if ($file["error"] > 0) {
-		    $this->form_validation->set_message('upload_spare_pic', $file["error"]);
-		} else {
-                   
-		    $pic = str_replace(' ', '-', $this->input->post('booking_id'));
-		    $picName = $type. rand(10,100).$pic . "." . $extension;
-                    $_POST['sp_parts'] = $picName;
-		    $bucket = BITBUCKET_DIRECTORY;
-                    
-		    $directory = "misc-images/" . $picName;
-		    $this->s3->putObjectFile($file["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
-
-		    return $picName;
-		}
-	    } else {
-		$this->form_validation->set_message('upload_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 2 MB.');
-		return FALSE;
-	    }
-	}
-        log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
     }
     
     /**
@@ -1995,6 +1987,7 @@ class Service_centers extends CI_Controller {
      * @desc This is used to insert gst for data.
      */
     function process_gst_update() {
+        
         //$this->checkUserSession();
         log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
         $this->load->library('table');
@@ -2013,8 +2006,9 @@ class Service_centers extends CI_Controller {
             $is_gst = $this->input->post('is_gst');
             $is_gst_number = NULL;
             $gst_file_name = NULL;
+            
             if ($is_gst == 1) {
-                $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|trim|min_length[15]|max_length[15]');
+                $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|trim|min_length[15]|max_length[15]|regex_match[/^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[a-zA-Z0-9]{1}/]');
                 $this->form_validation->set_rules('file', 'Company GST File', 'callback_upload_gst_certificate_file');
 
                 if ($this->form_validation->run() === false) {
@@ -2026,6 +2020,8 @@ class Service_centers extends CI_Controller {
                     $gst_file_name = $this->input->post('gst_cer_file');
                 }
             }
+            
+            
             // It not Accessed When validation failed above
             if ($status_flag) {
                 $gst_details['service_center_id'] = $this->session->userdata('service_center_id');
@@ -2415,23 +2411,29 @@ class Service_centers extends CI_Controller {
         $data = array();
         //get delivered charges by month
         $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));
-        $select = "SUM(cp_basic_charge + cp_tax_charge) as cp_delivered_charge, count(bb_order_details.partner_order_id) as total_delivered_order";
+        $select = "SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
+                THEN (bb_unit_details.cp_claimed_price) 
+                ELSE (bb_unit_details.cp_basic_charge) END ) as cp_delivered_charge, count(bb_order_details.partner_order_id) as total_delivered_order";
         for ($i = 0; $i < 3; $i++) {
             if ($i == 0) {
-                $delivery_date = "bb_order_details.delivery_date >=  '" . date('Y-m-01') . "'";
+                //$delivery_date = "bb_order_details.delivery_date >=  '" . date('Y-m-01') . "'";
+                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN `bb_order_details`.`acknowledge_date` >= '" . date('Y-m-01') . "' ELSE `bb_order_details`.`delivery_date` >= '" . date('Y-m-01') . "'  END)";
                 $select .= ", date(now()) As month";
             }else if ($i == 1) {
-                $delivery_date = "bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
-			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+			    AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() ,'%Y-%m-01') END) ";
                 $select .= ", DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month";
             }else if ($i == 2) {
-                $delivery_date = "bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
-			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+			    AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') END)";
                 $select .= ", DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month";
             }
             
             $where['where'] = array('assigned_cp_id' => $cp_id,"$delivery_date" => NULL);
             $cp_delivered_charge[$i] = $this->bb_model->get_bb_order_list($where, $select);
+            
         }
         
         //get total delivered charges data
@@ -2440,7 +2442,9 @@ class Service_centers extends CI_Controller {
         
         //get in_transit data by month
         $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
-        $select_in_transit = "SUM(cp_basic_charge + cp_tax_charge) as cp_in_transit_charge,count(bb_order_details.partner_order_id) as total_inTransit_order";
+        $select_in_transit = "SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
+                THEN (bb_unit_details.cp_claimed_price) 
+                ELSE (bb_unit_details.cp_basic_charge) END ) as cp_in_transit_charge,count(bb_order_details.partner_order_id) as total_inTransit_order";
         for ($i = 0; $i < 3; $i++) {
             if ($i == 0) {
                 $in_transit_date = "bb_order_details.order_date >=  '" . date('Y-m-01') . "'";
@@ -2696,6 +2700,46 @@ class Service_centers extends CI_Controller {
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager','active' => 1));
         $this->load->view('service_centers/contact_us',$data);
     }
-    
+    /**
+     * @desc This is used to Approve Spare Estimate by SF
+     * @param String $booking_id
+     */
+    function approve_oow($booking_id) {
+        log_message("info",__METHOD__. "Enterring");
+        if (!empty($booking_id)) {
+            $req['where'] = array("spare_parts_details.booking_id" => $booking_id, "status" => SPARE_OOW_EST_GIVEN);
+            $req['length'] = -1;
+            $req['select'] = "spare_parts_details.id";
+            $sp_data =$this->inventory_model->get_spare_parts_query($req);
+            if(!empty($sp_data)){
+                log_message("info",__METHOD__. "Spare parts Not found". $booking_id);
+                $sc['current_status'] = "InProcess";
+                $sc['update_date'] = date('Y-m-d H:i:s');
+                $sc['internal_status'] = SPARE_PARTS_REQUIRED;
+                // UPDATE SC Action Table
+                $this->service_centers_model->update_service_centers_action_table($booking_id, $sc);
+
+                // UPDATE Spare Parts
+                $this->service_centers_model->update_spare_parts(array('id' => $sp_data[0]->id), array("status" => SPARE_PARTS_REQUESTED, 'date_of_request' => date('Y-m-d')));
+
+                $this->insert_details_in_state_change($booking_id, SPARE_PARTS_REQUESTED, ESTIMATE_APPROVED_BY_CUSTOMER);
+
+                $userSession = array('success' => 'Booking Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/pending_booking");
+            } else {
+                log_message("info",__METHOD__. "Spare Not not found ". $booking_id);
+                $userSession = array('error' => 'Booking Not Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/pending_booking");
+            }
+            
+        } else {
+            log_message("info",__METHOD__. "Booking ID not found ". $booking_id);
+            $userSession = array('error' => 'Booking Not Updated');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "service_center/pending_booking");
+        }
+    }
 
 }

@@ -3264,44 +3264,21 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 VALUES (NULL, 'low_prepaid_amount', 'Low Balance', 'Dear Partner,<br/><br/> Please recharge your account <br/><br/>Thanks,<br/>247around Team', 
 'billing@247around.com', '', 'anuj@247around.com, nits@247around.com, adityag@gmail.com', '', '1', '2017-10-03 13:05:07');
 
+--Chhavi 6 oct
+ALTER TABLE `employee_relation` ADD `state_id` VARCHAR(50) NOT NULL AFTER `service_centres_id`;
+
+--Chhavi 9th Oct
+ALTER TABLE `sf_not_exist_booking_details` ADD `rm_id` INT NOT NULL AFTER `city`;
+
+--Chhavi 9th Oct
+ALTER TABLE `service_centres` ADD `agent_id` INT(10) NULL DEFAULT NULL AFTER `create_date`;
+
+--Chhavi 9th Oct
+ALTER TABLE `sf_not_exist_booking_details` ADD `state` VARCHAR(20) NOT NULL AFTER `create_date`, ADD `service_id` INT(11) NOT NULL AFTER `state`, ADD `active_flag` INT(2) NOT NULL DEFAULT '1' AFTER `appliance_id`;
+
 
 --Chhavi 06 oct
 ALTER TABLE `employee_relation` ADD `state_id` VARCHAR(50) NOT NULL AFTER `service_centres_id`;
-
---Chhavi
-CREATE TABLE `pincode_not_found_sf` (
-  `id` int(11) NOT NULL,
-  `pincode` int(10) NOT NULL,
-  `area` varchar(20) NOT NULL,
-  `division` varchar(20) NOT NULL,
-  `region` varchar(20) NOT NULL,
-  `taluk` varchar(20) NOT NULL,
-  `district` varchar(20) NOT NULL,
-  `state` varchar(20) NOT NULL,
-  `rm_id` int(10) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `pincode_not_found_sf`
---
-ALTER TABLE `pincode_not_found_sf`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `pincode_not_found_sf`
---
-ALTER TABLE `pincode_not_found_sf`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
-
-
 
 --Chhavi
 
@@ -3329,6 +3306,7 @@ CREATE TABLE `bb_svc_balance`
 `la_balance` DECIMAL(10,2) NOT NULL DEFAULT '0.00' , 
 `create_date` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
+
 --sachin 12 Oct
 ALTER TABLE `employee` ADD `languages` VARCHAR(256) NULL DEFAULT NULL AFTER `image_link`;
 UPDATE `employee` SET `languages` = 'English, Hindi, Marathi' WHERE `employee`.`id` = 24;
@@ -3343,3 +3321,47 @@ UPDATE `employee` SET `office_centre` = 'Delhi' WHERE `employee`.`id` = 32;
 
 -- sachin 16 oct 
 ALTER TABLE `file_uploads` ADD `result` VARCHAR(64) NULL AFTER `agent_id`;
+
+
+-- sachin 23 Oct
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'resend_login_details', 'New Login details', 'please find below your login details.<br><br>
+<b>Username: </b>%s<br><b>Password: </b>%s<br><br>
+Please use the ERP panel for your closures going forward. In case of any issues, write to us or call us.<br><br>
+Regards,<br> 247around Team', 'booking@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+-- sachin 24 Oct
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) 
+VALUES (NULL, 'booking_details_to_dealer', 'New Request for %s from %s is confirmed for %s,%s. Booking Id is %s.Please Contact Customer@%s.', 
+'Send sms To dealer When New booking created', '1', CURRENT_TIMESTAMP);
+
+
+--sachin 27 Oct
+ALTER TABLE `penalty_on_booking` ADD `agent_type` VARCHAR(128) NOT NULL AFTER `agent_id`;
+UPDATE penalty_on_booking SET agent_type = 'admin';
+
+
+--Abhay 12 OCT
+ALTER TABLE `spare_parts_details` ADD `estimate_cost_given` DECIMAL(10,2) NOT NULL AFTER `date_of_request`;
+ALTER TABLE `spare_parts_details` ADD `estimate_cost_given_date` DATE NULL DEFAULT NULL AFTER `estimate_cost_given`;
+ALTER TABLE `spare_parts_details` ADD `incoming_invoice_pdf` VARCHAR(128) NULL DEFAULT NULL AFTER `estimate_cost_given_date`;
+ALTER TABLE `spare_parts_details` CHANGE `estimate_cost_given` `estimate_purchase_cost` DECIMAL(10,2) NOT NULL;
+ALTER TABLE `spare_parts_details` ADD `estimate_sell_cost` DECIMAL(10,2) NULL DEFAULT '0' AFTER `estimate_purchase_cost`;
+
+
+
+-- 02 Nov
+ALTER TABLE `spare_parts_details` CHANGE `estimate_purchase_cost` `purchase_price` DECIMAL(10,2) NULL DEFAULT '00', CHANGE `estimate_sell_cost` `sell_price` DECIMAL(10,2) NULL DEFAULT '0.00';
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'OOW_invoice_sent', 'Repair OOW Parts Sent By Partner For Booking ID: %s', 'Spare Invoice Estimate Given %s', 'billing@247around.com', 'anuj@247around.com, adityag@247around.com', 'abhaya@247around', '', '1', '2017-11-02 23:56:57');
+
+ALTER TABLE `login_logout_details` ADD `is_login_by_247` INT NULL DEFAULT '1' AFTER `created_on`;
+
+
+--02 Nov
+ALTER TABLE `login_logout_details` ADD `is_login_by_247` INT NULL DEFAULT '1' AFTER `created_on`;
+
+--02 Nov
+ALTER TABLE `partners` ADD `customer_care_contact` INT NULL DEFAULT NULL AFTER `primary_contact_phone_1`;
+ALTER TABLE `partners` CHANGE `customer_care_contact` `customer_care_contact` VARCHAR(20) NULL DEFAULT NULL;

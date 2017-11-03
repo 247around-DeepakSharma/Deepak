@@ -125,7 +125,8 @@
                 <th class='jumbotron'>Go To Invoice Page</th>
           	<th class="jumbotron">Temporary</th>
           	<th class="jumbotron">Permanent</th>
-                    <th class="jumbotron">Add Pin Code</th> 
+                <th class="jumbotron">Add Pin Code</th>
+                <th class="jumbotron">Resend Login Details</th>
           </tr>
 
           
@@ -170,17 +171,17 @@
                     
           	<td><?php if($row['active']==1)
                 {
-                  echo "<a id='edit' class='btn btn-small btn-danger' "
-                                    . "href=" . base_url() . "employee/vendor/deactivate/$row[id]>Deactivate</a>";                
+                  echo "<a id='edit' class='btn btn-small btn-danger' onclick ='pendingBookings(".$row['id'].")'>Deactivate</a>";                
                 }
                 else
                 {
                   echo "<a id='edit' class='btn btn-small btn-primary' "
-                                    . "href=" . base_url() . "employee/vendor/activate/$row[id]>Activate</a>";                
+                                    . "href=" . base_url() . "employee/vendor/vendor_activate_deactivate/$row[id]/1>Activate</a>";                
                 }
               ?>
             </td>
             <td><button type="button" class="btn btn-small btn-success" id="<?php echo $row['id']; ?>" data-toggle="modal" data-target="#pin_code" onclick="createPinCodeForm(this.id,<?php echo "'".$row['name']."'"  ?>)">Pin Code</button></td>
+            <td><a class="btn btn-warning" href="<?php echo base_url();?>employee/vendor/resend_login_details/vendor/<?php echo $row['id']?>">Resend Login Details</a></td>
           </tr>
           <?php } ?>
         </table>
@@ -259,3 +260,30 @@
 
   </div>
 </div>
+ <script>
+     function permanentVendorOff(vendorID){
+         $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/vendor_activate_deactivate/'+vendorID+'/0',
+                success: function(response) {
+                    location.reload();
+                }
+            });
+     }
+      function pendingBookings(vendorID){
+         $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/pending_bookings_on_vendor/' + vendorID,
+                success: function(response) {
+                    if(response>0){
+                        if(confirm("This Service Center have "+response+" Pending Queries, are you sure you want to delete this vendor")){
+                              permanentVendorOff(vendorID);
+                        }
+                    }
+                    else{
+                        permanentVendorOff(vendorID);
+                    }
+                }
+            });
+     }
+     </script>

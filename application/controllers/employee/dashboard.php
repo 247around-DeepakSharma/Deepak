@@ -45,7 +45,6 @@ class Dashboard extends CI_Controller {
      * @return void
      */
     function index() {
-
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('dashboard/main_dashboard');
         $this->load->view('dashboard/dashboard_footer');
@@ -313,42 +312,44 @@ class Dashboard extends CI_Controller {
         }
         foreach ($rm_array as $value) {
 
-            $sf_list = $this->vendor_model->get_employee_relation($value['id'])[0];
-            $region_data = $this->dashboard_model->get_booking_data_by_rm_region($startDate, $endDate, $sf_list['service_centres_id'], $partner_id);
-            array_push($rm, $value['full_name']);
-            foreach ($region_data[0] as $key => $value){
-                switch ($key){
-                    case 'Cancelled':
-                        if(!empty($value)){
-                            array_push($cancelled, $value);
-                        }else{
-                            array_push($cancelled, '0');
-                        }
-                        break;
-                    case 'Completed':
-                        if(!empty($value)){
-                            array_push($completed, $value);
-                        }else{
-                            array_push($completed, '0');
-                        }
-                        break;
-                    case 'Pending':
-                        if(!empty($value)){
-                            array_push($pending, $value);
-                        }else{
-                            array_push($pending, '0');
-                        }
-                        break;
-                    case 'Total':
-                        if(!empty($value)){
-                            array_push($total, $value);
-                        }else{
-                            array_push($total, '0');
-                        }
-                        break;
+            $sf_list = $this->vendor_model->get_employee_relation($value['id']);
+            if (!empty($sf_list)) {
+                $sf_id = $sf_list[0]['service_centres_id'];
+                $region_data = $this->dashboard_model->get_booking_data_by_rm_region($startDate, $endDate, $sf_id, $partner_id);
+                array_push($rm, $value['full_name']);
+                foreach ($region_data[0] as $key => $value) {
+                    switch ($key) {
+                        case 'Cancelled':
+                            if (!empty($value)) {
+                                array_push($cancelled, $value);
+                            } else {
+                                array_push($cancelled, '0');
+                            }
+                            break;
+                        case 'Completed':
+                            if (!empty($value)) {
+                                array_push($completed, $value);
+                            } else {
+                                array_push($completed, '0');
+                            }
+                            break;
+                        case 'Pending':
+                            if (!empty($value)) {
+                                array_push($pending, $value);
+                            } else {
+                                array_push($pending, '0');
+                            }
+                            break;
+                        case 'Total':
+                            if (!empty($value)) {
+                                array_push($total, $value);
+                            } else {
+                                array_push($total, '0');
+                            }
+                            break;
+                    }
                 }
             }
-            
         }
         $json_data['rm'] = implode(",", $rm);
         $json_data['cancelled'] = implode(",", $cancelled);
@@ -357,7 +358,7 @@ class Dashboard extends CI_Controller {
         $json_data['total'] = implode(",", $total);
         echo json_encode($json_data);
     }
-    
+
     /**
      * @desc: This function is used to get booking entered and scheduled data
      * @param string
@@ -414,6 +415,8 @@ class Dashboard extends CI_Controller {
             array_push($year, $value['year']);
             array_push($completed_booking, $value['completed_booking']);
         }
+        array_shift($month);
+        array_shift($completed_booking);
         $json_data['month'] = implode(",", $month);
         $json_data['completed_booking'] = implode(",", $completed_booking);
         echo json_encode($json_data);
@@ -588,9 +591,192 @@ class Dashboard extends CI_Controller {
             array_push($year, $value['year']);
             array_push($completed_booking, $value['completed_booking']);
         }
+        array_shift($month);
+        array_shift($completed_booking);
         $json_data['month'] = implode(",", $month);
         $json_data['completed_booking'] = implode(",", $completed_booking);
         echo json_encode($json_data);
     }
-    
+    /*
+     * This is a helper function to create missing pincodes view for rm
+     * This function use to create a hidden form which will be submit when rm will click on action button
+     * This function will send required data through post to the add pincode to sf form
+     */
+    function get_pincode_form(){
+        $form = "<form method='post' action=".base_url()."employee/vendor/insert_pincode_form id='pincodeForm' target='_blank'>";
+        $form .=  "<input type='hidden' value='' name='pincode' id='pincode'>";
+        $form .=  "<input type='hidden' value='' name='city' id='city'>";
+        $form .=  "<input type='hidden' value='' name='state' id='state'>";
+        $form .=  "<input type='hidden' value='' name='service' id='service'>";
+        $form .=  "</form>";
+        return $form;
+    }
+    /*
+     * This is a helper function to create missing pincodes view for rm
+     * This Function contains the html for detailed view 
+     * Dynamically Javascript will change the number for this view
+     */
+    function get_missing_pincode_detailed_view(){
+        ?>
+        <div id="missingPincodeDetails" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Missing Pincodes Detailed View</h4>
+      </div>
+      <div class="modal-body">
+          <table class="table table-bordered" id="mssingPincodeTable">
+    <thead>
+      <tr>
+        <th>Pincode</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Service</th>
+        <th>PincodeCount</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+          </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+     <?php   
+    }
+    /*
+     * This is a helper function to create missing pincodes view for rm
+     * This function convert data (which we get directly from db) into a structured format
+     */
+    function get_missing_pincode_data_structured_format($pincodeResult){
+          $structuredArray = array();
+          foreach($pincodeResult as $key=>$data){   
+                    if(array_key_exists($data['pincode'], $structuredArray)){
+                              $structuredArray[$data['pincode']]['totalCount'] = $structuredArray[$data['pincode']]['totalCount']+$data['pincodeCount'];
+                    }
+                    else{
+                        
+                              $structuredArray[$data['pincode']]['totalCount'] = $data['pincodeCount'];
+                    }   
+                    $structuredArray[$data['pincode']]['pincode'] = $data['pincode'];
+                    $structuredArray[$data['pincode']]['city'] = $data['city'];
+                    $structuredArray[$data['pincode']]['state'] = $data['state'];
+                    $structuredArray[$data['pincode']]['rm'] = $data['full_name'];
+                    $temp['service_id'] = $data['service_id'];
+                    $temp['pincodeCount'] = $data['pincodeCount'];
+                    $temp['service_name'] = $data['services'];
+                    $structuredArray[$data['pincode']]['service'][] = $temp;
+          }
+            return $structuredArray;
+    }
+    /*
+     * This function use to create the missing pincode RM view
+     * @input Limit - Number which defines how many records will get returned
+     * @output - Table View for missing pincodes 
+     */
+    function get_pincode_not_found_sf_details($limit=NULL){
+        if($this->session->userdata('rm_id')){
+            $agentID = $this->session->userdata('rm_id');
+            $this->session->unset_userdata('rm_id');
+        }
+        else{
+                $agentID = $this->session->userdata('id');
+        }
+        $pincodeResult =  $this->dashboard_model->get_pincode_data_for_not_found_sf($agentID,NULL);
+        $template = array(
+        'table_open' => '<table  '
+            . ' class="table table-striped table-bordered jambo_table bulk_action">'
+        );
+        $this->table->set_template($template);
+        $this->table->set_heading(array('S.N','Pincode', 'Pending Bookings','action'));
+        echo $this->get_pincode_form();
+        $this->get_missing_pincode_detailed_view();
+        $structuredPincodeArray = $this->get_missing_pincode_data_structured_format($pincodeResult);
+        $i=1;
+        foreach($structuredPincodeArray as $pincode=>$structuredData){ 
+          if($limit){
+              if($i>$limit){
+                  break;
+              }
+          }
+                   $this->table->add_row($i,$pincode,"<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>","<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"); 
+                   $i++;
+        }
+        echo $this->table->generate();
+    }
+    /*
+     * This function use to create a dashboard for RM
+     */
+    function rm_dashboard(){
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/rm_dashboard');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    /*
+     * This function use to create full view of missing pincode table
+     */
+    function missing_pincode_full_view(){
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/missing_pincodes_full_view');
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    /*
+     * This is a helper function for admin missing pincode view
+     * Pass Group by rm query data, it will return a associatve array in which rm will be key
+     */
+    function get_missing_pincode_admin_data_structured_format($pincodeResult){
+        $rmDataArray = array();
+        foreach($pincodeResult as $data){
+            if(array_key_exists($data['full_name'], $rmDataArray)){
+                     $rmDataArray[$data['full_name']]['count'] = $rmDataArray[$data['full_name']]['count']+$data['pincodeCount'];
+            }
+            else{
+                   $rmDataArray[$data['full_name']]['count'] = $data['pincodeCount'];
+                   $rmDataArray[$data['full_name']]['id'] = $data['rm_id'];
+            }
+        }
+        arsort($rmDataArray);
+        return $rmDataArray;
+    }
+    /*
+     * This function use to create sf_not_found  view for admin
+     * It will shows missing pincode pending queries group by rm 
+     */
+    function get_pincode_not_found_sf_details_admin(){
+        $pincodeResult =  $this->dashboard_model->get_pincode_data_for_not_found_sf();
+        $template = array(
+        'table_open' => '<table  '
+            . ' class="table table-striped table-bordered jambo_table bulk_action">'
+        );
+        $this->table->set_template($template);
+        $this->table->set_heading(array('S.N','RM', 'Pending Queries'));
+        $rmDataArray = $this->get_missing_pincode_admin_data_structured_format($pincodeResult);
+        $i=1;
+        foreach($rmDataArray as $rm=>$rmData){
+            if(!$rmData){
+                $rmData['id'] = -1;
+            }
+                  $this->table->add_row($i,"<a target='_blank' href=".base_url()."employee/dashboard/missing_pincode_full_view?rm_id=".$rmData['id']." style='margin: 0px;padding: 6px;' class='btn btn-info'>".$rm."</a>",$rmData['count']); 
+                   $i++;
+        }
+        echo $this->table->generate();
+    }
+    /*
+    * This function willl download the missing pincode data on the basis of rm
+     * @input - rm_id
+     * @output - Excel
+     */
+    function download_missing_sf_pincode_excel($rmID){
+        ob_start();
+        $pincodeArray =  $this->dashboard_model->get_pincode_data_for_not_found_sf($rmID);
+        $config = array('template' => "missing_sf_pincode.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
+        $this->miscelleneous->downloadExcel($pincodeArray,$config);
+    }
 }

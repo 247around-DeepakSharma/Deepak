@@ -2,9 +2,6 @@
     #datatable1_filter{
         text-align: right;
     }
-    .col-md-3 {
-        width: 18%;
-    }
     
     .spinner {
         margin: 0px auto;
@@ -143,10 +140,22 @@
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <select class="form-control filter_table" id="ratings">
-                                <option value="" selected="selected" disabled="">Select Rating Status</option>
+                                <option value="" selected="selected" disabled="">Select Rating</option>
                                 <option value="a">Booking With Ratings</option>
                                 <option value="b">Booking Without Ratings</option>
                                 <option value="c">All</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <select class="form-control filter_table" id="city">
+                                <option value="" selected="selected" disabled="">Select City</option>
+                                <?php foreach($cities as $val){ ?>
+                                <option value="<?php echo $val['city']?>"><?php echo $val['city']?></option>
+                                <?php } ?>
                             </select>
                         </div>
                     </div>
@@ -256,6 +265,14 @@
         placeholder: "Select Appliance",
         allowClear: true
     });
+    $('#city').select2({
+        placeholder: "Select City",
+        allowClear: true
+    });
+    $('#ratings').select2({
+        placeholder: "Select Rating",
+        allowClear: true
+    });
     $(document).ready(function(){
         
         
@@ -301,6 +318,7 @@
                     d.booking_date_range =  $('#closed_date').val();
                     d.ratings =  $('#ratings').val();
                     d.appliance =  $('#appliance').val();
+                    d.city =  $('#city').val();
                  }
             },
             "deferRender": true,

@@ -54,7 +54,7 @@
                             <div class="long-card">
                                 <div class="container">
                                     <h5><b>Mr. <?php echo ucwords($rm['full_name']); ?></b></h5> 
-                                    <p>Escalation <?php echo ucwords(explode(',', $rm['designation'])[1]); ?></p>
+                                    <p>Escalation <?php if(isset(explode(',', $rm['designation'])[1])){echo ucwords(explode(',', $rm['designation'])[1]);} ?></p>
                                     <p><?php echo ucwords($rm['designation']); ?></p>
                                     <p><?php echo ucwords($rm['office_centre']); ?> Office,<span><?php echo $rm['phone']; ?></span></p>
                                     <p><?php echo $rm['languages']; ?></p>

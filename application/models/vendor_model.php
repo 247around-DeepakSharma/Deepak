@@ -158,36 +158,12 @@ class vendor_model extends CI_Model {
 
         return $query->result();
     }
-
-    /**
-     * @desc: This function is to activate vendor who is already registered with us and are inactive/deactivated.
-     *
-     * @param: $id
-     *         - Id of vendor to whom we would like to activate
-     * @return: void
-     */
-    function activate($id) {
-        $sql = "Update service_centres set active= 1 where id='$id'";
-        $this->db->query($sql);
-        //Changing Flag Active to 1 in service centres login table
-        $sql = "Update service_centers_login set active= 1 where service_center_id='$id'";
-        $this->db->query($sql);
+    
+    function update_service_centers_login($where, $data){
+        $this->db->where($where);
+        $this->db->update("service_centers_login", $data);
     }
 
-    /**
-     * @desc: This function is to deactivate vendor who is already registered with us and are active.
-     *
-     * @param: $id
-     *         - Id of vendor to whom we would like to deactivate
-     * @return: void
-     */
-    function deactivate($id,$agentID=NULL) {
-        $sql = "Update service_centres set active= 0,agent_id=".$agentID." where id='$id'";
-        $this->db->query($sql);
-        //Changing Flag Active to 0 in service centres login table
-        $sql1 = "Update service_centers_login set active= 0 where service_center_id='$id'";
-        $this->db->query($sql1);
-    }
 
     /**
      * @desc: This function is to activate vendor who is already registered with us.
@@ -1136,9 +1112,7 @@ class vendor_model extends CI_Model {
      * @return Int ID of inserted data
      */
     function insert_vendor_pincode_mapping($data){
-
         $this->db->insert('vendor_pincode_mapping', $data);
-        
         return $this->db->insert_id();
     }
     
@@ -1557,19 +1531,7 @@ class vendor_model extends CI_Model {
             return FALSE;
         }
     }
-    
-     /**
-     * @desc: This function is to suspend vendor who is already registered with us 
-     *
-     * @param: $id,$on_off
-     *         
-     * @return: void
-     */
-    function temporary_on_off_vendor($id,$on_off,$agentID=NULL) {
-        $sql = "Update service_centres set on_off = '$on_off',agent_id=".$agentID." where id='$id'";
-        $this->db->query($sql);
-    }
-
+   
     /**
      * 
      * @Desc: This function is used to get employee_relation if present in employee_relation
@@ -1613,7 +1575,7 @@ class vendor_model extends CI_Model {
      * 
      */
     function get_rm_sf_relation_by_sf_id($sf_id){
-        $sql = "Select employee_relation.*, employee.official_email from employee_relation,employee "
+        $sql = "Select employee_relation.*, employee.official_email, employee.full_name from employee_relation,employee "
                 . "where FIND_IN_SET($sf_id,employee_relation.service_centres_id) "
                 . "AND employee.groups != '"._247AROUND_ADMIN."' "
                 . "AND employee_relation.agent_id = employee.id";
@@ -1670,7 +1632,13 @@ class vendor_model extends CI_Model {
     }
     
     function insert_india_pincode_in_batch($rows) {
-	$query = $this->db->insert_batch('india_pincode', $rows);
+        $query = $this->db->insert_batch('india_pincode', $rows);
+        if($this->db->affected_rows() > 0){
+            return $this->db->affected_rows() ;
+        }
+        else{
+            return false;
+        }
     }
     
     /**
@@ -1819,4 +1787,32 @@ class vendor_model extends CI_Model {
           $query = $this->db->get('file_uploads');
           return $query->result_object();
     }
+    
+    function update_not_found_sf_table($where,$data){
+        $this->db->or_where($where,FALSE);
+        $this->db->set($data);
+        $this->db->UPDATE('sf_not_exist_booking_details');
+    }
+    
+    function get_india_pincode_distinct_area_data($pincode) {
+            $this->db->select('state,area,region,district as city');
+            $this->db->where('pincode', $pincode);
+            $this->db->group_by('area,region,district,state');
+            $query = $this->db->get('india_pincode');
+            return $query->result_array();
+     }
+     
+     function get_vendor_brand($vendorID){
+          $this->db->select('brands');
+          $this->db->where('id', $vendorID);
+          $query = $this->db->get('service_centres');
+          return $query->result_array();
+     }
+     
+     function update_file_status($status,$fileName){
+         $data=array('result'=>$status);
+         $this->db->where('file_name',$fileName);
+        $this->db->update("file_uploads",$data);
+        echo $this->db->last_query();
+     }
 }

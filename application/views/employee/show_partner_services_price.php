@@ -128,6 +128,7 @@
             <th>Partner Payable Basic</th>
             <th>Customer Net Payable</th>
             <th>Vendor Total</th>
+            <th>Vendor Basic Percentage</th>
             <th>POD</th>
             <th>Upcountry</th>
             <tbody>
@@ -142,6 +143,7 @@
                         <td><?php echo $value['partner_payable_basic'] ?></td>
                         <td><?php echo $value['customer_net_payable'] ?></td>
                         <td><?php echo $value['vendor_total'] ?></td>
+                        <td><?php echo $value['vendor_basic_percentage'] ?></td>
                         <td><?php echo $value['pod'] ?></td>
                         <td><?php echo $value['is_upcountry'] ?></td>
                     </tr>

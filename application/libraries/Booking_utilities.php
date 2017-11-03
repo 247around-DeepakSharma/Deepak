@@ -23,6 +23,7 @@ class Booking_utilities {
 	$this->My_CI->load->library('s3');
 	$this->My_CI->load->library('form_validation');
 	$this->My_CI->load->library("session");
+        $this->My_CI->load->library("miscelleneous");
         $this->My_CI->load->library("notify");
 	$this->My_CI->load->helper('download');
 	$this->My_CI->load->helper(array('form', 'url'));

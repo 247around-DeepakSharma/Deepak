@@ -410,6 +410,8 @@ span.stars span {
     $(function() {
     $('span.stars').stars();
 });
+
+   
     
 </script>
 
@@ -432,6 +434,8 @@ span.stars span {
             }
         );
     });
+    
+    
 </script>
 <?php } ?>
 <!-- end alert message -->

@@ -12,6 +12,8 @@
         <link href="<?php echo base_url()?>css/bootstrap.min.css" rel="stylesheet">
         <!-- Custom CSS -->
         <link href="<?php echo base_url()?>css/sb-admin.css" rel="stylesheet">
+        <!-- bootstrap-daterangepicker -->
+        <link href="<?php echo base_url()?>css/daterangepicker.css" rel="stylesheet">
         <!-- Animate CSS -->
         <link href="<?php echo base_url()?>css/animate.css" rel="stylesheet">
         <!-- Custom Fonts -->
@@ -35,11 +37,19 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
         <!-- Loading Noty script library -->
         <script type="text/javascript" src="<?php echo base_url()?>js/plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
-         <script src="<?php echo base_url()?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
+        <script src="<?php echo base_url()?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 
         <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+         <!-- bootstrap-daterangepicker -->
+        <script src="<?php echo base_url()?>/js/moment.min.js"></script>
+        <script src="<?php echo base_url()?>js/daterangepicker.js"></script>
+        <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+        <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
+        <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+
+        <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
          
     </head>
     <body>
@@ -99,6 +109,10 @@
                         </li>
                         <li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url() ?>employee/booking/get_oow_booking"><i class="fa fa-fw fa-desktop"></i> <strong> OOW Booking</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>Completed Booking</strong></a>
                         </li>
                         <li class="divider"></li>
@@ -143,7 +157,14 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/show_missed_call_rating_data"><i class="fa fa-fw fa-desktop"></i> <strong>Missed Call Rating</strong></a>
                         </li>
-                  
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/booking_advance_search"><i class="fa fa-fw fa-desktop"></i> <strong>Advanced Search</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/booking_bulk_search"><i class="fa fa-fw fa-desktop"></i> <strong>Bulk Search</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-tasks -->
                 </li>
@@ -187,6 +208,10 @@
                         <li class="divider"></li>
                         <li >
                             <a href="<?php echo base_url() ?>employee/dealers/show_dealer_list"><i class="fa fa-fw fa-desktop "></i> <strong>View Dealer List</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                         <li >
+                            <a href="<?php echo base_url() ?>employee/partner/bracket_allocation"><i class="fa fa-fw fa-desktop "></i> <strong>Add Stand Data</strong></a>
                         </li>
 
                     </ul>
@@ -233,6 +258,10 @@
                                 <li class="divider"></li>
                                 <li>
                                     <a href="<?php echo base_url() ?>employee/vendor/get_vandor_escalation_policy_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> Vendor Escalation Policy Template Grid</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/booking/get_appliance_description_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong>Appliance Description Template Grid</strong></a>
                                 </li>
                             </ul>
                         </li>
@@ -323,42 +352,50 @@
                         <li class="dropdown dropdown-submenu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Partner</strong></a>
                             <ul class="dropdown-menu">
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/invoice/insert_update_invoice/partner" ><i class="fa fa-fw fa-desktop"></i> <strong> Create Partner Invoice</strong></a>
+                                </li>
+                                <li class="divider"></li>
                                 <li >
-                            <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
-                        </li>
-                            <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Transactions</strong></a>
-                        </li>
-                            <li class="divider"></li>   
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Check</strong></a>
-                        </li>
-                        <li class="divider"></li>
-                         <li>
-                            <a href="<?php echo base_url() ?>employee/invoiceDashboard/get_invoice_summary_for_partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Summary</strong></a>
-                        </li>
+                                    <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Transactions</strong></a>
+                                </li>
+                                <li class="divider"></li>   
+                                <li>
+                                <a href="<?php echo base_url() ?>employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Check</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                 <li>
+                                    <a href="<?php echo base_url() ?>employee/invoiceDashboard/get_invoice_summary_for_partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Invoice Summary</strong></a>
+                                </li>
                             </ul>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown dropdown-submenu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Service Center</strong></a>
                             <ul class="dropdown-menu">
-                            <li>
-                            <a href="<?php echo base_url() ?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Invoices</strong></a>
-                        </li>
-                            <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Transactions</strong></a>
-                        </li>
-                            <li class="divider"></li>
-                       <li>
-                            <a href="<?php echo base_url() ?>employee/invoiceDashboard/service_center_invoice"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Check</strong></a>
-                        </li>
-                         <li class="divider"></li>
-                         <li>
-                            <a href="<?php echo base_url() ?>employee/invoiceDashboard/get_invoice_summary_for_sf"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Summary</strong></a>
-                        </li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/invoice/insert_update_invoice/vendor" ><i class="fa fa-fw fa-desktop"></i> <strong> Create SF Invoice</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                    <li>
+                                    <a href="<?php echo base_url() ?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Invoices</strong></a>
+                                </li>
+                                    <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Transactions</strong></a>
+                                </li>
+                                    <li class="divider"></li>
+                               <li>
+                                    <a href="<?php echo base_url() ?>employee/invoiceDashboard/service_center_invoice"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Check</strong></a>
+                                </li>
+                                 <li class="divider"></li>
+                                 <li>
+                                    <a href="<?php echo base_url() ?>employee/invoiceDashboard/get_invoice_summary_for_sf"><i class="fa fa-fw fa-desktop "></i> <strong> SF Invoice Summary</strong></a>
+                                </li>
                             </ul>
                         </li>
                             <li class="divider"></li>
@@ -401,6 +438,9 @@
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/get_pending_bookings/0"><i class="fa fa-fw fa-desktop "></i> <strong>Download SF Pending Summary</strong></a>
                         </li>
+<!--                        <li>
+                            <a href="<?php echo base_url()?>employee/vendor/show_around_dashboard"><i class="fa fa-fw fa-desktop "></i> <strong>247around Dashboard</strong></a>
+                        </li>-->
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/get_sc_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF Missed Target Report</strong></a>
@@ -415,7 +455,7 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url()?>employee/dashboard/buyback_dashboard" target="_blank"><i class="fa fa-fw fa-desktop"></i> <strong>Buyback Dashboard</strong></a>
+                            <a href="<?php echo base_url()?>employee/dashboard" target="_blank"><i class="fa fa-fw fa-desktop"></i> <strong>New Dashboard</strong></a>
                         </li>
                         
                     </ul>
@@ -461,6 +501,7 @@
                         </li>
                     </ul>
                 </li>
+                
                 <li><a href="<?php echo base_url()?>employee/login/logout"><i class="fa fa-fw fa-power-off"></i></a></li>
             </ul>
             <!-- /.navbar-top-links -->
@@ -486,7 +527,8 @@
             .dropdown-submenu:hover>a:after{border-left-color:#555;}
             .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
         </style>
-         <div class="main_search">
+
+        <div class="main_search">
             <form name="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/user/finduser" method="GET">
                 <input type="search" id="search_in" class="search_in "name="search_value" placeholder="Booking ID/Phone Number" style="position: absolute; padding-left:10px; ">
             </form>
