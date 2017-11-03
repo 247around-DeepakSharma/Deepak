@@ -3281,41 +3281,6 @@ ALTER TABLE `sf_not_exist_booking_details` ADD `state` VARCHAR(20) NOT NULL AFTE
 ALTER TABLE `employee_relation` ADD `state_id` VARCHAR(50) NOT NULL AFTER `service_centres_id`;
 
 --Chhavi
-CREATE TABLE `pincode_not_found_sf` (
-  `id` int(11) NOT NULL,
-  `pincode` int(10) NOT NULL,
-  `area` varchar(20) NOT NULL,
-  `division` varchar(20) NOT NULL,
-  `region` varchar(20) NOT NULL,
-  `taluk` varchar(20) NOT NULL,
-  `district` varchar(20) NOT NULL,
-  `state` varchar(20) NOT NULL,
-  `rm_id` int(10) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `pincode_not_found_sf`
---
-ALTER TABLE `pincode_not_found_sf`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `pincode_not_found_sf`
---
-ALTER TABLE `pincode_not_found_sf`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
-
-
-
---Chhavi
 
   ALTER TABLE `service_centres` ADD `agent_id` INT(10) NULL DEFAULT NULL AFTER `create_date`;
 
