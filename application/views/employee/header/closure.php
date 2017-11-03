@@ -247,6 +247,10 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/booking/get_add_new_brand_form"><i class="fa fa-fw fa-desktop"></i> <strong> Add New Brand</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/Inventory/update_part_price_details"><i class="fa fa-fw fa-inr "></i> <strong> Update Zopper Price</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
