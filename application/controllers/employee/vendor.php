@@ -2429,7 +2429,7 @@ class vendor extends CI_Controller {
                                             $cc = "anuj@247around.com";
                                             $to = "chhavid@247around.com";
                                             $subject = "Add new Combination in vendor pincode mapping";
-                                            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $value, "");
+                                            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $vendor_id, "");
                                         }
                                         else{
                                             $displayMsgArray['failed'][] = $value; 
@@ -4621,10 +4621,10 @@ class vendor extends CI_Controller {
                                                        log_message('info', __FUNCTION__ . ' Uploaded Data ' . print_r($this->vendorPinArray, TRUE));
                                                        if($finalMsg == 'Successfully Done'){
                                                            $fileStatus = 'Success';
-                                                           $cc = "anuj@247around.com";
-                                                            $to = "chhavid@247around.com";
-                                                            $subject = "Vendor pincode mapping file upload";
-                                                            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $this->vendorPinArray, "");
+                                                           //$cc = "anuj@247around.com";
+                                                            //$to = "chhavid@247around.com";
+                                                            //$subject = "Vendor pincode mapping file upload";
+                                                            //$this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $this->vendorPinArray, "");
                                                        }
                                         }
                                         else{
