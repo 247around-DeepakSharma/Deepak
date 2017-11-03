@@ -301,10 +301,12 @@ class Booking_model extends CI_Model {
     }
     
     function get_advance_search_result_data($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array(),$whereIN=array(),$JoinTypeTableArray=array()){
+        $this->db->_reserved_identifiers = array('*','STR_TO_DATE');
        $query = $this->reusable_model->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
-       return $query->result_array();  
+       return $query->result_array(); 
     }
     function get_advance_search_result_count($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array(),$whereIN=array(),$JoinTypeTableArray=array()){
+        $this->db->_reserved_identifiers = array('*','STR_TO_DATE');
        $this->reusable_model->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
        return $this->db->affected_rows();
     }

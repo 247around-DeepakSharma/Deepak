@@ -1213,15 +1213,17 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
 
           function update_pincode_not_found_sf_table($pincodeServiceArray){
+              $pincodeStrring ="";
               foreach($pincodeServiceArray as $key=>$values){
                         $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL; 
+                        $pincodeStrring .= '(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')|||';
               }
             log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
             $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray,array('active_flag'=>0));
             $cc = "anuj@247around.com";
             $to = "chhavid@247around.com";
             $subject = "Get SF for following combinations";
-            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $pincodeArray, "");
+            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $pincodeStrring, "");
           }
           /*
            * This Function convert excel data into array, 1st row of excel data will be keys of returning array
