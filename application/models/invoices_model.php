@@ -1357,7 +1357,7 @@ class invoices_model extends CI_Model {
                 ELSE (`delivery_date` >= '$from_date' AND `delivery_date`< '$to_date') END
                 AND sc.id = assigned_cp_id
                 AND bb_order_details.partner_order_id =  bb_unit_details.partner_order_id
-                AND bb_unit_details.service_id = services.id $group_by ";
+                AND bb_unit_details.service_id = services.id $is_foc_null $group_by ";
         
         $query = $this->db->query($sql);
         return $query->result_array();
