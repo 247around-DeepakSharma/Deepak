@@ -1353,7 +1353,7 @@ class Booking_model extends CI_Model {
      *  @param : void
      *  @return : all internal status present in database
      */
-    function get_internal_status($where, $is_array) {
+    function get_internal_status($where, $is_array= false) {
         $this->db->select('*');
         $this->db->where($where);
         $query = $this->db->get('internal_status');
