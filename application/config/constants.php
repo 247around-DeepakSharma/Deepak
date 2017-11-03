@@ -466,7 +466,7 @@ define('TV_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '701485101000
 define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000029' Notification");
 
 
-define('SPARE_OOW_EST_REQUESTED','Spare Estimate Cost Required');
+define('SPARE_OOW_EST_REQUESTED','Request Quote for Spare Part');
 
 define('SPARE_OOW_EST_GIVEN','Spare Estimate Cost Given');
 define('SPARE_OOW_EST_MARGIN','0.25');
