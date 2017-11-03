@@ -2724,10 +2724,11 @@ class Service_centers extends CI_Controller {
 
                 $this->insert_details_in_state_change($booking_id, SPARE_PARTS_REQUESTED, ESTIMATE_APPROVED_BY_CUSTOMER);
 
-                $userSession = array('success' => 'Booking Not Updated');
+                $userSession = array('success' => 'Booking Updated');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/pending_booking");
             } else {
+                log_message("info",__METHOD__. "Spare Not not found ". $booking_id);
                 $userSession = array('error' => 'Booking Not Updated');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/pending_booking");
