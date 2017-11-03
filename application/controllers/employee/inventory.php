@@ -1229,6 +1229,114 @@ class Inventory extends CI_Controller {
         }
         
         return $response;
-    }  
+    }
+    /**
+     * @desc This is used to load form.
+     * This form helps to update booking price and assign parts who will send
+     */
+    function update_part_price_details(){
+        $booking_id = trim($this->input->post("booking_id"));
+        if(!empty($booking_id)){
+            $data['data'] = $this->booking_model->getbooking_history($booking_id);
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view("employee/update_price_details_form", $data);
+        } else {
+            
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view("employee/update_price_details_form");
+        }
+    }
+    
+    function process_update_parts_details() {
+        $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
+        $this->form_validation->set_rules('service_charge', 'Service Charge', 'trim');
+        $this->form_validation->set_rules('transport_charge', 'Transport Charge', 'trim');
+        $this->form_validation->set_rules('courier_charge', 'Courier_charge Charge', 'trim');
+        $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
+        $this->form_validation->set_rules('part_charges', 'Part Charge', 'callback_check_validation_update_parts_details');
+        if ($this->form_validation->run()) {
+            $data = $this->input->post();
+            $t_c_charge_tax = $this->booking_model->get_calculated_tax_charge($data['transport_charge'] + $data['courier_charge'], DEFAULT_TAX_RATE);
+            $u_data = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id']), TRUE, "id");
+            if (!empty($u_data)) {
+                $u['customer_total'] = $u['partner_net_payable'] = $data['part_charges'] +
+                        $data['service_charge'] + $data['transport_charge'] + $data['courier_charge'] - $t_c_charge_tax;
+
+                echo $sf_sc = ($data['service_charge'] * basic_percentage * (1 + SERVICE_TAX_RATE));
+                
+                $sf_parts = 0;
+                //same_diff_vendor 1 means same vendor arrange part
+                if ($data['same_diff_vendor'] == 1) {
+                    $sf_parts = $data['part_charges'] * PART_DELIVERY_PERCENTAGE * (1 + SERVICE_TAX_RATE);
+                } else if ($data['same_diff_vendor'] == 2) { //same_diff_vendor 2 means different vendor arrange part
+                    $sf_parts = $data['part_charges'] * parts_percentage * (1 + SERVICE_TAX_RATE);
+                }
+
+                $sf_per = (($sf_sc + $sf_parts + $data['transport_charge'] + $data['courier_charge']) / ($u['customer_total'] * (1 + SERVICE_TAX_RATE))) * 100;
+
+                $u['customer_paid_basic_charges'] = $u['around_paid_basic_charges'] = $u["customer_paid_parts"] = $u["customer_paid_extra_charges"] = 0;
+                $u['customer_net_payable'] = 0;
+                $u['id'] = $u_data[0]['id'];
+                $unit_details = array();
+                $unit_details[0]['around_paid_basic_charges'] = 0;
+                $unit_details[0]['partner_paid_basic_charges'] = $u["partner_net_payable"];
+                $unit_details[0]['tax_rate'] = DEFAULT_TAX_RATE;
+                $unit_details[0]["vendor_basic_percentage"] = $u['vendor_basic_percentage'] = $sf_per;
+                $unit_details[0]['booking_id'] = $data["booking_id"];
+
+                $this->booking_model->update_price_in_unit_details($u, $unit_details);
+                //$sp['vendor_partner'] = $data['entity'];
+                //$sp['vendor_partner_id'] = $data['entity_id'];
+                // $this->service_centers_model->update_spare_parts(array('booking_id' =>$data['booking_id'] ), $sp);
+                $userSession = array('success' => "Thanks To Update Booking Price");
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/inventory/update_part_price_details");
+            } else {
+                $userSession = array('success' => "Booking Price Not Updated");
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/inventory/update_part_price_details");
+            }
+        } else {
+            $this->update_part_price_details();
+        }
+    }
+
+    function check_validation_update_parts_details() {
+        $part_charge = $this->input->post("part_charges");
+        if ($part_charge > 0) {
+
+            $this->form_validation->set_rules('same_diff_vendor', 'Part Will Arrange By Vendor Or Partner', 'required|trim');
+            $part_arrange_by = $this->input->post("same_diff_vendor");
+            if (!empty($part_arrange_by)) {
+                if ($part_arrange_by == 1) {
+//                    $spare_parts = $this->input->post("spare_parts");
+//                    if (empty($spare_parts)) {
+//                        $this->form_validation->set_message('check_validation_update_parts_details', 'Spare Parts has not requested By SF');
+//                        return FALSE;
+//                    }
+                    $entity_id = $this->input->post("entity_id");
+                    if (empty($entity_id)) {
+                        $this->form_validation->set_message('check_validation_update_parts_details', 'Please Select Vendor Or Partner Name');
+                        return false;
+                    }
+                } else if($part_arrange_by == 2){
+                    $sf_id = $this->input->post("assigned_vendor_id");
+                    $_POST["entity_id"] = $sf_id;
+                    $_POST["entity"] = "vendor";
+                    if(empty($sf_id)){
+                        $this->form_validation->set_message('check_validation_update_parts_details', 'Please Assign Booking');
+                        return FALSE;
+                    }
+                } 
+                return TRUE;
+                
+            } else {
+                $this->form_validation->set_message('check_validation_update_parts_details', 'Please Select Parts Arrange By');
+                return FALSE;
+            }
+        } else {
+            return true;
+        }
+    }
 
 }

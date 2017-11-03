@@ -344,7 +344,7 @@ define("ADIL_EMAIL_ID", "adila@247around.com");
 define('RATING_NEW_STATE','Completed_With_Rating');
 
 //Regional Managers Email ID
-define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com, nilanjan@247around.com, arunk@247around.com");
+define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com, arunk@247around.com");
 
 //Email IDs when SF is not found in Vendor Pincode Mapping file
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
@@ -461,12 +461,12 @@ define("QC_HSN_CODE", 998397);
 define("TAT_BREACH_DAYS", "-45 days");
 
 // QC Balance Read Email Constant
-define('QC_BALANCE_READ_EMAIL','sachinj@247around.com');
-define('QC_BALANCE_READ_EMAIL_PASSWORD','sachinj');
 define('TV_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000071' Notification");
 define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000029' Notification");
 
-define('SPARE_OOW_EST_REQUESTED','Spare Estimate Cost Required');
+
+define('SPARE_OOW_EST_REQUESTED','Request Quote for Spare Part');
+
 define('SPARE_OOW_EST_GIVEN','Spare Estimate Cost Given');
 define('SPARE_OOW_EST_MARGIN','0.25');
 define('REPAIR_OOW_PARTS_PRICE_TAGS','Spare Parts');
