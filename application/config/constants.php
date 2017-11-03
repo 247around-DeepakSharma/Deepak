@@ -464,7 +464,9 @@ define("TAT_BREACH_DAYS", "-45 days");
 define('TV_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000071' Notification");
 define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000029' Notification");
 
-define('SPARE_OOW_EST_REQUESTED','Spare Estimate Cost Required');
+
+define('SPARE_OOW_EST_REQUESTED','Request Quote for Spare Part');
+
 define('SPARE_OOW_EST_GIVEN','Spare Estimate Cost Given');
 define('SPARE_OOW_EST_MARGIN','0.25');
 define('REPAIR_OOW_PARTS_PRICE_TAGS','Spare Parts');

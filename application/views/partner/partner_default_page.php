@@ -77,7 +77,7 @@
                         <li><a href="#tabs-2" onclick="load_view('partner/get_spare_parts_booking/0/1', 'tabs-2')"><span class="panel-title">Pending Spares</span></a></li>
                         <li><a href="#tabs-3" onclick="load_view('partner/get_waiting_defective_parts/0/1', 'tabs-3')"><span class="panel-title">Shipped Spares by SF</span></a></li>
                         <li><a href="#tabs-4" onclick="load_view('partner/get_waiting_for_approval_upcountry_charges', 'tabs-4')"><span class="panel-title">Waiting Approval Upcountry Charges</span></a></li>
-                        <li><a href="#tabs-5" ><span class="panel-title">Update OOW Estimate</span></a></li>
+                        <li><a href="#tabs-5" ><span class="panel-title">Pending Spare Quotes</span></a></li>
                     </ul>
                 </div>
                 <style type="text/css">
@@ -100,7 +100,7 @@
                         <div class="col-md-12">
                             <div class="panel panel-default">
                                 <div class="panel-heading">
-                                    <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Upcountry Booking</h1>
+                                    <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Provide Spare Part Charges for OOW (including Taxes)</h1>
                                 </div>
                                 <div class="panel-body">
                                     <!--                                        <div class="table-responsive">-->
