@@ -27,17 +27,18 @@
                         ?>">
                     <input type="hidden" class="form-control"  name="partner_id" value = "<?php if (isset($bookinghistory[0]['partner_id'])) {echo $bookinghistory[0]['partner_id']; }?>">
                     <input type="hidden" class="form-control"  name="price_tags" value = "<?php if (isset($price_tags)) {echo $price_tags; }?>">
-                    <input type="hidden" class="form-control" id="partner_flag" name="partner_flag" value="<?php echo $around_flag ?>" />
+                    <input type="hidden" class="form-control" id="partner_flag" name="partner_flag" value="0" />
                     <div class="form-group ">
                         <label for="reason" class="col-md-2" style="margin-top:39px;">Reason</label>
                         <div class="col-md-6" style="margin-top:39px;">
                             <?php  ?>
                             
                             <?php foreach ($internal_status as $key => $data1) { ?>
+                            
                             <div class="radio ">
                                 <label>
-                                <input type="radio"  name="reason" id= "<?php echo "reason_id" . $key; ?>" onclick="internal_status_check(this.id)" class="internal_status" value="<?php echo $data1->status; ?>" >
-                                <?php echo $data1->status; ?>
+                                <input type="radio"  name="reason" id= "<?php echo "reason_id" . $key; ?>" onclick="internal_status_check(this.id)" class="internal_status" value="<?php echo $data1['status']; ?>" >
+                                <?php echo $data1['status']; ?>
                                 </label>
                             </div>
                              <?php } ?>
@@ -48,35 +49,20 @@
                                 </label>
                             </div>
                            
-                             <?php if($Service_Center_Visit == 1){ ?>
-                                <div class="radio ">
-                                <label>
-                                <input type="radio" id="service_center_visit" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER;?>" >
-                                <?php echo CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER;?>
-                                </label>
-                            </div>
-                            <?php }?>
                             <div class="radio ">
                                 <label>
                                 <input type="radio" id="product_not_delivered" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>" >
                                 <?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>
                                 </label>
                             </div>
-                            <?php if ($spare_flag == 1) { ?>
-                            <div class="radio ">
-                                <label>
-                                <input type="radio" id="spare_parts" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo SPARE_PARTS_REQUIRED;?>" >
-                                <?php echo SPARE_PARTS_REQUIRED;?>
-                                </label>
-                            </div>
-                            <?php } else if($spare_flag == 2){ ?>
+                            <?php if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED ){ ?>
                                 <div class="radio ">
                                 <label>
-                                <input type="radio" id="spare_parts" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo SPARE_OOW_EST_REQUESTED;?>" >
-                                <?php echo SPARE_OOW_REQUEST_TEXT; ?>
+                                <input type="radio" id="spare_parts" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo $spare_flag;?>" >
+                                <?php echo $spare_flag;?>
                                 </label>
                             </div>
-                           <?php } ?>
+                           <?php }?>
                            
                         </div>
                     </div>
@@ -85,7 +71,7 @@
                     <div class="panel panel-default col-md-offset-2" id="hide_spare" >
                         <div class="panel-body" >
                             <div class="row">
-                                <?php if($around_flag == 0){ ?>
+                                <?php //if($bookinghistory[] == 0){ ?>
                                 <div class="col-md-12">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -144,8 +130,8 @@
                                     </div>
                                    
                                 </div>
-                                <?php } else if($around_flag == 1){ ?>
-                                 <div class="col-md-12">
+                                <?php  //} if($around_flag) { ?>
+<!--                                 <div class="col-md-12">
                                     <div class="col-md-6">
                                          <div class="form-group">
                                             <label for="Model Number" class="col-md-4">Parts Name *</label>
@@ -186,8 +172,8 @@
                                                     <textarea class="form-control spare_parts"  id="247reason_text" name="reason_text" value = "" rows="3" placeholder="Problem Description" ></textarea>
                                                 </div>
                                            </div>
-                                 </div>
-                                <?php }?>
+                                 </div>-->
+                                <?php //}?>
                             </div>
                         </div>
                     </div>

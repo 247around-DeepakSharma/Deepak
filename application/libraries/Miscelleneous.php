@@ -891,28 +891,28 @@ class Miscelleneous {
      * @param $appliances_details array()
      * @return $return_data array()
      */
-    function verified_applicance_capacity($appliances_details){
+    function verified_appliance_capacity($appliances_details){
         switch ($appliances_details['service_id']){
-            case '46':
-                $return_data = $this->verifiy_tv_description($appliances_details);
+            case _247AROUND_TV_SERVICE_ID:
+                $return_data = $this->verify_tv_description($appliances_details);
                 break;
-            case '28':
-                $return_data = $this->verifiy_washing_machine_description($appliances_details);
+            case _247AROUND_WASHING_MACHINE_SERVICE_ID:
+                $return_data = $this->verify_washing_machine_description($appliances_details);
                 break;
-            case '42':
-                $return_data = $this->verifiy_microwave_description($appliances_details);
+            case _247AROUND_MICROWAVE_SERVICE_ID:
+                $return_data = $this->verify_microwave_description($appliances_details);
                 break;
-            case '38':
-                $return_data = $this->verifiy_water_purifier_description($appliances_details);
+            case _247AROUND_WATER_PURIFIER_SERVICE_ID:
+                $return_data = $this->verify_water_purifier_description($appliances_details);
                 break;
-            case '50':
-                $return_data = $this->verifiy_ac_description($appliances_details);
+            case _247AROUND_AC_SERVICE_ID:
+                $return_data = $this->verify_ac_description($appliances_details);
                 break;
-            case '37':
-                $return_data = $this->verifiy_refrigerator_description($appliances_details);
+            case _247AROUND_REFRIGERATOR_SERVICE_ID:
+                $return_data = $this->verify_refrigerator_description($appliances_details);
                 break;
-            case '32':
-                $return_data = $this->verifiy_geyser_description($appliances_details);
+            case _247AROUND_GEYSER_SERVICE_ID:
+                $return_data = $this->verify_geyser_description($appliances_details);
                 break;
             default :
                 $return_data['status'] = FALSE;
@@ -1150,7 +1150,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verifiy_tv_description($appliances_details) {
+    function verify_tv_description($appliances_details) {
         $match = array();
         $new_appliance_details = array();
         
@@ -1174,7 +1174,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verifiy_washing_machine_description($appliances_details){
+    function verify_washing_machine_description($appliances_details){
         $new_appliance_details = array();
         if(((stripos($appliances_details['description'],'semiautomatic') !== False) || (stripos($appliances_details['description'],'semi automatic') !== False) ) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
             $new_appliance_details['category'] = 'Semiautomatic';
@@ -1214,12 +1214,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
 
           function update_pincode_not_found_sf_table($pincodeServiceArray){
               foreach($pincodeServiceArray as $key=>$values){
-                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL;
-                        log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.$values['Pincode'].",".$values['Appliance_ID']);
+                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL; 
               }
-            $this->My_CI->vendor_model->is_pincode_exist_in_not_found_sf_table($pincodeArray);
             log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
-            $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray);
+            $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray,array('active_flag'=>0));
             $cc = "anuj@247around.com";
             $to = "chhavid@247around.com";
             $subject = "Get SF for following combinations";
@@ -1324,7 +1322,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verifiy_microwave_description($appliances_details){
+    function verify_microwave_description($appliances_details){
         $new_appliance_details = array();
         if((stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
             $new_appliance_details['category'] = $appliances_details['category'];
@@ -1345,7 +1343,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verifiy_water_purifier_description($appliances_details){
+    function verify_water_purifier_description($appliances_details){
         $new_appliance_details = array();
         if((stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
             $new_appliance_details['category'] = $appliances_details['category'];
@@ -1369,7 +1367,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verifiy_ac_description($appliances_details){
+    function verify_ac_description($appliances_details){
         $new_appliance_details = array();
         if((stripos($appliances_details['description'], $appliances_details['capacity']) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False) && (stripos($appliances_details['description'], explode('-', $appliances_details['category'])[1]) !== False)){
             $new_appliance_details['category'] = $appliances_details['category'];
@@ -1390,7 +1388,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verifiy_refrigerator_description($appliances_details){
+    function verify_refrigerator_description($appliances_details){
         $new_appliance_details = array();
         $flag = FALSE;
         $category = explode(" ", $appliances_details['category']);
@@ -1446,7 +1444,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verifiy_geyser_description($appliances_details){
+    function verify_geyser_description($appliances_details){
         $new_appliance_details = array();
         $flag = FALSE;
         //extract geyser word from category

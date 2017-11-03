@@ -658,43 +658,51 @@ class Service_centers extends CI_Controller {
 
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
+            
 
             if (!empty($data['bookinghistory'][0])) {
-
+                $data['internal_status'] = array();
                 $current_date = date_create(date('Y-m-d'));
                 $current_booking_date = date_create(date('Y-m-d', strtotime($data['bookinghistory'][0]['booking_date'])));
+                $is_est_approved = false;
+                if (isset($data['bookinghistory']['spare_parts'])) {
 
+                    foreach ($data['bookinghistory']['spare_parts'] as $sp) {
+                        if ($sp['status'] == SPARE_OOW_EST_GIVEN) {
+                            array_push($data['internal_status'], array("status" => ESTIMATE_APPROVED_BY_CUSTOMER));
+                            $is_est_approved = true; 
+                        }
+                    }
+                }
                 $date_diff = date_diff($current_date, $current_booking_date);
-                 $data['Service_Center_Visit'] = 0;
+                $data['Service_Center_Visit'] = 0;
                 // We will not display internal status after 1st day.
                 if ($date_diff->days < 1) {
-                    $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
+                    $int = $this->booking_model->get_internal_status($where_internal_status, true);
+                    $data['internal_status'] = array_merge($data['internal_status'], $int);
                     $data['days'] = 0;
                 } else if ($date_diff->days < 3) {
                     $data['days'] = $date_diff->days;
-                    $arr = array('status' => CUSTOMER_NOT_REACHABLE);
-                    $data['internal_status'] = Array((object) $arr);
+                    array_push($data['internal_status'], array('status' => CUSTOMER_NOT_REACHABLE));
                 } else {
-                    $data['internal_status'] = array();
+
                     $data['days'] = 0;
                 }
 
-                //IF spare parts is zero then we will not display spare parts checkbox.
-                // Its check price tags. If Price tags is Repair then we will set spare_flag 1 and we will display spare parts checkbox. 
-                $data['spare_flag'] = 0;
-                //around_flag 1 means. This booking is our booking otherwise partner's booking 
-                $data['around_flag'] = 0;
+                $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
                 foreach ($unit_details as $value) {
                     if (strcasecmp($value['price_tags'], REPAIR_OOW_TAG) == 0) {
-                        $data['spare_flag'] = 2;
-                        $data['price_tags'] = $value['price_tags'];
+                        if(!$is_est_approved){
+                            $data['spare_flag'] = SPARE_OOW_EST_REQUESTED;
+                            $data['price_tags'] = $value['price_tags'];
+                        }
                     } else if (stristr($value['price_tags'], "Repair")) {
-                        
-                        $data['spare_flag'] = 1;
+
+                        $data['spare_flag'] = SPARE_PARTS_REQUIRED;
                         $data['price_tags'] = $value['price_tags'];
                     }
-                    if(stristr($value['price_tags'], "Service Center Visit")){
-                        $data['Service_Center_Visit'] = 1;
+                    if (stristr($value['price_tags'], "Service Center Visit")) {
+                        array_push($data['internal_status'], array("status" => CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER));
                     }
                 }
 
@@ -734,6 +742,11 @@ class Service_centers extends CI_Controller {
                     log_message('info', __FUNCTION__.PRODUCT_NOT_DELIVERED_TO_CUSTOMER. " Request: ". $this->session->userdata('service_center_id'));
                     $this->save_reschedule_request();
                     break;
+                  case ESTIMATE_APPROVED_BY_CUSTOMER:
+                      log_message('info', __FUNCTION__.ESTIMATE_APPROVED_BY_CUSTOMER. " Request: ". $this->session->userdata('service_center_id'));
+                      $booking_id = $this->input->post('booking_id');
+                      $this->approve_oow($booking_id);
+                      break;
 
                 case SPARE_PARTS_REQUIRED:
                 case SPARE_OOW_EST_REQUESTED: 
@@ -922,14 +935,14 @@ class Service_centers extends CI_Controller {
             } else { // if($status_spare){
                 log_message('info', __FUNCTION__ . " Not update Spare parts Service_center ID: " . $this->session->userdata('service_center_id') . " Data: " . print_r($data));
 
-                $userSession = array('success' => 'Booking Not Updated');
+                $userSession = array('error' => 'Booking Not Updated');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/pending_booking");
             }
         } else {
             log_message('info', __FUNCTION__ . " Not update Spare parts Service_center ID: " . $this->session->userdata('service_center_id') . " Data: " . print_r($data));
 
-            $userSession = array('success' => 'Booking Not Updated');
+            $userSession = array('error' => 'Booking Not Updated');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "service_center/pending_booking");
         }
@@ -2689,26 +2702,43 @@ class Service_centers extends CI_Controller {
     }
     /**
      * @desc This is used to Approve Spare Estimate by SF
-     * @param int $sp_id
      * @param String $booking_id
      */
-    function approve_oow($sp_id, $booking_id) {
-        if (!empty($sp_id) && !empty($booking_id)) {
+    function approve_oow($booking_id) {
+        log_message("info",__METHOD__. "Enterring");
+        if (!empty($booking_id)) {
+            $req['where'] = array("spare_parts_details.booking_id" => $booking_id, "status" => SPARE_OOW_EST_GIVEN);
+            $req['length'] = -1;
+            $req['select'] = "spare_parts_details.id";
+            $sp_data =$this->inventory_model->get_spare_parts_query($req);
+            if(!empty($sp_data)){
+                log_message("info",__METHOD__. "Spare parts Not found". $booking_id);
+                $sc['current_status'] = "InProcess";
+                $sc['update_date'] = date('Y-m-d H:i:s');
+                $sc['internal_status'] = SPARE_PARTS_REQUIRED;
+                // UPDATE SC Action Table
+                $this->service_centers_model->update_service_centers_action_table($booking_id, $sc);
 
-            $sc['current_status'] = "InProcess";
-            $sc['update_date'] = date('Y-m-d H:i:s');
-            $sc['internal_status'] = SPARE_PARTS_REQUIRED;
-            // UPDATE SC Action Table
-            $this->service_centers_model->update_service_centers_action_table($booking_id, $sc);
+                // UPDATE Spare Parts
+                $this->service_centers_model->update_spare_parts(array('id' => $sp_data[0]->id), array("status" => SPARE_PARTS_REQUESTED, 'date_of_request' => date('Y-m-d')));
 
-            // UPDATE Spare Parts
-            $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array("status" => SPARE_PARTS_REQUESTED, 'date_of_request' => date('Y-m-d')));
+                $this->insert_details_in_state_change($booking_id, SPARE_PARTS_REQUESTED, ESTIMATE_APPROVED_BY_CUSTOMER);
 
-            $this->insert_details_in_state_change($booking_id, SPARE_PARTS_REQUESTED, "Estimate Approved By Customer");
-
-            echo "Success";
+                $userSession = array('success' => 'Booking Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/pending_booking");
+            } else {
+                log_message("info",__METHOD__. "Spare Not not found ". $booking_id);
+                $userSession = array('error' => 'Booking Not Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/pending_booking");
+            }
+            
         } else {
-            echo "Error";
+            log_message("info",__METHOD__. "Booking ID not found ". $booking_id);
+            $userSession = array('error' => 'Booking Not Updated');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "service_center/pending_booking");
         }
     }
 

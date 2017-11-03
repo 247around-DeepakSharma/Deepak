@@ -53,7 +53,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select multiple style="width:100%" name="current_status" ui-select2 id="current_status"  class="form-control data_change" data-placeholder="Current Status">
+                                            <select multiple style="width:100%" name="current_status[]" ui-select2 id="current_status"  class="form-control data_change" data-placeholder="Current Status">
                                                 <option value="" ng-show="false"></option>
                                                 <option ng-repeat="y in current_status_list" value="{{y.current_status}}">{{y.current_status}}</option>   
                                             </select>
@@ -85,7 +85,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select multiple style="width:100%" name="service" ui-select2 id="service"  class="form-control data_change" data-placeholder="Service">
+                                            <select multiple style="width:100%" name="service[]" ui-select2 id="service"  class="form-control data_change" data-placeholder="Service">
                                                 <option value="" ng-show="false"></option>
                                                 <option ng-repeat="y in service_list" value="{{y.id}}">{{y.services}}</option>
                                             </select>
@@ -128,7 +128,7 @@
                         </div>
                        </form>
                         <form action="#" method="POST" id="reAssignForm" name="reAssignForm">
-                            <table id="datatable2" class="table table-striped table-bordered">
+                            <table id="advance_booking_search" class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
                                         <th>No.</th>

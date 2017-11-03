@@ -53,7 +53,10 @@ class ApiDataRequest extends CI_Controller {
                 break;
         }
     }
-    
+   /**
+    * @desc This function is used to get request for est. spare parts data from Admin, Partner, Service
+    * It called from Ajax 
+    */
     function spareOowEstRequestedData(){
         log_message('info', "Entering: " . __METHOD__);
         if(isset($this->requestData['where'])){
@@ -98,6 +101,9 @@ class ApiDataRequest extends CI_Controller {
             $row[] = $sp_list->age_of_request;
             $row[] = $sp_list->model_number;
             $row[] = $sp_list->serial_number;
+            $row[] = "<a style='color:#337ab7' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$sp_list->defective_parts_pic."' target = '_blank' >Click Here</a>";
+            $row[] = "<a style='color:#337ab7' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$sp_list->serial_number_pic."' target = '_blank' >Click Here</a>";
+
             $c = '"'.$sp_list->id.'", "'.$sp_list->booking_id.'", "'.$sp_list->assigned_vendor_id.'", "'.$sp_list->amount_due.'" ';
             $row[] = '<input type="number" onkeypress="return isNumberKey(event)" id="estimate_cost" class="col-md-8"/>';
             $row[] = "<button id='btn_oow_".$sp_list->id."' "
@@ -157,7 +163,7 @@ class ApiDataRequest extends CI_Controller {
                 $row[] = $sp_list->booking_primary_contact_no;
             }
             $row[] = $sp_list->age_of_est_given;
-            $row[] = ($sp_list->estimate_sell_cost + $sp_list->amount_due);
+            $row[] = ($sp_list->sell_price + $sp_list->amount_due);
             $a = '"'.$sp_list->id.'", "'.$sp_list->booking_id.'"';
             
             $row[] = "<button id='btn_oow_".$sp_list->id."_1' "
@@ -209,8 +215,8 @@ class ApiDataRequest extends CI_Controller {
             $agent_id = $this->input->post("agent_id");
             $where = array('id' => $id);
             $data['status'] = SPARE_OOW_EST_GIVEN;
-            $data['estimate_purchase_cost'] = $estimate_cost;
-            $data['estimate_sell_cost'] = ($estimate_cost + $estimate_cost *SPARE_OOW_EST_MARGIN );
+            $data['purchase_price'] = $estimate_cost;
+            $data['sell_price'] = ($estimate_cost + $estimate_cost *SPARE_OOW_EST_MARGIN );
             $data['estimate_cost_given_date'] = date('Y-m-d');
             //Update Spare Parts Table
             $response = $this->service_centers_model->update_spare_parts($where, $data);
@@ -219,9 +225,9 @@ class ApiDataRequest extends CI_Controller {
                 $unit = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
                 $unit[0]['price_tags'] = REPAIR_OOW_PARTS_PRICE_TAGS;
                 $unit[0]['vendor_basic_percentage'] = REPAIR_OOW_VENDOR_PERCENTAGE;
-                $unit[0]['customer_total'] = $data['estimate_sell_cost'];
+                $unit[0]['customer_total'] = $data['sell_price'];
                 $unit[0]['product_or_services'] = "Product";
-                $unit[0]['tax_rate'] = DEFAULT_PARTS_TAX_RATE;
+                $unit[0]['tax_rate'] = DEFAULT_TAX_RATE;
                 $unit[0]['create_date'] = date("Y-m-d H:i:s");
                 $unit[0]['ud_update_date'] = date("Y-m-d H:i:s");
                 $unit[0]['partner_net_payable'] = 0;
@@ -232,21 +238,21 @@ class ApiDataRequest extends CI_Controller {
                 //INSERT UNIT
                 $result = $this->booking_model->_insert_data_in_booking_unit_details($unit[0], 1, 1);
                 
-                $booking['amount_due'] = ($amount_due + $data['estimate_sell_cost']);
+                $booking['amount_due'] = ($amount_due + $data['sell_price']);
                 // Update Booking Table
                 $this->booking_model->update_booking($booking_id, $booking);
                
                 $sc_data['unit_details_id'] = $result['unit_id'];
                 $sc_data['booking_id'] = $booking_id;
                 $sc_data['service_center_id'] = $vendor_id;
-                $sc_data['current_status'] = "InProcess";
+                $sc_data['current_status'] = "Pending";
                 $sc_data['update_date'] = date('Y-m-d H:i:s');
                 $sc_data['internal_status'] = SPARE_OOW_EST_GIVEN;
                 //Update New item In SF Action Table 
                 $this->vendor_model->insert_service_center_action($sc_data);
                 
                 //Update SF Action Table
-                $this->vendorO_model->update_service_center_action($booking_id, array("current_status" => 'InProcess', 
+                $this->vendor_model->update_service_center_action($booking_id, array("current_status" => 'Pending', 
                     'internal_status' =>SPARE_OOW_EST_GIVEN));
                  //Insert State Change
                 $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN,"", "", $agent_id, "", $partner_id);
