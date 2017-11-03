@@ -3365,3 +3365,8 @@ ALTER TABLE `login_logout_details` ADD `is_login_by_247` INT NULL DEFAULT '1' AF
 --02 Nov
 ALTER TABLE `partners` ADD `customer_care_contact` INT NULL DEFAULT NULL AFTER `primary_contact_phone_1`;
 ALTER TABLE `partners` CHANGE `customer_care_contact` `customer_care_contact` VARCHAR(20) NULL DEFAULT NULL;
+
+--Anuj 03 Nov
+ALTER TABLE  `bb_unit_details` ADD  `approved_by_admin` INT( 1 ) NOT NULL DEFAULT  '0' COMMENT  'If Admin has approved special price' AFTER `partner_sweetner_charges` ;
+ALTER TABLE  `bb_unit_details` ADD  `remarks` VARCHAR( 256 ) NOT NULL COMMENT  'Approval remarks' AFTER  `approved_by_admin` ;
+
