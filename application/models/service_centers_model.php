@@ -90,7 +90,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
                 . " services,"
-                 . "CASE WHEN (SELECT 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
+                 . "CASE WHEN (SELECT Distinct 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
                     . "AND price_tags = 'Wall Mount Stand' AND bu1.service_id = 46 ) THEN (1) ELSE 0 END as is_bracket, " 
                     
                  . " CASE WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer =0 AND bd.sub_vendor_id IS NOT NULL)  "
