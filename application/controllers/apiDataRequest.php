@@ -255,7 +255,7 @@ class ApiDataRequest extends CI_Controller {
                 $this->vendor_model->update_service_center_action($booking_id, array("current_status" => 'Pending', 
                     'internal_status' =>SPARE_OOW_EST_GIVEN));
                  //Insert State Change
-                $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN,"", "", $agent_id, "", $partner_id);
+                $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $partner_id);
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
                 echo "Success";
             } else {
