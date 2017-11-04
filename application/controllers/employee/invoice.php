@@ -2197,8 +2197,10 @@ class Invoice extends CI_Controller {
         }
     }
 
-    function upload_create_update_invoice_to_s3($invoice_id) {
+    function upload_create_update_invoice_to_s3($invoice_id_tmp) {
         $bucket = BITBUCKET_DIRECTORY;
+        $invoice_id_tmp_1 = str_replace("/","",$invoice_id_tmp);
+        $invoice_id = str_replace("_","",$invoice_id_tmp_1);
         $data = array();
         if (!empty($_FILES["invoice_file_main"]['tmp_name'])) {
             $temp = explode(".", $_FILES["invoice_file_main"]["name"]);
