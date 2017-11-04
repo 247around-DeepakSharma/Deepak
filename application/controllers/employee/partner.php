@@ -2751,6 +2751,8 @@ class Partner extends CI_Controller {
             }
             echo $option;
         } else {
+            $booking = array('booking_id'=>NULL,'booking_pincode'=>$pincode,'city'=>NULL,'service_id'=>$service_id);
+            $this->miscelleneous->sf_not_exist_for_pincode($booking);
             echo 'ERROR';
         }
     }
