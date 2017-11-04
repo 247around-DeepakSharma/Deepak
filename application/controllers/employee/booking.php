@@ -2872,7 +2872,7 @@ class Booking extends CI_Controller {
     function get_all_where_array_for_advance_search($dbfield_mapinning_option,$whereOptionArray,$receieved_Data){
         $whereArray = $this->get_common_where_array($dbfield_mapinning_option,$whereOptionArray);
         if(!empty($receieved_Data['booking_date'])){
-           $whereArray = $this->get_dates_range_where_array($receieved_Data['booking_date']," - ",$whereArray,$dbfield_mapinning_option['booking_date'],"d-m-Y");
+           $whereArray = $this->get_dates_range_where_array($receieved_Data['booking_date']," - ",$whereArray,$dbfield_mapinning_option['booking_date'],"Y-m-d");
         }
         if(!empty($receieved_Data['close_date'])){
           $whereArray = $this->get_dates_range_where_array($receieved_Data['close_date']," - ",$whereArray,$dbfield_mapinning_option['close_date'],"Y-m-d");
@@ -2894,7 +2894,7 @@ class Booking extends CI_Controller {
     function get_advance_search_result_data($receieved_Data){
         $finalArray = array();
         //array of filter options name and affected database field by them
-        $dbfield_mapinning_option = array('booking_date'=>'booking_details.booking_date', 'close_date'=>'booking_details.closed_date', 'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status','internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry','rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity','brand'=>'booking_unit_details.appliance_brand','paid_by'=>'booking_unit_details.customer_net_payable','request_type'=>'booking_unit_details.price_tags');
+        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y")', 'close_date'=>'date(booking_details.closed_date)', 'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status','internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry','rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity','brand'=>'booking_unit_details.appliance_brand','paid_by'=>'booking_unit_details.customer_net_payable','request_type'=>'booking_unit_details.price_tags');
         // array of filtered options and there selected values (which can be handled by direct where condition)
         $whereOptionArray = elements(array('partner','city','sf','internal_status','product_or_service','upcountry','rating','categories','capacity','brand','request_type'), $receieved_Data);
         //join condition array table name and join condition

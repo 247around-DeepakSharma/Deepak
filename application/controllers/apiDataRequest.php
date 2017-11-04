@@ -227,7 +227,7 @@ class ApiDataRequest extends CI_Controller {
                 $unit[0]['vendor_basic_percentage'] = REPAIR_OOW_VENDOR_PERCENTAGE;
                 $unit[0]['customer_total'] = $data['sell_price'];
                 $unit[0]['product_or_services'] = "Product";
-                $unit[0]['tax_rate'] = DEFAULT_PARTS_TAX_RATE;
+                $unit[0]['tax_rate'] = DEFAULT_TAX_RATE;
                 $unit[0]['create_date'] = date("Y-m-d H:i:s");
                 $unit[0]['ud_update_date'] = date("Y-m-d H:i:s");
                 $unit[0]['partner_net_payable'] = 0;

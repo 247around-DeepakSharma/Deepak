@@ -123,7 +123,7 @@
                                     if (form_error('incoming_invoice')) {
                                         echo 'has-error';
                                     } ?>">
-                               <label for="Parts Invoice" class="col-md-4">Invoice(PDF)</label>
+                               <label for="Parts Invoice" class="col-md-4">Spare Invoice (PDF)</label>
                                 <div class="col-md-6">
                                     <input type="file" name="incoming_invoice" class="form-control" required />
                                     <?php echo form_error('incoming_invoice'); ?>
@@ -164,7 +164,7 @@
                                     if (form_error('invoice_amount')) {
                                         echo 'has-error';
                                     } ?>">
-                               <label for="Invoice Charge" class="col-md-4">Invoice Amount</label>
+                               <label for="Invoice Charge" class="col-md-4">Invoice Amount (including tax)</label>
                                 <div class="col-md-6">
                                     <input type="number" class="form-control" id="invoice_amount" name="invoice_amount" value = "" placeholder="Please Enter Invoice Amount"  required>
                                     <?php echo form_error('invoice_amount'); ?>
@@ -297,7 +297,7 @@
        
         var invoice_amount = Number($("#invoice_amount").val()); 
         if(invoice_amount > Number(estimate_given)){
-            swal("OOPS!", "Estimate given amount is not match this invoice amount.", "error");
+            swal("OOPS!", "Invoice amount exceeding the quote provided earlier.", "error");
             return false;
         } else if(Number(invoice_amount) === 0){
             swal("OOPS!", "Please Enter Invoice amount.", "error");

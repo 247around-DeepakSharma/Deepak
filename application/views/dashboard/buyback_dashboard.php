@@ -78,4 +78,21 @@
 display: block;
 }
 </style>
+<script>
+
+ function login_to_vendor(vendor_id){
+        var c = confirm('Login to Service Center CRM?');
+        if(c){
+            $.ajax({
+                url:'<?php echo base_url()."employee/login/allow_log_in_to_vendor/" ?>'+vendor_id,
+                success: function (data) {
+                    window.open("<?php echo base_url()?>service_center/buyback/bb_order_details",'_blank');
+                }
+            });
+            
+        }else{
+            return false;
+        }
+    }
+</script>
 
