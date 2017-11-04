@@ -20,7 +20,6 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Missing Pincodes</h2>
-                    <a href="<?php echo base_url()?>employee/dashboard/missing_pincode_full_view" target="_blank" style="float: right;font: normal 19px/20px 'Century Gothic';text-decoration: underline;">Full View</a>
                     <div class="clearfix"></div>
                 </div>
 
@@ -30,6 +29,8 @@
                         <center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
                     </div>
                 </div>
+                <a  href="<?php echo base_url()?>employee/dashboard/missing_pincode_full_view" target="_blank" style="float: right;font: normal 19px/20px 'Century Gothic';float: right;background: #12ab3a;color: #fff;padding: 5px;border-radius: 4px;
+}">Full View</a>
             </div>
         </div>
         
