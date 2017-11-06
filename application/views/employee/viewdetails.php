@@ -585,7 +585,7 @@
                     data: {invoice_id: invoice_id},
                     url: '<?php echo base_url(); ?>employee/accounting/search_invoice_id',
                     success: function (response) {
-                        console.log(response);
+                        //console.log(response);
                         $("#open_model").html(response);   
                         $('#invoiceDetailsModal').modal('toggle');
 

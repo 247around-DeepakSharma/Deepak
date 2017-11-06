@@ -6,7 +6,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Dashboard </title>
+        <title>Dashboard | 247around</title>
         <!-- Bootstrap -->
         <link href="<?php echo base_url() ?>css/bootstrap.min.css" rel="stylesheet">
         <!-- Font Awesome -->
@@ -59,7 +59,7 @@
         <div class="col-md-3 left_col">
             <div class="left_col scroll-view">
                 <div class="navbar nav_title" style="border: 0;">
-                    <a href="<?php echo base_url(); ?>employee/dashboard" class="site_title"><i class="fa fa-paw"></i> <span>247Around</span></a>
+                    <a href="<?php echo base_url(); ?>employee/dashboard" class="site_title"><span>247around</span></a>
                 </div>
                 <div class="clearfix"></div>
                 <!-- menu profile quick info -->
