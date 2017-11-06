@@ -564,9 +564,9 @@ class bookings_excel extends CI_Controller {
                                 $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
                                 //Reset
                                 if (empty($booking['state'])) {
-                                    $to = NITS_ANUJ_EMAIL_ID;
-                                    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-                                    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+                                    //$to = NITS_ANUJ_EMAIL_ID;
+                                   // $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+                                    //$this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
                                 }
                                 $this->total_bookings_inserted++;
                             }
