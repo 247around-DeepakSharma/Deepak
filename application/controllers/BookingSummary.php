@@ -28,6 +28,7 @@ class BookingSummary extends CI_Controller {
 
         $this->load->library('PHPReport');
         $this->load->library('notify');
+        $this->load->library('send_grid_api');
         $this->load->library('email');
         $this->load->library('session');
         $this->load->library('s3');
@@ -528,30 +529,36 @@ EOD;
 
                 log_message('info', __FUNCTION__ . ' => Rendered CSV');
 
-                $this->email->clear(TRUE);
-                $this->email->from('booking@247around.com', '247around Team');
-                $this->email->to($p['summary_email_to']);
-                $this->email->cc($p['summary_email_cc']);
-                $this->email->bcc($p['summary_email_bcc']);
+                //$this->email->clear(TRUE);
+                //$this->email->from('booking@247around.com', '247around Team');
+                //$this->email->to($p['summary_email_to']);
+                //$this->email->cc($p['summary_email_cc']);
+                //$this->email->bcc($p['summary_email_bcc']);
 
-                $this->email->subject("247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y'));
-                $summary_table = $this->get_partner_summary_table($p['id']);
+                //$this->email->subject("247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y'));
+                $subject = "247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y');
+                //$summary_table = $this->get_partner_summary_table($p['id']);
                 //log_message('info', __FUNCTION__ . ' => Prepared summary report');
 
-                $message = "Dear Partner,<br/><br/>";
-                $message .= "Please find Service Status Sheet attached for leads shared in last One Month, thanks.<br/><br/>";
-                $message .= $summary_table;
-                $message .= "<br><br>Best Regards,
-                <br>247around Team
-                <br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
-                <br>Follow us on Facebook: www.facebook.com/247around | Website: www.247around.com
-                <br>Playstore - 247around -
-                <br>https://play.google.com/store/apps/details?id=com.handymanapp";
+//                $message = "Dear Partner,<br/><br/>";
+//                $message .= "Please find Service Status Sheet attached for leads shared in last One Month, thanks.<br/><br/>";
+//                $message .= $summary_table;
+//                $message .= "<br><br>Best Regards,
+//                <br>247around Team
+//                <br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
+//                <br>Follow us on Facebook: www.facebook.com/247around | Website: www.247around.com
+//                <br>Playstore - 247around -
+//                <br>https://play.google.com/store/apps/details?id=com.handymanapp";
+//
+//                $this->email->message($message);
+//                $this->email->attach($csv, 'attachment');
+                
+            $cc = $p['summary_email_cc'];
+            $bcc = $p['summary_email_bcc'];
+            $partner_summary_params = $this->partner_model->get_partner_summary_params($p['id']);
+            $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($p['summary_email_to'],NULL,$cc,NULL,$bcc,NULL,$subject,"booking@247around.com",'247around Team','d5af7cfb-590f-4e45-b683-4232990f06c3',$partner_summary_params,$csv,"247around-Services-Consolidated-Data - " . date('d-M-Y') . ".csv");
 
-                $this->email->message($message);
-                $this->email->attach($csv, 'attachment');
-
-                if ($this->email->send()) {
+                if ($emailStatus=='success') {
                     log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
                 } else {
                     log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
