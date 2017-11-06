@@ -508,7 +508,7 @@ class Notify {
 		    $to = NITS_ANUJ_EMAIL_ID;
 		    //$to = "abhaya@247around.com";
 		    $state_not_found_message = " Pincode(" . $query1[0]['booking_pincode'] . ") is not found booking id is " . $query1[0]['booking_id'];
-		    $this->sendEmail("booking@247around.com", $to, "", "", ' Pincode Not Found', $state_not_found_message, "");
+		    //$this->sendEmail("booking@247around.com", $to, "", "", ' Pincode Not Found', $state_not_found_message, "");
 
 
 		    break;

@@ -1118,9 +1118,7 @@ class Miscelleneous {
     function send_sf_not_found_email_to_rm($booking,$rm_email){
             $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
             $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode'];
-            $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
-            $message .= "To add Service center for the missing pincode please use below link <br/> "; 
-            $message .= "<a href=".base_url()."employee/vendor/get_add_vendor_to_pincode_form/".$booking['booking_id'].">Add Service Center</a>";
+            $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
             $this->My_CI->notify->sendEmail("booking@247around.com", $rm_email, $cc, "", $subject, $message, "");
     }
 /*
