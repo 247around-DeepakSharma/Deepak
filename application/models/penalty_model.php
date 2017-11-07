@@ -298,20 +298,20 @@ class Penalty_model extends CI_Model {
         $result=  $query->result_array();
         if(!empty($result)){
             foreach ($result as $key => $value){
-                if($value['agent_type'] == 'admin'){
-                     if ($value['active'] == 0) {
-                        $where = array('id' => $value['penalty_remove_agent_id']);
-                        $data1 = $this->employee_model->get_employee_by_group($where);
-                        $result[$key]['agent_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
-                    } else if ($value['active'] == 1) {
+                if($value['active'] == 0){
+                    $where = array('id' => $value['penalty_remove_agent_id']);
+                    $data1 = $this->employee_model->get_employee_by_group($where);
+                    $result[$key]['agent_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
+                }else if($value['active'] == 1){
+                    if($value['agent_type'] == 'admin'){
                         $where = array('id' => $value['agent_id']);
                         $data1 = $this->employee_model->get_employee_by_group($where);
                         $result[$key]['agent_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
+                    }else if($value['agent_type'] == 'partner'){
+                        $where = array('partners.id' => $value['agent_id']);
+                        $data1 = $this->partner_model->getpartner_details('public_name',$where);
+                        $result[$key]['agent_name'] = isset($data1[0]['public_name']) ? $data1[0]['public_name'] : '';
                     }
-                }else if($value['agent_type'] == 'partner'){
-                    $where = array('partners.id' => $value['agent_id']);
-                    $data1 = $this->partner_model->getpartner_details('public_name',$where);
-                    $result[$key]['agent_name'] = isset($data1[0]['public_name']) ? $data1[0]['public_name'] : '';
                 }
             }
         }

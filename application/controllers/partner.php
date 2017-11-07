@@ -316,9 +316,9 @@ class Partner extends CI_Controller {
                         $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $p_login_details[0]['agent_id'], $requestData['partnerName'], $this->partner['id']);
 
                         if (empty($booking['state'])) {
-                            $to = NITS_ANUJ_EMAIL_ID;
-                            $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-                            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+                            //$to = NITS_ANUJ_EMAIL_ID;
+                            //$message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+                            //$this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
                         }
 
                         //Send response
