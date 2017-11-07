@@ -1369,8 +1369,7 @@ class invoices_model extends CI_Model {
                 FROM `bb_order_details`, bb_unit_details, services, service_centres as sc WHERE 
                 `assigned_cp_id` = '$vendor_id' 
                 AND bb_unit_details.`order_status` = 'Delivered' 
-                AND CASE WHEN (acknowledge_date IS NOT NULL) THEN (acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date' ) 
-                ELSE (`delivery_date` >= '$from_date' AND `delivery_date`< '$to_date') END
+                AND acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date'
                 AND sc.id = assigned_cp_id
                 AND bb_order_details.partner_order_id =  bb_unit_details.partner_order_id
                 AND bb_unit_details.service_id = services.id $is_foc_null $group_by ";
