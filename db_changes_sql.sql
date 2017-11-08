@@ -3368,3 +3368,11 @@ ALTER TABLE `query_report`
 
 ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;--Abhay 8 NOV
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'oow_estimate_given', 'Repair OOW Parts Estimate Sent By Partner For Booking ID %s', 'Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'abhaya@247around', '', '1', '2017-11-02 23:56:57');
+
+-- 08 Nov Sachin 
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'missing_pincode_mail', '%s file has incorrect pincode ', 'Dear Partner,<br><br>
+
+Please have a look in <b>%s</b> file. It has incorrect pincodes. <br><br>
+Find the below order id in the attached file and send us file with correct pincode.<br><br>
+%s', 'booking@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);

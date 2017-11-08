@@ -487,12 +487,8 @@ orderDetails.controller('viewCpOrderDetails', function ($scope, $http) {
                 $scope.current_status = response.data[0].current_status;
                 $scope.partner_name = response.data[0].partner_name;
                 $scope.cp_name = response.data[0].cp_name;
-            });
-            
-    $scope.getDateFormat = function(timestamp) {
-        console.log(timestamp);
-        return new Date(timestamp);
-    };          
+                $scope.acknowledge_date = response.data[0].acknowledge_date;
+            });          
 });
 
 orderDetails.controller('viewCpOrderHistory', function ($scope, $http) {
@@ -501,10 +497,7 @@ orderDetails.controller('viewCpOrderHistory', function ($scope, $http) {
     $http.get(get_url)
             .then(function (response) {
                 $scope.orderHistoryDetails = response.data;
-            });
-    $scope.getDateFormat = function(timestamp) {
-        return new Date(timestamp);
-    };        
+            });       
 });
 
 orderDetails.controller('viewCpOrderAppLianceDetails', function ($scope, $http) {
@@ -513,7 +506,7 @@ orderDetails.controller('viewCpOrderAppLianceDetails', function ($scope, $http) 
     $http.get(get_url)
             .then(function (response) {
                 $scope.orderHistoryDetails = response.data;
-            });
+            });    
 });
 
 buyback_dashboard.controller('bb_dashboard_summary', function ($scope, $http) {
