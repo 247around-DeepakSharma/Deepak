@@ -48,6 +48,55 @@
              [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
                 display: none !important;
             }
+            .highcharts-credits{display:none}
+            #title_count .col-md-3 {
+                width: 23%;
+            }
+            .tile_count .tile_stats_count, ul.quick-list li {
+                white-space: normal;
+            }
+            .bb_balance {
+                margin-right: -23px;
+                margin-left: -23px;
+            }
+            .tile_count .tile_stats_count{color:#333;border: 1px solid #e5e5e5;margin: 2px;}
+            .tile_count .tile_stats_count:hover{
+                border: 1px solid #ccc;
+                box-shadow: 0 0 10px #ccc;
+                background: #fff;
+            }
+            .tile_count .tile_stats_count, ul.quick-list li {
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+            }
+            .tile_count .tile_stats_count:before{
+                content: "";
+                height:0px;
+            }
+            .tile_stats_count hr {
+                margin-top: 0px; 
+                margin-bottom: 10px;
+                border: 0;
+                border-top: 1px solid #eee;
+            }
+            .sub_description2:before {
+                content: "";
+                position: absolute;
+                left: 0;
+                height: 65px;
+                border-left: 2px solid #ADB2B5;
+                margin-top: 10px;
+            }
+            .tile_stats_count .count {
+                font-size: 24px!important;
+            }
+            .tile_stats_count .count_top{
+                min-height: 38px;
+            }
+            .tile_stats_count .query_description{
+                min-height: 30px;
+            }
         </style>
     </head>
     <body class="nav-md">
@@ -76,9 +125,9 @@
                     <div class="menu_section">
                         <ul class="nav side-menu">
                             <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM</a>
-                            <li><a href="<?php echo base_url(); ?>employee/dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
+                            <li><a href="<?php echo base_url(); ?>employee/dashboard"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
                             </li>
-                            <li><a href="<?php echo base_url(); ?>employee/dashboard/buyback_dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>Buyback DASHBOARD</a>
+                            <li><a href="<?php echo base_url(); ?>employee/dashboard/buyback_dashboard"><i class="fa fa-bar-chart-o"></i>Buyback DASHBOARD</a>
                             </li>
                             <li>
                                 <a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>

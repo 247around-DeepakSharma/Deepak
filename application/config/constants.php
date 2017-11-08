@@ -154,6 +154,7 @@ define('_247AROUND_CALLCENTER','callcenter');
 define('_247AROUND_CLOSURE','closure');
 define('_247AROUND_RM','regionalmanager');
 define('_247AROUND_DEVELOPER','developer');
+define('_247AROUND_ACCOUNTANT','accountant');
 
 define('SPARE_PARTS_REQUIRED', 'Spare Parts Required');
 

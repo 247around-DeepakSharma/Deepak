@@ -914,7 +914,7 @@ class Invoice extends CI_Controller {
                 log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
                 $this->bb_model->update_bb_unit_details(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
                 
-                $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $value['partner_order_id'], 'current_status' => 'Pending'),
+                $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $value['partner_order_id']),
                         array('current_status' => 'Delivered', 'internal_status' => 'Delivered'));
                 
             } 
@@ -2569,7 +2569,7 @@ class Invoice extends CI_Controller {
             $amount = $this->input->post('service_charge');
             $description = $this->input->post('invoice_type');
             $partner_data = $this->partner_model->getpartner_details("partners.id, gst_number, "
-                    . "state,company_address, "
+                    . "state,address as company_address, "
                     . "company_name, pincode, "
                     . "district, invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
           
@@ -2582,12 +2582,13 @@ class Invoice extends CI_Controller {
                 $hsn_code = QC_HSN_CODE;
                 $type = "Buyback";
                 $invoice_date = $ed;
-                $invoice_id = $this->create_invoice_id_to_insert("Around");
+                
                 
             } else{
                  $invoice_date = date("Y-m-d");
-                 $invoice_id = $this->create_invoice_id_to_insert("Around-PV");
             }
+            
+            $invoice_id = $this->create_invoice_id_to_insert("Around");
             
             $response = $this->generate_partner_additional_invoice($partner_data[0], $description,
             $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code);
@@ -2732,7 +2733,7 @@ class Invoice extends CI_Controller {
             $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id, "is_cp" => 1));
         } else if ($vendor_partner == "partner") {
             $entity = $this->partner_model->getpartner_details("partners.id, gst_number, "
-                    . "state,company_address, "
+                    . "state,address as company_address, "
                     . "company_name, pincode, "
                     . "district, invoice_email_to,invoice_email_cc", array('partners.id' => $vendor_partner_id));
         }
