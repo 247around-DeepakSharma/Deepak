@@ -125,10 +125,11 @@ class Bb_model extends CI_Model {
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
         }
+        if (isset($post['where_in'])) {
+            foreach ($post['where_in'] as $index => $value) {
 
-        foreach ($post['where_in'] as $index => $value) {
-
-            $this->db->where_in($index, $value);
+                $this->db->where_in($index, $value);
+            }
         }
 
         if (!empty($post['search_value'])) {

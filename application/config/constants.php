@@ -499,6 +499,10 @@ define("_247AROUND_AC_SERVICE_ID",'50');
 define("_247AROUND_REFRIGERATOR_SERVICE_ID",'37');
 //geyser service id
 define("_247AROUND_GEYSER_SERVICE_ID",'32');
+// We will display Not received button after 3 days of Delivery date
+define("NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON", -3);
+
+define("AUTO_ACK_ADMIN_REMARKS", "Auto Acknowledge");
 
 
 
