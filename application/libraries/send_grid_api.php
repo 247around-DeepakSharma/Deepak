@@ -33,7 +33,7 @@ var $pass;
         curl_close($session);
         return $response;
     }
-    function send_email_using_send_grid_templates($to,$to_name,$ccEmailArray,$ccNameArray,$bccEmailArray,$bccNameArray,$subject,$from,$fromName,$template_id,$dynamic_variables,$attachmentPath,$attachmentFileName){
+    function send_email_using_send_grid_templates($to,$to_name,$cc,$cc_name,$bcc,$bcc_name,$subject,$from,$from_name,$template_id,$dynamic_variables,$attachmentPath,$attachmentFileName){
         $finalDynamicVariableArray = array();
         foreach($dynamic_variables as $key=>$value){
             $finalDynamicVariableArray["-".$key."-"] = array($value,$value,$value);
@@ -48,15 +48,15 @@ var $pass;
             'api_key'   => $this->pass,
             'to' => $to,
             'toname'=>$to_name,
-            'cc'=>$ccEmailArray,
-            'cc_name'=>$ccNameArray,
-            'bcc'=>$bccEmailArray,
-            'bcc_name'=>$bccNameArray,
+            'cc'=>$cc,
+            'cc_name'=>$cc_name,
+            'bcc'=>$bcc,
+            'bcc_name'=>$bcc_name,
             'subject'=>$subject,
             'html'=> '<p></p>',
             'text'=> '',
             'from'=> $from,
-            'fromname'=> $fromName,
+            'fromname'=> $from_name,
             'x-smtpapi'=> $xSmtpApiJson,
             'files['.$attachmentFileName.']' =>file_get_contents($attachmentPath)
             );
