@@ -13,7 +13,7 @@ class Miscelleneous {
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('s3');
 	$this->My_CI->load->model('vendor_model');
-                    $this->My_CI->load->model('reusable_model');
+        $this->My_CI->load->model('reusable_model');
 	$this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
         $this->My_CI->load->model('partner_model');
@@ -1489,5 +1489,18 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
         
         return $new_appliance_details;
+    }
+    /**
+     * @desc Return Account Manager ID
+     * @param int $partner_id
+     * @return Array
+     */
+    function get_am_data($partner_id) {
+        $data = [];
+        $am_id = $this->My_CI->partner_model->getpartner_details('account_manager_id', array('partners.id' => trim($partner_id)));
+        if (!empty($am_id)) {
+            $data = $this->My_CI->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
+        }
+        return $data;
     }
 }
