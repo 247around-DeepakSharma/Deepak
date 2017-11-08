@@ -3243,16 +3243,6 @@ class Partner extends CI_Controller {
             }
         }
     }
-
-    function get_am_data($partner_id) {
-        $data = [];
-        $am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => trim($partner_id)));
-        if (!empty($am_id)) {
-            $data = $this->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
-        }
-        return $data;
-    }
-    
     
     /**
      * @Desc: This function is used to show booking_summary with escalation percentage on partner homepage
@@ -3383,7 +3373,7 @@ class Partner extends CI_Controller {
     }
     
     public function get_contact_us_page($partner_id){
-        $data['account_manager_details'] = $this->get_am_data($partner_id);
+        $data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager','active' => 1));
         $this->load->view('partner/contact_us',$data);
     }
