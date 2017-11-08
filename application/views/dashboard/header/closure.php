@@ -43,6 +43,10 @@
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
         <!-- sweet Alert JS -->
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
+        
+          <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+
+        <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
         <style>
              [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
                 display: none !important;
@@ -124,43 +128,13 @@
                     <div class="menu_section">
                         <ul class="nav side-menu">
                             <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM</a>
-                            <li><a href="<?php echo base_url(); ?>employee/dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
-                            </li>
-                            <li><a href="<?php echo base_url(); ?>employee/dashboard/buyback_dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>Buyback DASHBOARD</a>
-                            </li>
-                            <li>
-                                <a><i class="fa fa-edit"></i> BUYBACK <span class="fa fa-chevron-down"></span></a>
-                                <ul class="nav child_menu">
-                                    
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/view_bb_order_details">Pending Orders</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process">Upload Order File</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/collection_partner/get_cp_shop_address">Shop Addresses</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_review">Review Order</a></li>
-                                    <li>
-                                        <a>Disputed Orders <span class="fa fa-chevron-down"></span></a>
-                                        <ul class="nav child_menu">
-                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_auto_settel">Auto Settled (Cancelled / Rejected)</a></li>
-
-                                            <li><a href="<?php echo base_url(); ?>buyback/buyback_process/disputed_30_days_breech">30 Days TAT Breach</a></li>
-                                            <li><a href="<?php echo base_url();?>buyback/buyback_process/vendor_rejected">Rejected By CP</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/tag_untag_bb_orders">Claimed Process</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_claimed_raised_order_data">Debit Note Raised</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/filter_bb_price_list">Charges List</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process/price_sheet_upload">Upload Price Sheet</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_search">Advance Search</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                        </li>                  
-                        <!--                  <li><a href="javascript:void(0)"><i class="fa fa-laptop"></i> Landing Page <span class="label label-success pull-right">Coming Soon</span></a></li>-->
-                        </ul>
+                            <li><a href="<?php echo base_url(); ?>employee/dashboard"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
+                        </ul>                  
                     </div>
                 </div>
                 <!-- /sidebar menu -->
                 <!-- /menu footer buttons -->
-                <div class="sidebar-footer hidden-small">
+<!--                <div class="sidebar-footer hidden-small">
                     <a data-toggle="tooltip" data-placement="top" title="Settings">
                     <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
                     </a>
@@ -173,7 +147,7 @@
                     <a data-toggle="tooltip" data-placement="top" title="Logout" href="login.html">
                     <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
                     </a>
-                </div>
+                </div>-->
                 <!-- /menu footer buttons -->
             </div>
         </div>
@@ -194,14 +168,14 @@
                                 <li><a href="<?php echo base_url() ?>employee/login/logout"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                             </ul>
                         </li>
-                        <li class="col-md-4">
+<!--                        <li class="col-md-4">
                             <a href="javascript:void(0)" style="background: #EDEDED;">
                            
                                 <input type="text" class="form-control" placeholder="Search Order/Tracking ID ..." onkeydown="search_order_id(this)" 
                                        style="border-radius:25px 25px 25px 25px">
                             
                             </a>
-                        </li>
+                        </li>-->
                     </ul>
                 </nav>
             </div>
@@ -210,7 +184,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.3/waypoints.min.js"></script> 
         <script src="<?php echo base_url(); ?>js/jquery.counterup.min.js"></script> 
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
-        <script>          
+        <script>
             function search_order_id(ele){
                 if(event.keyCode === 13 && ele.value !== '') {
                 
