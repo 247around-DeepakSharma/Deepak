@@ -97,6 +97,7 @@ class ApiDataRequest extends CI_Controller {
             $no++;
             $row = array();
             $row[] = $no;
+            $row[] = $sp_list->booking_id;
             $row[] = $sp_list->parts_requested;
             $row[] = $sp_list->age_of_request;
             $row[] = $sp_list->model_number;
@@ -131,7 +132,7 @@ class ApiDataRequest extends CI_Controller {
             
             $c = '"'.$sp_list->id.'", "'.$sp_list->booking_id.'", "'.$sp_list->assigned_vendor_id.'", "'.$sp_list->amount_due.'" ';
             $row[] = '<input type="number" onkeypress="return isNumberKey(event)" id="estimate_cost" class="col-md-8"/>';
-            if($sp_list->partner_id == _247AROUND ){
+            if($sp_list->partner_id != _247AROUND ){
                 $row[] = "";
                 
             } else {
@@ -257,6 +258,19 @@ class ApiDataRequest extends CI_Controller {
                  //Insert State Change
                 $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $partner_id);
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                
+                $template = $this->booking_model->get_booking_email_template("oow_estimate_given");
+                if (!empty($template)) {
+                    $am_data = $this->miscelleneous->get_am_data($partner_id);
+                    if (!empty($am_data)) {
+                        $to = $am_data[0]['official_email'];
+                        $subject = vsprintf($template[4], "SY-1234");
+                        $emailBody = vsprintf($template[0], "1200");
+
+                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
+                    }
+                }
+
                 echo "Success";
             } else {
                 echo "Error";
