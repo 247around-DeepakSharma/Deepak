@@ -1035,23 +1035,52 @@ class Around_scheduler extends CI_Controller {
         }
     }
     
-    function update_india_pincode_table(){
-       $sql = "INSERT INTO india_pincode(area,pincode,division,region,taluk,district,state) SELECT booking_details.city as area,sf.pincode,booking_details.city as division,booking_details.taluk as region,"
+    function update_india_pincode_table() {
+        $sql = "INSERT INTO india_pincode(area,pincode,division,region,taluk,district,state) SELECT booking_details.city as area,sf.pincode,booking_details.city as division,booking_details.taluk as region,"
                 . "booking_details.taluk,booking_details.district,booking_details.state FROM "
                 . "sf_not_exist_booking_details sf INNER JOIN booking_details  ON sf.booking_id=booking_details.booking_id WHERE sf.rm_id IS NULL  GROUP BY sf.pincode";
-       $affectedRows = $this->reusable_model->execute_custom_insert_update_delete_query($sql);
-        if($affectedRows>0){
-                $getRmSql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
+        $affectedRows = $this->reusable_model->execute_custom_insert_update_delete_query($sql);
+        if ($affectedRows > 0) {
+            $getRmSql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
       FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN (SELECT sf.pincode FROM sf_not_exist_booking_details sf WHERE sf.rm_id IS NULL GROUP BY sf.pincode)
       GROUP BY india_pincode.pincode";
             $result = $this->reusable_model->execute_custom_select_query($getRmSql);
-            if($result){
-                foreach($result as $data){
-                      $this->reusable_model->update_table("sf_not_exist_booking_details",$data,array('pincode'=>$data['pincode']));
+            if ($result) {
+                foreach ($result as $data) {
+                    $this->reusable_model->update_table("sf_not_exist_booking_details", $data, array('pincode' => $data['pincode']));
                 }
-      }
+            }
         }
-        
+    }
+    /**
+     * @desc: It called from Ajax
+     * This is used to to auto acknowledge those booking whose deliver date less than 10 days(Compare current date)
+     */
+    function auto_acknowledge_buyback_order(){
+        log_message("info", __METHOD__);
+        $where['where'] = array("DATEDIFF( CURRENT_TIMESTAMP , delivery_date ) > 10 " => NULL, 'bb_order_details.current_status' => "Delivered",
+            'bb_order_details.internal_status' =>"Delivered", "bb_cp_order_action.current_status" => 'Pending');
+        $where['select'] = "bb_order_details.partner_order_id";
+        $where['length'] = -1;
+        $data = $this->cp_model->get_bb_cp_order_list($where);
+        if(!empty($data)){
+            foreach ($data as $value) {
+               // Update bb order details 
+                $this->bb_model->update_bb_order_details(array('partner_order_id' => $value->partner_order_id), 
+                       array("acknowledge_date"=> date("Y-m-d H:i:s")));
+                // Update Unit Details
+                $this->bb_model->update_bb_unit_details(array('partner_order_id' => $value->partner_order_id), 
+                       array("current_status"=> "Delivered"));
+               
+               $cp['current_status'] = "Delivered";
+               $cp['internal_status'] = 'Delivered';
+               $cp['admin_remarks'] =  AUTO_ACK_ADMIN_REMARKS;
+               // Update Cp Action Table
+               $this->cp_model->update_bb_cp_order_action(array('partner_ordere_id' => $value->partner_order_id), $cp );
+               // Insert State Change
+               $this->buyback->insert_bb_state_change($value->partner_order_id, "Auto Acknowledge", AUTO_ACK_ADMIN_REMARKS, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
+            }
+        }
     }
 
 }

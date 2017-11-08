@@ -78,8 +78,9 @@
                         </div>
                     </div>
                 </div>
-                <hr>
-                <div class="row">
+
+                <input class="col-md-4 form-control" type="hidden" id="claimed_price" name="claimed_price" >
+<!--                <div class="row">
                     <div class="remarks">
                         <div class="form-group form-inline">
                             <label for="remarks" class="col-md-2">Claimed Price:</label>
@@ -87,7 +88,7 @@
                             <span id="claimed_price_error" class="text-danger text-center col-md-6" style="display:none;"></span>
                         </div>
                     </div>
-                </div>
+                </div>-->
                 <div class="row">
                     <div class="remarks">
                         <div class="form-group form-inline">
@@ -200,6 +201,7 @@
                         if(response === 'empty'){
                             $('#order_physical_condition').val('val', "");
                             $('#order_physical_condition').val('Select Physical Condition').change();
+                            
                             $('#phy_con').hide();
                         }else{
                             $('#order_physical_condition').val('val', "");
@@ -230,6 +232,8 @@
                         //console.log(response);
                         $('#order_working_condition').val('val', "");
                         $('#order_working_condition').select2().html(response).change();
+                        $('#order_brand').val('val', "");
+                        $('#order_brand').val('Select Brand').change();
                     }
                             
                 }); 
@@ -258,7 +262,20 @@
                     url:"<?php echo base_url(); ?>employee/service_centers/check_bb_order_key",
                     data:{'category':category,'physical_condition':physical_condition,'working_condition':working_condition,'brand':brand,'city':city,'order_id':order_id,'services': services, 'cp_id':cp_id},
                     success:function(response){
-                        $('#partner_order_key').val(response);
+                       var response=jQuery.parseJSON(response);
+                       if(typeof response ==='object') {
+                           $('#partner_order_key').val(response.order_key);
+                           $("#claimed_price").val(response.cp_charge);
+                          
+                        }
+                        else{
+                          if(response ===false){
+                             // the response was a string "false", parseJSON will convert it to boolean false
+                          }else{
+                            // the response was something else
+                          }
+                        }
+                        //$('#partner_order_key').val(response);
                     }
                             
                 }); 
@@ -266,21 +283,21 @@
         });
         
         
-        $("#claimed_price").blur(function() {
-            var claimed_price = $(this).val();
-            var final_claimed_price = Math.round(($('#cp_basic_charge').val() * .30),0);
-            var alert_msg = 'Price You Entered Is Too Low. We can not accept entered amount for this order.Please Enter an amount greater than or equal to <b>Rs.' + final_claimed_price + '</b>';
-            if(claimed_price < final_claimed_price){
-                //alert(alert_msg);
-                $('#claimed_price_error').html(alert_msg).show();
-                $(this).css({'border-color' : '#a94442'});
-                $('#submit').attr('disabled','disabled');
-            }else{
-                $('#claimed_price_error').html('').hide();
-                $(this).css({'border-color' : '#ccc'});
-                $('#submit').removeAttr('disabled');
-            }
-        });
+//        $("#claimed_price").blur(function() {
+//            var claimed_price = $(this).val();
+//            var final_claimed_price = Math.round(($('#cp_basic_charge').val() * .30),0);
+//            var alert_msg = 'Price You Entered Is Too Low. We can not accept entered amount for this order.Please Enter an amount greater than or equal to <b>Rs.' + final_claimed_price + '</b>';
+//            if(claimed_price < final_claimed_price){
+//                //alert(alert_msg);
+//                $('#claimed_price_error').html(alert_msg).show();
+//                $(this).css({'border-color' : '#a94442'});
+//                $('#submit').attr('disabled','disabled');
+//            }else{
+//                $('#claimed_price_error').html('').hide();
+//                $(this).css({'border-color' : '#ccc'});
+//                $('#submit').removeAttr('disabled');
+//            }
+//        });
         
         function isNumberKey(evt)
         {

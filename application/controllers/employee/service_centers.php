@@ -1770,10 +1770,11 @@ class Service_centers extends CI_Controller {
                         'working_condition' => $working_condition,
                         'brand'=>$brand,
                         'city'=>$city);
-        $select = "order_key";
-        $order_key = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
-        if(!empty($order_key)){
-            echo $order_key[0]['order_key'];
+        $select = "order_key, (cp_basic + cp_tax) as cp_charge";
+        $order = $this->service_centre_charges_model->get_bb_charges($where, $select, TRUE);
+        if(!empty($order)){
+            $array = array("order_key" => $order[0]['order_key'], "cp_charge" => $order[0]['cp_charge']);
+            echo json_encode($array, true);
         }
     }
     
@@ -1803,7 +1804,7 @@ class Service_centers extends CI_Controller {
             $this->form_validation->set_rules('order_working_condition', 'Order Working Condition', 'trim');
             $this->form_validation->set_rules('category', 'Category', 'trim|required');
             $this->form_validation->set_rules('cp_id', 'Collection Partner Id', 'trim|required');
-            $this->form_validation->set_rules('claimed_price', 'Claimed Price', 'trim|required|callback_validate_claimed_price');
+            $this->form_validation->set_rules('claimed_price', 'Claimed Price', 'trim');
 
             if ($this->form_validation->run() === false) {
                 $msg = "Please fill all required field";
@@ -1833,7 +1834,7 @@ class Service_centers extends CI_Controller {
                     } else {
                         $physical_condition = '';
                     }
-
+                   
                     $data = array(
                         'category' => $category,
                         'physical_condition' => $physical_condition,
@@ -2213,7 +2214,7 @@ class Service_centers extends CI_Controller {
      * @return array
      */
     function get_delivered_data(){
-        //log_message("info",__METHOD__);
+        //log_message("info",__METHOD__);      
         $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'),
             'bb_cp_order_action.current_status' => 'Pending', 'bb_order_details.internal_status' => 'Delivered','bb_order_details.current_status' => 'Delivered');
@@ -2312,30 +2313,42 @@ class Service_centers extends CI_Controller {
     function get_delivered_table_data($order_list, $no) {
         //log_message("info", __METHOD__);
         $row = array();
+        $datetime1 = date_create(date("Y-m-d"));
+        $datetime2 = date_create(date('Y-m-d', strtotime($order_list->delivery_date)));
+
+        $interval = date_diff($datetime1, $datetime2);
+        $days = $interval->days;
+        if ($interval->invert == 1) {
+            $days = -$days;
+        }
         $row[] = $no;
-        $row[] = "<a target='_blank' href='".base_url()."service_center/buyback/view_bb_order_details/".
-                $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+        $row[] = "<a target='_blank' href='" . base_url() . "service_center/buyback/view_bb_order_details/" .
+                $order_list->partner_order_id . "'>$order_list->partner_order_id</a>";
         $row[] = $order_list->partner_tracking_id;
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
         $row[] = $order_list->order_date;
         $row[] = $order_list->delivery_date;
-        $row[] = "<div class='truncate_text' data-toggle='popover' title='".$order_list->admin_remarks."'>$order_list->admin_remarks</div>";
-        $row[] = "<div class='dropdown'>
+        $row[] = "<div class='truncate_text' data-toggle='popover' title='" . $order_list->admin_remarks . "'>$order_list->admin_remarks</div>";
+        $a = "<div class='dropdown'>
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_not_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>";
+        ;
+        if ($days < NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON) {
+          
+            $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_not_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>";
+        }
+        $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
+        $row[] = $a;
 
         return $row;
     }
-    
-    
+
     /**
      * @desc Used to get pending buyback data table
      * @param $order_list
