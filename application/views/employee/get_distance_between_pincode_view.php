@@ -1,3 +1,5 @@
+ <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyCxGEwAaDgntmxvfTxgA1dCS5DPgzxodZc"></script>
+ <script src="<?php echo base_url();?>js/googleScript.js"></script>
 <?php if ($is_ajax) { ?> 
     <table class="table table-bordered table-hover table-responsive">
         <thead>
@@ -74,8 +76,52 @@
                         </tr>
                     </table>
                 </section>
+                
             </div>
         </div>
+        <div class="container-fluid">
+            <div class="distance_between_pincode" style="border: 1px solid #e6e6e6; margin-top: 20px; margin-bottom: 20px;padding: 10px;">
+                <h3><strong>Get Distance From Google Map</strong></h3>
+                <section  style="padding-left:20px;">
+                    <div class="row">
+                        <div class="row">
+                            <div class="form-inline" style="margin-left: 20px;">
+                                <div class="form-group" style="margin-right: 10px;">
+                                    <label for="pincode1">Source :</label>
+                                    <input type="text" class="form-control" id="txtSource" >
+                                </div>
+                                <div class="form-group" style="margin-right: 10px;">
+                                    <label for="pincode2">Destination:</label>
+                                    <input type="text" class="form-control" id="txtDestination">
+                                </div>
+                                <button class="btn btn-success" onclick="GetRoute()">Get Route</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                 <hr>
+                <section style="padding-left:20px;"><div id="dvDistance">
+                </div></section>
+                  <hr>
+                <section style="padding-left:20px;">
+                    <table><tr>
+            <td colspan="2">
+                <div id="dvDistance">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div id="dvMap" style="width: 600px; height: 500px">
+                </div>
+            </td>
+            <td>
+                <div id="dvPanel" style="width: 500px; height: 500px">
+                </div>
+            </td>
+        </tr></table>
+                </section>
+            </div>
     </div>
     <script type="text/javascript">
 
@@ -184,4 +230,7 @@
         });
     </script>
 <?php } ?>
+
+
+
 
