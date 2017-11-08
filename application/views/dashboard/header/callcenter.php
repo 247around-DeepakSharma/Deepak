@@ -193,7 +193,7 @@
                     url: '<?php echo base_url()?>buyback/buyback_process/search_for_buyback',
                     data: {search:ele.value},
                     success: function (response) {
-                     console.log(response);
+                     //console.log(response);
                      $(".right_col").html(response);
                       
                    }
