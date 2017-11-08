@@ -108,6 +108,7 @@
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
+                                                <th>Booking ID.</th>
                                                 <th>Spare Part</th>
                                                 <th>Age Of Requested</th>
                                                 <th>Model No</th>
