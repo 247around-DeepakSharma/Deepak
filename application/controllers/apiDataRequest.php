@@ -97,6 +97,7 @@ class ApiDataRequest extends CI_Controller {
             $no++;
             $row = array();
             $row[] = $no;
+            $row[] = $sp_list->booking_id;
             $row[] = $sp_list->parts_requested;
             $row[] = $sp_list->age_of_request;
             $row[] = $sp_list->model_number;
@@ -131,7 +132,7 @@ class ApiDataRequest extends CI_Controller {
             
             $c = '"'.$sp_list->id.'", "'.$sp_list->booking_id.'", "'.$sp_list->assigned_vendor_id.'", "'.$sp_list->amount_due.'" ';
             $row[] = '<input type="number" onkeypress="return isNumberKey(event)" id="estimate_cost" class="col-md-8"/>';
-            if($sp_list->partner_id == _247AROUND ){
+            if($sp_list->partner_id != _247AROUND ){
                 $row[] = "";
                 
             } else {
