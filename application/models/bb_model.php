@@ -426,17 +426,4 @@ class Bb_model extends CI_Model {
         $this->db->insert_batch('bb_delivery_order_status_report', $data);
         return $this->db->insert_id();
     }
-    
-    /**
-     * @desc This function is used to get the SQL queries from the database to show the bb dashboard header summary 
-     * @param void()
-     * @return string
-     */
-    function get_bb_dashboard_queries(){
-        $this->db->where('active',1);        
-        $query = $this->db->get('bb_query_report');
-        
-        return $query->result_array();
-    }
-
 }

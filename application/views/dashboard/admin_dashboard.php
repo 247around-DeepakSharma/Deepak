@@ -1,14 +1,3 @@
-<style>
-    .tile_stats_count{color:#333;}
-    .tile_count .tile_stats_count, ul.quick-list li {
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    }
-    .highcharts-credits{display:none}
-    #preview{display: none;}
-</style>
-<pre id="preview"></pre>
 <!-- page content -->
 <div class="right_col" role="main">
     <!-- top tiles -->

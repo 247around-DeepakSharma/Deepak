@@ -46,12 +46,29 @@ class Dashboard extends CI_Controller {
      */
     function index() {
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        $this->load->view('dashboard/main_dashboard');
+        
+        if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
+            redirect(base_url().'employee/invoice/invoice_partner_view');
+        }else{
+            $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard");
+        }
+        
         $this->load->view('dashboard/dashboard_footer');
     }
     
     function execute_title_query(){
-        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries(array('active' => 1,'type'=> 'service'));
+        if(($this->session->userdata('user_group') == _247AROUND_DEVELOPER)){
+            $where = array('active' => 1,'type'=> 'incorrect_data');
+        }else if($this->session->userdata('user_group') == _247AROUND_ADMIN){
+            $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_ADMIN."%'" => NULL);
+        }else if($this->session->userdata('user_group') == _247AROUND_CLOSURE){
+            $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_CLOSURE."%'" => NULL);
+        }else if($this->session->userdata('user_group') == _247AROUND_CALLCENTER){
+            $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_CALLCENTER."%'" => NULL);
+        }else{
+            $where = array('active' => 1,'type'=> 'service');
+        }
+        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries($where);
         $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
         $this->load->view('dashboard/dashboard_title', $data_report);
     }
