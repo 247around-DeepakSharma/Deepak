@@ -1139,6 +1139,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                     $rm_email  = $query->result_array(); 
                     $this->send_sf_not_found_email_to_rm($booking,$rm_email[0]['official_email']);
           }
+           if(array_key_exists('partner_id', $booking)){
+             $notFoundSfArray['partner_id'] = $booking['partner_id'];
+         }
           $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
           
     }

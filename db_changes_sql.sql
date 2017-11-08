@@ -3424,3 +3424,6 @@ ALTER TABLE `query_report`
 
 ALTER TABLE `query_report`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+
+
+ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;
