@@ -992,14 +992,28 @@ class Buyback_process extends CI_Controller {
     }
     function search_for_buyback(){
         log_message("info",__METHOD__);
-        $post['search_value'] = trim($this->input->post('search'));
+        $search_data = $this->input->post('search');
+        if(strpos($search_data,',')){
+            $search_value = explode(',', $search_data);
+        }else{
+            $search_value = explode(" ", $search_data);
+        }
         $post['column_search'] = array('bb_order_details.partner_order_id', 'bb_order_details.partner_tracking_id');
         $post['where'] = array();
         $post['where_in'] = array();
         $post['column_order'] = array();
         $post['length'] = -1;
-        
-        $list['list'] = $this->bb_model->get_bb_order_list($post);
+        $list['list'] = array();
+        foreach($search_value as $value){
+            if(!empty($value)){
+                $post['search_value'] = trim($value);
+                $data = $this->bb_model->get_bb_order_list($post);
+                if(!empty($data)){
+                    array_push($list['list'], $data[0]);
+                }
+                
+            }
+        }
         $select = "bb_shop_address.id,bb_shop_address.cp_id, concat(name,'( ' ";
        
         $select .= ",shop_address_region ";
@@ -1943,6 +1957,6 @@ class Buyback_process extends CI_Controller {
         }
         echo json_encode($response);
     }
-
+    
     
 }
