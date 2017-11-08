@@ -2671,7 +2671,7 @@ class Service_centers extends CI_Controller {
             $select = 'bb_unit.category, bb_unit.physical_condition, 
                 bb_unit.working_condition,
                 round(bb_unit.cp_basic_charge + bb_unit.cp_tax_charge) as cp_tax,
-                bb_unit.partner_sweetner_charges,s.services as service_name,bb_unit.cp_claimed_price';
+                bb_unit.partner_sweetner_charges,s.services as service_name,bb_unit.cp_claimed_price,bb_unit.cp_invoice_id';
             $data = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id' => $partner_order_id), $select);
             print_r(json_encode($data));
         }

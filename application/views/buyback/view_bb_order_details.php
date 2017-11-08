@@ -121,7 +121,7 @@
                                                             <strong>Acknowledge Date</strong>
                                                         </td>
                                                         <td colspan="2">
-                                                            {{isValidObject(acknowledge_date)? delivery_date : (getDateFormat(acknowledge_date)|date:'dd MMM yyyy H:mm:ss') }}
+                                                            {{isValidObject(acknowledge_date)? acknowledge_date : (getDateFormat(acknowledge_date)|date:'dd MMM yyyy H:mm:ss') }}
                                                         </td>
                                                     </tr>
                                                    
