@@ -1226,9 +1226,9 @@ class vendor_model extends CI_Model {
      * return: Array of Active queries
      */
     function get_around_dashboard_queries($where){
-        $this->db->where($where,false);        
+        $this->db->where($where,false);
+        $this->db->order_by('priority','ASC');
         $query = $this->db->get('query_report');
-        
         return $query->result_array();
     }
     
@@ -1238,12 +1238,23 @@ class vendor_model extends CI_Model {
      * return : ARRAY containing counts for different queries
      */
     function execute_dashboard_query($query){
+        $return_data = array();
         foreach($query as $key=>$value){
-            $query = $this->db->query($value['query']);
-            $count[$key] = $query->result_array();
+            $query1 = $this->db->query($value['query1'])->result_array();
+            $sub_description = empty($value['query1_description'])? '' : $value['query1_description'];
+            $return_data[$key]['main_description'] = $value['main_description'];
+            $return_data[$key]['data']['query1']['description'] = $sub_description;
+            $return_data[$key]['data']['query1']['query_data'] = $query1[0]['count'];
+            
+            if(!empty($value['query2'])){
+                $query2 = $this->db->query($value['query2'])->result_array();
+                $sub_description = empty($value['query2_description'])? '' : $value['query2_description'];
+                $return_data[$key]['data']['query2']['description'] = $sub_description;
+                $return_data[$key]['data']['query2']['query_data'] = $query2[0]['count'];
+            }
         }
         
-        return $count;
+        return $return_data;
     }
     
     /**
@@ -1526,7 +1537,7 @@ class vendor_model extends CI_Model {
                 . " AND  service_centres.id = booking_details.assigned_vendor_id ";
         $query = $this->db->query($sql);
         if($query->num_rows > 0){
-            return TRUE;
+            return $query->result_array();
         } else {
             return FALSE;
         }

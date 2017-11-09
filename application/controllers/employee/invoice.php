@@ -597,7 +597,8 @@ class Invoice extends CI_Controller {
                 "igst_tax_amount" => $meta["igst_total_tax_amount"],
                 "sgst_tax_amount" => $meta["sgst_total_tax_amount"],
                 "cgst_tax_amount" => $meta["cgst_total_tax_amount"],
-                "parts_count" =>$meta['parts_count']
+                "parts_count" =>$meta['parts_count'],
+                "invoice_file_pdf" => $convert['copy_file']
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -681,17 +682,26 @@ class Invoice extends CI_Controller {
         if ($invoice_type == "final") {
             //generate main invoice pdf
             $excel_file_to_convert_in_pdf = $invoice_id.'.xlsx';
-           
+            
         } 
+        $main_pdf = $this->_request_to_convert_excel_to_pdf($excel_file_to_convert_in_pdf,$invoice_id, "invoices-excel");
+        $copy_invoice = "copy_".$excel_file_to_convert_in_pdf;
+        $copy_pdf = $this->_request_to_convert_excel_to_pdf($copy_invoice,$invoice_id, "invoices-excel");
         
         if($copy){
-            $excel_file_to_convert_in_pdf = "copy_".$excel_file_to_convert_in_pdf;
+           $array = array("main_pdf_file_name" =>$copy_pdf, "excel_file" => $excel_file_to_convert_in_pdf, "copy_file" =>$main_pdf );
+        } else {
+            $array = array("main_pdf_file_name" =>$main_pdf, "excel_file" => $excel_file_to_convert_in_pdf, "copy_file" => $copy_pdf );
         }
-            
-        $json_result = $this->miscelleneous->convert_excel_to_pdf(TMP_FOLDER.$excel_file_to_convert_in_pdf,$invoice_id, "invoices-excel");
+        
+       return $array;
+    }
+    
+    function _request_to_convert_excel_to_pdf($excel_file, $invoice_id, $directory ){
+        $json_result = $this->miscelleneous->convert_excel_to_pdf(TMP_FOLDER.$excel_file,$invoice_id, $directory);
         log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result,TRUE));
         $pdf_response = json_decode($json_result,TRUE);
-        $output_pdf_file_name = $excel_file_to_convert_in_pdf;
+        $output_pdf_file_name = $excel_file;
         if($pdf_response['response'] === 'Success'){
             $output_pdf_file_name = $pdf_response['output_pdf_file'];
             log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
@@ -699,8 +709,8 @@ class Invoice extends CI_Controller {
                
             log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
        }
-       $array = array("main_pdf_file_name" =>$output_pdf_file_name, "excel_file" => $excel_file_to_convert_in_pdf);
-       return $array;
+       
+       return $output_pdf_file_name;
     }
     
     function generate_partner_upcountry_excel($data, $meta) {
@@ -828,7 +838,9 @@ class Invoice extends CI_Controller {
                 "igst_tax_rate" => $meta['igst_tax_rate'],
                 "igst_tax_amount" => $meta["igst_total_tax_amount"],
                 "sgst_tax_amount" => $meta["sgst_total_tax_amount"],
-                "cgst_tax_amount" => $meta["cgst_total_tax_amount"]
+                "cgst_tax_amount" => $meta["cgst_total_tax_amount"],
+                "hsn_code" => COMMISION_CHARGE_HSN_CODE,
+                "invoice_file_pdf" => $convert['copy_file']
             );
 
             $this->invoices_model->action_partner_invoice($invoice_details);
@@ -914,7 +926,7 @@ class Invoice extends CI_Controller {
                 log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
                 $this->bb_model->update_bb_unit_details(array('id' => $value['unit_id']), array($unit_column => $invoice_id));
                 
-                $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $value['partner_order_id'], 'current_status' => 'Pending'),
+                $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $value['partner_order_id']),
                         array('current_status' => 'Delivered', 'internal_status' => 'Delivered'));
                 
             } 
@@ -948,6 +960,7 @@ class Invoice extends CI_Controller {
         $rating = 0;
 
             // Calculate charges
+            $rating_count = 0;
             for ($j = 0; $j < count($invoice_details); $j++) {
                 $total_inst_charge += $invoice_details[$j]['vendor_installation_charge'];
                
@@ -956,8 +969,13 @@ class Invoice extends CI_Controller {
                 $invoice_details[$j]['amount_paid'] = round(($invoice_details[$j]['vendor_installation_charge'] + 
                         $invoice_details[$j]['vendor_stand']), 0);
                 $rating += $invoice_details[$j]['rating_stars'];
+                if(!empty($invoice_details[$j]['rating_stars'])){
+                    $rating_count++;
+                }
             }
-           
+            if($rating_count == 0){
+                $rating_count = 1;
+            }
             
             $t_total = $total_inst_charge + $total_stand_charge;
             
@@ -978,7 +996,7 @@ class Invoice extends CI_Controller {
             $invoice_data['meta']['t_total'] =  round($t_total,0);
             $invoice_data['meta']['total_gst_amount'] =  round($invoice_data['meta']["cgst_total_tax_amount"] + $invoice_data['meta']["sgst_total_tax_amount"] +
                     $invoice_data['meta']["igst_total_tax_amount"],0);
-            $invoice_data['meta']['t_rating'] = $rating/$j;
+            $invoice_data['meta']['t_rating'] = $rating/$rating_count;
             $invoice_data['meta']['cr_total_penalty_amount'] = round((array_sum(array_column($invoice_data['c_penalty'], 'p_amount'))),0);
             $invoice_data['meta']['total_penalty_amount'] = -round((array_sum(array_column($invoice_data['d_penalty'], 'p_amount'))), 0);
             $invoice_data['meta']['total_upcountry_price'] = round($total_upcountry_price, 0);
@@ -1085,7 +1103,8 @@ class Invoice extends CI_Controller {
                     "sgst_tax_amount" => $invoice_data['meta']["sgst_total_tax_amount"],
                     "cgst_tax_amount" => $invoice_data['meta']["cgst_total_tax_amount"],
                     "parts_count" => $invoice_data['meta']["cgst_total_tax_amount"],
-                    "rcm" => $invoice_data['meta']['rcm']
+                    "rcm" => $invoice_data['meta']['rcm'],
+                    "invoice_file_pdf" => $convert['copy_file']
                    
                 );
 
@@ -1616,7 +1635,8 @@ class Invoice extends CI_Controller {
                         "igst_tax_rate" => $invoice['meta']['igst_tax_rate'],
                         "igst_tax_amount" => $invoice['meta']["igst_total_tax_amount"],
                         "sgst_tax_amount" => $invoice['meta']["sgst_total_tax_amount"],
-                        "cgst_tax_amount" => $invoice['meta']["cgst_total_tax_amount"]
+                        "cgst_tax_amount" => $invoice['meta']["cgst_total_tax_amount"],
+                        "invoice_file_pdf" => $convert['copy_file']
                     );
                     
                     $this->invoices_model->action_partner_invoice($invoice_details);
@@ -1947,6 +1967,7 @@ class Invoice extends CI_Controller {
                 'due_date' => date("Y-m-d", strtotime($meta['ed'])),
                 //add agent_id
                 'agent_id' => $agent_id,
+                "invoice_file_pdf" => $convert['copy_file']
             );
 
             $this->invoices_model->action_partner_invoice($invoice_details);
@@ -2197,8 +2218,10 @@ class Invoice extends CI_Controller {
         }
     }
 
-    function upload_create_update_invoice_to_s3($invoice_id) {
+    function upload_create_update_invoice_to_s3($invoice_id_tmp) {
         $bucket = BITBUCKET_DIRECTORY;
+        $invoice_id_tmp_1 = str_replace("/","",$invoice_id_tmp);
+        $invoice_id = str_replace("_","",$invoice_id_tmp_1);
         $data = array();
         if (!empty($_FILES["invoice_file_main"]['tmp_name'])) {
             $temp = explode(".", $_FILES["invoice_file_main"]["name"]);
@@ -2567,7 +2590,7 @@ class Invoice extends CI_Controller {
             $amount = $this->input->post('service_charge');
             $description = $this->input->post('invoice_type');
             $partner_data = $this->partner_model->getpartner_details("partners.id, gst_number, "
-                    . "state,company_address, "
+                    . "state,address as company_address, "
                     . "company_name, pincode, "
                     . "district, invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
           
@@ -2580,12 +2603,13 @@ class Invoice extends CI_Controller {
                 $hsn_code = QC_HSN_CODE;
                 $type = "Buyback";
                 $invoice_date = $ed;
-                $invoice_id = $this->create_invoice_id_to_insert("Around");
+                
                 
             } else{
                  $invoice_date = date("Y-m-d");
-                 $invoice_id = $this->create_invoice_id_to_insert("Around-PV");
             }
+            
+            $invoice_id = $this->create_invoice_id_to_insert("Around");
             
             $response = $this->generate_partner_additional_invoice($partner_data[0], $description,
             $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code);
@@ -2617,7 +2641,8 @@ class Invoice extends CI_Controller {
                 "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
                 "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
                 "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
-                "hsn_code" => $response['meta']['hsn_code']
+                "hsn_code" => $response['meta']['hsn_code'],
+                "invoice_file_pdf" => $response['meta']['copy_file']
             );
             
              $this->invoices_model->insert_new_invoice($invoice_details);
@@ -2730,7 +2755,7 @@ class Invoice extends CI_Controller {
             $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id, "is_cp" => 1));
         } else if ($vendor_partner == "partner") {
             $entity = $this->partner_model->getpartner_details("partners.id, gst_number, "
-                    . "state,company_address, "
+                    . "state,address as company_address, "
                     . "company_name, pincode, "
                     . "district, invoice_email_to,invoice_email_cc", array('partners.id' => $vendor_partner_id));
         }
@@ -2760,6 +2785,7 @@ class Invoice extends CI_Controller {
                 $data['igst_tax_rate'] = $response['meta']['igst_tax_rate'];
 
                 $data['total_service_charge'] = $response['meta']['total_taxable_value'];
+                $data['invoice_file_pdf'] = $response['meta']['copy_file'];
                 $amount_collected_paid = $amount - $tds;
             }
 
@@ -2825,6 +2851,8 @@ class Invoice extends CI_Controller {
             $convert = $this->send_request_to_convert_excel_to_pdf($invoice_id, "final");
             $output_pdf_file_name = $convert['main_pdf_file_name'];
             $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+            $response['meta']['copy_file'] = $convert['copy_file'];
+            
             $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_DETAILED_EMAIL_TAG);
             $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
             $message = $email_template[0];

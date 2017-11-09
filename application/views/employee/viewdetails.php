@@ -1,3 +1,5 @@
+ <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
+<script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
     #invoiceDetailsModal .modal-lg {
         width: 100%!important;
@@ -69,13 +71,11 @@
                     <div class="col-md-12"><h3>Booking Details</h3>
     <!--                    <a href="<?php echo base_url()?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id']?>" class="btn btn-info" style="margin-left:87%;margin-top:-5%;" target="_blank">View Booking History</a>-->
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <table class="table  table-striped table-bordered" >
                             <tr>
                                 <th >Booking ID: </th>
                                 <td><?php echo $booking_history[0]['booking_id']; ?></td>
-                            </tr>
-                            <tr>
                                 <th >Order ID: </th>
                                 <td><?php if(!empty($booking_history)){  echo $booking_history[0]['order_id'];
                                                     $src = base_url() . 'images/no_image.png';
@@ -89,111 +89,116 @@
                                 <a href="<?php  echo $src?>" target="_blank"><img src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
                                 <?php } ?> </td>
                             </tr>
+                           
                             <tr>
                                 <th>Booking Type: </th>
                                 <td><?php echo $booking_history[0]['type']; ?></td>
-                            </tr>
-                            <tr>
                                 <th>Appliance: </th>
                                 <td><?php echo $booking_history[0]['services']; ?></td>
                             </tr>
+                            
                             <tr>
                                 <th>Source: </th>
                                 <td><?php echo $booking_history[0]['public_name'] . ' / ' . $booking_history[0]['partner_source']; ?></td>
-                            </tr>
-                            <tr>
-                                <th>Units: </th>
+                                 <th>Units: </th>
                                 <td><?php echo $booking_history[0]['quantity']; ?></td>
                             </tr>
+                           
                             <tr>
                                 <th>Booking Date: </th>
                                 <td><?php echo $booking_history[0]['booking_date']; ?></td>
-                            </tr>
-                            <tr>
-                                <th>Booking Timeslot: </th>
+                                 <th>Booking Timeslot: </th>
                                 <td><?php echo $booking_history[0]['booking_timeslot']; ?></td>
                             </tr>
+                           
                             <tr>
                                 <th>Booking Address: </th>
                                 <td><?php echo $booking_history[0]['booking_address'];?></td>
-                            </tr>
-                            <tr>
-                                <th>Booking City: </th>
+                                 <th>Booking City: </th>
                                 <td><?php echo $booking_history[0]['city']; ?></td>
                             </tr>
+                          
                             <tr>
                                 <th>Booking State: </th>
                                 <td><?php echo $booking_history[0]['state']; ?></td>
-                            </tr>
-                            <tr>
                                 <th>Booking Pincode: </th>
                                 <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
                             </tr>
+                           
                             <tr>
                                 <th>Contact No: </th>
                                 <td><?php echo $booking_history[0]['booking_primary_contact_no'] . ' / ' . $booking_history[0]['booking_alternate_contact_no']; ?></td>
-                            </tr>
-                            <tr>
-                                <th>Booking Remarks: </th>
+                                 <th>Booking Remarks: </th>
                                 <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                             </tr>
+                           
                             <tr>
                                 <th>Query Remarks: </th>
                                 <td><?php echo $booking_history[0]['query_remarks']; ?></td>
-                            </tr>
-
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table  table-striped table-bordered">
-
-                            <tr>
-                                <th>Booking Current Status: </th>
+                                 <th>Booking Current Status: </th>
                                 <td><?php echo $booking_history[0]['current_status']; ?></td>
                             </tr>
+
                             <tr>
                                 <th>Booking Internal Status: </th>
                                 <td><?php echo $booking_history[0]['internal_status']; ?></td>
+                                 <th>Booking Create Date: </th>
+                                <td><?php echo $booking_history[0]['create_date']; ?></td>
                             </tr>
                              <tr>
-                                <th>Booking Create Date: </th>
-                                <td><?php echo $booking_history[0]['create_date']; ?></td>
+                               
                             </tr>
                             <tr>
                                 <th>Booking Closed Date: </th>
                                 <td><?php echo $booking_history[0]['closed_date']; ?></td>
-                            </tr>
-                            <tr>
-                                <th>EDD: </th>
+                                 <th>EDD: </th>
                                 <td><?php echo $booking_history[0]['estimated_delivery_date']; ?></td>
                             </tr>
+                           
                             <tr>
                                 <th>Delivered Date: </th>
                                 <td><?php echo $booking_history[0]['delivery_date']; ?></td>
+                                <th>Amount Due: </th><td><?php echo $booking_history[0]['amount_due']; ?></td>
                             </tr>
 
-                             <tr><th>Amount Due: </th><td><?php echo $booking_history[0]['amount_due']; ?></td></tr>
-                            <tr><th>Amount Paid: </th><td><?php echo $booking_history[0]['amount_paid']; ?></td></tr>
-                            <tr>
-                                <th>Rating Stars: </th>
+                            
+                            <tr><th>Amount Paid: </th><td><?php echo $booking_history[0]['amount_paid']; ?></td>
+                            <th>Rating Stars: </th>
                                 <td><?php echo $booking_history[0]['rating_stars']; ?></td>
                             </tr>
+                           
                             <tr>
                                 <th>Rating Comments: </th>
                                 <td><?php echo $booking_history[0]['rating_comments']; ?></td>
-                            </tr>
-                            <tr>
-                                <th>Closing Remarks: </th>
+                                 <th>Closing Remarks: </th>
                                 <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
                             </tr>
+                            
                             <tr>
                                 <th>Reschedule Reason: </th>
                                 <td><?php echo $booking_history[0]['reschedule_reason']; ?></td>
-                            </tr>
-                            <tr>
                                 <th>Cancellation Reason: </th>
                                 <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                             </tr>
+                            
+                            <tr>
+                                <th colspan="1">Upcountry</th>
+                                <td colspan="3">
+                                    <div class="col-md-12">
+                                        <div class="col-md-4"> <input type="text" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['city'].", ".
+                                            $booking_history[0]['booking_pincode'].", india"; ?>"></div>
+                                        <div class="col-md-4">   <input type="text" class="form-control" id="txtDestination" value="<?php if(isset($dhq[0]['district'])){
+                                        echo $dhq[0]['district'].",".$dhq[0]['pincode'].", India";}?>"></div>
+                                        <div class="col-md-4"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>
+                                             
+                                    </div>
+                                    <div class="col-md-12"> 
+                                        <div id="dvDistance"></div>
+                                         <br/>
+                                        <div id="dvMap" style=" height: 200px">
+                                    </div>
+                                   
+                                </td>
 
                         </table>
                     </div>
@@ -552,6 +557,7 @@
     }
     
     $('document').ready(function(){
+    
         var booking_id = '<?php echo base_url()?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id']?>';
             $.ajax({
                 type: 'POST',
@@ -585,7 +591,7 @@
                     data: {invoice_id: invoice_id},
                     url: '<?php echo base_url(); ?>employee/accounting/search_invoice_id',
                     success: function (response) {
-                        console.log(response);
+                        //console.log(response);
                         $("#open_model").html(response);   
                         $('#invoiceDetailsModal').modal('toggle');
 
@@ -595,4 +601,16 @@
                 console.log("Contact Developers For This Issue");
             }
     }
+    document.onreadystatechange = function(){
+    if (document.readyState === "complete") {
+      GetRoute();
+    }
+    else {
+       window.onload = function () {
+          GetRoute();
+       };
+    };
+}
+   
+   
 </script>

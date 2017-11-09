@@ -6,7 +6,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Dashboard </title>
+        <title>Dashboard | 247around</title>
         <!-- Bootstrap -->
         <link href="<?php echo base_url() ?>css/bootstrap.min.css" rel="stylesheet">
         <!-- Font Awesome -->
@@ -47,6 +47,55 @@
              [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
                 display: none !important;
             }
+            .highcharts-credits{display:none}
+            #title_count .col-md-3 {
+                width: 23%;
+            }
+            .tile_count .tile_stats_count, ul.quick-list li {
+                white-space: normal;
+            }
+            .bb_balance {
+                margin-right: -23px;
+                margin-left: -23px;
+            }
+            .tile_count .tile_stats_count{color:#333;border: 1px solid #e5e5e5;margin: 2px;}
+            .tile_count .tile_stats_count:hover{
+                border: 1px solid #ccc;
+                box-shadow: 0 0 10px #ccc;
+                background: #fff;
+            }
+            .tile_count .tile_stats_count, ul.quick-list li {
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+            }
+            .tile_count .tile_stats_count:before{
+                content: "";
+                height:0px;
+            }
+            .tile_stats_count hr {
+                margin-top: 0px; 
+                margin-bottom: 10px;
+                border: 0;
+                border-top: 1px solid #eee;
+            }
+            .sub_description2:before {
+                content: "";
+                position: absolute;
+                left: 0;
+                height: 65px;
+                border-left: 2px solid #ADB2B5;
+                margin-top: 10px;
+            }
+            .tile_stats_count .count {
+                font-size: 24px!important;
+            }
+            .tile_stats_count .count_top{
+                min-height: 38px;
+            }
+            .tile_stats_count .query_description{
+                min-height: 30px;
+            }
         </style>
     </head>
     <body class="nav-md">
@@ -55,7 +104,7 @@
         <div class="col-md-3 left_col">
             <div class="left_col scroll-view">
                 <div class="navbar nav_title" style="border: 0;">
-                    <a href="<?php echo base_url(); ?>employee/dashboard" class="site_title"><i class="fa fa-paw"></i> <span>247Around</span></a>
+                    <a href="<?php echo base_url(); ?>employee/dashboard" class="site_title"><span>247around</span></a>
                 </div>
                 <div class="clearfix"></div>
                 <!-- menu profile quick info -->
@@ -170,7 +219,7 @@
                     url: '<?php echo base_url()?>buyback/buyback_process/search_for_buyback',
                     data: {search:ele.value},
                     success: function (response) {
-                     console.log(response);
+                     //console.log(response);
                      $(".right_col").html(response);
                       
                    }

@@ -154,6 +154,7 @@ define('_247AROUND_CALLCENTER','callcenter');
 define('_247AROUND_CLOSURE','closure');
 define('_247AROUND_RM','regionalmanager');
 define('_247AROUND_DEVELOPER','developer');
+define('_247AROUND_ACCOUNTANT','accountant');
 
 define('SPARE_PARTS_REQUIRED', 'Spare Parts Required');
 
@@ -498,10 +499,18 @@ define("_247AROUND_AC_SERVICE_ID",'50');
 define("_247AROUND_REFRIGERATOR_SERVICE_ID",'37');
 //geyser service id
 define("_247AROUND_GEYSER_SERVICE_ID",'32');
+// We will display Not received button after 3 days of Delivery date
+define("NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON", -3);
 
+define("AUTO_ACK_ADMIN_REMARKS", "Auto Acknowledge");
 
 
 define("SPARE_PART_RADIO_BUTTON_NOT_REQUIRED", "0"); 
 define("ESTIMATE_APPROVED_BY_CUSTOMER", "Spare Estimate Approved By Customer");
+//missing_pincode_email
+define("MISSING_PINCODE_EMAIL_TO", "ayush.bafna@paytmmall.com, sales@247around.com, rohit1.verma@paytm.com, simranpreet.sawhney@paytm.com, ankur.sethi@paytm.com, shivam.awasthi@paytm.com, nits@247around.com, ashish.singh@paytm.com, simranpreet.sawhney@paytmmall.com, aditya1.agrawal@paytmmall.com");
+
+define("COMMISION_CHARGE_HSN_CODE", "996111");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

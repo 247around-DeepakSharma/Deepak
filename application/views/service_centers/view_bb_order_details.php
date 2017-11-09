@@ -38,13 +38,13 @@
                                                             <strong>Order Date</strong>
                                                         </td>
                                                         <td>
-                                                            {{order_date}}
+                                                            {{isValidObject(order_date)? order_date : (getDateFormat(order_date)|date:'dd MMM yyyy H:mm:ss') }}
                                                         </td>
                                                         <td>
                                                             <strong>Delivery Date</strong>
                                                         </td>
                                                         <td>
-                                                            {{delivery_date}}
+                                                            {{isValidObject(delivery_date)? delivery_date : (getDateFormat(delivery_date)|date:'dd MMM yyyy H:mm:ss') }}
                                                         </td>
                                                     </tr>
                                                     
@@ -107,6 +107,14 @@
                                                             {{cp_name}}
                                                         </td>
                                                     </tr>
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <strong>Acknowledge Date</strong>
+                                                        </td>
+                                                        <td colspan="2">
+                                                            {{isValidObject(acknowledge_date)? acknowledge_date : (getDateFormat(acknowledge_date)|date:'dd MMM yyyy H:mm:ss') }}
+                                                        </td>
+                                                    </tr>
                                                    
                                                     
                                                 </thead>
@@ -140,6 +148,7 @@
                                                         <th>Working Condition</th>
                                                         <th>Collection Partner Charge</th>
                                                         <th>CP Claimed Price</th>
+                                                        <th>CP Invoice Id</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -151,6 +160,7 @@
                                                         <td>{{x.working_condition }}</td>
                                                         <td>{{x.cp_tax}}</td>
                                                         <td>{{x.cp_claimed_price}}</td>
+                                                        <td><a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ."/invoices-excel/" ?>{{x.cp_invoice_id}}.pdf">{{x.cp_invoice_id}}</a></td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -193,7 +203,7 @@
                                                         <td>{{x.remarks }}</td>
                                                         <td>{{x.agent_name}}</td>
                                                         <td>{{x.cp_name ? x.cp_name:x.partner_name }}</td>
-                                                        <td>{{getDateFormat(x.create_date)|date:'dd-MM-yyyy' }}</td>
+                                                        <td>{{getDateFormat(x.create_date)|date:'dd MMM yyyy H:mm:ss' }}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

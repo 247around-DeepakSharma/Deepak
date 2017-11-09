@@ -1,3 +1,8 @@
+<style>
+    #invoiceDetailsModal .modal-lg {
+        width: 100%!important;
+    }
+</style>
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
 <script>
         var partner_order_id = '<?php echo $partner_order_id;?>';
@@ -42,13 +47,13 @@
                                                             <strong>Order Date</strong>
                                                         </td>
                                                         <td>
-                                                            {{order_date}}
+                                                            {{isValidObject(order_date)? order_date : (getDateFormat(order_date)|date:'dd MMM yyyy H:mm:ss') }}
                                                         </td>
                                                         <td>
                                                             <strong>Delivery Date</strong>
                                                         </td>
                                                         <td>
-                                                            {{delivery_date}}
+                                                            {{isValidObject(delivery_date)? delivery_date : (getDateFormat(delivery_date)|date:'dd MMM yyyy H:mm:ss') }}
                                                         </td>
                                                     </tr>
                                                     
@@ -111,6 +116,14 @@
                                                             {{cp_name}}
                                                         </td>
                                                     </tr>
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <strong>Acknowledge Date</strong>
+                                                        </td>
+                                                        <td colspan="2">
+                                                            {{isValidObject(acknowledge_date)? acknowledge_date : (getDateFormat(acknowledge_date)|date:'dd MMM yyyy H:mm:ss') }}
+                                                        </td>
+                                                    </tr>
                                                    
                                                     
                                                 </thead>
@@ -153,6 +166,8 @@
                                                         <th>Around Charge</th>
                                                         <th>Partner Sweetner Charge</th>
                                                         <th>CP Claimed Price</th>
+                                                        <th>Partner Invoice Id</th>
+                                                        <th>CP Invoice Id</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -168,9 +183,25 @@
                                                         <td>{{x.around_charges}}</td>
                                                         <td>{{x.partner_sweetner_charges}}</td>
                                                         <td>{{x.cp_claimed_price}}</td>
+                                                        <td><a href="" ng-click="get_invoice_data(x.partner_invoice_id)">{{x.partner_invoice_id}}</a></td>
+                                                        <td><a href="" ng-click="get_invoice_data(x.cp_invoice_id)">{{x.cp_invoice_id}}</a></td>
                                                     </tr>
                                                 </tbody>
                                             </table>
+                                            <!--Invoice Details Modal-->
+                                            <div id="invoiceDetailsModal" class="modal fade" role="dialog">
+                                              <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                      <div class="modal-body">
+                                                          <div id="open_model"></div>
+                                                      </div>
+                                                      <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                                      </div>
+                                                    </div>
+                                              </div>
+                                            </div>
+                                            <!-- end Invoice Details Modal -->
                                         </div>
                                     </div>
                                 </div>
@@ -215,7 +246,7 @@
                                                         <td>{{x.remarks }}</td>
                                                         <td>{{x.agent_name}}</td>
                                                         <td>{{x.cp_name ? x.cp_name:x.partner_name }}</td>
-                                                        <td>{{getDateFormat(x.create_date)|date:'dd-MM-yyyy' }}</td>
+                                                        <td>{{getDateFormat(x.create_date)|date:'dd MMM yyyy H:mm:ss' }}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

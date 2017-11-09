@@ -1,5 +1,10 @@
+<style>
+    .dropdown-menu{
+        font-size: 13px;
+        left:-60px;
+    }
+</style>
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
-
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div class="clearfix"></div>
 <div class="row" >
@@ -8,12 +13,12 @@
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_title" style="border-bottom: 0px solid #FFF;">
                     <h2>
-                    <i class="fa fa-bars"></i> Search Result:- <!--<small>Float left</small>-->
+                    Search Result
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
                      <form action="#" method="POST" id="reAssignForm" name="reAssignForm">
-                    <table class="table table-striped table-bordered" >
+                    <table id="datatable1" class="table table-striped table-bordered table-responsive" style="width: 100%; margin-bottom: 100px;">
                         <thead>
                             <tr>
                                 <th>No.</th>
@@ -28,6 +33,7 @@
                                 <th>Exchange Value</th>
                                 <th>SF Charge</th>
                                 <th>Assign CP</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -57,6 +63,16 @@
                                         <option value="<?php echo $val['id']?>" <?php if($value->assigned_cp_id == $val['cp_id']) { echo "selected";}?>><?php echo $val['cp_name']?></option>   
                                 <?php } ?>
                                         </select>
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions<span class='caret'></span></button>
+                                        <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
+                                            <li role='presentation'><a role='menuitem' tabindex='-1' onclick="showDialogueBox('<?php echo base_url();?>buyback/buyback_process/update_received_bb_order/<?php echo (rawurlencode($value->partner_order_id)  . "/" . rawurlencode($value->service_id) . "/" . rawurlencode($value->city) . "/" . rawurlencode($value->assigned_cp_id))?>')">Received</a></li>
+                                            <li role='presentation'><a role='menuitem' tabindex='-1' onclick="showDialogueBox('<?php echo base_url();?>buyback/buyback_process/update_not_received_bb_order/<?php echo (rawurlencode($value->partner_order_id)  . "/" . rawurlencode($value->service_id) . "/" . rawurlencode($value->city) . "/" . rawurlencode($value->assigned_cp_id))?>')">Not Received</a></li>
+                                            <li role='presentation'><a role='menuitem' tabindex='-1' href='<?php echo base_url();?>buyback/buyback_process/update_bb_report_issue_order_details/<?php echo (rawurlencode($value->partner_order_id)  . "/" . rawurlencode($value->service_id) . "/" . rawurlencode($value->city) . "/" . rawurlencode($value->assigned_cp_id))?>' target='_blank'>Broken/Wrong Product</a></li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                             <?php }
@@ -107,5 +123,22 @@
 <script>
     $(".assign_cp_id").select2({
              allowClear: true
-        });
+    });
+    
+    $(document).ready(function () {
+        table = $('#datatable1').DataTable();
+    });
+    
+    function showDialogueBox(url){
+        swal({
+                title: "Do You Want To Continue?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                closeOnConfirm: false
+            },
+            function(){
+                window.location.href = url;
+            });
+    }
 </script>

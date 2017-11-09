@@ -134,9 +134,25 @@ class bookings_excel extends CI_Controller {
                 //Updating File Uploads table and upload file to s3
                 $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS);
             }else{
-                log_message('info', "empty");
+                log_message('info', "Paytm file upload failed");
                 //Updating File Uploads table and upload file to s3
                 $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
+            }
+            
+            //send mail to paytm if incorrect pincode found
+            if (!empty($response['data'][0]['incorrct_pincode'])) {
+                log_message('info',"Sending Incoorect Pincode Mail To Paytm");
+                //Getting template from Database
+                $template = $this->booking_model->get_booking_email_template("missing_pincode_mail");
+                $subject = vsprintf($template[4], $_FILES["file"]["name"]);
+                $to = MISSING_PINCODE_EMAIL_TO;
+                $attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.date('d-M-Y-H-i-s')."-".$_FILES["file"]["name"];
+                $email_html = "";
+                foreach ($response['data'][0]['incorrct_pincode'] as $value){
+                    $email_html .= $value['order_id']."<br>";
+                }
+                $emailBody = vsprintf($template[0], array($_FILES["file"]["name"],$email_html));
+                $this->notify->sendEmail($template[2], $to ,"", '', $subject , $emailBody, $attachement);
             }
         } else {
             echo $msg;
@@ -338,16 +354,7 @@ class bookings_excel extends CI_Controller {
                     $empty_contact = false;
                 }
 
-                if (empty($rowData[0]['pincode'])) {
-                    $error = true;
-                    $pincode_empty = true;
-                    array_push($this->incorrect_pincode, $rowData[0]);
-                } else {
-                    $error = false;
-                    $pincode_empty = false;
-                }
-
-                if ($empty_contact === false && $pincode_empty === false) {
+                if ($empty_contact === false) {
                     //Sanitizing Brand Name
                     if (!empty($rowData[0]['brand'])) {
                         $rowData[0]['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['brand']);
@@ -356,7 +363,19 @@ class bookings_excel extends CI_Controller {
                     //Insert user if phone number doesn't exist
                     $output = $this->user_model->search_user(trim($rowData[0]['contact_number']));
                     $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($rowData[0]['pincode']));
+                    
+                    if (empty($rowData[0]['pincode'])) {
+                        $match = array();
+                        //extract pincode from address
+                        preg_match('/[0-9]{6}/', $rowData[0]['address'], $match);
 
+                        if (!empty($match)) {
+                            $rowData[0]['pincode'] = $match[0];
+                        }else{
+                            $rowData[0]['pincode'] = !empty($output)?$output[0]['pincode']:'';
+                        }
+                    }
+                    
                     if (empty($output)) {
                         //User doesn't exist
                         $user_name = $this->miscelleneous->is_user_name_empty(trim($rowData[0]['customer_firstname'] . " " . $rowData[0]['customer_lastname']), $rowData[0]['customer_email'], $rowData[0]['contact_number']);
@@ -384,7 +403,11 @@ class bookings_excel extends CI_Controller {
                         $user['user_email'] = $rowData[0]['customer_email'];
                         $user_id = $output[0]['user_id'];
                     }
-
+                    
+                    if(empty($rowData[0]['pincode'])){
+                        array_push($this->incorrect_pincode, $rowData[0]);
+                    }
+                    
                     $prod = trim($rowData[0]['category']);
                     $lead_details = array();
 
@@ -564,9 +587,9 @@ class bookings_excel extends CI_Controller {
                                 $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, '', $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
                                 //Reset
                                 if (empty($booking['state'])) {
-                                    $to = NITS_ANUJ_EMAIL_ID;
-                                    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-                                    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+                                    //$to = NITS_ANUJ_EMAIL_ID;
+                                   // $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+                                    //$this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
                                 }
                                 $this->total_bookings_inserted++;
                             }
