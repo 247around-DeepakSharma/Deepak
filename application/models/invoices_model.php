@@ -1257,7 +1257,8 @@ class invoices_model extends CI_Model {
             $meta['reverse_charge_type'] = "N";
             $meta['reverse_charge'] = '';
            
-            $meta['total_qty'] =  $meta['total_rate'] = $commission_charge[0]['hsn_code'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
+            $meta['total_qty'] =  $meta['total_rate'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
+            $commission_charge[0]['hsn_code'] = "996111";
             $meta['total_taxable_value'] = $commission_charge[0]['taxable_value'];
             $meta['sub_total_amount'] =  round($commission_charge[0]['toal_amount'],0);
            
