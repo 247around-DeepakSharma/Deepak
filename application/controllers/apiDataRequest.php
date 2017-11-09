@@ -264,8 +264,8 @@ class ApiDataRequest extends CI_Controller {
                     $am_data = $this->miscelleneous->get_am_data($partner_id);
                     if (!empty($am_data)) {
                         $to = $am_data[0]['official_email'];
-                        $subject = vsprintf($template[4], "SY-1234");
-                        $emailBody = vsprintf($template[0], "1200");
+                        $subject = vsprintf($template[4], $booking_id);
+                        $emailBody = vsprintf($template[0], $estimate_cost);
 
                         $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
                     }
