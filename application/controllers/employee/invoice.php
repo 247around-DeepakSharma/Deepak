@@ -521,7 +521,7 @@ class Invoice extends CI_Controller {
             $meta['total_upcountry_price'] = $upcountry[0]['total_upcountry_price'];
             $total_upcountry_booking = $upcountry[0]['total_booking'];
             $total_upcountry_distance = $upcountry[0]['total_distance'];
-            $u_files_name = $this->generate_partner_upcountry_excel($upcountry, $meta);
+            $u_files_name = $this->generate_partner_upcountry_excel($partner_id, $upcountry, $meta);
             array_push($files, $u_files_name);
 
             log_message('info', __METHOD__ . "=> File created " . $u_files_name);
@@ -713,9 +713,13 @@ class Invoice extends CI_Controller {
        return $output_pdf_file_name;
     }
     
-    function generate_partner_upcountry_excel($data, $meta) {
+    function generate_partner_upcountry_excel($partner_id, $data, $meta) {
+        if($partner_id == PAYTM){
+            $template = 'Paytm_invoice_detail_template-v2-upcountry.xlsx';
+        } else {
+            $template = 'Partner_invoice_detail_template-v2-upcountry.xlsx';
+        }
         
-        $template = 'Partner_invoice_detail_template-v2-upcountry.xlsx';
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-upcountry-detailed.xlsx";
         $this->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
