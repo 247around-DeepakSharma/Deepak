@@ -746,9 +746,9 @@ class Upcountry_model extends CI_Model {
                     }
                 }
                 
-                $total_price += $value['upcountry_price'];
+                $total_price += $result[$key]['upcountry_price'];
                 $total_booking += $value['count_booking'];
-                $total_distance += $value['upcountry_distance'];
+                $total_distance += $result[$key]['upcountry_distance'];
             }
             $result[0]['total_upcountry_price'] = $total_price;
             $result[0]['total_booking'] = $total_booking;

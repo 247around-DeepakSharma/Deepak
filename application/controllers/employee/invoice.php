@@ -715,7 +715,7 @@ class Invoice extends CI_Controller {
     
     function generate_partner_upcountry_excel($partner_id, $data, $meta) {
         if($partner_id == PAYTM){
-            $template = 'Paytm_invoice_detail_template-v2-upcountry.xlsx';
+            $template = 'Paytm_invoice_detail_template-v1-upcountry.xlsx';
         } else {
             $template = 'Partner_invoice_detail_template-v2-upcountry.xlsx';
         }
