@@ -762,20 +762,20 @@ class invoices_model extends CI_Model {
 
                 if ($c_s_gst) {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
-                    $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = 14;
-                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 2);
-                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 2);
+                    $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = DEFAULT_TAX_RATE;
+                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * (SERVICE_TAX_RATE/2)), 2);
+                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * (SERVICE_TAX_RATE/2)), 2);
                     $meta['cgst_total_tax_amount'] += $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
-                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 14;
+                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = DEFAULT_TAX_RATE;
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
-                    $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = 28;
-                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.28), 2);
+                    $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
+                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * SERVICE_TAX_RATE), 2);
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
-                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.28), 2);
+                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * SERVICE_TAX_RATE), 2);
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += $value['taxable_value'];
