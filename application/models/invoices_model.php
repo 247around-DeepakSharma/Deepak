@@ -762,12 +762,12 @@ class invoices_model extends CI_Model {
 
                 if ($c_s_gst) {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
-                    $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = DEFAULT_TAX_RATE;
+                    $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = DEFAULT_TAX_RATE/2;
                     $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * (SERVICE_TAX_RATE/2)), 2);
                     $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * (SERVICE_TAX_RATE/2)), 2);
                     $meta['cgst_total_tax_amount'] += $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
-                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = DEFAULT_TAX_RATE;
+                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = DEFAULT_TAX_RATE/2;
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                     $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
