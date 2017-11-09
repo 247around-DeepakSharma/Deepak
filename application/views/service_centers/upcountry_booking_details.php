@@ -2,7 +2,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> <?php if(isset($data[0]['sf_upcountry_rate'])){ ?>Earned Upcountry Booking Details <?php } 
-        else { echo "Offered Upcountry Details"; } ?></h1>
+        else { echo "Offered Upcountry Details"; } ?> <img style="width:137px; float: right;" src="<?php echo base_url();?>images/powered-by-google.png" /></h1>
     </div>
     <div class="panel-body">
         <div class="table-responsive">

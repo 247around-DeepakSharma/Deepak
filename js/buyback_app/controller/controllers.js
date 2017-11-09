@@ -34,23 +34,17 @@ uploadfile.controller('uploadPriceChargesFile', ['$scope', 'fileUpload', functio
 
     }]);
 
+// set global variables for order details app
+orderDetails.run(function($rootScope){
+    $rootScope.isValidObject = function(value){
+        return !value;
+    };
+    $rootScope.getDateFormat = function(timestamp) {
+        return new Date(timestamp);
+    }; 
+});
 
-//uploadfile.controller('uploadFileHistory', function ($scope, $http) {
-//    var get_url = baseUrl + "/buyback/upload_buyback_process/upload_file_history/BB-Price-List";
-//    $http.get(get_url)
-//            .then(function (response) {
-//                $scope.uploadFileHistory = response.data;
-//            });
-//});
-//
-//uploadfile.controller('getOrderFileHistory', function ($scope, $http) {
-//    var get_url = baseUrl + "/buyback/upload_buyback_process/upload_file_history/BB-Order-List";
-//    $http.get(get_url)
-//            .then(function (response) {
-//                $scope.getOrderFileHistory = response.data;
-//            });
-//});
-
+//get buyback order data
 orderDetails.controller('viewOrderDetails', function ($scope, $http) {
 
     var get_url = baseUrl + "/buyback/buyback_process/get_bb_order_details_data/" + partner_order_id;
@@ -65,21 +59,23 @@ orderDetails.controller('viewOrderDetails', function ($scope, $http) {
                 $scope.current_status = response.data[0].current_status;
                 $scope.partner_name = response.data[0].partner_name;
                 $scope.cp_name = response.data[0].cp_name;
+                $scope.acknowledge_date = response.data[0].acknowledge_date;
             });
+            
+    
 });
 
+//get buyback order history
 orderDetails.controller('viewOrderHistory', function ($scope, $http) {
 
     var get_url = baseUrl + "/buyback/buyback_process/get_bb_order_history_details/" + partner_order_id;
     $http.get(get_url)
             .then(function (response) {
                 $scope.orderHistoryDetails = response.data;
-            });
-    $scope.getDateFormat = function(timestamp) {
-    return new Date(timestamp);
-  }        
+            });      
 });
 
+//get buyback unit details
 orderDetails.controller('viewOrderAppLianceDetails', function ($scope, $http) {
 
     var get_url = baseUrl + "/buyback/buyback_process/get_bb_order_appliance_details/" + partner_order_id;
@@ -87,6 +83,23 @@ orderDetails.controller('viewOrderAppLianceDetails', function ($scope, $http) {
             .then(function (response) {
                 $scope.orderHistoryDetails = response.data;
             });
+            
+    $scope.get_invoice_data = function(invoice_id){
+        var url = baseUrl + '/employee/accounting/search_invoice_id';
+        var postData = $.param({
+                invoice_id: invoice_id
+            });
+        var config = {
+                headers : {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+                }
+            };   
+        
+        $http.post(url,postData,config).success(function(response){
+            $('#open_model').html(response);
+            $('#invoiceDetailsModal').modal("show");
+        });
+    };        
 });
 
 addDealers.controller("addDealersController", function($scope, $http){
@@ -474,7 +487,8 @@ orderDetails.controller('viewCpOrderDetails', function ($scope, $http) {
                 $scope.current_status = response.data[0].current_status;
                 $scope.partner_name = response.data[0].partner_name;
                 $scope.cp_name = response.data[0].cp_name;
-            });
+                $scope.acknowledge_date = response.data[0].acknowledge_date;
+            });          
 });
 
 orderDetails.controller('viewCpOrderHistory', function ($scope, $http) {
@@ -483,10 +497,7 @@ orderDetails.controller('viewCpOrderHistory', function ($scope, $http) {
     $http.get(get_url)
             .then(function (response) {
                 $scope.orderHistoryDetails = response.data;
-            });
-    $scope.getDateFormat = function(timestamp) {
-    return new Date(timestamp);
-  }        
+            });       
 });
 
 orderDetails.controller('viewCpOrderAppLianceDetails', function ($scope, $http) {
@@ -495,7 +506,7 @@ orderDetails.controller('viewCpOrderAppLianceDetails', function ($scope, $http) 
     $http.get(get_url)
             .then(function (response) {
                 $scope.orderHistoryDetails = response.data;
-            });
+            });    
 });
 
 buyback_dashboard.controller('bb_dashboard_summary', function ($scope, $http) {

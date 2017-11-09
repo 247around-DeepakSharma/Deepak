@@ -93,16 +93,7 @@ class Login extends CI_Controller {
      */
     function dashboard() {
         $this->checkUserSession();
-
-        if($this->session->userdata('user_group') === 'admin') {
-            redirect(base_url() . 'employee/dashboard');
-        } else if($this->session->userdata('user_group') === 'regionalmanager'){
-            redirect(base_url() . 'employee/dashboard/rm_dashboard');
-        }else if($this->session->userdata('user_group') === 'accountant'){
-            redirect(base_url() . 'employee/invoice/invoice_partner_view');
-        }else{
-            redirect(base_url() . DEFAULT_SEARCH_PAGE);
-        }
+        redirect(base_url() . 'employee/dashboard');
     }
 
     /**

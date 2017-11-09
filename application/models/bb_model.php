@@ -8,7 +8,7 @@ class Bb_model extends CI_Model {
     var $cp_action_column_search = array('partner_order_id', 'name', 'category', 'brand', 'physical_condition', 'working_condition', 'internal_status');
     var $cp_action_column_order = array('partner_order_id', 'name', 'category', 'brand', 'physical_condition', 'working_condition', 'internal_status');
     var $cp_action_column_default_order = array('cp_action.id' => 'asc'); // default order 
-    var $bb_select = 'bb_unit_details.category,bb_unit_details.partner_order_id,bb_order_details.partner_id, services,city, order_date, bb_order_details.internal_status, delivery_date, bb_order_details.current_status,partner_basic_charge, cp_basic_charge,cp_tax_charge,bb_unit_details.order_key, bb_unit_details.service_id,bb_order_details.assigned_cp_id,bb_unit_details.physical_condition,bb_unit_details.working_condition,bb_order_details.partner_tracking_id as tracking_id';
+    var $bb_select = 'bb_unit_details.category,bb_unit_details.partner_order_id,bb_order_details.partner_id, service_id,services,city, order_date, bb_order_details.internal_status, delivery_date, bb_order_details.current_status,partner_basic_charge, cp_basic_charge,cp_tax_charge,bb_unit_details.order_key, bb_unit_details.service_id,bb_order_details.assigned_cp_id,bb_unit_details.physical_condition,bb_unit_details.working_condition,bb_order_details.partner_tracking_id as tracking_id';
 
     /**
      * @desc load both db
@@ -125,10 +125,11 @@ class Bb_model extends CI_Model {
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
         }
+        if (isset($post['where_in'])) {
+            foreach ($post['where_in'] as $index => $value) {
 
-        foreach ($post['where_in'] as $index => $value) {
-
-            $this->db->where_in($index, $value);
+                $this->db->where_in($index, $value);
+            }
         }
 
         if (!empty($post['search_value'])) {
@@ -426,17 +427,4 @@ class Bb_model extends CI_Model {
         $this->db->insert_batch('bb_delivery_order_status_report', $data);
         return $this->db->insert_id();
     }
-    
-    /**
-     * @desc This function is used to get the SQL queries from the database to show the bb dashboard header summary 
-     * @param void()
-     * @return string
-     */
-    function get_bb_dashboard_queries(){
-        $this->db->where('active',1);        
-        $query = $this->db->get('bb_query_report');
-        
-        return $query->result_array();
-    }
-
 }

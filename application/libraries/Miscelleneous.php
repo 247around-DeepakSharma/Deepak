@@ -13,7 +13,7 @@ class Miscelleneous {
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('s3');
 	$this->My_CI->load->model('vendor_model');
-                    $this->My_CI->load->model('reusable_model');
+        $this->My_CI->load->model('reusable_model');
 	$this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
         $this->My_CI->load->model('partner_model');
@@ -1118,9 +1118,7 @@ class Miscelleneous {
     function send_sf_not_found_email_to_rm($booking,$rm_email){
             $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
             $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode'];
-            $message = "Booking ID ". $booking['booking_id']." Booking City: ". $booking['city']." <br/>  Booking Pincode: ".$booking['booking_pincode']; 
-            $message .= "To add Service center for the missing pincode please use below link <br/> "; 
-            $message .= "<a href=".base_url()."employee/vendor/get_add_vendor_to_pincode_form/".$booking['booking_id'].">Add Service Center</a>";
+            $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
             $this->My_CI->notify->sendEmail("booking@247around.com", $rm_email, $cc, "", $subject, $message, "");
     }
 /*
@@ -1141,6 +1139,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                     $rm_email  = $query->result_array(); 
                     $this->send_sf_not_found_email_to_rm($booking,$rm_email[0]['official_email']);
           }
+           if(array_key_exists('partner_id', $booking)){
+             $notFoundSfArray['partner_id'] = $booking['partner_id'];
+         }
           $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
           
     }
@@ -1493,5 +1494,19 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
         
         return $new_appliance_details;
+    }
+
+    /**
+     * @desc Return Account Manager ID
+     * @param int $partner_id
+     * @return Array
+     */
+    function get_am_data($partner_id) {
+        $data = [];
+        $am_id = $this->My_CI->partner_model->getpartner_details('account_manager_id', array('partners.id' => trim($partner_id)));
+        if (!empty($am_id)) {
+            $data = $this->My_CI->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
+        }
+        return $data;
     }
 }

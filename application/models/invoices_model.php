@@ -762,20 +762,20 @@ class invoices_model extends CI_Model {
 
                 if ($c_s_gst) {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
-                    $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = 14;
-                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 2);
-                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 2);
+                    $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = DEFAULT_TAX_RATE/2;
+                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * (SERVICE_TAX_RATE/2)), 2);
+                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * (SERVICE_TAX_RATE/2)), 2);
                     $meta['cgst_total_tax_amount'] += $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
-                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 14;
+                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = DEFAULT_TAX_RATE/2;
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
-                    $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = 28;
-                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.28), 2);
+                    $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
+                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * SERVICE_TAX_RATE), 2);
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
-                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.28), 2);
+                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * SERVICE_TAX_RATE), 2);
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += $value['taxable_value'];
@@ -1258,7 +1258,7 @@ class invoices_model extends CI_Model {
             $meta['reverse_charge'] = '';
            
             $meta['total_qty'] =  $meta['total_rate'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
-            $commission_charge[0]['hsn_code'] = "996111";
+            $commission_charge[0]['hsn_code'] = COMMISION_CHARGE_HSN_CODE;
             $meta['total_taxable_value'] = $commission_charge[0]['taxable_value'];
             $meta['sub_total_amount'] =  round($commission_charge[0]['toal_amount'],0);
            
@@ -1354,8 +1354,7 @@ class invoices_model extends CI_Model {
                 FROM `bb_order_details`, bb_unit_details, services, service_centres as sc WHERE 
                 `assigned_cp_id` = '$vendor_id' 
                 AND bb_unit_details.`order_status` = 'Delivered' 
-                AND CASE WHEN (acknowledge_date IS NOT NULL) THEN (acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date' ) 
-                ELSE (`delivery_date` >= '$from_date' AND `delivery_date`< '$to_date') END
+                AND acknowledge_date >= '$from_date' AND `acknowledge_date`< '$to_date'
                 AND sc.id = assigned_cp_id
                 AND bb_order_details.partner_order_id =  bb_unit_details.partner_order_id
                 AND bb_unit_details.service_id = services.id $is_foc_null $group_by ";

@@ -574,6 +574,7 @@ function set_upcountry() {
             
 
         } else {
+            
             var data1 = jQuery.parseJSON(upcountry_data);
             if (data1.message === "UPCOUNTRY BOOKING" || data1.message === "UPCOUNTRY LIMIT EXCEED") {
 
@@ -587,7 +588,7 @@ function set_upcountry() {
             }
             $('#submitform').attr('disabled', false);
         }
-        final_price();
+        
     } else {
         final_price();
         $("#upcountry_charges").val("0");

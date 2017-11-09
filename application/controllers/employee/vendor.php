@@ -2426,10 +2426,10 @@ class vendor extends CI_Controller {
                                         if(!empty($vendor_id)){
                                             log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($value,TRUE));
                                             $displayMsgArray['success'][] = $value; 
-                                            $cc = "anuj@247around.com";
-                                            $to = "chhavid@247around.com";
-                                            $subject = "Add new Combination in vendor pincode mapping";
-                                            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $vendor_id, "");
+                                            //$cc = "anuj@247around.com";
+                                            //$to = "chhavid@247around.com";
+                                            //$subject = "Add new Combination in vendor pincode mapping";
+                                            //$this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, implode("||",$value), "");
                                         }
                                         else{
                                             $displayMsgArray['failed'][] = $value; 
