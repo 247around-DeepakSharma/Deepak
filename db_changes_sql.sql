@@ -3293,8 +3293,13 @@ VALUES (NULL, 'booking_details_to_dealer', 'New Request for %s from %s is confir
 'Send sms To dealer When New booking created', '1', CURRENT_TIMESTAMP);
 
 --sachin 27 Oct
-ALTER TABLE `penalty_on_booking` ADD `agent_type` VARCHAR(128) NOT NULL AFTER `agent_id`;
+ALTER TABLE `penalty_on_booking` ADD `agent_type` VARCHAR(128) NOT AFTER `agent_id`;
 UPDATE penalty_on_booking SET agent_type = 'admin';
+
+--abhay 1 NOv
+ALTER TABLE `spare_parts_details` CHANGE `partner_id` `vendor_partner_id` INT(20) NOT NULL;
+ALTER TABLE `spare_parts_details` ADD `vendor_partner` VARCHAR(28) NOT NULL AFTER `vendor_partner_id`;
+UPDATE `spare_parts_details` SET `vendor_partner` = 'partner';
 
 -- 02 Nov
 ALTER TABLE `spare_parts_details` CHANGE `estimate_purchase_cost` `purchase_price` DECIMAL(10,2) NULL DEFAULT '00', CHANGE `estimate_sell_cost` `sell_price` DECIMAL(10,2) NULL DEFAULT '0.00';
@@ -3376,3 +3381,10 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 Please have a look in <b>%s</b> file. It has incorrect pincodes. <br><br>
 Find the below order id in the attached file and send us file with correct pincode.<br><br>
 %s', 'booking@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;
+
+
+--Abhay 8 NOV
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'oow_estimate_given', 'Repair OOW Parts Estimate Sent By Partner For Booking ID %s', 'Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'abhaya@247around', '', '1', '2017-11-02 23:56:57');
+
