@@ -293,7 +293,7 @@ class invoices_model extends CI_Model {
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source,"
                 . " `booking_details`.city, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
-                . " `booking_unit_details`.appliance_capacity, "
+                . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category, "
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name,order_id, "
                 . " 
@@ -675,11 +675,11 @@ class invoices_model extends CI_Model {
                 if($value['product_or_services'] == "Service"){
                     
                     $meta['total_ins_charge'] += $value['taxable_value'];
-                    $parts_count++;
                     
                 } else if($value['product_or_services'] == "Product"){
                     
                     $meta['total_parts_charge'] += $value['taxable_value'];
+                    $parts_count++;
                 }
             }
             $meta['parts_count'] = $parts_count;

@@ -1108,7 +1108,8 @@ class Invoice extends CI_Controller {
                     "cgst_tax_amount" => $invoice_data['meta']["cgst_total_tax_amount"],
                     "parts_count" => $invoice_data['meta']["cgst_total_tax_amount"],
                     "rcm" => $invoice_data['meta']['rcm'],
-                    "invoice_file_pdf" => $convert['copy_file']
+                    "invoice_file_pdf" => $convert['copy_file'],
+                    "hsn_code" => hsn_code
                    
                 );
 
@@ -1590,7 +1591,6 @@ class Invoice extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoice['meta']['invoice_id']);
                
                 unset($invoice['booking']);
-               // $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoices,$agent_id);
                 $convert = $this->send_request_to_convert_excel_to_pdf($invoice['meta']['invoice_id'], $invoice_type);
                 $output_pdf_file_name = $convert['main_pdf_file_name'];
                 array_push($files, TMP_FOLDER . $convert['excel_file']);
