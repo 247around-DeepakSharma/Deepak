@@ -349,7 +349,7 @@ define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,
 
 //Email IDs when SF is not found in Vendor Pincode Mapping file
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
-define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com");
+define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com, nits@247around.com");
 
 //promotional sms constant
 define('COMPLETED_PROMOTINAL_SMS_1','completed_promotional_sms_1');
