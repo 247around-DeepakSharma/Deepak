@@ -3814,7 +3814,7 @@ class vendor extends CI_Controller {
     /**
      * @desc This method is used toi update sc booking table and upcountry details in booking details.
      * @param String $booking_id
-     * @param Integer $up_falg
+     * @param Integer $up_flag
      */
     function update_upcountry_and_unit_in_sc($booking_id, $up_flag){
         log_message('info', "Booking iD " . $booking_id." Flag ". $up_flag);
@@ -4133,12 +4133,12 @@ class vendor extends CI_Controller {
      * @param void()
      * @return string
      */
-    function delete_sub_service_center_details(){
+    function de_activate_sub_service_center_details($active_flag){
         log_message('info',__FUNCTION__);
        if($this->input->post()){
            $id = $this->input->post('id');
            $sc_id = $this->input->post('service_center_id');
-           $update_id = $this->upcountry_model->delete_sub_service_center_upcountry_details($id);
+           $update_id = $this->upcountry_model->update_sub_service_center_upcountry_details(array("active" => $active_flag), $id);
            if($update_id){
                $log = array(
                     "entity" => "vendor",

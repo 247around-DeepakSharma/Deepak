@@ -3370,7 +3370,7 @@ ALTER TABLE `partners` CHANGE `customer_care_contact` `customer_care_contact` VA
 ALTER TABLE  `bb_unit_details` ADD  `approved_by_admin` INT( 1 ) NOT NULL DEFAULT  '0' COMMENT  'If Admin has approved special price' AFTER `partner_sweetner_charges` ;
 ALTER TABLE  `bb_unit_details` ADD  `remarks` VARCHAR( 256 ) NOT NULL COMMENT  'Approval remarks' AFTER  `approved_by_admin` ;
 
-=======
+
 -- 8 Nov sachin
 CREATE TABLE `query_report` (
   `id` int(11) NOT NULL,
@@ -3434,7 +3434,6 @@ ALTER TABLE `query_report`
 ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;
 
 ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;--Abhay 8 NOV
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'oow_estimate_given', 'Repair OOW Parts Estimate Sent By Partner For Booking ID %s', 'Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'abhaya@247around', '', '1', '2017-11-02 23:56:57');
 
 -- 08 Nov Sachin 
 
@@ -3443,3 +3442,16 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 Please have a look in <b>%s</b> file. It has incorrect pincodes. <br><br>
 Find the below order id in the attached file and send us file with correct pincode.<br><br>
 %s', 'booking@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+
+ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;
+
+
+--Abhay 8 NOV
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'oow_estimate_given', 'Repair OOW Parts Estimate Sent By Partner For Booking ID %s', 'Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'abhaya@247around', '', '1', '2017-11-02 23:56:57');
+
+
+--Abhay 10 Nov
+ALTER TABLE `sub_service_center_details` ADD `active` INT(1) NOT NULL DEFAULT '1' AFTER `create_date`;
+
+
