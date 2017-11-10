@@ -55,7 +55,7 @@ class Utilities extends CI_Controller {
     
     function get_distance_between_pincode_sf_hq_level() {
         echo "Entering" . PHP_EOL;
-        $data = $this->upcountry_model->get_sub_service_center_details(array());
+        $data = $this->upcountry_model->get_sub_service_center_details(array('active' => 1));
 //        echo "GET SUB Office details" . PHP_EOL;
         foreach ($data as $key1 => $value) {
 //            echo " Foreach data" . PHP_EOL;

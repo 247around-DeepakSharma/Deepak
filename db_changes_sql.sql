@@ -3372,7 +3372,6 @@ ALTER TABLE `query_report`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;--Abhay 8 NOV
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'oow_estimate_given', 'Repair OOW Parts Estimate Sent By Partner For Booking ID %s', 'Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'abhaya@247around', '', '1', '2017-11-02 23:56:57');
 
 -- 08 Nov Sachin 
 
@@ -3387,4 +3386,8 @@ ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `acti
 
 --Abhay 8 NOV
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'oow_estimate_given', 'Repair OOW Parts Estimate Sent By Partner For Booking ID %s', 'Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'abhaya@247around', '', '1', '2017-11-02 23:56:57');
+
+
+--Abhay 10 Nov
+ALTER TABLE `sub_service_center_details` ADD `active` INT(1) NOT NULL DEFAULT '1' AFTER `create_date`;
 
