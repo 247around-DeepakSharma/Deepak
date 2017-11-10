@@ -769,7 +769,7 @@ class Service_centers extends CI_Controller {
                             $bcc = "";
                             $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
                             $message = "Auto Cancelled Booking ". $booking_id;
-                            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
 
                         } else {
                             $this->default_update(true, true);
@@ -1350,7 +1350,7 @@ class Service_centers extends CI_Controller {
                 $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                 $rm_email = $this->get_rm_email($service_center_id);
-                $from = "booking@247around.com";
+                $from = NOREPLY_EMAIL_ID;
 
                 $to = "anuj@247around.com, booking@247around.com";
                 $cc= $rm_email.", nits@247around.com";
@@ -2076,7 +2076,7 @@ class Service_centers extends CI_Controller {
                     $message  = "";
                     $message .= $this->table->generate();
 
-                    $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
 
                     redirect(base_url() . "service_center/gst_details");
                 }

@@ -217,7 +217,7 @@ class bookingjobcard extends CI_Controller {
 
             $to = $getbooking[0]['primary_contact_email'];
             $owner = $getbooking[0]['owner_email'];
-            $from = "booking@247around.com";
+            $from = NOREPLY_EMAIL_ID;
             $cc = $owner;
             $bcc = '';
 
@@ -352,7 +352,7 @@ class bookingjobcard extends CI_Controller {
             $to = $getbooking[0]['primary_contact_email'];
             $owner = $getbooking[0]['owner_email'];
             $cc .= ($owner . ', '. NITS_ANUJ_EMAIL_ID);
-            $from = "booking@247around.com";
+            $from = NOREPLY_EMAIL_ID;
             $bcc = "";
             $attachment = "";
             //$cc = $owner;

@@ -808,7 +808,7 @@ class vendor extends CI_Controller {
         $this->email->clear(TRUE);
 
         //Send report via email
-        $this->email->from('booking@247around.com', '247around Team');
+        $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
         $this->email->to($to);
         
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
@@ -854,7 +854,7 @@ class vendor extends CI_Controller {
         }
 
         if ($this->email->send()) {
-            $this->notify->add_email_send_details('booking@247around.com',$to,"","",$subject,$html,"");
+            $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,"","",$subject,$html,"");
             log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
             $flag = TRUE;
         } else {
@@ -1183,7 +1183,7 @@ class vendor extends CI_Controller {
         $subject = "Pincode Not Found In Vendor Pincode Mapping File";
         $message = "Hi,<br/>Please add Pincode and SF details in the Vendor Pincode Mapping file and upload new file. Booking ID: " . $booking_id;
         
-        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
     }
     
    
@@ -1862,7 +1862,7 @@ class vendor extends CI_Controller {
         $to = $this->input->post('email');
         $notes = $this->input->post('notes');
         $attachment = $this->input->post('fileUrl');
-        $this->notify->sendEmail("booking@247around.com", $to, '', '', 'Pincode Changes', $notes, $attachment);
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, '', '', 'Pincode Changes', $notes, $attachment);
         echo '<div class="alert alert-success alert-dismissible" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span ;aria-hidden="true">&times;</span>
@@ -2429,7 +2429,7 @@ class vendor extends CI_Controller {
                                             //$cc = "anuj@247around.com";
                                             //$to = "chhavid@247around.com";
                                             //$subject = "Add new Combination in vendor pincode mapping";
-                                            //$this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, implode("||",$value), "");
+                                            //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, implode("||",$value), "");
                                         }
                                         else{
                                             $displayMsgArray['failed'][] = $value; 
@@ -3035,7 +3035,7 @@ class vendor extends CI_Controller {
             $html = $this->booking_utilities->booking_report_by_service_center($sf_list,'');
             $to = $employee_details[0]['official_email'];
             
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report", $html, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Service Center Report", $html, "");
             log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
             echo TRUE;
         }else{
@@ -3122,7 +3122,7 @@ class vendor extends CI_Controller {
             $html = $this->booking_utilities->booking_report_for_new_service_center($sf_list);
             $to = $employee_details[0]['official_email'];
 
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report", $html, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "New Service Center Report", $html, "");
             log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to '. $to);
             echo TRUE;
         }else{
@@ -4624,7 +4624,7 @@ class vendor extends CI_Controller {
                                                            //$cc = "anuj@247around.com";
                                                             //$to = "chhavid@247around.com";
                                                             //$subject = "Vendor pincode mapping file upload";
-                                                            //$this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $this->vendorPinArray, "");
+                                                            //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $this->vendorPinArray, "");
                                                        }
                                         }
                                         else{
