@@ -187,7 +187,7 @@ class BookingSummary extends CI_Controller {
 
                         log_message('info', "Report generated with $count records");
                         //Send report via email
-                        $this->email->from('booking@247around.com', '247around Team');
+                        $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
                         $this->email->to($to);
 
                         $this->email->subject("Booking Summary: " . date('Y-m-d H:i:s'));
@@ -271,7 +271,7 @@ class BookingSummary extends CI_Controller {
                     $this->email->clear(TRUE);
 
                     //Send report via email
-                    $this->email->from('booking@247around.com', '247around Team');
+                    $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
                     $this->email->to($to);
 
                     $this->email->subject("Booking Summary: " . date('Y-m-d H:i:s'));
@@ -364,7 +364,7 @@ class BookingSummary extends CI_Controller {
                 //log_message('info', "Report generated with $count records");
                 //Send report via email
                 $this->email->clear(TRUE);
-                $this->email->from('booking@247around.com', '247around Team');
+                $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
                 $this->email->to($sc['primary_contact_email']);
                 $cc = $sc['owner_email'];
                 $this->email->cc($cc);
@@ -530,7 +530,7 @@ EOD;
                 log_message('info', __FUNCTION__ . ' => Rendered CSV');
 
                 //$this->email->clear(TRUE);
-                //$this->email->from('booking@247around.com', '247around Team');
+                //$this->email->from(NOREPLY_EMAIL_ID, '247around Team');
                 //$this->email->to($p['summary_email_to']);
                 //$this->email->cc($p['summary_email_cc']);
                 //$this->email->bcc($p['summary_email_bcc']);
@@ -556,7 +556,7 @@ EOD;
             $cc = $p['summary_email_cc'];
             $bcc = $p['summary_email_bcc'];
             $partner_summary_params = $this->partner_model->get_partner_summary_params($p['id']);
-            $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($p['summary_email_to'],NULL,$cc,NULL,$bcc,NULL,$subject,"booking@247around.com",'247around Team','d5af7cfb-590f-4e45-b683-4232990f06c3',$partner_summary_params,$csv,"247around-Services-Consolidated-Data - " . date('d-M-Y') . ".csv");
+            $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($p['summary_email_to'],NULL,$cc,NULL,$bcc,NULL,$subject,NOREPLY_EMAIL_ID,'247around Team','d5af7cfb-590f-4e45-b683-4232990f06c3',$partner_summary_params,$csv,"247around-Services-Consolidated-Data - " . date('d-M-Y') . ".csv");
 
                 if ($emailStatus=='success') {
                     log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
@@ -629,7 +629,7 @@ EOD;
             log_message('info', __FUNCTION__ . ' => Rendered excel');
 
             $this->email->clear(TRUE);
-            $this->email->from('booking@247around.com', '247around Team');
+            $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
             $this->email->to($p['summary_email_to']);
             $this->email->cc($p['summary_email_cc']);
             $this->email->bcc($p['summary_email_bcc']);
@@ -835,7 +835,7 @@ EOD;
                     </html>';
 
         $to = NITS_ANUJ_EMAIL_ID;
-        $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Booking Summary", $html, "");
         log_message('info', __FUNCTION__ . 'Booking Report mail sent.');
     }
 
@@ -934,7 +934,7 @@ EOD;
             $html = $this->booking_utilities->booking_report_for_new_service_center($sf_list);
             $to = $value['official_email'];
 
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report " . date('d-M,Y'), $html, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "New Service Center Report " . date('d-M,Y'), $html, "");
             log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to ' . $to);
 
             // Inserting values in scheduler tasks log
@@ -987,7 +987,7 @@ EOD;
             $html = $this->booking_utilities->booking_report_by_service_center($sf_list, 1);
             $to = $value['official_email'];
 
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report " . date('d-M,Y'), $html, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Service Center Report " . date('d-M,Y'), $html, "");
             log_message('info', __FUNCTION__ . ' Service Center Report mail sent to ' . $to);
 
             // Inserting values in scheduler tasks log
