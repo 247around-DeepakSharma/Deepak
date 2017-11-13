@@ -157,7 +157,7 @@ class Notify {
 		$sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'];
 	    $to = ANUJ_EMAIL_ID;
             
-	    $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+	    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
 	}
     }
 
@@ -192,7 +192,7 @@ class Notify {
 	    $message = "Please check email tag and phone number. Booking id is : " .
 		$email['booking_id'] . " Tag is '" . $email['tag'] . "' & phone number is :" . $email['phone_no'];
 	    $to = NITS_ANUJ_EMAIL_ID;
-	    $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+	    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
 	}
     }
 
@@ -499,7 +499,7 @@ class Notify {
 		    $to = NITS_ANUJ_EMAIL_ID;
 		    //$to = "abhaya@247around.com";
 		    $default_tax_rate = " Default Tax Rate is used in the Booking ID: " . $query1[0]['booking_id'];
-		    $this->sendEmail("booking@247around.com", $to, "", "", ' Default Tax Rate is used ', $default_tax_rate, "");
+		    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", ' Default Tax Rate is used ', $default_tax_rate, "");
 		    break;
 
 		case 'Pincode_not_found':
@@ -508,7 +508,7 @@ class Notify {
 		    $to = NITS_ANUJ_EMAIL_ID;
 		    //$to = "abhaya@247around.com";
 		    $state_not_found_message = " Pincode(" . $query1[0]['booking_pincode'] . ") is not found booking id is " . $query1[0]['booking_id'];
-		    //$this->sendEmail("booking@247around.com", $to, "", "", ' Pincode Not Found', $state_not_found_message, "");
+		    //$this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", ' Pincode Not Found', $state_not_found_message, "");
 
 
 		    break;
@@ -614,7 +614,7 @@ class Notify {
                             . " " . $status['content'];
                     $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
 
-                    $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+                    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
                 }
             } else {
                 log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
@@ -626,7 +626,7 @@ class Notify {
                         . " " . $status['content'];
                 $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
 
-                $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+                $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
             }
         }
     }

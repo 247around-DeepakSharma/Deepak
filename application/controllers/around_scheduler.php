@@ -64,7 +64,7 @@ class Around_scheduler extends CI_Controller {
                         . " " . $status['content'];
                 $to = ANUJ_EMAIL_ID . ", abhaya@247around.com";
 
-                $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
             }
         }
         // Inserting values in scheduler tasks log
@@ -390,7 +390,7 @@ class Around_scheduler extends CI_Controller {
             //Sending Details in Mail
             $to = DEVELOPER_EMAIL;
             $subject = " ERROR IN CRON TASK EXECUTION " . date("d-M-Y");
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "");
         }
     }
 
@@ -443,7 +443,7 @@ class Around_scheduler extends CI_Controller {
             $message = "Please find attached bookings list where SF is not available in the respective pincode.";
 
             $this->email->clear(TRUE);
-            $this->email->from('booking@247around.com', '247around Team');
+            $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
             $this->email->to($to);
             $this->email->cc($cc);
             $this->email->subject("SF NOT AVAILABLE IN PINCODES LIST");
@@ -451,7 +451,7 @@ class Around_scheduler extends CI_Controller {
             $this->email->attach($csv, 'attachment');
 
             if ($this->email->send()) {
-                $this->notify->add_email_send_details('booking@247around.com',$to,$cc,"","SF NOT AVAILABLE IN PINCODES LIST",$message,$csv);
+                $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,$cc,"","SF NOT AVAILABLE IN PINCODES LIST",$message,$csv);
                 log_message('info', __METHOD__ . ": Mail sent successfully for PinCode Not Available To RM ");
             } else {
                 log_message('info', __METHOD__ . ": Mail could not be sent to RM");
@@ -461,14 +461,14 @@ class Around_scheduler extends CI_Controller {
             $message = "No booking found which pincode is not available";
 
             $this->email->clear(TRUE);
-            $this->email->from('booking@247around.com', '247around Team');
+            $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
             $this->email->to("$to");
             $this->email->cc(ANUJ_EMAIL_ID);
             $this->email->subject("Pincode Not Available Booking Data");
             $this->email->message($message);
             $this->email->attach($csv, 'attachment');
             $this->email->send();
-            $this->notify->add_email_send_details('booking@247around.com',$to,ANUJ_EMAIL_ID,"","Pincode Not Available Booking Data",$message,$csv);
+            $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,ANUJ_EMAIL_ID,"","Pincode Not Available Booking Data",$message,$csv);
             log_message('info', __METHOD__ . ": No booking found for pincode not available ");
         }
     }
@@ -603,7 +603,7 @@ class Around_scheduler extends CI_Controller {
         $message = "Dear Partner,<br/> Attached is the status of the last " . $hour . " hour <br/><br/><br/>";
         $message .= $this->table->generate();
 
-        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
     }
 
     /**

@@ -45,10 +45,20 @@
                                                     onclick="submit_button('<?php echo $value["id"]; ?>',
                                                                '<?php echo $sn_no; ?>', '<?php echo $value["service_center_id"];
                                                 ; ?>')">Submit</button></td>
-                                        <td><button class="btn btn-danger" 
+                                        <td>
+                                            
+                                            <?php $value['active']; if($value['active'] == 1) {?>
+                                            <button class="btn btn-danger" 
                                                     onclick="delete_details('<?php echo $value["id"]; ?>',
                                                                '<?php echo $sn_no; ?>', '<?php echo $value["service_center_id"];
-                                                ; ?>')">Delete</button></td>
+                                                ; ?>', '0')">De-Activate</button>
+                                            <?php } else  { ?>
+                                                 <button class="btn btn-success" 
+                                                    onclick="delete_details('<?php echo $value["id"]; ?>',
+                                                               '<?php echo $sn_no; ?>', '<?php echo $value["service_center_id"];
+                                                ; ?>', '1')">Activate</button>
+                                          <?php  }?>
+                                        </td>
                                     </tr>
 
     <?php $sn_no++;
@@ -113,20 +123,25 @@
 
 
     }
-    function delete_details(id, div_no, service_center_id) {
+    function delete_details(id, div_no, service_center_id, active_flag) {
 
         var event_taget = event.target;
         var event_element = event.srcElement;
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/delete_sub_service_center_details',
+            url: '<?php echo base_url(); ?>employee/vendor/de_activate_sub_service_center_details/'+active_flag,
             data: {id: id, service_center_id: service_center_id},
             success: function (data) {
-                console.log(data);
+                
                 if (data === 'success') {
-                    $('#show_success_msg').html('Details has been deteted successfully');
-                    $('.success').show().delay(5000).fadeOut();
-                    ;
+                    if(active_flag === 1){
+                        $('#show_success_msg').html('HQ Activated successfully');
+                        $('.success').show().delay(5000).fadeOut();
+                        
+                    } else {
+                        $('#show_success_msg').html('HQ De-Activated successfully');
+                        $('.success').show().delay(5000).fadeOut();
+                    }
                 } else {
                     $('#show_error_msg').html('Error in deleting details');
                     $('.error').show().delay(5000).fadeOut();

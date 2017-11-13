@@ -1362,7 +1362,7 @@ class Api extends CI_Controller {
                                     . 'through missed call failed for ' . $b['booking_id']);
 
                             //Send email
-                            $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "");
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, "anuj@247around.com", "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "");
                         } else {
                             log_message('info', __METHOD__ . '=> Booking confirmation '
                                     . 'through missed call succeeded for ' . $b['booking_id']);
@@ -1421,8 +1421,8 @@ class Api extends CI_Controller {
             log_message('info', "AC Service Missed Call Received from: " . $num);
             
             //send email
-            $from = "booking@247around.com";
-            $to = "booking@247around.com";
+            $from = NOREPLY_EMAIL_ID;
+            $to = NOREPLY_EMAIL_ID;
             $cc = NITS_ANUJ_EMAIL_ID;
             $bcc = '';
             $sub = "AC Service Missed Call Received from: " . $num;
@@ -1638,7 +1638,7 @@ class Api extends CI_Controller {
         //    'time' => $this->microtime_float());
         //$this->apis->logTable($activity);
 
-        $this->email->from('booking@247around.com', '247around Team');
+        $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
 
     if ($isTesting) {
             $this->email->to($user);

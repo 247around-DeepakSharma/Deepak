@@ -671,7 +671,7 @@ class Booking_utilities {
                                 
                         </body>
                     </html>";
-        $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
     }
 
 }
