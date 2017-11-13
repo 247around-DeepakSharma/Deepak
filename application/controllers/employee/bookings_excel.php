@@ -152,7 +152,7 @@ class bookings_excel extends CI_Controller {
                     $email_html .= $value['order_id']."<br>";
                 }
                 $emailBody = vsprintf($template[0], array($_FILES["file"]["name"],$email_html));
-                $this->notify->sendEmail($template[2], $to ,"", '', $subject , $emailBody, $attachement);
+                $this->notify->sendEmail($template[2], $to ,$template[3], '', $subject , $emailBody, $attachement);
             }
         } else {
             echo $msg;
