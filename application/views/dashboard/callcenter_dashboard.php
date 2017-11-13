@@ -153,6 +153,7 @@
         sendAjaxRequest(data,url,post_request).done(function(response){
             $('#loader_gif_title').hide();
             $('#title_count').html(response);
+            $('#go_to_crm').show();
         });
     }
     
