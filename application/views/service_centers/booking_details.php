@@ -174,9 +174,10 @@
                     <th>Cash Invoice ID</th>
                     <th>Foc Invoice ID</th>
                     <?php } ?>
+                    <th>SF Earning</th>
                 </tr>
                 <tbody>
-                    <?php foreach ($unit_details as $unit_detail) { ?>
+                    <?php foreach ($unit_details as $key => $unit_detail) { ?>
                     <tr>
                         <td><?php echo $unit_detail['appliance_brand'] ?></td>
                         <td><?php echo $unit_detail['appliance_category'] ?></td>
@@ -184,25 +185,38 @@
                         <td><?php echo $unit_detail['model_number'] ?></td>
                         <td><?php echo $unit_detail['serial_number'] ?></td>
                         <td><?php echo $unit_detail['appliance_description'] ?></td>
-                        <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                         <td><?php print_r($unit_detail['price_tags']); ?></td>
+                         <?php $sf_upcountry_charges = 0; if($booking_history[0]['is_upcountry'] == 1){ 
+                                        if($key == 0){
+                                            if($booking_history[0]['upcountry_paid_by_customer'] == 0){
+                                             
+                                               $sf_upcountry_charges =  $booking_history[0]['upcountry_distance'] * $booking_history[0]['sf_upcountry_rate'];
+                                            } else {
+                                                
+                                                $sf_upcountry_charges = -($booking_history[0]['customer_paid_upcountry_charges'] * basic_percentage);
+
+                                            }
+                                        }
+                                    }?>
+                        <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
+                        
                         <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
-                        <td><?php if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
+                        <td><?php if($key == 0) { if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                             echo "0";
                             } else {
                             echo $booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'];
-                            }
+                        } }
                             ?>
                         </td>
                         <?php } ?>
                         <td><?php if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                             echo $unit_detail['customer_net_payable'];
                             } else {
-                            echo ($booking_history[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) + $unit_detail['customer_net_payable'];
+                            echo ($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate']) + $unit_detail['customer_net_payable'];
                             }
                                     ?></td>
                         <?php } else { ?>
-                        <td><?php print_r($unit_detail['price_tags']); ?></td>
+                       
                         <td><?php print_r($unit_detail['customer_paid_basic_charges']); ?></td>
                         <td><?php print_r($unit_detail['customer_paid_extra_charges']); ?></td>
                         <td><?php print_r($unit_detail['customer_paid_parts']); ?></td>
@@ -222,6 +236,11 @@
                         <?php if ($booking_history[0]['current_status'] === "Completed") { ?>
                         <td><?php print_r($unit_detail['vendor_cash_invoice_id']); ?></td>
                         <td><?php print_r($unit_detail['vendor_foc_invoice_id']); ?></td>
+                        <td>
+                            <?php echo round($unit_detail['vendor_to_around'] + $unit_detail['around_to_vendor'] + $sf_upcountry_charges, 2);?>
+                        </td>
+                        <?php } else { ?>
+                        <td><?php echo round($unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + $sf_upcountry_charges,2);?></td>
                         <?php } ?>
                     </tr>
                     <?php } ?>
