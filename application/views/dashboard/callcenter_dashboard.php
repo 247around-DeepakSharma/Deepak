@@ -54,6 +54,21 @@
         </div>
         <!-- End Company Monthly Status -->
     </div>
+    
+    <!-- Modal -->
+    <div id="modalDiv" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="open_model"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal -->
 </div>
 <!-- /page content -->
 <!-- Chart Script -->
