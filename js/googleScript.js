@@ -1,3 +1,13 @@
+document.onreadystatechange = function(){
+    if (document.readyState === "complete") {
+      GetRoute();
+    }
+    else {
+       window.onload = function () {
+          GetRoute();
+       };
+    };
+}
 var source, destination;
         var directionsDisplay;
         var directionsService = new google.maps.DirectionsService();
@@ -54,3 +64,4 @@ function GetRoute() {
                 }
             });
         }
+        

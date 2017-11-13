@@ -199,6 +199,7 @@
                                     </div>
                                    
                                 </td>
+                              </tr>
 
                         </table>
                     </div>
@@ -601,16 +602,5 @@
                 console.log("Contact Developers For This Issue");
             }
     }
-    document.onreadystatechange = function(){
-    if (document.readyState === "complete") {
-      GetRoute();
-    }
-    else {
-       window.onload = function () {
-          GetRoute();
-       };
-    };
-}
-   
    
 </script>

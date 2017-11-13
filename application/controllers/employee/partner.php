@@ -176,7 +176,9 @@ class Partner extends CI_Controller {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $unit_where = array('booking_id' => $booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
-
+        if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
+            $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
+        }
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
 
         $this->load->view('partner/header');
