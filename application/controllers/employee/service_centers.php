@@ -120,7 +120,9 @@ class Service_centers extends CI_Controller {
 //                $this->session->userdata('service_center_id'), $booking_id,true, 
 //                $data['booking_history'][0]['upcountry_paid_by_customer']);
 
-
+        if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
+            $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
+        }
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
     }
