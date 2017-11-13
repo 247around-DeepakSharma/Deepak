@@ -1,3 +1,5 @@
+ <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
+<script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
     th,td{
     border: 1px #f2f2f2 solid;
@@ -68,24 +70,21 @@
             <div class="tab-pane fade in active" id="tab1">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="col-md-6">
+                        
                             <table class="table  table-striped table-bordered" >
                                 <tr>
                                     <th >Name: </th>
                                     <td><?php echo $booking_history[0]['name']; ?></td>
-                                </tr>
-                                <tr>
                                     <th>Mobile: </th>
                                     <td><?php echo $booking_history[0]['booking_primary_contact_no']; 
                                         if(!empty( $booking_history[0]['booking_alternate_contact_no'])){ echo "/". $booking_history[0]['booking_alternate_contact_no'];} ?>
                                     </td>
                                 </tr>
+                               
                                 <tr>
                                     <th >Booking ID: </th>
                                     <td><?php echo $booking_history[0]['booking_id']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Platform / Order ID: </th>
+                                     <th>Platform / Order ID: </th>
                                     <td><?php  echo $booking_history[0]['partner_source']." / "; 
                                         if(!empty($booking_history[0]['order_id'])) { echo $booking_history[0]['order_id'];
                                             $src = base_url() . 'images/no_image.png';
@@ -100,63 +99,73 @@
                                         <?php } ?>
                                     </td>
                                 </tr>
+                                
                                 <tr>
                                     <th>Serial Number: </th>
                                     <td><?php if(isset($unit_details[0]['partner_serial_number'])) { echo $unit_details[0]['partner_serial_number'];} ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Call Type: </th>
+                                     <th>Call Type: </th>
                                     <td><?php echo $booking_history[0]['request_type']; ?></td>
                                 </tr>
+                                
                                 <tr>
                                     <th>Booking date: </th>
                                     <td><?php echo $booking_history[0]['booking_date']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Address: </th>
+                                      <th>Address: </th>
                                     <td><?php echo $booking_history[0]['booking_address'];?></td>
                                 </tr>
-                            </table>
-                        </div>
-                        <div class="col-md-6">
-                            <table class="table  table-striped table-bordered">
                                 <tr>
                                     <th>City: </th>
                                     <td><?php echo $booking_history[0]['city']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>State: </th>
+                                     <th>State: </th>
                                     <td><?php echo $booking_history[0]['state']; ?></td>
                                 </tr>
+                                
                                 <tr>
                                     <th>Pincode: </th>
                                     <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
-                                </tr>
-                                <tr>
                                     <th>Remarks: </th>
                                     <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                                 </tr>
+                              
                                 <tr>
                                     <th>Status: </th>
                                     <td><?php echo $booking_history[0]['current_status']; ?></td>
-                                </tr>
-                                <tr>
                                     <th>Cancellation Reason: </th>
                                     <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                                 </tr>
+                                
                                 <tr>
                                     <th>Booking closed date: </th>
                                     <td><?php echo $booking_history[0]['closed_date']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Rating Star </th>
+                                     <th>Rating Star </th>
                                     <td><?php if(!empty($booking_history[0]['rating_stars'])){echo $booking_history[0]['rating_stars'].'/5'; }?></td>
                                 </tr>
+                                <?php if(isset($dhq[0]['district'])){ ?>
+                            <tr>
+                                <th colspan="1">Upcountry</th>
+                                <td colspan="3">
+                                    <div class="col-md-12">
+                                        <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['city'].", ".
+                                            $booking_history[0]['booking_pincode'].", india"; ?>"></div>
+                                        <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if(isset($dhq[0]['district'])){
+                                        echo $dhq[0]['district'].",".$dhq[0]['pincode'].", India";}?>"></div>
+<!--                                        <div class="col-md-4"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>-->
+                                             
+                                    </div>
+                                    <div class="col-md-12"> 
+                                        <div id="dvDistance"></div>
+                                         <br/>
+                                        <div id="dvMap" style=" height: 200px">
+                                    </div>
+                                   
+                                </td>
+                            </tr>
+                                <?php } ?>
                             </table>
                         </div>
                     </div>
                 </div>
-            </div>
+           
             <div class="tab-pane fade in" id="tab2">
                 <?php if (!empty($unit_details)) { ?>
                 <table class="table  table-striped table-bordered">
