@@ -19,6 +19,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->model('invoices_model');
         $this->load->model('employee_model');
         $this->load->model('reusable_model');
+        $this->load->model('dashboard_model');
         $this->load->model('bb_model');
         $this->load->model('cp_model');
         $this->load->model('reporting_utils');
@@ -1081,6 +1082,56 @@ class Around_scheduler extends CI_Controller {
                $this->buyback->insert_bb_state_change($value->partner_order_id, "Auto Acknowledge", AUTO_ACK_ADMIN_REMARKS, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
             }
         }
+    }
+    
+    /**
+     * @desc: This is used to call from cron to detect issues in booking for invoice purpose.
+     */
+    function developer_invoice_check(){
+        log_message("info", "Enterring...");
+        $pendingData = $this->booking_model->get_unit_details(array("booking_status" => _247AROUND_PENDING));
+        $partnerData = $this->booking_model->get_unit_details(array('booking_status' => _247AROUND_COMPLETED, "partner_invoice_id IS NULL" => NULL, 
+            "ud_closed_date >=" => date('Y-m-01', strtotime("-1 months"))));
+        $focData = $this->booking_model->get_unit_details(array('booking_status' => _247AROUND_COMPLETED, "vendor_foc_invoice_id IS NULL" => NULL, 
+            "ud_closed_date >=" => date('Y-m-01', strtotime("-1 months")), 'around_to_vendor >'=> 0 ));
+        
+        $data  = array_merge($pendingData,$partnerData, $focData);
+        $data1 = array_map("unserialize", array_unique(array_map("serialize", $data)));
+        
+        $partner = $this->partner_model->get_all_partner_source();
+        $partners = array();
+        foreach ($partner as $value) {
+            $partners[$value['partner_id']] = $value['partner_type'];
+        }
+        unset($partner);
+        $incorrectData = array();
+        foreach ($data1 as $value) {
+             if ($partners[$value['partner_id']] == OEM) {
+                $prices = $this->booking_model->getPricesForCategoryCapacity($value['service_id'],$value['appliance_category'], $value['appliance_capacity'], $value['partner_id'], $value['appliance_brand']);
+            } else {
+                $prices = $this->booking_model->getPricesForCategoryCapacity($value['service_id'], $value['appliance_category'],$value['appliance_capacity'], $value['partner_id'], "");
+            }
+            
+            if(!empty($prices)){
+                if($value['customer_total'] != $prices[0]['customer_total']){
+                    array_push($incorrectData, array('booking_id' => $value['booking_id'], "status" => 'Customer Total Not Match'));
+                }
+                if($value['vendor_basic_percentage'] != $prices[0]['vendor_basic_percentage']){
+                    array_push($incorrectData, array('booking_id' => $value['booking_id'], "status" => 'SF % Not Match'));
+                }
+                if($value['partner_net_payable'] != $prices[0]['partner_net_payable']){
+                    array_push($incorrectData, array('booking_id' => $value['booking_id'], "status" => 'Partner Payable Not Match'));
+                }
+            } else {
+                array_push($incorrectData, array('booking_id' => $value['booking_id'], "status" => 'Price Does Not Exist'));
+            }
+            
+        }
+      
+        $this->dashboard_model->update_query_report(array('role' => 'developer', 'type' => 'invoice_check'),
+                array('result' => json_encode($incorrectData, true)));
+        log_message("info", "EXIT...");
+
     }
 
 }
