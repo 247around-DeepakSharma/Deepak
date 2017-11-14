@@ -869,7 +869,7 @@ class service_centre_charges extends CI_Controller {
         $final_data['brand'] = $newRowData['brand'];
         $final_data['service_id'] = $newRowData['product_id'];
         $final_data['category'] = $newRowData['category'];
-        $final_data['capacity'] = $newRowData['capacity'];
+        $final_data['capacity'] = empty($newRowData['capacity'])?'':$newRowData['capacity'];
         $final_data['service_category'] = $newRowData['service_category'];
         $final_data['product_or_services'] = $newRowData['product_service'];
         $final_data['product_type'] = $newRowData['product_type'];
