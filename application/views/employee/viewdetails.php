@@ -318,9 +318,9 @@
                                     }?>
                                     <td><?php print_r($unit_detail['booking_status']); ?></td>
                                     <?php if($booking_history[0]['current_status'] === 'Completed'){ ?>
-                                    <td><a class="get_cash_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['vendor_cash_invoice_id']; ?>"><?php print_r($unit_detail['vendor_cash_invoice_id']); ?></a></td>
-                                    <td><a class="get_foc_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['vendor_foc_invoice_id']; ?>"><?php print_r($unit_detail['vendor_foc_invoice_id']); ?></a></td>
-                                    <td><a class="get_partner_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['partner_invoice_id']; ?>"><?php print_r($unit_detail['partner_invoice_id']); ?></a></td>
+                                    <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_cash_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_cash_invoice_id']; ?></a></td>
+                                    <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_foc_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_foc_invoice_id']; ?></a></td>
+                                    <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['partner_invoice_id']; ?>')"><?php echo $unit_detail['partner_invoice_id'];?></a></td>
                                     <td>
                                         <?php echo round($unit_detail['vendor_to_around'] + $unit_detail['around_to_vendor'] + $sf_upcountry_charges, 2);?>
                                     </td>
@@ -590,19 +590,6 @@
 </script>
 
 <script>
-        $('.get_cash_invoice_id_data').click(function(){
-            var invoice_id = $.trim($(".get_cash_invoice_id_data").attr("data-id"));
-            get_invoice_data(invoice_id)
-        });
-        $('.get_foc_invoice_id_data').click(function(){
-            var invoice_id = $.trim($(".get_foc_invoice_id_data").attr("data-id"));
-            get_invoice_data(invoice_id)
-        });
-        $('.get_partner_invoice_id_data').click(function(){
-            var invoice_id = $.trim($(".get_partner_invoice_id_data").attr("data-id"));
-            get_invoice_data(invoice_id)
-        });
-    
     function get_invoice_data(invoice_id){
         if (invoice_id){
                 $.ajax({
