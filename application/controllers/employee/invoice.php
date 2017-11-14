@@ -53,7 +53,7 @@ class Invoice extends CI_Controller {
     public function index() {
         $select = "service_centres.name, service_centres.id";
         $data['service_center'] = $this->vendor_model->getVendorDetails($select);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1), true);
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",array('service_centres.active' => 1, 'service_centres.is_sf' => 1), true);
 
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
@@ -98,7 +98,7 @@ class Invoice extends CI_Controller {
         }
         
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
-        $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
+        $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('service_centres.id' => $data['vendor_partner_id']))[0];
             
         //TODO: Fix the reversed names here & everywhere else as well
         $data2['partner_vendor'] = $this->input->post('source');
@@ -170,7 +170,7 @@ class Invoice extends CI_Controller {
     function invoice_partner_view() {
 
         $data['partner'] = $this->partner_model->getpartner("", false);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
+        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner", array('service_centres.active' => '1'));
         
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
