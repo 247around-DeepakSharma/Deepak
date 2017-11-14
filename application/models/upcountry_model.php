@@ -637,7 +637,7 @@ class Upcountry_model extends CI_Model {
         $this->db->where('booking_id', $booking_id);
         $this->db->where_in('sc.is_upcountry', array('1',NOT_UPCOUNTRY_PRICE_TAG));
         $query = $this->db->get();
-        echo $this->db->last_query();
+       
         return $query->result_array();
     }
     /**

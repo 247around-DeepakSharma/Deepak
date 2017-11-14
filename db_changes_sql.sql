@@ -3411,3 +3411,11 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 --Abhay 10 Nov
 ALTER TABLE `sub_service_center_details` ADD `active` INT(1) NOT NULL DEFAULT '1' AFTER `create_date`;
+
+
+
+--Abhay 14 NOV
+ALTER TABLE `query_report` ADD `result` VARCHAR(2048) NULL DEFAULT NULL AFTER `active`;
+
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Invoice Check', '', '', '', '', 'developer', '1', 'invoice_check', '1', NULL, '2017-11-14 11:14:15');
+
