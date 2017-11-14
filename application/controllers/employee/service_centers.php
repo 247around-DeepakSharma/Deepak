@@ -120,7 +120,9 @@ class Service_centers extends CI_Controller {
 //                $this->session->userdata('service_center_id'), $booking_id,true, 
 //                $data['booking_history'][0]['upcountry_paid_by_customer']);
 
-
+        if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
+            $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
+        }
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
     }
@@ -769,7 +771,7 @@ class Service_centers extends CI_Controller {
                             $bcc = "";
                             $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
                             $message = "Auto Cancelled Booking ". $booking_id;
-                            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
 
                         } else {
                             $this->default_update(true, true);
@@ -1350,7 +1352,7 @@ class Service_centers extends CI_Controller {
                 $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                 $rm_email = $this->get_rm_email($service_center_id);
-                $from = "booking@247around.com";
+                $from = NOREPLY_EMAIL_ID;
 
                 $to = "anuj@247around.com, booking@247around.com";
                 $cc= $rm_email.", nits@247around.com";
@@ -2090,7 +2092,7 @@ class Service_centers extends CI_Controller {
                     $message  = "";
                     $message .= $this->table->generate();
 
-                    $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
 
                     redirect(base_url() . "service_center/gst_details");
                 }
@@ -2685,7 +2687,7 @@ class Service_centers extends CI_Controller {
             $select = 'bb_unit.category, bb_unit.physical_condition, 
                 bb_unit.working_condition,
                 round(bb_unit.cp_basic_charge + bb_unit.cp_tax_charge) as cp_tax,
-                bb_unit.partner_sweetner_charges,s.services as service_name,bb_unit.cp_claimed_price';
+                bb_unit.partner_sweetner_charges,s.services as service_name,bb_unit.cp_claimed_price,bb_unit.cp_invoice_id';
             $data = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id' => $partner_order_id), $select);
             print_r(json_encode($data));
         }

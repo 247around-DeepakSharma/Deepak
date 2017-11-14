@@ -935,7 +935,7 @@ class Upload_booking_file extends CI_Controller {
             $subject = "Appliance Not Found. Please chaeck File";
             $message1 .= $this->table->generate();
 
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
         }
         
         return $data1;
@@ -949,7 +949,7 @@ class Upload_booking_file extends CI_Controller {
      */
     function send_mail_column($subject, $message, $validation) {
         $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com";
-        $from = "booking@247around.com";
+        $from = NOREPLY_EMAIL_ID;
         $cc = "";
         $bcc = "";
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
@@ -967,7 +967,7 @@ class Upload_booking_file extends CI_Controller {
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name) {
 
         $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com";
-        $from = "booking@247around.com";
+        $from = NOREPLY_EMAIL_ID;
         $cc = "abhaya@247around.com";
         $bcc = "";
         $subject = "";

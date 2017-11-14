@@ -1,4 +1,4 @@
- <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyCxGEwAaDgntmxvfTxgA1dCS5DPgzxodZc"></script>
+ <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
  <script src="<?php echo base_url();?>js/googleScript.js"></script>
 <?php if ($is_ajax) { ?> 
     <table class="table table-bordered table-hover table-responsive">
@@ -44,11 +44,11 @@
                             <div class="form-inline" style="margin-left: 20px;">
                                 <div class="form-group" style="margin-right: 10px;">
                                     <label for="pincode1">Pincode 1:</label>
-                                    <input type="text" class="form-control allownumericwithdecimal" id="pincode1" >
+                                    <input type="text" class="form-control allownumericwithdecimal" id="txtSource" >
                                 </div>
                                 <div class="form-group" style="margin-right: 10px;">
                                     <label for="pincode2">Pincode 2:</label>
-                                    <input type="text" class="form-control allownumericwithdecimal" id="pincode2">
+                                    <input type="text" class="form-control allownumericwithdecimal" id="txtDestination">
                                 </div>
                                 <button class="btn btn-success" id="get_distance">Get Distance</button>
                             </div>
@@ -81,8 +81,8 @@
         </div>
         <div class="container-fluid">
             <div class="distance_between_pincode" style="border: 1px solid #e6e6e6; margin-top: 20px; margin-bottom: 20px;padding: 10px;">
-                <h3><strong>Get Distance From Google Map</strong></h3>
-                <section  style="padding-left:20px;">
+<!--                <h3><strong>Get Distance From Google Map</strong></h3>-->
+<!--                <section  style="padding-left:20px;">
                     <div class="row">
                         <div class="row">
                             <div class="form-inline" style="margin-left: 20px;">
@@ -98,11 +98,11 @@
                             </div>
                         </div>
                     </div>
-                </section>
-                 <hr>
+                </section>-->
+<!--                 <hr>-->
                 <section style="padding-left:20px;"><div id="dvDistance">
                 </div></section>
-                  <hr>
+<!--                  <hr>-->
                 <section style="padding-left:20px;">
                     <table><tr>
             <td colspan="2">
@@ -135,8 +135,9 @@
 
         $(document).ready(function () {
             $('#get_distance').click(function () {
-                var pincode1 = $('#pincode1').val();
-                var pincode2 = $('#pincode2').val();
+                GetRoute();
+                var pincode1 = $('#txtSource').val();
+                var pincode2 = $('#txtDestination').val();
                 if (pincode1.length === 6 && pincode2.length === 6) {
                     $.ajax({
                         method: 'POST',

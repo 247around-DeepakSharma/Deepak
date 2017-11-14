@@ -658,7 +658,7 @@ class service_centre_charges extends CI_Controller {
                 $to = $this->session->userdata('official_email');
                 $cc = DEVELOPER_EMAIL;
                 $subject = "Failed! Service Price File is uploaded by " . $this->session->userdata('employee_id');
-                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $msg, "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $msg, "");
             }
             
             $return_response['status'] = $flag;

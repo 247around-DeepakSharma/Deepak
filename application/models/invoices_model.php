@@ -292,7 +292,7 @@ class invoices_model extends CI_Model {
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source,"
                 . " `booking_details`.city, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
-                . " `booking_unit_details`.appliance_capacity, "
+                . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category, "
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name,order_id, "
                 . " 
@@ -674,11 +674,11 @@ class invoices_model extends CI_Model {
                 if($value['product_or_services'] == "Service"){
                     
                     $meta['total_ins_charge'] += $value['taxable_value'];
-                    $parts_count++;
                     
                 } else if($value['product_or_services'] == "Product"){
                     
                     $meta['total_parts_charge'] += $value['taxable_value'];
+                    $parts_count++;
                 }
             }
             $meta['parts_count'] = $parts_count;
@@ -761,20 +761,20 @@ class invoices_model extends CI_Model {
 
                 if ($c_s_gst) {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
-                    $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = 14;
-                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 2);
-                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.14), 2);
+                    $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = DEFAULT_TAX_RATE/2;
+                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * (SERVICE_TAX_RATE/2)), 2);
+                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * (SERVICE_TAX_RATE/2)), 2);
                     $meta['cgst_total_tax_amount'] += $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
-                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 14;
+                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = DEFAULT_TAX_RATE/2;
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
-                    $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = 28;
-                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.28), 2);
+                    $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
+                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * SERVICE_TAX_RATE), 2);
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
-                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.28), 2);
+                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * SERVICE_TAX_RATE), 2);
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += $value['taxable_value'];
@@ -1017,37 +1017,20 @@ class invoices_model extends CI_Model {
                     
                 } else if($c_s_gst){
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
-                    if($value['product_or_services'] == "Product"){
-                        $data['booking'][$key]['cgst_rate'] =  $data['booking'][$key]['sgst_rate'] = 14;
-                        $data['booking'][$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.14),2);
-                        $data['booking'][$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.14),2);
-                        $meta['cgst_total_tax_amount'] +=  $data['booking'][$key]['cgst_tax_amount'];
-                        $meta['sgst_total_tax_amount'] += $data['booking'][$key]['sgst_tax_amount'];
-                        $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 14;
-                        $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.28),2);
-                    }else{
-                        $data['booking'][$key]['cgst_rate'] =  $data['booking'][$key]['sgst_rate'] = 9;
-                        $data['booking'][$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
-                        $data['booking'][$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
-                        $meta['cgst_total_tax_amount'] +=  $data['booking'][$key]['cgst_tax_amount'];
-                        $meta['sgst_total_tax_amount'] += $data['booking'][$key]['sgst_tax_amount'];
-                        $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
-                        $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
-                    }
+                    $data['booking'][$key]['cgst_rate'] =  $data['booking'][$key]['sgst_rate'] = 9;
+                    $data['booking'][$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
+                    $data['booking'][$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
+                    $meta['cgst_total_tax_amount'] +=  $data['booking'][$key]['cgst_tax_amount'];
+                    $meta['sgst_total_tax_amount'] += $data['booking'][$key]['sgst_tax_amount'];
+                    $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
+                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
                     
                 } else {
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
-                    if($value['product_or_services'] == "Product"){
-                        $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = 28;
-                        $data['booking'][$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
-                        $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
-                        $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
-                    }else{
-                        $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
-                        $data['booking'][$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
-                        $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
-                        $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
-                    }
+                    $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
+                    $data['booking'][$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
+                    $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
+                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
                     
                 }
                 
@@ -1278,7 +1261,8 @@ class invoices_model extends CI_Model {
             $meta['reverse_charge_type'] = "N";
             $meta['reverse_charge'] = '';
            
-            $meta['total_qty'] =  $meta['total_rate'] = $commission_charge[0]['hsn_code'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
+            $meta['total_qty'] =  $meta['total_rate'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
+            $commission_charge[0]['hsn_code'] = COMMISION_CHARGE_HSN_CODE;
             $meta['total_taxable_value'] = $commission_charge[0]['taxable_value'];
             $meta['sub_total_amount'] =  round($commission_charge[0]['toal_amount'],0);
            

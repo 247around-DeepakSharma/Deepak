@@ -100,7 +100,7 @@ class Upcountry_model extends CI_Model {
         $distance = false;
         foreach ($vendor_details as $value) {
             $where1 = array('service_center_id' => $value['vendor_id'], 
-                'district'=> $value['city']);
+                'district'=> $value['city'], 'active' => 1);
             $res_sb = $this->get_sub_service_center_details($where1);
             $this->vendor_min_up_distance = $value['min_upcountry_distance'];
             if($res_sb){
@@ -701,7 +701,7 @@ class Upcountry_model extends CI_Model {
                 . " CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking_id, "
                 . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (".UPCOUNTRY_DISTANCE_CAP.") ELSE (upcountry_distance) END AS upcountry_distance, "
                 . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (partner_upcountry_rate * ".UPCOUNTRY_DISTANCE_CAP." ) ELSE  (partner_upcountry_rate *upcountry_distance ) END AS upcountry_price,"
-                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate, upcountry_pincode, services, taluk as city, booking_pincode"
+                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate, upcountry_pincode, services, taluk as city, booking_pincode, sub_vendor_id"
                 . " FROM `booking_details` AS bd, booking_unit_details AS ud, services "
                 . " WHERE ud.booking_id = bd.booking_id "
                 . " AND bd.partner_id = '$partner_id' "
@@ -723,16 +723,32 @@ class Upcountry_model extends CI_Model {
             $total_booking = 0;
             $total_distance = 0;
             foreach ($result as $key => $value) {
-                $total_price += $value['upcountry_price'];
-                $total_booking += $value['count_booking'];
-                $total_distance += $value['upcountry_distance'];
-                if ($partner_id == 1){
+                
+               
+                if ($partner_id == SNAPDEAL_ID){
                     // Replace non upcountry city to area from india pincode table.
                     $area = $this->is_non_upcountry_city($partner_id,$value['city'], $value['booking_pincode']);
                     if(!empty($area)){
                         $result[$key]['city'] = $area;
                     }
                 }
+                
+                if($partner_id == PAYTM){
+                    $m_data = $this->generate_paytm_upcountry_distance($value['sub_vendor_id'], $value["upcountry_pincode"], $value['booking_pincode']);
+                    if(!empty($m_data)){
+                         $result[$key]['upcountry_distance'] = $m_data[0]['distance'];
+                         $result[$key]['upcountry_price'] = $m_data[0]['distance'] * $value['partner_upcountry_rate'];
+                         $result[$key]['municipal_limit'] = $m_data[0]['municipal_limit'];
+                         $result[$key]['district'] = $m_data[0]['district'];
+                    } else {
+                        $result[$key]['municipal_limit'] = "";
+                        $result[$key]['district'] = "";
+                    }
+                }
+                
+                $total_price += $result[$key]['upcountry_price'];
+                $total_booking += $value['count_booking'];
+                $total_distance += $result[$key]['upcountry_distance'];
             }
             $result[0]['total_upcountry_price'] = $total_price;
             $result[0]['total_booking'] = $total_booking;
@@ -743,6 +759,28 @@ class Upcountry_model extends CI_Model {
         } else {
             return FALSE;
         }
+    }
+    
+    function generate_paytm_upcountry_distance($sub_vendor_id, $upcountry_pincode, $booking_pincode){
+        $where = array("sub_service_center_details.id" => $sub_vendor_id);
+        $data = $this->get_municipal_limit($where, "municipal_limit, sub_service_center_details.district");
+        if(!empty($data)){
+            $distance_data = $this->get_distance_between_pincodes($booking_pincode,$upcountry_pincode);
+            $upcountry_distance = ($distance_data[0]['distance'] - $data[0]["municipal_limit"]) * 2;
+            $data[0]['distance'] = $upcountry_distance;
+        }
+        
+        return $data;
+    }
+    
+    function get_municipal_limit($where, $select){
+        $this->db->distinct();
+        $this->db->select($select);
+        $this->db->from("sub_service_center_details");
+        $this->db->where($where);
+        $this->db->join("municipal_limit", "municipal_limit.district = sub_service_center_details.district");
+        $query = $this->db->get();
+        return $query->result_array();
     }
     /**
      * @desc This is used to replace city to area for snapdeal upcountry booking
@@ -800,11 +838,11 @@ class Upcountry_model extends CI_Model {
      * @param void()
      * @return string
      */
-    function delete_sub_service_center_upcountry_details($id){
-        $this->db->where('id',$id);
-        $result = $this->db->delete('sub_service_center_details');
-        return $result;
-    }
+//    function delete_sub_service_center_upcountry_details($id){
+//        $this->db->where('id',$id);
+//        $result = $this->db->delete('sub_service_center_details');
+//        return $result;
+//    }
     
     /**
      * @desc This method is used to update the distance for given pincode

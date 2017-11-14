@@ -213,7 +213,7 @@ class Upcountry extends CI_Controller {
                             $cc = NITS_ANUJ_EMAIL_ID;
                         }
 
-                        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
 
                         $status = FALSE;
                     } else if ($data['partner_upcountry_approval'] == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
@@ -227,7 +227,7 @@ class Upcountry extends CI_Controller {
                         $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
                                 . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'].
                                 " Upcountry Pincode ". $data['upcountry_pincode']. " SF Name ". $query1[0]['vendor_name'];
-                        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
 
                         $status = FALSE;
                     }

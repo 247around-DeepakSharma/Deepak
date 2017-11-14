@@ -504,5 +504,10 @@ define("NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON", -3);
 
 define("AUTO_ACK_ADMIN_REMARKS", "Auto Acknowledge");
 
+//missing_pincode_email
+define("MISSING_PINCODE_EMAIL_TO",NITS_ANUJ_EMAIL_ID);
+
+define("COMMISION_CHARGE_HSN_CODE", "96617");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

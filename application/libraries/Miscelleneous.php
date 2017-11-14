@@ -13,7 +13,7 @@ class Miscelleneous {
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('s3');
 	$this->My_CI->load->model('vendor_model');
-                    $this->My_CI->load->model('reusable_model');
+        $this->My_CI->load->model('reusable_model');
 	$this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
         $this->My_CI->load->model('partner_model');
@@ -282,7 +282,7 @@ class Miscelleneous {
                             $cc = NITS_ANUJ_EMAIL_ID;
                         }
 
-                        $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
+                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
 
                         $return_status = FALSE;
                     } else if ($data['partner_upcountry_approval'] == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
@@ -296,7 +296,7 @@ class Miscelleneous {
                         $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
                                 . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'] .
                                 " Upcountry Pincode " . $data['upcountry_pincode'] . " SF Name " . $query1[0]['vendor_name'];
-                        $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
+                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
 
                         $return_status = FALSE;
                     }
@@ -336,7 +336,7 @@ class Miscelleneous {
                 $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com";
                 $cc = "sachinj@247around.com, abhaya@247around.com";
                 $message1 = "Upcountry did not calculate for " . $booking_id;
-                $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Failed', $message1, "");
+                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "");
 
                 $return_status = TRUE;
                 break;
@@ -581,7 +581,7 @@ class Miscelleneous {
                                 $to = NITS_ANUJ_EMAIL_ID;
                                 $message = $booking['booking_id']. " BOOKING CITY ". $booking['city']. " SF ID "
                                         .$data['vendor_id']. " DISTRICT PINCODE ".$data['upcountry_pincode'];
-                                $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+                                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
                                 
                                 return false;
                             }
@@ -596,7 +596,7 @@ class Miscelleneous {
                                 $to = NITS_ANUJ_EMAIL_ID;
                                 $message = $booking['booking_id']. " BOOKING CITY ". $booking['city']. " SF ID "
                                         .$data['vendor_id']. " DISTRICT PINCODE ".$data['upcountry_pincode'];
-                                $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+                                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
                             }
                             return false;
                         }
@@ -736,7 +736,7 @@ class Miscelleneous {
 
             $subject = "Stag01 Server Might Be Down";
             $msg = "There are some issue while creating pdf for booking_id/invoice_id $id from stag01 server. Check the issue and fix it immediately";
-            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $msg, $output_file_excel);
+            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $msg, $output_file_excel);
             return $result;
         }
         
@@ -1117,7 +1117,7 @@ class Miscelleneous {
             $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
             $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode'];
             $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
-            $this->My_CI->notify->sendEmail("booking@247around.com", $rm_email, $cc, "", $subject, $message, "");
+            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "");
     }
 /*
  * This Functiotn is used to map rm to pincode, for which SF not found
@@ -1220,7 +1220,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $cc = "anuj@247around.com";
             $to = "chhavid@247around.com";
             $subject = "Get SF for following combinations";
-            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $pincodeStrring, "");
+            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $pincodeStrring, "");
           }
           /*
            * This Function convert excel data into array, 1st row of excel data will be keys of returning array
@@ -1538,5 +1538,18 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 }
             }
         }
+    }
+    /**
+     * @desc Return Account Manager ID
+     * @param int $partner_id
+     * @return Array
+     */
+    function get_am_data($partner_id) {
+        $data = [];
+        $am_id = $this->My_CI->partner_model->getpartner_details('account_manager_id', array('partners.id' => trim($partner_id)));
+        if (!empty($am_id)) {
+            $data = $this->My_CI->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
+        }
+        return $data;
     }
 }

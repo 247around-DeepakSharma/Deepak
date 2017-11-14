@@ -258,6 +258,29 @@ class ApiDataRequest extends CI_Controller {
                  //Insert State Change
                 $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $partner_id);
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                
+                $template = $this->booking_model->get_booking_email_template("oow_estimate_given");
+                if (!empty($template)) {
+                    $to = "";
+                    $am_data = $this->miscelleneous->get_am_data($partner_id);
+                    if(!empty($am_data)){
+                        $to = $am_data[0]['official_email'];
+            
+                    }
+                    $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+                    if(!empty($rm_details)){
+                        $to = (!empty($to))? $to.", ".$rm_details[0]['official_email']: $rm_details[0]['official_email'];
+                    }
+
+                    if (!empty($to)) {
+                        $to = $am_data[0]['official_email'];
+                        $subject = vsprintf($template[4], $booking_id);
+                        $emailBody = vsprintf($template[0], $estimate_cost);
+
+                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
+                    }
+                }
+
                 echo "Success";
             } else {
                 echo "Error";

@@ -102,7 +102,7 @@ class accounting_model extends CI_Model {
             $where .= " AND vpi.`from_date`>='$from_date'  AND vpi.`to_date` <'$to_date'";
         }
 
-        $sql = "SELECT invoice_id, vendor_partner, IFNULL(sc.company_name,partners.company_name ) as company_name, "
+        $sql = "SELECT invoice_id, vendor_partner, IFNULL(sc.name,partners.company_name ) as company_name, "
                 . " IFNULL(sc.state,partners.state ) as state, "
                 . " IFNULL(sc.gst_no,partners.gst_number ) as gst_number, "
                 . " invoice_date, from_date,"

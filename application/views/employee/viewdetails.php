@@ -1,4 +1,4 @@
- <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
+ <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
     #invoiceDetailsModal .modal-lg {
@@ -199,6 +199,7 @@
                                     </div>
                                    
                                 </td>
+                              </tr>
 
                         </table>
                     </div>
@@ -246,6 +247,7 @@
                                  <th>Vendor Foc Invoice ID</th>
                                  <th>Partner Invoice ID</th>
                                  <?php } ?>
+                                 <th>SF Earning</th>
 
                             </tr>
                             <tbody>
@@ -304,13 +306,30 @@
                                                 }   ?></td>
 
                                     <?php }?>
+                                    <?php $sf_upcountry_charges = 0; if($booking_history[0]['is_upcountry'] == 1){ 
+                                        if($key == 0){
+                                            if($booking_history[0]['upcountry_paid_by_customer'] == 0){
+                                                $sf_upcountry_charges =  $booking_history[0]['upcountry_distance'] * $booking_history[0]['sf_upcountry_rate'];
+                                            } else {
+                                                $sf_upcountry_charges = -($booking_history[0]['customer_paid_upcountry_charges'] * basic_percentage);
+
+                                            }
+                                        }
+                                    }?>
                                     <td><?php print_r($unit_detail['booking_status']); ?></td>
                                     <?php if($booking_history[0]['current_status'] === 'Completed'){ ?>
                                     <td><a class="get_cash_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['vendor_cash_invoice_id']; ?>"><?php print_r($unit_detail['vendor_cash_invoice_id']); ?></a></td>
                                     <td><a class="get_foc_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['vendor_foc_invoice_id']; ?>"><?php print_r($unit_detail['vendor_foc_invoice_id']); ?></a></td>
                                     <td><a class="get_partner_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['partner_invoice_id']; ?>"><?php print_r($unit_detail['partner_invoice_id']); ?></a></td>
-                                    <?php } ?>
-                                </tr>
+                                    <td>
+                                        <?php echo round($unit_detail['vendor_to_around'] + $unit_detail['around_to_vendor'] + $sf_upcountry_charges, 2);?>
+                                    </td>
+                                    <?php } else { ?>
+                                    <td>
+                                        <?php echo round($unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'],2);?>
+                                    </td>
+                                   <?php } ?>
+                                    
                                 <?php } ?>
                             </tbody>
                         </table>
@@ -601,16 +620,5 @@
                 console.log("Contact Developers For This Issue");
             }
     }
-    document.onreadystatechange = function(){
-    if (document.readyState === "complete") {
-      GetRoute();
-    }
-    else {
-       window.onload = function () {
-          GetRoute();
-       };
-    };
-}
-   
    
 </script>
