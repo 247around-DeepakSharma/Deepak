@@ -1253,26 +1253,29 @@ class Inventory extends CI_Controller {
         $this->form_validation->set_rules('transport_charge', 'Transport Charge', 'trim');
         $this->form_validation->set_rules('courier_charge', 'Courier_charge Charge', 'trim');
         $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
+        $this->form_validation->set_rules('around_part_commission', 'around_part_commission', 'trim|required');
         $this->form_validation->set_rules('part_charges', 'Part Charge', 'callback_check_validation_update_parts_details');
         if ($this->form_validation->run()) {
             $data = $this->input->post();
-            $t_c_charge_tax = $this->booking_model->get_calculated_tax_charge($data['transport_charge'] + $data['courier_charge'], DEFAULT_TAX_RATE);
+            
             $u_data = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id']), TRUE, "id");
             if (!empty($u_data)) {
                 $u['customer_total'] = $u['partner_net_payable'] = $data['part_charges'] +
-                        $data['service_charge'] + $data['transport_charge'] + $data['courier_charge'] - $t_c_charge_tax;
+                        $data['service_charge'] + $data['transport_charge'] + $data['courier_charge'];
 
-                echo $sf_sc = ($data['service_charge'] * basic_percentage * (1 + SERVICE_TAX_RATE));
+                $sf_sc = ($data['service_charge'] * basic_percentage * (1 + SERVICE_TAX_RATE));
                 
                 $sf_parts = 0;
-                //same_diff_vendor 1 means same vendor arrange part
+                //same_diff_vendor 1 means different vendor arrange part
                 if ($data['same_diff_vendor'] == 1) {
-                    $sf_parts = $data['part_charges'] * PART_DELIVERY_PERCENTAGE * (1 + SERVICE_TAX_RATE);
-                } else if ($data['same_diff_vendor'] == 2) { //same_diff_vendor 2 means different vendor arrange part
-                    $sf_parts = $data['part_charges'] * parts_percentage * (1 + SERVICE_TAX_RATE);
+                   
+                    $sf_parts = ($data['part_charges'] - $data['around_part_commission'])* PART_DELIVERY_PERCENTAGE * (1 + SERVICE_TAX_RATE);
+                } else if ($data['same_diff_vendor'] == 2) { //same_diff_vendor 1 means Same vendor arrange part
+                    
+                    $sf_parts = ($data['part_charges'] - $data['around_part_commission']) * parts_percentage * (1 + SERVICE_TAX_RATE);
                 }
 
-                $sf_per = (($sf_sc + $sf_parts + $data['transport_charge'] + $data['courier_charge']) / ($u['customer_total'] * (1 + SERVICE_TAX_RATE))) * 100;
+                $sf_per = (($sf_sc + $sf_parts ) / ($u['customer_total'] * (1 + SERVICE_TAX_RATE))) * 100;
 
                 $u['customer_paid_basic_charges'] = $u['around_paid_basic_charges'] = $u["customer_paid_parts"] = $u["customer_paid_extra_charges"] = 0;
                 $u['customer_net_payable'] = 0;
