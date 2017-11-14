@@ -67,7 +67,7 @@ class invoices_model extends CI_Model {
         
         if($join && !empty($return_data)){
             if($return_data[0]['vendor_partner'] === 'vendor'){
-                $details = $this->vendor_model->getVendorDetails("company_name as vendor_partner_name",array('id'=> $return_data[0]['vendor_partner_id']));
+                $details = $this->vendor_model->getVendorDetails("service_centres.company_name as vendor_partner_name",array('service_centres.id'=> $return_data[0]['vendor_partner_id']));
             }
             else if($return_data[0]['vendor_partner'] === 'partner'){
                 $details = $this->partner_model->getpartner_details("public_name as vendor_partner_name",array('partners.id'=> $return_data[0]['vendor_partner_id']));
@@ -182,10 +182,9 @@ class invoices_model extends CI_Model {
      */
     function getsummary_of_invoice($vendor_partner, $where, $due_date_flag = false) {
         $array = array();
-
         if ($vendor_partner == "vendor") {
-            $select = "service_centres.name, service_centres.id, on_off, active, is_verified, pan_no, service_tax_no, tin_no, cst_no, contract_file, gst_no";
-            $data = $this->vendor_model->getVendorDetails($select, $where);
+            $select = "service_centres.name, service_centres.id, service_centres.on_off, service_centres.active, account_holders_bank_details.is_verified, service_centres.pan_no, service_centres.service_tax_no, service_centres.tin_no, service_centres.cst_no, service_centres.contract_file, service_centres.gst_no";
+            $data = $this->vendor_model->get_vendor_with_bank_details($select, $where);
             $due_date_status = "";
             if($due_date_flag){
                 $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
@@ -906,8 +905,7 @@ class invoices_model extends CI_Model {
                 round((vendor_basic_charges * COUNT( ud.`appliance_capacity` )),2) AS  taxable_value,
                 sc.state, sc.company_name,sc.address as company_address, sc_code,
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
-                sc.pan_no, contract_file, company_type, signature_file, beneficiary_name,bank_account,
-                bank_name,ifsc_code, owner_phone_1, sc.district, sc.pincode
+                sc.pan_no, contract_file, company_type, signature_file, sc.owner_phone_1, sc.district, sc.pincode
 
                 FROM  `booking_unit_details` AS ud 
                 JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
@@ -1005,7 +1003,7 @@ class invoices_model extends CI_Model {
         if (!empty($data['booking'])) {
             
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
-                    $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
+             $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_sc_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
             
@@ -1075,10 +1073,17 @@ class invoices_model extends CI_Model {
             $meta['sc_code'] = $data['booking'][0]['sc_code'];
             $meta['owner_email'] =  $data['booking'][0]['owner_email'];
             $meta['primary_contact_email'] =  $data['booking'][0]['primary_contact_email'];
-            $meta['beneficiary_name'] = $data['booking'][0]['beneficiary_name'];
-            $meta['bank_account'] = $data['booking'][0]['bank_account'];
-            $meta['bank_name'] = $data['booking'][0]['bank_name'];
-            $meta['ifsc_code'] = $data['booking'][0]['ifsc_code'];
+            $bankDetails = $this->reusable_model->get_search_result_data("account_holders_bank_details","*",array('entity_id'=>$vendor_id,'entity_type'=>"SF"),NULL,NULL,NULL,NULL,NULL);
+            if(empty($bankDetails[0])){
+           $bankDetails[0]['beneficiary_name'] = '';
+           $bankDetails[0]['bank_account'] = '';
+           $bankDetails[0]['bank_name'] = '';
+           $bankDetails[0]['ifsc_code'] = '';
+            }
+            $meta['beneficiary_name'] = $bankDetails[0]['beneficiary_name'];
+            $meta['bank_account'] = $bankDetails[0]['bank_account'];
+            $meta['bank_name'] = $bankDetails[0]['bank_name'];
+            $meta['ifsc_code'] = $bankDetails[0]['ifsc_code'];
             $meta['owner_phone_1'] = $data['booking'][0]['owner_phone_1'];
 //            if(!empty($data['booking'][0]['signature_file'])){
 //                $path1  = TMP_FOLDER.$data['booking'][0]['signature_file'];

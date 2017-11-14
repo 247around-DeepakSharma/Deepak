@@ -14,3 +14,4 @@ application/config/database.php
 application/config/email.php
 application/config/config.php
 index.php
+/application/nbproject/private/

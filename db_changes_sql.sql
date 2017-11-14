@@ -3371,6 +3371,27 @@ ALTER TABLE `query_report`
 ALTER TABLE `query_report`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
+ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;
+CREATE TABLE `account_holders_bank_details` (
+  `id` int(11) NOT NULL,
+  `entity_id` varchar(20) NOT NULL,
+  `entity_type` varchar(20) NOT NULL,
+  `bank_name` varchar(50) DEFAULT NULL,
+  `account_type` varchar(20) DEFAULT NULL,
+  `bank_account` varchar(50) DEFAULT NULL,
+  `ifsc_code` varchar(20) DEFAULT NULL,
+  `cancelled_cheque_file` text,
+  `beneficiary_name` varchar(50) DEFAULT NULL,
+  `is_verified` int(10) NOT NULL DEFAULT '0',
+  `agent_id` int(10) DEFAULT NULL,
+  `is_active` int(11) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `account_holders_bank_details`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `account_holders_bank_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
+
+
 ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;--Abhay 8 NOV
 
 -- 08 Nov Sachin 

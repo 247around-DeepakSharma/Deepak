@@ -693,14 +693,20 @@ class Around_scheduler extends CI_Controller {
 
     function send_mail_for_bank_details_notification() {
         log_message('info', __METHOD__ . '=> Entering...');
-
-        $select = "id,name,CONCAT(primary_contact_email,',',owner_email) as email";
-        $where = array("(bank_name IS Null OR bank_name = ''
-                         OR bank_account IS Null OR bank_account = '' 
-                         OR ifsc_code IS Null OR ifsc_code = ''
-                         OR cancelled_cheque_file IS Null OR cancelled_cheque_file = ''  )" => null, 'active' => 1);
-        $data = $this->vendor_model->getVendorDetails($select, $where);
-        if (!empty($data)) {
+        $where = array("(account_holders_bank_details.bank_name IS NULL   
+                         OR account_holders_bank_details.bank_account IS NULL 
+                         OR account_holders_bank_details.ifsc_code IS NULL
+                         OR account_holders_bank_details.cancelled_cheque_file IS NULL 
+                         OR account_holders_bank_details.beneficiary_name IS NULL 
+                         OR account_holders_bank_details.account_type IS NULL 
+                         OR (account_holders_bank_details.entity_id IS NULL))" => NULL, 'service_centres.active' => 1,'account_holders_bank_details.entity_type'=>'SF');
+        $join = array("service_centres"=>"account_holders_bank_details.entity_id=service_centres.id");
+        $JoinTypeTableArray = array("service_centres"=>'right');
+         $data_1 = $this->reusable_model->get_search_result_data("account_holders_bank_details","service_centres.id,service_centres.name,CONCAT(service_centres.primary_contact_email,',',service_centres.owner_email) as email",$where,$join,NULL,NULL,NULL,$JoinTypeTableArray);
+         $sql = "SELECT service_centres.id,service_centres.name,CONCAT(service_centres.primary_contact_email,',',service_centres.owner_email) as email FROM service_centres WHERE service_centres.id NOT IN (SELECT account_holders_bank_details.entity_id FROM account_holders_bank_details WHERE account_holders_bank_details.entity_type='SF') AND service_centres.active=1";
+        $data_2 = $this->reusable_model->execute_custom_select_query($sql);
+        $data = array_merge($data_1,$data_2);
+         if (!empty($data)) {
             foreach ($data as $val) {
                 $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id'])[0]['official_email'];
 
@@ -718,14 +724,16 @@ class Around_scheduler extends CI_Controller {
 
     function send_mail_for_bank_details_not_verified_notification() {
         log_message('info', __METHOD__ . '=> Entering...');
-
-        $select = "id,name";
-        $where = array("(bank_name IS NOT NULL AND bank_name <> ''
-                         AND bank_account IS NOT NULL AND bank_account <> '' 
-                         AND ifsc_code IS NOT NULL AND ifsc_code <> ''
-                         AND cancelled_cheque_file IS NOT NULL AND cancelled_cheque_file <> ''  
-                         AND is_verified = 0 )" => null, 'active' => 1);
-        $data = $this->vendor_model->getVendorDetails($select, $where);
+        $select = "service_centres.id,service_centres.name";
+        $where = array("(account_holders_bank_details.bank_name IS NOT NULL
+                         AND account_holders_bank_details.bank_account IS NOT NULL 
+                         AND account_holders_bank_details.ifsc_code IS NOT NULL
+                          AND account_holders_bank_details.account_type IS NOT NULL
+                         AND account_holders_bank_details.cancelled_cheque_file IS NOT NULL
+                         AND account_holders_bank_details.is_verified = 0 )" => null, 'service_centres.active' => 1,'account_holders_bank_details.entity_type' => 'SF');
+        $join = array("service_centres"=>"account_holders_bank_details.entity_id=service_centres.id");
+        $orderBYArray = array('service_centres.name'=>'ASC');
+        $data = $this->reusable_model->get_search_result_data("account_holders_bank_details",$select,$where,$join,NULL,$orderBYArray,NULL,NULL);
         if (!empty($data)) {
 
             $table_template = array(

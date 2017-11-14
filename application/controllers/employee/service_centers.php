@@ -1176,7 +1176,7 @@ class Service_centers extends CI_Controller {
         $id = $this->session->userdata('service_center_id');
         if(!empty($id)){
             
-            $query = $this->vendor_model->editvendor($id);
+            $query = $this->vendor_model->viewvendor($id);
 
             $results['services'] = $this->vendor_model->selectservice();
             $results['brands'] = $this->vendor_model->selectbrand();
