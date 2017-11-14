@@ -349,4 +349,9 @@ class dashboard_model extends CI_Model {
             }
             return $this->db->get('sf_not_exist_booking_details sf')->result_array();
     }
+    
+     function update_query_report($where, $data){
+         $this->db->where($where);
+         $this->db->update("query_report", $data);
+     }
 }
