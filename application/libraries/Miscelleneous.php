@@ -1490,6 +1490,55 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         
         return $new_appliance_details;
     }
+    /*
+     * This Function is used to perform update or insert  action on the basis of input type over bank details table 
+     */
+    function update_insert_bank_account_details($bankDetailsArray,$actionType){
+        $affectedRows = 0;
+        // Remove all columns which has blank values
+        foreach($bankDetailsArray as $key=>$value){
+            if($value == '' || $value == '0'){
+               unset($bankDetailsArray[$key]);
+            }
+        }
+        
+            if($actionType == 'insert'){
+                // If all values are not blank, atleast one column has value then create entry in bank details table
+                if(array_key_exists('bank_name', $bankDetailsArray) ||  array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray)
+                || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)){
+                           return  $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details',$bankDetailsArray); 
+                }
+             }
+        else if($actionType == 'update'){
+            $where['entity_id'] = $bankDetailsArray['entity_id'];
+            $where['entity_type'] = $bankDetailsArray['entity_type'];
+            //Checkk is there any entry in bank table for associated entityID and entityType
+            $is_exist  = $this->My_CI->reusable_model->get_search_result_count("account_holders_bank_details","entity_id",$where,NULL,NULL,NULL,NULL,NULL);
+            if($is_exist > 0){
+                //If yes then update that row
+                $agentID = $bankDetailsArray['agent_id'];
+                unset($bankDetailsArray['entity_id']);
+                unset($bankDetailsArray['agent_id']);
+                // check is there any new updation for bank table or not
+                $affectedRows = $this->My_CI->reusable_model->update_table('account_holders_bank_details',$bankDetailsArray,$where);
+                if($affectedRows == 1){
+                    //if yes then update table
+                    return  $this->My_CI->reusable_model->update_table('account_holders_bank_details',array('is_verified'=>0,'agent_id'=>$agentID),$where);
+                }
+                else{
+                    //if not then don't update the table
+                    return $affectedRows;
+                }
+            }
+            else{
+                // Else Insert new entry
+                 if(array_key_exists('bank_name', $bankDetailsArray) ||  array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray)
+                || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)){
+                            return $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details',$bankDetailsArray); 
+                }
+            }
+        }
+    }
     /**
      * @desc Return Account Manager ID
      * @param int $partner_id

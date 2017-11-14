@@ -239,9 +239,9 @@ class Collection_partner extends CI_Controller {
     }
     
     function get_active_cp_sf(){
-        $where = array('active' => '1', 'is_cp' => '1');
-        $select = "service_centres.name, service_centres.id,on_off,active, is_verified, is_cp ";
-        $data = $this->vendor_model->getVendorDetails($select, $where);
+        $where = array('service_centres.active' => '1', 'service_centres.is_cp' => '1');
+        $select = "service_centres.name, service_centres.id,service_centres.on_off,service_centres.active, account_holders_bank_details.is_verified, service_centres.is_cp ";
+        $data = $this->vendor_model->get_vendor_with_bank_details($select, $where);
         echo json_encode($data);
     }
     
