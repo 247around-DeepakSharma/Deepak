@@ -3367,3 +3367,41 @@ ALTER TABLE `query_report`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;
+
+-- Table structure for table `account_holders_bank_details`
+--
+
+CREATE TABLE `account_holders_bank_details` (
+  `id` int(11) NOT NULL,
+  `entity_id` varchar(20) NOT NULL,
+  `entity_type` varchar(20) NOT NULL,
+  `bank_name` varchar(50) DEFAULT NULL,
+  `account_type` varchar(20) DEFAULT NULL,
+  `bank_account` varchar(50) DEFAULT NULL,
+  `ifsc_code` varchar(20) DEFAULT NULL,
+  `cancelled_cheque_file` text,
+  `beneficiary_name` varchar(50) DEFAULT NULL,
+  `is_verified` int(10) NOT NULL DEFAULT '0',
+  `agent_id` int(10) DEFAULT NULL,
+  `is_active` int(11) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `account_holders_bank_details`
+--
+ALTER TABLE `account_holders_bank_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `account_holders_bank_details`
+--
+ALTER TABLE `account_holders_bank_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;

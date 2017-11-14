@@ -25,7 +25,7 @@ class vendor extends CI_Controller {
         $this->load->model('upcountry_model');
         $this->load->model('vendor_model');
         $this->load->model('service_centre_charges_model');
-        $this->load->helper(array('form', 'url'));
+        $this->load->helper(array('form', 'url','array'));
         $this->load->library('form_validation');
         $this->load->model('partner_model');
         $this->load->model('penalty_model');
@@ -372,7 +372,19 @@ class vendor extends CI_Controller {
                 //if vendor exists, details are edited
                 $vendor_data = $this->get_vendor_form_data();
                 $vendor_data['agent_id'] = $agentID;
+                // Seprate Bank data from vendor data
+                $bankDetailsArray = elements(array('bank_name', 'account_type', 'bank_account','ifsc_code','cancelled_cheque_file','beneficiary_name','is_verified'), $vendor_data);
+                foreach($bankDetailsArray as $key=>$value){
+                    if(array_key_exists($key, $vendor_data)){
+                        unset($vendor_data[$key]);
+                    }
+                }
+                $bankDetailsArray['entity_id'] = $this->input->post('id');
+                $bankDetailsArray['agent_id'] = $agentID;
+                $bankDetailsArray['entity_type'] = "SF";
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray,'update');
+               
       
                 //Log Message
                 log_message('info', __FUNCTION__.' SF has been updated :'.print_r($vendor_data,TRUE));
@@ -413,8 +425,19 @@ class vendor extends CI_Controller {
                 $vendor_data['agent_id'] = $agentID;
 
                 //if vendor do not exists, vendor is added
-                $sc_id = $this->vendor_model->add_vendor($vendor_data);
-                
+                // Seprate Bank data from vendor data
+                $bankDetailsArray = elements(array('bank_name', 'account_type', 'bank_account','ifsc_code','cancelled_cheque_file','beneficiary_name','is_verified'), $vendor_data);
+                foreach($bankDetailsArray as $key=>$value){
+                    if(array_key_exists($key, $vendor_data)){
+                        unset($vendor_data[$key]);
+                    }
+                }
+              $sc_id = $this->vendor_model->add_vendor($vendor_data);
+               // Update Bank Details
+                $bankDetailsArray['entity_id'] = $sc_id;
+                $bankDetailsArray['entity_type'] = 'SF';
+                $bankDetailsArray['agent_id'] = $agentID;
+                $this->miscelleneous->update_insert_bank_account_details($bankDetailsArray,'insert');
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
                 $log = array(
@@ -681,7 +704,9 @@ class vendor extends CI_Controller {
         //Getting Logged Employee Full Name
         $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
         
-        $updated_vendor_details = $this->vendor_model->getVendorContact($sf_id);
+        $updated_vendor_details = $this->vendor_model->get_vendor_with_bank_details("service_centres.*,account_holders_bank_details.bank_name,"
+                . "account_holders_bank_details.account_type,account_holders_bank_details.bank_account,account_holders_bank_details.ifsc_code,account_holders_bank_details.cancelled_cheque_file,"
+                . "account_holders_bank_details.beneficiary_name,account_holders_bank_details.is_verified",array("service_centres.id"=>$sf_id));
 
         //Sending Mail for Updated details
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
@@ -957,7 +982,7 @@ class vendor extends CI_Controller {
     function editvendor($id) {
         $this->checkUserSession();
         log_message('info',__FUNCTION__.' id: '.$id);
-        $query = $this->vendor_model->editvendor($id);
+        $query = $this->vendor_model->viewvendor($id);
         if(!empty($query)){
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
