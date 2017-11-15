@@ -529,13 +529,12 @@ EOD;
 
                 log_message('info', __FUNCTION__ . ' => Rendered CSV');
 
-                //$this->email->clear(TRUE);
-                //$this->email->from(NOREPLY_EMAIL_ID, '247around Team');
-                //$this->email->to($p['summary_email_to']);
-                //$this->email->cc($p['summary_email_cc']);
-                //$this->email->bcc($p['summary_email_bcc']);
+//                $this->email->clear(TRUE);
+//                $this->email->from('booking@247around.com', '247around Team');
+//                $this->email->to($p['summary_email_to']);
+//                $this->email->cc($p['summary_email_cc']);
+//                $this->email->bcc($p['summary_email_bcc']);
 
-                //$this->email->subject("247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y'));
                 $subject = "247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y');
                 //$summary_table = $this->get_partner_summary_table($p['id']);
                 //log_message('info', __FUNCTION__ . ' => Prepared summary report');
