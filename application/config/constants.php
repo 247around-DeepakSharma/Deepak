@@ -500,6 +500,10 @@ define("_247AROUND_AC_SERVICE_ID",'50');
 define("_247AROUND_REFRIGERATOR_SERVICE_ID",'37');
 //geyser service id
 define("_247AROUND_GEYSER_SERVICE_ID",'32');
+//audio system service id
+define("_247AROUND_AUDIO_SYSTEM_SERVICE_ID",'45');
+//Chimney service id
+define("_247AROUND_CHIMNEY_SERVICE_ID",'44');
 // We will display Not received button after 3 days of Delivery date
 define("NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON", -3);
 
