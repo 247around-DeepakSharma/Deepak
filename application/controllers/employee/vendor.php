@@ -14,8 +14,10 @@ use Box\Spout\Common\Type;
 require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php';
 
 class vendor extends CI_Controller {
-   var  $vendorPinArray = array();
-   var  $filePath = "";
+
+    var $vendorPinArray = array();
+    var $filePath = "";
+
     function __Construct() {
         parent::__Construct();
         $this->load->model('employee_model');
@@ -42,8 +44,6 @@ class vendor extends CI_Controller {
         $this->load->library('user_agent');
         $this->load->dbutil();
         $this->load->helper('file');
-        
-
     }
 
     /**
@@ -65,9 +65,9 @@ class vendor extends CI_Controller {
         $rm = $this->input->post('rm');
         //Now unset value of rm from POST data
         unset($_POST['rm']);
-        
+
         $data = $this->input->post();
-        if(!empty($data['id'])){
+        if (!empty($data['id'])) {
             $vendor = $this->vendor_model->getVendorContact($data['id']);
         }
         $checkValidation = $this->checkValidation();
@@ -84,16 +84,16 @@ class vendor extends CI_Controller {
                     //Making process for file upload
                     $tmpFile = $_FILES['pan_file']['tmp_name'];
                     $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_panfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['pan_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
 
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/" . $pan_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER . $pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['pan_file'] = $pan_file;
-                    
-                    $attachment_pan = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$pan_file;
-                    
+
+                    $attachment_pan = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $pan_file;
+
                     //Logging success for file uppload
                     //log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
                 } else {
@@ -109,18 +109,22 @@ class vendor extends CI_Controller {
             }
             if (($_FILES['gst_file']['error'] != 4) && !empty($_FILES['gst_file']['tmp_name'])) {
                 $attachment_gst = $this->upload_gst_file($data);
-                if($attachment_gst){} else {
+                if ($attachment_gst) {
+                    
+                } else {
                     return FALSE;
                 }
             }
-            
+
             if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
                 $attachment_signature = $this->upload_signature_file($data);
-                if($attachment_signature){} else {
+                if ($attachment_signature) {
+                    
+                } else {
                     return FALSE;
                 }
             }
-           
+
             //Start Processing CST File Upload
             if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
                 //Adding file validation
@@ -133,18 +137,18 @@ class vendor extends CI_Controller {
                     //Making process for file upload
                     $tmpFile = $_FILES['cst_file']['tmp_name'];
                     $cst_file = implode("", explode(" ", $this->input->post('name'))) . '_cstfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['cst_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$cst_file);
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
 
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/" . $cst_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER . $cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['cst_file'] = $cst_file;
-                    
-                    $attachment_cst = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cst_file;
-                    
+
+                    $attachment_cst = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $cst_file;
+
                     //Logging success for file uppload
-                    log_message('info',__CLASS__.' CST FILE is being uploaded sucessfully.');
+                    log_message('info', __CLASS__ . ' CST FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
                     $data = $this->input->post();
@@ -159,7 +163,7 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-            
+
             //Start Processing TIN File Upload
             if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
                 //Adding file validation
@@ -171,18 +175,18 @@ class vendor extends CI_Controller {
                     }
                     $tmpFile = $_FILES['tin_file']['tmp_name'];
                     $tin_file = implode("", explode(" ", $this->input->post('name'))) . '_tinfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['tin_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$tin_file);
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
 
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/" . $tin_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER . $tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['tin_file'] = $tin_file;
-                    
-                    $attachment_tin = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$tin_file;
-                    
+
+                    $attachment_tin = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $tin_file;
+
                     //Logging success for file uppload
-                    log_message('info',__CLASS__.' TIN FILE is being uploaded sucessfully.');
+                    log_message('info', __CLASS__ . ' TIN FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
                     $data = $this->input->post();
@@ -206,18 +210,18 @@ class vendor extends CI_Controller {
                     }
                     $tmpFile = $_FILES['service_tax_file']['tmp_name'];
                     $service_tax_file = implode("", explode(" ", $this->input->post('name'))) . '_servicetaxfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$service_tax_file);
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
 
                     //Upload files to AWS
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/" . $service_tax_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER . $service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['service_tax_file'] = $service_tax_file;
-                    
-                    $attachment_service_tax = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$service_tax_file;
-                    
+
+                    $attachment_service_tax = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $service_tax_file;
+
                     //Logging success for file uppload
-                    log_message('info',__CLASS__.' Serivce Tax FILE is being uploaded sucessfully.');
+                    log_message('info', __CLASS__ . ' Serivce Tax FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
                     $data = $this->input->post();
@@ -229,98 +233,98 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-            
+
             //Processing Address Proof File Upload
-                if(($_FILES['address_proof_file']['error'] != 4) && !empty($_FILES['address_proof_file']['tmp_name'])){
-                    $tmpFile = $_FILES['address_proof_file']['tmp_name'];
-                    $address_proof_file = implode("",explode(" ",$this->input->post('name'))).'_addressprooffile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['address_proof_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$address_proof_file);
-                    
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$address_proof_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$address_proof_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['address_proof_file'] = $address_proof_file;
-                    
-                    $attachment_address_proof = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$address_proof_file;
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' ADDRESS PROOF FILE is being uploaded sucessfully.');
-                }
-                
-                //Processing Cancelled Cheque File Upload
-                if(($_FILES['cancelled_cheque_file']['error'] != 4) && !empty($_FILES['cancelled_cheque_file']['tmp_name'])){
-                    $tmpFile = $_FILES['cancelled_cheque_file']['tmp_name'];
-                    $cancelled_cheque_file = implode("",explode(" ",$this->input->post('name'))).'_cancelledchequefile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['cancelled_cheque_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$cancelled_cheque_file);
-                    
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$cancelled_cheque_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$cancelled_cheque_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['cancelled_cheque_file'] = $cancelled_cheque_file;
-                    
-                    $attachment_cancelled_cheque = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cancelled_cheque_file;
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' CANCELLED CHEQUE FILE is being uploaded sucessfully.');
-                }
-                
-                //Processing ID Proof 1 File Upload
-                if(($_FILES['id_proof_1_file']['error'] != 4) && !empty($_FILES['id_proof_1_file']['tmp_name'])){
-                    $tmpFile = $_FILES['id_proof_1_file']['tmp_name'];
-                    $id_proof_1_file = implode("",explode(" ",$this->input->post('name'))).'_idproof1file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_1_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_1_file);
-                    
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$id_proof_1_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$id_proof_1_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['id_proof_1_file'] = $id_proof_1_file;
-                    
-                    $attachment_id_proof_1 = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$id_proof_1_file;
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' ID PROOF 1 FILE is being uploaded sucessfully.');
-                }
-                
-                //Processing ID Proof 1 File Upload
-                if(($_FILES['id_proof_2_file']['error'] != 4) && !empty($_FILES['id_proof_2_file']['tmp_name'])){
-                    $tmpFile = $_FILES['id_proof_2_file']['tmp_name'];
-                    $id_proof_2_file = implode("",explode(" ",$this->input->post('name'))).'_idproof2file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_2_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_2_file);
-                    
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$id_proof_2_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$id_proof_2_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['id_proof_2_file'] = $id_proof_2_file;
-                    
-                    $attachment_id_proof_2 = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$id_proof_2_file;
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' ID PROOF 2 FILE is being uploaded sucessfully.');
-                }
-                
-                //Processing Contract File Upload
-                if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
-                    $tmpFile = $_FILES['contract_file']['tmp_name'];
-                    $contract_file = implode("",explode(" ",$this->input->post('name'))).'_contractfile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['contract_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
-                    
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/".$contract_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['contract_file'] = $contract_file;
-                    
-                    $attachment_contract = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
-                }
-                
-       
+            if (($_FILES['address_proof_file']['error'] != 4) && !empty($_FILES['address_proof_file']['tmp_name'])) {
+                $tmpFile = $_FILES['address_proof_file']['tmp_name'];
+                $address_proof_file = implode("", explode(" ", $this->input->post('name'))) . '_addressprooffile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['address_proof_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $address_proof_file);
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $address_proof_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $address_proof_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $_POST['address_proof_file'] = $address_proof_file;
+
+                $attachment_address_proof = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $address_proof_file;
+
+                //Logging success for file uppload
+                log_message('info', __CLASS__ . ' ADDRESS PROOF FILE is being uploaded sucessfully.');
+            }
+
+            //Processing Cancelled Cheque File Upload
+            if (($_FILES['cancelled_cheque_file']['error'] != 4) && !empty($_FILES['cancelled_cheque_file']['tmp_name'])) {
+                $tmpFile = $_FILES['cancelled_cheque_file']['tmp_name'];
+                $cancelled_cheque_file = implode("", explode(" ", $this->input->post('name'))) . '_cancelledchequefile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['cancelled_cheque_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $cancelled_cheque_file);
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $cancelled_cheque_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $cancelled_cheque_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $_POST['cancelled_cheque_file'] = $cancelled_cheque_file;
+
+                $attachment_cancelled_cheque = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $cancelled_cheque_file;
+
+                //Logging success for file uppload
+                log_message('info', __CLASS__ . ' CANCELLED CHEQUE FILE is being uploaded sucessfully.');
+            }
+
+            //Processing ID Proof 1 File Upload
+            if (($_FILES['id_proof_1_file']['error'] != 4) && !empty($_FILES['id_proof_1_file']['tmp_name'])) {
+                $tmpFile = $_FILES['id_proof_1_file']['tmp_name'];
+                $id_proof_1_file = implode("", explode(" ", $this->input->post('name'))) . '_idproof1file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['id_proof_1_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $id_proof_1_file);
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $id_proof_1_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $id_proof_1_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $_POST['id_proof_1_file'] = $id_proof_1_file;
+
+                $attachment_id_proof_1 = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $id_proof_1_file;
+
+                //Logging success for file uppload
+                log_message('info', __CLASS__ . ' ID PROOF 1 FILE is being uploaded sucessfully.');
+            }
+
+            //Processing ID Proof 1 File Upload
+            if (($_FILES['id_proof_2_file']['error'] != 4) && !empty($_FILES['id_proof_2_file']['tmp_name'])) {
+                $tmpFile = $_FILES['id_proof_2_file']['tmp_name'];
+                $id_proof_2_file = implode("", explode(" ", $this->input->post('name'))) . '_idproof2file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['id_proof_2_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $id_proof_2_file);
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $id_proof_2_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $id_proof_2_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $_POST['id_proof_2_file'] = $id_proof_2_file;
+
+                $attachment_id_proof_2 = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $id_proof_2_file;
+
+                //Logging success for file uppload
+                log_message('info', __CLASS__ . ' ID PROOF 2 FILE is being uploaded sucessfully.');
+            }
+
+            //Processing Contract File Upload
+            if (($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])) {
+                $tmpFile = $_FILES['contract_file']['tmp_name'];
+                $contract_file = implode("", explode(" ", $this->input->post('name'))) . '_contractfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['contract_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $contract_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $_POST['contract_file'] = $contract_file;
+
+                $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
+
+                //Logging success for file uppload
+                log_message('info', __CLASS__ . ' CONTRACT FILE is being uploaded sucessfully.');
+            }
+
+
 
             $non_working_days = $this->input->post('day');
             $appliances = $this->input->post('appliances');
@@ -337,65 +341,64 @@ class vendor extends CI_Controller {
             if (!empty($brands)) {
                 $_POST['brands'] = implode(",", $brands);
             }
-            if(!isset($_POST['is_st_doc'])){
+            if (!isset($_POST['is_st_doc'])) {
                 $_POST['is_st_doc'] = 1;
             }
-            if(!isset($_POST['is_tin_doc'])){
+            if (!isset($_POST['is_tin_doc'])) {
                 $_POST['is_tin_doc'] = 1;
             }
-            if(!isset($_POST['is_pan_doc'])){
+            if (!isset($_POST['is_pan_doc'])) {
                 $_POST['is_pan_doc'] = 1;
             }
-            if(!isset($_POST['is_cst_doc'])){
+            if (!isset($_POST['is_cst_doc'])) {
                 $_POST['is_cst_doc'] = 1;
             }
-            if(!isset($_POST['is_gst_doc'])){
+            if (!isset($_POST['is_gst_doc'])) {
                 $_POST['is_gst_doc'] = 1;
             }
-            
-            
-            if(isset($_POST['is_verified']) && !empty($_POST['is_verified'])){
-               $_POST['is_verified'] = '1';
-            }else if(!isset($_POST['is_verified']) && $this->session->userdata('user_group') == 'admin')
-            {
+
+
+            if (isset($_POST['is_verified']) && !empty($_POST['is_verified'])) {
+                $_POST['is_verified'] = '1';
+            } else if (!isset($_POST['is_verified']) && $this->session->userdata('user_group') == 'admin') {
                 $_POST['is_verified'] = '0';
             }
-         
-            
-            
+
+
+
             //Getting RM Official Email details to send Welcome Mails to them as well
             $rm_official_email = $this->employee_model->getemployeefromid($rm)[0]['official_email'];
             $agentID = $this->session->userdata('id');
-                
+
             if (!empty($this->input->post('id'))) {
-                
+
                 //if vendor exists, details are edited
                 $vendor_data = $this->get_vendor_form_data();
                 $vendor_data['agent_id'] = $agentID;
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
-      
+
                 //Log Message
-                log_message('info', __FUNCTION__.' SF has been updated :'.print_r($vendor_data,TRUE));
-                
+                log_message('info', __FUNCTION__ . ' SF has been updated :' . print_r($vendor_data, TRUE));
+
                 //Adding details in Booking State Change
-                $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
-                
-                $send_email = $this->send_update_sf_mail($_POST['id'],$rm_official_email);
+                $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : ' . $_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+
+                $send_email = $this->send_update_sf_mail($_POST['id'], $rm_official_email);
 
                 //Updating details of SF in employee_relation table
                 $check_update_sf_rm_relation = $this->vendor_model->update_rm_to_sf_relation($rm, $_POST['id']);
-                if($check_update_sf_rm_relation){
+                if ($check_update_sf_rm_relation) {
                     //Loggin Success
-                    log_message('info', __FUNCTION__.' SF to RM relation is updated successfully RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
-                }else{
+                    log_message('info', __FUNCTION__ . ' SF to RM relation is updated successfully RM = ' . print_r($rm, TRUE) . ' SF = ' . print_r($_POST['id'], TRUE));
+                } else {
                     //Loggin Error 
-                    log_message('info', __FUNCTION__.' Error in mapping SF to RM relation RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
+                    log_message('info', __FUNCTION__ . ' Error in mapping SF to RM relation RM = ' . print_r($rm, TRUE) . ' SF = ' . print_r($_POST['id'], TRUE));
                 }
                 $log = array(
                     "entity" => "vendor",
                     "entity_id" => $_POST['id'],
                     "agent_id" => $this->session->userdata('id'),
-                    "action" =>  SF_UPDATED
+                    "action" => SF_UPDATED
                 );
                 $this->vendor_model->insert_log_action_on_entity($log);
 
@@ -404,112 +407,111 @@ class vendor extends CI_Controller {
                 // get service center code by calling generate_service_center_code() method
                 $owner_email = $this->input->post('owner_email');
                 $primary_contact_email = $this->input->post('primary_contact_email');
-                $new_vendor_mail = $owner_email.','.$primary_contact_email;
+                $new_vendor_mail = $owner_email . ',' . $primary_contact_email;
                 //Making Array to add Vendor
                 $vendor_data = $this->get_vendor_form_data();
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
-                
+
                 $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
                 $vendor_data['agent_id'] = $agentID;
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
-                
+
                 //Logging
-                log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
+                log_message('info', __FUNCTION__ . ' SF has been Added :' . print_r($vendor_data, TRUE));
                 $log = array(
                     "entity" => "vendor",
                     "entity_id" => $sc_id,
                     "agent_id" => $this->session->userdata('id'),
-                    "action" =>  NEW_SF_ADDED
+                    "action" => NEW_SF_ADDED
                 );
                 $this->vendor_model->insert_log_action_on_entity($log);
                 //Adding details in Booking State Change
-                $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
-                
+                $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : ' . $sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+
                 //Sending Mail for Added details
-                $send_email = $this->send_update_sf_mail($sc_id,$rm_official_email);
+                $send_email = $this->send_update_sf_mail($sc_id, $rm_official_email);
 
                 //Adding values in admin groups present in employee_relation table
                 $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
-                if($check_admin_sf_relation != FALSE){
+                if ($check_admin_sf_relation != FALSE) {
                     //Logging success 
-                    log_message('info', __FUNCTION__.' New SF and Admin Group has been related sucessfully.');
-                }else{
+                    log_message('info', __FUNCTION__ . ' New SF and Admin Group has been related sucessfully.');
+                } else {
                     //Logging Error 
-                    log_message('info', __FUNCTION__.' Error in adding New SF and Admin Group Relation.');
+                    log_message('info', __FUNCTION__ . ' Error in adding New SF and Admin Group Relation.');
                 }
-                    
-                
+
+
                 //Updating details of SF in employee_relation table
                 $check_update_sf_rm_relation = $this->vendor_model->add_rm_to_sf_relation($rm, $sc_id);
-                if($check_update_sf_rm_relation){
+                if ($check_update_sf_rm_relation) {
                     //Loggin Success
-                    log_message('info', __FUNCTION__.' SF to RM relation is updated sucessfully RM = '.print_r($rm,TRUE).' SF = '.print_r($sc_id,TRUE));
-                }else{
+                    log_message('info', __FUNCTION__ . ' SF to RM relation is updated sucessfully RM = ' . print_r($rm, TRUE) . ' SF = ' . print_r($sc_id, TRUE));
+                } else {
                     //Loggin Error 
-                    log_message('info', __FUNCTION__.' Error in mapping SF to RM relation RM = '.print_r($rm,TRUE).' SF = '.print_r($sc_id,TRUE));
+                    log_message('info', __FUNCTION__ . ' Error in mapping SF to RM relation RM = ' . print_r($rm, TRUE) . ' SF = ' . print_r($sc_id, TRUE));
                 }
-                $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
-                $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name'],$sc_id);
-                
+                $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'], $sc_id);
+                $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name'], $sc_id);
+
                 //Sending Welcome Vendor Mail
                 //Getting template from Database
                 $template = $this->booking_model->get_booking_email_template("new_vendor_creation");
                 if (!empty($template)) {
-                    $subject = "Welcome to 247around ".$this->input->post('company_name')." (".$this->input->post('district').")";
+                    $subject = "Welcome to 247around " . $this->input->post('company_name') . " (" . $this->input->post('district') . ")";
                     $emailBody = $template[0];
-                    $this->notify->sendEmail($template[2], $new_vendor_mail, $template[3].",".$rm_official_email, '', $subject, $emailBody, "");
-                    
+                    $this->notify->sendEmail($template[2], $new_vendor_mail, $template[3] . "," . $rm_official_email, '', $subject, $emailBody, "");
+
                     //Logging
                     log_message('info', " Welcome Email Send successfully" . $emailBody);
-                }else{
+                } else {
                     //Logging Error Message
                     log_message('info', " Error in Getting Email Template for New Vendor Welcome Mail");
                 }
 
-		  //create vendor login details as well
-		   $sc_login_uname = strtolower($vendor_data['sc_code']);
-		   $login['service_center_id'] = $sc_id;
-		   $login['user_name'] = $sc_login_uname;
-		   $login['password'] = md5($sc_login_uname);
-		   $login['active'] = 1;
-                   $login['full_name'] = $this->input->post('primary_contact_name');
+                //create vendor login details as well
+                $sc_login_uname = strtolower($vendor_data['sc_code']);
+                $login['service_center_id'] = $sc_id;
+                $login['user_name'] = $sc_login_uname;
+                $login['password'] = md5($sc_login_uname);
+                $login['active'] = 1;
+                $login['full_name'] = $this->input->post('primary_contact_name');
 
-		   $this->vendor_model->add_vendor_login($login);
-                   
-                   $engineer['service_center_id'] =  $sc_id;
-                   $engineer['name'] = "Default Engineer";
-                   $this->vendor_model->insert_engineer($engineer);
-                   
+                $this->vendor_model->add_vendor_login($login);
+
+                $engineer['service_center_id'] = $sc_id;
+                $engineer['name'] = "Default Engineer";
+                $this->vendor_model->insert_engineer($engineer);
+
                 // Sending Login details mail to Vendor using Template
-                   
-                   $login_email = array();
-                   //Getting template from Database
-                   $login_template = $this->booking_model->get_booking_email_template("vendor_login_details");
-                   if(!empty($login_template)){
-                   $login_email['username'] = $sc_login_uname;
-                   $login_email['password'] = $sc_login_uname;
-                   $login_subject = "Partner ERP URL and Login - 247around";
-                   
-                   $login_emailBody = vsprintf($login_template[0], $login_email);
-                   
-                   $this->notify->sendEmail($login_template[2], $new_vendor_mail ,  $login_template[3].",".$rm_official_email, '', $login_subject , $login_emailBody, "");
-                   
-                   //Logging
-                   log_message('info', $login_subject." Email Send successfully" . $login_emailBody);
-                    
-                   }else{
-                       //Logging Error
-                       log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
-                   }
-		   redirect(base_url() . 'employee/vendor/viewvendor');
+
+                $login_email = array();
+                //Getting template from Database
+                $login_template = $this->booking_model->get_booking_email_template("vendor_login_details");
+                if (!empty($login_template)) {
+                    $login_email['username'] = $sc_login_uname;
+                    $login_email['password'] = $sc_login_uname;
+                    $login_subject = "Partner ERP URL and Login - 247around";
+
+                    $login_emailBody = vsprintf($login_template[0], $login_email);
+
+                    $this->notify->sendEmail($login_template[2], $new_vendor_mail, $login_template[3] . "," . $rm_official_email, '', $login_subject, $login_emailBody, "");
+
+                    //Logging
+                    log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
+                } else {
+                    //Logging Error
+                    log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                }
+                redirect(base_url() . 'employee/vendor/viewvendor');
             }
         } else {
             $this->add_vendor();
         }
     }
-    
+
     function upload_gst_file($data) {
         //Start  Processing PAN File Upload
         if (($_FILES['gst_file']['error'] != 4) && !empty($_FILES['gst_file']['tmp_name'])) {
@@ -554,142 +556,141 @@ class vendor extends CI_Controller {
      * @param : void
      * @return : array()
      */
-    
-    function get_vendor_form_data(){
+    function get_vendor_form_data() {
 
-                $vendor_data['company_name'] = $this->input->post('company_name');
-                $vendor_data['name'] = $this->input->post('name');
-                $vendor_data['address'] = $this->input->post('address');
-                $vendor_data['landmark'] = $this->input->post('landmark');
-                $vendor_data['district'] = $this->input->post('district');
-                $vendor_data['state'] = $this->input->post('state');
-                $vendor_data['pincode'] = $this->input->post('pincode');
-                $vendor_data['phone_1'] = $this->input->post('phone_1');
-                $vendor_data['phone_2'] = $this->input->post('phone_2');
-                $vendor_data['email'] = $this->input->post('email');
-                $vendor_data['company_type'] = $this->input->post('company_type');
-                $vendor_data['primary_contact_name'] = $this->input->post('primary_contact_name');
-                $vendor_data['primary_contact_email'] = $this->input->post('primary_contact_email');
-                $vendor_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
-                $vendor_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
-                $vendor_data['owner_name'] = $this->input->post('owner_name');
-                $vendor_data['owner_email'] = $this->input->post('owner_email');
-                $vendor_data['owner_phone_1'] = $this->input->post('owner_phone_1');
-                $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
-                
-                $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
-                $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
-                $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
-                $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
-                $vendor_data['is_gst_doc'] = $this->input->post('is_gst_doc');
-                $vendor_data['is_sf'] = $this->input->post('is_sf');
-                $vendor_data['is_cp'] = $this->input->post('is_cp');
-                $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
-                if(empty( $vendor_data['is_cp'])){
-                     $vendor_data['is_cp'] = 0;
-                }
-                
-                if(empty( $vendor_data['is_sf'])){
-                     $vendor_data['is_sf'] = 0;
-                }
-                
-                if(!empty($vendor_data['is_pan_doc']) && !empty($this->input->post('pan_no')) ){
-                   $vendor_data['pan_no'] = $this->input->post('pan_no');
-                   $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
-                }else{
-                    $vendor_data['pan_no'] = "";
-                    $vendor_data['name_on_pan']= "";
-                }
-                if(!empty($vendor_data['is_cst_doc']) && !empty($this->input->post('cst_no'))){
-                    $vendor_data['cst_no'] = $this->input->post('cst_no');
-                }else{
-                     $vendor_data['cst_no'] = "";
-                }
-                if(!empty($vendor_data['is_tin_doc']) &&  !empty($this->input->post('tin_no'))){
-                    $vendor_data['tin_no'] = $this->input->post('tin_no');
-                }else{
-                    $vendor_data['tin_no'] = "";
-                }
-                if(!empty($vendor_data['is_st_doc']) && !empty($this->input->post('service_tax_no'))){
-                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
-                }else{
-                    $vendor_data['service_tax_no'] = "";
-                }
-                if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){
-                    $vendor_data['gst_no'] = $this->input->post('gst_no');
-                }else{
-                    $vendor_data['gst_no'] = NULL;
-                }
-             
-                $vendor_data['bank_name'] = $this->input->post('bank_name');
-                $vendor_data['account_type'] = $this->input->post('account_type');
-                $vendor_data['bank_account'] = $this->input->post('bank_account');
-                $vendor_data['ifsc_code'] = $this->input->post('ifsc_code');
-                $vendor_data['beneficiary_name'] = $this->input->post('beneficiary_name');
-                $vendor_data['is_verified'] = $this->input->post('is_verified');
-                if(!empty($this->input->post('contract_file'))){
-                    $vendor_data['contract_file'] = $this->input->post('contract_file');
-                } 
-                if(!empty($this->input->post('id_proof_2_file'))){
-                    $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
-                }  
-                if(!empty($this->input->post('id_proof_1_file'))){
-                    $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
-                } 
-                if(!empty($this->input->post('cancelled_cheque_file'))){
-                     $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
-                } 
-                if(!empty($this->input->post('address_proof_file'))){
-                    $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
-                } 
-                if(!empty($this->input->post('service_tax_file'))){
-                    $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
-                } 
-                if(!empty($this->input->post('tin_file'))){
-                    $vendor_data['tin_file'] = $this->input->post('tin_file');
-                }
-                if(!empty($this->input->post('cst_file'))){
-                    $vendor_data['cst_file'] = $this->input->post('cst_file');
-                }
-                if(!empty($this->input->post('pan_file'))){
-                    $vendor_data['pan_file'] = $this->input->post('pan_file');
-                }  
-                if(!empty($this->input->post('signature_file'))){
-                    $vendor_data['signature_file'] = $this->input->post('signature_file');
-                }  
-                if(!empty($this->input->post('non_working_days'))){
-                    $vendor_data['non_working_days'] = $this->input->post('non_working_days');
-                } 
-                if(!empty($this->input->post('appliances'))){
-                    $vendor_data['appliances'] = $this->input->post('appliances');
-                }
-                if(!empty($this->input->post('brands'))){
-                    $vendor_data['brands'] = $this->input->post('brands');  
-                }   
-                if(!empty($this->input->post('gst_file'))){
-                     $vendor_data['gst_file'] = $this->input->post('gst_file');
-                }
-                   
-            
-            return $vendor_data;
+        $vendor_data['company_name'] = $this->input->post('company_name');
+        $vendor_data['name'] = $this->input->post('name');
+        $vendor_data['address'] = $this->input->post('address');
+        $vendor_data['landmark'] = $this->input->post('landmark');
+        $vendor_data['district'] = $this->input->post('district');
+        $vendor_data['state'] = $this->input->post('state');
+        $vendor_data['pincode'] = $this->input->post('pincode');
+        $vendor_data['phone_1'] = $this->input->post('phone_1');
+        $vendor_data['phone_2'] = $this->input->post('phone_2');
+        $vendor_data['email'] = $this->input->post('email');
+        $vendor_data['company_type'] = $this->input->post('company_type');
+        $vendor_data['primary_contact_name'] = $this->input->post('primary_contact_name');
+        $vendor_data['primary_contact_email'] = $this->input->post('primary_contact_email');
+        $vendor_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
+        $vendor_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
+        $vendor_data['owner_name'] = $this->input->post('owner_name');
+        $vendor_data['owner_email'] = $this->input->post('owner_email');
+        $vendor_data['owner_phone_1'] = $this->input->post('owner_phone_1');
+        $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
+
+        $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
+        $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
+        $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
+        $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
+        $vendor_data['is_gst_doc'] = $this->input->post('is_gst_doc');
+        $vendor_data['is_sf'] = $this->input->post('is_sf');
+        $vendor_data['is_cp'] = $this->input->post('is_cp');
+        $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
+        if (empty($vendor_data['is_cp'])) {
+            $vendor_data['is_cp'] = 0;
+        }
+
+        if (empty($vendor_data['is_sf'])) {
+            $vendor_data['is_sf'] = 0;
+        }
+
+        if (!empty($vendor_data['is_pan_doc']) && !empty($this->input->post('pan_no'))) {
+            $vendor_data['pan_no'] = $this->input->post('pan_no');
+            $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
+        } else {
+            $vendor_data['pan_no'] = "";
+            $vendor_data['name_on_pan'] = "";
+        }
+        if (!empty($vendor_data['is_cst_doc']) && !empty($this->input->post('cst_no'))) {
+            $vendor_data['cst_no'] = $this->input->post('cst_no');
+        } else {
+            $vendor_data['cst_no'] = "";
+        }
+        if (!empty($vendor_data['is_tin_doc']) && !empty($this->input->post('tin_no'))) {
+            $vendor_data['tin_no'] = $this->input->post('tin_no');
+        } else {
+            $vendor_data['tin_no'] = "";
+        }
+        if (!empty($vendor_data['is_st_doc']) && !empty($this->input->post('service_tax_no'))) {
+            $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
+        } else {
+            $vendor_data['service_tax_no'] = "";
+        }
+        if (!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))) {
+            $vendor_data['gst_no'] = $this->input->post('gst_no');
+        } else {
+            $vendor_data['gst_no'] = NULL;
+        }
+
+        $vendor_data['bank_name'] = $this->input->post('bank_name');
+        $vendor_data['account_type'] = $this->input->post('account_type');
+        $vendor_data['bank_account'] = $this->input->post('bank_account');
+        $vendor_data['ifsc_code'] = $this->input->post('ifsc_code');
+        $vendor_data['beneficiary_name'] = $this->input->post('beneficiary_name');
+        $vendor_data['is_verified'] = $this->input->post('is_verified');
+        if (!empty($this->input->post('contract_file'))) {
+            $vendor_data['contract_file'] = $this->input->post('contract_file');
+        }
+        if (!empty($this->input->post('id_proof_2_file'))) {
+            $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
+        }
+        if (!empty($this->input->post('id_proof_1_file'))) {
+            $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
+        }
+        if (!empty($this->input->post('cancelled_cheque_file'))) {
+            $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
+        }
+        if (!empty($this->input->post('address_proof_file'))) {
+            $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
+        }
+        if (!empty($this->input->post('service_tax_file'))) {
+            $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
+        }
+        if (!empty($this->input->post('tin_file'))) {
+            $vendor_data['tin_file'] = $this->input->post('tin_file');
+        }
+        if (!empty($this->input->post('cst_file'))) {
+            $vendor_data['cst_file'] = $this->input->post('cst_file');
+        }
+        if (!empty($this->input->post('pan_file'))) {
+            $vendor_data['pan_file'] = $this->input->post('pan_file');
+        }
+        if (!empty($this->input->post('signature_file'))) {
+            $vendor_data['signature_file'] = $this->input->post('signature_file');
+        }
+        if (!empty($this->input->post('non_working_days'))) {
+            $vendor_data['non_working_days'] = $this->input->post('non_working_days');
+        }
+        if (!empty($this->input->post('appliances'))) {
+            $vendor_data['appliances'] = $this->input->post('appliances');
+        }
+        if (!empty($this->input->post('brands'))) {
+            $vendor_data['brands'] = $this->input->post('brands');
+        }
+        if (!empty($this->input->post('gst_file'))) {
+            $vendor_data['gst_file'] = $this->input->post('gst_file');
+        }
+
+
+        return $vendor_data;
     }
-    
-    function send_update_sf_mail($sf_id,$rm_email) {
+
+    function send_update_sf_mail($sf_id, $rm_email) {
         $this->checkUserSession();
-        $s3_url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/";
-        
+        $s3_url = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/";
+
         //Getting Logged Employee Full Name
         $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
-        
+
         $updated_vendor_details = $this->vendor_model->getVendorContact($sf_id);
 
         //Sending Mail for Updated details
-        if($this->input->post('id') !== null && !empty($this->input->post('id'))){
+        if ($this->input->post('id') !== null && !empty($this->input->post('id'))) {
             $html = "<p>Following SF has been Updated :</p><ul>";
-        }else{
+        } else {
             $html = "<p>New Sf Added :</p><ul>";
         }
-        
+
         $html .= "<li><b>" . 'SF Name' . '</b> =>';
         $html .= " " . $updated_vendor_details[0]['name'] . '</li>';
         $html .= "<li><b>" . 'Company Name' . '</b> =>';
@@ -801,7 +802,7 @@ class vendor extends CI_Controller {
         $html .= "<li><b>" . 'Signature File' . '</b> =>';
         $html .= " " . $updated_vendor_details[0]['signature_file'] . '</li>';
         $html .= "</ul>";
-        
+
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
 
         //Cleaning Email Variables
@@ -810,10 +811,10 @@ class vendor extends CI_Controller {
         //Send report via email
         $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
         $this->email->to($to);
-        
-        if($this->input->post('id') !== null && !empty($this->input->post('id'))){
-           $subject = "Vendor Updated : " . $_POST['name'] . ' - By ' . $logged_user_name;
-        }else{
+
+        if ($this->input->post('id') !== null && !empty($this->input->post('id'))) {
+            $subject = "Vendor Updated : " . $_POST['name'] . ' - By ' . $logged_user_name;
+        } else {
             $subject = "New Vendor Added : " . $_POST['name'] . ' - By ' . $logged_user_name;
         }
         $this->email->subject($subject);
@@ -854,7 +855,7 @@ class vendor extends CI_Controller {
         }
 
         if ($this->email->send()) {
-            $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,"","",$subject,$html,"");
+            $this->notify->add_email_send_details(NOREPLY_EMAIL_ID, $to, "", "", $subject, $html, "");
             log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
             $flag = TRUE;
         } else {
@@ -892,17 +893,14 @@ class vendor extends CI_Controller {
      * @param: String(District)
      * @return : String (Service center code)
      */
-    function sendWelcomeSms($phone_number, $vendor_name,$id) {
+    function sendWelcomeSms($phone_number, $vendor_name, $id) {
         $template = $this->vendor_model->getVendorSmsTemplate("new_vendor_creation");
         $smsBody = sprintf($template, $vendor_name);
 
         $this->notify->sendTransactionalSmsAcl($phone_number, $smsBody);
         //For saving SMS to the database on sucess
-    
-        $this->notify->add_sms_sent_details($id, 'vendor' , $phone_number,
-                   $smsBody, '','new_vendor_creation' );
-    
 
+        $this->notify->add_sms_sent_details($id, 'vendor', $phone_number, $smsBody, '', 'new_vendor_creation');
     }
 
     /**
@@ -939,9 +937,9 @@ class vendor extends CI_Controller {
         $results['select_state'] = $this->vendor_model->getall_state();
         $results['employee_rm'] = $this->employee_model->get_rm_details();
         $results['bank_name'] = $this->vendor_model->get_bank_details();
-   
+
         $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/addvendor', array('results' => $results, 'days' => $days));
     }
 
@@ -956,31 +954,31 @@ class vendor extends CI_Controller {
      */
     function editvendor($id) {
         $this->checkUserSession();
-        log_message('info',__FUNCTION__.' id: '.$id);
+        log_message('info', __FUNCTION__ . ' id: ' . $id);
         $query = $this->vendor_model->editvendor($id);
-        if(!empty($query)){
-        $results['services'] = $this->vendor_model->selectservice();
-        $results['brands'] = $this->vendor_model->selectbrand();
-        $results['select_state'] = $this->vendor_model->getall_state();
-        $results['employee_rm'] = $this->employee_model->get_rm_details();
-        $results['bank_name'] = $this->vendor_model->get_bank_details();
+        if (!empty($query)) {
+            $results['services'] = $this->vendor_model->selectservice();
+            $results['brands'] = $this->vendor_model->selectbrand();
+            $results['select_state'] = $this->vendor_model->getall_state();
+            $results['employee_rm'] = $this->employee_model->get_rm_details();
+            $results['bank_name'] = $this->vendor_model->get_bank_details();
 
-        $appliances = $query[0]['appliances'];
-        $selected_appliance_list = explode(",", $appliances);
-        $brands = $query[0]['brands'];
-        $selected_brands_list = explode(",", $brands);
+            $appliances = $query[0]['appliances'];
+            $selected_appliance_list = explode(",", $appliances);
+            $brands = $query[0]['brands'];
+            $selected_brands_list = explode(",", $brands);
 
-        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
-        
-        $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        $non_working_days = $query[0]['non_working_days'];
-        $selected_non_working_days = explode(",", $non_working_days);
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
 
-        $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
-            => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
-            'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm));
-        } else{
+            $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            $non_working_days = $query[0]['non_working_days'];
+            $selected_non_working_days = explode(",", $non_working_days);
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+
+            $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
+                => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
+                'days' => $days, 'selected_non_working_days' => $selected_non_working_days, 'rm' => $rm));
+        } else {
             echo "Vendor Not Exist";
         }
     }
@@ -995,16 +993,15 @@ class vendor extends CI_Controller {
      */
     function viewvendor($vendor_id = "") {
         $this->checkUserSession();
-        $id = $this->session->userdata('id');   
+        $id = $this->session->userdata('id');
         $active = "1";
         $data['active_state'] = $active;
-        
-        if(!empty($this->input->get())){
+
+        if (!empty($this->input->get())) {
             $data = $this->input->get();
-            if($data['active_state'] == 'all'){
+            if ($data['active_state'] == 'all') {
                 $active = "";
             }
-        
         }
 
         //Getting employee relation if present for logged in user
@@ -1016,8 +1013,7 @@ class vendor extends CI_Controller {
         $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data));
-        
+        $this->load->view('employee/viewvendor', array('query' => $query, 'state' => $state, 'selected' => $data));
     }
 
     /**
@@ -1034,7 +1030,7 @@ class vendor extends CI_Controller {
             $vendor['active'] = $is_active;
             $vendor['agent_id'] = $this->session->userdata("id");
             $this->vendor_model->edit_vendor($vendor, $id);
-            
+
             $this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
 
             //Getting Vendor Details
@@ -1044,26 +1040,26 @@ class vendor extends CI_Controller {
             //Sending Mail to corresponding RM and admin group 
             $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
             if (!empty($employee_relation)) {
-            $to = $employee_relation[0]['official_email'];
-            
+                $to = $employee_relation[0]['official_email'];
+
                 //Getting template from Database
                 $template = $this->booking_model->get_booking_email_template("sf_permanent_on_off");
                 if (!empty($template)) {
                     $email['rm_name'] = $employee_relation[0]['full_name'];
                     $email['sf_name'] = ucfirst($sf_name);
-                    if($is_active == 1){
+                    if ($is_active == 1) {
                         $email['on_off'] = 'ON';
                         $subject = " Permanent ON Vendor " . $sf_name;
                     } else {
-                       $email['on_off'] = 'OFF';
-                       $subject = " Permanent OFF Vendor " . $sf_name;
+                        $email['on_off'] = 'OFF';
+                        $subject = " Permanent OFF Vendor " . $sf_name;
                     }
-                    
+
                     $emailBody = vsprintf($template[0], $email);
                     $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
                 }
 
-                log_message('info', __FUNCTION__ . ' Permanent ON/OFF of Vendor' . $sf_name. " status ". $is_active);
+                log_message('info', __FUNCTION__ . ' Permanent ON/OFF of Vendor' . $sf_name . " status " . $is_active);
             }
 
 
@@ -1071,7 +1067,7 @@ class vendor extends CI_Controller {
                 "entity" => "vendor",
                 "entity_id" => $id,
                 "agent_id" => $this->session->userdata('id'),
-                "action" => ($is_active ==1)? _247AROUND_VENDOR_ACTIVATED: _247AROUND_VENDOR_DEACTIVATED
+                "action" => ($is_active == 1) ? _247AROUND_VENDOR_ACTIVATED : _247AROUND_VENDOR_DEACTIVATED
             );
             $this->vendor_model->insert_log_action_on_entity($log);
             redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
@@ -1089,10 +1085,9 @@ class vendor extends CI_Controller {
     function delete($id) {
         $this->vendor_model->delete($id);
         //Storing State change values in Booking_State_Change Table
-        $this->notify->insert_state_change('', _247AROUND_VENDOR_DELETED, _247AROUND_VENDOR_DELETED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        $this->notify->insert_state_change('', _247AROUND_VENDOR_DELETED, _247AROUND_VENDOR_DELETED, 'Vendor ID = ' . $id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
-
 
     /**
      *  @desc : This function is to select all pending bookings to assign vendor(if not already assigned)
@@ -1112,7 +1107,7 @@ class vendor extends CI_Controller {
             array_push($results, $this->booking_model->find_sc_by_pincode_and_appliance($booking['service_id'], $booking['booking_pincode']));
         }
 
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/assignbooking', array('data' => $bookings, 'results' => $results));
     }
 
@@ -1129,27 +1124,27 @@ class vendor extends CI_Controller {
      *  @return : load pending booking view
      */
     function process_assign_booking_form() {
-        log_message('info', __METHOD__ );
+        log_message('info', __METHOD__);
         $service_center = $this->input->post('service_center');
-        $agent_id =  $this->input->post('agent_id');
-        $agent_name =  $this->input->post('agent_name');
+        $agent_id = $this->input->post('agent_id');
+        $agent_name = $this->input->post('agent_name');
         $url = base_url() . "employee/do_background_process/assign_booking";
         $sf_status = $this->input->post("sf_status");
         $count = 0;
-       
+
         foreach ($service_center as $booking_id => $service_center_id) {
-            if(!empty($booking_id) || $booking_id != '0'){
-           
+            if (!empty($booking_id) || $booking_id != '0') {
+
                 if ($service_center_id != "") {
-                   
+
                     $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_name);
                     if ($assigned) {
                         //Insert log into booking state change
-                       $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
+                        $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
 
                         $count++;
-                               
-                        if($sf_status[$booking_id] == "SF_NOT_EXIST"){
+
+                        if ($sf_status[$booking_id] == "SF_NOT_EXIST") {
                             $this->send_mail_when_sf_not_exist($booking_id);
                         }
                     } else {
@@ -1162,7 +1157,7 @@ class vendor extends CI_Controller {
 
         //Send mail and SMS to SF in background
         $async_data['booking_id'] = $service_center;
-        $async_data['agent_id'] =  $agent_id;
+        $async_data['agent_id'] = $agent_id;
         $async_data['agent_name'] = $agent_name;
         $this->asynchronous_lib->do_background_process($url, $async_data);
 
@@ -1170,23 +1165,22 @@ class vendor extends CI_Controller {
 
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
+
     /**
      * @desc This is used to send mail when SF does not exist in the booking pincode
      * as per vendor pincode mapping file.
      * 
      * @param String $booking_id
      */
-    function send_mail_when_sf_not_exist($booking_id){
-        $to = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO; 
+    function send_mail_when_sf_not_exist($booking_id) {
+        $to = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
         $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
-        
+
         $subject = "Pincode Not Found In Vendor Pincode Mapping File";
         $message = "Hi,<br/>Please add Pincode and SF details in the Vendor Pincode Mapping file and upload new file. Booking ID: " . $booking_id;
-        
+
         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
     }
-    
-   
 
     /**
      * @desc: This function is to get the reassign vendor page
@@ -1197,9 +1191,9 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function get_reassign_vendor_form($booking_id) {
-        if(!empty($booking_id)){
+        if (!empty($booking_id)) {
             $service_centers = $this->vendor_model->viewvendor("", 1, NULL);
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
 
             $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers));
         }
@@ -1214,7 +1208,7 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function process_reassign_vendor_form() {
-        log_message('info',__FUNCTION__);
+        log_message('info', __FUNCTION__);
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
         $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
         if ($this->form_validation->run()) {
@@ -1283,7 +1277,7 @@ class vendor extends CI_Controller {
             $output = "Please select any service center.";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
-            redirect(base_url() . "employee/vendor/get_reassign_vendor_form/".$booking_id);
+            redirect(base_url() . "employee/vendor/get_reassign_vendor_form/" . $booking_id);
         }
     }
 
@@ -1303,7 +1297,7 @@ class vendor extends CI_Controller {
      */
     function get_broadcast_mail_to_vendors_form() {
         //$service_centers = $this->booking_model->select_service_center();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/broadcastemailtovendor');
     }
 
@@ -1323,46 +1317,46 @@ class vendor extends CI_Controller {
         $bcc_partner_owner = $this->input->post('bcc_partner_owner');
         $bcc_employee = $this->input->post('bcc_employee');
         $mail_to = $this->input->post('mail_to');
-        
-        $to = NITS_ANUJ_EMAIL_ID.', sales@247around.com,' . $mail_to;
-	$cc = $this->input->post('mail_cc');
-	$subject = $this->input->post('subject');
-	
+
+        $to = NITS_ANUJ_EMAIL_ID . ', sales@247around.com,' . $mail_to;
+        $cc = $this->input->post('mail_cc');
+        $subject = $this->input->post('subject');
+
         //Replace new lines with line breaks for proper html formatting
-	$message = nl2br($this->input->post('mail_body'));
-        
-        if(!empty($_FILES['fileToUpload']['tmp_name'])){
+        $message = nl2br($this->input->post('mail_body'));
+
+        if (!empty($_FILES['fileToUpload']['tmp_name'])) {
             $tmpFile = $_FILES['fileToUpload']['tmp_name'];
             $fileName = $_FILES['fileToUpload']['name'];
-            move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
-        }else{
+            move_uploaded_file($tmpFile, TMP_FOLDER . $fileName);
+        } else {
             $fileName = "";
         }
-	
+
         $bcc = "";
         //gets primary contact's email and owner's email of service centers
-        if(!empty($bcc_owner) || !empty($bcc_poc)){
+        if (!empty($bcc_owner) || !empty($bcc_poc)) {
             $service_centers = $this->vendor_model->select_active_service_center_email();
             $sf_bcc = $this->getBccToSendMail($service_centers, $bcc_poc, $bcc_owner);
             $bcc .= $sf_bcc;
         }
-        
+
         //gets primary contact's email and owner's email of partners
-        if(!empty($bcc_partner_poc) || !empty($bcc_partner_owner)){
+        if (!empty($bcc_partner_poc) || !empty($bcc_partner_owner)) {
             $partners = $this->partner_model->getpartner_details('primary_contact_email,owner_email');
             $partner_bcc = $this->getBccToSendMail($partners, $bcc_partner_poc, $bcc_partner_owner);
             $bcc .= $partner_bcc;
         }
-        
-        if(!empty($bcc_employee)){
+
+        if (!empty($bcc_employee)) {
             $employee = $this->employee_model->get_employee();
             $employee_bcc = implode(',', array_column($employee, 'official_email'));
             $bcc .= $employee_bcc;
         }
-        
+
         $attachment = "";
         if (!empty($fileName)) {
-            $attachment = TMP_FOLDER.$fileName;
+            $attachment = TMP_FOLDER . $fileName;
         }
 
         log_message('info', "broadcast mail to: " . $to);
@@ -1388,7 +1382,7 @@ class vendor extends CI_Controller {
      */
     function getBccToSendMail($service_centers, $bcc_poc, $bcc_owner) {
         $bcc = array();
-        
+
         foreach ($service_centers as $key => $email) {
             if (!empty($bcc_poc) && !empty($bcc_owner)) {
                 $bcc1 = $email['primary_contact_email'] . "," . $email['owner_email'];
@@ -1425,8 +1419,8 @@ class vendor extends CI_Controller {
         if ($error != "") {
             $mapping_file['error'] = $error;
         }
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/upload_pincode_excel', $mapping_file);
     }
 
@@ -1440,7 +1434,7 @@ class vendor extends CI_Controller {
      */
     function get_master_pincode_excel_upload_form() {
         $this->checkUserSession();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/upload_master_pincode_excel');
     }
 
@@ -1451,50 +1445,47 @@ class vendor extends CI_Controller {
      */
     function process_pincode_excel_upload_form() {
         $this->checkUserSession();
-        if(!empty($_FILES['file']['tmp_name'])){    
+        if (!empty($_FILES['file']['tmp_name'])) {
             $inputFileName = $_FILES['file']['tmp_name'];
             log_message('info', __FUNCTION__ . ' => Input ZIP file: ' . $inputFileName);
-            
-            $newZipFileName = TMP_FOLDER."vendor_pincode_mapping_temp_".date('j-M-Y').".zip";
+
+            $newZipFileName = TMP_FOLDER . "vendor_pincode_mapping_temp_" . date('j-M-Y') . ".zip";
             $CSVFileName = "vendor_pincode_mapping.csv";
-            $newCSVFileName = "vendor_pincode_mapping_temp_".date('j-M-Y').".csv";
+            $newCSVFileName = "vendor_pincode_mapping_temp_" . date('j-M-Y') . ".csv";
             move_uploaded_file($inputFileName, $newZipFileName);
 
-            $res = 0; 
-            system("unzip " . $newZipFileName . " " . $CSVFileName . " -d ".TMP_FOLDER, $res);
-            $re1 = 0; 
-            system("mv " . TMP_FOLDER . $CSVFileName ." ".TMP_FOLDER . $newCSVFileName, $re1);
+            $res = 0;
+            system("unzip " . $newZipFileName . " " . $CSVFileName . " -d " . TMP_FOLDER, $res);
+            $re1 = 0;
+            system("mv " . TMP_FOLDER . $CSVFileName . " " . TMP_FOLDER . $newCSVFileName, $re1);
 
             log_message('info', __FUNCTION__ . ' => New CSV file: ' . $newCSVFileName);
 
             //Checking for Empty file
-            if(filesize(TMP_FOLDER.$newCSVFileName) == 0){
+            if (filesize(TMP_FOLDER . $newCSVFileName) == 0) {
                 //Logging
-                log_message('info',' Empty Pincode File has been Uploaded');
-                $this->session->set_flashdata('file_error',' Empty File has been uploaded');
+                log_message('info', ' Empty Pincode File has been Uploaded');
+                $this->session->set_flashdata('file_error', ' Empty File has been uploaded');
                 redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
-
             }
-            $csv = TMP_FOLDER.$newCSVFileName;
-            
+            $csv = TMP_FOLDER . $newCSVFileName;
+
             //check file is valid or not
-            $file = fopen($csv,"r");
+            $file = fopen($csv, "r");
             $is_valid_file = TRUE;
-            while(! feof($file))
-            {
+            while (!feof($file)) {
                 $csv_content = fgetcsv($file);
-                foreach($csv_content as $data){
-                    if(empty($data)){
+                foreach ($csv_content as $data) {
+                    if (empty($data)) {
                         $is_valid_file = FALSE;
                         break;
                     }
                 }
-                
             }
             fclose($file);
-            
+
             //process if file is valid else disply error message
-            if($is_valid_file){
+            if ($is_valid_file) {
                 //Logging
                 log_message('info', __FUNCTION__ . ' Processing of Pincode CSV File started');
                 //Processing SQL Queries
@@ -1503,13 +1494,13 @@ class vendor extends CI_Controller {
                 $this->vendor_model->execute_query($sql_commands);
                 unset($sql_commands);
 
-                $dbHost=$this->db->hostname;
-                $dbUser=$this->db->username;
-                $dbPass=$this->db->password;
-                $dbName=$this->db->database;
-                
+                $dbHost = $this->db->hostname;
+                $dbUser = $this->db->username;
+                $dbPass = $this->db->password;
+                $dbName = $this->db->database;
+
                 $sql = "LOAD DATA LOCAL INFILE '$csv' INTO TABLE vendor_pincode_mapping_temp "
-                       . "FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' "
+                        . "FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' "
                         . "(Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State);";
 
                 $res1 = 0;
@@ -1522,26 +1513,23 @@ class vendor extends CI_Controller {
 
                 $this->vendor_model->execute_query($sql_commands1);
 
-                $this->save_file_into_database($newZipFileName, $csv,FILE_UPLOAD_SUCCESS_STATUS);
-                
+                $this->save_file_into_database($newZipFileName, $csv, FILE_UPLOAD_SUCCESS_STATUS);
+
                 log_message('info', __FUNCTION__ . ' => All queries executed: ');
-                
-                $this->session->set_flashdata('success_msg','Pincode File Uploaded successfully');
+
+                $this->session->set_flashdata('success_msg', 'Pincode File Uploaded successfully');
                 redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
-            }else{
-                
-                $this->save_file_into_database($newZipFileName, $csv,FILE_UPLOAD_FAILED_STATUS);
-                
-                $this->session->set_flashdata('file_error','Pincode File Is Not Valid Please Check And Upload Again');
+            } else {
+
+                $this->save_file_into_database($newZipFileName, $csv, FILE_UPLOAD_FAILED_STATUS);
+
+                $this->session->set_flashdata('file_error', 'Pincode File Is Not Valid Please Check And Upload Again');
                 redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
             }
-            
-            
-        }else{
-            $this->session->set_flashdata('file_error',' Empty File has been uploaded');
+        } else {
+            $this->session->set_flashdata('file_error', ' Empty File has been uploaded');
             redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
         }
- 
     }
 
     /**
@@ -1556,11 +1544,11 @@ class vendor extends CI_Controller {
     function get_vendor_escalation_form($booking_id) {
         $this->checkUserSession();
         //get escalation reasons for 247around
-        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'247around','active'=> '1','process_type'=>'escalation'));
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => '247around', 'active' => '1', 'process_type' => 'escalation'));
         $data['vendor_details'] = $this->vendor_model->getVendor($booking_id);
         $data['booking_id'] = $booking_id;
 
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/vendor_escalation_form', $data);
     }
 
@@ -1574,17 +1562,17 @@ class vendor extends CI_Controller {
      */
     function process_vendor_escalation_form() {
         $this->checkUserSession();
-        log_message('info',__FUNCTION__);
+        log_message('info', __FUNCTION__);
         $escalation['booking_id'] = $this->input->post('booking_id');
         $escalation['vendor_id'] = $this->input->post('vendor_id');
         //Get SF to RM relation if present
         $cc = "";
         $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id']);
-        if(!empty($rm)){
-            foreach($rm as $key=>$value){
-                if($key == 0){
+        if (!empty($rm)) {
+            foreach ($rm as $key => $value) {
+                if ($key == 0) {
                     $cc .= "";
-                }else{
+                } else {
                     $cc .= ",";
                 }
                 $cc .= $this->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
@@ -1593,19 +1581,19 @@ class vendor extends CI_Controller {
         $checkValidation = $this->checkValidationOnReason();
         if ($checkValidation) {
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
-            
+
             $this->booking_model->increase_escalation_reschedule($escalation['booking_id'], "count_escalation");
-            
+
             $booking_date_timeslot = $this->vendor_model->getBookingDateFromBookingID($escalation['booking_id']);
 
             $booking_date = strtotime($booking_date_timeslot[0]['booking_date']);
 
             $escalation['booking_date'] = date('Y-m-d', $booking_date);
             $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
-            
+
             //inserts vendor escalation details
             $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
-            
+
             if ($escalation_id) {
                 $escalation_policy_details = $this->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);
                 // Update escalation flag and return userDeatils
@@ -1616,15 +1604,15 @@ class vendor extends CI_Controller {
 
                 $vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
 
-                $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'];
+                $return_mail_to = $vendorContact[0]['owner_email'] . ',' . $vendorContact[0]['primary_contact_email'];
 
                 //Getting template from Database
                 $template = $this->booking_model->get_booking_email_template("escalation_on_booking");
                 if (!empty($template)) {
-                    
+
                     //From will be currently logged in user
                     $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
-                    
+
                     //Sending Mail
                     $email['booking_id'] = $escalation['booking_id'];
                     $email['count_escalation'] = $booking_date_timeslot[0]['count_escalation'];
@@ -1641,23 +1629,20 @@ class vendor extends CI_Controller {
                     //Logging Error Message
                     log_message('info', " Error in Getting Email Template for Escalation Mail");
                 }
-                
-                $this->sendSmsToVendor($escalation,$escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
-                $escalation_reason  = $this->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
+
+                $this->sendSmsToVendor($escalation, $escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
+                $escalation_reason = $this->vendor_model->getEscalationReason(array('id' => $escalation['escalation_reason']));
                 $remarks = $this->input->post('remarks');
-                if(!empty($remarks)){
-                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'].' - '.$remarks;
-                }else{
+                if (!empty($remarks)) {
+                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'] . ' - ' . $remarks;
+                } else {
                     $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
                 }
-                
-                $this->notify->insert_state_change($escalation['booking_id'], 
-                    "Escalation" , "Pending" , $escalation_reason_final, 
-                    $this->session->userdata('id'), $this->session->userdata('employee_id'),
-                    _247AROUND);
-                
+
+                $this->notify->insert_state_change($escalation['booking_id'], "Escalation", "Pending", $escalation_reason_final, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+
                 //Processing Penalty on Escalations
-                
+
                 $value['booking_id'] = $escalation['booking_id'];
                 $value['assigned_vendor_id'] = $escalation['vendor_id'];
                 $value['current_state'] = "Escalation";
@@ -1669,10 +1654,10 @@ class vendor extends CI_Controller {
                 $this->penalty_model->get_data_penalty_on_booking($value, $where);
 
                 log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
-                
+
 
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
-	    }
+            }
         } else {
             $this->get_vendor_escalation_form($escalation['booking_id']);
         }
@@ -1687,10 +1672,10 @@ class vendor extends CI_Controller {
      * @param : user's details
      * @return : void
      */
-    function sendSmsToVendor($escalation,$escalation_policy, $contact, $booking_id, $userDetails) {
-        
+    function sendSmsToVendor($escalation, $escalation_policy, $contact, $booking_id, $userDetails) {
+
         $id = $escalation['vendor_id'];
-       
+
         if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 1) {
 
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
@@ -1698,35 +1683,29 @@ class vendor extends CI_Controller {
             $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
             //For saving SMS to the database on sucess
 
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
-                    $smsBody, $booking_id, "Escalation", $status['content']);
-            
+            $this->notify->add_sms_sent_details($id, 'vendor', $contact[0]['primary_contact_phone_1'], $smsBody, $booking_id, "Escalation", $status['content']);
+
 
             $status1 = $this->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
             //For saving SMS to the database on sucess
 
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
-                    $smsBody, $booking_id,"Escalation", $status1['content']);
-            
+            $this->notify->add_sms_sent_details($id, 'vendor', $contact[0]['owner_phone_1'], $smsBody, $booking_id, "Escalation", $status1['content']);
         } else if ($escalation_policy[0]['sms_to_owner'] == 0 && $escalation_policy[0]['sms_to_poc'] == 1) {
 
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
             $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
             //For saving SMS to the database on sucess
-            
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
-                    $smsBody, $booking_id, "Escalation", $status['content']);
-            
+
+            $this->notify->add_sms_sent_details($id, 'vendor', $contact[0]['primary_contact_phone_1'], $smsBody, $booking_id, "Escalation", $status['content']);
         } else if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 0) {
 
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
             $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
             //For saving SMS to the database on sucess
-            
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
-                    $smsBody, $booking_id, "Escalation", $status['content']); 
+
+            $this->notify->add_sms_sent_details($id, 'vendor', $contact[0]['owner_phone_1'], $smsBody, $booking_id, "Escalation", $status['content']);
         }
     }
 
@@ -1744,7 +1723,6 @@ class vendor extends CI_Controller {
 
         return $smsBody;
     }
-
 
     /**
      * @desc: This function is to check validation on escalation reason
@@ -1830,7 +1808,7 @@ class vendor extends CI_Controller {
     function vendor_availability_form() {
         $this->checkUserSession();
         $data = $this->vendor_model->get_services_category_city_pincode();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/searchvendor', $data);
     }
 
@@ -1880,7 +1858,7 @@ class vendor extends CI_Controller {
     function vendor_performance_view() {
         $this->checkUserSession();
         $data = $this->vendor_model->get_vendor_city_appliance();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/vendorperformance', $data);
     }
 
@@ -1920,7 +1898,7 @@ class vendor extends CI_Controller {
     function review_bookings() {
         $this->checkUserSession();
         $charges['charges'] = $this->vendor_model->getbooking_charges();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/review_booking_complete_cancel', $charges);
     }
 
@@ -1932,7 +1910,7 @@ class vendor extends CI_Controller {
     function getcancellation_reason($vendor_id) {
         $this->checkUserSession();
         $reason['reason'] = $this->vendor_model->getcancellation_reason($vendor_id);
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/vendor_cancellation_reason', $reason);
     }
 
@@ -1944,7 +1922,7 @@ class vendor extends CI_Controller {
     function get_mail_vendor($vendor_id = "") {
         $vendor_info = $this->vendor_model->viewvendor($vendor_id);
 
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
 
         $this->load->view('employee/mail_vendor', array('vendor_info' => $vendor_info));
     }
@@ -1973,274 +1951,270 @@ class vendor extends CI_Controller {
 
         $this->notify->sendEmail("sales@247around.com", $to, $cc, $bcc, $subject, $message, $attachment);
 
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/viewvendor', array('query' => $vendor_info));
     }
+
     /**
      * @desc: This method loads add engineer view. It gets active vendor and appliance to display in a form
      * This  function is used by vendor panel and admin panel to load add engineer view
      */
-    function add_engineer(){
+    function add_engineer() {
         $data['service_center'] = $this->vendor_model->getactive_vendor();
         $data['services'] = $this->booking_model->selectservice();
-        if($this->session->userdata('userType') == 'service_center'){
+        if ($this->session->userdata('userType') == 'service_center') {
 
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/add_engineer', $data);
-
         } else {
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
             $this->load->view('employee/add_engineer', $data);
         }
-
     }
+
     /**
      * @desc: This is used to Edit Engineer
      * params: Engineer ID
      * return : View of Engineer along with Engineer Data Array
      */
-    function get_edit_engineer_form($id){
+    function get_edit_engineer_form($id) {
         $data['service_center'] = $this->vendor_model->getactive_vendor();
         $data['services'] = $this->booking_model->selectservice();
-        if(!empty($id)){
-            $data['data'] = $this->vendor_model->get_engg_by_id($id); 
+        if (!empty($id)) {
+            $data['data'] = $this->vendor_model->get_engg_by_id($id);
         }
-        if($this->session->userdata('userType') == 'service_center'){
+        if ($this->session->userdata('userType') == 'service_center') {
 
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/add_engineer', $data);
-
         } else {
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
             $this->load->view('employee/add_engineer', $data);
         }
     }
+
     /**
      * @desc: This method adds engineers for a service center.
      *  This  function is used by vendor panel and admin panel to load add engineer details.
      */
     function process_add_engineer() {
-	$engineer_form_validation = $this->engineer_form_validation();
+        $engineer_form_validation = $this->engineer_form_validation();
 
-	if ($engineer_form_validation) {
-	    $data['name'] = $this->input->post('name');
-	    $data['phone'] = $this->input->post('phone');
-	    $data['alternate_phone'] = $this->input->post('alternate_phone');
-	    $data['phone_type'] = $this->input->post('phone_type');
-	    //$data['address'] = $this->input->post('address');
-	    $data['identity_proof'] = $this->input->post('identity_proof');
-	    $data['identity_proof_number'] = $this->input->post('identity_id_number');
-	    $data['bank_name'] = $this->input->post('bank_name');
-	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
-	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
-	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
-	    $data['identity_proof_pic'] = $this->input->post('file');
-	    $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
-	    //
-	    //Get vendor ID from session if form sent thru vendor CRM
-	    //Else from POST variable.
-	    if ($this->session->userdata('userType') == 'service_center') {
-		$data['service_center_id'] = $this->session->userdata('service_center_id');
-	    } else {
-		$data['service_center_id'] = $this->input->post('service_center_id');
-	    }
+        if ($engineer_form_validation) {
+            $data['name'] = $this->input->post('name');
+            $data['phone'] = $this->input->post('phone');
+            $data['alternate_phone'] = $this->input->post('alternate_phone');
+            $data['phone_type'] = $this->input->post('phone_type');
+            //$data['address'] = $this->input->post('address');
+            $data['identity_proof'] = $this->input->post('identity_proof');
+            $data['identity_proof_number'] = $this->input->post('identity_id_number');
+            $data['bank_name'] = $this->input->post('bank_name');
+            $data['bank_ac_no'] = $this->input->post('bank_account_no');
+            $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
+            $data['bank_holder_name'] = $this->input->post('bank_holder_name');
+            $data['identity_proof_pic'] = $this->input->post('file');
+            $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
+            //
+            //Get vendor ID from session if form sent thru vendor CRM
+            //Else from POST variable.
+            if ($this->session->userdata('userType') == 'service_center') {
+                $data['service_center_id'] = $this->session->userdata('service_center_id');
+            } else {
+                $data['service_center_id'] = $this->input->post('service_center_id');
+            }
 
-	    //applicable services for an engineer come as array in service_id field.
-	    $service_id = $this->input->post('service_id');
-	    $services = array();
-	    foreach ($service_id as $id) {
-		array_push($services, array('service_id' => $id));
-	    }
+            //applicable services for an engineer come as array in service_id field.
+            $service_id = $this->input->post('service_id');
+            $services = array();
+            foreach ($service_id as $id) {
+                array_push($services, array('service_id' => $id));
+            }
 
-	    $data['appliance_id'] = json_encode($services);
-	    $data['active'] = "1";
-	    $data['create_date'] = date("Y-m-d H:i:s");
+            $data['appliance_id'] = json_encode($services);
+            $data['active'] = "1";
+            $data['create_date'] = date("Y-m-d H:i:s");
 
-	    $engineer_id = $this->vendor_model->insert_engineer($data);
+            $engineer_id = $this->vendor_model->insert_engineer($data);
 
-	    if ($engineer_id) {
-		log_message('info', __METHOD__ . "=> Engineer Details Added.");
+            if ($engineer_id) {
+                log_message('info', __METHOD__ . "=> Engineer Details Added.");
 
-		$output = "Engineer Details Added.";
-		$userSession = array('success' => $output);
-	    } else {
-		log_message('info', __METHOD__ . "=> Engineer Details Not Added. Engineer data  " . print_r($data, true));
+                $output = "Engineer Details Added.";
+                $userSession = array('success' => $output);
+            } else {
+                log_message('info', __METHOD__ . "=> Engineer Details Not Added. Engineer data  " . print_r($data, true));
 
-		$output = "Engineer Details Not Added.";
-		$userSession = array('error' => $output);
-	    }
+                $output = "Engineer Details Not Added.";
+                $userSession = array('error' => $output);
+            }
 
-	    $this->session->set_userdata($userSession);
+            $this->session->set_userdata($userSession);
 
-	    if ($this->session->userdata('userType') == 'service_center') {
-		log_message('info', __FUNCTION__ . " Engineer addition initiated By Service Center");
+            if ($this->session->userdata('userType') == 'service_center') {
+                log_message('info', __FUNCTION__ . " Engineer addition initiated By Service Center");
 
-		redirect(base_url() . "service_center/add_engineer");
-	    } else {
-		log_message('info', __FUNCTION__ . " Engineer addition initiated By 247around");
+                redirect(base_url() . "service_center/add_engineer");
+            } else {
+                log_message('info', __FUNCTION__ . " Engineer addition initiated By 247around");
 
-		redirect(base_url() . "employee/vendor/add_engineer");
-	    }
-	} else { //form validation failed
-	    $this->add_engineer();
-	}
+                redirect(base_url() . "employee/vendor/add_engineer");
+            }
+        } else { //form validation failed
+            $this->add_engineer();
+        }
     }
+
     /**
      * @desc: This method is used to process edit engineer form
      * params: Post data array
      * 
      */
-    function process_edit_engineer(){
+    function process_edit_engineer() {
         $engineer_form_validation = $this->engineer_form_validation();
         $engineer_id = $this->input->post('id');
         if ($engineer_form_validation) {
-	    $data['name'] = $this->input->post('name');
-	    $data['phone'] = $this->input->post('phone');
-	    $data['alternate_phone'] = $this->input->post('alternate_phone');
-	    $data['phone_type'] = $this->input->post('phone_type');
-	    $data['identity_proof'] = $this->input->post('identity_proof');
-	    $data['identity_proof_number'] = $this->input->post('identity_id_number');
-	    $data['bank_name'] = $this->input->post('bank_name');
-	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
-	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
-	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
-            if($this->input->post('file')){
-	    $data['identity_proof_pic'] = $this->input->post('file');
+            $data['name'] = $this->input->post('name');
+            $data['phone'] = $this->input->post('phone');
+            $data['alternate_phone'] = $this->input->post('alternate_phone');
+            $data['phone_type'] = $this->input->post('phone_type');
+            $data['identity_proof'] = $this->input->post('identity_proof');
+            $data['identity_proof_number'] = $this->input->post('identity_id_number');
+            $data['bank_name'] = $this->input->post('bank_name');
+            $data['bank_ac_no'] = $this->input->post('bank_account_no');
+            $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
+            $data['bank_holder_name'] = $this->input->post('bank_holder_name');
+            if ($this->input->post('file')) {
+                $data['identity_proof_pic'] = $this->input->post('file');
             }
-            if($this->input->post('bank_proof_pic')){
-	    $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
+            if ($this->input->post('bank_proof_pic')) {
+                $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
             }
-            
-	    //Get vendor ID from session if form sent thru vendor CRM
-	    //Else from POST variable.
-	    if ($this->session->userdata('userType') == 'service_center') {
-		$data['service_center_id'] = $this->session->userdata('service_center_id');
-	    } else {
-		$data['service_center_id'] = $this->input->post('service_center_id');
-	    }
 
-	    //applicable services for an engineer come as array in service_id field.
-	    $service_id = $this->input->post('service_id');
-	    $services = array();
-	    foreach ($service_id as $id) {
-		array_push($services, array('service_id' => $id));
-	    }
+            //Get vendor ID from session if form sent thru vendor CRM
+            //Else from POST variable.
+            if ($this->session->userdata('userType') == 'service_center') {
+                $data['service_center_id'] = $this->session->userdata('service_center_id');
+            } else {
+                $data['service_center_id'] = $this->input->post('service_center_id');
+            }
 
-	    $data['appliance_id'] = json_encode($services);
-	    $data['update_date'] = date("Y-m-d H:i:s");
-            
-            $where = array('id' => $engineer_id );
-	    $engineer_id = $this->vendor_model->update_engineer($where,$data);
+            //applicable services for an engineer come as array in service_id field.
+            $service_id = $this->input->post('service_id');
+            $services = array();
+            foreach ($service_id as $id) {
+                array_push($services, array('service_id' => $id));
+            }
 
-                log_message('info', __METHOD__ . "=> Engineer Details Added.");
+            $data['appliance_id'] = json_encode($services);
+            $data['update_date'] = date("Y-m-d H:i:s");
 
-		$output = "Engineer Details Updated.";
-		$userSession = array('update_success' => $output);
+            $where = array('id' => $engineer_id);
+            $engineer_id = $this->vendor_model->update_engineer($where, $data);
 
-	    $this->session->set_userdata($userSession);
+            log_message('info', __METHOD__ . "=> Engineer Details Added.");
 
-	    if ($this->session->userdata('userType') == 'service_center') {
-		log_message('info', __FUNCTION__ . " Engineer updation initiated By Service Center ID ". $engineer_id);
+            $output = "Engineer Details Updated.";
+            $userSession = array('update_success' => $output);
 
-		redirect(base_url() . "employee/vendor/get_engineers");
-	    } else {
-		log_message('info', __FUNCTION__ . " Engineer updation initiated By 247around ID ". $engineer_id);
+            $this->session->set_userdata($userSession);
 
-		redirect(base_url() . "employee/vendor/get_engineers");
-	    }
-	} else { //form validation failed
+            if ($this->session->userdata('userType') == 'service_center') {
+                log_message('info', __FUNCTION__ . " Engineer updation initiated By Service Center ID " . $engineer_id);
+
+                redirect(base_url() . "employee/vendor/get_engineers");
+            } else {
+                log_message('info', __FUNCTION__ . " Engineer updation initiated By 247around ID " . $engineer_id);
+
+                redirect(base_url() . "employee/vendor/get_engineers");
+            }
+        } else { //form validation failed
             $output = "Engineer Updation Error.";
             $userSession = array('update_error' => $output);
             $this->session->set_userdata($userSession);
-            
-	    $this->get_edit_engineer_form($engineer_id);
-	}
+
+            $this->get_edit_engineer_form($engineer_id);
+        }
     }
 
     /**
      * @desc: This is used to view engineers details. This function is used by vendor panel and admin panel,
      * If it used by vendor panel then it gets only particular vendor engineer's otherwise get all engineer
      */
-
-    function get_engineers(){
+    function get_engineers() {
         $service_center_id = "";
-        if($this->session->userdata('userType') == 'service_center'){
+        if ($this->session->userdata('userType') == 'service_center') {
 
             $service_center_id = $this->session->userdata('service_center_id');
             log_message('info', __FUNCTION__ . " view service center Engineer View  " . print_r($service_center_id, true));
         }
 
-       $data['engineers'] =  $this->vendor_model->get_engineers($service_center_id);
-       foreach ($data['engineers'] as $key => $value) {
-           $where = array('id' => $value['service_center_id'] );
-           $select = "service_centres.name, service_centres.id";
-           $service_center = $this->vendor_model->getVendorDetails($select, $where);
-           $data['engineers'][$key]['service_center_name'] = isset($service_center[0]['name'])?$service_center[0]['name']:'';
-           $service_id  = json_decode($value['appliance_id'],true);
-           $appliances = array();
-           if(!empty($service_id)){
-                foreach ($service_id as  $values) {
-                     $service_name = $this->booking_model->selectservicebyid($values['service_id']);
-                     array_push($appliances, $service_name[0]['services']);
+        $data['engineers'] = $this->vendor_model->get_engineers($service_center_id);
+        foreach ($data['engineers'] as $key => $value) {
+            $where = array('id' => $value['service_center_id']);
+            $select = "service_centres.name, service_centres.id";
+            $service_center = $this->vendor_model->getVendorDetails($select, $where);
+            $data['engineers'][$key]['service_center_name'] = isset($service_center[0]['name']) ? $service_center[0]['name'] : '';
+            $service_id = json_decode($value['appliance_id'], true);
+            $appliances = array();
+            if (!empty($service_id)) {
+                foreach ($service_id as $values) {
+                    $service_name = $this->booking_model->selectservicebyid($values['service_id']);
+                    array_push($appliances, $service_name[0]['services']);
                 }
-           }
+            }
 
-           $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);
-       }
-       if($this->session->userdata('userType') == 'service_center'){
+            $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);
+        }
+        if ($this->session->userdata('userType') == 'service_center') {
 
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/view_engineers', $data);
-
-       } else {
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        } else {
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
             $this->load->view('employee/view_engineers', $data);
-       }
-
+        }
     }
 
     /**
      * @desc: this Method deactivate/ activate engineer
      */
-     function change_engineer_activation($engineer_id, $active){
+    function change_engineer_activation($engineer_id, $active) {
         log_message('info', __FUNCTION__ . " Activate/Deactivate Engineer Id:  " . $engineer_id .
-	    "status: " . $active);
+                "status: " . $active);
 
-	$where  = array('id' => $engineer_id );
-        $this->vendor_model->update_engineer($where, array('active'=> $active));
-        if($this->session->userdata('userType') == 'service_center'){
+        $where = array('id' => $engineer_id);
+        $this->vendor_model->update_engineer($where, array('active' => $active));
+        if ($this->session->userdata('userType') == 'service_center') {
 
-           redirect(base_url()."service_center/get_engineers");
+            redirect(base_url() . "service_center/get_engineers");
+        } else {
 
-       } else {
+            redirect(base_url() . "service_center/get_engineers");
+        }
+    }
 
-            redirect(base_url()."service_center/get_engineers");
-       }
-
-     }
-     /**
-      * @desc: Delete Engineer from database
-      */
-    function delete_engineer($engineer_id){
+    /**
+     * @desc: Delete Engineer from database
+     */
+    function delete_engineer($engineer_id) {
 
         log_message('info', __FUNCTION__ . " Delete Engineer Id:  " . print_r($engineer_id, true));
-        $where  = array('id' => $engineer_id );
-        $this->vendor_model->update_engineer($where, array('delete'=> '1'));
+        $where = array('id' => $engineer_id);
+        $this->vendor_model->update_engineer($where, array('delete' => '1'));
 
-        if($this->session->userdata('userType') == 'service_center'){
+        if ($this->session->userdata('userType') == 'service_center') {
 
-           redirect(base_url()."service_center/get_engineers");
+            redirect(base_url() . "service_center/get_engineers");
+        } else {
 
-       } else {
-
-            redirect(base_url()."service_center/get_engineers");
-       }
-
+            redirect(base_url() . "service_center/get_engineers");
+        }
     }
+
     /**
      * @desc: This is used to validate engineer details form And also used to upload images
      */
-    function engineer_form_validation(){
+    function engineer_form_validation() {
 
         $this->form_validation->set_rules('name', 'Name', 'required|xss_clean');
         $this->form_validation->set_rules('phone', 'Mobile Number', 'trim|numeric|required|xss_clean');
@@ -2248,17 +2222,16 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('identity_id_number', 'ID Number', 'xss_clean');
         $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'xss_clean');
         $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric|xss_clean');
-	$this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
+        $this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
         $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim|xss_clean');
         $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'trim|xss_clean');
         $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim|xss_clean');
         $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
-	    $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
+        $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
 
-	if ($this->form_validation->run() == FALSE) {
+        if ($this->form_validation->run() == FALSE) {
             return FALSE;
-        }
-        else {
+        } else {
             return true;
         }
     }
@@ -2267,94 +2240,91 @@ class vendor extends CI_Controller {
      * @desc: This is used to upload Bank Proof Image and return true/false depending on result
      */
     public function upload_bank_proof_pic() {
-	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
-	$temp = explode(".", $_FILES["bank_proof_pic"]["name"]);
-	$extension = end($temp);
-	//$filename = prev($temp);
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $temp = explode(".", $_FILES["bank_proof_pic"]["name"]);
+        $extension = end($temp);
+        //$filename = prev($temp);
 
-	if ($_FILES["bank_proof_pic"]["name"] != null) {
-	    if (($_FILES["bank_proof_pic"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
-		if ($_FILES["bank_proof_pic"]["error"] > 0) {
-		    $this->form_validation->set_message('upload_bank_proof_pic', $_FILES["bank_proof_pic"]["error"]);
-		} else {
-		    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('bank_name')) . "_" . uniqid(rand());
-		    $picName = $pic . "." . $extension;
-		    $_POST['bank_proof_pic'] = $picName;
+        if ($_FILES["bank_proof_pic"]["name"] != null) {
+            if (($_FILES["bank_proof_pic"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+                if ($_FILES["bank_proof_pic"]["error"] > 0) {
+                    $this->form_validation->set_message('upload_bank_proof_pic', $_FILES["bank_proof_pic"]["error"]);
+                } else {
+                    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('bank_name')) . "_" . uniqid(rand());
+                    $picName = $pic . "." . $extension;
+                    $_POST['bank_proof_pic'] = $picName;
                     // Uploading to S3
-		    $bucket = BITBUCKET_DIRECTORY;
-		    $directory = "engineer-bank-proofs/" . $picName;
-		    $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory = "engineer-bank-proofs/" . $picName;
+                    $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
 
-		    return TRUE;
-		}
-	    } else {
-		$this->form_validation->set_message('upload_bank_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 2 MB.');
-		return FALSE;
-	    }
-	}
+                    return TRUE;
+                }
+            } else {
+                $this->form_validation->set_message('upload_bank_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 2 MB.');
+                return FALSE;
+            }
+        }
     }
 
     /**
      * @desc: This is used to upload ID Proof Image and return true/false depending on result
      */
     public function upload_identity_proof_pic() {
-	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
-	$temp = explode(".", $_FILES["file"]["name"]);
-	$extension = end($temp);
-	//$filename = prev($temp);
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $temp = explode(".", $_FILES["file"]["name"]);
+        $extension = end($temp);
+        //$filename = prev($temp);
 
-	if ($_FILES["file"]["name"] != null) {
-	    if (($_FILES["file"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
-		if ($_FILES["file"]["error"] > 0) {
-		    $this->form_validation->set_message('upload_identity_proof_pic', $_FILES["file"]["error"]);
-		} else {
-		    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
-		    $picName = $pic . "." . $extension;
-		    $_POST['file'] = $picName;
+        if ($_FILES["file"]["name"] != null) {
+            if (($_FILES["file"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+                if ($_FILES["file"]["error"] > 0) {
+                    $this->form_validation->set_message('upload_identity_proof_pic', $_FILES["file"]["error"]);
+                } else {
+                    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
+                    $picName = $pic . "." . $extension;
+                    $_POST['file'] = $picName;
                     //Uploading to S3
-		    $bucket = BITBUCKET_DIRECTORY;
-		    $directory = "engineer-id-proofs/" . $picName;
-		    $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory = "engineer-id-proofs/" . $picName;
+                    $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
 
-		    return TRUE;
-		}
-	    } else {
-		$this->form_validation->set_message('upload_identity_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 2 MB.');
-		return FALSE;
-	    }
-	}
+                    return TRUE;
+                }
+            } else {
+                $this->form_validation->set_message('upload_identity_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 2 MB.');
+                return FALSE;
+            }
+        }
     }
 
-     /**
+    /**
      *  @desc : This function is used to Add Vendor for a particular Pincode Form
      *  @param bookingID - this can be send using get or post both
      *  @return : returns a view of form 
      */
-
-    function get_add_vendor_to_pincode_form($booking_id=NULL){
-                $data = array();
-                if($booking_id == NULL){
-                     if(!empty($this->input->post())){
-                              $booking_id =$this->input->post('booking_id');
-                     }
-                }
-                else{
-                    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                }
-                if($booking_id != NULL){
-                            $booking_data  = $this->booking_model->getbooking_history($booking_id);
-                            $data['pincode'] = $booking_data[0]['booking_pincode'];
-                            $pincodeAvaliablity = $this->is_pincode_available_in_india_pincode_table($data['pincode']);
-                            if($pincodeAvaliablity){
-                                    $data['selected_appliance'][0] = array('service_id'=>$booking_data[0]['service_id'],'service_name'=>$booking_data[0]['services']);
-                                    $data['all_appliance'] = $this->booking_model->selectservice();
-                                    $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name');
-                                    $this->load->view('employee/add_vendor_to_pincode',$data);
-                            }
-                }
-
+    function get_add_vendor_to_pincode_form($booking_id = NULL) {
+        $data = array();
+        if ($booking_id == NULL) {
+            if (!empty($this->input->post())) {
+                $booking_id = $this->input->post('booking_id');
+            }
+        } else {
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        }
+        if ($booking_id != NULL) {
+            $booking_data = $this->booking_model->getbooking_history($booking_id);
+            $data['pincode'] = $booking_data[0]['booking_pincode'];
+            $pincodeAvaliablity = $this->is_pincode_available_in_india_pincode_table($data['pincode']);
+            if ($pincodeAvaliablity) {
+                $data['selected_appliance'][0] = array('service_id' => $booking_data[0]['service_id'], 'service_name' => $booking_data[0]['services']);
+                $data['all_appliance'] = $this->booking_model->selectservice();
+                $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres', 'id as Vendor_ID,name as Vendor_Name');
+                $this->load->view('employee/add_vendor_to_pincode', $data);
+            }
+        }
     }
 
     /*
@@ -2362,101 +2332,97 @@ class vendor extends CI_Controller {
      * @input - $receivedData(Data we recieved directly from form submission),$areaArray(This array contains area,state,city,region for that particular pincode)
      * @output - $Data(This array will contain all possible combination by merging the input data)
      */
-    
 
-    function get_structured_array_for_vendor_pincode_processing($receivedData,$areaArray){
-        foreach($receivedData['appliance'] as $appliance_data){
-                    $temp = explode("__",$appliance_data);
-                    $appliance['Appliance_ID'] = $temp[0];
-                    $appliance['Appliance'] = $temp[1];
-                    $tempVendor =  explode("__",$receivedData['vendor_id']);
-                    $appliance['Vendor_ID'] = $tempVendor[0];
-                    $appliance['Vendor_Name'] = $tempVendor[1];
-                    $appliance['Pincode'] = $receivedData['pincode'];
-                    foreach ($receivedData['brands_'.$temp[0]] as $brand){
-                              $appliance['Brand'] = $brand ;
-                              foreach($areaArray as $areaData){
-                                  $appliance['state'] = $areaData['state'] ;
-                                  $appliance['area'] = $areaData['area'] ;
-                                  $appliance['region'] = $areaData['region'] ;
-                                  $appliance['city'] = $areaData['city'] ;
-                                  $data[] = $appliance;
-                              }
-                    }
-          }
-            return $data;
+    function get_structured_array_for_vendor_pincode_processing($receivedData, $areaArray) {
+        foreach ($receivedData['appliance'] as $appliance_data) {
+            $temp = explode("__", $appliance_data);
+            $appliance['Appliance_ID'] = $temp[0];
+            $appliance['Appliance'] = $temp[1];
+            $tempVendor = explode("__", $receivedData['vendor_id']);
+            $appliance['Vendor_ID'] = $tempVendor[0];
+            $appliance['Vendor_Name'] = $tempVendor[1];
+            $appliance['Pincode'] = $receivedData['pincode'];
+            foreach ($receivedData['brands_' . $temp[0]] as $brand) {
+                $appliance['Brand'] = $brand;
+                foreach ($areaArray as $areaData) {
+                    $appliance['state'] = $areaData['state'];
+                    $appliance['area'] = $areaData['area'];
+                    $appliance['region'] = $areaData['region'];
+                    $appliance['city'] = $areaData['city'];
+                    $data[] = $appliance;
+                }
+            }
+        }
+        return $data;
     }
-    function get_pincode_form_display_msg($displayMsgArray){
+
+    function get_pincode_form_display_msg($displayMsgArray) {
         $finalMsg = '';
-        if(isset($displayMsgArray['already_exist'])){
-            $finalMsg .= count($displayMsgArray['already_exist']).' Combination Already Exists In Mapping Table For '.$displayMsgArray['pincode'].'</br>';
+        if (isset($displayMsgArray['already_exist'])) {
+            $finalMsg .= count($displayMsgArray['already_exist']) . ' Combination Already Exists In Mapping Table For ' . $displayMsgArray['pincode'] . '</br>';
         }
-         if(isset($displayMsgArray['success'])){
-            $finalMsg .= count($displayMsgArray['success']).' Entries Successfully Created For '.$displayMsgArray['pincode'].'</br>';
+        if (isset($displayMsgArray['success'])) {
+            $finalMsg .= count($displayMsgArray['success']) . ' Entries Successfully Created For ' . $displayMsgArray['pincode'] . '</br>';
         }
-        if(isset($displayMsgArray['failed'])){
-            $finalMsg .= count($displayMsgArray['failed']).' entries failed to insert in table For '.$displayMsgArray['pincode'].'</br>';
+        if (isset($displayMsgArray['failed'])) {
+            $finalMsg .= count($displayMsgArray['failed']) . ' entries failed to insert in table For ' . $displayMsgArray['pincode'] . '</br>';
         }
         return $finalMsg;
     }
+
     /**
      *  @desc : This function is used to Process Add Vendor to pincode Form
      *  @param : Array of $_POST data
      *  @return : void
      */
-    function process_add_vendor_to_pincode_form(){
-        log_message('info',__FUNCTION__);
-        if($this->input->post()){
+    function process_add_vendor_to_pincode_form() {
+        log_message('info', __FUNCTION__);
+        if ($this->input->post()) {
             $this->form_validation->set_rules('pincode', 'Pincode', 'trim|required|numeric|min_length[6]|max_length[6]');
             $this->form_validation->set_rules('vendor_id', 'Vendor_ID', 'required');
             if ($this->form_validation->run() == FALSE) {
-                      $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                      $this->load->view('employee/add_vendor_to_pincode');
-            }
-            else{
-                    $displayMsgArray['pincode'] = $this->input->post('pincode');
-                    $areaArray = $this->vendor_model->get_india_pincode_distinct_area_data($this->input->post('pincode'));
-                    $data =  $this->get_structured_array_for_vendor_pincode_processing($this->input->post(),$areaArray);
-                    $this->miscelleneous->update_pincode_not_found_sf_table($data);
-                    foreach ($data as $value) {
-                              $result = $this->vendor_model->check_vendor_details($value);
-                              if($result == 'true'){
-                                        $value['create_date'] = date('Y-m-d h:i:s');
-                                        $vendor_id = $this->vendor_model->insert_vendor_pincode_mapping($value);
-                                        if(!empty($vendor_id)){
-                                            log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($value,TRUE));
-                                            $displayMsgArray['success'][] = $value; 
-                                            //$cc = "anuj@247around.com";
-                                            //$to = "chhavid@247around.com";
-                                            //$subject = "Add new Combination in vendor pincode mapping";
-                                            //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, implode("||",$value), "");
-                                        }
-                                        else{
-                                            $displayMsgArray['failed'][] = $value; 
-                                            log_message('info',__FUNCTION__.' Error in adding vendor to pincode in vendor_pincode_mapping table '.print_r($value,TRUE));
-                                        }
-                              } 
-                              else {
-                                    log_message('info',__FUNCTION__.'Vendor already assigned to '.$value['Appliance'] );
-                                    $displayMsgArray['already_exist'][] = $value; 
-                              }
+                $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+                $this->load->view('employee/add_vendor_to_pincode');
+            } else {
+                $displayMsgArray['pincode'] = $this->input->post('pincode');
+                $areaArray = $this->vendor_model->get_india_pincode_distinct_area_data($this->input->post('pincode'));
+                $data = $this->get_structured_array_for_vendor_pincode_processing($this->input->post(), $areaArray);
+                $this->miscelleneous->update_pincode_not_found_sf_table($data);
+                foreach ($data as $value) {
+                    $result = $this->vendor_model->check_vendor_details($value);
+                    if ($result == 'true') {
+                        $value['create_date'] = date('Y-m-d h:i:s');
+                        $vendor_id = $this->vendor_model->insert_vendor_pincode_mapping($value);
+                        if (!empty($vendor_id)) {
+                            log_message('info', __FUNCTION__ . 'Vendor assigned to Pincode in vendor_picode_mapping table. ' . print_r($value, TRUE));
+                            $displayMsgArray['success'][] = $value;
+                            //$cc = "anuj@247around.com";
+                            //$to = "chhavid@247around.com";
+                            //$subject = "Add new Combination in vendor pincode mapping";
+                            //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, implode("||",$value), "");
+                        } else {
+                            $displayMsgArray['failed'][] = $value;
+                            log_message('info', __FUNCTION__ . ' Error in adding vendor to pincode in vendor_pincode_mapping table ' . print_r($value, TRUE));
+                        }
+                    } else {
+                        log_message('info', __FUNCTION__ . 'Vendor already assigned to ' . $value['Appliance']);
+                        $displayMsgArray['already_exist'][] = $value;
                     }
-                    $finalMsg = $this->get_pincode_form_display_msg($displayMsgArray);
-                    $this->session->set_userdata('pincode_msg',$finalMsg);
-                   redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
+                }
+                $finalMsg = $this->get_pincode_form_display_msg($displayMsgArray);
+                $this->session->set_userdata('pincode_msg', $finalMsg);
+                redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
             }
-
         }
     }
 
-     /**
+    /**
      *  @desc : This function is used get vendor services based on vendor id
      * Call: This function is called using AJAX from Vendor Pincode adding form.
      *  @param : Vendor ID
      *  @return : JSON
      */
-
-     function get_vendor_services($vendor_id){
+    function get_vendor_services($vendor_id) {
         //Getting  distinct vendor service details from Vendor Mapping table
         $vendor_services = $this->vendor_model->get_distinct_vendor_service_details($vendor_id);
 
@@ -2466,77 +2432,78 @@ class vendor extends CI_Controller {
         }
         //Returning data in Json Encoded form
         print_r(json_encode($data));
+    }
 
-     }
-     /*
-      * This function use to print json data of brands associated to a vendor
-      * @input - vendorID
-      * @output - json of all brands which are related to input vendor ID 
-      */
-     function get_vendor_brands($vendor_id){
-          $brands = $this->vendor_model->get_vendor_brand($vendor_id);
-          $data['brands'] = explode(",",$brands[0]['brands']);
-          print_r(json_encode($data));
-     }
+    /*
+     * This function use to print json data of brands associated to a vendor
+     * @input - vendorID
+     * @output - json of all brands which are related to input vendor ID 
+     */
+
+    function get_vendor_brands($vendor_id) {
+        $brands = $this->vendor_model->get_vendor_brand($vendor_id);
+        $data['brands'] = explode(",", $brands[0]['brands']);
+        print_r(json_encode($data));
+    }
 
     /**
      *  @desc : This function is used to Delete assigned vendor to vendor_pincode_mapping
      *          and  process form data
      *  @param : void
      *  @return : array
-    */
-      function process_vendor_pincode_delete_form() {
+     */
+    function process_vendor_pincode_delete_form() {
 
-	$data = array();
-	//Getting data from database
+        $data = array();
+        //Getting data from database
         $select = "service_centres.name, service_centres.id";
-	$data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
-	$data['appliance'] = $this->booking_model->selectservice();
-	$data['state'] = $this->vendor_model->getall_state();
+        $data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
+        $data['appliance'] = $this->booking_model->selectservice();
+        $data['state'] = $this->vendor_model->getall_state();
 
-	//Process Form
-	if ($this->input->post()) {
-	    if (!empty($this->input->post('service_id')[0])) {
-		$service_id = $this->input->post('service_id');
+        //Process Form
+        if ($this->input->post()) {
+            if (!empty($this->input->post('service_id')[0])) {
+                $service_id = $this->input->post('service_id');
 
-		foreach ($service_id as $key => $value) {
-		    if (!empty($value)) {
+                foreach ($service_id as $key => $value) {
+                    if (!empty($value)) {
 
-			$data_post = array(
-			    'Appliance_ID' => $value,
-			    'Pincode' => $this->input->post('pincode')[$key],
-			    'Vendor_ID' => $this->input->post('vendor_id')[$key]
-			);
+                        $data_post = array(
+                            'Appliance_ID' => $value,
+                            'Pincode' => $this->input->post('pincode')[$key],
+                            'Vendor_ID' => $this->input->post('vendor_id')[$key]
+                        );
 
-			//Deleting data
-			if ($this->vendor_model->delete_vendor($data_post) == '1') {
-			    //Echoing ID to log file
-			    log_message('info', __FUNCTION__ . ' Vendor has been deleted in Vendor_Pincode_Mapping table. ' . print_r($data_post, TRUE));
+                        //Deleting data
+                        if ($this->vendor_model->delete_vendor($data_post) == '1') {
+                            //Echoing ID to log file
+                            log_message('info', __FUNCTION__ . ' Vendor has been deleted in Vendor_Pincode_Mapping table. ' . print_r($data_post, TRUE));
 
-			    $data['delete'] = TRUE;
-			} else {
-			    log_message('info', __FUNCTION__ . ' Following pincode NOT found in Vendor_Pincode_Mapping table =  ' . $this->input->post('pincode')[$key]);
+                            $data['delete'] = TRUE;
+                        } else {
+                            log_message('info', __FUNCTION__ . ' Following pincode NOT found in Vendor_Pincode_Mapping table =  ' . $this->input->post('pincode')[$key]);
 
-			    $data['not_found'][] = $this->input->post('pincode')[$key];
-			}
-		    }
-		}
-	    } else {
+                            $data['not_found'][] = $this->input->post('pincode')[$key];
+                        }
+                    }
+                }
+            } else {
 
-		$data['no_input'] = '';
-	    }
-	}
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
-	$this->load->view('employee/list_vendor_pincode', $data);
+                $data['no_input'] = '';
+            }
+        }
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/list_vendor_pincode', $data);
     }
-    
+
     /**
      * @desc: This method is used to send mail with Vendor Pincode Mapping file.
      * This is called by Ajax. It gets email and notes by form. Pass it to asynchronous method.
      * @param: void
      * @return: print success
      */
-    function download_unique_pincode_excel(){
+    function download_unique_pincode_excel() {
 
 //        log_message('info', __FUNCTION__);
 //
@@ -2574,34 +2541,32 @@ class vendor extends CI_Controller {
 //            readfile($output_file_excel);
 //            exit;
 //        }
-            log_message('info', __FUNCTION__);
-            $newCSVFileName = "Vendor_Pincode_Mapping_Template_" . date('j-M-Y') . ".csv";
-            $csv = TMP_FOLDER . $newCSVFileName;
-            $vendor = $this->vendor_model->get_all_pincode_mapping();
-            $delimiter = ",";
-            $newline = "\r\n";
-            $new_report = $this->dbutil->csv_from_result($vendor, $delimiter, $newline);
-            
-            log_message('info', __FUNCTION__ . ' => Rendered CSV');
-            write_file($csv, $new_report);
-            //Downloading Generated CSV
-             if (file_exists($csv)) {
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($csv));
-                readfile($csv);
-                exec("rm -rf " . escapeshellarg($csv));
-                exit;
-            }
-        
+        log_message('info', __FUNCTION__);
+        $newCSVFileName = "Vendor_Pincode_Mapping_Template_" . date('j-M-Y') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $vendor = $this->vendor_model->get_all_pincode_mapping();
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($vendor, $delimiter, $newline);
 
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        //Downloading Generated CSV
+        if (file_exists($csv)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($csv));
+            readfile($csv);
+            exec("rm -rf " . escapeshellarg($csv));
+            exit;
+        }
     }
 
-        /**
+    /**
      * @desc: This function to send mails to vendors
      * @param: void
      * @return : void
@@ -2620,7 +2585,7 @@ class vendor extends CI_Controller {
         );
         $email['select'] = 'id,template,subject';
         $data['email_template'] = $this->vendor_model->get_247around_email_template($email);
-        
+
         //For partners
         $partner_email = array();
         $partner_email['where'] = array(
@@ -2628,9 +2593,9 @@ class vendor extends CI_Controller {
         );
         $partner_email['select'] = 'id,template,subject';
         $data['partner_email_template'] = $this->vendor_model->get_247around_email_template($partner_email);
-        
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+
+
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/sendemailtovendor', $data);
     }
 
@@ -2646,28 +2611,27 @@ class vendor extends CI_Controller {
         $flag = TRUE;
         $attachment = "";
         //Do file upload if attachment is provided
-        if (($_FILES['attachment_'.$id]['error'] != 4) && !empty($_FILES['attachment_'.$id]['tmp_name'])) {
-            $tmpFile = $_FILES['attachment_'.$id]['tmp_name'];
-            $fileName = $_FILES['attachment_'.$id]['name'];
+        if (($_FILES['attachment_' . $id]['error'] != 4) && !empty($_FILES['attachment_' . $id]['tmp_name'])) {
+            $tmpFile = $_FILES['attachment_' . $id]['tmp_name'];
+            $fileName = $_FILES['attachment_' . $id]['name'];
 
-           move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
+            move_uploaded_file($tmpFile, TMP_FOLDER . $fileName);
             // move_uploaded_file($tmpFile, "c:\users\bredkhan"."\\$fileName");
             if (!empty($fileName)) {
-               $attachment = TMP_FOLDER.$fileName;
+                $attachment = TMP_FOLDER . $fileName;
                 // $attachment = "c:\users\bredkhan"."\\$fileName";
-
             }
         }
         if ($this->input->post()) {
             $vendors = $this->input->post('vendors');
             //Checking for ALL vendors selected
-            if($vendors[0] == 0){
+            if ($vendors[0] == 0) {
                 $select = "service_centres.name, service_centres.id";
                 $vendors_array = $this->vendor_model->getVendorDetails($select);
                 foreach ($vendors_array as $value) {
                     $vendors_list[] = $value['id'];
                 }
-            }else{
+            } else {
                 $vendors_list = $vendors;
             }
             //Get email template values
@@ -2728,29 +2692,29 @@ class vendor extends CI_Controller {
             $flag = FALSE;
         }
         //Returning Flag value to AJAX request
-            echo $flag;
+        echo $flag;
     }
-    
-     /**
+
+    /**
      * @desc: This function is used to send mails to the selected partner along with emails 
      *        It is being called using AJAX
      * params: $_FILES, POST array
      * return: void
      * 
      */
-     function process_mail_to_partner($id) {
+    function process_mail_to_partner($id) {
         //Setting flag as TRUE ->Success and FALSE -> Failure
         $flag = TRUE;
         $attachment = "";
         //Do file upload if attachment is provided
-        if (($_FILES['attachment_'.$id]['error'] != 4) && !empty($_FILES['attachment_'.$id]['tmp_name'])) {
+        if (($_FILES['attachment_' . $id]['error'] != 4) && !empty($_FILES['attachment_' . $id]['tmp_name'])) {
             $tmpFile = $_FILES['attachment_' . $id]['tmp_name'];
             $fileName = $_FILES['attachment_' . $id]['name'];
 
-            move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
+            move_uploaded_file($tmpFile, TMP_FOLDER . $fileName);
             if (!empty($fileName)) {
-                $attachment = TMP_FOLDER.$fileName;
-}
+                $attachment = TMP_FOLDER . $fileName;
+            }
         }
         if ($this->input->post()) {
             $partners = $this->input->post('partners');
@@ -2823,33 +2787,33 @@ class vendor extends CI_Controller {
         //Returning Flag value to AJAX request
         echo $flag;
     }
-    
+
     /**
      * @desc: This function is used to show misc counts for 247around
      * params: void
      * return: view
      * 
      */
-    function show_around_dashboard(){
+    function show_around_dashboard() {
         //Initializing array data for where and select clause
-        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries(array('active' => 1,'type'=> 'service'));
+        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries(array('active' => 1, 'type' => 'service'));
         $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/247around_dashboard', $data_report);
     }
-    
+
     /**
      * @desc: This function is used to show editable grid for SMS Templates
      * params: void
      * return: view
      * 
      */
-    function get_sms_template_editable_grid(){
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+    function get_sms_template_editable_grid() {
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/sms_template_editable_grid');
-        
     }
+
     /**
      * @desc: This funtion is called from AJAX to get sms templates
      * params: void
@@ -2890,55 +2854,55 @@ class vendor extends CI_Controller {
                     $ops = $value;
                 }
             }
-            if ($searchOper == 'eq'){
-                $searchString = $searchString;   
+            if ($searchOper == 'eq') {
+                $searchString = $searchString;
             }
-            if ($searchOper == 'bw' || $searchOper == 'bn'){
+            if ($searchOper == 'bw' || $searchOper == 'bn') {
                 $searchString .= '%';
-            }   
-            if ($searchOper == 'ew' || $searchOper == 'en'){
+            }
+            if ($searchOper == 'ew' || $searchOper == 'en') {
                 $searchString = '%' . $searchString;
             }
-            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni'){
+            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni') {
                 $searchString = '%' . $searchString . '%';
             }
-                
+
 
             $where = "$searchField $ops '$searchString' ";
         }
 
-        if (!$sidx){
+        if (!$sidx) {
             $sidx = 1;
         }
         $count = $this->db->count_all_results('sms_template');
-         
+
         if ($count > 0) {
             $total_pages = ceil($count / $limit);
         } else {
             $total_pages = 0;
         }
 
-        if ($page > $total_pages){
+        if ($page > $total_pages) {
             $page = $total_pages;
         }
-       
+
         $query = $this->vendor_model->get_all_active_sms_template($start, $limit, $sidx, $sord, $where);
-        
+
         $responce = new StdClass;
         $responce->page = $page;
         $responce->total = $total_pages;
         $responce->records = $count;
         $i = 0;
-                
+
         foreach ($query as $row) {
             $responce->rows[$i]['id'] = $row->id;
             $responce->rows[$i]['cell'] = array($row->tag, $row->template, $row->comments, $row->active);
             $i++;
         }
- 
+
         echo json_encode($responce);
     }
-    
+
     function update_sms_template() {
         $data = $this->input->post();
         $operation = $data['oper'];
@@ -2980,7 +2944,7 @@ class vendor extends CI_Controller {
                 $update_data['template'] = $data['template'];
                 $update_data['comments'] = $data['comments'];
                 $update_data['active'] = $data['active'];
-                $update_id = $this->vendor_model->update_sms_template($update_data,$data['id']);
+                $update_id = $this->vendor_model->update_sms_template($update_data, $data['id']);
                 if ($update_id) {
                     log_message('info', __FUNCTION__ . ' Sms Template has been updated with ID ' . $update_id);
                 } else {
@@ -2991,58 +2955,58 @@ class vendor extends CI_Controller {
             case 'del':
                 $delete = $this->vendor_model->delete_sms_template($data['id']);
                 if ($delete) {
-                    log_message('info', __FUNCTION__ . ' Sms Template has been deleted with ID'. $data['id'] );
+                    log_message('info', __FUNCTION__ . ' Sms Template has been deleted with ID' . $data['id']);
                 } else {
                     log_message('info', __FUNCTION__ . ' Err in deleting Sms Template');
                 }
                 break;
         }
     }
-    
+
     /**
      * @desc: This function is used to show Service Center Report
      * params: void
      * return: view
      */
-    function show_service_center_report(){
+    function show_service_center_report() {
         $this->checkUserSession();
         //Getting employee sf relation
         $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
-        if(!empty($sf_list)){
+        if (!empty($sf_list)) {
             $sf_list = $sf_list[0]['service_centres_id'];
         }
-        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list,'');
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-        $this->load->view('employee/show_service_center_report',$data);
+        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list, '');
+
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/show_service_center_report', $data);
     }
-    
+
     /**
      * @desc: This function is used to send Report Mail to logged user and is called using AJAX
      * params: void
      * return : Boolean
      */
-    function send_report_to_mail(){
+    function send_report_to_mail() {
         $this->checkUserSession();
-        $user =$this->session->userdata;
+        $user = $this->session->userdata;
         $employee_details = $this->employee_model->getemployeefromid($user['id']);
-        if(isset($employee_details[0]['official_email']) && $employee_details[0]['official_email']){
+        if (isset($employee_details[0]['official_email']) && $employee_details[0]['official_email']) {
             //Getting employee sf relation
             $sf_list = $this->vendor_model->get_employee_relation($user['id']);
-            if(!empty($sf_list)){
+            if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
-            $html = $this->booking_utilities->booking_report_by_service_center($sf_list,'');
+            $html = $this->booking_utilities->booking_report_by_service_center($sf_list, '');
             $to = $employee_details[0]['official_email'];
-            
+
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Service Center Report", $html, "");
-            log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
+            log_message('info', __FUNCTION__ . ' Service Center Report mail sent to ' . $to);
             echo TRUE;
-        }else{
+        } else {
             echo FALSE;
         }
     }
-    
+
     /**
      * @desc: This function is used to delete mail template 
      * parmas: INT id of mail template
@@ -3056,30 +3020,30 @@ class vendor extends CI_Controller {
             echo FALSE;
         }
     }
-    
+
     /**
      * @desc: This function is used to show Service Center Report for New Vendors
      * params: void
      * return: view
      */
-    function new_service_center_report(){
+    function new_service_center_report() {
         $this->checkUserSession();
         //Getting employee sf relation
         $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
         if (!empty($sf_list)) {
             $sf_list = $sf_list[0]['service_centres_id'];
-    }
+        }
         $data['html'] = $this->booking_utilities->booking_report_for_new_service_center($sf_list);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/new_service_center_report', $data);
     }
-    
+
     /**
      * @desc: This method called by ajax to display available vendor list in dropdown
      * @param type $pincode
      * @param type $service_id
      */
-    function get_vendor_availability($pincode, $service_id){
+    function get_vendor_availability($pincode, $service_id) {
         $data = $this->vendor_model->check_vendor_availability($pincode, $service_id);
         if (!empty($data)) {
             foreach ($data as $value) {
@@ -3089,18 +3053,19 @@ class vendor extends CI_Controller {
             echo "";
         }
     }
+
     /**
      * @desc: This method is used to update is_update field. It gets 0 Or 1 flag to update service center
      * @param String $service_center_id
      * @param String $flag
      */
-    function control_update_process($service_center_id, $flag){
-        $this->vendor_model->edit_vendor(array('is_update'=> $flag), $service_center_id);
+    function control_update_process($service_center_id, $flag) {
+        $this->vendor_model->edit_vendor(array('is_update' => $flag), $service_center_id);
         //Adding details in Booking State Change Table
-        if($flag == 1){
-            $this->notify->insert_state_change("", NEW_SF_CRM, OLD_SF_CRM , "New CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
-        }else{
-            $this->notify->insert_state_change("", OLD_SF_CRM, NEW_SF_CRM , "Old CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        if ($flag == 1) {
+            $this->notify->insert_state_change("", NEW_SF_CRM, OLD_SF_CRM, "New CRM Enabled for SF ID: " . $service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+        } else {
+            $this->notify->insert_state_change("", OLD_SF_CRM, NEW_SF_CRM, "Old CRM Enabled for SF ID: " . $service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
         }
         redirect(base_url() . 'employee/vendor/viewvendor');
     }
@@ -3110,38 +3075,38 @@ class vendor extends CI_Controller {
      * params: void
      * return : Boolean
      */
-    function new_service_center_report_to_mail(){
-        $user =$this->session->userdata;
+    function new_service_center_report_to_mail() {
+        $user = $this->session->userdata;
         $employee_details = $this->employee_model->getemployeefromid($user['id']);
-        if(isset($employee_details[0]['official_email']) && $employee_details[0]['official_email']){
+        if (isset($employee_details[0]['official_email']) && $employee_details[0]['official_email']) {
             //Getting employee sf relation
             $sf_list = $this->vendor_model->get_employee_relation($user['id']);
-            if(!empty($sf_list)){
+            if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
             $html = $this->booking_utilities->booking_report_for_new_service_center($sf_list);
             $to = $employee_details[0]['official_email'];
 
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "New Service Center Report", $html, "");
-            log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to '. $to);
+            log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to ' . $to);
             echo TRUE;
-        }else{
+        } else {
             echo FALSE;
         }
     }
 
-   /**
+    /**
      * @Desc: This function is used to download Active vendors list
      *      in Excel. It is called using AJAX
      * params: void
      * @return: void
      * 
      */
-    function download_sf_list_excel(){
+    function download_sf_list_excel() {
         //Getting only Active Vendors List
         //$vendor  = $this->vendor_model->viewvendor('',1);
-       
-        $where = array('active' => '1','on_off' => '1');
+
+        $where = array('active' => '1', 'on_off' => '1');
         $select = "*";
         $vendor = $this->vendor_model->getVendorDetails($select, $where);
         log_message('info', __FUNCTION__);
@@ -3158,28 +3123,26 @@ class vendor extends CI_Controller {
         $R = new PHPReport($config);
 
         $R->load(array(
-
-                 'id' => 'vendor',
-                'repeat' => TRUE,
-                'data' => $vendor
-            ));
+            'id' => 'vendor',
+            'repeat' => TRUE,
+            'data' => $vendor
+        ));
 
         $output_file_dir = TMP_FOLDER;
         $output_file = "SF_List_" . date('y-m-d');
         $output_file_name = $output_file . ".xls";
         $output_file_excel = $output_file_dir . $output_file_name;
         $R->render('excel2003', $output_file_excel);
-        
+
         //Downloading File
-        if(file_exists($output_file_excel)){
+        if (file_exists($output_file_excel)) {
 
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
-            header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+            header("Content-Disposition: attachment; filename=\"$output_file_name\"");
             readfile($output_file_excel);
             exit;
         }
-
     }
 
     /**
@@ -3188,18 +3151,18 @@ class vendor extends CI_Controller {
      * parmas: type(column_name),vendor id
      * return: Boolean
      */
-    function remove_image(){
+    function remove_image() {
         $data = $this->input->post();
         $vendor = [];
         $vendor[$data['type']] = '';
         //Making Database Entry as Null
         $this->vendor_model->edit_vendor($vendor, $data['id']);
-        
+
         //Logging 
-        log_message('info',__FUNCTION__.' Following Images has been removed sucessfully: '.print_r($data, TRUE));
+        log_message('info', __FUNCTION__ . ' Following Images has been removed sucessfully: ' . print_r($data, TRUE));
         echo TRUE;
-}
-    
+    }
+
     /**
      * @Desc: This function is used to check validation for file inputs through add/edit vendor form
      * 
@@ -3207,29 +3170,29 @@ class vendor extends CI_Controller {
      * @return: Boolean
      * 
      */
-     function file_input_validation($file_type){
-         switch($file_type){
-             case 'pan_file': 
-                    $this->form_validation->set_rules('name_on_pan', 'Name on Pan', 'trim|required|xss_clean');
-                    $this->form_validation->set_rules('pan_no', 'Pan Number', 'trim|required|xss_clean');
-                    break;
-                
-             case 'cst_file': 
-                    $this->form_validation->set_rules('cst_no', 'CST Number', 'trim|required|xss_clean');
-                    break;
-                
-             case 'tin_file': 
-                    $this->form_validation->set_rules('tin_no', 'TIN/VAT Number', 'trim|required|xss_clean');
-                    break;
-                
-             case 'service_tax_file': 
-                    $this->form_validation->set_rules('service_tax_no', 'Service Tax Number', 'trim|required|xss_clean');
-                    break;
-         }
-         return $this->form_validation->run();
-     }
+    function file_input_validation($file_type) {
+        switch ($file_type) {
+            case 'pan_file':
+                $this->form_validation->set_rules('name_on_pan', 'Name on Pan', 'trim|required|xss_clean');
+                $this->form_validation->set_rules('pan_no', 'Pan Number', 'trim|required|xss_clean');
+                break;
 
-     /**
+            case 'cst_file':
+                $this->form_validation->set_rules('cst_no', 'CST Number', 'trim|required|xss_clean');
+                break;
+
+            case 'tin_file':
+                $this->form_validation->set_rules('tin_no', 'TIN/VAT Number', 'trim|required|xss_clean');
+                break;
+
+            case 'service_tax_file':
+                $this->form_validation->set_rules('service_tax_no', 'Service Tax Number', 'trim|required|xss_clean');
+                break;
+        }
+        return $this->form_validation->run();
+    }
+
+    /**
      * @desc: This function is to temporarily activate deactivate a particular vendor
      *
      * For this the vendor must be already registered with us and we change on_off flag of vendor in service_centres table
@@ -3239,27 +3202,27 @@ class vendor extends CI_Controller {
      */
     function temporary_on_off_vendor($id, $on_off) {
         $this->checkUserSession();
-        log_message('info',__FUNCTION__.' id: '.$id.' on_off: '.$on_off);
+        log_message('info', __FUNCTION__ . ' id: ' . $id . ' on_off: ' . $on_off);
         $agentID = $this->session->userdata('id');
         $vendor['on_off'] = $on_off;
         $vendor['agent_id'] = $agentID;
         $this->vendor_model->edit_vendor($vendor, $id);
-        
+
         //Check on off
-        if($on_off == 1){
+        if ($on_off == 1) {
             $on_off_value = 'ON';
             $new_state = _247AROUND_VENDOR_NON_SUSPENDED;
             $old_state = _247AROUND_VENDOR_SUSPENDED;
-        }else{
+        } else {
             $on_off_value = 'OFF';
             $new_state = _247AROUND_VENDOR_SUSPENDED;
             $old_state = _247AROUND_VENDOR_NON_SUSPENDED;
         }
-        
+
         //Getting Vendor Details
         $sf_details = $this->vendor_model->getVendorContact($id);
         $sf_name = $sf_details[0]['name'];
-        
+
         //Sending Mail to corresponding RM and admin group 
         $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
         if (!empty($employee_relation)) {
@@ -3276,100 +3239,97 @@ class vendor extends CI_Controller {
                 $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
             }
 
-            log_message('info', __FUNCTION__ . ' Temporary  '.$on_off_value.' of Vendor' . $sf_name);
+            log_message('info', __FUNCTION__ . ' Temporary  ' . $on_off_value . ' of Vendor' . $sf_name);
         }
-        
+
         $log = array(
             "entity" => "vendor",
             "entity_id" => $id,
             "agent_id" => $this->session->userdata('id'),
-            "action" =>  $new_state
+            "action" => $new_state
         );
         $this->vendor_model->insert_log_action_on_entity($log);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
-    
+
     /**
      * @Desc: This function is used to show list of Documents uploaded for Vendors/ Used to Handle Filter Request
      * @params: void/ POST Array
      * @return: view
      * 
      */
-    function show_vendor_documents_view(){
+    function show_vendor_documents_view() {
         $this->checkUserSession();
         //Getting RM Lists
         $rm = $this->employee_model->get_rm_details();
 
-        if(!empty($this->input->post())){
+        if (!empty($this->input->post())) {
             $data = $this->input->post();
-            if($data['all_active'] == 'active'){
+            if ($data['all_active'] == 'active') {
                 $active = 1;
-            }else{
+            } else {
                 $active = "";
             }
-            if($data['rm'] != 'all'){
+            if ($data['rm'] != 'all') {
                 //Getting RM to SF Relation
                 $sf_list = $this->vendor_model->get_employee_relation($data['rm']);
                 $query = $this->vendor_model->viewvendor("", $active, $sf_list[0]['service_centres_id']);
-            }else{
+            } else {
                 $query = $this->vendor_model->viewvendor("", $active, '');
             }
-            
+
             $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm,'selected'=>$data));
-            
-        }else{
+            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' => $rm, 'selected' => $data));
+        } else {
             $query = $this->vendor_model->viewvendor("", "", "");
-            
+
             $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm));
+            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' => $rm));
         }
     }
-    
+
     /**
      * @Desc: This function is used to remove images from vendor add/edit form
      *          It is being called using AJAX Request
      * parmas: type(column_name),vendor id
      * return: Boolean
      */
-    function remove_engineer_image(){
+    function remove_engineer_image() {
         $data = $this->input->post();
-        
-        $engineer[$data['type']] = "";
-        $where = array('id' => $data['id'] );
-	$engineer_id = $this->vendor_model->update_engineer($where,$engineer);
-        
-        //Logging 
-        log_message('info',__FUNCTION__.' '.$data['type'].' Following Images has been removed sucessfully for engineer ID : '.print_r($engineer_id));
-        echo TRUE;
-}
 
-/**
+        $engineer[$data['type']] = "";
+        $where = array('id' => $data['id']);
+        $engineer_id = $this->vendor_model->update_engineer($where, $engineer);
+
+        //Logging 
+        log_message('info', __FUNCTION__ . ' ' . $data['type'] . ' Following Images has been removed sucessfully for engineer ID : ' . print_r($engineer_id));
+        echo TRUE;
+    }
+
+    /**
      * @Desc: This function is used to download latest pincode file uploaded in s3
      * @params: void
      * @return:void
      * 
      */
-    function download_pincode_latest_file($file_name){
+    function download_pincode_latest_file($file_name) {
         //s3 file path
-        $file_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-pincodes/".$file_name;
-        
+        $file_path = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-pincodes/" . $file_name;
+
         //Downloading File
-        if(!empty($file_name)){
+        if (!empty($file_name)) {
 
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
-            header("Content-Disposition: attachment; filename=\"$file_name\""); 
+            header("Content-Disposition: attachment; filename=\"$file_name\"");
             readfile($file_path);
             exit;
-        }else{
+        } else {
             //Logging_error
-            log_message('info',__FUNCTION__.' No latest file has been found to be uploaded.');
+            log_message('info', __FUNCTION__ . ' No latest file has been found to be uploaded.');
         }
-        
-        
     }
-    
+
     /**
      * 
      * @Desc: This function is used to show SC Charges list according to state
@@ -3378,83 +3338,81 @@ class vendor extends CI_Controller {
      * 
      * 
      */
-    function get_sc_charges_list(){
+    function get_sc_charges_list() {
         $state = $this->input->post('state');
-        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('employee_id'));
-            $sc_charges_data = $this->service_centre_charges_model->get_service_centre_charges($state);
-            //Looping through all the values 
-            foreach ($sc_charges_data as $value) {
-                //Getting Details from Booking Sources
-                $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($value['partner_id']);
-                $code_source = $booking_sources[0]['code'];
-                
-                //Calculating vendor base charge 
-                $vendor_base_charge = $value['vendor_total']/(1+($value['rate']/100));
-                //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
-                $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
-                
-                $array_final['state'] = $state;
-                $array_final['sc_code'] = $code_source;
-                $array_final['product'] = $value['product'];
-                $array_final['category'] = $value['category'];
-                $array_final['capacity'] = $value['capacity'];
-                $array_final['service_category'] = $value['service_category'];
-                $array_final['vendor_basic_charges'] = round($vendor_base_charge,0);
-                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,0);
-                $array_final['vendor_total'] = round($value['vendor_total'],0);
-                $array_final['customer_net_payable'] = round($value['customer_net_payable'],0);
-                $array_final['pod'] = $value['pod'];
-                
-                $final_array[] = $array_final;
-            }
+        log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('employee_id'));
+        $sc_charges_data = $this->service_centre_charges_model->get_service_centre_charges($state);
+        //Looping through all the values 
+        foreach ($sc_charges_data as $value) {
+            //Getting Details from Booking Sources
+            $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($value['partner_id']);
+            $code_source = $booking_sources[0]['code'];
 
-            $template = 'SC-Charges-List-Template.xlsx';
-            //set absolute path to directory with template files
-            $templateDir = __DIR__ . "/../excel-templates/";
-            //set config for report
-            $config = array(
-                'template' => $template,
-                'templateDir' => $templateDir
-            );
-            //load template
-            $R = new PHPReport($config);
+            //Calculating vendor base charge 
+            $vendor_base_charge = $value['vendor_total'] / (1 + ($value['rate'] / 100));
+            //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
+            $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
 
-            $R->load(array(
+            $array_final['state'] = $state;
+            $array_final['sc_code'] = $code_source;
+            $array_final['product'] = $value['product'];
+            $array_final['category'] = $value['category'];
+            $array_final['capacity'] = $value['capacity'];
+            $array_final['service_category'] = $value['service_category'];
+            $array_final['vendor_basic_charges'] = round($vendor_base_charge, 0);
+            $array_final['vendor_tax_basic_charges'] = round($vendor_tax, 0);
+            $array_final['vendor_total'] = round($value['vendor_total'], 0);
+            $array_final['customer_net_payable'] = round($value['customer_net_payable'], 0);
+            $array_final['pod'] = $value['pod'];
 
-                     'id' => 'sc',
-                    'repeat' => TRUE,
-                    'data' => $final_array
-                ));
+            $final_array[] = $array_final;
+        }
 
-            $output_file_dir = TMP_FOLDER;
-            $output_file = ucfirst($state)."-Charges-List-" . date('j-M-Y');
-            $output_file_name = $output_file . ".xlsx";
-            $output_file_excel = $output_file_dir . $output_file_name;
-            $R->render('excel', $output_file_excel);
-            
-            //Downloading File
-            if(file_exists($output_file_excel)){
+        $template = 'SC-Charges-List-Template.xlsx';
+        //set absolute path to directory with template files
+        $templateDir = __DIR__ . "/../excel-templates/";
+        //set config for report
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        //load template
+        $R = new PHPReport($config);
 
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
-                readfile($output_file_excel);
-                exit;
-            }           
+        $R->load(array(
+            'id' => 'sc',
+            'repeat' => TRUE,
+            'data' => $final_array
+        ));
+
+        $output_file_dir = TMP_FOLDER;
+        $output_file = ucfirst($state) . "-Charges-List-" . date('j-M-Y');
+        $output_file_name = $output_file . ".xlsx";
+        $output_file_excel = $output_file_dir . $output_file_name;
+        $R->render('excel', $output_file_excel);
+
+        //Downloading File
+        if (file_exists($output_file_excel)) {
+
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=\"$output_file_name\"");
+            readfile($output_file_excel);
+            exit;
+        }
     }
-    
+
     /**
      * @desc: This function is used to show editable grid for tax rates Templates
      * params: void
      * return: view
      * 
      */
-    function get_tax_rates_template_editable_grid(){
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+    function get_tax_rates_template_editable_grid() {
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/tax_rates_template_editable_grid');
-        
     }
-    
+
     /**
      * @desc: This funtion is called from AJAX to get tax rates templates
      * params: void
@@ -3495,55 +3453,55 @@ class vendor extends CI_Controller {
                     $ops = $value;
                 }
             }
-            if ($searchOper == 'eq'){
+            if ($searchOper == 'eq') {
                 $searchString = $searchString;
-            } 
-            if ($searchOper == 'bw' || $searchOper == 'bn'){
+            }
+            if ($searchOper == 'bw' || $searchOper == 'bn') {
                 $searchString .= '%';
             }
-            if ($searchOper == 'ew' || $searchOper == 'en'){
-                 $searchString = '%' . $searchString;
+            if ($searchOper == 'ew' || $searchOper == 'en') {
+                $searchString = '%' . $searchString;
             }
-            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni'){
+            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni') {
                 $searchString = '%' . $searchString . '%';
             }
-                
+
 
             $where = "$searchField $ops '$searchString' ";
         }
 
-        if (!$sidx){
+        if (!$sidx) {
             $sidx = 1;
         }
         $count = $this->db->count_all_results('tax_rates');
-         
+
         if ($count > 0) {
             $total_pages = ceil($count / $limit);
         } else {
             $total_pages = 0;
         }
 
-        if ($page > $total_pages){
+        if ($page > $total_pages) {
             $page = $total_pages;
         }
-       
+
         $query = $this->vendor_model->get_all_active_tax_rates_template($start, $limit, $sidx, $sord, $where);
-        
+
         $responce = new StdClass;
         $responce->page = $page;
         $responce->total = $total_pages;
         $responce->records = $count;
         $i = 0;
-                
+
         foreach ($query as $row) {
             $responce->rows[$i]['id'] = $row->id;
-            $responce->rows[$i]['cell'] = array($row->tax_code, $row->state, $row->product_type, $row->rate,$row->from_date,$row->to_date,$row->active);
+            $responce->rows[$i]['cell'] = array($row->tax_code, $row->state, $row->product_type, $row->rate, $row->from_date, $row->to_date, $row->active);
             $i++;
         }
- 
+
         echo json_encode($responce);
     }
-    
+
     function update_tax_rate_template() {
         $data = $this->input->post();
         $operation = $data['oper'];
@@ -3592,7 +3550,7 @@ class vendor extends CI_Controller {
                 $update_data['from_date'] = $data['from_date'];
                 $update_data['to_date'] = $data['to_date'];
                 $update_data['active'] = $data['active'];
-                $update_id = $this->vendor_model->update_tax_rates_template($update_data,$data['id']);
+                $update_id = $this->vendor_model->update_tax_rates_template($update_data, $data['id']);
                 if ($update_id) {
                     log_message('info', __FUNCTION__ . ' Sms Template has been updated with ID ' . $update_id);
                 } else {
@@ -3603,26 +3561,25 @@ class vendor extends CI_Controller {
             case 'del':
                 $delete = $this->vendor_model->delete_tax_rate_template($data['id']);
                 if ($delete) {
-                    log_message('info', __FUNCTION__ . ' Tax Rate Template has been deleted with ID'. $data['id'] );
+                    log_message('info', __FUNCTION__ . ' Tax Rate Template has been deleted with ID' . $data['id']);
                 } else {
                     log_message('info', __FUNCTION__ . ' Err in deleting Tax Rate Template');
                 }
                 break;
         }
     }
-    
-     /**
+
+    /**
      * @desc: This function is used to show editable grid for vendor escalation policy
      * params: void
      * return: view
      * 
      */
-    function get_vandor_escalation_policy_editable_grid(){
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+    function get_vandor_escalation_policy_editable_grid() {
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/vandor_escalation_policy_template_editable_grid');
-        
     }
-    
+
     /**
      * @desc: This funtion is called from AJAX to get vendor escalation policy
      * params: void
@@ -3663,55 +3620,56 @@ class vendor extends CI_Controller {
                     $ops = $value;
                 }
             }
-            if ($searchOper == 'eq'){
+            if ($searchOper == 'eq') {
                 $searchString = $searchString;
-            }   
-            if ($searchOper == 'bw' || $searchOper == 'bn'){
+            }
+            if ($searchOper == 'bw' || $searchOper == 'bn') {
                 $searchString .= '%';
-            }   
-            if ($searchOper == 'ew' || $searchOper == 'en'){
+            }
+            if ($searchOper == 'ew' || $searchOper == 'en') {
                 $searchString = '%' . $searchString;
-            }  
-            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni'){
+            }
+            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni') {
                 $searchString = '%' . $searchString . '%';
             }
-                
+
 
             $where = "$searchField $ops '$searchString' ";
         }
 
-        if (!$sidx){
+        if (!$sidx) {
             $sidx = 1;
         }
-            
+
         $count = $this->db->count_all_results('vendor_escalation_policy');
-         
+
         if ($count > 0) {
             $total_pages = ceil($count / $limit);
         } else {
             $total_pages = 0;
         }
 
-        if ($page > $total_pages){
+        if ($page > $total_pages) {
             $page = $total_pages;
         }
-       
+
         $query = $this->vendor_model->get_vandor_escalation_policy_template($start, $limit, $sidx, $sord, $where);
-        
+
         $responce = new StdClass;
         $responce->page = $page;
         $responce->total = $total_pages;
         $responce->records = $count;
         $i = 0;
-                
+
         foreach ($query as $row) {
             $responce->rows[$i]['id'] = $row->id;
-            $responce->rows[$i]['cell'] = array($row->escalation_reason, $row->entity, $row->process_type, $row->sms_to_owner,$row->sms_to_poc,$row->sms_body,$row->active);
+            $responce->rows[$i]['cell'] = array($row->escalation_reason, $row->entity, $row->process_type, $row->sms_to_owner, $row->sms_to_poc, $row->sms_body, $row->active);
             $i++;
         }
- 
+
         echo json_encode($responce);
     }
+
     /**
      * @desc: This funtion is called from AJAX to update vendor escalation policy
      * params: void
@@ -3767,7 +3725,7 @@ class vendor extends CI_Controller {
                 } else {
                     $data['active'] = 0;
                 }
-                 if ($data['sms_to_owner'] == 'on') {
+                if ($data['sms_to_owner'] == 'on') {
                     $data['sms_to_owner'] = 1;
                 } else {
                     $data['sms_to_owner'] = 0;
@@ -3785,7 +3743,7 @@ class vendor extends CI_Controller {
                 $update_data['sms_to_poc'] = $data['sms_to_poc'];
                 $update_data['sms_body'] = $data['sms_body'];
                 $update_data['active'] = $data['active'];
-                $update_id = $this->vendor_model->update_vandor_escalation_policy_template($update_data,$data['id']);
+                $update_id = $this->vendor_model->update_vandor_escalation_policy_template($update_data, $data['id']);
                 if ($update_id) {
                     log_message('info', __FUNCTION__ . ' Vendor Escalation Policy Template has been updated with ID ' . $update_id);
                 } else {
@@ -3796,19 +3754,18 @@ class vendor extends CI_Controller {
             case 'del':
                 $delete = $this->vendor_model->delete_vandor_escalation_policy_template($data['id']);
                 if ($delete) {
-                    log_message('info', __FUNCTION__ . ' Vendor Escalation Policy Template has been deleted with ID'. $data['id'] );
+                    log_message('info', __FUNCTION__ . ' Vendor Escalation Policy Template has been deleted with ID' . $data['id']);
                 } else {
                     log_message('info', __FUNCTION__ . ' Err in deleting Vendor Escalation Policy');
                 }
                 break;
         }
     }
-    
-    function get_sc_upcountry_details($service_center_id){
-        $data['data'] = $this->upcountry_model->get_sub_service_center_details(array('service_center_id' =>$service_center_id));
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-        $this->load->view('employee/sc_upcountry_details',$data);
-        
+
+    function get_sc_upcountry_details($service_center_id) {
+        $data['data'] = $this->upcountry_model->get_sub_service_center_details(array('service_center_id' => $service_center_id));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/sc_upcountry_details', $data);
     }
 
     /**
@@ -3816,11 +3773,10 @@ class vendor extends CI_Controller {
      * @param String $booking_id
      * @param Integer $up_flag
      */
-    function update_upcountry_and_unit_in_sc($booking_id, $up_flag){
-        log_message('info', "Booking iD " . $booking_id." Flag ". $up_flag);
-        if($up_flag == 1){
-            $this->miscelleneous->assign_upcountry_booking($booking_id, 
-                    _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME);
+    function update_upcountry_and_unit_in_sc($booking_id, $up_flag) {
+        log_message('info', "Booking iD " . $booking_id . " Flag " . $up_flag);
+        if ($up_flag == 1) {
+            $this->miscelleneous->assign_upcountry_booking($booking_id, _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME);
         }
         $this->miscelleneous->check_unit_in_sc($booking_id);
     }
@@ -3830,26 +3786,26 @@ class vendor extends CI_Controller {
      * @params: String (Booking ID)
      * @return:void
      */
-    function get_escalate_booking_form($booking_id,$status,$penalty_active="") {
+    function get_escalate_booking_form($booking_id, $status, $penalty_active = "") {
         //get escalation reasons for 247around
-        if($status == 'Completed'){
-            $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'247around','active'=> '1','process_type'=>'report_complete'));
-        } else if($status == 'Cancelled'){
-            $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'247around','active'=> '1','process_type'=>'report_cancel'));
+        if ($status == 'Completed') {
+            $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => '247around', 'active' => '1', 'process_type' => 'report_complete'));
+        } else if ($status == 'Cancelled') {
+            $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => '247around', 'active' => '1', 'process_type' => 'report_cancel'));
         }
-            
+
 
         $data['vendor_details'] = $this->vendor_model->getVendor($booking_id);
         $data['booking_id'] = $booking_id;
         $data['status'] = $status;
-        if($penalty_active == 0 && $penalty_active != Null){
+        if ($penalty_active == 0 && $penalty_active != Null) {
             $data['penalty_active'] = $penalty_active;
         }
         //print("<pre>".  print_r($data,true)."</pre>");exit();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/get_escalate_booking_form', $data);
     }
-    
+
     /**
      * @Desc: This function is used to process Penalty form
      * @params: POST
@@ -3857,11 +3813,11 @@ class vendor extends CI_Controller {
      * 
      */
     function process_get_vendor_escalation_form() {
-        log_message('info',__FUNCTION__);
+        log_message('info', __FUNCTION__);
         $escalation['booking_id'] = trim($this->input->post('booking_id'));
         $status = $this->input->post('status');
-        if($this->input->post('penalty_active') == 0){
-            $penalty_active=$this->input->post('penalty_active');
+        if ($this->input->post('penalty_active') == 0) {
+            $penalty_active = $this->input->post('penalty_active');
         }
         $checkValidation = $this->checkValidationOnReason();
         if ($checkValidation) {
@@ -3874,155 +3830,150 @@ class vendor extends CI_Controller {
 
             $escalation['booking_date'] = date('Y-m-d', $booking_date);
             $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
-            
-                //Getting escalation reason
-                //$escalation_policy_details = $this->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);
 
-                log_message('info', "Vendor_ID " . $escalation['vendor_id']);
+            //Getting escalation reason
+            //$escalation_policy_details = $this->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);
 
-                $escalation_reason = $this->vendor_model->getEscalationReason(array('id' => $escalation['escalation_reason']));
-                $remarks = $this->input->post('remarks');
-                if (!empty($remarks)) {
-                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'] . ' - ' . $remarks;
-                } else {
-                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
-                }
+            log_message('info', "Vendor_ID " . $escalation['vendor_id']);
 
-                //Now processing Penalty Operation on basic reason selection
-                //We are making selection on basis of Escalation id choosen for Reason
-                $value['booking_id'] = $escalation['booking_id'];
-                $value['assigned_vendor_id'] = $escalation['vendor_id'];
-                $value['agent_id'] = $this->session->userdata('id');
-                $value['remarks'] = $escalation_reason_final;
-                $value['agent_type'] = 'admin';
-                if($penalty_active == 0 && $penalty_active != Null){
-                    $value['penalty_active'] =$penalty_active;
-                }
+            $escalation_reason = $this->vendor_model->getEscalationReason(array('id' => $escalation['escalation_reason']));
+            $remarks = $this->input->post('remarks');
+            if (!empty($remarks)) {
+                $escalation_reason_final = $escalation_reason[0]['escalation_reason'] . ' - ' . $remarks;
+            } else {
+                $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
+            }
 
-                switch ($escalation['escalation_reason']) {
-                    case INCENTIVE_CUT:
-                        //Incentive Cut Option selected
-                        log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
-                        
-                        $where = array('escalation_id' => INCENTIVE_CUT, 'active' => '1');
-                        //Adding values in penalty on booking table
-                        $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
+            //Now processing Penalty Operation on basic reason selection
+            //We are making selection on basis of Escalation id choosen for Reason
+            $value['booking_id'] = $escalation['booking_id'];
+            $value['assigned_vendor_id'] = $escalation['vendor_id'];
+            $value['agent_id'] = $this->session->userdata('id');
+            $value['remarks'] = $escalation_reason_final;
+            $value['agent_type'] = 'admin';
+            if ($penalty_active == 0 && $penalty_active != Null) {
+                $value['penalty_active'] = $penalty_active;
+            }
 
-                        log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
-                        //Setting validation success message
-                        if(!empty($penalty)){
-                            $this->session->set_userdata('success', 'Penalty added for Rescheduled without Reason - Booking id : '.$escalation['booking_id']);
-                        }
-                        else{
-                            $this->session->set_userdata('failed', 'Error In adding penalty For Rescheduled without Reason - Booking id : '.$escalation['booking_id'].' Please Try Again');
-                        }
-                        break;
-                    case PENALTY_FAKE_CANCEL:
-                        //Penalty - Fake Cancel Option
-                        log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
-                       
-                        $where = array('escalation_id' => PENALTY_FAKE_CANCEL, 'active' => '1');
-                        //Adding values in penalty on booking table
-                        $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
+            switch ($escalation['escalation_reason']) {
+                case INCENTIVE_CUT:
+                    //Incentive Cut Option selected
+                    log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
 
-                        log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
-                        //Setting validation success message
-                        if(!empty($penalty)){
-                            $this->session->set_userdata('success', 'Penalty added for Fake Cancellation - Booking id : '. $escalation['booking_id']);    
-                        }
-                        else{
-                            $this->session->set_userdata('failed', 'Error In adding penalty For Fake Cancellation - Booking id : '.$escalation['booking_id'].' Please Try Again');
-                        }
-                        break;
+                    $where = array('escalation_id' => INCENTIVE_CUT, 'active' => '1');
+                    //Adding values in penalty on booking table
+                    $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
 
-                    case PENALTY_FAKE_COMPLETE_CUSTOMER_WANT_INSTALLATION:
-                        //Penalty - Fake Cancel Option
-                        log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
-                        
-                        $where = array('escalation_id' => PENALTY_FAKE_COMPLETE_CUSTOMER_WANT_INSTALLATION, 'active' => '1');
-                        //Adding values in penalty on booking table
-                        $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
+                    log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
+                    //Setting validation success message
+                    if (!empty($penalty)) {
+                        $this->session->set_userdata('success', 'Penalty added for Rescheduled without Reason - Booking id : ' . $escalation['booking_id']);
+                    } else {
+                        $this->session->set_userdata('failed', 'Error In adding penalty For Rescheduled without Reason - Booking id : ' . $escalation['booking_id'] . ' Please Try Again');
+                    }
+                    break;
+                case PENALTY_FAKE_CANCEL:
+                    //Penalty - Fake Cancel Option
+                    log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
 
-                        log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
-                        //Setting validation success message
-                        if(!empty($penalty)){
-                            $this->session->set_userdata('success', 'Penalty added for Fake Completion - Customer want Installation - Booking id : '.$escalation['booking_id']);
-                        }
-                        else{
-                            $this->session->set_userdata('failed', 'Error In adding penalty for Fake Completion   - Customer want Installation - Booking id : '.$escalation['booking_id'].'Please Try Again');
-                        }
-                        break;
-                    
-                    case PENALTY_FAKE_COMPLETE_CUSTOMER_NOT_WANT_INSTALLATION:
-                        //Penalty - Fake Cancel Option
-                        log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
-                     
-                        $where = array('escalation_id' => PENALTY_FAKE_COMPLETE_CUSTOMER_NOT_WANT_INSTALLATION, 'active' => '1');
-                        //Adding values in penalty on booking table
-                        $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
+                    $where = array('escalation_id' => PENALTY_FAKE_CANCEL, 'active' => '1');
+                    //Adding values in penalty on booking table
+                    $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
 
-                        log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
-                        //Setting validation success message
-                        
-                        if(!empty($penalty)){
-                            $this->session->set_userdata('success', 'Penalty added for Fake Completion - Customer Not want Installation - Booking id : '.$escalation['booking_id']);
-                        }
-                        else{
-                            $this->session->set_userdata('failed', 'Error In adding penalty for Fake Completion - Customer Not want Installation - Booking id : '.$escalation['booking_id'].' Please Try Again');
-                        }
-                        break;
-                    default:
-                        $penalty = [];
-                        //Setting validation success message
-                        $this->session->set_userdata('success', 'Report Submitted - Booking id : '.$escalation['booking_id']);
-                        break;
-                }
-                
-                //Getting template from Database
-                $template = $this->booking_model->get_booking_email_template("penalty_on_booking");
-                if (!empty($template)) {
-                    $vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
-                    $to = $vendorContact[0]['primary_contact_email'] . ',' . $vendorContact[0]['owner_email'];
-                    //From will be currently logged in user
-                    $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
+                    log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
+                    //Setting validation success message
+                    if (!empty($penalty)) {
+                        $this->session->set_userdata('success', 'Penalty added for Fake Cancellation - Booking id : ' . $escalation['booking_id']);
+                    } else {
+                        $this->session->set_userdata('failed', 'Error In adding penalty For Fake Cancellation - Booking id : ' . $escalation['booking_id'] . ' Please Try Again');
+                    }
+                    break;
 
-                    //Getting RM Official Email details to send Welcome Mails to them as well
-                    $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id'])[0]['agent_id'];
-                    $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+                case PENALTY_FAKE_COMPLETE_CUSTOMER_WANT_INSTALLATION:
+                    //Penalty - Fake Cancel Option
+                    log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
 
-                    //Sending Mail
-                    $email['penalty_amount'] = isset($penalty['penalty_amount']) ? $penalty['penalty_amount'] : 0;
-                    $email['booking_id'] = $escalation['booking_id'];
-                    $email['reason'] = $escalation_reason_final;
-                    $emailBody = vsprintf($template[0], $email);
+                    $where = array('escalation_id' => PENALTY_FAKE_COMPLETE_CUSTOMER_WANT_INSTALLATION, 'active' => '1');
+                    //Adding values in penalty on booking table
+                    $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
 
-                    $subject['penalty_amount'] = isset($penalty['penalty_amount']) ? $penalty['penalty_amount'] : 0;
-                    $subject['booking_id'] = $escalation['booking_id'];
-                    $subjectBody = vsprintf($template[4], $subject);
-                    $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "");
+                    log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
+                    //Setting validation success message
+                    if (!empty($penalty)) {
+                        $this->session->set_userdata('success', 'Penalty added for Fake Completion - Customer want Installation - Booking id : ' . $escalation['booking_id']);
+                    } else {
+                        $this->session->set_userdata('failed', 'Error In adding penalty for Fake Completion   - Customer want Installation - Booking id : ' . $escalation['booking_id'] . 'Please Try Again');
+                    }
+                    break;
 
-                    //Logging
-                    log_message('info', " Penalty Report Mail Send successfully" . $emailBody);
-                } else {
-                    //Logging Error Message
-                    log_message('info', " Error in Getting Email Template for Penalty Report Mail");
-                }
+                case PENALTY_FAKE_COMPLETE_CUSTOMER_NOT_WANT_INSTALLATION:
+                    //Penalty - Fake Cancel Option
+                    log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
 
-                redirect(base_url().'employee/booking/view_bookings_by_status/'.$status);
-           
+                    $where = array('escalation_id' => PENALTY_FAKE_COMPLETE_CUSTOMER_NOT_WANT_INSTALLATION, 'active' => '1');
+                    //Adding values in penalty on booking table
+                    $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
+
+                    log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
+                    //Setting validation success message
+
+                    if (!empty($penalty)) {
+                        $this->session->set_userdata('success', 'Penalty added for Fake Completion - Customer Not want Installation - Booking id : ' . $escalation['booking_id']);
+                    } else {
+                        $this->session->set_userdata('failed', 'Error In adding penalty for Fake Completion - Customer Not want Installation - Booking id : ' . $escalation['booking_id'] . ' Please Try Again');
+                    }
+                    break;
+                default:
+                    $penalty = [];
+                    //Setting validation success message
+                    $this->session->set_userdata('success', 'Report Submitted - Booking id : ' . $escalation['booking_id']);
+                    break;
+            }
+
+            //Getting template from Database
+            $template = $this->booking_model->get_booking_email_template("penalty_on_booking");
+            if (!empty($template)) {
+                $vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
+                $to = $vendorContact[0]['primary_contact_email'] . ',' . $vendorContact[0]['owner_email'];
+                //From will be currently logged in user
+                $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
+
+                //Getting RM Official Email details to send Welcome Mails to them as well
+                $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id'])[0]['agent_id'];
+                $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+
+                //Sending Mail
+                $email['penalty_amount'] = isset($penalty['penalty_amount']) ? $penalty['penalty_amount'] : 0;
+                $email['booking_id'] = $escalation['booking_id'];
+                $email['reason'] = $escalation_reason_final;
+                $emailBody = vsprintf($template[0], $email);
+
+                $subject['penalty_amount'] = isset($penalty['penalty_amount']) ? $penalty['penalty_amount'] : 0;
+                $subject['booking_id'] = $escalation['booking_id'];
+                $subjectBody = vsprintf($template[4], $subject);
+                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "");
+
+                //Logging
+                log_message('info', " Penalty Report Mail Send successfully" . $emailBody);
+            } else {
+                //Logging Error Message
+                log_message('info', " Error in Getting Email Template for Penalty Report Mail");
+            }
+
+            redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
         } else {
             $this->get_escalate_booking_form($escalation['booking_id'], $status);
         }
     }
-    
+
     /**
      * @Desc: This function is used to remove Penalty on Booking
      * @params: Booking ID, Status
      * @return : View
      * 
      */
-    function process_remove_penalty(){
-        
+    function process_remove_penalty() {
+
         $id = $this->input->post('id');
         $status = $this->input->post('status');
         $booking_id = $this->input->post('booking_id');
@@ -4030,131 +3981,131 @@ class vendor extends CI_Controller {
         $penalty_remove_agent_id = $this->session->userdata('id');
         $penalty_remove_date = date("Y-m-d H:i:s");
         $flag = FALSE;
-        foreach($id as $key=>$value){
-            
+        foreach ($id as $key => $value) {
+
             $data = array('active' => 0,
-                          'penalty_remove_reason'=>$penalty_remove_reason[$key],
-                          'penalty_remove_agent_id'=>$penalty_remove_agent_id,
-                          'penalty_remove_date'=>$penalty_remove_date);
+                'penalty_remove_reason' => $penalty_remove_reason[$key],
+                'penalty_remove_agent_id' => $penalty_remove_agent_id,
+                'penalty_remove_date' => $penalty_remove_date);
             $update = $this->penalty_model->update_penalty_on_booking($value, $data);
-            
+
             if ($update) {
-            //Logging
-            log_message('info', __FUNCTION__ . ' Penalty has been Removed from Booking ID :' . $booking_id[$key]);
-            
-            //Getting Booking Details 
-            $booking_details = $this->booking_model->getbooking_history($booking_id[$key], 'service_centres');
-            
-            //Sending Mails
-
-            $template = $this->booking_model->get_booking_email_template("remove_penalty_on_booking");
-            if (!empty($template)) {
-                $to = $booking_details[0]['primary_contact_email'] . ',' . $booking_details[0]['owner_email'];
-                //From will be currently logged in user's official Email
-                $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
-
-                //Getting RM Official Email details to send Welcome Mails to them as well
-                $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id'])[0]['agent_id'];
-                $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
-                //Sending Mail
-                $email['booking_id'] = $booking_id[$key];
-                $emailBody = vsprintf($template[0], $email);
-
-                $subject['booking_id'] = $booking_id[$key];
-                $subjectBody = vsprintf($template[4], $subject);
-                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "");
-
                 //Logging
-                log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
+                log_message('info', __FUNCTION__ . ' Penalty has been Removed from Booking ID :' . $booking_id[$key]);
+
+                //Getting Booking Details 
+                $booking_details = $this->booking_model->getbooking_history($booking_id[$key], 'service_centres');
+
+                //Sending Mails
+
+                $template = $this->booking_model->get_booking_email_template("remove_penalty_on_booking");
+                if (!empty($template)) {
+                    $to = $booking_details[0]['primary_contact_email'] . ',' . $booking_details[0]['owner_email'];
+                    //From will be currently logged in user's official Email
+                    $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
+
+                    //Getting RM Official Email details to send Welcome Mails to them as well
+                    $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id'])[0]['agent_id'];
+                    $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+                    //Sending Mail
+                    $email['booking_id'] = $booking_id[$key];
+                    $emailBody = vsprintf($template[0], $email);
+
+                    $subject['booking_id'] = $booking_id[$key];
+                    $subjectBody = vsprintf($template[4], $subject);
+                    $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "");
+
+                    //Logging
+                    log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
+                } else {
+                    //Logging
+                    log_message('info', __FUNCTION__ . ' Error in getting Email Template for remove_penalty_on_booking');
+                }
+
+                $flag = TRUE;
             } else {
                 //Logging
-                log_message('info', __FUNCTION__ . ' Error in getting Email Template for remove_penalty_on_booking');
-            }
-
-            $flag = TRUE;
-            }   else {
-            //Logging
                 log_message('info', __FUNCTION__ . ' Penalty already Removed for Booking ID :' . $booking_id[$key]);
                 $flag = TRUE;
             }
         }
-     if($flag){
-         //Session success
-        $this->session->set_userdata('success', 'Penalty removed Successfully');
-     }else{
-         $this->session->set_userdata('success', 'Error In Remopving Penalty!!! Please Try Again');
-     }
-    if($status === 'Pending' || $status === 'Rescheduled'){
-        redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
-    }else{
-        redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
+        if ($flag) {
+            //Session success
+            $this->session->set_userdata('success', 'Penalty removed Successfully');
+        } else {
+            $this->session->set_userdata('success', 'Error In Remopving Penalty!!! Please Try Again');
+        }
+        if ($status === 'Pending' || $status === 'Rescheduled') {
+            redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
+        } else {
+            redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
+        }
     }
-    }
-    
-    function get_penalty_details_data($booking_id, $status){
-        
-        $where  = array('booking_id'=>$booking_id,'active' => 1);
+
+    function get_penalty_details_data($booking_id, $status) {
+
+        $where = array('booking_id' => $booking_id, 'active' => 1);
         $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where);
-        $this->load->view('employee/get_penalty_on_booking_details',array('penalty_details' => $data['penalty_details'], 'status'=>$status));
+        $this->load->view('employee/get_penalty_on_booking_details', array('penalty_details' => $data['penalty_details'], 'status' => $status));
     }
-    
+
     /**
      * @desc This method is used to update sub_service_center_details table via ajax call
      * @param void()
      * @return string
      */
-    function update_sub_service_center_details(){
-        log_message('info',__FUNCTION__);
-       if($this->input->post()){
-           $data = array('district'=>$this->input->post('district'),
-                         'pincode'=>$this->input->post('pincode'),
-                         'upcountry_rate'=>$this->input->post('upcountry_rate'));
-           $id = $this->input->post('id');
-           $sc_id = $this->input->post('service_center_id');
-           $update_id = $this->upcountry_model->update_sub_service_center_upcountry_details($data,$id);
-           if($update_id){
+    function update_sub_service_center_details() {
+        log_message('info', __FUNCTION__);
+        if ($this->input->post()) {
+            $data = array('district' => $this->input->post('district'),
+                'pincode' => $this->input->post('pincode'),
+                'upcountry_rate' => $this->input->post('upcountry_rate'));
+            $id = $this->input->post('id');
+            $sc_id = $this->input->post('service_center_id');
+            $update_id = $this->upcountry_model->update_sub_service_center_upcountry_details($data, $id);
+            if ($update_id) {
                 $log = array(
                     "entity" => "vendor",
                     "entity_id" => $sc_id,
                     "agent_id" => $this->session->userdata('id'),
-                    "action" =>  "SC HQ Updated",
-                    "remarks" => "Update SC HQ ID ".$id
+                    "action" => "SC HQ Updated",
+                    "remarks" => "Update SC HQ ID " . $id
                 );
                 $this->vendor_model->insert_log_action_on_entity($log);
-               echo "success";
-           }
-           else{
-               echo "failed";
-           }
-       }
+                echo "success";
+            } else {
+                echo "failed";
+            }
+        }
     }
+
     /**
      * @desc This method is used to delete sub office details in sub_service_center_details table via ajax call
      * @param void()
      * @return string
      */
-    function de_activate_sub_service_center_details($active_flag){
-        log_message('info',__FUNCTION__);
-       if($this->input->post()){
-           $id = $this->input->post('id');
-           $sc_id = $this->input->post('service_center_id');
-           $update_id = $this->upcountry_model->update_sub_service_center_upcountry_details(array("active" => $active_flag), $id);
-           if($update_id){
-               $log = array(
+    function de_activate_sub_service_center_details($active_flag) {
+        log_message('info', __FUNCTION__);
+        if ($this->input->post()) {
+            $id = $this->input->post('id');
+            $sc_id = $this->input->post('service_center_id');
+            $update_id = $this->upcountry_model->update_sub_service_center_upcountry_details(array("active" => $active_flag), $id);
+            if ($update_id) {
+                $log = array(
                     "entity" => "vendor",
                     "entity_id" => $sc_id,
                     "agent_id" => $this->session->userdata('id'),
-                    "action" =>  "SC HQ Updated",
-                    "remarks" => "Deleted SC HQ ID ".$id
+                    "action" => "SC HQ Updated",
+                    "remarks" => "Deleted SC HQ ID " . $id
                 );
                 $this->vendor_model->insert_log_action_on_entity($log);
-               echo "success";
-           }
-           else{
-               echo "failed";
-           }
-       }
+                echo "success";
+            } else {
+                echo "failed";
+            }
+        }
     }
+
     /**
      * @desc: This function is used to get the reassign partner page
      * @param: booking id
@@ -4163,62 +4114,60 @@ class vendor extends CI_Controller {
     function get_reassign_partner_form() {
         $partners = $this->partner_model->get_all_partner();
 
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
 
-        $this->load->view('employee/reassignvendor', array('partners' => $partners,'type'=>'partner'));
+        $this->load->view('employee/reassignvendor', array('partners' => $partners, 'type' => 'partner'));
     }
 
-    
     /**
      * @desc: This function reassigns partner for a particular booking.
      * @param: void
      * @return : void
      */
-    function process_reassign_partner_form(){
-        log_message('info',__FUNCTION__);
+    function process_reassign_partner_form() {
+        log_message('info', __FUNCTION__);
         $booking_id = $this->input->post('booking_id');
         $partner = $this->input->post('partner');
-        if(count($booking_id) === count($partner)){
-            foreach($booking_id as $key=>$value){
-                
+        if (count($booking_id) === count($partner)) {
+            foreach ($booking_id as $key => $value) {
+
                 // update partner to corresponding booking id in booking_details table
-                $booking_details_data = array('partner_id'=>$partner[$key],);
+                $booking_details_data = array('partner_id' => $partner[$key],);
                 $this->booking_model->update_booking(trim($value), $booking_details_data);
-                
+
                 // update partner to corresponding booking id in booking_unit_details table
-                $booking_unit_details_data = array('partner_id'=>$partner[$key],);
+                $booking_unit_details_data = array('partner_id' => $partner[$key],);
                 $this->booking_model->update_booking_unit_details(trim($value), $booking_unit_details_data);
-                
+
                 log_message('info', "Reassigned Partner For Booking_id: " . $value . "  By " .
-                $this->session->userdata('employee_id') . " and new Partner Id =" . $partner[$key]);
+                        $this->session->userdata('employee_id') . " and new Partner Id =" . $partner[$key]);
             }
             $output = "Booking Updated Successfully";
             $userSession = array('success' => $output);
             $this->session->set_userdata($userSession);
             redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
-        }else{
+        } else {
             $output = "Please fill all the input field";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
             redirect(base_url() . 'employee/vendor/get_reassign_partner_form');
         }
-        
     }
 
     /**
      * if pincode exist in the india pincode table the echo success other wise Not Exist
      * @param String $pincode
      */
-    function check_pincode_exist_in_india_pincode($pincode = ""){
-        
-        $city = $this->vendor_model->getDistrict_from_india_pincode("",$pincode);
-        if(!empty($city)){
+    function check_pincode_exist_in_india_pincode($pincode = "") {
+
+        $city = $this->vendor_model->getDistrict_from_india_pincode("", $pincode);
+        if (!empty($city)) {
             echo "Success";
         } else {
             echo "Not Exist";
         }
     }
-    
+
     /**
      * @desc This is used to check upcountry for those booking who have not marked upcountry
      * This called from CRON
@@ -4227,9 +4176,9 @@ class vendor extends CI_Controller {
         log_message("info", __METHOD__);
         $this->load->library('table');
         $data = $this->booking_model->date_sorted_booking(500, 0, "");
-        
+
         $this->table->set_heading('Booking ID');
-        $flag = 0;       
+        $flag = 0;
         foreach ($data as $value) {
             if (!empty($value->booking_id) && $value->is_upcountry == 0) {
                 $vendor_data = array();
@@ -4248,14 +4197,13 @@ class vendor extends CI_Controller {
                     case UPCOUNTRY_LIMIT_EXCEED:
                         $flag = 1;
                         $this->table->add_row($value->booking_id);
-                        
-                        break;
 
+                        break;
                 }
             }
         }
-        if($flag == 1){
-            $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com, vijaya@247around.com, adila@247around.com,".RM_EMAIL;
+        if ($flag == 1) {
+            $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com, booking@247around.com, vijaya@247around.com, adila@247around.com," . RM_EMAIL;
 
             $cc = DEVELOPER_EMAIL;
             $message1 = "Booking should be upcountry but not marked properly. Please check and update booking.<br/>";
@@ -4264,17 +4212,17 @@ class vendor extends CI_Controller {
 
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
         } else {
-            log_message("info", __METHOD__." There is no pending booking which need to update for upcountry");
+            log_message("info", __METHOD__ . " There is no pending booking which need to update for upcountry");
         }
     }
-    
+
     /**
      * @Desc: This function is used to get the service center for filtered brackets list
      * @param void
      * @return: string
      * 
      */
-    function get_service_center_details(){
+    function get_service_center_details() {
         $select = "service_centres.name, service_centres.id";
         $data = $this->vendor_model->getVendorDetails($select);
         $option = '<option selected="" disabled="">Select Service Center</option>';
@@ -4287,52 +4235,51 @@ class vendor extends CI_Controller {
 
         echo $option;
     }
-    
-    function get_filterd_sf_cp_data(){
+
+    function get_filterd_sf_cp_data() {
         $this->checkUserSession();
-        if($this->input->post()){
-            
+        if ($this->input->post()) {
+
             $sf_cp_type = $this->input->post('sf_cp');
             $active_state = $this->input->post('active_state');
-            if($active_state === 'all'){
+            if ($active_state === 'all') {
                 $active = '';
-            }else{
+            } else {
                 $active = '1';
             }
-            
-            if($sf_cp_type === 'sf'){
+
+            if ($sf_cp_type === 'sf') {
                 $is_cp = '';
-            }else if($sf_cp_type === 'cp'){
+            } else if ($sf_cp_type === 'cp') {
                 $is_cp = '1';
             }
-            
-            $id = $this->session->userdata('id');   
+
+            $id = $this->session->userdata('id');
             //$active = "1";
             //Getting employee relation if present for logged in user
             $sf_list = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
-            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp);
-            if(!empty($query)){
-                $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true));
-            }else{
+            $query = $this->vendor_model->viewvendor('', $active, $sf_list, $is_cp);
+            if (!empty($query)) {
+                $response = $this->load->view('employee/viewvendor', array('query' => $query, 'is_ajax' => true));
+            } else {
                 $response = "No Data Found";
             }
             echo $response;
-        }else{
+        } else {
             echo "Invalid Request";
         }
-        
     }
-    
+
     function upload_signature_file() {
         //Start Processing signature File Upload
         if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
             //Adding file validation
             $checkfilevalidation = $this->file_input_validation('signature_file');
             if ($checkfilevalidation) {
-                
+
                 //Making process for file upload
                 $tmpFile = $_FILES['signature_file']['tmp_name'];
                 $signature_file = implode("", explode(" ", $this->input->post('name'))) . '_signature_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['signature_file']['name'])[1];
@@ -4364,345 +4311,364 @@ class vendor extends CI_Controller {
             }
         }
     }
-          /*
-           * This Function will return excel containing all pincode mapping combination for a vendor
-           * @input - VendorID
-           */
-        function download_vendor_pin_code($vendorID){ 
-                    ob_start();
-                    $pincodeArray =  $this->vendor_model->check_vendor_details(array("Vendor_ID"=>$vendorID));
-                    $config = array('template' => "vendor_pin_code.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
-                    log_message('info', __FUNCTION__ . ' Download Data ' . print_r($pincodeArray, TRUE));
-                    $this->miscelleneous->downloadExcel($pincodeArray,$config);
-          } 
-         /*
-          * This function will return the view to upload the vendor pin code mapping file
-          */
-         function upload_pin_code_vendor($vendorID){
-                    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                    $this->load->view('employee/vendor_pincode_upload',array('vendorID'=>$vendorID));
-          }
-          /*
-           * This function will save the vendor upload pincode file in file uploads table
-           */
-          function save_vendor_pin_code_file($tempName,$vendorID){
-                    $msg = FALSE;
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $this->filePath = "vendor_pincode_mapping_".rand(10,100)."_".date('j-M-Y')."_".$vendorID.".xlsx";
-                    $directory_xls = "vendor-partner-docs/".$this->filePath;
-                    $is_success = $this->s3->putObjectFile($tempName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    if($is_success){
-                              $affected_rows =  $this->vendor_model->vendor_pin_code_uploads_insert("file_uploads",array("file_name"=>$this->filePath,"file_type"=>"vendor_pincode_".$vendorID,"agent_id"=>$this->session->userdata['id']));
-                              if($affected_rows>0){
-                                        $msg =  TRUE; 
-                              }
-                    }
-                    return $msg;
-          }
-          /*
-           *  This function will check is file extension xls
-           * @output (TRUE OR FALSE)
-           */
-          function  is_file_extension_excel($fileName){
-                    $msg = "Please upload only excel file";
-                    $pathinfo = pathinfo($fileName);
-                    if($pathinfo['extension'] == 'xls' || $pathinfo['extension'] == 'xlsx'){
-                              $msg = TRUE;
-                    }
-                    return $msg;
-          }
-          /*
-           * This function will check is uploded file less then 2 MB
-           */
-          function is_file_less_then_size($fileSize){
-                    $msg = "File Size Should be less then 2 MB";
-                    $MB = 1048576;
-                    if ($fileSize > 0 && $fileSize < 2 * $MB) {
-                              $msg = TRUE;
-                    }
-                    return $msg;
-          }
-          /*
-           * Pass the file name to function and it will return file reader version for excel file
-           */
-          function get_excel_reader_version($fileName){
-                    $pathinfo = pathinfo($fileName);
-                    if ($pathinfo['extension'] == 'xlsx') {
-                        $readerVersion = 'Excel2007';
-                    } 
-                    else {
-                        $readerVersion = 'Excel5';
-                    }
-                    return $readerVersion;
-          }
-          /*
-           * This function checkes uploded vendor mapping pincode file must have only 1 vendor 
-           */
-          function is_file_contains_only_valid_vendor($vendorID,$index,$data){
-                    $msg = TRUE;
-                        if($data['vendor_id'] !=''){
-                                if($data['vendor_id'] !== $vendorID){
-                                          $msg = "File Contains more then 1 Vendor, Error at line ".($index+2);
+
+    /*
+     * This Function will return excel containing all pincode mapping combination for a vendor
+     * @input - VendorID
+     */
+
+    function download_vendor_pin_code($vendorID) {
+        ob_start();
+        $pincodeArray = $this->vendor_model->check_vendor_details(array("Vendor_ID" => $vendorID));
+        $config = array('template' => "vendor_pin_code.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
+        log_message('info', __FUNCTION__ . ' Download Data ' . print_r($pincodeArray, TRUE));
+        $this->miscelleneous->downloadExcel($pincodeArray, $config);
+    }
+
+    /*
+     * This function will return the view to upload the vendor pin code mapping file
+     */
+
+    function upload_pin_code_vendor($vendorID) {
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/vendor_pincode_upload', array('vendorID' => $vendorID));
+    }
+
+    /*
+     * This function will save the vendor upload pincode file in file uploads table
+     */
+
+    function save_vendor_pin_code_file($tempName, $vendorID) {
+        $msg = FALSE;
+        $bucket = BITBUCKET_DIRECTORY;
+        $this->filePath = "vendor_pincode_mapping_" . rand(10, 100) . "_" . date('j-M-Y') . "_" . $vendorID . ".xlsx";
+        $directory_xls = "vendor-partner-docs/" . $this->filePath;
+        $is_success = $this->s3->putObjectFile($tempName, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        if ($is_success) {
+            $affected_rows = $this->vendor_model->vendor_pin_code_uploads_insert("file_uploads", array("file_name" => $this->filePath, "file_type" => "vendor_pincode_" . $vendorID, "agent_id" => $this->session->userdata['id']));
+            if ($affected_rows > 0) {
+                $msg = TRUE;
+            }
+        }
+        return $msg;
+    }
+
+    /*
+     *  This function will check is file extension xls
+     * @output (TRUE OR FALSE)
+     */
+
+    function is_file_extension_excel($fileName) {
+        $msg = "Please upload only excel file";
+        $pathinfo = pathinfo($fileName);
+        if ($pathinfo['extension'] == 'xls' || $pathinfo['extension'] == 'xlsx') {
+            $msg = TRUE;
+        }
+        return $msg;
+    }
+
+    /*
+     * This function will check is uploded file less then 2 MB
+     */
+
+    function is_file_less_then_size($fileSize) {
+        $msg = "File Size Should be less then 2 MB";
+        $MB = 1048576;
+        if ($fileSize > 0 && $fileSize < 2 * $MB) {
+            $msg = TRUE;
+        }
+        return $msg;
+    }
+
+    /*
+     * Pass the file name to function and it will return file reader version for excel file
+     */
+
+    function get_excel_reader_version($fileName) {
+        $pathinfo = pathinfo($fileName);
+        if ($pathinfo['extension'] == 'xlsx') {
+            $readerVersion = 'Excel2007';
+        } else {
+            $readerVersion = 'Excel5';
+        }
+        return $readerVersion;
+    }
+
+    /*
+     * This function checkes uploded vendor mapping pincode file must have only 1 vendor 
+     */
+
+    function is_file_contains_only_valid_vendor($vendorID, $index, $data) {
+        $msg = TRUE;
+        if ($data['vendor_id'] != '') {
+            if ($data['vendor_id'] !== $vendorID) {
+                $msg = "File Contains more then 1 Vendor, Error at line " . ($index + 2);
+            }
+        } else {
+            $msg = "File Contains Blank Vendor_ID, Error at line " . ($index + 2);
+        }
+        return $msg;
+    }
+
+    /*
+     * This function checks is Uploded file blank
+     */
+
+    function is_uploded_file_blank($excelDataArray) {
+        $msg = TRUE;
+        if (empty($excelDataArray)) {
+            $msg = "File Does'nt Contains Any Record";
+        }
+        return $msg;
+    }
+
+    /*
+     * This function checks pincode must be 6 digit and it should be numaric
+     */
+
+    function is_pin_code_valid($index, $data) {
+        $msg = TRUE;
+        if (strlen($data['pincode']) != 6) {
+            $msg = "File Contains invalid pincode. Error at line " . ($index + 2);
+        } else {
+            if (!is_numeric($data['pincode'])) {
+                $msg = "File Contains invalid pincode. Error at line " . ($index + 2);
+            }
+        }
+        return $msg;
+    }
+
+    /*
+     * This function checks area_brand_pincode_serviceID Combination must be unique in uploded vendor pincode mapping file
+     */
+
+    function delete_duplicate_pincode_service_brand_area($excelDataArray) {
+        $msg = true;
+        $tempArray = array();
+        foreach ($excelDataArray as $index => $data) {
+            $uniqueString = $data['pincode'] . "," . $data['area'] . "," . $data['appliance_id'] . "," . $data['brand'];
+            if (array_key_exists($uniqueString, $tempArray)) {
+                unset($excelDataArray[$index]);
+            } else {
+                $tempArray[$uniqueString] = NULL;
+            }
+        }
+        $this->vendorPinArray = array_values($excelDataArray);
+    }
+
+    /*
+     * This function checks is there any blank field in uploded excel file
+     */
+
+    function is_any_field_blank($index, $data) {
+        $msg = true;
+        foreach ($data as $value) {
+            if (!$value) {
+                $msg = "File Contains Blank Values. Error at line " . ($index + 2);
+            }
+        }
+        return $msg;
+    }
+
+    /*
+     * This function is used to check is uploded file (Vendor pincode mapping) valid or not
+     */
+
+    function is_vendor_pin_code_file_valid($file, $vendorID) {
+        $msg['extension'] = $this->is_file_extension_excel($file['file']['name']);
+        if ($msg['extension'] == 1) {
+            $msg['size'] = $this->is_file_less_then_size($file['file']['size']);
+            if ($msg['size'] == 1) {
+                $readerVersion = $this->get_excel_reader_version($file['file']['name']);
+                $this->vendorPinArray = $this->miscelleneous->excel_to_Array_converter($file, $readerVersion);
+                $msg['blank'] = $this->is_uploded_file_blank($this->vendorPinArray);
+                $msg['unique_combination'] = $this->delete_duplicate_pincode_service_brand_area($this->vendorPinArray);
+                if ($msg['blank'] == 1) {
+                    foreach ($this->vendorPinArray as $index => $data) {
+                        $msg['vendor'] = $this->is_file_contains_only_valid_vendor($vendorID, $index, $data);
+                        if ($msg['vendor'] == 1) {
+                            $msg['pin_code'] = $this->is_pin_code_valid($index, $data);
+                            if ($msg['pin_code'] == 1) {
+                                $msg['field_blank'] = $this->is_any_field_blank($index, $data);
+                                if ($msg['field_blank'] != 1) {
+                                    return $msg['field_blank'];
                                 }
+                            } else {
+                                return $msg['pin_code'];
+                            }
+                        } else {
+                            return $msg['vendor'];
                         }
-                        else{
-                                           $msg = "File Contains Blank Vendor_ID, Error at line ".($index+2);
-                        }
-                   return $msg;
-          }
-          /*
-           * This function checks is Uploded file blank
-           */
-          function is_uploded_file_blank($excelDataArray){
-                    $msg = TRUE;
-                    if(empty($excelDataArray)){
-                              $msg = "File Does'nt Contains Any Record";
                     }
-                   return $msg;
-          }
-          /*
-           * This function checks pincode must be 6 digit and it should be numaric
-           */
-          function is_pin_code_valid($index,$data){
-                    $msg = TRUE;
-                            if(strlen($data['pincode']) != 6){
-                                      $msg = "File Contains invalid pincode. Error at line ".($index+2);
-                            }
-                            else{
-                                if(!is_numeric($data['pincode'])){
-                                    $msg = "File Contains invalid pincode. Error at line ".($index+2);
-                                }
-                            }
-                   return $msg;
-          }
-          /*
-           * This function checks area_brand_pincode_serviceID Combination must be unique in uploded vendor pincode mapping file
-           */
-          function delete_duplicate_pincode_service_brand_area($excelDataArray){
-              $msg = true;
-              $tempArray = array();
-              foreach($excelDataArray as $index=>$data){
-                    $uniqueString = $data['pincode'].",".$data['area'].",".$data['appliance_id'].",".$data['brand'];
-                    if(array_key_exists($uniqueString, $tempArray)){
-                        unset($excelDataArray[$index]);
+                } else {
+                    return $msg['blank'];
+                }
+            } else {
+                return $msg['size'];
+            }
+        } else {
+            return $msg['extension'];
+        }
+        return TRUE;
+    }
+
+    /*
+     * This function is used to Update vendor pincode mapping table on the basis of uploded excel
+     */
+
+    function update_vendor_pin_code_file($file, $vendorID) {
+        $deleteMsg = $this->vendor_model->delete_vendor_pin_codes(array('Vendor_ID' => $vendorID));
+        if ($deleteMsg == TRUE) {
+            $finalInsertArray = array();
+            foreach ($this->vendorPinArray as $key => $data) {
+                $insertArray['Vendor_Name'] = $data['vendor_name'];
+                $insertArray['Vendor_ID'] = $data['vendor_id'];
+                $insertArray['Appliance'] = $data['appliance'];
+                $insertArray['Appliance_ID'] = $data['appliance_id'];
+                $insertArray['Brand'] = $data['brand'];
+                $insertArray['Area'] = $data['area'];
+                $insertArray['Pincode'] = $data['pincode'];
+                $insertArray['Region'] = $data['region'];
+                $insertArray['City'] = $data['city'];
+                $insertArray['State'] = $data['state'];
+                $finalInsertArray[] = $insertArray;
+            }
+            if (!empty($finalInsertArray)) {
+                $affectedRows = $this->vendor_model->insert_vendor_pincode_in_bulk($finalInsertArray);
+                if ($affectedRows > 0) {
+                    return "Successfully Done";
+                } else {
+                    return "Something Went Wrong Please Contact to admin";
+                }
+            }
+        } else {
+            return $deleteMsg;
+        }
+    }
+
+    /*
+     * Update india pincode table if any updated  pincode exist in not found sf table
+     * It will change the flag for all bookings which has the uploded pincode
+     */
+
+    function manage_pincode_not_found_sf_table() {
+        foreach ($this->vendorPinArray as $key => $values) {
+            $temp['Pincode'] = $values['pincode'];
+            $temp['Appliance_ID'] = $values['appliance_id'];
+            $pincodeServiceArray[] = $temp;
+        }
+        $this->miscelleneous->update_pincode_not_found_sf_table($pincodeServiceArray);
+    }
+
+    /*
+     * This function update vendor pincode mapping table,before updating it checks following condition
+     * Is file excel?,Is pincode valid,file must contains the data only for 1 vendor
+     * @input - pincode excel file and vendor ID
+     */
+
+    function process_upload_pin_code_vendor() {
+        if (!empty($_FILES['file']['tmp_name'])) {
+            $tempName = $_FILES['file']['tmp_name'];
+            $vendorID = $this->input->post('vendorID');
+            $is_saved = $this->save_vendor_pin_code_file($tempName, $vendorID);
+            if ($is_saved == 1) {
+                $msgVerfied = $this->is_vendor_pin_code_file_valid($_FILES, $vendorID);
+                if ($msgVerfied == 1) {
+                    $fileStatus = 'Failure';
+                    $this->manage_pincode_not_found_sf_table();
+                    $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($_FILES, $vendorID);
+                    log_message('info', __FUNCTION__ . ' Uploaded Data ' . print_r($this->vendorPinArray, TRUE));
+                    if ($finalMsg == 'Successfully Done') {
+                        $fileStatus = 'Success';
+                        //$cc = "anuj@247around.com";
+                        //$to = "chhavid@247around.com";
+                        //$subject = "Vendor pincode mapping file upload";
+                        //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $this->vendorPinArray, "");
                     }
-                    else{
-                        $tempArray[$uniqueString] = NULL;
-                    }
-             }
-             $this->vendorPinArray = array_values($excelDataArray);
-          }
-          /*
-           * This function checks is there any blank field in uploded excel file
-           */
-          function is_any_field_blank($index,$data){
-                    $msg = true;
-                              foreach($data as $value){
-                                        if(!$value){
-                                            $msg = "File Contains Blank Values. Error at line ".($index+2);
-                                        }
-                              }
-                    return $msg;
-          }
-          /*
-           * This function is used to check is uploded file (Vendor pincode mapping) valid or not
-           */
-          
-          function  is_vendor_pin_code_file_valid($file,$vendorID){
-                   $msg['extension']=$this->is_file_extension_excel($file['file']['name']);
-                   if($msg['extension'] == 1){
-                              $msg['size'] = $this->is_file_less_then_size($file['file']['size']);
-                                        if($msg['size'] == 1){
-                                                  $readerVersion = $this->get_excel_reader_version($file['file']['name']);
-                                                  $this->vendorPinArray =  $this->miscelleneous->excel_to_Array_converter($file,$readerVersion);
-                                                  $msg['blank'] = $this->is_uploded_file_blank($this->vendorPinArray);
-                                                  $msg['unique_combination'] = $this->delete_duplicate_pincode_service_brand_area($this->vendorPinArray);
-                                                  if($msg['blank'] == 1){
-                                                            foreach($this->vendorPinArray as $index=>$data){
-                                                                        $msg['vendor'] = $this->is_file_contains_only_valid_vendor($vendorID,$index,$data); 
-                                                                        if($msg['vendor'] == 1){
-                                                                                $msg['pin_code'] = $this->is_pin_code_valid($index,$data);
-                                                                                if($msg['pin_code'] == 1){
-                                                                                          $msg['field_blank'] = $this->is_any_field_blank($index,$data);
-                                                                                          if($msg['field_blank'] != 1 ){
-                                                                                                    return $msg['field_blank']; 
-                                                                                          }
-                                                                                }
-                                                                                else{
-                                                                                          return $msg['pin_code'];
-                                                                                }
-                                                                        }
-                                                                        else{
-                                                                                return $msg['vendor'];
-                                                                        }
-                                                            }
-                                                            
-                                                  }
-                                                  else{
-                                                             return $msg['blank'];
-                                                  }
-                                        }
-                                        else{
-                                                  return $msg['size'];
-                                        }
-                   }
-                   else{
-                              return $msg['extension'];
-                   }
-                   return TRUE;
-          }
-          /*
-           * This function is used to Update vendor pincode mapping table on the basis of uploded excel
-           */
-          function update_vendor_pin_code_file($file,$vendorID){
-                    $deleteMsg = $this->vendor_model->delete_vendor_pin_codes(array('Vendor_ID'=>$vendorID));
-                    if($deleteMsg == TRUE){
-                              $finalInsertArray = array();
-                              foreach($this->vendorPinArray as $key=>$data){
-                                        $insertArray['Vendor_Name'] = $data['vendor_name'];
-                                        $insertArray['Vendor_ID'] = $data['vendor_id'];
-                                        $insertArray['Appliance'] = $data['appliance'];
-                                        $insertArray['Appliance_ID'] = $data['appliance_id'];
-                                        $insertArray['Brand'] = $data['brand'];
-                                        $insertArray['Area'] = $data['area'];
-                                        $insertArray['Pincode'] = $data['pincode'];
-                                        $insertArray['Region'] = $data['region'];
-                                        $insertArray['City'] = $data['city'];
-                                        $insertArray['State'] = $data['state'];
-                                        $finalInsertArray[] = $insertArray;
-                              }
-                              if(!empty($finalInsertArray)){
-                                       $affectedRows =  $this->vendor_model->insert_vendor_pincode_in_bulk($finalInsertArray);
-                                       if($affectedRows>0){
-                                                  return "Successfully Done";
-                                       }
-                                       else{
-                                                  return "Something Went Wrong Please Contact to admin";
-                                       }
-                              }
-                    }
-                    else{
-                        return $deleteMsg;
-                    }
-          }
-          /*
-           * Update india pincode table if any updated  pincode exist in not found sf table
-           * It will change the flag for all bookings which has the uploded pincode
-           */
-          
-          function manage_pincode_not_found_sf_table(){
-              foreach($this->vendorPinArray as $key=>$values){
-                        $temp['Pincode'] = $values['pincode'];
-                        $temp['Appliance_ID'] = $values['appliance_id'];
-                        $pincodeServiceArray[] = $temp;
-              }
-              $this->miscelleneous->update_pincode_not_found_sf_table($pincodeServiceArray);
-          }
-          /*
-           * This function update vendor pincode mapping table,before updating it checks following condition
-           * Is file excel?,Is pincode valid,file must contains the data only for 1 vendor
-           * @input - pincode excel file and vendor ID
-           */
-          function process_upload_pin_code_vendor(){
-                      if(!empty($_FILES['file']['tmp_name'])){  
-                              $tempName = $_FILES['file']['tmp_name'];
-                              $vendorID = $this->input->post('vendorID');
-                              $is_saved = $this->save_vendor_pin_code_file($tempName,$vendorID);
-                              if($is_saved == 1){
-                                        $msgVerfied = $this->is_vendor_pin_code_file_valid($_FILES,$vendorID);
-                                        if($msgVerfied == 1){
-                                                       $fileStatus = 'Failure';
-                                                       $this->manage_pincode_not_found_sf_table();
-                                                       $finalMsg = $updateMsg = $this->update_vendor_pin_code_file($_FILES,$vendorID);
-                                                       log_message('info', __FUNCTION__ . ' Uploaded Data ' . print_r($this->vendorPinArray, TRUE));
-                                                       if($finalMsg == 'Successfully Done'){
-                                                           $fileStatus = 'Success';
-                                                           //$cc = "anuj@247around.com";
-                                                            //$to = "chhavid@247around.com";
-                                                            //$subject = "Vendor pincode mapping file upload";
-                                                            //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $this->vendorPinArray, "");
-                                                       }
-                                        }
-                                        else{
-                                                  $fileStatus = 'Invalid';
-                                                  $finalMsg =  $msgVerfied;
-                                        }
-                              }
-                              else{
-                                        $finalMsg =  $is_saved;
-                              }
-                    }
-                    else{
-                        
-                    }
-                    $this->vendor_model->update_file_status($fileStatus,$this->filePath);
-                    $msg['final_msg'] = $finalMsg;
-                    $this->session->set_userdata($msg);
-                    redirect(base_url()."employee/vendor/upload_pin_code_vendor/".$vendorID);
-          }
-          /*
-           * This function use to create pincode update form
-           * @input - post data pincode and service related to that pincode in json format
-           * @output - it will create the pincode form view and if pincode is not found in india pincode then it will automatically redirect to add pincode form
-           */
-          function insert_pincode_form(){
-            $data = $this->input->post();
-            $pincodeAvaliablity = $this->is_pincode_available_in_india_pincode_table($data['pincode']);
-                    if($pincodeAvaliablity){
-                            if(!empty(json_decode($data['service']))){
-                                   $data['selected_appliance'] = json_decode($data['service'],TRUE);
-                            }
-                            $data['all_appliance'] = $this->booking_model->selectservice();
-                            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name',array('active'=>1));
-                            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                            $this->load->view('employee/add_vendor_to_pincode',$data);
-                    }
-          }
-          /*
-           * This function will check is_pincode available in india pincode
-           * If yes then it will redirect the pincode to add pincode in india pincode table form
-           * if not then it will return false
-           */
-          function is_pincode_available_in_india_pincode_table($pincode){
-                  $state  =   $this->vendor_model->get_state_from_india_pincode($pincode);
-                  if(empty($state['state'])){
-                     $states  =   $this->vendor_model->getall_state();
-                     $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                     $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states));
-                     return false;
-                  }
-                  else{
-                      return true;
-                  }
-          }
-          /*
-           * This Function used to add new pincode in India Pincode Table
-           * will get pincode, state, city from post
-           * save district, taluk,region,division,area value as city value in dataBase table
-           */
-          function add_new_pincode(){
-               $data = $this->input->post();
-               $pincode = $data['pincode'];
-               $state = $data['states'];
-               $districtArray = explode(",",$data['district']);
-               $length = count($districtArray);
-               for($i=0;$i<$length;$i++){
-                              $tempArray['district'] = $districtArray[$i];
-                              $tempArray['taluk'] = $districtArray[$i];
-                              $tempArray['region'] = $districtArray[$i];
-                              $tempArray['division'] = $districtArray[$i];
-                              $tempArray['area'] = $districtArray[$i];
-                              $tempArray['state'] = $state;
-                              $tempArray['pincode'] = $pincode;
-                   $insertArray[] = $tempArray;
-               }
-               $insertResult = $this->vendor_model->insert_india_pincode_in_batch($insertArray);
-               if($insertResult){
-                   $finalMsg = $insertResult." Rows has been inserted for the pincode ".$pincode." , Now You can assign SF to ".$pincode;
-                   $this->session->set_userdata('pincode_msg',$finalMsg);
-                   redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
-               }
-          }  
+                } else {
+                    $fileStatus = 'Invalid';
+                    $finalMsg = $msgVerfied;
+                }
+            } else {
+                $finalMsg = $is_saved;
+            }
+        } else {
+            
+        }
+        $this->vendor_model->update_file_status($fileStatus, $this->filePath);
+        $msg['final_msg'] = $finalMsg;
+        $this->session->set_userdata($msg);
+        redirect(base_url() . "employee/vendor/upload_pin_code_vendor/" . $vendorID);
+    }
+
+    /*
+     * This function use to create pincode update form
+     * @input - post data pincode and service related to that pincode in json format
+     * @output - it will create the pincode form view and if pincode is not found in india pincode then it will automatically redirect to add pincode form
+     */
+
+    function insert_pincode_form() {
+        $data = $this->input->post();
+        $pincodeAvaliablity = $this->is_pincode_available_in_india_pincode_table($data['pincode']);
+        if ($pincodeAvaliablity) {
+            if (!empty(json_decode($data['service']))) {
+                $data['selected_appliance'] = json_decode($data['service'], TRUE);
+            }
+            $data['all_appliance'] = $this->booking_model->selectservice();
+            $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres', 'id as Vendor_ID,name as Vendor_Name', array('active' => 1));
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->load->view('employee/add_vendor_to_pincode', $data);
+        }
+    }
+
+    /*
+     * This function will check is_pincode available in india pincode
+     * If yes then it will redirect the pincode to add pincode in india pincode table form
+     * if not then it will return false
+     */
+
+    function is_pincode_available_in_india_pincode_table($pincode) {
+        $state = $this->vendor_model->get_state_from_india_pincode($pincode);
+        if (empty($state['state'])) {
+            $states = $this->vendor_model->getall_state();
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->load->view('employee/add_new_pincode', array('pincode' => $pincode, 'states' => $states));
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /*
+     * This Function used to add new pincode in India Pincode Table
+     * will get pincode, state, city from post
+     * save district, taluk,region,division,area value as city value in dataBase table
+     */
+
+    function add_new_pincode() {
+        $data = $this->input->post();
+        $pincode = $data['pincode'];
+        $state = $data['states'];
+        $districtArray = explode(",", $data['district']);
+        $length = count($districtArray);
+        for ($i = 0; $i < $length; $i++) {
+            $tempArray['district'] = $districtArray[$i];
+            $tempArray['taluk'] = $districtArray[$i];
+            $tempArray['region'] = $districtArray[$i];
+            $tempArray['division'] = $districtArray[$i];
+            $tempArray['area'] = $districtArray[$i];
+            $tempArray['state'] = $state;
+            $tempArray['pincode'] = $pincode;
+            $insertArray[] = $tempArray;
+        }
+        $insertResult = $this->vendor_model->insert_india_pincode_in_batch($insertArray);
+        if ($insertResult) {
+            $finalMsg = $insertResult . " Rows has been inserted for the pincode " . $pincode . " , Now You can assign SF to " . $pincode;
+            $this->session->set_userdata('pincode_msg', $finalMsg);
+            redirect(base_url() . 'employee/booking/view_queries/FollowUp/p_nav');
+        }
+    }
+
     function save_file_into_database($newZipFileName, $csv, $status) {
         //Adding Details in File_Uploads table as well
         $data_uploads['file_name'] = "vendor_pincode_mapping_temp_" . date('j-M-Y') . ".zip";
@@ -4731,7 +4697,6 @@ class vendor extends CI_Controller {
         unlink($newZipFileName);
     }
 
-    
     /**
      * @desc : This function is used to resend the login details on request.
      * @param : $type employee/SF/partner string
@@ -4740,46 +4705,48 @@ class vendor extends CI_Controller {
      */
     function resend_login_details($type, $id) {
         $agent = $this->service_centers_model->get_sc_login_details_by_id($id);
-        if(!empty($agent)){
+        if (!empty($agent)) {
             $template = $this->booking_model->get_booking_email_template("resend_login_details");
             if (!empty($template)) {
-                $sf_details = $this->vendor_model->getVendorDetails('primary_contact_email,owner_email',array('id'=>$id));
+                $sf_details = $this->vendor_model->getVendorDetails('primary_contact_email,owner_email', array('id' => $id));
                 $rm_email = $this->vendor_model->get_rm_sf_relation_by_sf_id($id)[0]['official_email'];
                 $login_details['username'] = $agent[0]['user_name'];
                 $login_details['password'] = $agent[0]['user_name'];
                 $subject = $template[4];
                 $emailBody = vsprintf($template[0], $login_details);
-                $to = $this->session->userdata('official_email').",".$sf_details[0]['primary_contact_email'].",".$sf_details[0]['owner_email'];
-                $cc = $rm_email.",".$template[3];
-                $this->notify->sendEmail($template[2],$to , $cc, '', $subject, $emailBody, "");
-                $this->session->set_userdata('success','Login Details Send To Registered Email Id');
-                redirect(base_url() . 'employee/vendor/viewvendor'); 
-            }else{
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '','', 'Email Template Not Found', 'resend_login_details email template not found. Please update this into the database.', "");
-                $this->session->set_userdata('error','Error!!! Please Try Again...');
-                redirect(base_url() . 'employee/vendor/viewvendor');  
+                $to = $this->session->userdata('official_email') . "," . $sf_details[0]['primary_contact_email'] . "," . $sf_details[0]['owner_email'];
+                $cc = $rm_email . "," . $template[3];
+                $this->notify->sendEmail($template[2], $to, $cc, '', $subject, $emailBody, "");
+                $this->session->set_userdata('success', 'Login Details Send To Registered Email Id');
+                redirect(base_url() . 'employee/vendor/viewvendor');
+            } else {
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '', '', 'Email Template Not Found', 'resend_login_details email template not found. Please update this into the database.', "");
+                $this->session->set_userdata('error', 'Error!!! Please Try Again...');
+                redirect(base_url() . 'employee/vendor/viewvendor');
             }
-        }else{
+        } else {
             echo "Service Center Not Found";
         }
-        
     }
+
     /**
      * @desc: This funtion will check Session
      * @param: void
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
-            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            log_message('info', __FUNCTION__ . " Session Expire for Service Center");
             $this->session->sess_destroy();
             redirect(base_url() . "employee/login");
         }
     }
-    function pending_bookings_on_vendor($vendorID){
-         $count = $this->reusable_model->get_search_result_count("booking_details","booking_id",array('assigned_vendor_id'=>$vendorID),NULL,NULL,NULL,NULL,NULL);
-         echo $count;
+
+    function pending_bookings_on_vendor($vendorID) {
+        $count = $this->reusable_model->get_search_result_count("booking_details", "booking_id", array('assigned_vendor_id' => $vendorID), NULL, NULL, NULL, NULL, NULL);
+        echo $count;
     }
+
 }
