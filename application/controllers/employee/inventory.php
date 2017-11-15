@@ -1260,22 +1260,30 @@ class Inventory extends CI_Controller {
             
             $u_data = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id']), TRUE, "id");
             if (!empty($u_data)) {
-                $u['customer_total'] = $u['partner_net_payable'] = $data['part_charges'] +
+               
+               $u['customer_total'] = $u['partner_net_payable'] = $data['part_charges'] +
                         $data['service_charge'] + $data['transport_charge'] + $data['courier_charge'];
-
+               
                 $sf_sc = ($data['service_charge'] * basic_percentage * (1 + SERVICE_TAX_RATE));
                 
                 $sf_parts = 0;
+                $actual_part_charge = ($data['part_charges'] - $data['around_part_commission']);
+                
                 //same_diff_vendor 1 means different vendor arrange part
                 if ($data['same_diff_vendor'] == 1) {
                    
-                    $sf_parts = ($data['part_charges'] - $data['around_part_commission'])* PART_DELIVERY_PERCENTAGE * (1 + SERVICE_TAX_RATE);
+                    $sf_parts = ($actual_part_charge)* PART_DELIVERY_PERCENTAGE * (1 + SERVICE_TAX_RATE);
                 } else if ($data['same_diff_vendor'] == 2) { //same_diff_vendor 1 means Same vendor arrange part
                     
-                    $sf_parts = ($data['part_charges'] - $data['around_part_commission']) * parts_percentage * (1 + SERVICE_TAX_RATE);
+                    $is_gst = $this->vendor_model->is_tax_for_booking($data['booking_id']);
+                    if(empty($is_gst[0]['gst_no']) ){
+                        $sf_parts = ($actual_part_charge) * parts_percentage * (1 + SERVICE_TAX_RATE);
+                    } else {
+                        $sf_parts = ($actual_part_charge) * parts_percentage;
+                    } 
                 }
-
-                $sf_per = (($sf_sc + $sf_parts ) / ($u['customer_total'] * (1 + SERVICE_TAX_RATE))) * 100;
+                
+                $sf_per = (($sf_sc + $sf_parts ) / ($u['customer_total'])) * 100;
 
                 $u['customer_paid_basic_charges'] = $u['around_paid_basic_charges'] = $u["customer_paid_parts"] = $u["customer_paid_extra_charges"] = 0;
                 $u['customer_net_payable'] = 0;
@@ -1293,7 +1301,7 @@ class Inventory extends CI_Controller {
                 // $this->service_centers_model->update_spare_parts(array('booking_id' =>$data['booking_id'] ), $sp);
                 $userSession = array('success' => "Thanks To Update Booking Price");
                 $this->session->set_userdata($userSession);
-                redirect(base_url() . "employee/inventory/update_part_price_details");
+               redirect(base_url() . "employee/inventory/update_part_price_details");
             } else {
                 $userSession = array('success' => "Booking Price Not Updated");
                 $this->session->set_userdata($userSession);
