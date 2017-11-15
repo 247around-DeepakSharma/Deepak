@@ -1119,8 +1119,9 @@ class Miscelleneous {
     function send_sf_not_found_email_to_rm($booking,$rm_email){
             $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
             $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode'];
-            $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
-            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "");
+            $booking['partner_name'] = $this->My_CI->reusable_model->get_search_result_data("partners","public_name",array('id'=>$booking['partner_id']),NULL,NULL,NULL,NULL,NULL)[0]['public_name'];
+           $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
+           $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "");
     }
 /*
  * This Functiotn is used to map rm to pincode, for which SF not found

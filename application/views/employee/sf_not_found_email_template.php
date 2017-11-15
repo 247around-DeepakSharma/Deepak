@@ -51,17 +51,22 @@
                                       <tr>
                                         <td valign="top" width="10" style="padding:4px 0"></td>
                                         <td style="padding:4px 0;font:13.5px/1.5 Arial;color:#000000"><span style="color:#000000">Booking ID:</span></td>
-                                        <td style="padding:4px 0;font:13.5px/1.5 Arial;color:#000000" align="right"><span style="color:#000000"><?php echo $booking_id?></span></td>
+                                        <td style="padding:4px 0;font:13.5px/1.5 Arial;color:#000000" align="right"><span style="color:#000000"><?php if(isset($booking_id)){echo $booking_id;}?></span></td>
                                       </tr>
                                       <tr>
                                         <td valign="top" width="10" style="padding:4px 0"></td>
                                         <td style="padding:4px 0;font:13.5px/1.5 Arial;color:#000000"><span style="color:#000000">Booking Pincode:</span></td>
-                                        <td style="padding:4px 0;font:13.5px/1.5 Arial;color:#000000" align="right"><span style="color:#000000"><?php echo $booking_pincode?></span></td>
+                                        <td style="padding:4px 0;font:13.5px/1.5 Arial;color:#000000" align="right"><span style="color:#000000"><?php if(isset($booking_pincode)){echo $booking_pincode;}?></span></td>
                                       </tr>
                                       <tr>
                                         <td valign="top" width="10" style="padding:4px 0"></td>
                                         <td style="padding:4px 0;font:13.5px/1.5 Arial;color:#000000"><span style="color:#000000">Booking City</span></td>
-                                        <td style="padding:4px 0;font:13.5px/1.5 Arial;color:#000000" align="right"><span style="color:#000000"><?php echo $city?></span></td>
+                                        <td style="padding:4px 0;font:13.5px/1.5 Arial;color:#000000" align="right"><span style="color:#000000"><?php if(isset($city)){echo $city;} ?></span></td>
+                                      </tr>
+                                      <tr>
+                                        <td valign="top" width="10" style="padding:4px 0"></td>
+                                        <td style="padding:4px 0;font:13.5px/1.5 Arial;color:#000000"><span style="color:#000000">Partner</span></td>
+                                        <td style="padding:4px 0;font:13.5px/1.5 Arial;color:#000000" align="right"><span style="color:#000000"><?php if(isset($partner_name)){echo $partner_name;} ?></span></td>
                                       </tr>
                                     </tbody>
                                   </table></td>
@@ -82,7 +87,13 @@
                                 <td style="padding:10px 6px"><table width="100%" cellpadding="0" cellspacing="0" border="0" align="center">
                                     <tbody>
                                       <tr>
+                                          <?php
+                                          if(isset($booking_id)){
+                                          ?>
                                         <td style="background-color:#2C9D9C;color:#ffffff;border-radius:2px;border:1px solid #2C9D9C;font:14px/1.5 Arial;text-align:center;height:42px;width:182px"><a href=<?php echo base_url()?>employee/vendor/get_add_vendor_to_pincode_form/<?php echo $booking_id?> style="display:inline-block;outline:medium none;text-decoration:none;color:#ffffff;font-weight:bold;text-align:center;min-height:42px;width:182px;line-height:42px;vertical-align:middle" target="_blank"><p style="font:normal 16px Arial">Assign Service Center</p></a></td>
+                                      <?php
+                                          }
+                                      ?>
                                       </tr>
                                     </tbody>
                                   </table></td>
