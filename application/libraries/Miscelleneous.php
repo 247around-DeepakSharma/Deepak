@@ -12,6 +12,7 @@ class Miscelleneous {
         $this->My_CI->load->library('booking_utilities');
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('s3');
+        $this->My_CI->load->library('PHPReport');
 	$this->My_CI->load->model('vendor_model');
         $this->My_CI->load->model('reusable_model');
 	$this->My_CI->load->model('booking_model');
@@ -1539,6 +1540,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             }
         }
     }
+    
     /**
      * @desc Return Account Manager ID
      * @param int $partner_id
@@ -1551,5 +1553,48 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $data = $this->My_CI->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
         }
         return $data;
+    }
+    
+    /**
+     * @desc This function is used to generate the excel data and return generated excel file path
+     * @param string $template
+     * @param string $download_file_name
+     * @param array $data
+     * @return string $output_file_excel
+     */
+    function generate_excel_data($template,$download_file_name,$data){
+        
+       
+        // directory
+        $templateDir = __DIR__ . "/../controllers/excel-templates/";
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        $R = new PHPReport($config);
+        
+        $R->load(array(
+            array(
+                'id' => 'excel_data',
+                'repeat' => true,
+                'data' => $data,
+            )
+                )
+        );
+        
+        $output_file_excel = TMP_FOLDER . $download_file_name. ".xlsx";
+
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
+
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+
+        $R->render('excel', $output_file_excel);
+        
+        return $output_file_excel;
     }
 }

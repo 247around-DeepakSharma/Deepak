@@ -447,6 +447,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/dashboard" target="_blank"><i class="fa fa-fw fa-desktop"></i> <strong>New Dashboard</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="" data-toggle="modal" data-target="#sidebar-right" id="export_data"><i class="fa fa-fw fa-desktop"></i> <strong>Download serviceability Report</strong></a>
+                        </li>
                         
                     </ul>
                     <!-- /.dropdown-user -->
@@ -496,19 +500,107 @@
             <!-- /.navbar-top-links -->
             <!-- /.navbar-static-side -->
         </nav>
+        
+        <!--export data Modal-->
+        <div class="export_modal">
+            <div class="modal fade right" id="sidebar-right" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="main_modal_title">Export Serviceability Data</h4>
+                        </div>
+                        <div class="modal-body" id="main_modal_body">
+                            <form action="<?php echo base_url();?>employee/booking/download_serviceability_data" method="post" target="_blank">
+                                <div class="form-group">
+                                    <select class="form-control" id="modal_service_id" name="service_id[]" multiple="multiple" required=""> 
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <div class="text-right">
+                                        <div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                                        <input type="submit" class="btn btn-success" value="Export">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end export data Modal -->
         <script type="text/javascript">
+            
+            $("#modal_service_id").select2({
+                placeholder: "Select Appliance",
+                allowClear: true
+            });
+            
             (function($){
             $(document).ready(function(){
-            $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            $(this).parent().siblings().removeClass('open');
-            $(this).parent().toggleClass('open');
+                $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    $(this).parent().siblings().removeClass('open');
+                    $(this).parent().toggleClass('open');
+                });
             });
+            
+            $('#export_data').click(function(){
+                $.ajax({
+                    type: 'GET',
+                    url: '<?php echo base_url()?>employee/booking/get_service_id',
+                    success: function (response) {
+                        $("#modal_service_id").html(response);
+                    }
+                });
             });
             })(jQuery);
         </script>
         <style type="text/css">
+            .export_modal .select2-container{width:100%!important;}
+            .export_modal .select2-search__field{width:100%!important;}
+            /* MODAL FADE LEFT RIGHT BOTTOM */
+            .export_modal .modal.fade:not(.in).left .modal-dialog {
+                -webkit-transform: translate3d(-25%, 0, 0);
+                transform: translate3d(-25%, 0, 0);
+            }
+            .export_modal .modal.fade:not(.in).right .modal-dialog {
+                -webkit-transform: translate3d(25%, 0, 0);
+                transform: translate3d(25%, 0, 0);
+            }
+            .export_modal .modal.fade:not(.in).bottom .modal-dialog {
+                -webkit-transform: translate3d(0, 25%, 0);
+                transform: translate3d(0, 25%, 0);
+            }
+            .export_modal .modal.right .modal-dialog {
+                position:absolute;
+                top:0;
+                right:0;
+                margin:0;
+            }
+            .export_modal .modal.right .modal-content {
+                min-height:100vh;
+                border:0;
+                border-radius: 0px;
+            }
+            .export_modal .modal.right .modal-footer {
+                position: fixed;
+                left: 0;
+                right: 0;
+            }
+            .export_modal .modal-header .close {
+                margin-top: -2px;
+                position: absolute;
+                top: 4px;
+                left: -30px;
+                background-color: #183247;
+                width: 30px;
+                height: 30px;
+                opacity: 1;
+                color: #fff;
+            }
             .marginBottom-0 {margin-bottom:0;}
             .dropdown-submenu{position:relative;}
             .dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;}

@@ -3464,4 +3464,134 @@ class Booking extends CI_Controller {
        $headings = array("S.no","Booking ID","OrderID","Contact","Partner","City","Service Center","Service","Brand","Category","Capacity","Request Type","Product/Service");
        $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_bulk_search_summary");   
     }
+    
+    /**
+     * @desc: This function is used to get service_id from Ajax call
+     * @params: void
+     * @return: string
+     */
+    function get_service_id(){
+        $appliance_list = $this->booking_model->selectservice();
+        $option = '';
+
+        foreach ($appliance_list as $value) {
+            $option .= "<option value='" . $value->id . "'";
+            $option .= " > ";
+            $option .= $value->services . "</option>";
+        }
+        $option .= '<option value="all" >All</option>';
+        echo $option;
+    }
+    
+    /**
+     * @desc: This function is used to download the data from vendor pincode mapping
+     * @params: void
+     * @return: string
+     */
+    function download_serviceability_data(){
+        $service_id = $this->input->post('service_id');
+        $excel_file = array();
+        $col = "vendor_pincode_mapping.Appliance,vendor_pincode_mapping.City, vendor_pincode_mapping.State, vendor_pincode_mapping.Pincode";
+        
+        if(in_array('all', $service_id)){
+            $service_id = array_column($this->booking_model->selectservice(), 'id');
+        }
+        
+        foreach ($service_id as $key => $value) {
+            $where = array('Appliance_ID' => $value);
+            $data = $this->vendor_model->get_pincode_mapping_form_col($col, $where);
+            if(!empty($data)){
+                $excel_file[$key]['service_id'] = $value;
+                $excel_file[$key]['file'] = $this->miscelleneous->generate_excel_data('247around_serviceability_details.xlsx', $value, $data);
+                unset($data);
+            }
+        }
+
+        $main_excel = $this->combined_excel_sheets($excel_file);
+        
+        if ($main_excel) {
+            
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($main_excel) . '"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($main_excel));
+            readfile($main_excel);
+            
+            foreach ($excel_file as $key => $value) {
+                if(file_exists($value['file'])){
+                    unlink($value['file']);
+                }
+            }
+            
+            $res1 = 0;
+            system(" chmod 777 " . $main_excel , $res1);
+            if(file_exists($main_excel)){
+                unlink($main_excel);
+            }
+        }
+    }
+    
+    /**
+     * @desc: This function is used to combined the excel sheet
+     * @params: array $excel_file_list
+     * @return: string $combined_excel
+     */
+    function combined_excel_sheets($excel_file_list) {
+        $objPHPExcel1 ="";
+        foreach($excel_file_list as $key => $file_path){
+            
+            switch ($file_path['service_id']){
+                case _247AROUND_AC_SERVICE_ID:
+                    $sheet_title = 'AC';
+                    break;
+                case _247AROUND_MICROWAVE_SERVICE_ID:
+                    $sheet_title = 'Microwave';
+                    break;
+                case _247AROUND_REFRIGERATOR_SERVICE_ID:
+                    $sheet_title = 'Refrigerator';
+                    break;
+                case _247AROUND_TV_SERVICE_ID:
+                    $sheet_title = 'Television';
+                    break;
+                case _247AROUND_GEYSER_SERVICE_ID:
+                    $sheet_title = 'Geyser';
+                    break;
+                case _247AROUND_WASHING_MACHINE_SERVICE_ID:
+                    $sheet_title = 'Washing Machine';
+                    break;
+                case _247AROUND_WATER_PURIFIER_SERVICE_ID:
+                    $sheet_title = 'Water Purifier';
+                    break;
+                case _247AROUND_CHIMNEY_SERVICE_ID:
+                    $sheet_title = 'Chimney';
+                    break;
+                case _247AROUND_AUDIO_SYSTEM_SERVICE_ID:
+                    $sheet_title = 'Audio System';
+                    break;
+                default :
+                    $sheet_title = $file_path['service_id'];
+                    break;
+            }
+            
+            if($key == 0){
+                 $objPHPExcel1 = PHPExcel_IOFactory::load($file_path['file']);
+                 $objPHPExcel1->getActiveSheet()->setTitle($sheet_title);
+            } else {
+                $objPHPExcel2 = PHPExcel_IOFactory::load($file_path['file']);
+                $objPHPExcel2->getActiveSheet()->setTitle($sheet_title);
+                // Copy worksheets from $objPHPExcel2 to $objPHPExcel1
+                foreach ($objPHPExcel2->getAllSheets() as $sheet) {
+                    $objPHPExcel1->addExternalSheet($sheet);
+                }
+            }
+        }
+        
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, "Excel2007");
+        $combined_excel = TMP_FOLDER.'serviceability_details.xlsx';
+        $objWriter->save($combined_excel);
+        return $combined_excel;
+    }
 }
