@@ -4503,19 +4503,19 @@ class vendor extends CI_Controller {
           /*
            * This function checks area_brand_pincode_serviceID Combination must be unique in uploded vendor pincode mapping file
            */
-          function is_pincode_service_brand_area_unique($excelDataArray){
+          function delete_duplicate_pincode_service_brand_area($excelDataArray){
               $msg = true;
               $tempArray = array();
               foreach($excelDataArray as $index=>$data){
                     $uniqueString = $data['pincode'].",".$data['area'].",".$data['appliance_id'].",".$data['brand'];
                     if(array_key_exists($uniqueString, $tempArray)){
-                              $msg = "Pincode, Appliance_ID, Area, Brand Combination Should be unique. Error at line ".($index+2);
+                        unset($excelDataArray[$index]);
                     }
                     else{
                         $tempArray[$uniqueString] = NULL;
                     }
              }
-             return $msg;
+             $this->vendorPinArray = array_values($excelDataArray);
           }
           /*
            * This function checks is there any blank field in uploded excel file
@@ -4541,9 +4541,8 @@ class vendor extends CI_Controller {
                                                   $readerVersion = $this->get_excel_reader_version($file['file']['name']);
                                                   $this->vendorPinArray =  $this->miscelleneous->excel_to_Array_converter($file,$readerVersion);
                                                   $msg['blank'] = $this->is_uploded_file_blank($this->vendorPinArray);
+                                                  $msg['unique_combination'] = $this->delete_duplicate_pincode_service_brand_area($this->vendorPinArray);
                                                   if($msg['blank'] == 1){
-                                                            $msg['unique_combination'] = $this->is_pincode_service_brand_area_unique($this->vendorPinArray);
-                                                             if($msg['unique_combination'] == 1){
                                                             foreach($this->vendorPinArray as $index=>$data){
                                                                         $msg['vendor'] = $this->is_file_contains_only_valid_vendor($vendorID,$index,$data); 
                                                                         if($msg['vendor'] == 1){
@@ -4562,10 +4561,7 @@ class vendor extends CI_Controller {
                                                                                 return $msg['vendor'];
                                                                         }
                                                             }
-                                                             }
-                                                             else{
-                                                                      return $msg['unique_combination'];
-                                                             }
+                                                            
                                                   }
                                                   else{
                                                              return $msg['blank'];

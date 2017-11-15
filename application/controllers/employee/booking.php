@@ -160,6 +160,7 @@ class Booking extends CI_Controller {
             //Array ( ['brand'] => Array ( [0] => id_price ) )
             $pricesWithId = $this->input->post("prices");
             $user['user_email'] = $this->input->post('user_email');
+            $user['alternate_phone_number'] = $this->input->post('booking_alternate_contact_no');
             $result = array();
             $result['DEFAULT_TAX_RATE'] = 0;
             foreach ($appliance_brand as $key => $value) {
