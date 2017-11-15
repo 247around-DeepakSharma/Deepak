@@ -552,11 +552,19 @@ EOD;
 //
 //                $this->email->message($message);
 //                $this->email->attach($csv, 'attachment');
-                
-            $cc = $p['summary_email_cc'];
-            $bcc = $p['summary_email_bcc'];
-            $partner_summary_params = $this->partner_model->get_partner_summary_params($p['id']);
-            $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($p['summary_email_to'],NULL,$cc,NULL,$bcc,NULL,$subject,NOREPLY_EMAIL_ID,'247around Team','d5af7cfb-590f-4e45-b683-4232990f06c3',$partner_summary_params,$csv,"247around-Services-Consolidated-Data - " . date('d-M-Y') . ".csv");
+             
+            $emailBasicDataArray['to'] = $p['summary_email_to'];
+            $emailBasicDataArray['cc'] = $p['summary_email_cc'];
+            $emailBasicDataArray['bcc'] = $p['summary_email_bcc'];
+            $emailBasicDataArray['subject'] = $subject;
+            $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
+            $emailBasicDataArray['fromName'] = "247around Team";
+            $emailTemplateDataArray['templateId'] = PARTNER_SUMMARY_EMAIL_TEMPLATE; 
+            $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($p['id']);
+            $emailAttachmentDataArray['type'] = "csv";
+            $emailAttachmentDataArray['fileName'] = "247around-Services-Consolidated-Data - ".date('d-M-Y');
+            $emailAttachmentDataArray['filePath'] =$csv;
+            $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray,$emailTemplateDataArray,$emailAttachmentDataArray);
 
                 if ($emailStatus=='success') {
                     log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);

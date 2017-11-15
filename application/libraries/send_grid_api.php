@@ -10,58 +10,106 @@ if (!defined('BASEPATH')) {
  * @author anujaggarwal
  */
 class send_grid_api {
-var $url;
-var $user;
-var $pass;
     function __Construct() {
-        $this->url = 'https://api.sendgrid.com/';
-        $this->user = 'anujagg';
-        $this->pass = 'w2KeG23@ve3@UEPn';
+        $this->url = 'https://api.sendgrid.com/v3/';
     }
     /*
-     * This function used to sen
+     * This function used to send curl request to sendgrid with required data and headers
      */
     function send_email($params){
-        $request =  $this->url.'api/mail.send.json';
+        $request =  $this->url.'mail/send';
         $session = curl_init($request);
-        curl_setopt ($session, CURLOPT_POST, true);
-        curl_setopt ($session, CURLOPT_POSTFIELDS, $params);
-        curl_setopt($session, CURLOPT_HEADER, false);
-        curl_setopt($session, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-        curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($session);
-        curl_close($session);
-        return $response;
+                curl_setopt_array($session, array(
+                    CURLOPT_POST => TRUE,
+                    CURLOPT_RETURNTRANSFER => TRUE,
+                    CURLOPT_HTTPHEADER => array(
+                        'Authorization: Bearer '.SENDGRID_API_KEY,
+                        'Content-Type: application/json'
+                    ),
+                    CURLOPT_POSTFIELDS => $params
+                ));
+                $response = curl_exec($session);
+                return $response;
     }
-    function send_email_using_send_grid_templates($to,$to_name,$cc,$cc_name,$bcc,$bcc_name,$subject,$from,$from_name,$template_id,$dynamic_variables,$attachmentPath,$attachmentFileName){
+    /*
+     * This function is used to convert string of to,cc,bcc into a sendgrid request format if key is blank then it will return an empty array
+     */
+    function get_formated_array_to_send($key,$emailBasicDataArray){
+        $finalArray = array();
+        if(array_key_exists($key, $emailBasicDataArray)){
+            $tempArray = explode(",",$emailBasicDataArray[$key]);
+            foreach($tempArray as $value){
+                $finalArray[] = array('email'=>$value); 
+            }
+    }
+        return $finalArray;
+    }
+    /*
+     * This function is used to convert substitute parameter aaray into sendgrid required format
+     */
+    function get_substitute_parameter_in_format($dynamic_variables){
         $finalDynamicVariableArray = array();
         foreach($dynamic_variables as $key=>$value){
-            $finalDynamicVariableArray["-".$key."-"] = array($value,$value,$value);
+            $finalDynamicVariableArray["-".$key."-"] = $value;
         }
-       $xSmtpApiArray =  array (
-  'filters' => array ('templates' => array ('settings' => array ('enable' => 1,'template_id' => $template_id,),),),
-  'sub' => $finalDynamicVariableArray
-           );
-       $xSmtpApiJson = json_encode($xSmtpApiArray);
-        $params = array(
-            'api_user'  => $this->user,
-            'api_key'   => $this->pass,
-            'to' => $to,
-            'toname'=>$to_name,
-            'cc'=>$cc,
-            'cc_name'=>$cc_name,
-            'bcc'=>$bcc,
-            'bcc_name'=>$bcc_name,
-            'subject'=>$subject,
-            'html'=> '<p></p>',
-            'text'=> '',
-            'from'=> $from,
-            'fromname'=> $from_name,
-            'x-smtpapi'=> $xSmtpApiJson,
-            'files['.$attachmentFileName.']' =>file_get_contents($attachmentPath)
-            );
-        $response = $this->send_email($params);
-        $responseArray = json_decode($response,TRUE);
-        return $responseArray['message'];
+        return $finalDynamicVariableArray;
+    }
+    /*
+     * This function is used to send Email using SendGrid API V3
+     * @input - 1) $emailBasicDataArray - It will contain basic info to send email Like - to,cc,bcc,from,fromName,subject (Required)(Note- Multiple to,cc,bcc Should be comma seprated)
+     * @input - 2) $emailTemplateDataArray - It will contain template info  Like - templateID and optionalParameters  (Optional)
+     * @input - 3) $emailAttachmentDataArray - It will contain attachment info  Like - attachmentType,filename, filePath  (Optional)
+     */
+    function send_email_using_send_grid_templates($emailBasicDataArray,$emailTemplateDataArray=array(),$emailAttachmentDataArray=array()){
+      //convert all string input for to,cc,bcc into formated array
+      $toArray = $this->get_formated_array_to_send("to",$emailBasicDataArray);
+      $ccArray = $this->get_formated_array_to_send("cc",$emailBasicDataArray);
+      $bccArray  = $this->get_formated_array_to_send("bcc",$emailBasicDataArray);
+      //convert substitute parameter into desired format
+      $dynamicParamsArray = array();
+      if(array_key_exists('dynamicParams', $emailTemplateDataArray)){
+            $dynamicParamsArray = $this->get_substitute_parameter_in_format($emailTemplateDataArray['dynamicParams']);
+      }
+      //start creating requested array
+      //personalizations will contains info about to,cc,bcc,optional tags and subject of email
+      if(!empty($toArray)){
+          $personalizationsArray['to'] = $toArray;
+      }
+      if(!empty($ccArray)){
+          $personalizationsArray['cc'] = $ccArray;
+      }
+      if(!empty($bccArray)){
+          $personalizationsArray['bcc'] = $bccArray;
+      }
+      if(!empty($dynamicParamsArray)){
+          $personalizationsArray['substitutions'] = $dynamicParamsArray;
+      }
+      if(array_key_exists('subject', $emailBasicDataArray)){
+          $personalizationsArray['subject'] = $emailBasicDataArray['subject'];
+      }
+      $data['personalizations'] = array($personalizationsArray);
+      //From will contain from name and email
+      $data['from']=array("email"=>$emailBasicDataArray['from'],"name"=>$emailBasicDataArray['fromName']);
+      //Content will contain information about you want to send a plain text email or html email
+      $data['content'][]=array("type"=>"text/html charset=utf-8","value"=>"Hello, World!");
+      // template_id will contains id of your sendgrid  transactional template 
+      if(array_key_exists('templateId', $emailTemplateDataArray)){
+        $data['template_id']=$emailTemplateDataArray['templateId'];
+      }
+      //attachments tag contain info about attachment like file content, file name, file type
+       if(!empty($emailAttachmentDataArray)){
+        $data['attachments'][] = array("content"=>base64_encode(file_get_contents($emailAttachmentDataArray['filePath'])),
+          "filename"=>$emailAttachmentDataArray['fileName'].".".$emailAttachmentDataArray['type'],
+          "name"=>$emailAttachmentDataArray['fileName'],
+          "type"=>$emailAttachmentDataArray['type']); 
+      }
+     // convert array into json and send a curl request to sendgrid
+      $response = $this->send_email(json_encode($data));
+      if($response == ''){
+          return  'success';
+      }
+      else{
+          return  'failure';
+      }
     }
 }
