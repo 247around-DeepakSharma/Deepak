@@ -42,7 +42,7 @@
                         <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
-                                    <label for="parts">Part Charges </label>
+                                    <label for="parts">Total Part Charges </label>
                                     <input type="number" class="form-control" id="part_charge" name="part_charges" value = "<?php echo set_value("part_charges");?>" placeholder="Enter Parts Charge" required>
                                     <input type="hidden" class="form-control" name="booking_id" value="<?php
                                     if (isset($data)) {
@@ -53,20 +53,28 @@
                                     <input type="hidden" name="spare_parts" value="<?php if (isset($data['spare_parts'])){ echo "1"; }else { echo "0";} ?>" />
                                 </div>
                             </div>
+                             <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Around Part Commission </label>
+                                    <input type="number" class="form-control" id="part_charge" name="around_part_commission" value = "<?php echo set_value("around_part_commission");?>" placeholder="Enter Around Commission" required>
+                                   
+                                </div>
+                            </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Service Charges </label>
                                     <input type="number" class="form-control" id="service_charge" name="service_charge" value = "<?php echo set_value("service_charge");?>" placeholder="Enter Parts Charge" required>
                                 </div>
                             </div>
+                            
+                            </div>
+                        <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Transport Charges </label>
                                     <input type="number" class="form-control" id="trans_charge" name="transport_charge" value = "<?php echo set_value("transport_charge");?>" placeholder="Enter Parts Charge" required>
                                 </div>
                             </div>
-                            </div>
-                        <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Courier Charges </label>
@@ -87,6 +95,9 @@
                                     
                                 </div>
                             </div>
+                            
+                        </div>
+                        <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Select Vendor or Partner </label>
@@ -100,8 +111,6 @@
                                     
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-12">
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12 ">
                                     <label for="city ">Vendor or Partner Name</label>
