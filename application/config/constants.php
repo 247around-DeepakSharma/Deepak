@@ -1,4 +1,5 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+include('email_template_constant.php');
 
 /*
 |--------------------------------------------------------------------------
@@ -349,7 +350,7 @@ define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,
 
 //Email IDs when SF is not found in Vendor Pincode Mapping file
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
-define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com");
+define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com, nits@247around.com");
 
 //promotional sms constant
 define('COMPLETED_PROMOTINAL_SMS_1','completed_promotional_sms_1');
@@ -499,6 +500,10 @@ define("_247AROUND_AC_SERVICE_ID",'50');
 define("_247AROUND_REFRIGERATOR_SERVICE_ID",'37');
 //geyser service id
 define("_247AROUND_GEYSER_SERVICE_ID",'32');
+//audio system service id
+define("_247AROUND_AUDIO_SYSTEM_SERVICE_ID",'45');
+//Chimney service id
+define("_247AROUND_CHIMNEY_SERVICE_ID",'44');
 // We will display Not received button after 3 days of Delivery date
 define("NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON", -3);
 

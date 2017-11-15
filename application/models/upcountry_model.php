@@ -100,7 +100,7 @@ class Upcountry_model extends CI_Model {
         $distance = false;
         foreach ($vendor_details as $value) {
             $where1 = array('service_center_id' => $value['vendor_id'], 
-                'district'=> $value['city']);
+                'district'=> $value['city'], 'active' => 1);
             $res_sb = $this->get_sub_service_center_details($where1);
             $this->vendor_min_up_distance = $value['min_upcountry_distance'];
             if($res_sb){
@@ -637,7 +637,7 @@ class Upcountry_model extends CI_Model {
         $this->db->where('booking_id', $booking_id);
         $this->db->where_in('sc.is_upcountry', array('1',NOT_UPCOUNTRY_PRICE_TAG));
         $query = $this->db->get();
-        echo $this->db->last_query();
+       
         return $query->result_array();
     }
     /**
@@ -838,11 +838,11 @@ class Upcountry_model extends CI_Model {
      * @param void()
      * @return string
      */
-    function delete_sub_service_center_upcountry_details($id){
-        $this->db->where('id',$id);
-        $result = $this->db->delete('sub_service_center_details');
-        return $result;
-    }
+//    function delete_sub_service_center_upcountry_details($id){
+//        $this->db->where('id',$id);
+//        $result = $this->db->delete('sub_service_center_details');
+//        return $result;
+//    }
     
     /**
      * @desc This method is used to update the distance for given pincode

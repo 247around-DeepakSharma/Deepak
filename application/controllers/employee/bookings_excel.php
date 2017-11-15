@@ -128,7 +128,7 @@ class bookings_excel extends CI_Controller {
                 $to = $this->session->userdata('official_email');
                 $cc = NITS_EMAIL_ID.",".DEVELOPER_EMAIL;
                 $subject = "Paytm File is uploaded by " . $this->session->userdata('employee_id');
-                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $html, "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "");
                 log_message('info', 'paytm file uploaded successfully.' . print_r($response,true));
                 
                 //Updating File Uploads table and upload file to s3
@@ -145,14 +145,13 @@ class bookings_excel extends CI_Controller {
                 //Getting template from Database
                 $template = $this->booking_model->get_booking_email_template("missing_pincode_mail");
                 $subject = vsprintf($template[4], $_FILES["file"]["name"]);
-                $to = MISSING_PINCODE_EMAIL_TO;
                 $attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.date('d-M-Y-H-i-s')."-".$_FILES["file"]["name"];
                 $email_html = "";
                 foreach ($response['data'][0]['incorrct_pincode'] as $value){
                     $email_html .= $value['order_id']."<br>";
                 }
                 $emailBody = vsprintf($template[0], array($_FILES["file"]["name"],$email_html));
-                $this->notify->sendEmail($template[2], $to ,"", '', $subject , $emailBody, $attachement);
+                $this->notify->sendEmail($template[2], $template[1] ,$template[3], '', $subject , $emailBody, $attachement);
             }
         } else {
             echo $msg;
@@ -231,11 +230,7 @@ class bookings_excel extends CI_Controller {
             $this->Columfailed .= " Customer First Name Column does not exist. Please use <b>customer_firstname</b> as column name.<br/><br/>";
             $error = true;
         }
-        if (!array_key_exists('customer_lastname', $rowData)) {
-      
-            $this->Columfailed .= " Customer Last Name does not exist. Please use <b>customer_lastname</b> as column name.<br/><br/>";
-            $error = true;
-        }
+        
         if (!array_key_exists('contact_number', $rowData)) {
       
             $this->Columfailed .= " Contact Number Column does not exist. Please use <b>contact_number</b> as column name.<br/><br/>";
@@ -308,7 +303,7 @@ class bookings_excel extends CI_Controller {
                     $message .= "Sheet Name = <b>".$sheet->getTitle()."</b> <br><br>";
                     $message .= $this->Columfailed;
                     $message .= "Please Check File And Upload Again";
-                    $this->notify->sendEmail('booking@247around.com',$to,$cc,"",$subject, $message,"");
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID,$to,$cc,"",$subject, $message,"");
                     $insert_data_details = array();
                     break;
                 }else{
@@ -378,7 +373,7 @@ class bookings_excel extends CI_Controller {
                     
                     if (empty($output)) {
                         //User doesn't exist
-                        $user_name = $this->miscelleneous->is_user_name_empty(trim($rowData[0]['customer_firstname'] . " " . $rowData[0]['customer_lastname']), $rowData[0]['customer_email'], $rowData[0]['contact_number']);
+                        $user_name = $this->miscelleneous->is_user_name_empty(trim($rowData[0]['customer_firstname'] ), $rowData[0]['customer_email'], $rowData[0]['contact_number']);
                         $user['name'] = $user_name;
                         $user['phone_number'] = $rowData[0]['contact_number'];
                         $user['user_email'] = $rowData[0]['customer_email'];
@@ -399,7 +394,7 @@ class bookings_excel extends CI_Controller {
                         }
                     } else {
                         //User exists
-                        $user['name'] = trim($rowData[0]['customer_firstname'] . " " . $rowData[0]['customer_lastname']);
+                        $user['name'] = trim($rowData[0]['customer_firstname']);
                         $user['user_email'] = $rowData[0]['customer_email'];
                         $user_id = $output[0]['user_id'];
                     }
@@ -448,13 +443,14 @@ class bookings_excel extends CI_Controller {
                         }
                     }
 
-
                     $service_id = isset($lead_details['service_id']) ? $lead_details['service_id'] : $this->booking_model->getServiceId($lead_details['Product']);
                     $data = $this->miscelleneous->_allot_source_partner_id_for_pincode($service_id, $distict_details['state'], $rowData[0]['brand'], PAYTM);
                     if ($data) {
                         //Add this lead into the leads table
                         //Check whether this is a new Lead or Not
                         //Pass order id and partner source
+                        $rowData[0]['order_id'] = $rowData[0]['order_id']."-".$rowData[0]['order_item_id'];
+                        
                         $partner_booking = $this->partner_model->get_order_id_for_partner($data['partner_id'], $rowData[0]['order_id']);
                         if (is_null($partner_booking)) {
                             $booking['partner_id'] = $data['partner_id'];
@@ -474,8 +470,7 @@ class bookings_excel extends CI_Controller {
                             $booking['state'] = $distict_details['state'];
                             $booking['district'] = $distict_details['district'];
                             $booking['taluk'] = $distict_details['taluk'];
-
-
+                            $unit_details['sub_order_id'] = $rowData[0]['order_item_id'];
 
                             $booking['booking_primary_contact_no'] = $rowData[0]['contact_number'];
 
@@ -589,7 +584,7 @@ class bookings_excel extends CI_Controller {
                                 if (empty($booking['state'])) {
                                     //$to = NITS_ANUJ_EMAIL_ID;
                                    // $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-                                    //$this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+                                    //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
                                 }
                                 $this->total_bookings_inserted++;
                             }

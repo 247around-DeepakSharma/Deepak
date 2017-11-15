@@ -12,6 +12,7 @@ class Miscelleneous {
         $this->My_CI->load->library('booking_utilities');
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('s3');
+        $this->My_CI->load->library('PHPReport');
 	$this->My_CI->load->model('vendor_model');
         $this->My_CI->load->model('reusable_model');
 	$this->My_CI->load->model('booking_model');
@@ -282,7 +283,7 @@ class Miscelleneous {
                             $cc = NITS_ANUJ_EMAIL_ID;
                         }
 
-                        $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
+                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "");
 
                         $return_status = FALSE;
                     } else if ($data['partner_upcountry_approval'] == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
@@ -296,7 +297,7 @@ class Miscelleneous {
                         $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
                                 . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'] .
                                 " Upcountry Pincode " . $data['upcountry_pincode'] . " SF Name " . $query1[0]['vendor_name'];
-                        $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
+                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
 
                         $return_status = FALSE;
                     }
@@ -336,7 +337,7 @@ class Miscelleneous {
                 $to = NITS_ANUJ_EMAIL_ID . ", sales@247around.com";
                 $cc = "sachinj@247around.com, abhaya@247around.com";
                 $message1 = "Upcountry did not calculate for " . $booking_id;
-                $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Failed', $message1, "");
+                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "");
 
                 $return_status = TRUE;
                 break;
@@ -581,7 +582,7 @@ class Miscelleneous {
                                 $to = NITS_ANUJ_EMAIL_ID;
                                 $message = $booking['booking_id']. " BOOKING CITY ". $booking['city']. " SF ID "
                                         .$data['vendor_id']. " DISTRICT PINCODE ".$data['upcountry_pincode'];
-                                $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+                                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
                                 
                                 return false;
                             }
@@ -596,7 +597,7 @@ class Miscelleneous {
                                 $to = NITS_ANUJ_EMAIL_ID;
                                 $message = $booking['booking_id']. " BOOKING CITY ". $booking['city']. " SF ID "
                                         .$data['vendor_id']. " DISTRICT PINCODE ".$data['upcountry_pincode'];
-                                $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+                                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
                             }
                             return false;
                         }
@@ -738,7 +739,7 @@ class Miscelleneous {
 
             $subject = "Stag01 Server Might Be Down";
             $msg = "There are some issue while creating pdf for booking_id/invoice_id $id from stag01 server. Check the issue and fix it immediately";
-            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $msg, $output_file_excel);
+            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $msg, $output_file_excel);
             return $result;
         }
         
@@ -1119,7 +1120,7 @@ class Miscelleneous {
             $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
             $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode'];
             $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
-            $this->My_CI->notify->sendEmail("booking@247around.com", $rm_email, $cc, "", $subject, $message, "");
+            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "");
     }
 /*
  * This Functiotn is used to map rm to pincode, for which SF not found
@@ -1221,10 +1222,6 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
               }
             log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
             $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray,array('active_flag'=>0));
-            $cc = "anuj@247around.com";
-            $to = "chhavid@247around.com";
-            $subject = "Get SF for following combinations";
-            $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $pincodeStrring, "");
           }
           /*
            * This Function convert excel data into array, 1st row of excel data will be keys of returning array
@@ -1496,6 +1493,57 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         return $new_appliance_details;
     }
 
+    /*
+     * This Function is used to perform update or insert  action on the basis of input type over bank details table 
+     */
+    function update_insert_bank_account_details($bankDetailsArray,$actionType){
+        $affectedRows = 0;
+        // Remove all columns which has blank values
+        foreach($bankDetailsArray as $key=>$value){
+            if($value == '' || $value == '0'){
+               unset($bankDetailsArray[$key]);
+            }
+        }
+        
+            if($actionType == 'insert'){
+                // If all values are not blank, atleast one column has value then create entry in bank details table
+                if(array_key_exists('bank_name', $bankDetailsArray) ||  array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray)
+                || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)){
+                           return  $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details',$bankDetailsArray); 
+                }
+             }
+        else if($actionType == 'update'){
+            $where['entity_id'] = $bankDetailsArray['entity_id'];
+            $where['entity_type'] = $bankDetailsArray['entity_type'];
+            //Checkk is there any entry in bank table for associated entityID and entityType
+            $is_exist  = $this->My_CI->reusable_model->get_search_result_count("account_holders_bank_details","entity_id",$where,NULL,NULL,NULL,NULL,NULL);
+            if($is_exist > 0){
+                //If yes then update that row
+                $agentID = $bankDetailsArray['agent_id'];
+                unset($bankDetailsArray['entity_id']);
+                unset($bankDetailsArray['agent_id']);
+                // check is there any new updation for bank table or not
+                $affectedRows = $this->My_CI->reusable_model->update_table('account_holders_bank_details',$bankDetailsArray,$where);
+                if($affectedRows == 1){
+                    //if yes then update table
+                    return  $this->My_CI->reusable_model->update_table('account_holders_bank_details',array('is_verified'=>0,'agent_id'=>$agentID),$where);
+                }
+                else{
+                    //if not then don't update the table
+                    return $affectedRows;
+                }
+            }
+            else{
+                // Else Insert new entry
+                 if(array_key_exists('bank_name', $bankDetailsArray) ||  array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray)
+                || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)){
+                            return $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details',$bankDetailsArray); 
+                }
+            }
+        }
+    }
+
+
     /**
      * @desc Return Account Manager ID
      * @param int $partner_id
@@ -1508,5 +1556,48 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $data = $this->My_CI->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
         }
         return $data;
+    }
+    
+    /**
+     * @desc This function is used to generate the excel data and return generated excel file path
+     * @param string $template
+     * @param string $download_file_name
+     * @param array $data
+     * @return string $output_file_excel
+     */
+    function generate_excel_data($template,$download_file_name,$data){
+        
+       
+        // directory
+        $templateDir = __DIR__ . "/../controllers/excel-templates/";
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        $R = new PHPReport($config);
+        
+        $R->load(array(
+            array(
+                'id' => 'excel_data',
+                'repeat' => true,
+                'data' => $data,
+            )
+                )
+        );
+        
+        $output_file_excel = TMP_FOLDER . $download_file_name. ".xlsx";
+
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
+
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+
+        $R->render('excel', $output_file_excel);
+        
+        return $output_file_excel;
     }
 }

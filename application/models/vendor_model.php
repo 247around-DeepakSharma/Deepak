@@ -1245,6 +1245,7 @@ class vendor_model extends CI_Model {
             $return_data[$key]['main_description'] = $value['main_description'];
             $return_data[$key]['data']['query1']['description'] = $sub_description;
             $return_data[$key]['data']['query1']['query_data'] = $query1[0]['count'];
+            $return_data[$key]['data']['query1']['booking_ids'] = isset($query1[0]['booking_id'])?$query1[0]['booking_id']:'';
             
             if(!empty($value['query2'])){
                 $query2 = $this->db->query($value['query2'])->result_array();
@@ -1731,7 +1732,9 @@ class vendor_model extends CI_Model {
         $this->db->select($col_name);
         $this->db->from('vendor_pincode_mapping');
         $this->db->order_by('vendor_pincode_mapping.Pincode');
-        $this->db->where($where);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('service_centres.active', '1');
         $query = $this->db->get();

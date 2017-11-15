@@ -318,7 +318,7 @@ class Partner extends CI_Controller {
                         if (empty($booking['state'])) {
                             //$to = NITS_ANUJ_EMAIL_ID;
                             //$message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-                            //$this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+                            //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
                         }
 
                         //Send response
@@ -1500,7 +1500,7 @@ class Partner extends CI_Controller {
 
                                             $subject = "SF Does Not Exist In Pincode: " . $booking['booking_pincode'];
                                             $message = "Booking ID " . $booking['booking_id'] . " Booking City: " . $booking['city'] . " <br/>  Booking Pincode: " . $booking['booking_pincode'];
-                                            $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+                                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
 
                                             $this->vendor_model->insert_booking_details_sf_not_exist(array(
                                                 "booking_id" => $booking['booking_id'],
@@ -1518,7 +1518,7 @@ class Partner extends CI_Controller {
                         if (empty($booking['state'])) {
                             $to = NITS_ANUJ_EMAIL_ID;
                             $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-                            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
                         }
 
                         //Send response

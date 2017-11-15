@@ -1464,7 +1464,7 @@ class Apis extends CI_Model {
         $this->db->where('active', 1);
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
-        $this->db->where_not_in('service_category', array('Repeat Booking', 'Visit'));
+        $this->db->where_not_in('service_category', array('Repeat Booking', 'Visit', 'Spare Parts'));
         
 
         $query = $this->db->get('service_centre_charges');

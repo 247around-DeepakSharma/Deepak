@@ -1,3 +1,5 @@
+ <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
+<script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
     th,td{
     border: 1px #f2f2f2 solid;
@@ -39,100 +41,109 @@
         <div class="tab-pane fade in active" id="tab1">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="col-md-6">
+                   
                         <table class="table  table-striped table-bordered" >
                             <tr>
-                                <th >Name: </th>
+                                <th >Name </th>
                                 <td><?php echo $booking_history[0]['name']; ?></td>
-                            </tr>
-                            <tr>
-                                <th>Mobile: </th>
+                                  <th>Mobile </th>
                                 <td><?php echo $booking_history[0]['booking_primary_contact_no'];
                                     if (!empty($booking_history[0]['booking_alternate_contact_no'])) {
                                         echo " / " . $booking_history[0]['booking_alternate_contact_no'];
                                     } ?></td>
                             </tr>
+                            
                             <tr>
-                                <th >Booking ID: </th>
+                                <th >Booking ID </th>
                                 <td><?php echo $booking_history[0]['booking_id']; ?></td>
-                            </tr>
-                            <tr>
-                                <th>Booking date: </th>
-                                <td><?php echo $booking_history[0]['booking_date']; ?></td>
-                            </tr>
-                            <tr>
-                                <th>Timeslot: </th>
-                                <td><?php echo $booking_history[0]['booking_timeslot']; ?></td>
-                            </tr>
-                            <tr>
-                                <th>Amount Due: </th>
+                               <th>Amount Due: </th>
                                 <td><?php echo $booking_history[0]['amount_due']; ?></td>
                             </tr>
+                          
                             <tr>
-                                <th>Amount Paid: </th>
-                                <td><?php echo $booking_history[0]['amount_paid']; ?></td>
+                                 <th>Booking date </th>
+                                <td><?php echo $booking_history[0]['booking_date']; ?></td>
+                                <th>Timeslot: </th>
+                                <td><?php echo $booking_history[0]['booking_timeslot']; ?></td>
+                                
                             </tr>
+                           
                             <tr>
-                                <th>Address: </th>
+                                <th>Amount Paid </th>
+                                <td><?php echo $booking_history[0]['amount_paid']; ?></td>
+                                 <th>Address: </th>
                                 <td><?php echo $booking_history[0]['booking_address']; ?></td>
                             </tr>
+                            
                             <tr>
-                                <th>City: </th>
+                                <th>City </th>
                                 <td><?php echo $booking_history[0]['city']; ?></td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table  table-striped table-bordered">
-                            <tr>
-                                <th>State: </th>
+                                 <th>State: </th>
                                 <td><?php echo $booking_history[0]['state']; ?></td>
                             </tr>
+                       
                             <tr>
-                                <th>Pincode: </th>
+                                <th>Pincode </th>
                                 <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
-                            </tr>
-                            <tr>
                                 <th>Remarks: </th>
                                 <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                             </tr>
+                            
                             <tr>
-                                <th>Status: </th>
+                                <th>Status </th>
                                 <td><?php echo $booking_history[0]['current_status']; ?></td>
-                            </tr>
-                            <tr>
                                 <th>Rescheduled Reason: </th>
                                 <td><?php echo $booking_history[0]['reschedule_reason']; ?></td>
                             </tr>
+                           
                             <tr>
-                                <th>Cancellation Reason: </th>
+                                <th>Cancellation Reason </th>
                                 <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
-                            </tr>
-                            <tr>
-                                <th>Closed date: </th>
+                                  <th>Closed date: </th>
                                 <td><?php echo $booking_history[0]['closed_date']; ?></td>
                             </tr>
+                           
                             <tr>
-                                <th>Closing Remarks: </th>
+                                <th>Closing Remarks </th>
                                 <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
-                            </tr>
-                            <tr>
-                                <th>Rating: </th>
+                                 <th>Rating: </th>
                                 <td><?php if (!empty($booking_history[0]['rating_stars'])) {
                                     echo $booking_history[0]['rating_stars'] . "/5";
                                     } ?></td>
                             </tr>
+                            
                             <tr>
-                                <th>Rating Comment: </th>
+                                <th>Rating Comment </th>
                                 <td><?php if (!empty($booking_history[0]['rating_comments'])) {
                                     echo $booking_history[0]['rating_comments'];
                                     } ?></td>
                             </tr>
+                            <?php if(isset($dhq[0]['district'])){ ?>
+                            <tr>
+                                <th colspan="1">Upcountry</th>
+                                <td colspan="3">
+                                    <div class="col-md-12">
+                                        <div class="col-md-4"> <input type="hidden" class="form-control" id="txtSource" value="<?php echo $booking_history[0]['city'].", ".
+                                            $booking_history[0]['booking_pincode'].", india"; ?>"></div>
+                                        <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if(isset($dhq[0]['district'])){
+                                        echo $dhq[0]['district'].",".$dhq[0]['pincode'].", India";}?>"></div>
+<!--                                        <div class="col-md-4"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>-->
+                                             
+                                    </div>
+                                    <div class="col-md-12"> 
+                                        <div id="dvDistance"></div>
+                                         <br/>
+                                        <div id="dvMap" style=" height: 200px">
+                                    </div>
+                                   
+                                </td>
+                            </tr>
+                            <?php } ?>
                         </table>
                     </div>
                 </div>
             </div>
-        </div>
+      
         <div class="tab-pane fade in" id="tab2">
             <?php if (!empty($unit_details)) { ?>
             <table class="table  table-striped table-bordered">
@@ -163,9 +174,10 @@
                     <th>Cash Invoice ID</th>
                     <th>Foc Invoice ID</th>
                     <?php } ?>
+                    <th>SF Earning</th>
                 </tr>
                 <tbody>
-                    <?php foreach ($unit_details as $unit_detail) { ?>
+                    <?php foreach ($unit_details as $key => $unit_detail) { ?>
                     <tr>
                         <td><?php echo $unit_detail['appliance_brand'] ?></td>
                         <td><?php echo $unit_detail['appliance_category'] ?></td>
@@ -173,25 +185,38 @@
                         <td><?php echo $unit_detail['model_number'] ?></td>
                         <td><?php echo $unit_detail['serial_number'] ?></td>
                         <td><?php echo $unit_detail['appliance_description'] ?></td>
-                        <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                         <td><?php print_r($unit_detail['price_tags']); ?></td>
+                         <?php $sf_upcountry_charges = 0; if($booking_history[0]['is_upcountry'] == 1){ 
+                                        if($key == 0){
+                                            if($booking_history[0]['upcountry_paid_by_customer'] == 0){
+                                             
+                                               $sf_upcountry_charges =  $booking_history[0]['upcountry_distance'] * $booking_history[0]['sf_upcountry_rate'];
+                                            } else {
+                                                
+                                                $sf_upcountry_charges = -($booking_history[0]['customer_paid_upcountry_charges'] * basic_percentage);
+
+                                            }
+                                        }
+                                    }?>
+                        <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
+                        
                         <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
-                        <td><?php if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
+                        <td><?php if($key == 0) { if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                             echo "0";
                             } else {
                             echo $booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'];
-                            }
+                        } }
                             ?>
                         </td>
                         <?php } ?>
                         <td><?php if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                             echo $unit_detail['customer_net_payable'];
                             } else {
-                            echo ($booking_history[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) + $unit_detail['customer_net_payable'];
+                            echo ($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate']) + $unit_detail['customer_net_payable'];
                             }
                                     ?></td>
                         <?php } else { ?>
-                        <td><?php print_r($unit_detail['price_tags']); ?></td>
+                       
                         <td><?php print_r($unit_detail['customer_paid_basic_charges']); ?></td>
                         <td><?php print_r($unit_detail['customer_paid_extra_charges']); ?></td>
                         <td><?php print_r($unit_detail['customer_paid_parts']); ?></td>
@@ -211,6 +236,11 @@
                         <?php if ($booking_history[0]['current_status'] === "Completed") { ?>
                         <td><?php print_r($unit_detail['vendor_cash_invoice_id']); ?></td>
                         <td><?php print_r($unit_detail['vendor_foc_invoice_id']); ?></td>
+                        <td>
+                            <?php echo round($unit_detail['vendor_to_around'] + $unit_detail['around_to_vendor'] + $sf_upcountry_charges, 2);?>
+                        </td>
+                        <?php } else { ?>
+                        <td><?php echo round($unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + $sf_upcountry_charges,2);?></td>
                         <?php } ?>
                     </tr>
                     <?php } ?>

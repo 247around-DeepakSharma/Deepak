@@ -127,7 +127,7 @@
                 <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                     <div class="menu_section">
                         <ul class="nav side-menu">
-                            <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i> Go TO CRM</a>
+                            <li><a id="go_to_crm" href="<?php echo base_url(); ?>employee/user" target="_blank" style="display:none;"><i class="fa fa-home"></i> Go TO CRM</a>
                             <li><a href="<?php echo base_url(); ?>employee/dashboard"><i class="fa fa-bar-chart-o"></i>DASHBOARD</a>
                         </ul>                  
                     </div>
