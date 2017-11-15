@@ -1732,7 +1732,9 @@ class vendor_model extends CI_Model {
         $this->db->select($col_name);
         $this->db->from('vendor_pincode_mapping');
         $this->db->order_by('vendor_pincode_mapping.Pincode');
-        $this->db->where($where);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('service_centres.active', '1');
         $query = $this->db->get();
