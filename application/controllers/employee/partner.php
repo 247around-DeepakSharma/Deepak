@@ -176,7 +176,9 @@ class Partner extends CI_Controller {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $unit_where = array('booking_id' => $booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
-
+        if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
+            $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
+        }
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
 
         $this->load->view('partner/header');
@@ -393,7 +395,7 @@ class Partner extends CI_Controller {
         $bcc = "";
         $subject = "Booking Insertion Failure By " . $this->session->userdata('partner_name');
         $message = $post;
-        $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
     }
 
     function set_form_validation() {
@@ -667,7 +669,7 @@ class Partner extends CI_Controller {
                 $this->email->clear(TRUE);
 
                 //Send report via email
-                $this->email->from('booking@247around.com', '247around Team');
+                $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
                 $this->email->to($to);
 
                 $this->email->subject($subject);
@@ -693,7 +695,7 @@ class Partner extends CI_Controller {
                 }
 
                 if ($this->email->send()) {
-                    $this->notify->add_email_send_details('booking@247around.com',$to,"","",$subject,$html,"");
+                    $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,"","",$subject,$html,"");
                     log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
                 } else {
                     log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
@@ -861,7 +863,7 @@ class Partner extends CI_Controller {
                     $this->email->clear(TRUE);
 
                     //Send report via email
-                    $this->email->from('booking@247around.com', '247around Team');
+                    $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
                     $this->email->to($to);
                     
 
@@ -879,7 +881,7 @@ class Partner extends CI_Controller {
                     }
 
                     if ($this->email->send()) {
-                        $this->notify->add_email_send_details('booking@247around.com',$to,"","",$subject,$html,"");
+                        $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,"","",$subject,$html,"");
                         log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
                     } else {
                         log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
@@ -1525,7 +1527,7 @@ class Partner extends CI_Controller {
                 $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com ,".$rm_mail;
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
                 $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br><b>Booking ID : </b>" . $booking_id . " Escalated <br><br><strong>Remarks : </strong>" . $remarks;
-                $this->notify->sendEmail('booking@247around.com', $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
 
                 log_message('info', __FUNCTION__ . " Escalation Mail Sent ");
 
@@ -2827,7 +2829,7 @@ class Partner extends CI_Controller {
             $to = NITS_ANUJ_EMAIL_ID;
             $cc = "vijaya@247around.com, abhaya@247around.com";
             $message = "Partner try to approve Booking Id " . $booking_id . " but somehow it failed. <br/>Please check this booking.";
-            $this->notify->sendEmail('booking@247around.com', $to, $cc, '', 'UpCountry Approval Failed', $message, '');
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', 'UpCountry Approval Failed', $message, '');
             $msg = "Your request has been submitted. We will fix it shortly.";
         }
 
@@ -2931,7 +2933,7 @@ class Partner extends CI_Controller {
             }
 
             //Notify
-            $this->notify->sendEmail('booking@247around.com', ANUJ_EMAIL_ID, '', '', 'Upcountry Bookings Cancelled', print_r($data, TRUE), '');
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, ANUJ_EMAIL_ID, '', '', 'Upcountry Bookings Cancelled', print_r($data, TRUE), '');
         }
     }
 
@@ -3050,7 +3052,7 @@ class Partner extends CI_Controller {
                 $subject = $partner_data['public_name'] . "  : Partner Details Has been Updated";
                 $message = "Following details has been updated by partner: " . $this->session->userdata('partner_name');
                 $message .= "<br>" . $html;
-                $sendmail = $this->notify->sendEmail('booking@247around.com', $to, " ", " ", $subject, $message, "");
+                $sendmail = $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, " ", " ", $subject, $message, "");
 
                 if ($sendmail) {
                     log_message('info', __FUNCTION__ . 'Mail Send successfully');

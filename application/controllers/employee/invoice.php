@@ -521,7 +521,7 @@ class Invoice extends CI_Controller {
             $meta['total_upcountry_price'] = $upcountry[0]['total_upcountry_price'];
             $total_upcountry_booking = $upcountry[0]['total_booking'];
             $total_upcountry_distance = $upcountry[0]['total_distance'];
-            $u_files_name = $this->generate_partner_upcountry_excel($upcountry, $meta);
+            $u_files_name = $this->generate_partner_upcountry_excel($partner_id, $upcountry, $meta);
             array_push($files, $u_files_name);
 
             log_message('info', __METHOD__ . "=> File created " . $u_files_name);
@@ -713,9 +713,13 @@ class Invoice extends CI_Controller {
        return $output_pdf_file_name;
     }
     
-    function generate_partner_upcountry_excel($data, $meta) {
+    function generate_partner_upcountry_excel($partner_id, $data, $meta) {
+        if($partner_id == PAYTM){
+            $template = 'Paytm_invoice_detail_template-v1-upcountry.xlsx';
+        } else {
+            $template = 'Partner_invoice_detail_template-v2-upcountry.xlsx';
+        }
         
-        $template = 'Partner_invoice_detail_template-v2-upcountry.xlsx';
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-upcountry-detailed.xlsx";
         $this->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
@@ -1104,7 +1108,8 @@ class Invoice extends CI_Controller {
                     "cgst_tax_amount" => $invoice_data['meta']["cgst_total_tax_amount"],
                     "parts_count" => $invoice_data['meta']["cgst_total_tax_amount"],
                     "rcm" => $invoice_data['meta']['rcm'],
-                    "invoice_file_pdf" => $convert['copy_file']
+                    "invoice_file_pdf" => $convert['copy_file'],
+                    "hsn_code" => hsn_code
                    
                 );
 
@@ -1586,7 +1591,6 @@ class Invoice extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoice['meta']['invoice_id']);
                
                 unset($invoice['booking']);
-               // $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoices,$agent_id);
                 $convert = $this->send_request_to_convert_excel_to_pdf($invoice['meta']['invoice_id'], $invoice_type);
                 $output_pdf_file_name = $convert['main_pdf_file_name'];
                 array_push($files, TMP_FOLDER . $convert['excel_file']);

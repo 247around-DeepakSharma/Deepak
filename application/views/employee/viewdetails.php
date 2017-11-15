@@ -199,6 +199,7 @@
                                     </div>
                                    
                                 </td>
+                              </tr>
 
                         </table>
                     </div>
@@ -210,13 +211,14 @@
                         <table class="table  table-striped table-bordered">
                             <tr>
                                 <th>Brand</th>
-                                <th>Category</th>
-                                <th>Capacity</th>
+                                <th>Category/<br/>Capacity</th>
+                                
                                 <th>Model Number</th>
                                 <th>Serial Number</th>
-                                <th>Purchase Date</th>
+<!--                                <th>Purchase Date</th>-->
                                 <th>Description</th>
                                 <th>Service Category</th>
+                                <th>Pay to SF</th>
                                 <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                 <th>Charges</th>
                                 <th>Partner Offer</th>
@@ -246,6 +248,8 @@
                                  <th>Vendor Foc Invoice ID</th>
                                  <th>Partner Invoice ID</th>
                                  <?php } ?>
+                                 <th>SF Earning</th>
+                                 
 
                             </tr>
                             <tbody>
@@ -253,11 +257,11 @@
 
                                 <tr>
                                     <td><?php echo $unit_detail['appliance_brand']?></td>
-                                    <td><?php echo $unit_detail['appliance_category']?></td>
-                                    <td><?php echo $unit_detail['appliance_capacity']?></td>
+                                    <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
+                                   
                                     <td><?php echo $unit_detail['model_number']?></td>
                                     <td><?php echo $unit_detail['serial_number']?></td>
-                                    <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
+<!--                                    <td><?php //if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>-->
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                     <td><?php  print_r($unit_detail['price_tags']); ?></td>
@@ -275,6 +279,7 @@
                                     <?php } else {   ?>
 
                                     <td><?php  print_r($unit_detail['price_tags']); ?></td>
+                                    <td><?php if($unit_detail['pay_to_sf'] ==1){ echo "YES"; } else { echo "NO";} ?></td>
                                      <td><?php  print_r($unit_detail['customer_total']); ?></td>
                                     <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                     <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
@@ -304,13 +309,31 @@
                                                 }   ?></td>
 
                                     <?php }?>
+                                    <?php $sf_upcountry_charges = 0; if($booking_history[0]['is_upcountry'] == 1){ 
+                                        if($key == 0){
+                                            if($booking_history[0]['upcountry_paid_by_customer'] == 0){
+                                                $sf_upcountry_charges =  $booking_history[0]['upcountry_distance'] * $booking_history[0]['sf_upcountry_rate'];
+                                            } else {
+                                                $sf_upcountry_charges = -($booking_history[0]['customer_paid_upcountry_charges'] * basic_percentage);
+
+                                            }
+                                        }
+                                    }?>
                                     <td><?php print_r($unit_detail['booking_status']); ?></td>
                                     <?php if($booking_history[0]['current_status'] === 'Completed'){ ?>
-                                    <td><a class="get_cash_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['vendor_cash_invoice_id']; ?>"><?php print_r($unit_detail['vendor_cash_invoice_id']); ?></a></td>
-                                    <td><a class="get_foc_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['vendor_foc_invoice_id']; ?>"><?php print_r($unit_detail['vendor_foc_invoice_id']); ?></a></td>
-                                    <td><a class="get_partner_invoice_id_data" href="javascript:void(0)" data-id="<?php echo $unit_detail['partner_invoice_id']; ?>"><?php print_r($unit_detail['partner_invoice_id']); ?></a></td>
-                                    <?php } ?>
-                                </tr>
+                                    <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_cash_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_cash_invoice_id']; ?></a></td>
+                                    <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_foc_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_foc_invoice_id']; ?></a></td>
+                                    <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['partner_invoice_id']; ?>')"><?php echo $unit_detail['partner_invoice_id'];?></a></td>
+                                    <td>
+                                        <?php echo round($unit_detail['vendor_to_around'] + $unit_detail['around_to_vendor'] + $sf_upcountry_charges, 2);?>
+                                    </td>
+                                    <?php } else { ?>
+                                    <td>
+                                        <?php echo round($unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'],2);?>
+                                    </td>
+                                   <?php } ?>
+                                    
+                                    
                                 <?php } ?>
                             </tbody>
                         </table>
@@ -571,19 +594,6 @@
 </script>
 
 <script>
-        $('.get_cash_invoice_id_data').click(function(){
-            var invoice_id = $.trim($(".get_cash_invoice_id_data").attr("data-id"));
-            get_invoice_data(invoice_id)
-        });
-        $('.get_foc_invoice_id_data').click(function(){
-            var invoice_id = $.trim($(".get_foc_invoice_id_data").attr("data-id"));
-            get_invoice_data(invoice_id)
-        });
-        $('.get_partner_invoice_id_data').click(function(){
-            var invoice_id = $.trim($(".get_partner_invoice_id_data").attr("data-id"));
-            get_invoice_data(invoice_id)
-        });
-    
     function get_invoice_data(invoice_id){
         if (invoice_id){
                 $.ajax({
@@ -601,16 +611,5 @@
                 console.log("Contact Developers For This Issue");
             }
     }
-    document.onreadystatechange = function(){
-    if (document.readyState === "complete") {
-      GetRoute();
-    }
-    else {
-       window.onload = function () {
-          GetRoute();
-       };
-    };
-}
-   
    
 </script>

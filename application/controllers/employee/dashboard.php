@@ -58,7 +58,7 @@ class Dashboard extends CI_Controller {
     
     function execute_title_query(){
         if(($this->session->userdata('user_group') == _247AROUND_DEVELOPER)){
-            $where = array('active' => 1,'type'=> 'incorrect_data');
+            $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_DEVELOPER."%'" => NULL);
         }else if($this->session->userdata('user_group') == _247AROUND_ADMIN){
             $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_ADMIN."%'" => NULL);
         }else if($this->session->userdata('user_group') == _247AROUND_CLOSURE){
@@ -797,4 +797,26 @@ class Dashboard extends CI_Controller {
         $config = array('template' => "missing_sf_pincode.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
         $this->miscelleneous->downloadExcel($pincodeArray,$config);
     }
+    
+    /**
+     * @desc: This is used to call from cron to populate invoice check table
+     */
+    function getinvoice_checkdata() {
+        $data = $this->vendor_model->get_around_dashboard_queries(array('role' => 'developer', 'type' => 'invoice_check'));
+        if (!empty($data)) {
+            if (!empty($data[0]['result'])) {
+                $d = json_decode($data[0]['result'], true);
+                if (!empty($d)) {
+                    $this->load->view("dashboard/invoice_check_table", array('data' =>$d));
+                } else {
+                    echo "Data Not Found";
+                }
+            } else {
+                echo "Data Not Found";
+            }
+        } else {
+            echo "Data Not Found";
+        }
+    }
+
 }
