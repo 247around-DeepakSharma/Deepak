@@ -134,7 +134,7 @@
                                 <div class="form-group ">
                                     <label for="booking_alternate_contact_no" class="col-md-4">Alternate No</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $booking_history[0]['booking_alternate_contact_no']?>" >
+                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $booking_history[0]['alternate_phone_number']?>" >
                                     </div>
                                 </div>
                                 <div class="form-group ">

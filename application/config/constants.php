@@ -1,4 +1,5 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+include('email_template_constant.php');
 
 /*
 |--------------------------------------------------------------------------
