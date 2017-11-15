@@ -2005,7 +2005,7 @@ class Api extends CI_Controller {
                 $this->sendJsonResponse(array('0000', 'success'));
             } else {
 
-                $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id' => "Not_Generated", 'booking_pincode' => $requestData["booking_pincode"], 'city' => "Not_recieved", 'service_id' => $searched_service_id));
+                $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id' => "Not_Generated", 'booking_pincode' => $requestData["booking_pincode"], 'city' => "Not_recieved", 'service_id' => $searched_service_id,'partner_id'=>'247001'));
                 $this->sendJsonResponse(array('0008', 'failure'));
             }
         } else {

@@ -340,7 +340,8 @@ class Booking extends CI_Controller {
                                     "booking_id" => $booking['booking_id'],
                                     "city" => $booking['city'],
                                     "booking_pincode" => $booking['booking_pincode'],
-                                     "service_id" => $appliances_details['service_id']
+                                     "service_id" => $appliances_details['service_id'],
+                                      "partner_id" => $booking['partner_id']
                                 ));
                             }
             return $booking;
