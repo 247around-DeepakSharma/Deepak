@@ -1740,7 +1740,9 @@ $where_id = "";
         $this->db->select($col_name);
         $this->db->from('vendor_pincode_mapping');
         $this->db->order_by('vendor_pincode_mapping.Pincode');
-        $this->db->where($where);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('service_centres.active', '1');
         $query = $this->db->get();
@@ -1876,7 +1878,7 @@ $where_id = "";
              $where_final = $where_final." AND account_holders_bank_details.entity_type = 'SF'";
         }
         $union_query = "Select ".$union_select." FROM service_centres  $union_where_final";
-       echo  $sql  = "Select ".$select." from service_centres 
+       $sql  = "Select ".$select." from service_centres 
                   INNER JOIN account_holders_bank_details ON account_holders_bank_details.entity_id=service_centres.id $where_final UNION $union_query";
         $query = $this->db->query($sql);
        return $query->result_array();

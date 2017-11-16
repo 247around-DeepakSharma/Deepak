@@ -713,7 +713,7 @@ class Dashboard extends CI_Controller {
             . ' class="table table-striped table-bordered jambo_table bulk_action">'
         );
         $this->table->set_template($template);
-        $this->table->set_heading(array('S.N','Pincode', 'Pending Bookings','action'));
+        $this->table->set_heading(array('S.N','Pincode','State','City', 'Pending Bookings','action'));
         echo $this->get_pincode_form();
         $this->get_missing_pincode_detailed_view();
         $structuredPincodeArray = $this->get_missing_pincode_data_structured_format($pincodeResult);
@@ -724,7 +724,7 @@ class Dashboard extends CI_Controller {
                   break;
               }
           }
-                   $this->table->add_row($i,$pincode,"<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>","<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"); 
+                   $this->table->add_row($i,$pincode,$structuredData['state'],$structuredData['city'],"<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>","<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"); 
                    $i++;
         }
         echo $this->table->generate();

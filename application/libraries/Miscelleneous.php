@@ -12,6 +12,7 @@ class Miscelleneous {
         $this->My_CI->load->library('booking_utilities');
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('s3');
+        $this->My_CI->load->library('PHPReport');
 	$this->My_CI->load->model('vendor_model');
         $this->My_CI->load->model('reusable_model');
 	$this->My_CI->load->model('booking_model');
@@ -1116,8 +1117,9 @@ class Miscelleneous {
     function send_sf_not_found_email_to_rm($booking,$rm_email){
             $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
             $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode'];
-            $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
-            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "");
+            $booking['partner_name'] = $this->My_CI->reusable_model->get_search_result_data("partners","public_name",array('id'=>$booking['partner_id']),NULL,NULL,NULL,NULL,NULL)[0]['public_name'];
+           $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
+           $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "");
     }
 /*
  * This Functiotn is used to map rm to pincode, for which SF not found
@@ -1217,10 +1219,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
               }
             log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
             $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray,array('active_flag'=>0));
-            $cc = "anuj@247around.com";
-            $to = "chhavid@247around.com";
-            $subject = "Get SF for following combinations";
-            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $pincodeStrring, "");
+            //$cc = "anuj@247around.com";
+            //$to = "chhavid@247around.com";
+            //$subject = "Get SF for following combinations";
+            //$this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $pincodeStrring, "");
           }
           /*
            * This Function convert excel data into array, 1st row of excel data will be keys of returning array
@@ -1539,6 +1541,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             }
         }
     }
+    
     /**
      * @desc Return Account Manager ID
      * @param int $partner_id
@@ -1551,5 +1554,48 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $data = $this->My_CI->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
         }
         return $data;
+    }
+    
+    /**
+     * @desc This function is used to generate the excel data and return generated excel file path
+     * @param string $template
+     * @param string $download_file_name
+     * @param array $data
+     * @return string $output_file_excel
+     */
+    function generate_excel_data($template,$download_file_name,$data){
+        
+       
+        // directory
+        $templateDir = __DIR__ . "/../controllers/excel-templates/";
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        $R = new PHPReport($config);
+        
+        $R->load(array(
+            array(
+                'id' => 'excel_data',
+                'repeat' => true,
+                'data' => $data,
+            )
+                )
+        );
+        
+        $output_file_excel = TMP_FOLDER . $download_file_name. ".xlsx";
+
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
+
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+
+        $R->render('excel', $output_file_excel);
+        
+        return $output_file_excel;
     }
 }

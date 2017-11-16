@@ -83,7 +83,7 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('service_id') ) { echo 'has-error';} ?>">
                                     <label for="Appliance">Appliance * <span id="error_appliance" style="color: red;"></span></label>
-                                    <select type="text" class="form-control"  id="service_name" name="service_id"   required onchange="return get_city(), get_brands(), get_category(), get_capacity()">
+                                    <select type="text" class="form-control"  id="service_name" name="service_id"   required onchange="return enablePincode(),get_city(), get_brands(), get_category(), get_capacity()">
                                         <option selected disabled>Select Appliance</option>
                                         <?php foreach ($appliances as $values) { ?>
                                         <option <?php if(count($appliances) ==1){echo "selected";} ?> data-id="<?php echo $values->services;?>" value=<?= $values->id; ?>>
@@ -569,7 +569,13 @@
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
 <script type="text/javascript">
-    
+    var service_name = document.getElementById("service_name").value;
+    if(service_name === 'Select Appliance'){
+        document.getElementById("booking_pincode").disabled=true;
+    }
+    function enablePincode(){
+        document.getElementById("booking_pincode").disabled=false;
+    }
     $("#booking_city").select2({
          tags: true
     });
@@ -791,8 +797,8 @@
     function get_city(){
         var pincode = $("#booking_pincode").val();
         var service_id =  $("#service_name").val();
-        if(pincode.length === 6){
-            
+        if(pincode.length === 6 && service_id != null){
+            alert(service_id);
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
