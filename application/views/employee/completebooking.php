@@ -139,7 +139,7 @@
 			</div>
 		    </div>
 		    <!-- row End  -->
-		    <?php foreach ($booking_unit_details as $keys => $unit_details) { ?>
+		    <?php $k_count = 0;$count = 1; foreach ($booking_unit_details as $keys => $unit_details) { ?>
     		    <div class="clonedInput panel panel-info " id="clonedInput1">
     		       <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
     			  <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
@@ -186,7 +186,7 @@
 
 					<tbody>
 						<?php
-						$count = 1;
+						
 						$paid_basic_charges = 0;
 						$paid_additional_charges = 0;
 						$paid_parts_cost = 0;
@@ -204,34 +204,50 @@
 							    <?php } ?>
 							</td>
 							<td><?php echo $price['price_tags'] ?></td>
-							<td><?php echo $price['customer_net_payable']; ?></td>
-							<td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
-								      $paid_basic_charges += $price['customer_paid_basic_charges'];
-							    if (!empty($price['customer_paid_basic_charges'])) {
-								echo $price['customer_paid_basic_charges'];
-							    } else {
-								echo "0";
-							    }
-							    ?>">
-									</td>
-								<td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
-									      $paid_additional_charges += $price['customer_paid_extra_charges'];
-							    if (!empty($price['customer_paid_extra_charges'])) {
-								echo $price['customer_paid_extra_charges'];
-							    } else {
-								echo "0";
-							    }
-							    ?>">
-
-									</td>
-								<td>  <input  type="text" class="form-control cost"  name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "<?php
-								    $paid_parts_cost += $price['customer_paid_parts'];
-								    if (!empty($price['customer_paid_parts'])) {
-									echo $price['customer_paid_parts'];
-								    } else {
-									echo "0";
-								    }
-								    ?>"></td>
+							<td id="<?php echo "amount_due".$count; ?>"><?php echo $price['customer_net_payable']; ?></td>
+							<td>  
+                                                    <?php  if ($price['product_or_services'] == "Service"){ ?>
+                                                    
+                                                    <input  id="<?php echo "basic_charge".$count; ?>" type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
+                                                    $paid_basic_charges += $price['customer_paid_basic_charges'];
+                                                    if (!empty($price['customer_paid_basic_charges'])) {
+                                                    echo $price['customer_paid_basic_charges'];
+                                                    } else {
+                                                    echo "0";
+                                                    }
+                                                    ?>">
+                                                    <?php } ?>
+                                                </td>
+                                                <td>  <input id="<?php echo "extra_charge".$count; ?>"  type="<?php  if ($price['product_or_services'] == "Product") { echo "hidden";} else { echo "text";} ?>" class="form-control cost"  name="<?php echo "additional_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
+                                                    $paid_additional_charges += $price['customer_paid_extra_charges'];
+                                                    if (!empty($price['customer_paid_extra_charges'])) {
+                                                    echo $price['customer_paid_extra_charges'];
+                                                    } else {
+                                                    echo "0";
+                                                    }
+                                                    ?>">
+                                                </td>
+                                                <td>  
+                                                     <?php  if ($price['product_or_services'] == "Product"){ ?>
+                                                    
+                                                    <input  id="<?php echo "basic_charge".$count; ?>" type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
+                                                    $paid_basic_charges += $price['customer_paid_basic_charges'];
+                                                    if (!empty($price['customer_paid_basic_charges'])) {
+                                                    echo $price['customer_paid_basic_charges'];
+                                                    } else {
+                                                    echo "0";
+                                                    }
+                                                    ?>">
+                                                    <?php } ?>
+                                                    <input id="<?php echo "parts_cost".$count; ?>"  type="<?php  if ($price['product_or_services'] == "Product") { echo "hidden";} else { echo "text";}?>" class="form-control cost"  name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "<?php
+                                                    $paid_parts_cost += $price['customer_paid_parts'];
+                                                    if (!empty($price['customer_paid_parts'])) {
+                                                    echo $price['customer_paid_parts'];
+                                                    } else {
+                                                    echo "0";
+                                                    }
+                                                    ?>" >
+                                                </td>
 								<td>
 								    <div class="row">
 									<div class="col-md-12">
@@ -276,6 +292,7 @@
 							    </tr>
 							    <?php
 							    $count++;
+                                                            $k_count++;
 							}
 							?>
 							<?php foreach ($prices[$keys] as $index => $value) { ?>
@@ -410,7 +427,7 @@
 		    <br>
 		    <div class="form-group  col-md-12" >
 			<center>
-			    <input type="submit" id="submitform" onclick="return onsubmit_form()" class="btn btn-info" value="Complete Booking">
+			    <input type="submit" id="submitform" onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>')" class="btn btn-info" value="Complete Booking">
 			    </div>
 			</center>
 		    </div>
@@ -454,67 +471,118 @@
 	$("#grand_total_price").val(price);
     });
 
-    function onsubmit_form() {
-	var flag = 0;
-	var is_completed_checkbox = [];
-	$(':radio:checked').each(function (i) {
-	    //console.log($(this).val());
-	    var div_no = this.id.split('_');
-	    is_completed_checkbox[i] = div_no[0];
-	    if (div_no[0] === "completed") {
-		//if POD is also 1, only then check for serial number.
-		if (div_no[1] === "1") {
-		    var serial_number = $("#serial_number" + div_no[2]).val();
-		    if (serial_number === "") {
+    function onsubmit_form(upcountry_flag, number_of_div) {
 
-			document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
-			flag = 1;
-		    }
+    var flag = 0;
+    var div_count = 0;
+    var is_completed_checkbox = [];
+    var serial_number_tmp = [];
+    $(':radio:checked').each(function(i) {
+        div_count = div_count + 1;
 
-		    if (serial_number === "0") {
-			document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
-			flag = 1;
-		    }
+        //console.log($(this).val());
+        var div_no = this.id.split('_');
+        is_completed_checkbox[i] = div_no[0];
+        if (div_no[0] === "completed") {
+            //if POD is also 1, only then check for serial number.
+            if (div_no[1] === "1") {
+                var serial_number = $("#serial_number" + div_no[2]).val();
+               
+                serial_number_tmp.push(serial_number);
+                if (serial_number === "") {
+                    alert("Please Enter Serial Number");
+                    document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                    flag = 1;
+                }
 
-		    var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
-		    if (numberRegex.test(serial_number)) {
-			if (serial_number > 0) {
-			    flag = 0;
-			} else {
-			    document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
-			    flag = 1;
-			}
-		    }
-		}
-	    }
-	});
+                if (serial_number === "0") {
+                    document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                    flag = 1;
+                }
 
-	if ($.inArray('completed', is_completed_checkbox) !== -1)
-	{
-	    
-	} else {
-           alert('Please Select atleast one Completed or Delivered checkbox.');
-	   flag = 0;
-	   return false;
+                var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
+                if (numberRegex.test(serial_number)) {
+                    if (serial_number > 0) {
+                        flag = 0;
+                    } else {
+                        document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                        flag = 1;
+                    }
+                }
+            }
 
-	}
-        
-        <?php if(isset($booking_history['spare_parts']['approved_defective_parts_by_partner'])){
-            if($booking_history['spare_parts']['approved_defective_parts_by_partner'] == 1){ ?> 
-            flag = 0;
-            alert("Please Ensure Defective Parts Shipped By SF");
-            return false;
-        <?php } }  ?>
-            
-        
-	if (flag === 0) {
-	    return true;
-
-	} else if (flag === 1) {
-
-	    return false;
-	}
+            var amount_due = $("#amount_due" + div_no[2]).text();
+            var basic_charge = $("#basic_charge" + div_no[2]).val();
+            var additional_charge = $("#extra_charge" + div_no[2]).val();
+            var parts_cost = $("#parts_cost" + div_no[2]).val();
+            if (Number(amount_due) > 0) {
+                var total_sf = Number(basic_charge) + Number(additional_charge) + Number(parts_cost);
+                if (Number(total_sf) === 0) {
+                    alert("Please fill amount collected from customer, Amount Due: Rs." + amount_due);
+                    flag = 1;
+                }
+            }
+        }
+    });
+    
+   
+    if (Number(number_of_div) !== div_count) {
+        alert('Please Select All Services Delivered Or Not Delivered.');
+        flag = 1;
+        return false;
     }
+    if ($.inArray('completed', is_completed_checkbox) !== -1) {
+
+    } else {
+        alert('Please Select atleast one Completed or Delivered checkbox.');
+        flag = 1;
+        return false;
+
+    }
+    temp = [];
+    $.each(serial_number_tmp, function(key, value) {
+        if ($.inArray(value, temp) === -1) {
+            temp.push(value);
+        } else {
+            alert(value + " is a Duplicate Serial Number");
+            flag = 1;
+            return false;
+        }
+    });
+
+    var is_sp_required = $("#spare_parts_required").val();
+
+    if (Number(is_sp_required) === 1) {
+        alert("Ship Defective Spare Parts");
+    }
+
+    if (Number(upcountry_flag) === 1) {
+        var upcountry_charges = $("#upcountry_charges").val();
+        if (Number(upcountry_charges) === 0) {
+            flag = 1;
+            document.getElementById('upcountry_charges').style.borderColor = "red";
+            alert("Please Enter Upcountry Charges which Paid by Customer");
+            return false;
+        } else if (Number(upcountry_charges) > 0) {
+            flag = 0;
+            document.getElementById('upcountry_charges').style.borderColor = "green";
+        }
+    }
+    var closing_remarks = $("#closing_remarks").val();
+    if (closing_remarks === "") {
+        alert("Please Enter Remarks");
+        document.getElementById('closing_remarks').style.borderColor = "red";
+        flag = 1;
+        return false;
+    }
+    if (flag === 0) {
+        return true;
+
+    } else if (flag === 1) {
+
+        return false;
+    }
+}
     
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
