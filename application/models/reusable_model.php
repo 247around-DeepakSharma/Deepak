@@ -35,11 +35,14 @@ class reusable_model extends CI_Model {
      */
     
     function get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray){
-        $this->db->select($select);
+        $this->db->select($select,FALSE);
         if(!empty($where)){
             $this->db->where($where);
         }
         if(!empty($join)){
+            if(!$JoinTypeTableArray){
+                $JoinTypeTableArray = array();
+            }
             foreach ($join as $tableName=>$joinCondition){
                 if(array_key_exists($tableName, $JoinTypeTableArray)){
                     $this->db->join($tableName,$joinCondition,$JoinTypeTableArray[$tableName]);

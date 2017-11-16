@@ -4748,5 +4748,41 @@ class vendor extends CI_Controller {
         $count = $this->reusable_model->get_search_result_count("booking_details", "booking_id", array('assigned_vendor_id' => $vendorID), NULL, NULL, NULL, NULL, NULL);
         echo $count;
     }
-
+    
+    /**
+     * @desc: This function is used to show the bank details
+     * @param: void
+     * @return: void
+     */
+    function show_bank_details(){
+        $where = array('entity_type' => 'SF');
+        $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id');
+        $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/show_bank_details', $data);
+    }
+    
+    /**
+     * @desc: This function is used to verify the bank details
+     * @param: void
+     * @return: string response
+     */
+    function verify_bank_details(){
+        $entity_id = $this->input->post('id');
+        $entity_type = $this->input->post('type');
+        $action = $this->input->post('action');
+        
+        if($action == 'approve'){
+            $update_data = array('is_verified'=> 1,'agent_id' => $this->session->userdata('id'));
+        }else if($action == 'reject'){
+            $update_data = array('is_verified'=> 0,'agent_id' => $this->session->userdata('id'));
+        }
+        
+        $update = $this->reusable_model->update_table('account_holders_bank_details',$update_data,array('entity_id' => $entity_id,'entity_type' => $entity_type));
+        if(!empty($update)){
+            echo "success";
+        }else{
+            echo "fail";
+        }
+    }
 }

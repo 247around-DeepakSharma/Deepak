@@ -798,7 +798,6 @@
         var pincode = $("#booking_pincode").val();
         var service_id =  $("#service_name").val();
         if(pincode.length === 6 && service_id != null){
-            alert(service_id);
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){

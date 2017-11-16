@@ -30,9 +30,9 @@
                     <th>Number Of Bookings</th>
                     <th>Debit Penalty</th>
                     <th>Credit Penalty</th>
-                    <th>CGST Tax Amount</th>
-                    <th>SGST Tax Amount</th>
-                    <th>IGST Tax Amount</th>
+                    <th>CGST</th>
+                    <th>SGST</th>
+                    <th>IGST</th>
                     <th>GST Rate</th>
                     <th>GST Number</th>
                     <th>Total Amount Collected</th>
@@ -43,7 +43,7 @@
                     <?php
                     $sn = 1; $total_sc = $total_pc = $total_asc = $total_st = 
                             $total_vat = $total_up_cc = $total_courier_charges = 
-                            $grand_total_amount_collected = $num_bookings = $debit_penalty = $credit_penalty = 0;
+                            $grand_total_amount_collected = $num_bookings = $debit_penalty = $credit_penalty = $cgst = $sgst = $igst = 0;
                     foreach ($invoice_data as $key => $value) {
                         ?>
                         <tr>
@@ -62,9 +62,9 @@
                             <td><?php echo round($value['num_bookings'],0); $num_bookings += $value['num_bookings'];?></td>
                             <td><?php echo round($value['penalty_amount'],0); $debit_penalty += $value['penalty_amount'];?></td>
                             <td><?php echo round($value['credit_penalty_amount'],0); $credit_penalty += $value['credit_penalty_amount'];?></td>
-                            <td><?php echo round($value['cgst_tax_amount'],0); ?></td>
-                            <td><?php echo round($value['sgst_tax_amount'],0); ?></td>
-                            <td><?php echo round($value['igst_tax_amount'],0); ?></td>
+                            <td><?php echo round($value['cgst_tax_amount'],0); $cgst += $value['cgst_tax_amount']; ?></td>
+                            <td><?php echo round($value['sgst_tax_amount'],0); $sgst += $value['sgst_tax_amount']; ?></td>
+                            <td><?php echo round($value['igst_tax_amount'],0); $igst += $value['igst_tax_amount']; ?></td>
                             <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
                             <td><?php echo $value['gst_number']; ?></td>
                             <td><?php echo round($value['total_amount_collected'] - $value['tds_amount'],0); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
@@ -88,9 +88,9 @@
                             <td><b><?php echo $num_bookings; ?></b></td>
                             <td><b><?php echo $debit_penalty; ?></b></td>
                             <td><b><?php echo $credit_penalty; ?></b></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td><b><?php echo $cgst; ?></b></td>
+                            <td><b><?php echo $sgst; ?></b></td>
+                            <td><b><?php echo $igst; ?></b></td>
                             <td></td>
                             <td></td>
                             <td><b><?php echo round($grand_total_amount_collected,0); ?></b></td>
@@ -113,9 +113,9 @@
                     <th>Debit Penalty</th>
                     <th>Credit Penalty</th>
                     <th>Around Royalty</th>
-                    <th>CGST Tax Amount</th>
-                    <th>SGST Tax Amount</th>
-                    <th>IGST Tax Amount</th>
+                    <th>CGST</th>
+                    <th>SGST</th>
+                    <th>IGST</th>
                     <th>GST Rate</th>
                     <th>GST Number</th>
                     <th>Total Amount Collected</th>
@@ -124,7 +124,7 @@
             <tbody>
                 <?php if (isset($invoice_data)) { ?> 
                     <?php
-                    $sn = 1; $t_ar = $t_ac = $t_sc = $num_bookings = $debit_penalty = $credit_penalty = 0;
+                    $sn = 1; $t_ar = $t_ac = $t_sc = $num_bookings = $debit_penalty = $credit_penalty = $cgst = $sgst = $igst =0;
                     foreach ($invoice_data as $key => $value) {
                         ?>
                         <tr>
@@ -139,9 +139,9 @@
                             <td><?php echo round($value['penalty_amount'],0); $debit_penalty += $value['penalty_amount'];?></td>
                             <td><?php echo round($value['credit_penalty_amount'],0); $credit_penalty += $value['credit_penalty_amount'];?></td>
                             <td><?php echo round($value['around_royalty'],0); $t_ar += $value['around_royalty'];?></td>
-                            <td><?php echo round($value['cgst_tax_amount'],0); ?></td>
-                            <td><?php echo round($value['sgst_tax_amount'],0); ?></td>
-                            <td><?php echo round($value['igst_tax_amount'],0); ?></td>
+                            <td><?php echo round($value['cgst_tax_amount'],0); $cgst += $value['cgst_tax_amount']; ?></td>
+                            <td><?php echo round($value['sgst_tax_amount'],0); $sgst += $value['sgst_tax_amount']; ?></td>
+                            <td><?php echo round($value['igst_tax_amount'],0); $igst += $value['igst_tax_amount']; ?></td>
                             <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
                             <td><?php echo $value['gst_number']; ?></td>
                             <td><?php echo round($value['total_amount_collected'],0); $t_ac += $value['total_amount_collected']; ?></td>
@@ -157,11 +157,15 @@
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td><?php echo $num_bookings; ?></td>
-                            <td><?php echo $debit_penalty; ?></td>
-                            <td><?php echo $credit_penalty; ?></td>
+                            <td><b><?php echo $num_bookings; ?></b></td>
+                            <td><b><?php echo $debit_penalty; ?></b></td>
+                            <td><b><?php echo $credit_penalty; ?></b></td>
                             <td><b><?php echo round($t_ar,0); ?></b></td>
-                            <td></td> <td></td> <td></td> <td></td><td></td>
+                            <td><b><?php echo $cgst; ?></b></td> 
+                            <td><b><?php echo $sgst; ?></b></td> 
+                            <td><b><?php echo $igst; ?></b></td> 
+                            <td></td>
+                            <td></td>
                             <td><b><?php echo round($t_ac,0); ?></b></td>
                         </tr>
         <?php } ?>
