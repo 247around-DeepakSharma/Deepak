@@ -4755,7 +4755,7 @@ class vendor extends CI_Controller {
      * @return: void
      */
     function show_bank_details(){
-        $where = array('entity_type' => 'SF');
+        $where = array('entity_type' => 'SF','service_centres.active' => 1);
         $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id');
         $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
