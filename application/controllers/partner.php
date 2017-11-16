@@ -1495,18 +1495,19 @@ class Partner extends CI_Controller {
                                         //SF does not exist in vendor pincode mapping table OR if two or more vendors are found which
                                         //do not provide upcountry services
                                         if (isset($upcountry_data['vendor_not_found'])) {
-                                            $to = RM_EMAIL . ", " . SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
-                                            $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
-
-                                            $subject = "SF Does Not Exist In Pincode: " . $booking['booking_pincode'];
-                                            $message = "Booking ID " . $booking['booking_id'] . " Booking City: " . $booking['city'] . " <br/>  Booking Pincode: " . $booking['booking_pincode'];
-                                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
+//                                            $to = RM_EMAIL . ", " . SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO;
+//                                            $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
+//
+//                                            $subject = "SF Does Not Exist In Pincode: " . $booking['booking_pincode'];
+//                                            $message = "Booking ID " . $booking['booking_id'] . " Booking City: " . $booking['city'] . " <br/>  Booking Pincode: " . $booking['booking_pincode'];
+//                                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
 
                                             $this->vendor_model->insert_booking_details_sf_not_exist(array(
                                                 "booking_id" => $booking['booking_id'],
                                                 "city" => $booking['city'],
                                                 "pincode" => $booking['booking_pincode'],
-                                                 "service_id" => NULL
+                                                 "service_id" => $booking['service_id'],
+                                                "partner_id" => $booking['partner_id']
                                             ));
                                         }
                                         break;
