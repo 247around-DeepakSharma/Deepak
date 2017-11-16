@@ -325,8 +325,7 @@
                     </center>
             </div>
             </form>
-               <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>')" class="btn btn-lg" style="background-color: #2C9D9A;
-                                border-color: #2C9D9A; color:#fff;" value="Complete Booking">
+              
             <!-- end Panel Body  -->
         </div>
     </div>
