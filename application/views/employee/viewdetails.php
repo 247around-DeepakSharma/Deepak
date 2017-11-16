@@ -265,10 +265,11 @@
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                     <td><?php  print_r($unit_detail['price_tags']); ?></td>
+                                     <td><?php if($unit_detail['pay_to_sf'] ==1){ echo "YES"; } else { echo "NO";} ?></td>
                                     <td><?php  print_r($unit_detail['customer_total']); ?></td>
                                     <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                     <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
-
+                                   
                                     <!--Upcountry Charges-->
                                     <td><?php if($key == 0){ if($booking_history[0]['is_upcountry'] == 1){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } } ?></td>
                                     <!--Partner Offer Upcountry Charges-->
