@@ -1079,7 +1079,7 @@ class Around_scheduler extends CI_Controller {
                        array("acknowledge_date"=> date("Y-m-d H:i:s")));
                 // Update Unit Details
                 $this->bb_model->update_bb_unit_details(array('partner_order_id' => $value->partner_order_id), 
-                       array("current_status"=> "Delivered"));
+                       array("order_status"=> "Delivered"));
                
                $cp['current_status'] = "Delivered";
                $cp['internal_status'] = 'Delivered';

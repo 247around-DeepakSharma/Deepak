@@ -1813,7 +1813,6 @@ class Api extends CI_Controller {
         $this->apis->logTable($activity);
         $searched_service = $requestData["searched_service"];
         $searched_service_id = $this->apis->getservice_id($searched_service);
-        if ($searched_service_id == _247AROUND_WASHING_MACHINE_SERVICE_ID) {
             $vendors = $this->vendor_model->check_vendor_availability($requestData["booking_pincode"], $searched_service_id);
             $vendors_count = count($vendors);
 
@@ -2008,9 +2007,7 @@ class Api extends CI_Controller {
                 $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id' => "Not_Generated", 'booking_pincode' => $requestData["booking_pincode"], 'city' => "Not_recieved", 'service_id' => $searched_service_id,'partner_id'=>'247001'));
                 $this->sendJsonResponse(array('0008', 'failure'));
             }
-        } else {
-            $this->sendJsonResponse(array('0008', 'failure'));
-        }
+
     }
 
     function saveUnitDetails($unit_details, $booking_id, $discount_amount, $service_id, $appliance_id, $state) {
