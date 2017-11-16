@@ -314,6 +314,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/service_centre_charges/upload_excel_form"><i class="fa fa-fw fa-inr "></i> <strong> Upload Service Charges / Taxes Excel</strong></a>
                         </li>
+                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/inventory/update_part_price_details"><i class="fa fa-fw fa-inr "></i> <strong> Update Zopper Price</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
