@@ -116,10 +116,10 @@
         <div class="col-md-12">
             <div class="card" style="width:40%;">
                 <div class="container">
-                    <h5><b>Mr. Aditya Gupta</b></h5> 
+                    <h5><b>Mr. Aditya Gupta / Mr. Anuj Aggarwal</b></h5> 
                     <p>Delhi Office</p>
-                    <p>8745050887</p>
-                    <p>adityag@247around.com</p>
+                    <p>8745050887 / 8826423424</p>
+                    <p>adityag@247around.com / anuj@247around.com</p>
                 </div>
             </div>
         </div>
