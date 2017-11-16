@@ -40,7 +40,7 @@
                             <span class="label label-danger">No</span>
                             <?php }?>
                         </td>
-                        <td><button class="btn btn-success" id="approve_<?php echo $value['entity_id'];?>" onclick="verify_bank_details('<?php echo $value['entity_id']; ?>','approve')" <?php ?>>Approve</button></td>
+                        <td><button class="btn btn-success" id="approve_<?php echo $value['entity_id'];?>" onclick="verify_bank_details('<?php echo $value['entity_id']; ?>','approve')" <?php if(!empty($value['is_verified'])){ echo "disabled";}?>>Approve</button></td>
                         <td><button class="btn btn-danger"  id="reject_<?php echo $value['entity_id'];?>" onclick="verify_bank_details('<?php echo $value['entity_id']; ?>','reject')">Reject</button></td>
                     </tr>
                     <?php $sn++;}?>
