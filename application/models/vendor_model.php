@@ -1878,7 +1878,7 @@ $where_id = "";
              $where_final = $where_final." AND account_holders_bank_details.entity_type = 'SF'";
         }
         $union_query = "Select ".$union_select." FROM service_centres  $union_where_final";
-       echo  $sql  = "Select ".$select." from service_centres 
+        $sql  = "Select ".$select." from service_centres 
                   INNER JOIN account_holders_bank_details ON account_holders_bank_details.entity_id=service_centres.id $where_final UNION $union_query";
         $query = $this->db->query($sql);
        return $query->result_array();
