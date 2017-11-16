@@ -525,8 +525,9 @@
         }
     });
     
-   
-    if (Number(number_of_div) !== div_count) {
+
+    if (Number(number_of_div) > Number(div_count)) {
+        alert();
         alert('Please Select All Services Delivered Or Not Delivered.');
         flag = 1;
         return false;
