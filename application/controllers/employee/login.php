@@ -411,7 +411,7 @@ class Login extends CI_Controller {
             $sc_details = $this->vendor_model->getVendorContact($vendor_id);
             
             //Setting logging vendor session details
-            $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['company_name'], 
+            $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], 
                     $agent[0]['id'], $sc_details[0]['is_update'], 
                     $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'],TRUE);
            
@@ -488,7 +488,7 @@ class Login extends CI_Controller {
                 }else{
                     $is_gst_exist = TRUE;
                 }
-                $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['company_name'], 
+                $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], 
                         $agent['id'], $sc_details[0]['is_update'], 
                         $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], 
                         $sc_details[0]['is_cp'],
