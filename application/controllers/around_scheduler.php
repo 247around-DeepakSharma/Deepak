@@ -1077,7 +1077,7 @@ class Around_scheduler extends CI_Controller {
                $cp['internal_status'] = 'Delivered';
                $cp['admin_remarks'] =  AUTO_ACK_ADMIN_REMARKS;
                // Update Cp Action Table
-               $this->cp_model->update_bb_cp_order_action(array('partner_ordere_id' => $value->partner_order_id), $cp );
+               $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $value->partner_order_id), $cp );
                // Insert State Change
                $this->buyback->insert_bb_state_change($value->partner_order_id, "Auto Acknowledge", AUTO_ACK_ADMIN_REMARKS, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
             }
