@@ -322,8 +322,9 @@
                <a href="<?php //echo base_url();?>employee/invoice/delete_banktransaction/<?php //echo $value['id'];?>/<?php //echo $value['partner_vendor'];?>/<?php //echo $value['partner_vendor_id']; ?>" class="btn btn-sm btn-danger">Delete</a>
 
                </td>                  -->
-           <?php } ?>
-           </tr>
+              </tr>          
+          <?php } ?>
+          
            <tr>
              <td><b>Total</b></td>
              <td></td>
