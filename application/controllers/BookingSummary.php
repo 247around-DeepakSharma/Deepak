@@ -414,7 +414,7 @@ class BookingSummary extends CI_Controller {
 
     public function get_partner_summary_table($partner_id) {
         $partner_summary_params = $this->partner_model->get_partner_summary_params($partner_id);
-        
+
         $today_install_req = $partner_summary_params['today_install_req'];
         $yday_install_req = $partner_summary_params['yday_install_req'];
         $month_install_req = $partner_summary_params['month_install_req'];
@@ -475,7 +475,7 @@ class BookingSummary extends CI_Controller {
 
     </table>
 EOD;
-        
+
         return $message;
     }
 
@@ -484,17 +484,17 @@ EOD;
 
             log_message('info', __FUNCTION__ . ' => Summaray Downloaded By Partner_id =' . $partner_id);
 
-            $newCSVFileName = "Booking_summary_" . date('j-M-Y') . ".csv";
+            $newCSVFileName = "Booking_summary_" . date('j-M-Y H:i:s') . ".csv";
             $csv = TMP_FOLDER . $newCSVFileName;
             $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partner_id);
             $delimiter = ",";
             $newline = "\r\n";
             $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
-            
+
             log_message('info', __FUNCTION__ . ' => Rendered CSV');
             write_file($csv, $new_report);
             //Downloading Generated CSV
-             if (file_exists($csv)) {
+            if (file_exists($csv)) {
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
                 header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
@@ -506,9 +506,7 @@ EOD;
                 exec("rm -rf " . escapeshellarg($csv));
                 exit;
             }
-            
-        } 
-        else {
+        } else {
             log_message('info', __FUNCTION__ . ' => Partner Summary send to partners by Cron');
 
             $where_get_partner = array('partners.is_active' => '1');
@@ -529,49 +527,27 @@ EOD;
 
                 log_message('info', __FUNCTION__ . ' => Rendered CSV');
 
-//                $this->email->clear(TRUE);
-//                $this->email->from('booking@247around.com', '247around Team');
-//                $this->email->to($p['summary_email_to']);
-//                $this->email->cc($p['summary_email_cc']);
-//                $this->email->bcc($p['summary_email_bcc']);
-
                 $subject = "247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y');
-                //$summary_table = $this->get_partner_summary_table($p['id']);
-                //log_message('info', __FUNCTION__ . ' => Prepared summary report');
 
-//                $message = "Dear Partner,<br/><br/>";
-//                $message .= "Please find Service Status Sheet attached for leads shared in last One Month, thanks.<br/><br/>";
-//                $message .= $summary_table;
-//                $message .= "<br><br>Best Regards,
-//                <br>247around Team
-//                <br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
-//                <br>Follow us on Facebook: www.facebook.com/247around | Website: www.247around.com
-//                <br>Playstore - 247around -
-//                <br>https://play.google.com/store/apps/details?id=com.handymanapp";
-//
-//                $this->email->message($message);
-//                $this->email->attach($csv, 'attachment');
-             
-            $emailBasicDataArray['to'] = $p['summary_email_to'];
-            $emailBasicDataArray['cc'] = $p['summary_email_cc'];
-            $emailBasicDataArray['bcc'] = $p['summary_email_bcc'];
-            $emailBasicDataArray['subject'] = $subject;
-            $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
-            $emailBasicDataArray['fromName'] = "247around Team";
-            $emailTemplateDataArray['templateId'] = PARTNER_SUMMARY_EMAIL_TEMPLATE; 
-            $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($p['id']);
-            $emailAttachmentDataArray['type'] = "csv";
-            $emailAttachmentDataArray['fileName'] = "247around-Services-Consolidated-Data - ".date('d-M-Y');
-            $emailAttachmentDataArray['filePath'] =$csv;
-            $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray,$emailTemplateDataArray,$emailAttachmentDataArray);
+                $emailBasicDataArray['to'] = $p['summary_email_to'];
+                $emailBasicDataArray['cc'] = $p['summary_email_cc'];
+                $emailBasicDataArray['bcc'] = $p['summary_email_bcc'];
+                $emailBasicDataArray['subject'] = $subject;
+                $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
+                $emailBasicDataArray['fromName'] = "247around Team";
+                $emailTemplateDataArray['templateId'] = PARTNER_SUMMARY_EMAIL_TEMPLATE;
+                $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($p['id']);
+                $emailAttachmentDataArray['type'] = "csv";
+                $emailAttachmentDataArray['fileName'] = "247around-Services-Consolidated-Data - " . date('d-M-Y');
+                $emailAttachmentDataArray['filePath'] = $csv;
+                $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
 
-                if ($emailStatus=='success') {
+                if ($emailStatus == 'success') {
                     log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
                 } else {
                     log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
                 }
 
-//        //Upload Excel to AWS/FTP
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "summary-excels/" . $csv;
                 $this->s3->putObjectFile(realpath($csv), $bucket, $directory_xls, S3::ACL_PRIVATE);
@@ -580,8 +556,8 @@ EOD;
                 $out = '';
                 $return = 0;
                 exec("rm -rf " . escapeshellarg($csv), $out, $return);
-//            // Return will return non-zero upon an error
-
+                
+                // Return will return non-zero upon an error
                 if (!$return) {
                     // exec() has been executed sucessfully
                     // Inserting values in scheduler tasks log
@@ -591,98 +567,6 @@ EOD;
                 }
             }
         }
-    }
-
-    public function send_summary_mail_to_partners() {
-        log_message('info', __FUNCTION__);
-
-        $template = 'SD_Summary_Template-v2.xlsx';
-        $templateDir = __DIR__ . "/excel-templates/";
-        //print_r($templateDir);
-        //set config for report
-        $config = array(
-            'template' => $template,
-            'templateDir' => $templateDir
-        );
-
-        $where_get_partner = array('partners.is_active' => '1');
-        $select = "partners.id, partners.summary_email_to, partners.summary_email_cc, "
-                . " partners.summary_email_bcc, partners.public_name";
-        //Get all Active partners who has "is_reporting_mail" column 1
-        $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
-        log_message('info', __FUNCTION__ . ' => Fetched active partners');
-
-        foreach ($partners as $p) {
-            //load template
-            $R = new PHPReport($config);
-
-            //Fetch partners' bookings
-            $leads = $this->partner_model->get_partner_leads_for_summary_email($p['id']);
-            log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
-
-            $R->load(array(
-                array(
-                    'id' => 'bd',
-                    'repeat' => true,
-                    'data' => $leads,
-                ),
-            ));
-
-            //Get populated XLS with data
-            $output_file = TMP_FOLDER . "247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
-            //for xlsx: excel, for xls: excel2003
-            $R->render('excel', $output_file);
-
-            log_message('info', __FUNCTION__ . ' => Rendered excel');
-
-            $this->email->clear(TRUE);
-            $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
-            $this->email->to($p['summary_email_to']);
-            $this->email->cc($p['summary_email_cc']);
-            $this->email->bcc($p['summary_email_bcc']);
-
-            $this->email->subject("247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y'));
-            $summary_table = $this->get_partner_summary_table($p['id']);
-            log_message('info', __FUNCTION__ . ' => Prepared summary report');
-
-            $message = "Dear Partner,<br/><br/>";
-            $message .= "Please find updated summary table below.<br/><br/>";
-            $message .= $summary_table;
-            $message .= "<br><br>Best Regards,
-                <br>247around Team
-                <br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
-                <br>Follow us on Facebook: www.facebook.com/247around | Website: www.247around.com
-                <br>Playstore - 247around -
-                <br>https://play.google.com/store/apps/details?id=com.handymanapp";
-
-            $this->email->message($message);
-            $this->email->attach($output_file, 'attachment');
-
-            if ($this->email->send()) {
-                log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
-            } else {
-                log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
-            }
-
-            //Upload Excel to AWS/FTP
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "summary-excels/" . $output_file;
-            $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
-
-            //Delete this file
-            exec("rm -rf " . escapeshellarg($output_file), $out, $return);
-            // Return will return non-zero upon an error
-
-            if (!$return) {
-                // exec() has been executed sucessfully
-                // Inserting values in scheduler tasks log
-                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
-                //Logging
-                log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . $output_file);
-            }
-        }
-
-        exit(0);
     }
 
     function booking_report() {
@@ -984,7 +868,7 @@ EOD;
 
         //Geting Array of RM's and Admin
         $employee_for_cron_mail_list = $this->employee_model->get_employee_for_cron_mail();
-        //Looping for each RM 
+        //Looping for each RM
         foreach ($employee_for_cron_mail_list as $value) {
             //Getting RM to SF relation
             $sf_list = $this->vendor_model->get_employee_relation($value['id']);
@@ -1007,7 +891,7 @@ EOD;
      *        based on their Pincodes
      * @param void
      * @return: int(No. of vendors whose pincode is not present)
-     * 
+     *
      */
     function get_vendor_customer_distance_by_pincode() {
         //Getting booking details
@@ -1049,7 +933,7 @@ EOD;
             }
         }
 
-        //Closing csv file 
+        //Closing csv file
         fclose($file);
 
         echo "No pincodes: " . $no_pincode;
@@ -1059,7 +943,7 @@ EOD;
     }
 
     /**
-     * @desc: 
+     * @desc:
      * @param integer $is_mail
      */
     function get_sc_crimes($is_mail = 0) {
@@ -1121,36 +1005,35 @@ EOD;
         log_message('info', __FUNCTION__);
         if (date('l') != "Sunday") {
             $vendor_details = $this->vendor_model->getactive_vendor();
-            foreach ($vendor_details as  $value) {
+            foreach ($vendor_details as $value) {
                 if ($value['is_update'] == '1') {
                     $where = " AND id = '" . $value['id'] . "'";
                     $data['data'] = $this->reporting_utils->send_sc_crimes_report_mail_data($where);
                     if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $file_data = $this->penalty_model->get_penalty_on_booking_any(array('service_center_id' => $data['data'][0]['service_center_id'],
-                            'criteria_id' => '2', 'create_date >=' => date('Y-m-d', strtotime("-1 days")) ), 'booking_id');
-                        
+                            'criteria_id' => '2', 'create_date >=' => date('Y-m-d', strtotime("-1 days"))), 'booking_id');
+
                         $file_path = "";
-                        if(!empty($file_data)){
-                            $file_path = TMP_FOLDER.$data['data'][0]['service_center_name']."-". date('Y-m-d');
-                            $file = fopen( $file_path . ".txt", "a+") or die("Unable to open file!");
-                            
-                             foreach ($file_data as $booking_id){
-                                 
-                                 fwrite($file,  $booking_id['booking_id']."\n");
-                             }
-                             fclose($file);
+                        if (!empty($file_data)) {
+                            $file_path = TMP_FOLDER . $data['data'][0]['service_center_name'] . "-" . date('Y-m-d');
+                            $file = fopen($file_path . ".txt", "a+") or die("Unable to open file!");
+
+                            foreach ($file_data as $booking_id) {
+
+                                fwrite($file, $booking_id['booking_id'] . "\n");
+                            }
+                            fclose($file);
                         }
-                        
+
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
-                        
+
                         $bcc = "";
                         $cc = "";
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
-                       
+
                         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt");
                         exec("rm -rf " . escapeshellarg($file_path));
-                        
                     } else {
                         log_message('info', __FUNCTION__ . " Empty Data Get");
                     }
@@ -1164,7 +1047,7 @@ EOD;
 
         log_message('info', __FUNCTION__ . " Exit");
     }
-    
+
     /**
      * @desc: If is_mal flag is 0 then it displays a table. In the table, we will show Today and Past Un-assignd booking
      * If is_mail flag is 1 then send an email with attach a table, In the table, we will show Today and Past Un-assignd booking
@@ -1218,6 +1101,7 @@ EOD;
 
         //echo json_encode($data);
     }
+
     /**
      * @desc: This function is used to get agent working details through ajax
      * params: void
@@ -1229,21 +1113,21 @@ EOD;
         $eDate = $this->input->post('eDate');
         $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
         $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
-        $data['data']= $this->reporting_utils->get_agent_daily_reports($flag,$startDate,$endDate);
+        $data['data'] = $this->reporting_utils->get_agent_daily_reports($flag, $startDate, $endDate);
         $agent_name = [];
         $query_cancel = [];
         $query_booking = [];
         $calls_placed = [];
         $calls_received = [];
         $rating = [];
-        foreach($data['data'] as $key => $value){
-            array_push($agent_name,$value['employee_id']);
-            array_push($query_cancel,$value['followup_to_cancel']);
-            array_push($query_booking,$value['followup_to_pending']);
-            array_push($calls_placed,$value['calls_placed']);
-            array_push($calls_received,$value['calls_recevied']);
-            array_push($rating,$value['rating']);
-        }    
+        foreach ($data['data'] as $key => $value) {
+            array_push($agent_name, $value['employee_id']);
+            array_push($query_cancel, $value['followup_to_cancel']);
+            array_push($query_booking, $value['followup_to_pending']);
+            array_push($calls_placed, $value['calls_placed']);
+            array_push($calls_received, $value['calls_recevied']);
+            array_push($rating, $value['rating']);
+        }
         $data_report['agent_name'] = implode(",", $agent_name);
         $data_report['query_cancel'] = implode(",", $query_cancel);
         $data_report['query_booking'] = implode(",", $query_booking);
@@ -1276,7 +1160,7 @@ EOD;
      * @Desc: This function is used to get RM's specific crime reports
      * @params: void
      * @return: void
-     * 
+     *
      */
     function get_rm_crimes($flag = 0) {
         //Getting RM Array
@@ -1383,7 +1267,7 @@ EOD;
      * @Desc: This function is to show Pictorial Representation of Reports Table
      * @params: void
      * #return: void
-     * 
+     *
      */
     function show_reports_chart() {
         //1. RM crimes report
@@ -1520,7 +1404,7 @@ EOD;
      *          It is being called from RM Charts View page
      * @params: RM Full_name
      * @return: view
-     * 
+     *
      */
     function show_rm_specific_snapshot($rm_fullname) {
         $decode_rm_fullname = urldecode($rm_fullname);
@@ -1537,92 +1421,91 @@ EOD;
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/show_service_center_report', $data);
     }
-    
+
     /**
      * @Desc: This function is used to show Partner completed bookings
      * @params: void()
      * @return: void()
-     * 
+     *
      */
-    function partners_booking_report_chart(){
+    function partners_booking_report_chart() {
         $timestamp = strtotime(date("Y-m-d"));
         $startDate = date('Y-m-01 00:00:00', $timestamp);
         $endDate = date('Y-m-d 23:59:59', $timestamp);
         $bookingStatus = 'Completed';
-        $data['data']= $this->reporting_utils->get_partners_booking_report_chart_data($startDate,$endDate,$bookingStatus);
+        $data['data'] = $this->reporting_utils->get_partners_booking_report_chart_data($startDate, $endDate, $bookingStatus);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/show_partners_booking_report_chart',$data);
+        $this->load->view('employee/show_partners_booking_report_chart', $data);
     }
-    
+
     /**
-     * @Desc: This function is used to show Partner completed bookings on ajax call 
+     * @Desc: This function is used to show Partner completed bookings on ajax call
      * on the basis of selected range
      * @params: void()
      * @return: view
-     * 
+     *
      */
-    function get_partners_booking_report_chart(){
+    function get_partners_booking_report_chart() {
         $sDate = $this->input->post('sDate');
         $eDate = $this->input->post('eDate');
         $bookingStatus = $this->input->post('booking_status');
         $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
         $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
-        $data['data']= $this->reporting_utils->get_partners_booking_report_chart_data($startDate,$endDate,$bookingStatus);
-        $data['ajax_call']=true;
+        $data['data'] = $this->reporting_utils->get_partners_booking_report_chart_data($startDate, $endDate, $bookingStatus);
+        $data['ajax_call'] = true;
         print_r(json_encode($data['data']));
     }
+
     /**
      * @Desc: This function is used to show the view of latest file uploaded in s3
      * @params:void
      * @return:void
-     * 
+     *
      */
-    function download_latest_uploaded_file(){
-        log_message('info', __FUNCTION__ . ' => Entering, Agent_id:'.$this->session->userdata('id'));
+    function download_latest_uploaded_file() {
+        log_message('info', __FUNCTION__ . ' => Entering, Agent_id:' . $this->session->userdata('id'));
         $data['latest_file'] = $this->reporting_utils->get_all_latest_uploaded_file();
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/download_latest_uploaded_file',$data);
+        $this->load->view('employee/download_latest_uploaded_file', $data);
     }
-    
+
     /**
      * @Desc: This function is used to download latest file uploaded in s3
      * @params:string
      * @return:void
-     * 
+     *
      */
-    function download_latest_file($flag){
+    function download_latest_file($flag) {
         //Getting latest entry form pincode_mapping_s3_upload_details table
-        if($flag === 'pincode'){
+        if ($flag === 'pincode') {
             $where = array('bucket_name' => 'vendor-pincodes');
-        }elseif($flag === 'price'){
+        } elseif ($flag === 'price') {
             $where = array('file_type' => 'SF-Price-List');
-        }elseif($flag === 'appliance'){
+        } elseif ($flag === 'appliance') {
             $where = array('file_type' => 'Partner-Appliance-Details');
         }
         $latest_file = $this->reporting_utils->get_latest_file($where);
         $filename = $latest_file[0]['file_name'];
-        
+
         //S3 file Path
-        if($flag === 'price' || $flag == 'appliance'){
-             $file_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$filename;
-        }elseif($flag === 'pincode'){
-             $file_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-pincodes/".$filename;
+        if ($flag === 'price' || $flag == 'appliance') {
+            $file_path = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $filename;
+        } elseif ($flag === 'pincode') {
+            $file_path = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-pincodes/" . $filename;
         }
-        
+
         //Downloading File
-        if(!empty($filename)){
+        if (!empty($filename)) {
 
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
-            header("Content-Disposition: attachment; filename=\"$filename\""); 
+            header("Content-Disposition: attachment; filename=\"$filename\"");
             readfile($file_path);
             exit;
-        }else{
+        } else {
             //Logging_error
-            log_message('info',__FUNCTION__.' No latest file has been found to be uploaded.');
+            log_message('info', __FUNCTION__ . ' No latest file has been found to be uploaded.');
         }
-        
-        
     }
 
 }
