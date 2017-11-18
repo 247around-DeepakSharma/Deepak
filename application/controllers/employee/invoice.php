@@ -417,7 +417,7 @@ class Invoice extends CI_Controller {
     function getPartnerOrVendor($par_ven) {
         $vendor_partner_id = $this->input->post('vendor_partner_id');
         $flag = $this->input->post('invoice_flag');
-        echo "<option value='' selected disabled>Select Enity</option>";
+        echo "<option value='' selected disabled>Select Entity</option>";
         if ($flag == 1) {
             echo "<option value='All'>All</option>";
         }

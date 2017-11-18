@@ -3463,3 +3463,5 @@ ALTER TABLE `query_report` ADD `result` VARCHAR(2048) NULL DEFAULT NULL AFTER `a
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Invoice Check', '', '', '', '', 'developer', '1', 'invoice_check', '1', NULL, '2017-11-14 11:14:15');
 
 
+-- ANUJ 17 NOV
+ALTER TABLE  `bank_transactions` ADD  `transaction_id` VARCHAR( 32 ) NOT NULL COMMENT  'Bank Transaction ID' AFTER  `transaction_mode` ;
