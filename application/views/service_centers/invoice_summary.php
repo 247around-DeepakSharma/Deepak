@@ -83,17 +83,18 @@
            
            <?php $count=1; $debit_amount=0; $credit_amount=0; $tds_amount=0; ?>
            <?php foreach($bank_statement as $value){?>
-               <tr id="<?php echo "row".$count;?>">
-               <td><?php echo $count;$count++;?></td>
+               
+                <tr id="<?php echo "row".$count;?>">
+                   <td><?php  echo $count;$count++; if($value['is_advance'] ==1){?> <p id="advance_text">Advance</p><?php }?></td>
                <td><?php echo $value['transaction_date']; ?></td>
                <td><?php echo $value['description']; ?></td>
-               <td><?php echo round($value['credit_amount'],0); $credit_amount += intval($value['credit_amount']); ?></td>       
+               <td><?php echo round($value['credit_amount'],0); if($value['is_advance'] ==0){ $credit_amount += intval($value['credit_amount']); } ?></td>       
                <td><?php echo round($value['debit_amount'],0);  $debit_amount += intval($value['debit_amount']); ?></td>
                <td><?php echo round($value['tds_amount'],0); $tds_amount += intval($value['tds_amount']); ?></td>
                <td><?php echo $value['invoice_id']; ?></td>
-               <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>   
+               <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>          
            <?php } ?>
-           </tr>
+           
            <tr>
              <td><b>Total</b></td>
              <td></td>
@@ -118,3 +119,14 @@
     <h4 style="margin-bottom: 30px;">247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(round($final_settlement,0));} else {echo 0;} ?></h4>
     </div>
 
+<style>
+#advance_text {
+    -ms-transform: rotate(330deg); /* IE 9 */
+    -webkit-transform: rotate(330deg); /* Safari */
+    transform: rotate(330deg); /* Standard syntax */
+    color: red;
+    font-weight: bold;
+}
+    
+    
+</style>
