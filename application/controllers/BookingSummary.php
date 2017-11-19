@@ -531,7 +531,6 @@ EOD;
 
                 $emailBasicDataArray['to'] = $p['summary_email_to'];
                 $emailBasicDataArray['cc'] = $p['summary_email_cc'];
-                $emailBasicDataArray['bcc'] = $p['summary_email_bcc'];
                 $emailBasicDataArray['subject'] = $subject;
                 $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
                 $emailBasicDataArray['fromName'] = "247around Team";
