@@ -38,8 +38,9 @@ class Upload_buyback_process extends CI_Controller {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
-            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
-            redirect(base_url() . "employee/login");
+            return TRUE;
+//            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
+//            redirect(base_url() . "employee/login");
         }
     }
 
@@ -100,6 +101,8 @@ class Upload_buyback_process extends CI_Controller {
     
     function process_upload_order() {
         $response = $this->buyback_file_processing();
+        $order_file = $_FILES["file"]["name"];
+        $email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
         $insert_id = FALSE;
         if(!empty($this->upload_sheet_data)){
             $insert_id = $this->bb_model->insert_bb_sheet_data($this->upload_sheet_data);
@@ -111,15 +114,16 @@ class Upload_buyback_process extends CI_Controller {
         }
         
         if ($response['code'] == -247) {
-            echo $response;
+            echo json_encode($response);
+            $this->miscelleneous->update_file_uploads($order_file, $_FILES['file']['tmp_name'],_247AROUND_BB_ORDER_LIST,FILE_UPLOAD_FAILED_STATUS,$email_message_id);
         } else {
            
-            $order_file = $_FILES["file"]["name"];
-            $to = $this->session->userdata('official_email');
-            $cc = "abhaya@247around.com , ".NITS_ANUJ_EMAIL_ID;
+            $to = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):ANUJ_EMAIL_ID;
+            $cc = "abhaya@247around.com , ".NITS_EMAIL_ID;
 
             $message = "";
-            $subject = "Buyback Order is uploaded by " . $this->session->userdata('employee_id');
+            $agent_name = !empty($this->session->userdata('emp_name'))? $this->session->userdata('emp_name'): _247AROUND_DEFAULT_AGENT_NAME;
+            $subject = "Buyback Order is uploaded by " . $agent_name;
 
             $message .= "Order File Name ---->" . $order_file . "<br/><br/>";
             $message .= "Total lead  ---->" . $response['msg'] . "<br/><br/>";
@@ -130,9 +134,9 @@ class Upload_buyback_process extends CI_Controller {
             $message .= "Please check below orders, these were not assigned: <br/><br/><br/>";
             $message .= $this->table->generate();
            
-            $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
 
-            $this->miscelleneous->update_file_uploads($order_file, $_FILES['file']['tmp_name'],_247AROUND_BB_ORDER_LIST);
+            $this->miscelleneous->update_file_uploads($order_file, $_FILES['file']['tmp_name'],_247AROUND_BB_ORDER_LIST,FILE_UPLOAD_SUCCESS_STATUS,$email_message_id);
             $response = array("code" => 247, "msg" => "File sucessfully processed.");
             echo json_encode($response);
         }
@@ -356,12 +360,13 @@ class Upload_buyback_process extends CI_Controller {
     
     private function send_column_not_exit_mail($error) {
         if ($error) {
-            $message .= " Please check and upload again.";
+            $message = " Please check and upload again.";
             $this->Columfailed .= " column does not exist.";
-            $to =  $this->session->userdata('official_email');
-            $cc = "abhaya@247around.com,".NITS_ANUJ_EMAIL_ID;
-            $subject = "Failure! Buyback Order is uploaded by " . $this->session->userdata('employee_id');
-            $this->notify->sendEmail("buyback@247around.com", $to, $cc, "", $subject, $message, "");
+            $to =  !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):ANUJ_EMAIL_ID;
+            $cc = "abhaya@247around.com,".NITS_EMAIL_ID;
+            $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
+            $subject = "Failure! Buyback Order is uploaded by " .$agent_name ;
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
             return false;
         } else {
             return true;
@@ -675,8 +680,8 @@ class Upload_buyback_process extends CI_Controller {
             $this->Columfailed .= " column does not exist.";
             $to = $this->session->userdata('official_email');
             $cc = DEVELOPER_EMAIL;
-            $subject = "Failed!!! Buyabck Price Sheet File uploaded by " . $this->session->userdata('employee_id');
-            $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $message, "");
+            $subject = "Failed!!! Buyabck Price Sheet File uploaded by " . $this->session->userdata('emp_name');
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
             return false;
         } else {
             return true;

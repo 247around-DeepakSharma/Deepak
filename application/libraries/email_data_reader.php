@@ -69,8 +69,13 @@ class email_data_reader  {
             rsort($emails);
             $no_of_emails = $emails ? count($emails) : 0;
             for ($i = 0; $i < $no_of_emails; $i++) {
+                
+                $attachments = array();
+                $return_attachments_details = array();
                 //get email headers
                 $header = imap_header($this->connection, $emails[$i]);
+                //get unique email message_id
+                $message_id = $header->message_id;
                 // get email send from
                 $from = $header->fromaddress;
                 //get email subject
@@ -80,23 +85,78 @@ class email_data_reader  {
                 //if structure is not empty then get email body
                 if (!empty($structure->parts)) {
                     for ($j = 0, $k = count($structure->parts); $j < $k; $j++) {
+                        $attachments[$j] = array(
+                            'is_attachment' => false,
+                            'filename' => '',
+                            'name' => '',
+                            'attachment' => ''
+                        );
+                        if(isset($structure->parts[$j]->ifdparameters) && $structure->parts[$j]->ifdparameters) {
+                            foreach($structure->parts[$j]->dparameters as $object) {
+                                    if(strtolower($object->attribute) == 'filename') {
+                                            $attachments[$j]['is_attachment'] = true;
+                                            $attachments[$j]['filename'] = $object->value;
+                                    }
+                            }
+                        }
+                        
+                        if(isset($structure->parts[$j]->ifparameters) && $structure->parts[$j]->ifparameters) {
+                                foreach($structure->parts[$j]->parameters as $object) {
+                                        if(strtolower($object->attribute) == 'name') {
+                                                $attachments[$j]['is_attachment'] = true;
+                                                $attachments[$j]['name'] = $object->value;
+                                        }
+                                }
+                        }
+                        
+                        if(!empty($attachments) && $attachments[$j]['is_attachment']) {
+                                $attachments[$j]['attachment'] = imap_fetchbody($this->connection, $emails[$i], $j+1);
+                                if($structure->parts[$j]->encoding == 3) { // 3 = BASE64
+                                        $attachments[$j]['attachment'] = base64_decode($attachments[$j]['attachment']);
+                                }
+                                elseif($structure->parts[$j]->encoding == 4) { // 4 = QUOTED-PRINTABLE
+                                        $attachments[$j]['attachment'] = quoted_printable_decode($attachments[$j]['attachment']);
+                                }
+                        }
+                        
                         $part = $structure->parts[$j];
                         if ($part->subtype == 'PLAIN') {
                             $body = imap_fetchbody($this->connection, $emails[$i], $j + 1);
                         }else{
                             $body = imap_body($this->connection, $emails[$i]);
                         }
+                        
+                        
+                        /* iterate through each attachment and save it */
+                        foreach($attachments as $key => $attachment)
+                        {
+                            $filename = "";
+                            if($attachment['is_attachment'] == 1)
+                            {
+                                $filename = str_replace(array(" ","-"), "_", $attachment['filename']);
+                                if(empty($filename))
+                                {
+                                    $filename = str_replace(array(" ","-"), "_", $attachment['filename']);
+                                }
+                                write_file(TMP_FOLDER.$filename, $attachment['attachment']);
+                            }
+                            
+                            $return_attachments_details[$key] = array(
+                                'file_name' => $filename
+                            );
+                        }
+
                     }
+ 
                 } else {
                     $body = imap_body($this->connection, $emails[$i]);
                 }
                 
                 //make return array
-                array_push($response, array('email_no' => $emails[$i], 'from' => $from, 'subject' => $subject, 'body' => $body));
+                array_push($response, array('email_message_id'=>$message_id, 'email_no' => $emails[$i], 'from' => $from, 'subject' => $subject, 'body' => $body,'attachments' =>$return_attachments_details));
             }
         }
         
-        //return response
         return $response;
     }
 }

@@ -1785,7 +1785,7 @@ class Reporting_utils extends CI_Model {
     function get_uploaded_file_history($post_data=NULL)
     {
       
-       $sql = "SELECT e.full_name as agent_name,p.file_name,p.create_date AS upload_date,p.result FROM file_uploads AS p  JOIN employee AS e ON p.agent_id = e.id";
+       $sql = "SELECT e.full_name as agent_name,p.file_name,p.create_date AS upload_date,p.result FROM file_uploads AS p  left JOIN employee AS e ON p.agent_id = e.id";
         if(!empty($post_data)){
              $sql .=  " WHERE file_type= '".$post_data['file_type']."' ORDER BY p.create_date DESC";
         }
