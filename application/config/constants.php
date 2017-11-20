@@ -516,6 +516,12 @@ define("ESTIMATE_APPROVED_BY_CUSTOMER", "Spare Estimate Approved By Customer");
 define("MISSING_PINCODE_EMAIL_TO", "ayush.bafna@paytmmall.com, sales@247around.com, rohit1.verma@paytm.com, simranpreet.sawhney@paytm.com, ankur.sethi@paytm.com, shivam.awasthi@paytm.com, nits@247around.com, ashish.singh@paytm.com, simranpreet.sawhney@paytmmall.com, aditya1.agrawal@paytmmall.com");
 
 define("COMMISION_CHARGE_HSN_CODE", "996111");
+//sales email_id
+define('_247AROUND_SALES_EMAIL','sales@247around.com');
+//email attachment reader email
+define('EMAIL_ATTACHMENT_READER_EMAIL','installations@247around.com');
+//email attachment reader email password
+define('EMAIL_ATTACHMENT_READER_PASSWORD','247around@@installations');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

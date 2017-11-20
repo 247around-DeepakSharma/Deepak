@@ -1036,12 +1036,13 @@ class Miscelleneous {
      * 
      * 
      */
-    public function update_file_uploads($file_name,$tmpFile, $type, $result = "") {
+    public function update_file_uploads($file_name,$tmpFile, $type, $result = "", $email_message_id = "") {
         
         $data['file_type'] = $type;
         $data['file_name'] = date('d-M-Y-H-i-s')."-".$file_name;
-        $data['agent_id'] = $this->My_CI->session->userdata('id');
+        $data['agent_id'] = !empty($this->My_CI->session->userdata('id'))?$this->My_CI->session->userdata('id'):_247AROUND_DEFAULT_AGENT;
         $data['result'] = $result;
+        $data['email_message_id'] = $email_message_id;
         
         $insert_id = $this->My_CI->partner_model->add_file_upload_details($data);
         
@@ -1601,4 +1602,70 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         
         return $output_file_excel;
     }
+    
+    /**
+     * @desc This function is used to extract the zip file 
+     * @param string $file_path
+     * @param string $path_to_extract
+     * @return string $response
+     */
+    function extract_zip_files($file_path, $path_to_extract)
+    {
+        $zip = new ZipArchive;
+        $res = $zip->open($file_path);
+        if ($res === TRUE) 
+        {
+            // get the zipped file name
+            $zip->extractTo($path_to_extract);
+            $response['file_name'] = $zip->getNameIndex(0);
+            $res1 =0;
+            system(" chmod 777 " . TMP_FOLDER.$response['file_name'] , $res1);
+            $zip->close();
+            
+            $response['status'] = true;
+        } else {
+            $response['status'] = false;
+            switch ($res)
+            {
+                case ZipArchive::ER_EXISTS:
+                    $response['msg'] = "File already exists.";
+                    break;
+
+                case ZipArchive::ER_INCONS:
+                    $response['msg'] = "Zip archive inconsistent.";
+                    break;
+
+                case ZipArchive::ER_MEMORY:
+                    $response['msg'] = "Malloc failure.";
+                    break;
+
+                case ZipArchive::ER_NOENT:
+                    $response['msg'] = "No such file.";
+                    break;
+
+                case ZipArchive::ER_NOZIP:
+                    $response['msg'] = "Not a zip archive.";
+                    break;
+
+                case ZipArchive::ER_OPEN:
+                    $response['msg'] = "Can't open file.";
+                    break;
+
+                case ZipArchive::ER_READ:
+                    $response['msg'] = "Read error.";
+                    break;
+
+                case ZipArchive::ER_SEEK:
+                    $response['msg'] = "Seek error.";
+                    break;
+
+                default:
+                    $response['msg'] = "Unknow (Code)";
+                    break;
+            }
+            
+        }
+        
+        return $response;
+    }    
 }

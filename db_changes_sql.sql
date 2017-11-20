@@ -3465,3 +3465,16 @@ INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `que
 
 -- ANUJ 17 NOV
 ALTER TABLE  `bank_transactions` ADD  `transaction_id` VARCHAR( 32 ) NOT NULL COMMENT  'Bank Transaction ID' AFTER  `transaction_mode` ;
+
+-- 16 Nov Sachin
+CREATE TABLE `247around`.`email_attachment_parser` 
+( `id` INT(11) NOT NULL , 
+`email_received_from` VARCHAR(256) NOT NULL , 
+`email_subject_text` VARCHAR(256) NULL DEFAULT NULL , 
+`email_function_name` VARCHAR(256) NULL DEFAULT NULL , 
+`email_remarks` VARCHAR(64) NULL DEFAULT NULL , 
+`create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `email_attachment_parser` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `file_uploads` ADD `email_message_id` VARCHAR(256) NULL DEFAULT NULL AFTER `result`;
+ALTER TABLE `email_attachment_parser` ADD `active` TINYINT(5) NOT NULL DEFAULT '0' AFTER `email_remarks`;
