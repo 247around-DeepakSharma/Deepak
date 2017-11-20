@@ -3462,6 +3462,7 @@ ALTER TABLE `query_report` ADD `result` VARCHAR(2048) NULL DEFAULT NULL AFTER `a
 
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Invoice Check', '', '', '', '', 'developer', '1', 'invoice_check', '1', NULL, '2017-11-14 11:14:15');
 
+<<<<<<< HEAD
 
 -- ANUJ 17 NOV
 ALTER TABLE  `bank_transactions` ADD  `transaction_id` VARCHAR( 32 ) NOT NULL COMMENT  'Bank Transaction ID' AFTER  `transaction_mode` ;
@@ -3478,3 +3479,44 @@ CREATE TABLE `247around`.`email_attachment_parser`
 ALTER TABLE `email_attachment_parser` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `file_uploads` ADD `email_message_id` VARCHAR(256) NULL DEFAULT NULL AFTER `result`;
 ALTER TABLE `email_attachment_parser` ADD `active` TINYINT(5) NOT NULL DEFAULT '0' AFTER `email_remarks`;
+
+20th-nov
+CREATE TABLE `collateral` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_type` varchar(20) NOT NULL,
+  `collateral_id` varchar(100) DEFAULT NULL,
+  `document_description` text,
+  `file` text,
+  `version` varchar(20) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `is_valid` int(11) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `collateral`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `collateral`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
+
+
+CREATE TABLE `collateral_type` (
+  `id` int(11) NOT NULL,
+  `collateral_tag` varchar(80) DEFAULT NULL,
+  `collateral_type` varchar(80) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`) VALUES
+(1, 'Contract', 'NDA(None Disclosure Agreement)'),
+(2, 'Contract', 'Work Order'),
+(3, 'Contract', 'MSA (Master Service Agreement)'),
+(4, 'Contract', 'Addendum'),
+(5, 'Contract', 'Extension');
+
+ALTER TABLE `collateral_type`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `collateral_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;COMMIT;
