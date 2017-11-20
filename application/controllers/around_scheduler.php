@@ -358,7 +358,7 @@ class Around_scheduler extends CI_Controller {
     function check_cron_tasks() {
         //Defining array for Cron Jobs
         $CRON_JOBS = ['get_pending_bookings', 'send_service_center_report_mail',
-            'new_send_service_center_report_mail', 'send_summary_mail_to_partners',
+            'new_send_service_center_report_mail', 'send_leads_summary_mail_to_partners',
             'send_reminder_installation_sms_today', 'send_reminder_installation_sms_today',
             'DatabaseTesting', 'send_error_file',
             'convert_updated_booking_to_pending', 'penalty_on_service_center',

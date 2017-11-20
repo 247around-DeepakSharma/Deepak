@@ -236,12 +236,16 @@
                         <?php if ($booking_history[0]['current_status'] === "Completed") { ?>
                         <td><?php print_r($unit_detail['vendor_cash_invoice_id']); ?></td>
                         <td><?php print_r($unit_detail['vendor_foc_invoice_id']); ?></td>
-                        <td>
-                            <?php echo round($unit_detail['vendor_to_around'] + $unit_detail['around_to_vendor'] + $sf_upcountry_charges, 2);?>
-                        </td>
-                        <?php } else { ?>
-                        <td><?php echo round($unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + $sf_upcountry_charges,2);?></td>
+                        
                         <?php } ?>
+                        <td>
+                            <?php echo round($unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + 
+                                                $unit_detail['vendor_extra_charges']  +  $unit_detail['vendor_st_extra_charges']  + 
+                                                 $unit_detail['vendor_parts']  + $unit_detail['vendor_st_parts'] +
+                                                $sf_upcountry_charges, 2);?>
+                            
+                        </td>
+                       
                     </tr>
                     <?php } ?>
                 </tbody>
