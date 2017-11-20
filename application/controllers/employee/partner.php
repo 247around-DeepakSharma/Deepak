@@ -485,6 +485,8 @@ class Partner extends CI_Controller {
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
                 //Logging
                 log_message('info', __FUNCTION__ . ' Partner has been Updated : ' . print_r($this->input->post(), TRUE));
+                $msg = "Partner Updated Successfully";
+                 $this->session->set_userdata('success', $msg);
                 //Adding details in Booking State Change
                 $this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
                 //Sending Mail for Updated details
