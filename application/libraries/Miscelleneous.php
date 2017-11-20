@@ -1118,7 +1118,11 @@ class Miscelleneous {
     function send_sf_not_found_email_to_rm($booking,$rm_email){
             $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
             $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode'];
-            $booking['partner_name'] = $this->My_CI->reusable_model->get_search_result_data("partners","public_name",array('id'=>$booking['partner_id']),NULL,NULL,NULL,NULL,NULL)[0]['public_name'];
+            $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners","public_name",array('id'=>$booking['partner_id']),NULL,NULL,NULL,NULL,NULL);
+            $booking['partner_name'] = NULL;
+            if(!empty($tempPartner)){
+             $booking['partner_name'] = $tempPartner[0]['public_name'];
+            }
            $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "");
     }
@@ -1138,6 +1142,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                     $notFoundSfArray['state'] =  $result[0]['state'];
                     $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']),NULL,NULL,NULL,NULL,NULL);
                     $rm_email  = $query->result_array(); 
+                    if(empty($rm_email)){
+                        $rm_email[0]['official_email'] = NULL;
+                    }
                     $this->send_sf_not_found_email_to_rm($booking,$rm_email[0]['official_email']);
           }
            if(array_key_exists('partner_id', $booking)){

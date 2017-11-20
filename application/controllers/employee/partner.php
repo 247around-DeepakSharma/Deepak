@@ -36,7 +36,7 @@ class Partner extends CI_Controller {
 
         $this->load->library('table');
 
-        $this->load->helper(array('form', 'url','file'));
+        $this->load->helper(array('form', 'url','file','array'));
         $this->load->dbutil();
     }
 
@@ -445,7 +445,7 @@ class Partner extends CI_Controller {
         }
         $results['partner_code'] = $code;
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
-
+        $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type",'*',array("collateral_tag"=>"Contract"),NULL,NULL,array("collateral_type"=>"ASC"),NULL,NULL);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('results' => $results, 'employee_list' => $employee_list));
     }
@@ -469,190 +469,26 @@ class Partner extends CI_Controller {
                 //if vendor exists, details are edited
                 $partner_id = $this->input->post('id');
                 $edit_partner_data['partner'] = $this->get_partner_form_data();
-
-                //Processing Contract File
-                if (($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['contract_file']['tmp_name'];
-                    $contract_file = "Partner-" . $this->input->post('public_name') . '-Contract' . "." . explode(".", $_FILES['contract_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $contract_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $edit_partner_data['partner']['contract_file'] = $contract_file;
-
-                    $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' CONTRACT FILE is being uploaded sucessfully.');
-                }
-
-                //Processing Pan File
-                if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['pan_file']['tmp_name'];
-                    $pan_file = "Partner-" . $this->input->post('public_name') . '-PAN' . "." . explode(".", $_FILES['pan_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $pan_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $edit_partner_data['partner']['pan_file'] = $pan_file;
-
-                    $attachment_pan = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $pan_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' PAN FILE is being uploaded sucessfully.');
-                }
-
-                //Processing Registration File
-                if (($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['registration_file']['tmp_name'];
-                    $registration_file = "Partner-" . $this->input->post('public_name') . '-Registration' . "." . explode(".", $_FILES['registration_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $registration_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $registration_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $registration_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $edit_partner_data['partner']['registration_file'] = $registration_file;
-
-                    $attachment_registration_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $registration_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' Registration FILE is being uploaded sucessfully.');
-                }
-
-                //Processing TIN File
-                if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['tin_file']['tmp_name'];
-                    $tin_file = "Partner-" . $this->input->post('public_name') . '-TIN' . "." . explode(".", $_FILES['tin_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $tin_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $return_data['partner']['tin_file'] = $tin_file;
-
-                    $attachment_tin_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $tin_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' TIN FILE is being uploaded sucessfully.');
-                }
-                //Processing CST File
-                if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['cst_file']['tmp_name'];
-                    $cst_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['cst_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $cst_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $return_data['partner']['cst_file'] = $cst_file;
-
-                    $attachment_cst_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $cst_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' CST FILE is being uploaded sucessfully.');
-                }
-                //Processing Service Tax File
-                if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['service_tax_file']['tmp_name'];
-                    $service_tax_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $service_tax_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $return_data['partner']['service_tax_file'] = $registration_file;
-
-                    $attachment_service_tax_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $service_tax_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' Service Tax FILE is being uploaded sucessfully.');
-                }
-
-               
-                //Getting partner operation regions details from POST
-                $partner_operation_state = $this->input->post('select_state');
-
-                //Agreement End Date - Checking (If  Present or not)
-                if (!empty($this->input->post('agreement_end_date'))) {
-                    $edit_partner_data['partner']['agreement_end_date'] = $this->input->post('agreement_end_date');
-                }
-
                 //Where Clause
                 $where = array('partner_id' => $partner_id);
-
                 //updating Partner code in Bookings_sources table
                 $bookings_sources['source'] = $this->input->post('public_name');
                 $bookings_sources['code'] = $this->input->post('partner_code');
-
                 if ($this->partner_model->update_partner_code($where, $bookings_sources)) {
                     log_message('info', ' Parnter code has been Updated in Bookings_sources table ' . print_r($bookings_sources, TRUE));
                 } else {
                     log_message('info', ' Error in Updating Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
                 }
-
-                //Updating Partner Operation Region
-                //Processing Partner Operation Region
-                $state_html = '';
-                if (!empty($partner_operation_state)) {
-                    $all_flag = FALSE;
-                    foreach ($partner_operation_state as $key => $value) {
-                        foreach ($value as $val) {
-                            //Checking if ALL state has been selected
-                            if ($val == 'all') {
-                                $all_states = $this->vendor_model->getall_state();
-                                foreach ($all_states as $value) {
-                                    $data['partner_id'] = $partner_id;
-                                    $data['service_id'] = $key;
-                                    $data['state'] = $value['state'];
-                                    $data['active'] = 1;
-                                    $data_final[] = $data;
-                                    $state_html .= "<li> Operating Service <b>" . $key . '</b> In State =>';
-                                    $state_html .= " " . $value['state'] . '</li>';
-                                }
-                                break;
-                            }
-                            $data['partner_id'] = $partner_id;
-                            $data['service_id'] = $key;
-                            $data['state'] = $val;
-                            $data['active'] = 1;
-                            $data_final[] = $data;
-                            $state_html .= "<li>Operating Service <b>" . $key . '</b> In State =>';
-                            $state_html .= " " . $val . '</li>';
-                        }
-                    }
-
-                    //Deleting Previous Values
-                    $this->partner_model->delete_partner_operation_region($partner_id);
-
-                    //Inserting Array in batch in partner operation region
-                    $operation_update_flag = $this->partner_model->insert_batch_partner_operation_region($data_final, $where);
-                    if ($operation_update_flag) {
-                        //Loggin Success
-                        log_message('info', 'Parnter Operation Region has been added sucessfully for partner ' . print_r($partner_id));
-                    }
-                } else {
-                    //Echoing message in Log file
-                    log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
-                }
-                $edit_partner_data['partner']['gst_number'] = $this->input->post('gst_number');
+                $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold']+25;
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
-
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
-
                 //Logging
                 log_message('info', __FUNCTION__ . ' Partner has been Updated : ' . print_r($this->input->post(), TRUE));
+                $msg = "Partner Updated Successfully";
+                 $this->session->set_userdata('success', $msg);
                 //Adding details in Booking State Change
                 $this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-
                 //Sending Mail for Updated details
                 $html = "<p>Following Partner has been Updated :</p><ul>";
                 foreach ($edit_partner_data['partner'] as $key => $value) {
@@ -662,193 +498,46 @@ class Partner extends CI_Controller {
                 $html .= "</ul>";
                 $to = ANUJ_EMAIL_ID;
                 $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
-
-                $html .= $state_html;
-
                 //Cleaning Email Variables
                 $this->email->clear(TRUE);
-
                 //Send report via email
                 $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
                 $this->email->to($to);
-
                 $this->email->subject($subject);
                 $this->email->message($html);
-
-                if (isset($attachment_contract)) {
-                    $this->email->attach($attachment_contract, 'attachment');
-                }
-                if (isset($attachment_pan)) {
-                    $this->email->attach($attachment_pan, 'attachment');
-                }
-                if (isset($attachment_registration_file)) {
-                    $this->email->attach($attachment_registration_file, 'attachment');
-                }
-                if (isset($attachment_tin_file)) {
-                    $this->email->attach($attachment_tin_file, 'attachment');
-                }
-                if (isset($attachment_cst_file)) {
-                    $this->email->attach($attachment_cst_file, 'attachment');
-                }
-                if (isset($attachment_service_tax_file)) {
-                    $this->email->attach($attachment_service_tax_file, 'attachment');
-                }
-
                 if ($this->email->send()) {
                     $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,"","",$subject,$html,"");
                     log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
                 } else {
                     log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
                 }
-
-                redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
+                redirect(base_url() . 'employee/partner/editpartner/'.$partner_id);
             } else {
-
                 //If Partner not present, Partner is being added
                 $return_data['partner'] = $this->get_partner_form_data();
                 $return_data['partner']['is_active'] = '1';
                 $return_data['partner']['is_verified'] = '1';
-
                 //Temporary value
                 $return_data['partner']['auth_token'] = substr(md5($return_data['partner']['public_name'] . rand(1, 100)), 0, 16);
-
-                //Agreement End Date - Checking (If Not Present don't insert)
-                if (!empty($this->input->post('agreement_end_date'))) {
-                    $return_data['partner']['agreement_end_date'] = $this->input->post('agreement_end_date');
-                }
-
-                
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
-
                 //Getting Partner code
                 $code = $this->input->post('partner_code');
-
-                //Processing Contract File
-                if (($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['contract_file']['tmp_name'];
-                    $contract_file = "Partner-" . $this->input->post('public_name') . '-Contract' . "." . explode(".", $_FILES['contract_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $contract_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $return_data['partner']['contract_file'] = $contract_file;
-
-                    $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' CONTRACT FILE is being uploaded sucessfully.');
-                }
-
-                //Processing Pan File
-                if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['pan_file']['tmp_name'];
-                    $pan_file = "Partner-" . $this->input->post('public_name') . '-PAN' . "." . explode(".", $_FILES['pan_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $pan_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $return_data['partner']['pan_file'] = $pan_file;
-
-                    $attachment_pan = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $pan_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' PAN FILE is being uploaded sucessfully.');
-                }
-
-                //Processing Registration File
-                if (($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['registration_file']['tmp_name'];
-                    $registration_file = "Partner-" . $this->input->post('public_name') . '-Registration' . "." . explode(".", $_FILES['registration_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $registration_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $registration_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $registration_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $return_data['partner']['registration_file'] = $registration_file;
-
-                    $attachment_registration_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $registration_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' Registration FILE is being uploaded sucessfully.');
-                }
-                //Processing TIN File
-                if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['tin_file']['tmp_name'];
-                    $tin_file = "Partner-" . $this->input->post('public_name') . '-TIN' . "." . explode(".", $_FILES['tin_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $tin_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $return_data['partner']['tin_file'] = $tin_file;
-
-                    $attachment_tin_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $tin_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' TIN FILE is being uploaded sucessfully.');
-                }
-                //Processing CST File
-                if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['cst_file']['tmp_name'];
-                    $cst_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['cst_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $cst_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $return_data['partner']['cst_file'] = $cst_file;
-
-                    $attachment_cst_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $cst_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' CST FILE is being uploaded sucessfully.');
-                }
-                //Processing Service Tax File
-                if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
-                    $tmpFile = $_FILES['service_tax_file']['tmp_name'];
-                    $service_tax_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $service_tax_file;
-                    $this->s3->putObjectFile(TMP_FOLDER . $service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $return_data['partner']['service_tax_file'] = $registration_file;
-
-                    $attachment_service_tax_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $service_tax_file;
-
-                    //Logging success for file uppload
-                    log_message('info', __FUNCTION__ . ' Service Tax FILE is being uploaded sucessfully.');
-                }
-                $return_data['partner']['gst_number'] = $this->input->post("gst_number");
-
+                //Add Customer Care Number
                 $return_data['partner']['customer_care_contact'] = $this->input->post("customer_care_contact");
-                //Sending data array to Model
+                $return_data['partner']['upcountry_max_distance_threshold'] = $return_data['partner']['upcountry_max_distance_threshold']+25;
                 $partner_id = $this->partner_model->add_partner($return_data['partner']);
                 //Set Flashdata on success or on Error of Data insert in table
                 if (!empty($partner_id)) {
-
-                    $msg = "Partner added successfully.";
+                    $msg = "Partner added successfully Please update documents and Operation Regions.";
                     $this->session->set_userdata('success', $msg);
-
                     //Getting Logged Employee Full Name
                     $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
-
                     //Echoing inserted ID in Log file
                     log_message('info', __FUNCTION__ . ' New Partner has been added with ID ' . $partner_id . " Done By " . $this->session->userdata('employee_id'));
                     log_message('info', __FUNCTION__ . ' Partner Added Details : ' . print_r($this->input->post(), TRUE));
-
                     //Adding details in Booking State Change
                     $this->notify->insert_state_change('', NEW_PARTNER_ADDED, NEW_PARTNER_ADDED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-
                     //Sending Mail for Updated details
                     $html = "<p>Following Partner has been Added :</p><ul>";
                     foreach ($return_data['partner'] as $key => $value) {
@@ -858,93 +547,37 @@ class Partner extends CI_Controller {
                     $html .= "</ul>";
                     $to = ANUJ_EMAIL_ID;
                     $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
-
                     //Cleaning Email Variables
                     $this->email->clear(TRUE);
-
                     //Send report via email
                     $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
                     $this->email->to($to);
-                    
-
                     $this->email->subject($subject);
                     $this->email->message($html);
-
-                    if (isset($attachment_contract)) {
-                        $this->email->attach($attachment_contract, 'attachment');
-                    }
-                    if (isset($attachment_pan)) {
-                        $this->email->attach($attachment_pan, 'attachment');
-                    }
-                    if (isset($attachment_registration_file)) {
-                        $this->email->attach($attachment_registration_file, 'attachment');
-                    }
-
                     if ($this->email->send()) {
                         $this->notify->add_email_send_details(NOREPLY_EMAIL_ID,$to,"","",$subject,$html,"");
                         log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
                     } else {
                         log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
                     }
-
                     //Adding Partner code in Bookings_sources table
                     $bookings_sources['source'] = $this->input->post('public_name');
                     $bookings_sources['code'] = $code;
                     $bookings_sources['partner_id'] = $partner_id;
-
                     $partner_code = $this->partner_model->add_partner_code($bookings_sources);
                     if ($partner_code) {
                         log_message('info', ' Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
                     } else {
                         log_message('info', ' Error in adding Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
                     }
-
-
-                    //Processing Partner Operation Region
-                    if (!empty($partner_operation_state)) {
-                        $all_flag = FALSE;
-                        foreach ($partner_operation_state as $key => $value) {
-                            foreach ($value as $val) {
-                                //Checking if ALL state has been selected
-                                if ($val == 'all') {
-                                    $all_states = $this->vendor_model->getall_state();
-                                    foreach ($all_states as $value) {
-                                        $data['partner_id'] = $partner_id;
-                                        $data['service_id'] = $key;
-                                        $data['state'] = $value['state'];
-                                        $data['active'] = 1;
-                                        $data_final[] = $data;
-                                    }
-                                    break;
-                                }
-                                $data['partner_id'] = $partner_id;
-                                $data['service_id'] = $key;
-                                $data['state'] = $val;
-                                $data['active'] = 1;
-                                $data_final[] = $data;
-                            }
-                        }
-
-                        //Inserting Array in batch in partner operation region
-                        $operation_insert_flag = $this->partner_model->insert_batch_partner_operation_region($data_final);
-                        if ($operation_insert_flag) {
-                            //Loggin Success
-                            log_message('info', 'Parnter Operation Region has been added sucessfully for partner ' . print_r($partner_id));
-                        }
-                    } else {
-                        //Echoing message in Log file
-                        log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
-                    }
                 } else {
-
                     $msg = "Error in adding Partner.";
                     $this->session->set_userdata('error', $msg);
-
                     //Echoing message in Log file
                     log_message('error', __FUNCTION__ . ' Error in adding Partner  ' . print_r($this->input->post(), TRUE));
+                    $partner_id = 0;
                 }
-
-                redirect(base_url() . 'employee/partner/get_add_partner_form');
+               redirect(base_url() . 'employee/partner/editpartner/'.$partner_id);
             }
         } else {
             $this->get_add_partner_form();
@@ -977,12 +610,7 @@ class Partner extends CI_Controller {
         $return_data['invoice_courier_name'] = $this->input->post('invoice_courier_name');
         $return_data['invoice_courier_address'] = $this->input->post('invoice_courier_address');
         $return_data['invoice_courier_phone_number'] = $this->input->post('invoice_courier_phone_number');
-        $return_data['pan'] = $this->input->post('pan');
-        $return_data['registration_no'] = $this->input->post('registration_no');
         $return_data['is_def_spare_required'] = $this->input->post('is_def_spare_required');
-        $return_data['tin'] = $this->input->post('tin');
-        $return_data['cst_no'] = $this->input->post('cst_no');
-        $return_data['service_tax'] = $this->input->post('service_tax');
         $partner_code = $this->input->post('partner_code');
         $return_data['account_manager_id'] = $this->input->post('account_manager_id');
         $return_data['spare_notification_email'] = $this->input->post('spare_notification_email');
@@ -1169,10 +797,11 @@ class Partner extends CI_Controller {
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
+        $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral",'collateral.document_description,collateral.file,collateral.start_date,collateral.end_date,collateral_type.collateral_type',array("entity_id"=>$id,"entity_type"=>"partner"),array("collateral_type"=>"collateral_type.id=collateral.collateral_id"),NULL,NULL,NULL,NULL);
+        $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type",'*',array("collateral_tag"=>"Contract"),NULL,NULL,array("collateral_type"=>"ASC"),NULL,NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
-
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list));
+        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list,'form_type'=>'update'));
     }
 
     /**
@@ -3438,5 +3067,186 @@ class Partner extends CI_Controller {
         }
         $this->session->set_userdata(array('bracket_msg'=>$msg));
         redirect(base_url() . "employee/partner/bracket_allocation");
+    }
+    
+    function process_partner_document_form(){
+        $return_data = array();
+                $partner_id = $this->input->post("partner_id");
+                //Processing Pan File
+                if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
+                    $tmpFile = $_FILES['pan_file']['tmp_name'];
+                    $pan_file = "Partner-" . $this->input->post('public_name') . '-PAN' . "." . explode(".", $_FILES['pan_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
+
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $pan_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $return_data['partner']['pan_file'] = $pan_file;
+
+                    $attachment_pan = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $pan_file;
+
+                    //Logging success for file uppload
+                    log_message('info', __FUNCTION__ . ' PAN FILE is being uploaded sucessfully.');
+                }
+
+                //Processing Registration File
+                if (($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])) {
+                    $tmpFile = $_FILES['registration_file']['tmp_name'];
+                    $registration_file = "Partner-" . $this->input->post('public_name') . '-Registration' . "." . explode(".", $_FILES['registration_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $registration_file);
+
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $registration_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $registration_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $return_data['partner']['registration_file'] = $registration_file;
+
+                    $attachment_registration_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $registration_file;
+
+                    //Logging success for file uppload
+                    log_message('info', __FUNCTION__ . ' Registration FILE is being uploaded sucessfully.');
+                }
+                //Processing TIN File
+                if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
+                    $tmpFile = $_FILES['tin_file']['tmp_name'];
+                    $tin_file = "Partner-" . $this->input->post('public_name') . '-TIN' . "." . explode(".", $_FILES['tin_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
+
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $tin_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $return_data['partner']['tin_file'] = $tin_file;
+
+                    $attachment_tin_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $tin_file;
+
+                    //Logging success for file uppload
+                    log_message('info', __FUNCTION__ . ' TIN FILE is being uploaded sucessfully.');
+                }
+                //Processing CST File
+                if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
+                    $tmpFile = $_FILES['cst_file']['tmp_name'];
+                    $cst_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['cst_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
+
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $cst_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $return_data['partner']['cst_file'] = $cst_file;
+
+                    $attachment_cst_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $cst_file;
+
+                    //Logging success for file uppload
+                    log_message('info', __FUNCTION__ . ' CST FILE is being uploaded sucessfully.');
+                }
+                //Processing Service Tax File
+                if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
+                    $tmpFile = $_FILES['service_tax_file']['tmp_name'];
+                    $service_tax_file = "Partner-" . $this->input->post('public_name') . '-CST' . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
+
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $service_tax_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $return_data['partner']['service_tax_file'] = $registration_file;
+
+                    $attachment_service_tax_file = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $service_tax_file;
+
+                    //Logging success for file uppload
+                    log_message('info', __FUNCTION__ . ' Service Tax FILE is being uploaded sucessfully.');
+                }
+                $return_data['partner']['gst_number'] = $this->input->post("gst_number");
+                $return_data['partner']['pan'] = $this->input->post("pan");
+                $return_data['partner']['registration_no'] = $this->input->post("registration_no");
+                $return_data['partner']['tin'] = $this->input->post("tin");
+                $return_data['partner']['cst_no'] = $this->input->post("cst_no");
+                $return_data['partner']['service_tax'] = $this->input->post("service_tax");
+                if($return_data){
+                    $affected_rows = $this->reusable_model->update_table("partners",$return_data['partner'],array("id"=>$partner_id));
+                }
+                if($affected_rows>0){
+                    $msg = "Partner Documents has been updated successfully";
+                    $this->session->set_userdata('success', $msg);
+                }
+                redirect(base_url() . 'employee/partner/editpartner/'.$partner_id);
+    }
+    function process_partner_operation_region_form(){
+        $partner_operation_state = $this->input->post('select_state');
+        $partner_id = $this->input->post('partner_id');
+                    if (!empty($partner_operation_state)) {
+                        $all_flag = FALSE;
+                        foreach ($partner_operation_state as $key => $value) {
+                            foreach ($value as $val) {
+                                //Checking if ALL state has been selected
+                                if ($val == 'all') {
+                                    $all_states = $this->vendor_model->getall_state();
+                                    foreach ($all_states as $value) {
+                                        $data['partner_id'] = $partner_id;
+                                        $data['service_id'] = $key;
+                                        $data['state'] = $value['state'];
+                                        $data['active'] = 1;
+                                        $data_final[] = $data;
+                                    }
+                                    break;
+                                }
+                                $data['partner_id'] = $partner_id;
+                                $data['service_id'] = $key;
+                                $data['state'] = $val;
+                                $data['active'] = 1;
+                                $data_final[] = $data;
+                            }
+                        }
+                        $this->partner_model->delete_partner_operation_region($partner_id);
+                        //Inserting Array in batch in partner operation region
+                        $operation_insert_flag = $this->partner_model->insert_batch_partner_operation_region($data_final);
+                        if ($operation_insert_flag) {
+                            $msg = "Partner Operation Regions has been updated successfully";
+                            $this->session->set_userdata('success', $msg);
+                            //Loggin Success
+                            log_message('info', 'Parnter Operation Region has been added sucessfully for partner ' . print_r($partner_id));
+                        }
+                    } else {
+                        //Echoing message in Log file
+                        log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
+                    }  
+                    
+                    redirect(base_url() . 'employee/partner/editpartner/'.$partner_id);
+    }
+    function process_partner_contracts(){
+        $partner_id = $this->input->post('partner_id');
+        $partnerName = $this->reusable_model->get_search_result_data("partners","public_name",array('id'=>$partner_id),NULL,NULL,NULL,NULL,NULL)[0]['public_name'];
+        $start_date_array = $this->input->post('agreement_start_date');
+        $end_date_array = $this->input->post('agreement_end_date');
+        $contract_type_array = $this->input->post('contract_type');
+        $contract_description_array = $this->input->post('contract_description');
+        $finalInsertArray = array();
+        foreach($contract_type_array as $index=>$contract_type){
+            if (($_FILES['contract_file']['error'][$index] != 4) && !empty($_FILES['contract_file']['tmp_name'][$index])) {
+                    $tmpFile = $_FILES['contract_file']['tmp_name'][$index];
+                    $contract_file = "Partner-" . $partnerName . '-Contract_' .$contract_type."_".date('Y-m-d'). "." . explode(".", $_FILES['contract_file']['name'][$index])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/" . $contract_file;
+                    $this->s3->putObjectFile(TMP_FOLDER . $contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $attachment_contract = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $contract_file;
+                    //Logging success for file uppload
+                    log_message('info', __FUNCTION__ . ' CONTRACT FILE is being uploaded sucessfully.');
+                    $insertArray = array("entity_id"=>$partner_id,"entity_type"=>"partner","collateral_id"=>$contract_type,
+                    "document_description"=>$contract_description_array[$index],'file'=>$contract_file,"start_date"=>$start_date_array[$index],'end_date'=>$end_date_array[$index]);
+                    $finalInsertArray[] = $insertArray;
+                }
+        }
+        if($finalInsertArray){
+            $affacted_rows = $this->reusable_model->insert_batch("collateral",$finalInsertArray);
+            if($affacted_rows>0){
+               $msg = "Partner Contracts has been Updated Successfully";
+               $this->session->set_userdata('success', $msg);
+            }
+        }
+         redirect(base_url() . 'employee/partner/editpartner/'.$partner_id);
     }
 }
