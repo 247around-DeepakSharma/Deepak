@@ -45,11 +45,11 @@ class bookings_excel extends CI_Controller {
         $this->load->library("miscelleneous");
 
 
-	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
-	    return TRUE;
-	} else {
-	    redirect(base_url() . "employee/login");
-	}
+//	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+//	    return TRUE;
+//	} else {
+//	    redirect(base_url() . "employee/login");
+//	}
     }
 
     /*
@@ -119,24 +119,25 @@ class bookings_excel extends CI_Controller {
         }
 
         if (!$error) {
-            
+            $email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
             //Processing File
             $response['data'] = $this->process_upload_file($inputFileName, $inputFileExtn);
             if(!empty($response['data'])){
                 $response['upload_file_name'] = $_FILES["file"]["name"];
                 $html = $this->load->view('employee/email_paytm_upload_file_details',$response,TRUE);
-                $to = $this->session->userdata('official_email');
+                $to = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
                 $cc = NITS_EMAIL_ID.",".DEVELOPER_EMAIL;
-                $subject = "Paytm File is uploaded by " . $this->session->userdata('employee_id');
+                $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
+                $subject = "Paytm File is uploaded by " . $agent_name;
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "");
                 log_message('info', 'paytm file uploaded successfully.' . print_r($response,true));
                 
                 //Updating File Uploads table and upload file to s3
-                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS);
+                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS,$email_message_id);
             }else{
                 log_message('info', "Paytm file upload failed");
                 //Updating File Uploads table and upload file to s3
-                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
+                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_PAYTM_DELIVERED,FILE_UPLOAD_FAILED_STATUS,$email_message_id);
             }
             
             //send mail to paytm if incorrect pincode found
@@ -297,10 +298,11 @@ class bookings_excel extends CI_Controller {
                 $return_data = $this->do_action_on_file_data($sheet, $highestRow, $highestColumn, $headings_new);
                 
                 if($return_data){
-                    $to = $this->session->userdata('official_email');
+                    $to = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
                     $cc = NITS_EMAIL_ID.",".DEVELOPER_EMAIL;
                     $subject = "PAYTM FILE UPLOAD FAILED!!!";
-                    $message = "File Uploaded By ". $this->session->userdata('full_name');
+                    $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
+                    $message = "File Uploaded By ". $agent_name;
                     $message .= "Sheet Name = <b>".$sheet->getTitle()."</b> <br><br>";
                     $message .= $this->Columfailed;
                     $message .= "Please Check File And Upload Again";

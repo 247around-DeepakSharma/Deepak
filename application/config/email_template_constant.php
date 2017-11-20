@@ -1,2 +1,2 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-define('PARTNER_SUMMARY_EMAIL_TEMPLATE','d5af7cfb-590f-4e45-b683-4232990f06c3');
+define('PARTNER_SUMMARY_EMAIL_TEMPLATE','81e09dfb-538b-4c8b-b089-e43822db88c2');

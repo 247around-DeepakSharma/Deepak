@@ -265,10 +265,11 @@
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                     <td><?php  print_r($unit_detail['price_tags']); ?></td>
+                                     <td><?php if($unit_detail['pay_to_sf'] ==1){ echo "YES"; } else { echo "NO";} ?></td>
                                     <td><?php  print_r($unit_detail['customer_total']); ?></td>
                                     <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                     <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
-
+                                   
                                     <!--Upcountry Charges-->
                                     <td><?php if($key == 0){ if($booking_history[0]['is_upcountry'] == 1){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } } ?></td>
                                     <!--Partner Offer Upcountry Charges-->
@@ -324,14 +325,15 @@
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_cash_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_cash_invoice_id']; ?></a></td>
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_foc_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_foc_invoice_id']; ?></a></td>
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['partner_invoice_id']; ?>')"><?php echo $unit_detail['partner_invoice_id'];?></a></td>
+                                    
+                                    <?php }  ?>
                                     <td>
-                                        <?php echo round($unit_detail['vendor_to_around'] + $unit_detail['around_to_vendor'] + $sf_upcountry_charges, 2);?>
+                                       <?php echo round($unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + 
+                                                $unit_detail['vendor_extra_charges']  +  $unit_detail['vendor_st_extra_charges']  + 
+                                                 $unit_detail['vendor_parts']  + $unit_detail['vendor_st_parts'] +
+                                                $sf_upcountry_charges, 2);?>
                                     </td>
-                                    <?php } else { ?>
-                                    <td>
-                                        <?php echo round($unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'],2);?>
-                                    </td>
-                                   <?php } ?>
+                                  
                                     
                                     
                                 <?php } ?>

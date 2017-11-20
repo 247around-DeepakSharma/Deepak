@@ -2380,11 +2380,7 @@ class Partner extends CI_Controller {
             }
             echo $option;
         } else {
-            $cityName = NULL;
-            if(!empty($city)){
-                $cityName = $city[0]['district'];
-            }
-            $booking = array('booking_id'=>NULL,'booking_pincode'=>$pincode,'city'=>$cityName,'service_id'=>$service_id,'partner_id'=>$this->session->userdata('partner_id'));
+            $booking = array('booking_id'=>NULL,'booking_pincode'=>$pincode,'city'=>NULL,'service_id'=>$service_id,'partner_id'=>$this->session->userdata('partner_id'));
             $this->miscelleneous->sf_not_exist_for_pincode($booking);
             echo 'ERROR';
         }

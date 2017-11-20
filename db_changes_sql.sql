@@ -3419,6 +3419,7 @@ ALTER TABLE `query_report` ADD `result` VARCHAR(2048) NULL DEFAULT NULL AFTER `a
 
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Invoice Check', '', '', '', '', 'developer', '1', 'invoice_check', '1', NULL, '2017-11-14 11:14:15');
 
+<<<<<<< HEAD
 20th-nov
 CREATE TABLE `collateral` (
   `id` int(11) NOT NULL,
@@ -3459,3 +3460,15 @@ ALTER TABLE `collateral_type`
 
 ALTER TABLE `collateral_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;COMMIT;
+-- 16 Nov Sachin
+CREATE TABLE `247around`.`email_attachment_parser` 
+( `id` INT(11) NOT NULL , 
+`email_received_from` VARCHAR(256) NOT NULL , 
+`email_subject_text` VARCHAR(256) NULL DEFAULT NULL , 
+`email_function_name` VARCHAR(256) NULL DEFAULT NULL , 
+`email_remarks` VARCHAR(64) NULL DEFAULT NULL , 
+`create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `email_attachment_parser` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `file_uploads` ADD `email_message_id` VARCHAR(256) NULL DEFAULT NULL AFTER `result`;
+ALTER TABLE `email_attachment_parser` ADD `active` TINYINT(5) NOT NULL DEFAULT '0' AFTER `email_remarks`;

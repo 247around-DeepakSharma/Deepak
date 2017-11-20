@@ -15,6 +15,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->model('around_scheduler_model');
         $this->load->model('user_model');
         $this->load->model('booking_model');
+        $this->load->model('partner_model');
         $this->load->model('vendor_model');
         $this->load->model('invoices_model');
         $this->load->model('employee_model');
@@ -357,7 +358,7 @@ class Around_scheduler extends CI_Controller {
     function check_cron_tasks() {
         //Defining array for Cron Jobs
         $CRON_JOBS = ['get_pending_bookings', 'send_service_center_report_mail',
-            'new_send_service_center_report_mail', 'send_summary_mail_to_partners',
+            'new_send_service_center_report_mail', 'send_leads_summary_mail_to_partners',
             'send_reminder_installation_sms_today', 'send_reminder_installation_sms_today',
             'DatabaseTesting', 'send_error_file',
             'convert_updated_booking_to_pending', 'penalty_on_service_center',
@@ -1085,7 +1086,7 @@ class Around_scheduler extends CI_Controller {
                $cp['internal_status'] = 'Delivered';
                $cp['admin_remarks'] =  AUTO_ACK_ADMIN_REMARKS;
                // Update Cp Action Table
-               $this->cp_model->update_bb_cp_order_action(array('partner_ordere_id' => $value->partner_order_id), $cp );
+               $this->cp_model->update_bb_cp_order_action(array('partner_order_id' => $value->partner_order_id), $cp );
                // Insert State Change
                $this->buyback->insert_bb_state_change($value->partner_order_id, "Auto Acknowledge", AUTO_ACK_ADMIN_REMARKS, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
             }
@@ -1097,15 +1098,18 @@ class Around_scheduler extends CI_Controller {
      */
     function developer_invoice_check(){
         log_message("info", "Enterring...");
-        $pendingData = $this->booking_model->get_unit_details(array("booking_status" => _247AROUND_PENDING));
+        echo "Enterring..";
+        $pendingData = $this->booking_model->get_unit_details(array("booking_status" => _247AROUND_PENDING, 'create_date >= ' => date('Y-m-01', strtotime("-2 months"))));
+        echo "Peinding..".count($pendingData);
         $partnerData = $this->booking_model->get_unit_details(array('booking_status' => _247AROUND_COMPLETED, "partner_invoice_id IS NULL" => NULL, 
-            "ud_closed_date >=" => date('Y-m-01', strtotime("-1 months"))));
+            "ud_closed_date >=" => date('Y-m-01', strtotime("-2 months"))));
+         echo "Partner..".count($partnerData);
         $focData = $this->booking_model->get_unit_details(array('booking_status' => _247AROUND_COMPLETED, "vendor_foc_invoice_id IS NULL" => NULL, 
-            "ud_closed_date >=" => date('Y-m-01', strtotime("-1 months")), 'around_to_vendor >'=> 0 ));
-        
+           "ud_closed_date >=" => date('Y-m-01', strtotime("-2 months")), 'around_to_vendor >'=> 0 ));
+        echo "FOC..".count($partnerData);
         $data  = array_merge($pendingData,$partnerData, $focData);
         $data1 = array_map("unserialize", array_unique(array_map("serialize", $data)));
-        
+        echo "DATA ".count($data1);
         $partner = $this->partner_model->get_all_partner_source();
         $partners = array();
         foreach ($partner as $value) {
@@ -1114,12 +1118,14 @@ class Around_scheduler extends CI_Controller {
         unset($partner);
         $incorrectData = array();
         foreach ($data1 as $value) {
-             if ($partners[$value['partner_id']] == OEM) {
-                $prices = $this->booking_model->getPricesForCategoryCapacity($value['service_id'],$value['appliance_category'], $value['appliance_capacity'], $value['partner_id'], $value['appliance_brand']);
+            echo ".";
+            if ($partners[$value['partner_id']] == OEM) {
+                $prices = $this->partner_model->getPrices($value['service_id'], $value['appliance_category'], $value['appliance_capacity'], $value['partner_id'], $value['price_tags'], $value['appliance_brand']);
+               
             } else {
-                $prices = $this->booking_model->getPricesForCategoryCapacity($value['service_id'], $value['appliance_category'],$value['appliance_capacity'], $value['partner_id'], "");
+               $prices = $this->partner_model->getPrices($value['service_id'], $value['appliance_category'], $value['appliance_capacity'], $value['partner_id'], $value['price_tags'], "");
             }
-            
+
             if(!empty($prices)){
                 if($value['customer_total'] != $prices[0]['customer_total']){
                     array_push($incorrectData, array('booking_id' => $value['booking_id'], "status" => 'Customer Total Not Match'));

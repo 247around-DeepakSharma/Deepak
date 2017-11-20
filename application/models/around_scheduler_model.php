@@ -469,5 +469,20 @@ class Around_scheduler_model extends CI_Model {
         $this->db->insert('bb_svc_balance', $data);
         return $this->db->insert_id();
     }
+    
+    /**
+    * @desc     This function is used to get the data to read email attachment
+    * @param    $where array
+    * @return   $query array
+    */
+    function get_data_for_parsing_email_attachments($where){
+        $this->db->select('*');
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('email_attachment_parser');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 
 }
