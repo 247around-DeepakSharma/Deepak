@@ -4845,4 +4845,10 @@ class vendor extends CI_Controller {
             echo "fail";
         }
     }
+       function get_partner_updation_history_view(){
+        $data['updation_history'] = $this->miscelleneous->table_updated_history_view('service_centres','trigger_service_centres');
+        $data['entity'] = "Service Centers";
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/updated_history',$data);
+    }
 }
