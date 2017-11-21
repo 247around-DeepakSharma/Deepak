@@ -3,9 +3,9 @@
 class Miscelleneous {
 
     public function __construct() {
-	$this->My_CI = & get_instance();
+        $this->My_CI = & get_instance();
         $this->My_CI->load->helper(array('form', 'url'));
-	$this->My_CI->load->library('email');
+        $this->My_CI->load->library('email');
         $this->My_CI->load->library('partner_cb');
         $this->My_CI->load->library('initialized_variable');
         $this->My_CI->load->library('asynchronous_lib');
@@ -13,14 +13,15 @@ class Miscelleneous {
         $this->My_CI->load->library('notify');
         $this->My_CI->load->library('s3');
         $this->My_CI->load->library('PHPReport');
-	$this->My_CI->load->model('vendor_model');
+        $this->My_CI->load->model('vendor_model');
         $this->My_CI->load->model('reusable_model');
-	$this->My_CI->load->model('booking_model');
+        $this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
         $this->My_CI->load->model('partner_model');
         $this->My_CI->load->library('form_validation');
         $this->My_CI->load->model('service_centers_model');
     }
+
     /**
      * @desc This method is used to check upcountry avaliablity on the basis of booking pincode, service id.
      * @param String $booking_city
@@ -28,21 +29,21 @@ class Miscelleneous {
      * @param String $service_id
      * @return Array
      */
-    function check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, $assigned_vendor_id= false){
-         log_message('info', __FUNCTION__ . ' => booking city' . $booking_city." booking pincode ". $booking_pincode
-                 ." service id ".$service_id );
+    function check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, $assigned_vendor_id = false) {
+        log_message('info', __FUNCTION__ . ' => booking city' . $booking_city . " booking pincode " . $booking_pincode
+                . " service id " . $service_id);
         //Get Available Vendor in this pincode who work this service
         $check_vendor = $this->My_CI->upcountry_model->get_vendor_upcountry($booking_pincode, $service_id, $assigned_vendor_id);
         $sf_city = $this->My_CI->vendor_model->get_distict_details_from_india_pincode($booking_pincode)['district'];
         $data1 = array();
         $is_return = 0;
         $mesg1 = array();
-        
+
         // if $check_vendor is empty then return because we are are providing service in this pincode
-        if(!empty($check_vendor)){
+        if (!empty($check_vendor)) {
             // If count is one, means only one vebdor is avaliable in this pincode
-            if(count($check_vendor) ==1){
-                if($check_vendor[0]['is_upcountry'] ==1){
+            if (count($check_vendor) == 1) {
+                if ($check_vendor[0]['is_upcountry'] == 1) {
                     $data['vendor_id'] = $check_vendor[0]['Vendor_ID'];
                     $data['city'] = $sf_city;
                     $data['min_upcountry_distance'] = $check_vendor[0]['min_upcountry_distance'];
@@ -51,16 +52,16 @@ class Miscelleneous {
                     $msg['vendor_id'] = $check_vendor[0]['Vendor_ID'];
                     $msg['message'] = NOT_UPCOUNTRY_BOOKING;
                     $msg['upcountry_distance'] = 0;
-                   
+
                     return $msg;
                 }
-            } else if(count($check_vendor > 1)){
-                foreach($check_vendor as $vendor){
-                    if($vendor['is_upcountry'] ==1){
+            } else if (count($check_vendor > 1)) {
+                foreach ($check_vendor as $vendor) {
+                    if ($vendor['is_upcountry'] == 1) {
                         $data['vendor_id'] = $vendor['Vendor_ID'];
                         $data['city'] = $sf_city;
                         $data['min_upcountry_distance'] = $check_vendor[0]['min_upcountry_distance'];
-                        
+
                         array_push($data1, $data);
                     } else {
                         $msg['vendor_id'] = $vendor['Vendor_ID'];
@@ -70,39 +71,36 @@ class Miscelleneous {
                         array_push($mesg1, $msg);
                     }
                 }
-                
-                if($is_return ==1){
-                   
-                    if(count($mesg1) > 1){
+
+                if ($is_return == 1) {
+
+                    if (count($mesg1) > 1) {
                         $multiple_vendor['message'] = SF_DOES_NOT_EXIST;
                         return $multiple_vendor;
-                        
                     } else {
-                        
+
                         return $mesg1[0];
                     }
                 }
             }
-           
-            return $this->My_CI->upcountry_model->action_upcountry_booking($booking_city,
-                    $booking_pincode, $data1, $partner_data);
-  
+
+            return $this->My_CI->upcountry_model->action_upcountry_booking($booking_city, $booking_pincode, $data1, $partner_data);
         } else {
-           
+
             $msg['message'] = SF_DOES_NOT_EXIST;
             $msg['vendor_not_found'] = 1;
-            
+
             return $msg;
         }
-        
     }
+
     /**
      * @desc This method is used to assign service center to booking
      * @param String $service_center_id
      * @param String $booking_id
      * @return boolean
      */
-    function assign_vendor_process($service_center_id, $booking_id){
+    function assign_vendor_process($service_center_id, $booking_id) {
         log_message('info', __FUNCTION__ . " Entering...... booking_id " . $booking_id . " service center id " . $service_center_id);
         $b['assigned_vendor_id'] = $service_center_id;
         // Set Default Engineer 
@@ -138,7 +136,7 @@ class Miscelleneous {
                             . "action table booking_id: " . $booking_id . ", data: " . print_r($sc_data, true));
                 }
             }
-            
+
             log_message('info', __FUNCTION__ . " Exit...... booking_id " . $booking_id . " service center id " . $service_center_id);
             return true;
         } else {
@@ -147,9 +145,9 @@ class Miscelleneous {
             return false;
         }
     }
-    
+
     function assign_upcountry_booking($booking_id, $agent_id, $agent_name) {
-        log_message('info', __METHOD__ . " => Entering " . $booking_id.' agent_id: '.$agent_id.' agent_name: '.$agent_name);
+        log_message('info', __METHOD__ . " => Entering " . $booking_id . ' agent_id: ' . $agent_id . ' agent_name: ' . $agent_name);
         $query1 = $this->My_CI->booking_model->getbooking_history($booking_id, "1");
         $vendor_data = array();
         if (!empty($query1[0]['assigned_vendor_id'])) {
@@ -162,11 +160,11 @@ class Miscelleneous {
             } else {
                 $vendor_data[0]['city'] = $this->My_CI->vendor_model->get_distict_details_from_india_pincode($query1[0]['booking_pincode'])['district'];
             }
-                
-            $p_where = array("id" =>$query1[0]['partner_id']);
+
+            $p_where = array("id" => $query1[0]['partner_id']);
             $partner_details = $this->My_CI->partner_model->get_all_partner($p_where);
             $data = $this->My_CI->upcountry_model->action_upcountry_booking($query1[0]['city'], $query1[0]['booking_pincode'], $vendor_data, $partner_details);
-            
+
             $return_status = $this->_assign_upcountry_booking($booking_id, $data, $query1, $agent_id, $agent_name);
 
             if ($return_status) {
@@ -180,7 +178,7 @@ class Miscelleneous {
             log_message('info', __METHOD__ . " => Booking is not Assigned" . $booking_id);
         }
     }
-    
+
     function _assign_upcountry_booking($booking_id, $data, $query1, $agent_id, $agent_name) {
         $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
         $cus_net_payable = 0;
@@ -212,7 +210,6 @@ class Miscelleneous {
 
                     $this->My_CI->booking_model->update_booking($booking_id, $booking);
                     $return_status = TRUE;
-                    
                 } else if (array_search(-1, array_column($is_upcountry, 'is_upcountry')) !== False) {
                     log_message('info', __METHOD__ . " => Customer or Partner does not pay upcountry charges " . $booking_id);
                     $booking['is_upcountry'] = 0;
@@ -344,9 +341,8 @@ class Miscelleneous {
         }
     }
 
-    function process_cancel_form($booking_id, $status,$cancellation_reason, $cancellation_text,
-        $agent_id, $agent_name, $partner_id) {
-        log_message('info', __METHOD__ . " => Entering " . $booking_id,' status: '.$status.' cancellation_reason: '.$cancellation_reason.' agent_id: '.$agent_id.' agent_name: '.$agent_name.' partner_id: '.$partner_id);
+    function process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id) {
+        log_message('info', __METHOD__ . " => Entering " . $booking_id, ' status: ' . $status . ' cancellation_reason: ' . $cancellation_reason . ' agent_id: ' . $agent_id . ' agent_name: ' . $agent_name . ' partner_id: ' . $partner_id);
         $data['internal_status'] = $data['cancellation_reason'] = $cancellation_reason;
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
 
@@ -392,16 +388,17 @@ class Miscelleneous {
         $this->My_CI->partner_cb->partner_callback($booking_id);
         log_message('info', __METHOD__ . " => Exit " . $booking_id);
     }
-    
+
     function update_price_while_cancel_booking($booking_id) {
-	log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
-	$unit_details['booking_status'] = "Cancelled";
-	$unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
+        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        $unit_details['booking_status'] = "Cancelled";
+        $unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
         $unit_details['ud_closed_date'] = date("Y-m-d H:i:s");
 
-	log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
-	$this->My_CI->booking_model->update_booking_unit_details($booking_id, $unit_details);
+        log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
+        $this->My_CI->booking_model->update_booking_unit_details($booking_id, $unit_details);
     }
+
     /**
      * @desc: This is used to insert unit in sc table when booking updated and unit not not exist
      * If units do not exist in sc table then it insert into sc table. 
@@ -480,7 +477,7 @@ class Miscelleneous {
             $sms['type_id'] = $query[0]['user_id'];
             $sms['phone_no'] = $query[0]['booking_primary_contact_no'];
             $this->My_CI->notify->send_sms_msg91($sms);
-        } 
+        }
         //else {
 //            //Send SMS to customer
 //            $sms['tag'] = "service_centre_assigned";
@@ -500,10 +497,9 @@ class Miscelleneous {
         $this->My_CI->booking_utilities->lib_prepare_job_card_using_booking_id($query[0]['booking_id']);
         $this->My_CI->booking_utilities->lib_send_mail_to_vendor($query[0]['booking_id'], "");
         log_message('info', "Async Process to create Job card: " . $query[0]['booking_id']);
-
     }
-    
-   /**
+
+    /**
      * @desc: This method is used to send sms on the basis of upcountry charges
      * @param Array $booking
      * @param String $appliance
@@ -513,125 +509,120 @@ class Miscelleneous {
      * @param String $partner_data
      * @return boolean
      */
-    function check_upcountry($booking,$appliance, $is_price, $file_type) {
-        log_message('info', __FUNCTION__ .' booking_data: '.  print_r($booking,true).' appliance: '. print_r($appliance,true).' file_type: '.$file_type);
+    function check_upcountry($booking, $appliance, $is_price, $file_type) {
+        log_message('info', __FUNCTION__ . ' booking_data: ' . print_r($booking, true) . ' appliance: ' . print_r($appliance, true) . ' file_type: ' . $file_type);
         $partner_data = $this->My_CI->initialized_variable->get_partner_data();
         $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
-        if(isset($data['vendor_not_found'])){
-            if($data['vendor_not_found'] ==1){
-                    $this->sf_not_exist_for_pincode($booking);
+        if (isset($data['vendor_not_found'])) {
+            if ($data['vendor_not_found'] == 1) {
+                $this->sf_not_exist_for_pincode($booking);
             }
         }
         if (!empty($is_price)) {
             log_message('info', __FUNCTION__ . ' Price Exist');
             $charges = 0;
-                log_message('info', __FUNCTION__ . ' Upcountry  Provide');
-                switch ($data['message']) {
-                    case NOT_UPCOUNTRY_BOOKING:
-                    case UPCOUNTRY_BOOKING:
-                    
-                        if ($is_price['is_upcountry'] == 0) {
-                            log_message('info', __FUNCTION__ . ' Upcountry Not Provide');
+            log_message('info', __FUNCTION__ . ' Upcountry  Provide');
+            switch ($data['message']) {
+                case NOT_UPCOUNTRY_BOOKING:
+                case UPCOUNTRY_BOOKING:
+
+                    if ($is_price['is_upcountry'] == 0) {
+                        log_message('info', __FUNCTION__ . ' Upcountry Not Provide');
+                        $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
+                                $is_price['customer_net_payable']);
+                        if ($price > 0) {
+                            $charges = "Rs. " . round($price, 0);
+                            log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+                        } else {
+                            $charges = "FREE";
+                        }
+                    } else {
+                        log_message('info', __FUNCTION__ . ' UPCOUNTRY_BOOKING ');
+                        if ($is_price['customer_net_payable'] > 0) {
+                            $charges = "Rs. " . round($is_price['customer_net_payable'], 0);
+                        } else {
+                            $charges = "FREE";
+                        }
+
+                        log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+                    }
+
+
+                    break;
+
+                case UPCOUNTRY_LIMIT_EXCEED:
+                    log_message('info', __FUNCTION__ . ' UPCOUNTRY_LIMIT_EXCEED ');
+                    if ($is_price['is_upcountry'] == 0) {
+                        log_message('info', __FUNCTION__ . ' Upcountry Not Provide');
+
+                        //do not send sms to customer if upcountry distance is > 150 km
+                        if ($data['upcountry_distance'] <= 150) {
                             $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
                                     $is_price['customer_net_payable']);
-                            if($price >0){
-                                $charges = "Rs. " . round($price,0);
-                               log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-                                
-                            } else {
-                                $charges = "FREE";
-                            }
-                            
-                        } else {
-                            log_message('info', __FUNCTION__ . ' UPCOUNTRY_BOOKING ');
-                            if($is_price['customer_net_payable'] >0){
-                                $charges = "Rs. " . round($is_price['customer_net_payable'],0);
-                            } else {
-                                $charges = "FREE";
-                            }
-                            
-                            log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-                        }
-                        
-
-                        break;
-
-                    case UPCOUNTRY_LIMIT_EXCEED:
-                        log_message('info', __FUNCTION__ . ' UPCOUNTRY_LIMIT_EXCEED ');
-                        if ($is_price['is_upcountry'] == 0) {
-                            log_message('info', __FUNCTION__ . ' Upcountry Not Provide');
-                            
-                            //do not send sms to customer if upcountry distance is > 150 km
-                            if ($data['upcountry_distance'] <= 150) {
-                                $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
-                                        $is_price['customer_net_payable']);
-                                if($price >0){
-                                    $charges = "Rs. " . round($price,0);
-                                   log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-
-                                } else {
-                                    $charges = "FREE";
-                                }
+                            if ($price > 0) {
+                                $charges = "Rs. " . round($price, 0);
                                 log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
                             } else {
-                                // limit exceeded, do not send sms
-                                log_message('info', __FUNCTION__ . ' limit exceeded, do not send sms ');
-                                
-                                //send mail to nitin/anuj
-                                $subject = $booking['booking_id']." UPCOUNTRY LIMIT EXCEED, PARTNER NOT PROVIDE APPROVAL";
-                                $to = NITS_ANUJ_EMAIL_ID;
-                                $message = $booking['booking_id']. " BOOKING CITY ". $booking['city']. " SF ID "
-                                        .$data['vendor_id']. " DISTRICT PINCODE ".$data['upcountry_pincode'];
-                                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
-                                
-                                return false;
-                            }
-                        }
-                        else {
-                            // Not send sms, partner provide upcountry charges approval or not
-                            log_message('info', __FUNCTION__ . ' Upcountry Limit exceed ');
-                            
-                            //send mail to nitin/anuj if partner does not approve additional upcountry charges
-                            if($data['partner_upcountry_approval'] == 0){
-                                $subject = $booking['booking_id']." UPCOUNTRY LIMIT EXCEED, PARTNER NOT PROVIDE APPROVAL";
-                                $to = NITS_ANUJ_EMAIL_ID;
-                                $message = $booking['booking_id']. " BOOKING CITY ". $booking['city']. " SF ID "
-                                        .$data['vendor_id']. " DISTRICT PINCODE ".$data['upcountry_pincode'];
-                                $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
-                            }
-                            return false;
-                        }
-                        break;
-
-                    case SF_DOES_NOT_EXIST:
-                    
-                        log_message('info', __FUNCTION__ . SF_DOES_NOT_EXIST );
-                        if(isset($data['vendor_not_found'])){
-                                return FALSE;
-                        } else {
-                            $price = $is_price['customer_net_payable'];
-                            if($price >0){
-                                $charges = "Rs. " . round($price,0);
-                               log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-                                
-                            } else {
                                 $charges = "FREE";
                             }
+                            log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+                        } else {
+                            // limit exceeded, do not send sms
+                            log_message('info', __FUNCTION__ . ' limit exceeded, do not send sms ');
+
+                            //send mail to nitin/anuj
+                            $subject = $booking['booking_id'] . " UPCOUNTRY LIMIT EXCEED, PARTNER NOT PROVIDE APPROVAL";
+                            $to = NITS_ANUJ_EMAIL_ID;
+                            $message = $booking['booking_id'] . " BOOKING CITY " . $booking['city'] . " SF ID "
+                                    . $data['vendor_id'] . " DISTRICT PINCODE " . $data['upcountry_pincode'];
+                            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
+
+                            return false;
                         }
-                        
+                    } else {
+                        // Not send sms, partner provide upcountry charges approval or not
+                        log_message('info', __FUNCTION__ . ' Upcountry Limit exceed ');
+
+                        //send mail to nitin/anuj if partner does not approve additional upcountry charges
+                        if ($data['partner_upcountry_approval'] == 0) {
+                            $subject = $booking['booking_id'] . " UPCOUNTRY LIMIT EXCEED, PARTNER NOT PROVIDE APPROVAL";
+                            $to = NITS_ANUJ_EMAIL_ID;
+                            $message = $booking['booking_id'] . " BOOKING CITY " . $booking['city'] . " SF ID "
+                                    . $data['vendor_id'] . " DISTRICT PINCODE " . $data['upcountry_pincode'];
+                            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "");
+                        }
+                        return false;
+                    }
                     break;
-                        case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
-                            return FALSE;
-                }
-            
-             $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $partner_data[0]['public_name'], $charges);
-             return true;
-             } else {
-             $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $partner_data[0]['public_name'], "");
+
+                case SF_DOES_NOT_EXIST:
+
+                    log_message('info', __FUNCTION__ . SF_DOES_NOT_EXIST);
+                    if (isset($data['vendor_not_found'])) {
+                        return FALSE;
+                    } else {
+                        $price = $is_price['customer_net_payable'];
+                        if ($price > 0) {
+                            $charges = "Rs. " . round($price, 0);
+                            log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+                        } else {
+                            $charges = "FREE";
+                        }
+                    }
+
+                    break;
+                case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                    return FALSE;
+            }
+
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $partner_data[0]['public_name'], $charges);
+            return true;
+        } else {
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $partner_data[0]['public_name'], "");
             return true;
         }
     }
-    
+
     /**
      * @desc: This method is used to send sms to snapdeal shipped customer, whose edd is not tommorrow. It gets appliance free or not from notify.
      * Make sure array of smsData has index services first then message
@@ -643,9 +634,9 @@ class Miscelleneous {
      * @param String $price
      * @return int
      */
-    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $partner,$price) {
-        log_message('info', __FUNCTION__.' phone_number: '.$phone_number.' user_id: '.$user_id.' booking_id: '. $booking_id.' partner: '.$partner.' appliance: '.$appliance.' price: '.$price);
-        
+    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $partner, $price) {
+        log_message('info', __FUNCTION__ . ' phone_number: ' . $phone_number . ' user_id: ' . $user_id . ' booking_id: ' . $booking_id . ' partner: ' . $partner . ' appliance: ' . $appliance . ' price: ' . $price);
+
         $sms['tag'] = "partner_missed_call_for_installation";
 
         //ordering of smsData is important, it should be as per the %s in the SMS
@@ -655,28 +646,28 @@ class Miscelleneous {
         /* If price exist then send sms according to that otherwise
          *  send sms by checking function get_product_free_not
          */
-        if(!empty($price)){
+        if (!empty($price)) {
             $sms['smsData']['message'] = $price;
-        }else{
+        } else {
             //Price does not go in this SMS template
             $sms['tag'] = "missed_call_initial_prod_desc_not_found";
         }
-        
+
         $sms['smsData']['partner'] = $partner;
 
-	$sms['phone_no'] = $phone_number;
-	$sms['booking_id'] = $booking_id;
-	$sms['type'] = "user";
-	$sms['type_id'] = $user_id;
+        $sms['phone_no'] = $phone_number;
+        $sms['booking_id'] = $booking_id;
+        $sms['type'] = "user";
+        $sms['type_id'] = $user_id;
 
-	$this->My_CI->notify->send_sms_msg91($sms);
+        $this->My_CI->notify->send_sms_msg91($sms);
     }
-    
-   function allot_partner_id_for_brand($service_id, $state, $brand) {
+
+    function allot_partner_id_for_brand($service_id, $state, $brand) {
         log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
-       
+
         $partner_array = $this->My_CI->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
-        
+
         if (!empty($partner_array)) {
 
             foreach ($partner_array as $value) {
@@ -684,7 +675,7 @@ class Miscelleneous {
                 $filtered_partner_state = $this->My_CI->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
                 if ($filtered_partner_state) {
                     //Now assigning this case to Partner
-                   
+
                     return $value['partner_id'];
                 } else {
                     return false;
@@ -697,42 +688,42 @@ class Miscelleneous {
         }
         return false;
     }
-    
+
     /* @desc: This function is used to convert the excel file into pdf
      * @param: $excel_file string  excel file with path which need to be converted into PDF  
      * @param: $bitbuket_dir string S3 directory in which PDF need to be upload
      * @param: $id string booking_id/invoice_id/any_other_id for reference to file
      * @return: $result JSON
      */
-    public function convert_excel_to_pdf($excel_file,$id, $s3_folder_name) {
-        
+
+    public function convert_excel_to_pdf($excel_file, $id, $s3_folder_name) {
+
         $output_file_excel = $excel_file;
-        $target_url = PDF_CONVERTER_URL.'pdfconverter/excel_to_pdf_converter';
+        $target_url = PDF_CONVERTER_URL . 'pdfconverter/excel_to_pdf_converter';
 
         if (function_exists('curl_file_create')) {
             $cFile = curl_file_create($output_file_excel);
         } else { // 
             $cFile = '@' . realpath($output_file_excel);
         }
-        $post = array('bucket_dir' => BITBUCKET_DIRECTORY, 'id' => $id, 
-            'file_contents' => $cFile,'auth_key'=>PDF_CONVERTER_AUTH_KEY,
+        $post = array('bucket_dir' => BITBUCKET_DIRECTORY, 'id' => $id,
+            'file_contents' => $cFile, 'auth_key' => PDF_CONVERTER_AUTH_KEY,
             's3_folder_name' => $s3_folder_name);
         $ch = curl_init();
-        
+
         curl_setopt($ch, CURLOPT_URL, $target_url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-        
+
         $result = curl_exec($ch);
         // get HTTP response code
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        
-        if ($httpcode >= 200 && $httpcode < 300){
-            return $result;
-        }else{
 
+        if ($httpcode >= 200 && $httpcode < 300) {
+            return $result;
+        } else {
             $to = 'vijaya@247around.com';
             $cc = DEVELOPER_EMAIL;
 
@@ -742,8 +733,8 @@ class Miscelleneous {
             $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $msg, $output_file_excel);
             return $result;
         }
-        
     }
+
     /**
      * @desc Checl delaer process
      * @param Array $requestData
@@ -754,14 +745,14 @@ class Miscelleneous {
         $dealer_id = $requestData['dealer_id'];
         $dealer_name = $requestData['dealer_name'];
         $dealer_phone_number = $requestData['dealer_phone_number'];
-        if(empty($dealer_id)){
+        if (empty($dealer_id)) {
             $condition = array(
-                    "where" => array('dealer_details.dealer_phone_number_1' => $dealer_phone_number));
-           $select = " dealer_details.dealer_id";
-           $dealer_mapping_status = $this->My_CI->dealer_model->get_dealer_mapping_details($condition, $select);
-           if(!empty($dealer_mapping_status)){
-               $dealer_id = $dealer_mapping_status[0]['dealer_id'];
-           }
+                "where" => array('dealer_details.dealer_phone_number_1' => $dealer_phone_number));
+            $select = " dealer_details.dealer_id";
+            $dealer_mapping_status = $this->My_CI->dealer_model->get_dealer_mapping_details($condition, $select);
+            if (!empty($dealer_mapping_status)) {
+                $dealer_id = $dealer_mapping_status[0]['dealer_id'];
+            }
         }
         if (!empty($dealer_id)) {
             $condition = array(
@@ -818,29 +809,28 @@ class Miscelleneous {
             return $dealer_id;
         }
     }
-    
 
     /**
      * @desc Create dealer login
      * @param Array $posData
      * @return boolean
      */
-    function create_dealer_login($posData, $dealer_id){
+    function create_dealer_login($posData, $dealer_id) {
         log_message("info", __METHOD__);
-        $login['user_id']  = $posData['dealer_phone_number_1'];
-        $login['password'] = md5($posData['dealer_phone_number_1']."247");
-        $login['clear_password'] = $posData['dealer_phone_number_1']."247";
+        $login['user_id'] = $posData['dealer_phone_number_1'];
+        $login['password'] = md5($posData['dealer_phone_number_1'] . "247");
+        $login['clear_password'] = $posData['dealer_phone_number_1'] . "247";
         $login['entity'] = "dealer";
         $login['agent_name'] = $posData['dealer_name'];
         $login['entity_name'] = $posData['dealer_name'];
-        $login['email'] = (isset($posData['dealer_email']) ? $posData['dealer_email']: NULL);
+        $login['email'] = (isset($posData['dealer_email']) ? $posData['dealer_email'] : NULL);
         $login['entity_id'] = $dealer_id;
         $login['create_date'] = date('Y-m-d H:i:s');
         $this->My_CI->dealer_model->insert_entity_login($login);
-        
+
         return true;
-        
     }
+
     /**
      * @desc This is used to calculate buyabck overdue or credit amout for CP
      * @param Int $cp_id
@@ -867,33 +857,32 @@ class Miscelleneous {
                 $unbilled_amount = $invoice_amount[1]['amount'];
             }
         }
-        
-        $where['where'] = array('assigned_cp_id' =>$cp_id, 'cp_invoice_id IS NULL' => NULL);
+
+        $where['where'] = array('assigned_cp_id' => $cp_id, 'cp_invoice_id IS NULL' => NULL);
         $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));
-            
+
         $cp_delivered_charge = $this->My_CI->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_delivered_charge")[0]->cp_delivered_charge;
         $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
-        
+
         $cp_intransit = $this->My_CI->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_intransit")[0]->cp_intransit;
-        $total_balance = abs($advance_amount) -( $unbilled_amount + $cp_delivered_charge + $cp_intransit);
-        
+        $total_balance = abs($advance_amount) - ( $unbilled_amount + $cp_delivered_charge + $cp_intransit);
+
         $cp_amount['total_balance'] = $total_balance;
         $cp_amount['cp_delivered'] = $cp_delivered_charge;
         $cp_amount['cp_transit'] = $cp_intransit;
         $cp_amount['unbilled'] = $unbilled_amount;
         $cp_amount['advance'] = $advance_amount;
-        
+
         return $cp_amount;
     }
-    
-    
+
     /**
      * @desc This function is used to verified appliance description
      * @param $appliances_details array()
      * @return $return_data array()
      */
-    function verified_appliance_capacity($appliances_details){
-        switch ($appliances_details['service_id']){
+    function verified_appliance_capacity($appliances_details) {
+        switch ($appliances_details['service_id']) {
             case _247AROUND_TV_SERVICE_ID:
                 $return_data = $this->verify_tv_description($appliances_details);
                 break;
@@ -919,25 +908,25 @@ class Miscelleneous {
                 $return_data['status'] = FALSE;
                 $return_data['is_verified'] = '0';
         }
-        
+
         return $return_data;
     }
-    
+
     /**
      * @desc This function is used to download CSV
      * @param $CSVData(Array),$headings(Array(What should be heading for csv),$file(String(File name)))
      * @return It will download the CSV
      */
-    function downloadCSV($CSVData,$headings=NULL,$file){
+    function downloadCSV($CSVData, $headings = NULL, $file) {
         ob_clean();
-        $filename=$file.'.csv';
+        $filename = $file . '.csv';
         date_default_timezone_set('Asia/Kolkata');
-        if(!empty($headings)){
-            array_unshift($CSVData,$headings);
+        if (!empty($headings)) {
+            array_unshift($CSVData, $headings);
         }
-        $number_of_records=count($CSVData);
+        $number_of_records = count($CSVData);
         $fp = fopen('php://output', 'w');
-        for($i=0;$i<$number_of_records;$i++){
+        for ($i = 0; $i < $number_of_records; $i++) {
             fputcsv($fp, $CSVData[$i]);
         }
         fclose($fp);
@@ -947,45 +936,46 @@ class Miscelleneous {
         header("Content-type: application/csv");
         header("Content-Disposition: attachment; filename=$filename");
         exit;
-     }
-     
-     function downloadExcel($data,$config){
-                    $R = new PHPReport($config);
-                    $R->load(array(array('id' => 'order','repeat' => true,'data' => $data),));
-                     $output_file_excel = TMP_FOLDER . $config['template'];
-                     $res1 = 0;
-                    if (file_exists($output_file_excel)) {
-                              system(" chmod 777 " . $output_file_excel, $res1);
-                              unlink($output_file_excel);
-                    }
-                     $R->render('excel', $output_file_excel);
-                     if (file_exists($output_file_excel)) {
-                              system(" chmod 777 " . $output_file_excel, $res1);
-                              header('Content-Description: File Transfer');
-                              header('Content-Type: application/octet-stream');
-                              header('Content-Disposition: attachment; filename='.$config['template']);
-                              header('Expires: 0');
-                              header('Cache-Control: must-revalidate');
-                              header('Pragma: public');
-                              header('Content-Length: ' . filesize($output_file_excel));
-                              readfile($output_file_excel);
-                              exec("rm -rf " . escapeshellarg($output_file_excel));
-                              exit;
-                     } 
-         
-     }
-     /* @Desc: This function is used to _allot_source_partner_id_for_pincode
+    }
+
+    function downloadExcel($data, $config) {
+        $R = new PHPReport($config);
+        $R->load(array(array('id' => 'order', 'repeat' => true, 'data' => $data),));
+        $output_file_excel = TMP_FOLDER . $config['template'];
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+        $R->render('excel', $output_file_excel);
+        if (file_exists($output_file_excel)) {
+            system(" chmod 777 " . $output_file_excel, $res1);
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename=' . $config['template']);
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($output_file_excel));
+            readfile($output_file_excel);
+            exec("rm -rf " . escapeshellarg($output_file_excel));
+            exit;
+        }
+    }
+
+    /* @Desc: This function is used to _allot_source_partner_id_for_pincode
      * @params: String Pincode, brnad, default partner id(SS)
      * @return : Array
      * 
      */
-     function _allot_source_partner_id_for_pincode($service_id, $state, $brand,$default_partner) {
+
+    function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner) {
         log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
         $data = [];
         $flag = FALSE;
 
         $partner_array = $this->My_CI->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
-        
+
         if (!empty($partner_array)) {
 
             foreach ($partner_array as $value) {
@@ -997,7 +987,7 @@ class Miscelleneous {
                     $data['source'] = $partner_array[0]['code'];
                     $flag = FALSE;
                 } else {
-                    if($value['partner_id'] == 247041){
+                    if ($value['partner_id'] == 247041) {
                         return false;
                     } else {
                         $flag = TRUE;
@@ -1008,9 +998,9 @@ class Miscelleneous {
             log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
             $flag = TRUE;
         }
-        
-        if($flag){
-            switch ($default_partner){
+
+        if ($flag) {
+            switch ($default_partner) {
                 case SNAPDEAL_ID:
                     $data['partner_id'] = SNAPDEAL_ID;
                     $data['source'] = 'SS';
@@ -1025,10 +1015,10 @@ class Miscelleneous {
                     break;
             }
         }
-        
+
         return $data;
     }
-    
+
     /**
      * @Desc: This function is used to Add details in File Uploads table
      * @params: String, String
@@ -1036,16 +1026,16 @@ class Miscelleneous {
      * 
      * 
      */
-    public function update_file_uploads($file_name,$tmpFile, $type, $result = "", $email_message_id = "") {
-        
+    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "") {
+
         $data['file_type'] = $type;
-        $data['file_name'] = date('d-M-Y-H-i-s')."-".$file_name;
-        $data['agent_id'] = !empty($this->My_CI->session->userdata('id'))?$this->My_CI->session->userdata('id'):_247AROUND_DEFAULT_AGENT;
+        $data['file_name'] = date('d-M-Y-H-i-s') . "-" . $file_name;
+        $data['agent_id'] = !empty($this->My_CI->session->userdata('id')) ? $this->My_CI->session->userdata('id') : _247AROUND_DEFAULT_AGENT;
         $data['result'] = $result;
         $data['email_message_id'] = $email_message_id;
-        
+
         $insert_id = $this->My_CI->partner_model->add_file_upload_details($data);
-        
+
         if (!empty($insert_id)) {
             //Logging success
             log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
@@ -1062,7 +1052,7 @@ class Miscelleneous {
         //Logging
         log_message('info', __FUNCTION__ . 'File has been uploaded in S3');
     }
-        
+
     /**
      * @desc This is used to get the balance of partner account
      * @param int $partner_id
@@ -1114,48 +1104,51 @@ class Miscelleneous {
             return false;
         }
     }
+
     /*
- * This Functiotn is used to send sf not found email to associated rm
- */
-    function send_sf_not_found_email_to_rm($booking,$rm_email){
-            $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
-            $subject = "SF Not Exist in the Pincode ".$booking['booking_pincode'];
-            $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners","public_name",array('id'=>$booking['partner_id']),NULL,NULL,NULL,NULL,NULL);
-            $booking['partner_name'] = NULL;
-            if(!empty($tempPartner)){
-             $booking['partner_name'] = $tempPartner[0]['public_name'];
+     * This Functiotn is used to send sf not found email to associated rm
+     */
+
+    function send_sf_not_found_email_to_rm($booking, $rm_email) {
+        $cc = SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC;
+        $subject = "SF Not Exist in the Pincode " . $booking['booking_pincode'];
+        $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners", "public_name", array('id' => $booking['partner_id']), NULL, NULL, NULL, NULL, NULL);
+        $booking['partner_name'] = NULL;
+        if (!empty($tempPartner)) {
+            $booking['partner_name'] = $tempPartner[0]['public_name'];
+        }
+        $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
+        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "");
+    }
+
+    /*
+     * This Functiotn is used to map rm to pincode, for which SF not found
+     * if pincode does'nt have any rm then an email will goes to nitin
+     * @input - An associative array with keys(booking_id,pincode,city,applianceID)
+     */
+
+    function sf_not_exist_for_pincode($booking) {
+        $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
+        $pincode = $notFoundSfArray['pincode'];
+        $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
+FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
+        $result = $this->My_CI->reusable_model->execute_custom_select_query($sql);
+        if (!empty($result)) {
+            $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
+            $notFoundSfArray['state'] = $result[0]['state'];
+            $query = $this->My_CI->reusable_model->get_search_query("employee", "official_email", array('id' => $result[0]['rm_id']), NULL, NULL, NULL, NULL, NULL);
+            $rm_email = $query->result_array();
+            if (empty($rm_email)) {
+                $rm_email[0]['official_email'] = NULL;
             }
-           $message = $this->My_CI->load->view('employee/sf_not_found_email_template', $booking, true);
-           $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $rm_email, $cc, "", $subject, $message, "");
+            $this->send_sf_not_found_email_to_rm($booking, $rm_email[0]['official_email']);
+        }
+        if (array_key_exists('partner_id', $booking)) {
+            $notFoundSfArray['partner_id'] = $booking['partner_id'];
+        }
+        $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
     }
-/*
- * This Functiotn is used to map rm to pincode, for which SF not found
- * if pincode does'nt have any rm then an email will goes to nitin
- * @input - An associative array with keys(booking_id,pincode,city,applianceID)
- */
-    function sf_not_exist_for_pincode($booking){
-         $notFoundSfArray = array('booking_id'=>$booking['booking_id'],'pincode'=>$booking['booking_pincode'],'city'=>$booking['city'],'service_id'=>$booking['service_id']);
-          $pincode = $notFoundSfArray['pincode'];
-          $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
-FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('".$pincode."') GROUP BY india_pincode.pincode";
-          $result = $this->My_CI->reusable_model->execute_custom_select_query($sql);
-          if(!empty($result)){
-                    $notFoundSfArray['rm_id'] =  $result[0]['rm_id'];
-                    $notFoundSfArray['state'] =  $result[0]['state'];
-                    $query = $this->My_CI->reusable_model->get_search_query("employee","official_email",array('id'=>$result[0]['rm_id']),NULL,NULL,NULL,NULL,NULL);
-                    $rm_email  = $query->result_array(); 
-                    if(empty($rm_email)){
-                        $rm_email[0]['official_email'] = NULL;
-                    }
-                    $this->send_sf_not_found_email_to_rm($booking,$rm_email[0]['official_email']);
-          }
-           if(array_key_exists('partner_id', $booking)){
-             $notFoundSfArray['partner_id'] = $booking['partner_id'];
-         }
-          $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
-          
-    }
-    
+
     /**
      * @desc This function is used to verify television appliance data
      * @param $appliances_details array()
@@ -1164,7 +1157,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function verify_tv_description($appliances_details) {
         $match = array();
         $new_appliance_details = array();
-        
+
         preg_match('/[0-9]+/', $appliances_details['capacity'], $match);
         if (!empty($match) && (stripos($appliances_details['description'], $match[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)) {
             $new_appliance_details['category'] = $appliances_details['category'];
@@ -1176,48 +1169,47 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $new_appliance_details['status'] = FALSE;
             $new_appliance_details['is_verified'] = '0';
         }
-        
+
         return $new_appliance_details;
     }
-    
+
     /**
      * @desc This function is used to verify washing_machine appliance data
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verify_washing_machine_description($appliances_details){
+    function verify_washing_machine_description($appliances_details) {
         $new_appliance_details = array();
-        if(((stripos($appliances_details['description'],'semiautomatic') !== False) || (stripos($appliances_details['description'],'semi automatic') !== False) ) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+        if (((stripos($appliances_details['description'], 'semiautomatic') !== False) || (stripos($appliances_details['description'], 'semi automatic') !== False) ) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)) {
             $new_appliance_details['category'] = 'Semiautomatic';
             $new_appliance_details['capacity'] = $appliances_details['capacity'];
             $new_appliance_details['brand'] = $appliances_details['brand'];
             $new_appliance_details['status'] = TRUE;
             $new_appliance_details['is_verified'] = '1';
-        }else if(((stripos($appliances_details['description'],'fullyautomatic') !== False) || (stripos($appliances_details['description'],'Fully Automatic') !== False) || (stripos($appliances_details['description'],'Fully Automatic') !== False)) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
-                 if(stripos($appliances_details['description'],'front') !== False){
-                    $new_appliance_details['category'] = 'Front Load';
-                    $new_appliance_details['capacity'] = $appliances_details['capacity'];
-                    $new_appliance_details['brand'] = $appliances_details['brand'];
-                    $new_appliance_details['status'] = TRUE;
-                    $new_appliance_details['is_verified'] = '1';
-                 }else if(stripos($appliances_details['description'],'top') !== False){
-                    $new_appliance_details['category'] = 'Top Load';
-                    $new_appliance_details['capacity'] = $appliances_details['capacity'];
-                    $new_appliance_details['brand'] = $appliances_details['brand'];
-                    $new_appliance_details['status'] = TRUE;
-                    $new_appliance_details['is_verified'] = '1';
-                 }else{
-                    $new_appliance_details['status'] = FALSE;
-                    $new_appliance_details['is_verified'] = '0';
-                 }
-        }else{
+        } else if (((stripos($appliances_details['description'], 'fullyautomatic') !== False) || (stripos($appliances_details['description'], 'Fully Automatic') !== False) || (stripos($appliances_details['description'], 'Fully Automatic') !== False)) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)) {
+            if (stripos($appliances_details['description'], 'front') !== False) {
+                $new_appliance_details['category'] = 'Front Load';
+                $new_appliance_details['capacity'] = $appliances_details['capacity'];
+                $new_appliance_details['brand'] = $appliances_details['brand'];
+                $new_appliance_details['status'] = TRUE;
+                $new_appliance_details['is_verified'] = '1';
+            } else if (stripos($appliances_details['description'], 'top') !== False) {
+                $new_appliance_details['category'] = 'Top Load';
+                $new_appliance_details['capacity'] = $appliances_details['capacity'];
+                $new_appliance_details['brand'] = $appliances_details['brand'];
+                $new_appliance_details['status'] = TRUE;
+                $new_appliance_details['is_verified'] = '1';
+            } else {
+                $new_appliance_details['status'] = FALSE;
+                $new_appliance_details['is_verified'] = '0';
+            }
+        } else {
             $new_appliance_details['status'] = FALSE;
             $new_appliance_details['is_verified'] = '0';
         }
-        
+
         return $new_appliance_details;
     }
-    
     /*
      * This Function use to update sf_not_found_pincode table
      * When we upload any new pincode and that pincode with same service_id exist in sf not found table, then this will update its active flag
@@ -1232,78 +1224,81 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
             $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray,array('active_flag'=>0));
           }
-          /*
-           * This Function convert excel data into array, 1st row of excel data will be keys of returning array
-           * @input - filePath and reader Version and index of sheet in case of multiple sheet excel
-           */
-          function excel_to_Array_converter($file,$readerVersion,$sheetIndex=NULL){
-                    if(!$sheetIndex){
-                            $sheetIndex = 0;
-                    }
-                    $finalExcelDataArray = array();
-                    $objReader = PHPExcel_IOFactory::createReader($readerVersion);
-                    $objPHPExcel = $objReader->load($file['file']['tmp_name']);
-                    $sheet = $objPHPExcel->getSheet($sheetIndex);
-                    $highestRow = $sheet->getHighestDataRow();
-                    $highestColumn = $sheet->getHighestDataColumn();
-                    $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
-                    $heading = str_replace(array("/", "(", ")", " ", "."), "", $headings[0]);
-                    $newHeading = str_replace(array(" "), "_", $heading);
-                    $excelDataArray=array();
-                    for($i=2;$i<=$highestRow;$i++){
-                              $excelDataArray = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
-                              foreach($excelDataArray[0] as $key=>$data){
-                                        $excelAssociatedArray[$newHeading[$key]] = trim($data);
-                              }
-                              $finalExcelDataArray[] = $excelAssociatedArray;
-                    }
-                    return $finalExcelDataArray;
-          }
-    
-    /**
+ 
+
+    /*
+     * This Function convert excel data into array, 1st row of excel data will be keys of returning array
+     * @input - filePath and reader Version and index of sheet in case of multiple sheet excel
+     */
+
+    function excel_to_Array_converter($file, $readerVersion, $sheetIndex = NULL) {
+        if (!$sheetIndex) {
+            $sheetIndex = 0;
+        }
+        $finalExcelDataArray = array();
+        $objReader = PHPExcel_IOFactory::createReader($readerVersion);
+        $objPHPExcel = $objReader->load($file['file']['tmp_name']);
+        $sheet = $objPHPExcel->getSheet($sheetIndex);
+        $highestRow = $sheet->getHighestDataRow();
+        $highestColumn = $sheet->getHighestDataColumn();
+        $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+        $heading = str_replace(array("/", "(", ")", " ", "."), "", $headings[0]);
+        $newHeading = str_replace(array(" "), "_", $heading);
+        $excelDataArray = array();
+        for ($i = 2; $i <= $highestRow; $i++) {
+            $excelDataArray = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
+            foreach ($excelDataArray[0] as $key => $data) {
+                $excelAssociatedArray[$newHeading[$key]] = trim($data);
+            }
+            $finalExcelDataArray[] = $excelAssociatedArray;
+        }
+        return $finalExcelDataArray;
+    }
+
+    /*
+>>>>>>> 8af24b706... Partner SF updated History View
      * @esc: This method upload invoice image OR panel image to S3
      * @param _FILE $file
      * @return boolean|string
      */
-     public function upload_file_to_s3($file, $type, $allowedExts, $pic_type_name, $s3_directory, $post_name) {
-        log_message('info', __FUNCTION__. " Enterring ");
-        
+
+    public function upload_file_to_s3($file, $type, $allowedExts, $pic_type_name, $s3_directory, $post_name) {
+        log_message('info', __FUNCTION__ . " Enterring ");
+
         $MB = 1048576;
-	$temp = explode(".", $file['name']);
-	$extension = end($temp);
-	//$filename = prev($temp);
+        $temp = explode(".", $file['name']);
+        $extension = end($temp);
+        //$filename = prev($temp);
 
-	if ($file["name"] != null) {
-	    if (($file["size"] < 2 * $MB) && in_array($extension, $allowedExts)) {
-		if ($file["error"] > 0) {
-                    
-		    $this->My_CI->form_validation->set_message('upload_file_to_s3', $file["error"]);
-		} else {
-		    $pic = str_replace(' ', '-', $pic_type_name);
-		    $picName = $type. rand(10,100).$pic . "." . $extension;
+        if ($file["name"] != null) {
+            if (($file["size"] < 2 * $MB) && in_array($extension, $allowedExts)) {
+                if ($file["error"] > 0) {
+
+                    $this->My_CI->form_validation->set_message('upload_file_to_s3', $file["error"]);
+                } else {
+                    $pic = str_replace(' ', '-', $pic_type_name);
+                    $picName = $type . rand(10, 100) . $pic . "." . $extension;
                     $_POST[$post_name] = $picName;
-		    $bucket = BITBUCKET_DIRECTORY;
-                    
-		    $directory = $s3_directory."/" . $picName;
-		    $this->My_CI->s3->putObjectFile($file["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                    $bucket = BITBUCKET_DIRECTORY;
 
-		    return $picName;
-		}
-	    } else {
-		$this->My_CI->form_validation->set_message('upload_file_to_s3', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 2 MB.');
-		return FALSE;
-	    }
-        } else{
-           
+                    $directory = $s3_directory . "/" . $picName;
+                    $this->My_CI->s3->putObjectFile($file["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+                    return $picName;
+                }
+            } else {
+                $this->My_CI->form_validation->set_message('upload_file_to_s3', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 2 MB.');
+                return FALSE;
+            }
+        } else {
+
             $this->My_CI->form_validation->set_message('upload_file_to_s3', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-		    . 'Maximum file size is 2 MB.');
-	    return FALSE;
+                    . 'Maximum file size is 2 MB.');
+            return FALSE;
         }
-        log_message('info', __FUNCTION__. " Exit ");
+        log_message('info', __FUNCTION__ . " Exit ");
     }
-
-    
     /**
      * @Desc: This function is used to check if user name is empty or not
      * if user name is not empty then return username otherwise check if email is not
@@ -1312,62 +1307,62 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @return: void
      * 
      */
-    public function is_user_name_empty($userName , $userEmail,$userContactNo){
-        if(empty($userName)){
-            if(empty($userEmail)){
+    public function is_user_name_empty($userName, $userEmail, $userContactNo) {
+        if (empty($userName)) {
+            if (empty($userEmail)) {
                 $user_name = $userContactNo;
-            }else{
+            } else {
                 $user_name = $userEmail;
             }
-        }else{
+        } else {
             $user_name = $userName;
         }
-        
+
         return $user_name;
     }
-    
+
     /**
      * @desc This function is used to verify microwave appliance data
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verify_microwave_description($appliances_details){
+    function verify_microwave_description($appliances_details) {
         $new_appliance_details = array();
-        if((stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+        if ((stripos($appliances_details['description'], $appliances_details['brand']) !== False)) {
             $new_appliance_details['category'] = $appliances_details['category'];
             $new_appliance_details['capacity'] = $appliances_details['capacity'];
             $new_appliance_details['brand'] = $appliances_details['brand'];
             $new_appliance_details['status'] = TRUE;
             $new_appliance_details['is_verified'] = '1';
-        }else{
+        } else {
             $new_appliance_details['status'] = FALSE;
             $new_appliance_details['is_verified'] = '0';
         }
-        
+
         return $new_appliance_details;
     }
-    
+
     /**
      * @desc This function is used to verify water_purifier appliance data
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verify_water_purifier_description($appliances_details){
+    function verify_water_purifier_description($appliances_details) {
         $new_appliance_details = array();
-        if((stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+        if ((stripos($appliances_details['description'], $appliances_details['brand']) !== False)) {
             $new_appliance_details['category'] = $appliances_details['category'];
             $new_appliance_details['capacity'] = $appliances_details['capacity'];
             $new_appliance_details['brand'] = $appliances_details['brand'];
             $new_appliance_details['status'] = TRUE;
             $new_appliance_details['is_verified'] = '1';
-        }else{
+        } else {
             $new_appliance_details['status'] = FALSE;
             $new_appliance_details['is_verified'] = '0';
         }
-        
+
         return $new_appliance_details;
     }
-    
+
     /**
      * @desc This function is used to verify air conditioner appliance data
      * check if brand and category exist in the description 
@@ -1376,182 +1371,174 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verify_ac_description($appliances_details){
+    function verify_ac_description($appliances_details) {
         $new_appliance_details = array();
-        if((stripos($appliances_details['description'], $appliances_details['capacity']) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False) && (stripos($appliances_details['description'], explode('-', $appliances_details['category'])[1]) !== False)){
+        if ((stripos($appliances_details['description'], $appliances_details['capacity']) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False) && (stripos($appliances_details['description'], explode('-', $appliances_details['category'])[1]) !== False)) {
             $new_appliance_details['category'] = $appliances_details['category'];
             $new_appliance_details['capacity'] = $appliances_details['capacity'];
             $new_appliance_details['brand'] = $appliances_details['brand'];
             $new_appliance_details['status'] = TRUE;
             $new_appliance_details['is_verified'] = '1';
-        }else{
+        } else {
             $new_appliance_details['status'] = FALSE;
             $new_appliance_details['is_verified'] = '0';
         }
-        
+
         return $new_appliance_details;
     }
-    
+
     /**
      * @desc This function is used to verify refrigerator appliance data
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verify_refrigerator_description($appliances_details){
+    function verify_refrigerator_description($appliances_details) {
         $new_appliance_details = array();
         $flag = FALSE;
         $category = explode(" ", $appliances_details['category']);
-        
+
         //extract window/split word from category
         array_pop($category);
-        
-        /*check if brand and category exist in the description
+
+        /* check if brand and category exist in the description
          * if exist then check for the right capacity and set verified flag to 1
          * otherwise set verified flag to 0 
-        */
-        if((stripos($appliances_details['description'], $category[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+         */
+        if ((stripos($appliances_details['description'], $category[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)) {
             $match = array();
             //extract integer before words ltr,Ltr,LTR,ltrs,Ltrs,LTRS,L,l
             preg_match('/(\b(\d*\.?\d+) Ltr)|(\b(\d*\.?\d+) L)/i', $appliances_details['description'], $match);
-            if(!empty($match)){
+            if (!empty($match)) {
                 $capacity = explode(" ", $match[0])[0];
-                if($capacity >=0 && $capacity <= 250 ){
+                if ($capacity >= 0 && $capacity <= 250) {
                     $new_appliance_details['capacity'] = "0-250 Ltr";
-                    $flag  = TRUE;
-                }else if($capacity > 250 && $capacity <= 450){
+                    $flag = TRUE;
+                } else if ($capacity > 250 && $capacity <= 450) {
                     $new_appliance_details['capacity'] = "250-450 Ltr";
-                    $flag  = TRUE;
-                }else if($capacity > 450 && $capacity <= 10000){
+                    $flag = TRUE;
+                } else if ($capacity > 450 && $capacity <= 10000) {
                     $new_appliance_details['capacity'] = "450-10000 Ltr";
-                    $flag  = TRUE;
-                }else{
-                    $flag  = FALSE;
+                    $flag = TRUE;
+                } else {
+                    $flag = FALSE;
                 }
-            }else{
-                $flag  = FALSE;
+            } else {
+                $flag = FALSE;
             }
-            
-        }else{
-            $flag  = FALSE;
+        } else {
+            $flag = FALSE;
         }
-        
-        if($flag){
+
+        if ($flag) {
             $new_appliance_details['category'] = $appliances_details['category'];
             $new_appliance_details['brand'] = $appliances_details['brand'];
             $new_appliance_details['status'] = TRUE;
             $new_appliance_details['is_verified'] = '1';
-        }else{
+        } else {
             $new_appliance_details['status'] = FALSE;
             $new_appliance_details['is_verified'] = '0';
         }
-        
+
         return $new_appliance_details;
     }
-    
+
     /**
      * @desc This function is used to verify geyser appliance data
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
-    function verify_geyser_description($appliances_details){
+    function verify_geyser_description($appliances_details) {
         $new_appliance_details = array();
         $flag = FALSE;
         //extract geyser word from category
         $category = explode("-", $appliances_details['category']);
-        if(isset($category[1])){
+        if (isset($category[1])) {
             array_pop($category);
         }
-        
-        /*check if brand and category exist in the description
+
+        /* check if brand and category exist in the description
          * if exist then check for the right capacity and set verified flag to 1
          * otherwise set verified flag to 0 
-        */
-        if((stripos($appliances_details['description'], $category[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)){
+         */
+        if ((stripos($appliances_details['description'], $category[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)) {
             $match = array();
             //extract integer before words ltr,Ltr,LTR,ltrs,Ltrs,LTRS,L,l
             preg_match('/(\b(\d*\.?\d+) Ltr)|(\b(\d*\.?\d+) L)/i', $appliances_details['description'], $match);
-            if(!empty($match)){
+            if (!empty($match)) {
                 $capacity = explode(" ", $match[0])[0];
-                if($capacity >=0 && $capacity <= 15 ){
+                if ($capacity >= 0 && $capacity <= 15) {
                     $new_appliance_details['capacity'] = "15 Ltr and Below";
                     $flag = TRUE;
-                }else if($capacity > 15){
+                } else if ($capacity > 15) {
                     $new_appliance_details['capacity'] = "16 Ltr and Above";
                     $flag = TRUE;
-                }else{
+                } else {
                     $flag = FALSE;
                 }
-            }else{
+            } else {
                 $flag = FALSE;
             }
-            
-        }else{
+        } else {
             $flag = FALSE;
         }
-        
-        if($flag){
+
+        if ($flag) {
             $new_appliance_details['category'] = $appliances_details['category'];
             $new_appliance_details['brand'] = $appliances_details['brand'];
             $new_appliance_details['status'] = TRUE;
             $new_appliance_details['is_verified'] = '1';
-        }else{
+        } else {
             $new_appliance_details['status'] = FALSE;
             $new_appliance_details['is_verified'] = '0';
         }
-        
+
         return $new_appliance_details;
     }
-    
     /*
      * This Function is used to perform update or insert  action on the basis of input type over bank details table 
      */
-    function update_insert_bank_account_details($bankDetailsArray,$actionType){
+
+    function update_insert_bank_account_details($bankDetailsArray, $actionType) {
         $affectedRows = 0;
         // Remove all columns which has blank values
-        foreach($bankDetailsArray as $key=>$value){
-            if($value == '' || $value == '0'){
-               unset($bankDetailsArray[$key]);
+        foreach ($bankDetailsArray as $key => $value) {
+            if ($value == '' || $value == '0') {
+                unset($bankDetailsArray[$key]);
             }
         }
-        
-            if($actionType == 'insert'){
-                // If all values are not blank, atleast one column has value then create entry in bank details table
-                if(array_key_exists('bank_name', $bankDetailsArray) ||  array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray)
-                || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)){
-                           return  $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details',$bankDetailsArray); 
-                }
-             }
-        else if($actionType == 'update'){
+
+        if ($actionType == 'insert') {
+            // If all values are not blank, atleast one column has value then create entry in bank details table
+            if (array_key_exists('bank_name', $bankDetailsArray) || array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray) || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)) {
+                return $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
+            }
+        } else if ($actionType == 'update') {
             $where['entity_id'] = $bankDetailsArray['entity_id'];
             $where['entity_type'] = $bankDetailsArray['entity_type'];
             //Checkk is there any entry in bank table for associated entityID and entityType
-            $is_exist  = $this->My_CI->reusable_model->get_search_result_count("account_holders_bank_details","entity_id",$where,NULL,NULL,NULL,NULL,NULL);
-            if($is_exist > 0){
+            $is_exist = $this->My_CI->reusable_model->get_search_result_count("account_holders_bank_details", "entity_id", $where, NULL, NULL, NULL, NULL, NULL);
+            if ($is_exist > 0) {
                 //If yes then update that row
                 $agentID = $bankDetailsArray['agent_id'];
                 unset($bankDetailsArray['entity_id']);
                 unset($bankDetailsArray['agent_id']);
                 // check is there any new updation for bank table or not
-                $affectedRows = $this->My_CI->reusable_model->update_table('account_holders_bank_details',$bankDetailsArray,$where);
-                if($affectedRows == 1){
+                $affectedRows = $this->My_CI->reusable_model->update_table('account_holders_bank_details', $bankDetailsArray, $where);
+                if ($affectedRows == 1) {
                     //if yes then update table
-                    return  $this->My_CI->reusable_model->update_table('account_holders_bank_details',array('is_verified'=>0,'agent_id'=>$agentID),$where);
-                }
-                else{
+                    return $this->My_CI->reusable_model->update_table('account_holders_bank_details', array('is_verified' => 0, 'agent_id' => $agentID), $where);
+                } else {
                     //if not then don't update the table
                     return $affectedRows;
                 }
-            }
-            else{
+            } else {
                 // Else Insert new entry
-                 if(array_key_exists('bank_name', $bankDetailsArray) ||  array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray)
-                || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)){
-                            return $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details',$bankDetailsArray); 
+                if (array_key_exists('bank_name', $bankDetailsArray) || array_key_exists('account_type', $bankDetailsArray) || array_key_exists('bank_account', $bankDetailsArray) || array_key_exists('ifsc_code', $bankDetailsArray) || array_key_exists('cancelled_cheque_file', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray) || array_key_exists('beneficiary_name', $bankDetailsArray)) {
+                    return $affectedRows = $this->My_CI->reusable_model->insert_into_table('account_holders_bank_details', $bankDetailsArray);
                 }
             }
         }
     }
-
 
     /**
      * @desc Return Account Manager ID
@@ -1566,7 +1553,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
         return $data;
     }
-    
+
     /**
      * @desc This function is used to generate the excel data and return generated excel file path
      * @param string $template
@@ -1574,9 +1561,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @param array $data
      * @return string $output_file_excel
      */
-    function generate_excel_data($template,$download_file_name,$data){
-        
-       
+    function generate_excel_data($template, $download_file_name, $data) {
+
+
         // directory
         $templateDir = __DIR__ . "/../controllers/excel-templates/";
         $config = array(
@@ -1586,7 +1573,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
 
         //load template
         $R = new PHPReport($config);
-        
+
         $R->load(array(
             array(
                 'id' => 'excel_data',
@@ -1595,8 +1582,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             )
                 )
         );
-        
-        $output_file_excel = TMP_FOLDER . $download_file_name. ".xlsx";
+
+        $output_file_excel = TMP_FOLDER . $download_file_name . ".xlsx";
 
         $res1 = 0;
         if (file_exists($output_file_excel)) {
@@ -1606,34 +1593,31 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
 
         $R->render('excel', $output_file_excel);
-        
+
         return $output_file_excel;
     }
-    
+
     /**
      * @desc This function is used to extract the zip file 
      * @param string $file_path
      * @param string $path_to_extract
      * @return string $response
      */
-    function extract_zip_files($file_path, $path_to_extract)
-    {
+    function extract_zip_files($file_path, $path_to_extract) {
         $zip = new ZipArchive;
         $res = $zip->open($file_path);
-        if ($res === TRUE) 
-        {
+        if ($res === TRUE) {
             // get the zipped file name
             $zip->extractTo($path_to_extract);
             $response['file_name'] = $zip->getNameIndex(0);
-            $res1 =0;
-            system(" chmod 777 " . TMP_FOLDER.$response['file_name'] , $res1);
+            $res1 = 0;
+            system(" chmod 777 " . TMP_FOLDER . $response['file_name'], $res1);
             $zip->close();
-            
+
             $response['status'] = true;
         } else {
             $response['status'] = false;
-            switch ($res)
-            {
+            switch ($res) {
                 case ZipArchive::ER_EXISTS:
                     $response['msg'] = "File already exists.";
                     break;
@@ -1670,9 +1654,42 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                     $response['msg'] = "Unknow (Code)";
                     break;
             }
-            
         }
-        
+
         return $response;
-    }    
+    }
+
+    function table_updated_history_view($orignalTable, $triggeredTable) {
+        $finalData = array();
+        $orderByArray[$triggeredTable . '.id,' . $triggeredTable . '.update_date'] = 'ASC';
+        $joinArray = array("employee" => "employee.id=" . $triggeredTable . ".agent_id");
+        $triggeredTableData = $this->My_CI->reusable_model->get_search_result_data($triggeredTable, $triggeredTable . ".*,employee.full_name", NULL, $joinArray, NULL, $orderByArray, NULL, NULL);
+        $orignalTableTempData = $this->My_CI->reusable_model->get_search_result_data($orignalTable, "*", NULL, NULL, NULL, NULL, NULL, NULL);
+        foreach ($orignalTableTempData as $tempData) {
+            $orignalTableData[$tempData['id']] = $tempData;
+        }
+        foreach ($triggeredTableData as $index => $data) {
+            if (array_key_exists($data['id'], $finalData)) {
+                if ($data['id'] == $triggeredTableData[($index - 1)]['id']) {
+                    $finalData[$data['id']]['data'][] = array_keys(array_diff($data, $triggeredTableData[$index - 1]));
+                    $finalData[$data['id']]['update_date'][] = $data['update_date'];
+                    $finalData[$data['id']]['updated_by'][] = $data['full_name'];
+                }
+            } else {
+                $orignalData = array();
+                if (array_key_exists($data['id'], $orignalTableData)) {
+                    $orignalData = $orignalTableData[$data['id']];
+                }
+                $finalData[$data['id']]['data'][] = array_keys(array_diff($orignalData, $data));
+                $finalData[$data['id']]['update_date'][] = $data['update_date'];
+                $finalData[$data['id']]['updated_by'][] = $data['full_name'];
+                if ($orignalTable == "service_centres") {
+                    $finalData[$data['id']]['public_name'] = $data['name'];
+                } else {
+                    $finalData[$data['id']]['public_name'] = $data['public_name'];
+                }
+            }
+        }
+        return $finalData;
+    }
 }
