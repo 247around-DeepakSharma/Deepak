@@ -9,6 +9,7 @@
             <th>TDS Paid</th>
             <th>Transaction Mode</th>
             <th>Description</th>
+            <th>Transaction Id</th>
             <th>Uploaded By</th>
         </tr>
     </thead>
@@ -38,6 +39,7 @@
             <td><?php echo $transactions['tds_paid'] ?></td>
             <td><?php echo $transactions['transaction_mode'] ?></td>
             <td><?php echo $transactions['description'] ?></td>
+            <td><?php echo $transactions['transaction_id'] ?></td>
             <td><?php echo $transactions['agent_name'] ?></td>
 
         </tr>
