@@ -19,9 +19,11 @@ class Inventory extends CI_Controller {
         $this->load->model('employee_model');
         $this->load->library('form_validation');
         $this->load->library('session');
+        $this->load->library('PHPReport');
         $this->load->library('notify');
         $this->load->library('S3');
         $this->load->library("pagination");
+        $this->load->library("miscelleneous");
 	
 
     }
@@ -1254,61 +1256,212 @@ class Inventory extends CI_Controller {
         $this->form_validation->set_rules('courier_charge', 'Courier_charge Charge', 'trim');
         $this->form_validation->set_rules('remarks', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('around_part_commission', 'around_part_commission', 'trim|required');
-        $this->form_validation->set_rules('part_charges', 'Part Charge', 'callback_check_validation_update_parts_details');
+        $this->form_validation->set_rules('part_estimate_given', 'Estimate Part Given', 'callback_check_validation_update_parts_details');
         if ($this->form_validation->run()) {
             $data = $this->input->post();
             
-            $u_data = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id']), TRUE, "id");
-            if (!empty($u_data)) {
+            $unit = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id'],'partner_id' => ZOPPER_ID, 'price_tags' => REPAIR_IN_WARRANTY_TAG));
+            if (!empty($unit)) {
                
-               $u['customer_total'] = $u['partner_net_payable'] = $data['part_charges'] +
-                        $data['service_charge'] + $data['transport_charge'] + $data['courier_charge'];
-               
-                $sf_sc = ($data['service_charge'] * basic_percentage * (1 + SERVICE_TAX_RATE));
-                
-                $sf_parts = 0;
-                $actual_part_charge = ($data['part_charges'] - $data['around_part_commission']);
-                
-                //same_diff_vendor 1 means different vendor arrange part
-                if ($data['same_diff_vendor'] == 1) {
-                   
-                    $sf_parts = ($actual_part_charge)* PART_DELIVERY_PERCENTAGE * (1 + SERVICE_TAX_RATE);
-                } else if ($data['same_diff_vendor'] == 2) { //same_diff_vendor 1 means Same vendor arrange part
-                    
-                    $is_gst = $this->vendor_model->is_tax_for_booking($data['booking_id']);
-                    if(empty($is_gst[0]['gst_no']) ){
-                        $sf_parts = ($actual_part_charge) * parts_percentage * (1 + SERVICE_TAX_RATE);
+                $success = $this->insert_zopper_form_data();
+                if($success['success']){
+                    $customer_total = $data['service_charge'] + $data['transport_charge'] +
+                            $data['courier_charge'] + $data['part_estimate_given'] +$data['around_part_commission'];
+                    //same_diff_vendor 1 means different vendor arrange part
+                    if ($data['arrange_part_by'] == 1) {
+
+                        $sf_parts = 0;
+                    } else if ($data['arrange_part_by'] == 2) { //same_diff_vendor 1 means Same vendor arrange part
+
+                        $is_gst = $this->vendor_model->is_tax_for_booking($data['booking_id']);
+                        if(empty($is_gst[0]['gst_no']) ){
+                            $sf_parts = ($data['part_estimate_given'] ) * parts_percentage * (1 + SERVICE_TAX_RATE);
+                        } else {
+                            $sf_parts = ($data['part_estimate_given'] ) * parts_percentage;
+                        } 
+                    }
+                    $sf_service =  $data['service_charge'] * basic_percentage * (1 + SERVICE_TAX_RATE);
+                    $venor_percentage = (($sf_service + $sf_parts)/$customer_total) * 100;
+                    $u['customer_total'] = $unit[0]['customer_total'] = $unit[0]['partner_net_payable'] =  
+                            $unit[0]['partner_paid_basic_charges'] =
+                        $u['partner_paid_basic_charges'] =    $customer_total;
+                    $unit[0]["vendor_basic_percentage"] = $venor_percentage;
+                    $u['vendor_basic_percentage'] = $venor_percentage;
+                    $unit[0]['around_paid_basic_charges'] = 0;
+                    $u['customer_paid_basic_charges'] = $u['around_paid_basic_charges'] = $u["customer_paid_parts"] = $u["customer_paid_extra_charges"] = 0;
+                    $u['customer_net_payable'] = 0;
+                    $u['id'] = $unit[0]['id'];
+                    $this->booking_model->update_price_in_unit_details($u, $unit);  
+                    if($this->input->post("entity_id") && $this->input->post("entity") == "vendor" ){
+                        $assign_vendor_id = $this->input->post("entity_id");
                     } else {
-                        $sf_parts = ($actual_part_charge) * parts_percentage;
-                    } 
+                        $assign_vendor_id = $this->input->post("assigned_vendor_id");
+                    }
+                    $this->insert_update_spare_parts($assign_vendor_id, $data['booking_id'],$unit[0]['model_number'], $unit[0]['serial_number']);
+                    $is_sent = $this->input->post('estimate_sent');
+                   
+                    if($is_sent == 1){
+                        $sent  = $this->create_zopper_excel_sheet($unit,$success['id'] );
+                        if($sent){
+                            $userSession = array('success' => "Thanks To Update Booking Price. Estimate Sent to Zopper");
+                        } else {
+                            $userSession = array('success' => "Thanks To Update Booking Price.  Estimate did not send to Zopper");
+                        }
+                    } else {
+                        $userSession = array('success' => "Thanks To Update Booking Price.");
+                    }
+                    
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/inventory/update_part_price_details");
+
+                } else{
+                    $userSession = array('success' => "Please Check, Zopper Repair in warranty Booking Not Updated");
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/inventory/update_part_price_details");
                 }
-                
-                $sf_per = (($sf_sc + $sf_parts ) / ($u['customer_total'])) * 100;
-
-                $u['customer_paid_basic_charges'] = $u['around_paid_basic_charges'] = $u["customer_paid_parts"] = $u["customer_paid_extra_charges"] = 0;
-                $u['customer_net_payable'] = 0;
-                $u['id'] = $u_data[0]['id'];
-                $unit_details = array();
-                $unit_details[0]['around_paid_basic_charges'] = 0;
-                $unit_details[0]['partner_paid_basic_charges'] = $u["partner_net_payable"];
-                $unit_details[0]['tax_rate'] = DEFAULT_TAX_RATE;
-                $unit_details[0]["vendor_basic_percentage"] = $u['vendor_basic_percentage'] = $sf_per;
-                $unit_details[0]['booking_id'] = $data["booking_id"];
-
-                $this->booking_model->update_price_in_unit_details($u, $unit_details);
-                //$sp['vendor_partner'] = $data['entity'];
-                //$sp['vendor_partner_id'] = $data['entity_id'];
-                // $this->service_centers_model->update_spare_parts(array('booking_id' =>$data['booking_id'] ), $sp);
-                $userSession = array('success' => "Thanks To Update Booking Price");
-                $this->session->set_userdata($userSession);
-               redirect(base_url() . "employee/inventory/update_part_price_details");
+               
             } else {
-                $userSession = array('success' => "Booking Price Not Updated");
+                $userSession = array('success' => "Please Check, Zopper Repair in warranty Booking only allow");
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "employee/inventory/update_part_price_details");
             }
         } else {
             $this->update_part_price_details();
+        }
+    }
+    
+    function insert_update_spare_parts($assigned_vendor_id, $booking_id,$model_number, $serial_number){
+        $sp['parts_requested'] = $this->input->post("part_name");
+        $sp['partner_id'] = ZOPPER_ID; 
+        $sp['defective_part_required'] = 0;
+        $sp['date_of_request'] = $sp['create_date'] = date('Y-m-d H:i:s');
+        $sp['booking_id'] = $booking_id;
+        $sp['status'] = "Delivered";
+        $sp['service_center_id'] = $assigned_vendor_id; 
+        $sp['model_number'] = $model_number;
+        $sp['serial_number'] = $serial_number;
+        $sp['purchase_invoice'] = $this->input->post('part_estimate_given');
+        $sp['sell_price'] = $this->input->post('part_estimate_given') + $this->input->post('around_part_commission');
+        
+        $this->service_centers_model->spare_parts_action(array('booking_id' => $booking_id), $sp);
+    }
+    /**
+     * 
+     * @param type $unit_details
+     * @param String $id
+     * @return boolean
+     */
+    function create_zopper_excel_sheet($unit_details, $id){
+        $booking_id = $unit_details[0]['booking_id'];
+        $where['length'] = -1;
+        $where['where'] = array("booking_details.booking_id" => $booking_id);
+        $booking_details = $this->booking_model->get_bookings_by_status($where, "users.name, services");
+        $data['name'] = $booking_details[0]->name;
+        $data['booking_id'] = $booking_id;
+        $data['services'] = $booking_details[0]->services;
+        $data['brand'] = $unit_details[0]['appliance_brand'];
+        $data['category'] = $unit_details[0]['appliance_category'];
+        $data['capacity'] = $unit_details[0]['appliance_capacity'];
+        $data['model_number'] = $unit_details[0]['model_number'];
+        $data['taxable_value'] = $unit_details[0]['customer_total'];
+        $data['igst_rate'] = round($unit_details[0]['tax_rate'], 2);
+        $data['igst_tax_amount'] = ($unit_details[0]['customer_total'] * $unit_details[0]['tax_rate'])/100;
+        $data['total_amount'] = round($data['igst_tax_amount'] + $unit_details[0]['customer_total'], 2);
+        $data['remarks'] = $this->input->post("estimate_remarks");
+        $data['price_inword'] = convert_number_to_words(round($data['total_amount'],0));
+        $data['date'] = date("jS M, Y");
+        $template = 'Estimate_Sheet.xlsx';
+        // directory
+        $templateDir = __DIR__ . "/../excel-templates/";
+
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        $R = new PHPReport($config);
+
+        $R->load(array(
+            array(
+                'id' => 'estimate',
+                'repeat' => false,
+                'data' => $data,
+                'format' => array(
+                    'date' => array('datetime' => 'd/M/Y')
+                )
+            ),
+            
+                )
+        );
+
+        $output_file_excel = "Estimate_". $booking_id. ".xlsx";
+        $R->render('excel', TMP_FOLDER.$output_file_excel);
+
+        $emailtemplate = $this->booking_model->get_booking_email_template("zopper_estimate_send");
+        if (!empty($template)) {
+           
+            $subject = vsprintf($emailtemplate[4], $data['name']);
+          //  $emailBody = vsprintf($emailtemplate[0], $estimate_cost);
+            $json_result = $this->miscelleneous->convert_excel_to_pdf(TMP_FOLDER.$output_file_excel,$booking_id, "misc-images");
+            $pdf_response = json_decode($json_result,TRUE);
+            $output_pdf_file_name = $output_file_excel;
+            $attachement_url = TMP_FOLDER.$output_file_excel;
+           
+            if($pdf_response['response'] === 'Success'){
+                $output_pdf_file_name = $pdf_response['output_pdf_file'];
+                $attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/misc-images/' . $output_pdf_file_name;
+                log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
+            } else if($pdf_response['response'] === 'Error'){
+                
+
+                log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
+           }
+           
+            $this->notify->sendEmail($emailtemplate[2], $emailtemplate[1], $emailtemplate[3], '', $subject, $emailtemplate[0], $attachement_url);
+
+            $this->inventory_model->update_zopper_estimate(array('id' => $id), array(
+                "estimate_sent" => 1,
+                "estimate_file" => $output_pdf_file_name,
+                "estimate_remarks" =>  $this->input->post("estimate_remarks")
+            ));
+            
+            return true;
+        } else {
+            return false;
+        }
+       
+    }
+    /**
+     * @desc This is used to insert zopper form data
+     * @return boolean
+     */
+    function insert_zopper_form_data(){
+        $z['part_estimate_given'] = $this->input->post("part_estimate_given");
+        $z['booking_id'] = $this->input->post("booking_id");
+        $z['around_part_commission'] = $this->input->post("around_part_commission");
+        $z['service_charge'] = $this->input->post("service_charge");
+        $z['transport_charge'] = $this->input->post("transport_charge");
+        $z['courier_charge'] = $this->input->post("courier_charge");
+        $z['arrange_part_by'] = $this->input->post("arrange_part_by");
+        $z['remarks'] = $this->input->post("remarks");
+        $z['part_name'] = $this->input->post("part_name");
+        if($this->input->post("entity")){
+            $z['entity'] = $this->input->post("entity");
+        }
+
+        if($this->input->post("entity_id")){
+            $z['entity_id'] = $this->input->post("entity_id");
+        }
+        
+        $is_exist = $this->inventory_model->select_zopper_estimate(array("booking_id" => $z['booking_id']));
+        if(!empty($is_exist)){
+             $this->inventory_model->update_zopper_estimate(array('id' => $is_exist[0]['id']), $z);
+             return array('success' => true, 'is_exist' => true, "id" =>$is_exist[0]['id']);
+        } else {
+            $z['create_date'] = date("Y-m-d H:i:s");
+            $s = $this->inventory_model->insert_zopper_estimate($z); 
+            array('success' => $s, 'is_exist' => false, 'id' => $s);
         }
     }
 

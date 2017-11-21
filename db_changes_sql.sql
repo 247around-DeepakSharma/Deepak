@@ -3464,6 +3464,7 @@ INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `que
 
 
 
+
 -- ANUJ 17 NOV
 ALTER TABLE  `bank_transactions` ADD  `transaction_id` VARCHAR( 32 ) NOT NULL COMMENT  'Bank Transaction ID' AFTER  `transaction_mode` ;
 
@@ -3521,7 +3522,6 @@ ALTER TABLE `collateral_type`
 ALTER TABLE `collateral_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;COMMIT;
 
-<<<<<<< HEAD
 ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;
 
 -- Table structure for table `account_holders_bank_details`
@@ -3569,3 +3569,6 @@ ALTER TABLE `partners` ADD `agent_id` INT(10) NOT NULL AFTER `create_date`;
 ALTER TABLE `partners` ADD `update_date` DATETIME NOT NULL AFTER `agent_id`;
 ALTER TABLE `trigger_partners` ADD `agent_id` INT(10) NOT NULL AFTER `create_date`;
 ALTER TABLE `trigger_partners` ADD `update_date` DATETIME NOT NULL AFTER `agent_id`;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'zopper_estimate_send', 'zopper_estimate_send', 'Please Find Attachment.', 'sales@247around.com', 'sachinj@247around.com', 'abhaya@247around', '', '1', '2017-11-02 23:56:57');
+
