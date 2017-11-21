@@ -3472,3 +3472,8 @@ CREATE TABLE `247around`.`email_attachment_parser`
 ALTER TABLE `email_attachment_parser` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `file_uploads` ADD `email_message_id` VARCHAR(256) NULL DEFAULT NULL AFTER `result`;
 ALTER TABLE `email_attachment_parser` ADD `active` TINYINT(5) NOT NULL DEFAULT '0' AFTER `email_remarks`;
+
+ALTER TABLE `partners` ADD `agent_id` INT(10) NOT NULL AFTER `create_date`;
+ALTER TABLE `partners` ADD `update_date` DATETIME NOT NULL AFTER `agent_id`;
+ALTER TABLE `trigger_partners` ADD `agent_id` INT(10) NOT NULL AFTER `create_date`;
+ALTER TABLE `trigger_partners` ADD `update_date` DATETIME NOT NULL AFTER `agent_id`;
