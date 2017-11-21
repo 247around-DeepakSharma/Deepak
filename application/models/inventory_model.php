@@ -396,5 +396,21 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->num_rows();
     }
+    
+    function insert_zopper_estimate($data){
+        $this->db->insert("zopper_estimate_details", $data);
+        return $this->db->insert_id();
+    }
+    
+    function select_zopper_estimate($where){
+        $this->db->where($where);
+        $query = $this->db->get("zopper_estimate_details");
+        return $query->result_array();
+    }
+    
+    function update_zopper_estimate($where, $data){
+        $this->db->where($where);
+        $this->db->update("zopper_estimate_details", $data);
+    }
 
 }

@@ -186,6 +186,8 @@ define('SNAPDEAL_ID',1);
 define("JEEEVES_ID", 247030);
 //WYBOR_ID
 define("WYBOR_ID", 247010);
+//ZOPPER ID
+define("ZOPPER_ID", 247012);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
 //Define Email ID to send system health emails
@@ -350,7 +352,7 @@ define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,
 
 //Email IDs when SF is not found in Vendor Pincode Mapping file
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
-define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com");
+define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "");
 
 //promotional sms constant
 define('COMPLETED_PROMOTINAL_SMS_1','completed_promotional_sms_1');
@@ -477,6 +479,7 @@ define('REPAIR_OOW_VENDOR_PERCENTAGE','10');
 define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
 define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
 define("REPAIR_OOW_TAG", "Repair - Out Of Warranty");
+define("REPAIR_IN_WARRANTY_TAG", "Repair - In Warranty");
 define("NOT_UPCOUNTRY_PRICE_TAG", "-1");
 define("PARTNER_PROVIDE_UPCOUNTRY_PRICE_TAG", "1");
 
@@ -513,6 +516,12 @@ define("AUTO_ACK_ADMIN_REMARKS", "Auto Acknowledge");
 define("MISSING_PINCODE_EMAIL_TO",NITS_ANUJ_EMAIL_ID);
 
 define("COMMISION_CHARGE_HSN_CODE", "96617");
+
+//Zopper booking- Part Arrange By Same Vendor
+define("PART_ARRANGE_BY_SAME_VENDOR", 2);
+//Zopper booking- Part Arrange By Different Vendor
+define("PART_ARRANGE_BY_DIFF_VENDOR", 1);
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
