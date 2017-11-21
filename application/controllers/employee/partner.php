@@ -480,6 +480,8 @@ class Partner extends CI_Controller {
                     log_message('info', ' Error in Updating Parnter code has been added in Bookings_sources table ' . print_r($bookings_sources, TRUE));
                 }
                 $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold'] + 25;
+                $edit_partner_data['partner']['update_date'] = date("Y-m-d h:i:s");
+                $edit_partner_data['partner']['agent_id'] = $this->session->userdata('id');
                 $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
@@ -3166,6 +3168,8 @@ class Partner extends CI_Controller {
         $return_data['partner']['tin'] = $this->input->post("tin");
         $return_data['partner']['cst_no'] = $this->input->post("cst_no");
         $return_data['partner']['service_tax'] = $this->input->post("service_tax");
+        $return_data['partner']['update_date'] = date("Y-m-d h:i:s");
+        $return_data['partner']['agent_id'] = $this->session->userdata('id');
         if ($return_data) {
             $affected_rows = $this->reusable_model->update_table("partners", $return_data['partner'], array("id" => $partner_id));
         }
