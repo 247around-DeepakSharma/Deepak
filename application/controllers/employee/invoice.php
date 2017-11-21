@@ -2606,13 +2606,9 @@ class Invoice extends CI_Controller {
             if($description == QC_INVOICE_DESCRIPTION){
                 $hsn_code = QC_HSN_CODE;
                 $type = "Buyback";
-                $invoice_date = $ed;
-                
-                
-            } else{
-                 $invoice_date = date("Y-m-d");
+  
             }
-            
+            $invoice_date = date("Y-m-d");
             $invoice_id = $this->create_invoice_id_to_insert("Around");
             
             $response = $this->generate_partner_additional_invoice($partner_data[0], $description,
@@ -2645,7 +2641,7 @@ class Invoice extends CI_Controller {
                 "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
                 "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
                 "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
-                "hsn_code" => $response['meta']['hsn_code'],
+                "hsn_code" => $hsn_code,
                 "invoice_file_pdf" => $response['meta']['copy_file']
             );
             
