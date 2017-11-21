@@ -237,6 +237,11 @@ class Dealers extends CI_Controller {
                 if(in_array($prices['service_category'], $explode)){
                      $html .= " checked ";
                 }
+
+                if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS){
+                     $html .= " disabled ";
+  
+                }
 		$html .= "  onclick='final_price(),set_upcountry()'" .
 		    "value=" . $prices['id'] . "_" . intval($prices['customer_total'])."_".intval($prices['partner_net_payable'])."_".$i . " ></td><tr>";
 
