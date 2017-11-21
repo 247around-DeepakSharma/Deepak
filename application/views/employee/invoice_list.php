@@ -203,11 +203,11 @@
                                     <input type="hidden" name="<?php echo "defective_parts[".$value['id']."]";?>" value="<?php echo $value["count_spare_part"];?>" />
                                 </td>
                                 
-                                <td ><input type="checkbox" class="form-control <?php if (isset($value['on_off'])) {
-                                        if ($value['active'] == 1 && $value['on_off'] == 1) {
-                                            echo 'checkbox_amt';
-                                        }
-                                    }
+                                <td ><input type="checkbox" class="form-control checkbox_amt <?php //if (isset($value['on_off'])) {
+                                        //if ($value['active'] == 1 && $value['on_off'] == 1) {
+                                            //echo 'checkbox_amt';
+                                       // }
+                                    //}
                                     ?>" name="<?php echo "amount_service_center[" . $value['id'] . "]"; ?>" value ="<?php echo $value['final_amount']; ?>" > </td>
                                 
                                 <?php } else { if($value['id'] !== "247029") { $BUTTON_TEXT = PARTNER_INVOICE_BUTTON; $CRM_SETUP = CRM_SETUP_INVOICE_DESCRIPTION;} else { $BUTTON_TEXT = CT_INVOICE_BUTTON; $CRM_SETUP = QC_INVOICE_DESCRIPTION;}  ?>
