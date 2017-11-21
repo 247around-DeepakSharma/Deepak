@@ -18,6 +18,7 @@
                         <div class="form-group" style="margin-right: 20px;">
                             <label for="transaction_type">Transaction Type</label>
                             <select class="form-control" id="transaction_type">
+                                <option selected="" disabled="">Select Type</option>
                                 <option value="Credit">Credit</option>
                                 <option value="Debit">Debit</option>
                             </select>
@@ -73,12 +74,21 @@
     
     $(function() {
         $('#transaction_date').daterangepicker({
+            autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
                     format: 'YYYY/MM/DD'
             }
         });
+    });
+    
+    $('#transaction_date').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('DD-MM-YYYY'));
+    });
+
+    $('#transaction_date').on('cancel.daterangepicker', function(ev, picker) {
+         $(this).val('');
     });
     
     $(".allowNumericWithDecimal").keydown(function (e) {
@@ -99,36 +109,22 @@
     
     $(document).ready(function () {
         $('#get_bank_transaction_data').click(function () {
+            $('#loader').show();
             var transaction_type = $("#transaction_type").val();
             var transaction_date = $("#transaction_date").val();
             var transaction_amount = $.trim($("#transaction_amount").val());
             var transaction_description = $.trim($("#transaction_description").val());
-            
-            if (transaction_type === null || transaction_type === undefined ||
-                transaction_date === null || transaction_date === undefined){
-            
-                if(transaction_amount === ''){
-                    alert("Please fill Amount");
-                }else{
-                    alert("Some Issue Occured !!! Please Refresh Page And Try Again");
+            $.ajax({
+                method: 'POST',
+                data: {'transaction_type':transaction_type,'transaction_date':transaction_date,'transaction_amount':transaction_amount,'transaction_description':transaction_description},
+                url: '<?php echo base_url(); ?>employee/accounting/process_search_bank_reansaction',
+                success: function (response) {
+                    //console.log(response);
+                    $('#loader').hide();
+                    $('.show_bank_transaction_details').show();
+                    $('.show_bank_transaction_details').html(response);
                 }
-                
-            }else{
-                $('#loader').show();
-                $.ajax({
-                    method: 'POST',
-                    data: {'transaction_type':transaction_type,'transaction_date':transaction_date,'transaction_amount':transaction_amount,'transaction_description':transaction_description},
-                    url: '<?php echo base_url(); ?>employee/accounting/process_search_bank_reansaction',
-                    success: function (response) {
-                        //console.log(response);
-                        $('#loader').hide();
-                        $('.show_bank_transaction_details').show();
-                        $('.show_bank_transaction_details').html(response);
-
-                    }
-                });
-                
-            }
+            });    
         });
     });
     
