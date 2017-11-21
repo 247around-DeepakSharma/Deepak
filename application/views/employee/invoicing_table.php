@@ -296,6 +296,7 @@
              <th>TDS Deducted</th>
              <th>Invoices</th>
              <th>Bank Name / Mode</th>
+             <th>Transaction Id</th>
 <!--             <th colspan="2">Edit/Delete</th>-->
           </tr>
        </thead>
@@ -313,7 +314,8 @@
                <td><?php echo round($value['debit_amount'],0);  $debit_amount += intval($value['debit_amount']); ?></td>
                <td><?php echo round($value['tds_amount'],0); $tds_amount += intval($value['tds_amount']); ?></td>
                <td><?php echo $value['invoice_id']; ?></td>
-               <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>   
+               <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>
+               <td><?php echo $value['transaction_id']; ?></td>
 <!--               <td>
                <a href="<?php //echo base_url();?>employee/invoice/update_banktransaction/<?php //echo $value['id'];?>" class="btn btn-sm btn-success">Edit</a>
 
@@ -332,6 +334,7 @@
              <td><?php echo round($credit_amount,0);?></td>
              <td><?php echo round($debit_amount,0);?></td>
              <td><?php echo round($tds_amount,0);?></td>
+             <td></td>
              <td></td>
              <td></td>
        </tbody>

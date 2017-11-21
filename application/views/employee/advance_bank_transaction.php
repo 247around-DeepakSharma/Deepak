@@ -175,6 +175,12 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="transaction_id" class="col-md-2">Transaction Id</label>
+                <div class="col-md-6">
+                    <input type="text" class="form-control"  name="transaction_id" value = "" placeholder="Transaction Id">
+                </div>
+            </div>
             <span id="errms5"></span>
             <div class="form-group">
                 <label for="name" class="col-md-2">Description</label>
