@@ -184,7 +184,12 @@ class invoices_model extends CI_Model {
         $array = array();
         if ($vendor_partner == "vendor") {
             $select = "service_centres.name, service_centres.id, service_centres.on_off, service_centres.active, account_holders_bank_details.is_verified, service_centres.pan_no, service_centres.service_tax_no, service_centres.tin_no, service_centres.cst_no, service_centres.contract_file, service_centres.gst_no";
-            $data = $this->vendor_model->get_vendor_with_bank_details($select, $where);
+            if($where){
+                foreach($where as $key=>$value){
+                    $newWhere["service_centres.".$key] = $value;
+                }
+            }
+            $data = $this->vendor_model->get_vendor_with_bank_details($select, $newWhere);
             $due_date_status = "";
             if($due_date_flag){
                 $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
