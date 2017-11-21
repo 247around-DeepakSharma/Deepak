@@ -2664,7 +2664,7 @@ class Partner extends CI_Controller {
         $pincode = $this->input->post('pincode');
         $service_category = $this->input->post('service_category');
         $partner_id = $this->session->userdata('partner_id');
-
+        $booking_id = $this->input->post('booking_id');
         $partner_type = $this->input->post('partner_type');
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $result = array();
@@ -2707,8 +2707,22 @@ class Partner extends CI_Controller {
                 if (in_array($prices['service_category'], $explode)) {
                     $html .= " checked ";
                 }
+                $customer_total = $prices['customer_total'];
+                $partner_net_payable = $prices['partner_net_payable'];
+                if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS){
+                     $html .= " readonly ";
+                     if(!empty($booking_id)){
+                         $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id, "price_tags" =>REPAIR_OOW_PARTS_PRICE_TAGS), 
+                                 false, "customer_total, partner_net_payable");
+                         if(!empty($unit_details)){
+                            $customer_total = $unit_details[0]['customer_total'];
+                             $partner_net_payable = $unit_details[0]['partner_net_payable'];
+                         }
+                     }
+                     
+                }
                 $html .= "  onclick='final_price(),set_upcountry()'" .
-                        "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . intval($prices['partner_net_payable']) . "_" . $i . " ></td><tr>";
+                        "value=" . $prices['id'] . "_" . intval($customer_total) . "_" . intval($partner_net_payable) . "_" . $i . " ></td><tr>";
 
                 $i++;
             }
@@ -2719,7 +2733,7 @@ class Partner extends CI_Controller {
             $form_data['table'] = $html;
             $form_data['upcountry_data'] = json_encode($data, TRUE);
 
-            print_r(json_encode($form_data, TRUE));
+           print_r(json_encode($form_data, TRUE));
         } else {
             echo "ERROR";
         }

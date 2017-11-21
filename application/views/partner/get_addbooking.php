@@ -746,6 +746,7 @@
             postData['capacity'] = capacity;
         }
         postData['service_category'] = "";
+        postData['booking_id'] = "";
         postData['pincode'] = $("#booking_pincode").val();
         postData['city'] = $("#booking_city").val();
         
