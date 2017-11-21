@@ -17,7 +17,7 @@
         $this->session->unset_userdata('bracket_msg');
     }
      ?>
-    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" style="margin:0px 10px;">Add New Records</button>
+    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" style="margin:0px 10px;" onclick="addBracketForm">Add New Records</button>
     <div class="row" >
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel" style="height: auto;">
@@ -114,6 +114,12 @@
           document.getElementById("brand").disabled = false;
           document.getElementById("partner").disabled = false;
           document.getElementById("bracket_allocation_form").submit();
+    }
+    function addBracketForm(){
+        document.getElementById("add_update").value = 'Add';
+        document.getElementById("brand").value = '';
+         document.getElementById("partner").value = ''; 
+          document.getElementById("is_bracket").value = '';
     }
     }
     </script>
