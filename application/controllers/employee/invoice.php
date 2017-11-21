@@ -296,6 +296,7 @@ class Invoice extends CI_Controller {
         $transaction_date = $this->input->post('tdate');
         $account_statement['transaction_date'] = date("Y-m-d", strtotime($transaction_date));
         $account_statement['description'] = $this->input->post('description');
+        $account_statement['transaction_id'] = $this->input->post('transaction_id');
         //Get bank txn id while update other wise empty.
         $bank_txn_id = $this->input->post("bank_txn_id");
         $account_statement['invoice_id'] = implode(",", $invoice_id_array);
@@ -2734,6 +2735,7 @@ class Invoice extends CI_Controller {
         $data['description'] = $this->input->post("description");
         $data['agent_id'] = $this->session->userdata('id');
         $data['create_date'] = date("Y-m-d H:i:s");
+        $data['transaction_id'] = $this->input->post('transaction_id');
        
         $status = $this->invoices_model->bankAccountTransaction($data);
         

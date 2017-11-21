@@ -124,6 +124,7 @@
                                                 <th>Download</th>
                                                 <th>Uploaded By</th>
                                                 <th>Uploaded Date</th>
+                                                <th>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -176,7 +177,7 @@
                 //Set column definition initialisation properties.
                 columnDefs: [
                     {
-                        "targets": [0,1,2,3], //first column / numbering column
+                        "targets": [0,1,2,3,4], //first column / numbering column
                         "orderable": false //set not orderable
                     }
                 ]

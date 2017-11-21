@@ -516,6 +516,12 @@ define("AUTO_ACK_ADMIN_REMARKS", "Auto Acknowledge");
 define("MISSING_PINCODE_EMAIL_TO",NITS_ANUJ_EMAIL_ID);
 
 define("COMMISION_CHARGE_HSN_CODE", "96617");
+//sales email_id
+define('_247AROUND_SALES_EMAIL','sales@247around.com');
+//email attachment reader email
+define('EMAIL_ATTACHMENT_READER_EMAIL','installations@247around.com');
+//email attachment reader email password
+define('EMAIL_ATTACHMENT_READER_PASSWORD','247around@@installations');
 
 //Zopper booking- Part Arrange By Same Vendor
 define("PART_ARRANGE_BY_SAME_VENDOR", 2);

@@ -269,7 +269,7 @@
                                             <textarea class="form-control"  name="description" cols="5" rows="5" placeholder="Add transaction remarks"><?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['description'];}?></textarea>
                                         </td>
                                         <td  class="text-center" style="vertical-align: middle;">
-                                            
+                                            <textarea class="form-control"  name="transaction_id" cols="5" rows="5" placeholder="Transaction Id"><?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['transaction_id'];}?></textarea>
                                         </td>
                                     </tr>
                                 </tbody>

@@ -478,44 +478,53 @@ class Accounting extends CI_Controller {
         $transaction_date = $this->input->post('transaction_date');
         $transaction_amount = trim($this->input->post('transaction_amount'));
         $transaction_description = trim($this->input->post('transaction_description'));
-
-        $modified_transaction_date = date('Y-m-d', strtotime($transaction_date));
-        if(!empty($transaction_amount)){
+        
+        $where = array();
+        if(!empty($transaction_type))
+        {
+            $where['credit_debit'] = $transaction_type;
+        }
+        if(!empty($transaction_date))
+        {
+            $modified_transaction_date = date('Y-m-d', strtotime($transaction_date));
+            $where['transaction_date'] = $modified_transaction_date;
+        }
+        if(!empty($transaction_amount) && is_numeric($transaction_amount))
+        {
             $min_transaction_amount = $transaction_amount - 5;
             $max_transaction_amount = $transaction_amount + 5;
-        }
-
-        if ($transaction_type === 'Credit') {
-            $where = array('credit_debit' => $transaction_type,'transaction_date' => $modified_transaction_date);
-            if(!empty($transaction_amount) && !empty($transaction_description)){
+            
+            if(!empty($transaction_type) && $transaction_type === 'Credit')
+            {
                 $where["credit_amount >="] = $min_transaction_amount;
                 $where["credit_amount <="] = $max_transaction_amount;
-                $where["description like '%$transaction_description%'"] = NULL;
-            }else if(!empty($transaction_amount)){
-                $where["credit_amount >="] = $min_transaction_amount;
-                $where["credit_amount <="] = $max_transaction_amount;
-            }else if(!empty($transaction_description)){
-                $where["description like '%$transaction_description%'"] = NULL;
             }
-        } else if ($transaction_type === 'Debit') {
-            $where = array('credit_debit' => $transaction_type,'transaction_date' => $modified_transaction_date);
-            if(!empty($transaction_amount) && !empty($transaction_description)){
+            else if(!empty($transaction_type) && $transaction_type === 'Debit')
+            {
                 $where["debit_amount >="] = $min_transaction_amount;
                 $where["debit_amount <="] = $max_transaction_amount;
-                $where["description like '%$transaction_description%'"] = NULL;
-            }else if(!empty($transaction_amount)){
-                $where["debit_amount >="] = $min_transaction_amount;
-                $where["debit_amount <="] = $max_transaction_amount;
-            }else if(!empty($transaction_description)){
-                $where["description like '%$transaction_description%'"] = NULL;
-            }
+            }else{
+                $where["(credit_amount >= $min_transaction_amount AND credit_amount <= $max_transaction_amount) OR (debit_amount >= $min_transaction_amount AND debit_amount <= $max_transaction_amount)"] = NULL;
+            }    
+                
         }
-        $select = 'bank_transactions.* , employee.full_name as agent_name';
-        $data['transaction_details'] = $this->invoices_model->get_bank_transactions_details($select,$where,true);
-        if(!empty($data['transaction_details'])){
-            echo $this->load->view('employee/show_bank_transaction_details',$data);
+        
+        if(!empty($transaction_description))
+        {
+            $where["description like '%$transaction_description%'"] = NULL;
+        }
+        
+        if(!empty($where))
+        {
+            $select = 'bank_transactions.* , employee.full_name as agent_name';
+            $data['transaction_details'] = $this->invoices_model->get_bank_transactions_details($select,$where,true);
+            if(!empty($data['transaction_details'])){
+                echo $this->load->view('employee/show_bank_transaction_details',$data);
+            }else{
+                echo "<div class='text-danger text-center'> <b> No Data Found <b></div>";
+            }
         }else{
-            echo "<div class='text-danger text-center'> <b> No Data Found <b></div>";
+            echo "<div class='text-danger text-center'> <b>Please Enter Correct Details <b></div>";
         }
     }
     

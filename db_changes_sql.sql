@@ -3419,4 +3419,112 @@ ALTER TABLE `query_report` ADD `result` VARCHAR(2048) NULL DEFAULT NULL AFTER `a
 
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Invoice Check', '', '', '', '', 'developer', '1', 'invoice_check', '1', NULL, '2017-11-14 11:14:15');
 
+
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'zopper_estimate_send', 'zopper_estimate_send', 'Please Find Attachment.', 'sales@247around.com', 'sachinj@247around.com', 'abhaya@247around', '', '1', '2017-11-02 23:56:57');
+
+CREATE TABLE `collateral` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_type` varchar(20) NOT NULL,
+  `collateral_id` varchar(100) DEFAULT NULL,
+  `document_description` text,
+  `file` text,
+  `version` varchar(20) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `is_valid` int(11) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `collateral`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `collateral`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
+
+
+CREATE TABLE `collateral_type` (
+  `id` int(11) NOT NULL,
+  `collateral_tag` varchar(80) DEFAULT NULL,
+  `collateral_type` varchar(80) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`) VALUES
+(1, 'Contract', 'NDA(None Disclosure Agreement)'),
+(2, 'Contract', 'Work Order'),
+(3, 'Contract', 'MSA (Master Service Agreement)'),
+(4, 'Contract', 'Addendum'),
+(5, 'Contract', 'Extension');
+
+ALTER TABLE `collateral_type`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `collateral_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;COMMIT;
+-- 16 Nov Sachin
+CREATE TABLE `247around`.`email_attachment_parser` 
+( `id` INT(11) NOT NULL , 
+`email_received_from` VARCHAR(256) NOT NULL , 
+`email_subject_text` VARCHAR(256) NULL DEFAULT NULL , 
+`email_function_name` VARCHAR(256) NULL DEFAULT NULL , 
+`email_remarks` VARCHAR(64) NULL DEFAULT NULL , 
+`create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `email_attachment_parser` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `file_uploads` ADD `email_message_id` VARCHAR(256) NULL DEFAULT NULL AFTER `result`;
+ALTER TABLE `email_attachment_parser` ADD `active` TINYINT(5) NOT NULL DEFAULT '0' AFTER `email_remarks`;
+
+ALTER TABLE `partners` ADD `agent_id` INT(10) NOT NULL AFTER `create_date`;
+ALTER TABLE `partners` ADD `update_date` DATETIME NOT NULL AFTER `agent_id`;
+ALTER TABLE `trigger_partners` ADD `agent_id` INT(10) NOT NULL AFTER `create_date`;
+ALTER TABLE `trigger_partners` ADD `update_date` DATETIME NOT NULL AFTER `agent_id`;
+
+
+
+-- ---------------Abhay Anand-----------------------------------------
+
+--
+-- Table structure for table `zopper_estimate_details`
+--
+
+CREATE TABLE `zopper_estimate_details` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(128) NOT NULL,
+  `part_name` varchar(128) DEFAULT NULL,
+  `part_estimate_given` decimal(10,2) NOT NULL,
+  `around_part_commission` decimal(10,2) NOT NULL,
+  `service_charge` decimal(10,2) NOT NULL,
+  `transport_charge` decimal(10,2) NOT NULL,
+  `courier_charge` decimal(10,2) NOT NULL,
+  `arrange_part_by` int(2) NOT NULL COMMENT '1 means arrange different vendo, 2 means arrange by same vendor',
+  `entity` varchar(28) DEFAULT NULL,
+  `entity_id` int(11) DEFAULT NULL,
+  `remarks` varchar(258) NOT NULL,
+  `estimate_remarks` varchar(128) DEFAULT NULL,
+  `purchase_invoice_id` varchar(128) DEFAULT NULL,
+  `sell_invoice_id` varchar(128) DEFAULT NULL,
+  `estimate_sent` int(1) NOT NULL DEFAULT '0',
+  `estimate_file` varchar(128) DEFAULT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `zopper_estimate_details`
+--
+ALTER TABLE `zopper_estimate_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `zopper_estimate_details`
+--
+ALTER TABLE `zopper_estimate_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

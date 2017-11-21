@@ -524,6 +524,10 @@
                                     <select class="form-control" id="modal_service_id" name="service_id[]" multiple="multiple" required=""> 
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label class="radio-inline"><input type="radio" name="optradio" value="0" checked="">Without Pincode</label>
+                                    <label class="radio-inline"><input type="radio" name="optradio" value="1">With Pincode</label>
+                                </div>
                                 <div class="modal-footer">
                                     <div class="text-right">
                                         <div class="btn btn-default" data-dismiss="modal">Cancel</div>

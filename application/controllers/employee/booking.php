@@ -3491,8 +3491,15 @@ class Booking extends CI_Controller {
      */
     function download_serviceability_data(){
         $service_id = $this->input->post('service_id');
+        $checked_option = $this->input->post('optradio');
         $excel_file = array();
-        $col = "vendor_pincode_mapping.Appliance,vendor_pincode_mapping.City, vendor_pincode_mapping.State, vendor_pincode_mapping.Pincode";
+        $col = "vendor_pincode_mapping.Appliance,vendor_pincode_mapping.City, vendor_pincode_mapping.State ";
+        if($checked_option){
+            $col .= ",vendor_pincode_mapping.Pincode";
+            $template = '247around_serviceability_details_with_pincode.xlsx';
+        }else{
+            $template = '247around_serviceability_details_without_pincode.xlsx';
+        }
         
         if(in_array('all', $service_id)){
             $service_id = array_column($this->booking_model->selectservice(), 'id');
@@ -3503,7 +3510,7 @@ class Booking extends CI_Controller {
             $data = $this->vendor_model->get_pincode_mapping_form_col($col, $where);
             if(!empty($data)){
                 $excel_file[$key]['service_id'] = $value;
-                $excel_file[$key]['file'] = $this->miscelleneous->generate_excel_data('247around_serviceability_details.xlsx', $value, $data);
+                $excel_file[$key]['file'] = $this->miscelleneous->generate_excel_data($template, $value, $data);
                 unset($data);
             }
         }
