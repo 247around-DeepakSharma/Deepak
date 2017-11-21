@@ -366,7 +366,19 @@
                                                         
                                                         <tr>
                                                             <td><?php echo $price['service_category']; ?></td>
-                                                            <td><?php echo $price['customer_total']; ?></td>
+                                                            <td><?php 
+                                                            $ct = $price['customer_total'];
+                                                              if(isset($unit_details[0]['quantity'])){
+                                                                   
+                                                                       foreach ($unit_details[0]['quantity'] as  $tags) {
+                                                                           if($tags['price_tags'] == $price['service_category'] ){
+                                                                              $ct = $tags['customer_total'];
+                                                                           }
+                                                                        }
+                                                                    }
+                                                                    echo $ct;
+                                                            
+                                                            ?></td>
                                                             <td>
                                                                 <input type="text" class="form-control partner_discount" name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges_". $div . "_1"; ?>" value = "<?php  if(isset($unit_details[0]['quantity'])){
                                                                     $partner_net_payable = NUll;
@@ -427,7 +439,7 @@
                                                                     }
                                                                     
                                                                     ?>
-                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($price['customer_total'])."_".$div."_1" ?>">
+                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>">
                                                             </td>
                                                         </tr>
                                                         <?php  $i++; $div++; if(count($unit_details[0]['quantity']) > $k){  $k++;} }} ?>
@@ -563,7 +575,20 @@
                                                             <?php $i=0; $k=0; foreach ( $prices[0] as  $price) { ?>
                                                             <tr>
                                                                 <td><?php echo $price['service_category']; ?></td>
-                                                                <td><?php echo $price['customer_total']; ?></td>
+                                                                <td><?php echo $price['customer_total']; 
+                                                                
+                                                                $ct = $price['partner_net_payable'];
+                                                              if(isset($unit_details[0]['quantity'])){
+                                                                   
+                                                                       foreach ($booking_unit_details['quantity'] as  $tags) {
+                                                                           if($tags['price_tags'] == $price['service_category'] ){
+                                                                              $ct = $tags['customer_total'];
+                                                                           }
+                                                                        }
+                                                                    }
+                                                                    echo $ct;
+                                                                ?>
+                                                                </td>
                                                                 <td>
                                                                     <input type="text" class="form-control partner_discount" name="<?php echo "partner_paid_basic_charges[".$booking_unit_details['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges_". $div . "_".$number; ?>" value = "<?php  if(isset($booking_unit_details['quantity'])){
                                                                         $partner_net_payable = NUll;
@@ -624,7 +649,7 @@
                                                                         }
                                                                         
                                                                         ?>
-                                                                        type='checkbox' id="<?php echo "checkbox_" . $div . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][<?php echo $clone_number;?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($price['customer_total'])."_".$div."_".$number ?>">
+                                                                        type='checkbox' id="<?php echo "checkbox_" . $div . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][<?php echo $clone_number;?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_".$number ?>">
                                                                 </td>
                                                             </tr>
                                                             <?php  $i++; $div++; if(count($booking_unit_details['quantity']) > $k){ $k++;} }} ?>

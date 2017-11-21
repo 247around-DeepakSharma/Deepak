@@ -42,62 +42,96 @@
                         <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
-                                    <label for="parts">Total Part Charges </label>
-                                    <input type="number" class="form-control" id="part_charge" name="part_charges" value = "<?php echo set_value("part_charges");?>" placeholder="Enter Parts Charge" required>
+                                    <label for="parts">Part Name </label>
+                                    <input type="text" class="form-control" id="part_name" name="part_name" value = "<?php echo set_value("part_name");?>" placeholder="Enter Part Name" >
+                                   
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Part Estimate Given </label>
+                                    <input type="number" class="form-control charges part_estimate" id="part_charge" name="part_estimate_given" value = "<?php echo set_value("part_estimate_given");?>" placeholder="Enter Parts Charge" required>
                                     <input type="hidden" class="form-control" name="booking_id" value="<?php
                                     if (isset($data)) {
                                         echo $data[0]['booking_id'];
                                     }
                                     ?>" id="booking_id" />
                                     <input type="hidden" name="assigned_vendor_id" value="<?php echo $data[0]['assigned_vendor_id']; ?>" />
-                                    <input type="hidden" name="spare_parts" value="<?php if (isset($data['spare_parts'])){ echo "1"; }else { echo "0";} ?>" />
+                                    
                                 </div>
                             </div>
                              <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Around Part Commission </label>
-                                    <input type="number" class="form-control" id="part_charge" name="around_part_commission" value = "<?php echo set_value("around_part_commission");?>" placeholder="Enter Around Commission" required>
+                                    <input type="number" class="form-control charges" id="around_part_commission" name="around_part_commission" value = "<?php echo set_value("around_part_commission");?>" placeholder="Enter Around Commission" required>
                                    
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12 ">
-                                    <label for="parts">Service Charges </label>
-                                    <input type="number" class="form-control" id="service_charge" name="service_charge" value = "<?php echo set_value("service_charge");?>" placeholder="Enter Parts Charge" required>
-                                </div>
-                            </div>
-                            
+
                             </div>
                         <div class="col-md-12">
+                             <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Service Charges </label>
+                                    <input type="number" class="form-control charges" id="service_charge" name="service_charge" value = "<?php echo set_value("service_charge");?>" placeholder="Enter Parts Charge" required>
+                                </div>
+                            </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Transport Charges </label>
-                                    <input type="number" class="form-control" id="trans_charge" name="transport_charge" value = "<?php echo set_value("transport_charge");?>" placeholder="Enter Parts Charge" required>
+                                    <input type="number" class="form-control charges" id="trans_charge" name="transport_charge" value = "<?php echo set_value("transport_charge");?>" placeholder="Enter Parts Charge" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Courier Charges </label>
-                                    <input type="number" class="form-control" id="courier_charge" name="courier_charge" value = "<?php echo set_value("courier_charge");?>" placeholder="Enter Parts Charge" required>
+                                    <input type="number" class="form-control charges" id="courier_charge" name="courier_charge" value = "<?php echo set_value("courier_charge");?>" placeholder="Enter Parts Charge" required>
                                 </div>
                             </div>
-                            
+                        </div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="remarks">Remarks </label>
+                                    <textarea class="form-control" placeholder="Enter Remarks" name="remarks" required><?php echo set_value("remarks"); ?></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="remarks">Print Remarks On Invoice </label>
+                                    <textarea class="form-control" placeholder="Enter Invoice Remarks" name="estimate_remarks" required><?php echo set_value("estimate_remarks"); ?></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Total Charges </label>
+                                    <input type="number" class="form-control" id="total_charges" name="total_charges" value = "<?php echo set_value("total_charges");?>" placeholder="Enter Parts Charge" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="remarks">Send Estimate to Zopper </label>
+                                    <input type="checkbox" class="form-control" id="send_estimate" name="estimate_sent" value = "1" required>
+                                </div>
+                            </div>
+                        </div>
+                        <br/>  <hr/>
+                        <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Part Will Arrange By </label>
                                     <br/>
                                     <label class="radio-inline">
-                                        <input type="radio" name="same_diff_vendor" value="2">Same Vendor
+                                        <input type="radio" name="arrange_part_by" value="<?php echo PART_ARRANGE_BY_SAME_VENDOR; ?>" required>Same Vendor
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" name="same_diff_vendor" value="1">Different Vendor
+                                        <input type="radio" name="arrange_part_by" value="<?php echo PART_ARRANGE_BY_DIFF_VENDOR; ?>" required>Different Vendor
                                     </label>
                                     
                                 </div>
                             </div>
-                            
-                        </div>
-                        <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Select Vendor or Partner </label>
@@ -121,13 +155,7 @@
                                     </select>
                                    
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12 ">
-                                    <label for="remarks">Remarks </label>
-                                    <textarea class="form-control" placeholder="Enter Remarks" name="remarks" required><?php echo set_value("remarks"); ?></textarea>
-                                </div>
-                            </div>
+                            </div>    
                     </div>
                         <div class="col-md-12">
                         <div class="col-md-offset-4">
@@ -151,7 +179,7 @@ function check_validation() {
     var part_charges = Number($("#part_charge").val());
 
     if (part_charges > 0) {
-        var part_arrange_by = $('input[name="same_diff_vendor"]:checked').val();
+        var part_arrange_by = $('input[name="arrange_part_by"]:checked').val();
         if (part_arrange_by === null || part_arrange_by === undefined) {
             alert("Please Select Part Arrange By");
             return false;
@@ -206,5 +234,26 @@ function partner_vendor(vendor_partner) {
         }
     });
 }
+$(document).on('keyup', '.part_estimate', function (e) {
+    charges = 0;
+    $(".part_estimate").each(function (i) {
+        price = $(this).val();
+       
+        charges += Number(price * 1.15);
+        $("#around_part_commission").val((charges).toFixed(2));
+    });
+});
+$(document).on('keyup', '.charges', function (e) {
+    charges = 0;
+    $(".charges").each(function (i) {
+        price = $(this).val();
+       
+        charges += Number(price);
+    });
+    
+    $("#total_charges").val((charges * 1.18).toFixed(2));
+});
+
+
 </script>
 <?php $this->session->unset_userdata('success'); ?>
