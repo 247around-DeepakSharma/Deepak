@@ -3521,6 +3521,7 @@ ALTER TABLE `collateral_type`
 ALTER TABLE `collateral_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;COMMIT;
 
+<<<<<<< HEAD
 ALTER TABLE `sf_not_exist_booking_details` ADD `partner_id` INT NULL AFTER `active_flag`;
 
 -- Table structure for table `account_holders_bank_details`
@@ -3560,3 +3561,11 @@ ALTER TABLE `account_holders_bank_details`
 --
 ALTER TABLE `account_holders_bank_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
+ALTER TABLE `email_attachment_parser` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `file_uploads` ADD `email_message_id` VARCHAR(256) NULL DEFAULT NULL AFTER `result`;
+ALTER TABLE `email_attachment_parser` ADD `active` TINYINT(5) NOT NULL DEFAULT '0' AFTER `email_remarks`;
+
+ALTER TABLE `partners` ADD `agent_id` INT(10) NOT NULL AFTER `create_date`;
+ALTER TABLE `partners` ADD `update_date` DATETIME NOT NULL AFTER `agent_id`;
+ALTER TABLE `trigger_partners` ADD `agent_id` INT(10) NOT NULL AFTER `create_date`;
+ALTER TABLE `trigger_partners` ADD `update_date` DATETIME NOT NULL AFTER `agent_id`;
