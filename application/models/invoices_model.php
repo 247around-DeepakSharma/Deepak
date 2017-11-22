@@ -296,11 +296,7 @@ class invoices_model extends CI_Model {
                 . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category, "
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name,order_id, "
-                . " 
-
-             (case when (`booking_unit_details`.product_or_services = 'Service' ) 
-                 THEN (ROUND(partner_net_payable,2) ) 
-                 ELSE 0 END) as installation_charge,
+                . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount, 
               (case when( product_or_services ='Service' AND (partner_serial_number != '' AND partner_serial_number IS NOT NULL) )
               THEN partner_serial_number 
               when(product_or_services ='Service'  ) 
