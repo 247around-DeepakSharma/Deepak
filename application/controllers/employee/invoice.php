@@ -495,7 +495,7 @@ class Invoice extends CI_Controller {
     /**
      * @desc: generate details partner Detailed invoices
      */
-    function create_partner_invoices_detailed($partner_id, $f_date, $t_date, $invoice_type, $misc_data, $agent_id) {
+    function create_partner_invoices_detailed($partner_id, $f_date, $t_date, $invoice_type, $misc_data, $agent_id, $hsn_code) {
         log_message('info', __METHOD__ . "=> " . $invoice_type . " Partner Id " . $partner_id . ' invoice_type: ' . $invoice_type . ' agent_id: ' . $agent_id);
         $data = $this->invoices_model->getpartner_invoices($partner_id, $f_date, $t_date);
         $files = array();
@@ -598,7 +598,8 @@ class Invoice extends CI_Controller {
                 "sgst_tax_amount" => $meta["sgst_total_tax_amount"],
                 "cgst_tax_amount" => $meta["cgst_total_tax_amount"],
                 "parts_count" =>$meta['parts_count'],
-                "invoice_file_pdf" => $convert['copy_file']
+                "invoice_file_pdf" => $convert['copy_file'], 
+                "hsn_code" => $hsn_code
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -949,7 +950,7 @@ class Invoice extends CI_Controller {
         $files = array();
         $total_upcountry_booking = $upcountry_rate = $upcountry_distance = $total_inst_charge = $total_st_charge = $total_stand_charge =  $total_vat_charge = 0;
         $total_upcountry_price = 0;
-        
+       
         $template = 'Vendor_Settlement_Template-FoC-v4.xlsx';
         
         if (!empty($invoice_data['upcountry'])) {
@@ -1109,7 +1110,7 @@ class Invoice extends CI_Controller {
                     "parts_count" => $invoice_data['meta']["cgst_total_tax_amount"],
                     "rcm" => $invoice_data['meta']['rcm'],
                     "invoice_file_pdf" => $convert['copy_file'],
-                    "hsn_code" => hsn_code
+                    "hsn_code" => $invoice_data['booking'][0]['hsn_code']
                    
                 );
 
@@ -1730,7 +1731,7 @@ class Invoice extends CI_Controller {
         if (!empty($invoices)) {
 
             $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
-
+            $hsn_code = $invoices['booking'][0]['hsn_code'];
             log_message('info', __FUNCTION__ . ' Invoice id ' . $invoices['meta']['invoice_id']);
             
             $status =$this->send_request_to_create_main_excel($invoices, $invoice_type);
@@ -1740,7 +1741,7 @@ class Invoice extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
                
                 unset($invoices['booking']);
-                $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoices,$agent_id);
+                $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoices,$agent_id, $hsn_code);
                 return true;
                 
             } else {
