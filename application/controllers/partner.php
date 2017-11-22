@@ -213,18 +213,18 @@ class Partner extends CI_Controller {
 
                         if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
                             //if partner type is OEM then sent appliance brand in argument
-                            $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], 'Installation & Demo', $unit_details['appliance_brand']);
+                            $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], 'Installation & Demo', $unit_details['appliance_brand'], false);
                         } else {
                             //if partner type is not OEM then dose not sent appliance brand in argument
-                            $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], 'Installation & Demo', "");
+                            $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], 'Installation & Demo', "", false);
                         }
                         $booking['amount_due'] = '0';
 
                         //log_message('info', __FUNCTION__ . " => Prices Check ". print_r($prices));
                         $is_price = array();
-                        if (!empty($prices)) {
+                        if (!empty($prices) && count($prices) == 1) {
                             log_message('info', __FUNCTION__ . " => Prices Found");
-                            $unit_details['price_tags'] = "Installation & Demo";
+                            $unit_details['price_tags'] = $prices[0]['service_category'];
                             $unit_details['id'] = $prices[0]['id'];
                             $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
                             $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
