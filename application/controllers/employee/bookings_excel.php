@@ -451,7 +451,12 @@ class bookings_excel extends CI_Controller {
                         //Add this lead into the leads table
                         //Check whether this is a new Lead or Not
                         //Pass order id and partner source
-                        $rowData[0]['order_id'] = $rowData[0]['order_id']."-".$rowData[0]['order_item_id'];
+                        if(!empty($rowData[0]['order_item_id'])){
+                            $rowData[0]['order_id'] = $rowData[0]['order_id']."-".$rowData[0]['order_item_id'];
+                        } else {
+                            $rowData[0]['order_id'] = $rowData[0]['order_id'];
+                        }
+                        
                         
                         $partner_booking = $this->partner_model->get_order_id_for_partner($data['partner_id'], $rowData[0]['order_id']);
                         if (is_null($partner_booking)) {
