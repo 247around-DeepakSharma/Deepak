@@ -358,14 +358,28 @@ class Accounting extends CI_Controller {
      */
     function search_invoice_id() {
         $invoice_id = trim($this->input->post('invoice_id'));
-        $request_data = array('invoice_id' => $invoice_id);
-        $data['invoiceid_data'] = $this->invoices_model->getInvoicingData($request_data, true);
-        if (!empty($data['invoiceid_data'])) {
+        $invoice_remarks = trim($this->input->post('invoice_remarks'));
+        $request_data = array();
+        if(!empty($invoice_id)){
+            $request_data['invoice_id'] = $invoice_id;
+        }
+        
+        if(!empty($invoice_remarks)){
+            $request_data['remarks'] = $invoice_remarks;
+        }
+        
+        if(!empty($request_data)){
+            $data['invoiceid_data'] = $this->invoices_model->getInvoicingData($request_data, true);
+            if (!empty($data['invoiceid_data'])) {
 
-            echo $this->load->view('employee/invoiceid_details_data_table', $data);
-        } else {
+                echo $this->load->view('employee/invoiceid_details_data_table', $data);
+            } else {
+                echo "<div class='text-danger text-center'> <b>No Data Found <b></div>";
+            }
+        }else{
             echo "<div class='text-danger text-center'> <b>No Data Found <b></div>";
         }
+        
     }
 
     /**
