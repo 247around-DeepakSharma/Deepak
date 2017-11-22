@@ -1239,6 +1239,7 @@ class Inventory extends CI_Controller {
     function update_part_price_details(){
         $booking_id = trim($this->input->post("booking_id"));
         if(!empty($booking_id)){
+            $data['zopper'] = $this->inventory_model->select_zopper_estimate(array("booking_id" => $booking_id));
             $data['data'] = $this->booking_model->getbooking_history($booking_id);
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view("employee/update_price_details_form", $data);
@@ -1340,8 +1341,20 @@ class Inventory extends CI_Controller {
         $sp['service_center_id'] = $assigned_vendor_id; 
         $sp['model_number'] = $model_number;
         $sp['serial_number'] = $serial_number;
-        $sp['purchase_invoice'] = $this->input->post('part_estimate_given');
+        $sp['purchase_price'] = $this->input->post('part_estimate_given');
         $sp['sell_price'] = $this->input->post('part_estimate_given') + $this->input->post('around_part_commission');
+        $entity = "";
+        if($this->input->post("entity")){
+            $entity = $this->input->post("entity");
+            
+        }
+
+        if($this->input->post("entity_id")){
+            $entity_id = $this->input->post("entity_id");
+            if($entity == "partner" ){
+                $sp['partner_id'] = $entity_id; 
+            }
+        }
         
         $this->service_centers_model->spare_parts_action(array('booking_id' => $booking_id), $sp);
     }
