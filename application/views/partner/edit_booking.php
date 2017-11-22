@@ -713,7 +713,7 @@
         } else {
             postData['capacity'] = capacity;
         }
-        
+        postData['booking_id'] = '<?php echo $booking_history[0]['booking_id']; ?>';
         postData['service_category'] = '<?php  echo $price_tags; ?>';
         postData['pincode'] = $("#booking_pincode").val();
         postData['city'] = $("#booking_city").val();

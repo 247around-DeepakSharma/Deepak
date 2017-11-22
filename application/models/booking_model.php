@@ -94,7 +94,7 @@ class Booking_model extends CI_Model {
              $data['around_st_or_vat_basic_charges'] = 0;
              $data['around_comm_basic_charges'] = 0;
         }
-        
+       
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
     }
@@ -1582,7 +1582,20 @@ class Booking_model extends CI_Model {
 
         $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
+        $this->db->select('id, customer_total, price_tags, vendor_basic_percentage');
+        $this->db->where('appliance_id', $services_details['appliance_id']);
+        $this->db->where('price_tags', $data[0]['price_tags']);
+        $this->db->like('booking_id', preg_replace("/[^0-9]/","",$booking_id));
+        $query = $this->db->get('booking_unit_details');
+        $unit_details = $query->result_array();
         $result = array_merge($data[0], $services_details);
+        if($data[0]['price_tags']  == REPAIR_OOW_PARTS_PRICE_TAGS){
+            if(!empty($unit_details) && $unit_details[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS){
+                $result['customer_total'] = $unit_details[0]['customer_total'];
+                $result['vendor_basic_percentage'] = $unit_details[0]['vendor_basic_percentage'];
+            }
+        }
+
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
         $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
@@ -1600,18 +1613,11 @@ class Booking_model extends CI_Model {
         if ($update_key == 0) {
             $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
              
-        } 
-        
-        $this->db->select('id');
-        $this->db->where('appliance_id', $services_details['appliance_id']);
-        $this->db->where('price_tags', $data[0]['price_tags']);
-        $this->db->like('booking_id', preg_replace("/[^0-9]/","",$booking_id));
-        $query = $this->db->get('booking_unit_details');
-       // log_message('info', __METHOD__ . " Get Unit Details SQl" . $this->db->last_query());
+        }
 
         if ($query->num_rows > 0) {
             //if found, update this entry
-            $unit_details = $query->result_array();
+            
             log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[0]['id'], true));
             $this->db->where('id', $unit_details[0]['id']);
             $this->db->update('booking_unit_details', $result);
