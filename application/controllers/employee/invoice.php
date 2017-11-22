@@ -1107,7 +1107,7 @@ class Invoice extends CI_Controller {
                     "igst_tax_amount" => $invoice_data['meta']["igst_total_tax_amount"],
                     "sgst_tax_amount" => $invoice_data['meta']["sgst_total_tax_amount"],
                     "cgst_tax_amount" => $invoice_data['meta']["cgst_total_tax_amount"],
-                    "parts_count" => $invoice_data['meta']["cgst_total_tax_amount"],
+                    "parts_count" => $invoice_data['meta']["parts_count"],
                     "rcm" => $invoice_data['meta']['rcm'],
                     "invoice_file_pdf" => $convert['copy_file'],
                     "hsn_code" => $invoice_data['booking'][0]['hsn_code']
