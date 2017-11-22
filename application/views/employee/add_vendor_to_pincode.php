@@ -37,9 +37,9 @@ select[multiple], select[size]{
          			<div class="col-md-7">
                                     <div class="form-group <?php if( form_error('vendor_id') ) { echo 'has-error';} ?>">
                            <label for="name" class="col-md-4">Vendor*</label>
-                           <div class="col-md-6">
-                               <select type="text" class="form-control"  id="vendor" name="vendor_id" required>
-                                            <option value="">Select Vendor</option>
+                           <div class="col-md-6" style="padding:0px;">
+                               <select style="width:300px" class="brands" id="vendor" name="vendor_id" required="">
+                                                           <option value="">Select Vendor</option>
                                             <?php if (isset($vendors)){?>
                                             <?php foreach ($vendors as $key => $values) { ?>
                                             <option  value="<?php echo $values['Vendor_ID']."__".$values['Vendor_Name']; ?>" > <?php echo $values['Vendor_Name']; } ?></option>
@@ -51,7 +51,7 @@ select[multiple], select[size]{
                                     
                           <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
                            <label for="name" class="col-md-4">Pincode*</label>
-                           <div class="col-md-6">
+                           <div class="col-md-6" style="padding:0px;width:47%;">
                                <input type="text" class="form-control" id="pincode" name="pincode" value = "<?php if (isset($pincode)) {echo $pincode; } ?>" readonly="" required>
                            </div>
                            <div style="margin-left:25%;margin-top:40px;"><?php echo form_error('pincode'); ?></div>
@@ -61,7 +61,7 @@ select[multiple], select[size]{
                                     <p style="display:none;" id="appliance_count_helper"><?php echo count($all_appliance); ?></p>
                                                 <div class="form-group">
                                                     <label for="appliance" class="col-md-4" style="margin:0px 0px 20px 0px;">Appliance*</label>
-                                                    <label for="appliance" class="col-md-4" style="margin:0px 0px 20px 0px;">Brands*</label>
+                                                    <label for="appliance" class="col-md-4" style="margin:0px 0px 20px 0px;padding: 0px;">Brands*</label>
                             <?php foreach($all_appliance as $key=>$values){
                                                   $checked="";
                                                   $disabled="disabled";
@@ -106,6 +106,7 @@ select[multiple], select[size]{
 
 <script type="text/javascript">
 $(".brands").select2();
+$(".vendor").select2();
 //Making request Onchange 
 $('#vendor').on('change',function(){
 
