@@ -115,6 +115,7 @@ class send_grid_api {
                 "name" => $emailAttachmentDataArray['fileName'],
                 "type" => $emailAttachmentDataArray['type']);
         }
+        log_message('info', __FUNCTION__ . ' => Success: ' . print_r($data, 1));
         // convert array into json and send a curl request to sendgrid
         $response = $this->send_email(json_encode($data));
         if ($response == '') {
