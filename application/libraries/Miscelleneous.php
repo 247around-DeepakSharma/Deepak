@@ -1251,10 +1251,12 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $excelDataArray = array();
         for ($i = 2; $i <= $highestRow; $i++) {
             $excelDataArray = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
-            foreach ($excelDataArray[0] as $key => $data) {
-                $excelAssociatedArray[$newHeading[$key]] = trim($data);
+            if(array_filter($excelDataArray[0])) {
+                foreach ($excelDataArray[0] as $key => $data) {
+                    $excelAssociatedArray[$newHeading[$key]] = trim($data);
+                }
+                $finalExcelDataArray[] = $excelAssociatedArray;
             }
-            $finalExcelDataArray[] = $excelAssociatedArray;
         }
         return $finalExcelDataArray;
     }
