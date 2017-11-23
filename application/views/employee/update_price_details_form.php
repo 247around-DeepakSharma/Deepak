@@ -43,27 +43,27 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Part Name </label>
-                                    <input type="text" class="form-control" id="part_name" name="part_name" value = "<?php echo set_value("part_name");?>" placeholder="Enter Part Name" >
+                                    <input type="text" class="form-control" id="part_name" name="part_name" value = "<?php if(!empty($zopper)){ echo $zopper[0]['part_name']; }?>" placeholder="Enter Part Name" >
                                    
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Part Estimate Given </label>
-                                    <input type="number" class="form-control charges part_estimate" id="part_charge" name="part_estimate_given" value = "<?php echo set_value("part_estimate_given");?>" placeholder="Enter Parts Charge" required>
+                                    <input type="number" class="form-control charges part_estimate" id="part_charge" name="part_estimate_given" value = "<?php if(!empty($zopper)){ echo $zopper[0]['part_estimate_given']; }?>" placeholder="Enter Parts Charge" required>
                                     <input type="hidden" class="form-control" name="booking_id" value="<?php
                                     if (isset($data)) {
                                         echo $data[0]['booking_id'];
                                     }
                                     ?>" id="booking_id" />
-                                    <input type="hidden" name="assigned_vendor_id" value="<?php echo $data[0]['assigned_vendor_id']; ?>" />
+                                    <input type="hidden" name="assigned_vendor_id" value="<?php if(!empty($data)){ echo $data[0]['assigned_vendor_id']; }?>" />
                                     
                                 </div>
                             </div>
                              <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Around Part Commission </label>
-                                    <input type="number" class="form-control charges" id="around_part_commission" name="around_part_commission" value = "<?php echo set_value("around_part_commission");?>" placeholder="Enter Around Commission" required>
+                                    <input type="number" class="form-control charges" id="around_part_commission" name="around_part_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_part_commission']; }?>" placeholder="Enter Around Commission" required>
                                    
                                 </div>
                             </div>
@@ -73,19 +73,19 @@
                              <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Service Charges </label>
-                                    <input type="number" class="form-control charges" id="service_charge" name="service_charge" value = "<?php echo set_value("service_charge");?>" placeholder="Enter Parts Charge" required>
+                                    <input type="number" class="form-control charges" id="service_charge" name="service_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['service_charge']; }?>" placeholder="Enter Parts Charge" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Transport Charges </label>
-                                    <input type="number" class="form-control charges" id="trans_charge" name="transport_charge" value = "<?php echo set_value("transport_charge");?>" placeholder="Enter Parts Charge" required>
+                                    <input type="number" class="form-control charges" id="trans_charge" name="transport_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['transport_charge']; }?>" placeholder="Enter Parts Charge" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Courier Charges </label>
-                                    <input type="number" class="form-control charges" id="courier_charge" name="courier_charge" value = "<?php echo set_value("courier_charge");?>" placeholder="Enter Parts Charge" required>
+                                    <input type="number" class="form-control charges" id="courier_charge" name="courier_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['courier_charge']; }?>" placeholder="Enter Parts Charge" required>
                                 </div>
                             </div>
                         </div>
@@ -93,13 +93,13 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="remarks">Remarks </label>
-                                    <textarea class="form-control" placeholder="Enter Remarks" name="remarks" required><?php echo set_value("remarks"); ?></textarea>
+                                    <textarea class="form-control" placeholder="Enter Remarks" name="remarks" required><?php if(!empty($zopper)){ echo $zopper[0]['remarks']; }?></textarea>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="remarks">Print Remarks On Invoice </label>
-                                    <textarea class="form-control" placeholder="Enter Invoice Remarks" name="estimate_remarks" required><?php echo set_value("estimate_remarks"); ?></textarea>
+                                    <textarea class="form-control" placeholder="Enter Invoice Remarks" name="estimate_remarks" required><?php if(!empty($zopper)){ echo $zopper[0]['estimate_remarks']; }?></textarea>
                                 </div>
                             </div>
                         </div>
@@ -107,13 +107,14 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Total Charges </label>
-                                    <input type="number" class="form-control" id="total_charges" name="total_charges" value = "<?php echo set_value("total_charges");?>" placeholder="Enter Parts Charge" required>
+                                    <input type="number" class="form-control" id="total_charges" name="total_charges" value = "<?php if(!empty($zopper)){ echo round(($zopper[0]['part_estimate_given'] +  
+                                            $zopper[0]['courier_charge'] + $zopper[0]['transport_charge'] +$zopper[0]['service_charge'] + $zopper[0]['around_part_commission'])*1.18,0) ; }?>" placeholder="Enter Parts Charge" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="remarks">Send Estimate to Zopper </label>
-                                    <input type="checkbox" class="form-control" id="send_estimate" name="estimate_sent" value = "1" required>
+                                    <input type="checkbox" class="form-control" id="send_estimate" name="estimate_sent" value = "1" >
                                 </div>
                             </div>
                         </div>
@@ -124,10 +125,10 @@
                                     <label for="parts">Part Will Arrange By </label>
                                     <br/>
                                     <label class="radio-inline">
-                                        <input type="radio" name="arrange_part_by" value="<?php echo PART_ARRANGE_BY_SAME_VENDOR; ?>" required>Same Vendor
+                                        <input type="radio" name="arrange_part_by" value="<?php echo PART_ARRANGE_BY_SAME_VENDOR; ?>" <?php if(!empty($zopper)){ if($zopper[0]['arrange_part_by'] ==PART_ARRANGE_BY_SAME_VENDOR){ echo "checked"; } }?> required>Same Vendor
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" name="arrange_part_by" value="<?php echo PART_ARRANGE_BY_DIFF_VENDOR; ?>" required>Different Vendor
+                                        <input type="radio" name="arrange_part_by" value="<?php echo PART_ARRANGE_BY_DIFF_VENDOR; ?>" <?php if(!empty($zopper)){ if($zopper[0]['arrange_part_by'] ==PART_ARRANGE_BY_DIFF_VENDOR){ echo "checked"; } }?> required>Different Vendor
                                     </label>
                                     
                                 </div>
@@ -137,10 +138,10 @@
                                     <label for="parts">Select Vendor or Partner </label>
                                     <br/>
                                     <label class="radio-inline">
-                                        <input type="radio" name="entity" onclick="partner_vendor('vendor')" value="vendor">Vendor
+                                        <input type="radio" name="entity" onclick="partner_vendor('vendor')" <?php if(!empty($zopper)){ if($zopper[0]['entity'] == "vendor"){ echo "checked"; } }?> value="vendor">Vendor
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" name="entity" onclick="partner_vendor('partner')" value="partner">Partner
+                                        <input type="radio" name="entity" onclick="partner_vendor('partner')" <?php if(!empty($zopper)){ if($zopper[0]['entity'] == "partner"){ echo "checked"; } }?>  value="partner">Partner
                                     </label>
                                     
                                 </div>
@@ -174,7 +175,7 @@
 
 <script>
 $("#entity").select2();
-
+<?php if(!empty($zopper)){ ?>partner_vendor('<?php if(!empty($zopper)){echo $zopper[0]['entity'];}?>'); <?php }?>
 function check_validation() {
     var part_charges = Number($("#part_charge").val());
 
@@ -223,7 +224,7 @@ function partner_vendor(vendor_partner) {
         },
         url: '<?php echo base_url(); ?>employee/invoice/getPartnerOrVendor/' + vendor_partner,
         data: {
-            vendor_partner_id: "",
+            vendor_partner_id: "<?php if(!empty($zopper)){echo $zopper[0]['entity_id'];}?>",
             invoice_flag: 0
         },
         success: function(data) {

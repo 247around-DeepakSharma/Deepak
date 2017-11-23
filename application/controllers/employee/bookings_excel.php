@@ -452,7 +452,12 @@ class bookings_excel extends CI_Controller {
                         //Add this lead into the leads table
                         //Check whether this is a new Lead or Not
                         //Pass order id and partner source
-                        $rowData[0]['order_id'] = $rowData[0]['order_id']."-".$rowData[0]['order_item_id'];
+                        if(!empty($rowData[0]['order_item_id'])){
+                            $rowData[0]['order_id'] = $rowData[0]['order_id']."-".$rowData[0]['order_item_id'];
+                        } else {
+                            $rowData[0]['order_id'] = $rowData[0]['order_id'];
+                        }
+                        
                         
                         $partner_booking = $this->partner_model->get_order_id_for_partner($data['partner_id'], $rowData[0]['order_id']);
                         if (is_null($partner_booking)) {
@@ -520,17 +525,17 @@ class bookings_excel extends CI_Controller {
                             $partner_mapping_id = $booking['partner_id'];
                             if ($partner_data[0]['partner_type'] == OEM) {
                                 //if partner type is OEM then sent appliance brand in argument
-                                $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, 'Installation & Demo', $unit_details['appliance_brand']);
+                                $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, 'Installation & Demo', $unit_details['appliance_brand'], false);
                             } else {
                                 //if partner type is not OEM then dose not sent appliance brand in argument
-                                $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, 'Installation & Demo', "");
+                                $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, 'Installation & Demo', "", FALSE);
                             }
                             $booking['amount_due'] = '0';
                             $is_price = array();
                             $flag = array();
-                            if (!empty($prices)) {
+                            if (!empty($prices) && count($prices) == 1) {
                                 $unit_details['id'] = $prices[0]['id'];
-                                $unit_details['price_tags'] = "Installation & Demo";
+                                $unit_details['price_tags'] = $prices[0]['service_category'];
                                 $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
                                 $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
                                 $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
