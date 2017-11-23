@@ -16,6 +16,7 @@ require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php
 class vendor extends CI_Controller {
    var  $vendorPinArray = array();
    var  $filePath = "";
+   var $existServices=array();
     function __Construct() {
         parent::__Construct();
         $this->load->model('employee_model');
@@ -4405,7 +4406,10 @@ class vendor extends CI_Controller {
            */
         function download_vendor_pin_code($vendorID){ 
                     ob_start();
-                    $pincodeArray =  $this->vendor_model->check_vendor_details(array("Vendor_ID"=>$vendorID));
+                    $join = array("service_centres"=>"service_centres.id = pm.Vendor_ID","services"=>"services.id=pm.Appliance_ID");
+                    $orderBYArray = array("services.services"=>"ASC");
+                    $pincodeArray = $this->reusable_model->get_search_result_data("vendor_pincode_mapping pm","pm.Pincode,pm.City,pm.State,service_centres.name as Vendor_Name,services.services as Appliance",
+                            array("pm.Vendor_ID"=>$vendorID),$join,NULL,$orderBYArray,NULL,NULL);
                     $config = array('template' => "vendor_pin_code.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
                     log_message('info', __FUNCTION__ . ' Download Data ' . print_r($pincodeArray, TRUE));
                     $this->miscelleneous->downloadExcel($pincodeArray,$config);
@@ -4473,17 +4477,28 @@ class vendor extends CI_Controller {
           /*
            * This function checkes uploded vendor mapping pincode file must have only 1 vendor 
            */
-          function is_file_contains_only_valid_vendor($vendorID,$index,$data){
-                    $msg = TRUE;
-                        if($data['vendor_id'] !=''){
-                                if($data['vendor_id'] !== $vendorID){
-                                          $msg = "File Contains more then 1 Vendor, Error at line ".($index+2);
-                                }
-                        }
-                        else{
-                                           $msg = "File Contains Blank Vendor_ID, Error at line ".($index+2);
-                        }
-                   return $msg;
+          function is_file_contains_only_valid_service(){
+              $uniqueServicesArray = array();
+              foreach ($this->vendorPinArray as $index=>$data){
+                  $uniqueServicesArray[$data['appliance']][] = $index;  
+              }
+             $serviceTableData = array();
+             $serviceTableData =  $this->reusable_model->get_search_result_data("services","id,services",NULL,NULL,NULL,NULL,array("services"=>array_keys($uniqueServicesArray)),NULL);
+             $existServices =array();
+             foreach($serviceTableData as $serviceData){
+                    $this->existServices[$serviceData['services']] = $serviceData['id'] ; 
+             }
+              $wrongServiceArray = array_diff(array_keys($uniqueServicesArray),array_keys($this->existServices));
+              if($wrongServiceArray){
+               foreach($wrongServiceArray as $wrongService){
+                   $msg[]= implode(",",$uniqueServicesArray[$wrongService]);
+               }
+               $msg = implode(",",$msg)." Lines Contains Wrong Appliance,Please Select Appliance only from appliance list Or Check the Spelling</br>";
+               return $msg;
+            }
+            else{
+                return TRUE;
+            }
           }
           /*
            * This function checks is Uploded file blank
@@ -4513,11 +4528,12 @@ class vendor extends CI_Controller {
           /*
            * This function checks area_brand_pincode_serviceID Combination must be unique in uploded vendor pincode mapping file
            */
-          function delete_duplicate_pincode_service_brand_area($excelDataArray){
+          function delete_duplicate_pincode_service(){
               $msg = true;
               $tempArray = array();
+              $excelDataArray = $this->vendorPinArray;
               foreach($excelDataArray as $index=>$data){
-                    $uniqueString = $data['pincode'].",".$data['area'].",".$data['appliance_id'].",".$data['brand'];
+                    $uniqueString = $data['pincode'].",".$data['appliance'];
                     if(array_key_exists($uniqueString, $tempArray)){
                         unset($excelDataArray[$index]);
                     }
@@ -4551,11 +4567,10 @@ class vendor extends CI_Controller {
                                                   $readerVersion = $this->get_excel_reader_version($file['file']['name']);
                                                   $this->vendorPinArray =  $this->miscelleneous->excel_to_Array_converter($file,$readerVersion);
                                                   $msg['blank'] = $this->is_uploded_file_blank($this->vendorPinArray);
-                                                  $msg['unique_combination'] = $this->delete_duplicate_pincode_service_brand_area($this->vendorPinArray);
                                                   if($msg['blank'] == 1){
+                                                      $msg['valid_service'] = $this->is_file_contains_only_valid_service(); 
+                                                      if($msg['valid_service'] == 1){
                                                             foreach($this->vendorPinArray as $index=>$data){
-                                                                        $msg['vendor'] = $this->is_file_contains_only_valid_vendor($vendorID,$index,$data); 
-                                                                        if($msg['vendor'] == 1){
                                                                                 $msg['pin_code'] = $this->is_pin_code_valid($index,$data);
                                                                                 if($msg['pin_code'] == 1){
                                                                                           $msg['field_blank'] = $this->is_any_field_blank($index,$data);
@@ -4566,12 +4581,12 @@ class vendor extends CI_Controller {
                                                                                 else{
                                                                                           return $msg['pin_code'];
                                                                                 }
-                                                                        }
-                                                                        else{
-                                                                                return $msg['vendor'];
-                                                                        }
                                                             }
-                                                            
+                                                            $this->delete_duplicate_pincode_service();
+                                                      }
+                                                      else{
+                                                          return $msg['valid_service'];
+                                                      }
                                                   }
                                                   else{
                                                              return $msg['blank'];
@@ -4594,14 +4609,9 @@ class vendor extends CI_Controller {
                     if($deleteMsg == TRUE){
                               $finalInsertArray = array();
                               foreach($this->vendorPinArray as $key=>$data){
-                                        $insertArray['Vendor_Name'] = $data['vendor_name'];
-                                        $insertArray['Vendor_ID'] = $data['vendor_id'];
-                                        $insertArray['Appliance'] = $data['appliance'];
-                                        $insertArray['Appliance_ID'] = $data['appliance_id'];
-                                        $insertArray['Brand'] = $data['brand'];
-                                        $insertArray['Area'] = $data['area'];
+                                        $insertArray['Vendor_ID'] = $vendorID;
+                                        $insertArray['Appliance_ID'] = $this->existServices[$data['appliance']];
                                         $insertArray['Pincode'] = $data['pincode'];
-                                        $insertArray['Region'] = $data['region'];
                                         $insertArray['City'] = $data['city'];
                                         $insertArray['State'] = $data['state'];
                                         $finalInsertArray[] = $insertArray;
@@ -4628,7 +4638,7 @@ class vendor extends CI_Controller {
           function manage_pincode_not_found_sf_table(){
               foreach($this->vendorPinArray as $key=>$values){
                         $temp['Pincode'] = $values['pincode'];
-                        $temp['Appliance_ID'] = $values['appliance_id'];
+                        $temp['Appliance_ID'] = $this->existServices[$values['appliance']];
                         $pincodeServiceArray[] = $temp;
               }
               $this->miscelleneous->update_pincode_not_found_sf_table($pincodeServiceArray);
