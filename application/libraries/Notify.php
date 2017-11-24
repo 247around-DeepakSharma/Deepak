@@ -18,6 +18,7 @@ class Notify {
 
 	$this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->library('email');
+                    $this->My_CI->load->library('miscelleneous');
 	$this->My_CI->load->model('vendor_model');
 	$this->My_CI->load->model('booking_model');
     }
@@ -326,6 +327,7 @@ class Notify {
 		    $email['tag'] = "complete_booking";
 		    $email['subject'] = "Booking Completion-247AROUND";
 
+                                                $this->My_CI->miscelleneous->send_completed_booking_email_to_customer(array($email['booking_id']));
 		    //Send internal mails now
 		    $this->send_email($email);
 
