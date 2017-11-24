@@ -2708,7 +2708,7 @@ class Service_centers extends CI_Controller {
                     $total_bookings = $data[0]['total_booking'];
                     $total_escalation = $data[0]['total_escalation'];
                     $escalation_per = ($total_escalation*100)/$total_bookings;
-                    echo round($escalation_per,2);
+                    echo sprintf("%1\$.2f",$escalation_per);
                 }
                 
             }else{
