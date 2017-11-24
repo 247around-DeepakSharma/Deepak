@@ -3327,8 +3327,7 @@ class Booking extends CI_Controller {
         if (!$sidx){
             $sidx = 1;
         }
-        $count = $this->db->count_all_results('appliance_product_description');
-         
+        $count = $this->reusable_model->get_search_query('appliance_product_description', 'count(id) as count', $where,NULL,NULL,NULL,NULL,NULL)->result()[0]->count;
         if ($count > 0) {
             $total_pages = ceil($count / $limit);
         } else {
