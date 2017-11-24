@@ -119,7 +119,9 @@ class bookings_excel extends CI_Controller {
         }
 
         if (!$error) {
+            //Email Message ID - Unique for every email
             $email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
+
             //Processing File
             $response['data'] = $this->process_upload_file($inputFileName, $inputFileExtn);
             if(!empty($response['data'])){
