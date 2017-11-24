@@ -208,6 +208,10 @@
                         <li >
                             <a href="<?php echo base_url() ?>employee/partner/bracket_allocation"><i class="fa fa-fw fa-desktop "></i> <strong>Add Brackets Data</strong></a>
                         </li>
+                         <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/partner/get_partner_updation_history_view"><i class="fa fa-fw fa-desktop "></i> <strong>Updation History</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-alerts -->
                 </li>
@@ -294,6 +298,10 @@
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/vendor/show_bank_details"><i class="fa fa-fw fa-desktop "></i> <strong>Bank Details</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/vendor/get_partner_updation_history_view"><i class="fa fa-fw fa-desktop "></i> <strong>Updation History</strong></a>
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
@@ -527,6 +535,10 @@
                                 <div class="form-group">
                                     <select class="form-control" id="modal_service_id" name="service_id[]" multiple="multiple" required=""> 
                                     </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="radio-inline"><input type="radio" name="optradio" value="0" checked="">Without Pincode</label>
+                                    <label class="radio-inline"><input type="radio" name="optradio" value="1">With Pincode</label>
                                 </div>
                                 <div class="modal-footer">
                                     <div class="text-right">

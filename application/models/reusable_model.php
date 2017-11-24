@@ -86,11 +86,16 @@ class reusable_model extends CI_Model {
         return $this->db->affected_rows();
     }
     
-     function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray){
-       $this->db->_reserved_identifiers = array('*','CASE');
-       $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
-      return $query->result_array(); 
+    function insert_batch($table,$data){
+        $this->db->insert_batch($table, $data); 
+        return $this->db->affected_rows();
     }
+    
+     function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray){
+       $this->db->_reserved_identifiers = array('*','CASE','STR_TO_DATE','%d-%m-%Y,"")');
+       $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
+      return $query->result_array();
+     }
     function get_search_result_count($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray){
        $this->db->_reserved_identifiers = array('*','CASE');
        $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);

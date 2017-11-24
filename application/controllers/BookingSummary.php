@@ -480,33 +480,57 @@ EOD;
     }
 
     function send_leads_summary_mail_to_partners($partner_id = "") {
-        if ($partner_id != "") {
-
+        
+        $newCSVFileName = "Booking_summary_" . date('j-M-Y H:i:s') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        
+        if(!empty($partner_id))
+        {
             log_message('info', __FUNCTION__ . ' => Summaray Downloaded By Partner_id =' . $partner_id);
-
-            $newCSVFileName = "Booking_summary_" . date('j-M-Y H:i:s') . ".csv";
-            $csv = TMP_FOLDER . $newCSVFileName;
-            $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partner_id);
-            $delimiter = ",";
-            $newline = "\r\n";
-            $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
-
-            log_message('info', __FUNCTION__ . ' => Rendered CSV');
-            write_file($csv, $new_report);
-            //Downloading Generated CSV
-            if (file_exists($csv)) {
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($csv));
-                readfile($csv);
-                exec("rm -rf " . escapeshellarg($csv));
-                exit;
+            $where_get_partner = array('partners.id' => $partner_id, 'partners.is_active' => '1');
+            $select = "partners.id, partners.summary_email_to, partners.summary_email_cc, "
+                    . " partners.summary_email_bcc, partners.public_name";
+            $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
+            if(!empty($partners))
+            {
+                $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partners[0]['id']);
+                $delimiter = ",";
+                $newline = "\r\n";
+                $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+                log_message('info', __FUNCTION__ . ' => Rendered CSV');
+                write_file($csv, $new_report);
+                if($this->session->userdata('employee_id'))
+                {
+                    $this->generate_partner_summary_email_data($partners[0],$csv);
+                }
+                else
+                {
+                     //Downloading Generated CSV  
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($csv));
+                    readfile($csv);
+                    exec("rm -rf " . escapeshellarg($csv));
+                }
+                
+                if(file_exists($csv))
+                {
+                    unlink($csv);
+                }
+            }else{
+                if($this->session->userdata('employee_id')){
+                    redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
+                }else{
+                    redirect(base_url().'partner/home','refresh');
+                }
             }
-        } else {
+        }
+        else
+        {
             log_message('info', __FUNCTION__ . ' => Partner Summary send to partners by Cron');
 
             $where_get_partner = array('partners.is_active' => '1');
@@ -514,39 +538,15 @@ EOD;
                     . " partners.summary_email_bcc, partners.public_name";
             //Get all Active partners who has "is_reporting_mail" column 1
             $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
-            log_message('info', __FUNCTION__ . ' => Fetched active partners');
-            $newCSVFileName = "Booking_summary_" . date('j-M-Y') . ".csv";
-            $csv = TMP_FOLDER . $newCSVFileName;
-
-            foreach ($partners as $p) {
+            foreach ($partners as $p)
+            {
                 $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id']);
                 $delimiter = ",";
                 $newline = "\r\n";
                 $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
                 write_file($csv, $new_report);
-
-                log_message('info', __FUNCTION__ . ' => Rendered CSV');
-
-                $subject = "247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y');
-
-                $emailBasicDataArray['to'] = $p['summary_email_to'];
-                $emailBasicDataArray['cc'] = $p['summary_email_cc'];
-                $emailBasicDataArray['subject'] = $subject;
-                $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
-                $emailBasicDataArray['fromName'] = "247around Team";
-                $emailTemplateDataArray['templateId'] = PARTNER_SUMMARY_EMAIL_TEMPLATE;
-                $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($p['id']);
-                $emailAttachmentDataArray['type'] = "csv";
-                $emailAttachmentDataArray['fileName'] = "247around-Services-Consolidated-Data - " . date('d-M-Y');
-                $emailAttachmentDataArray['filePath'] = $csv;
-                $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
-
-                if ($emailStatus == 'success') {
-                    log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
-                } else {
-                    log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
-                }
-
+                $this->generate_partner_summary_email_data($partners[0],$csv);
+                
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "summary-excels/" . $csv;
                 $this->s3->putObjectFile(realpath($csv), $bucket, $directory_xls, S3::ACL_PRIVATE);
@@ -565,7 +565,7 @@ EOD;
                     log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . $csv);
                 }
             }
-        }
+        }  
     }
 
     function booking_report() {
@@ -1505,6 +1505,44 @@ EOD;
             //Logging_error
             log_message('info', __FUNCTION__ . ' No latest file has been found to be uploaded.');
         }
+    }
+    
+    /**
+     * @Desc: This function is used to send summary email to partner 
+     * @params:$partner_data array
+     * @params:$csv_file array
+     * @return:$response boolean
+     *
+     */
+    function generate_partner_summary_email_data($partner_data, $csv_file) {
+        
+        $subject = "247around Services Report - " . $partner_data['public_name'] . " - " . date('d-M-Y');
+        if($this->session->userdata('employee_id')){
+            $cc = $partner_data['summary_email_cc'].",".$this->session->userdata('official_email');
+        }else{
+            $cc = $partner_data['summary_email_cc'];
+        }
+        $emailBasicDataArray['to'] = $partner_data['summary_email_to'];
+        $emailBasicDataArray['cc'] = $cc;
+        $emailBasicDataArray['subject'] = $subject;
+        $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
+        $emailBasicDataArray['fromName'] = "247around Team";
+        $emailTemplateDataArray['templateId'] = PARTNER_SUMMARY_EMAIL_TEMPLATE;
+        $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($partner_data['id']);
+        $emailAttachmentDataArray['type'] = "csv";
+        $emailAttachmentDataArray['fileName'] = "247around-Services-Consolidated-Data - " . date('d-M-Y');
+        $emailAttachmentDataArray['filePath'] = $csv_file;
+        $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
+
+        if ($emailStatus == 'success') {
+            log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $partner_data['public_name']);
+            $response = true;
+        } else {
+            log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $partner_data['public_name']);
+            $response = false;
+        }
+        
+        return $response;
     }
 
 }

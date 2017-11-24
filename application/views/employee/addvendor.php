@@ -1343,7 +1343,28 @@
                     return false;
                  }
         }
-        
+        function  bank_details_validation(){
+                var cheque = $('#cancelled_cheque_file').val();
+                var bank_name = $('#bank_name').val();
+                var account_type = $('#account_type').val();
+                var bank_account = $('#bank_account').val();
+                var ifsc_code = $('#cancelled_cheque_file').val();
+                var beneficiary = $('#beneficiary_name').val();
+                if((cheque == null || cheque == '') && (bank_name == null || bank_name == '') && (account_type == null || account_type == '') && (bank_account == null || bank_account == '') && 
+                        (ifsc_code == null || ifsc_code == '') && (beneficiary == null || beneficiary == '')){
+                    return true;
+                }
+                else{
+                    if(!(cheque == null || cheque == '') && !(bank_name == null || bank_name == '') && !(account_type == null || account_type == '') && !(bank_account == null || bank_account == '') && 
+                        !(ifsc_code == null || ifsc_code == '') && !(beneficiary == null || beneficiary == '')){
+                        return true;
+                    }
+                    else{
+                        alert("Please Fill all banks related fields, either all bank related fields should be blank");
+                        return false;
+                    }
+                }
+        }
         //Function to vlaidate registration numbers entered
         function validate_registration_no(){
             //Check for PAN
@@ -1446,21 +1467,8 @@
                  alert("Please Select Atleast One Checkbox of Service Center OR Collection Partner");
                  return false;
              } 
-             
-             
-             if($('#cancelled_cheque_file').val() !== ''){
-                 if($('#bank_name').val() === '' || $('#account_type').val() === '' || $('#ifsc_code').val() === '' || $('#bank_account').val() === '' || $('#beneficiary_name').val() === ''){
-                    alert("Please Fill All Bank Details");
-                    return false;
-                }else{
-                    return true;
-                }
-             }else{
-                 return true;
-             }
-          
+              return  bank_validation_check =  bank_details_validation();
         }
-        
 </script>
 <style type="text/css">
     /* example styles for validation form demo */

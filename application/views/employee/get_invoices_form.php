@@ -71,7 +71,31 @@ function partner_vendor1(vendor_partner_id){
 
                 },
                 submitHandler: function(form) {
-                    form.submit();
+                    var partner_invoice_id  = $("#name").val();
+                    if(partner_invoice_id === "All"){
+                        var fd = new FormData(document.getElementById("fileinfo"));
+                        fd.append("label", "WEBUPLOAD");
+                        $.ajax({
+                                type: 'POST',
+                                url: '<?php echo base_url() ?>employee/invoice/process_invoices_form',
+                                data: fd,
+                                processData: false,
+                                contentType: false,
+                                success: function (data) {
+                                 // console.log(data);
+                                 
+                                }
+                              });
+                              alert("Process submitted. Please Wait..");
+                        return false;
+                      
+                        
+                    } else {
+
+                        form.submit();
+                    }
+                    
+                    
                 }
 
             });
@@ -155,7 +179,7 @@ color: red;
 	      <div class="form-group ">
                   <label class="col-md-2">Entity Type<span class="red">*</span></label>
 		  <div class="col-md-6">
-		      <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor"  checked="checked" value = "vendor" >    Service Centre &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor"  checked="checked" value = "vendor" >    Service Center &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		      <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		  </div>
               </div>
@@ -205,7 +229,7 @@ color: red;
               <span id="errms5"></span>
 
               <div class="col-md-12 col-md-offset-1" style="margin-top:20px;" >
-                  <input type= "submit"  class="btn btn-danger btn-lg"  value ="Generate Invoice" value="2017-01-01-2017-01-31" >
+                  <input type= "submit"  class="btn btn-danger btn-lg" value ="Generate Invoice"  >
         </div>
           </form>
 
@@ -216,7 +240,7 @@ color: red;
 <?php if($this->session->userdata('error')) { $this->session->unset_userdata('error'); } ?>
     <script type="text/javascript">
      $("#name").select2();
-     
+  
     </script>
    
 

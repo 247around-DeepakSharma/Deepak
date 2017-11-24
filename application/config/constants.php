@@ -186,6 +186,8 @@ define('SNAPDEAL_ID',1);
 define("JEEEVES_ID", 247030);
 //Wybor ID
 define("WYBOR_ID", 247010);
+//ZOPPER ID
+define("ZOPPER_ID", 247012);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
 //Define Email ID to send system health emails
@@ -349,8 +351,8 @@ define('RATING_NEW_STATE','Completed_With_Rating');
 define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com, arunk@247around.com");
 
 //Email IDs when SF is not found in Vendor Pincode Mapping file
-define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
-define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "anuj@247around.com, nits@247around.com");
+define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "");
+
 
 //promotional sms constant
 define('COMPLETED_PROMOTINAL_SMS_1','completed_promotional_sms_1');
@@ -478,6 +480,7 @@ define('REPAIR_OOW_VENDOR_PERCENTAGE','10');
 define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
 define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
 define("REPAIR_OOW_TAG", "Repair - Out Of Warranty");
+define("REPAIR_IN_WARRANTY_TAG", "Repair - In Warranty");
 define("NOT_UPCOUNTRY_PRICE_TAG", "-1");
 define("PARTNER_PROVIDE_UPCOUNTRY_PRICE_TAG", "1");
 
@@ -516,6 +519,18 @@ define("ESTIMATE_APPROVED_BY_CUSTOMER", "Spare Estimate Approved By Customer");
 define("MISSING_PINCODE_EMAIL_TO", "ayush.bafna@paytmmall.com, sales@247around.com, rohit1.verma@paytm.com, simranpreet.sawhney@paytm.com, ankur.sethi@paytm.com, shivam.awasthi@paytm.com, nits@247around.com, ashish.singh@paytm.com, simranpreet.sawhney@paytmmall.com, aditya1.agrawal@paytmmall.com");
 
 define("COMMISION_CHARGE_HSN_CODE", "996111");
+//sales email_id
+define('_247AROUND_SALES_EMAIL','sales@247around.com');
+//email attachment reader email
+define('EMAIL_ATTACHMENT_READER_EMAIL','installations@247around.com');
+//email attachment reader email password
+define('EMAIL_ATTACHMENT_READER_PASSWORD','247around@@installations');
+
+//Zopper booking- Part Arrange By Same Vendor
+define("PART_ARRANGE_BY_SAME_VENDOR", 2);
+//Zopper booking- Part Arrange By Different Vendor
+define("PART_ARRANGE_BY_DIFF_VENDOR", 1);
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

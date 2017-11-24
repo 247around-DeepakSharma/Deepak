@@ -19,20 +19,20 @@ class vendor_model extends CI_Model {
      * @return: array of vendor details
      */
     function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '') {
-        $where_id = "";
+$where_id = "";
         $where_active = "";
         $where_sf = "";
         $where_final = "";
         $cp = "";
         if($is_cp != ''){
-            $cp = " AND is_cp = $is_cp";
+            $cp = " AND service_centres.is_cp = $is_cp";
         }
         
         if ($vendor_id != "") {
-            $where_id .= "id= '$vendor_id'";
+            $where_id .= "service_centres.id= '$vendor_id'";
         }
         if ($active != "") {
-            $where_active .= "active= '$active'";
+            $where_active .= "service_centres.active= '$active'";
         }
         if($sf_list != ""){
             $where_sf .= "service_centres.id  IN (" .$sf_list.")";
@@ -57,16 +57,24 @@ class vendor_model extends CI_Model {
         }
         
         if($active === "" && $is_cp !== ""){
-            $where_final = "where is_cp = '1'";
+            $where_final = "where service_centres.is_cp = '1'";
         }
         
-        
-        //echo $where_final;exit();
-        $sql = "Select * from service_centres $where_final";
-
+        if(!$where_final){
+            $union_where_final = "WHERE service_centres.id NOT IN (SELECT bd.entity_id FROM account_holders_bank_details bd WHERE bd.entity_type='SF')";
+            $where_final = "WHERE account_holders_bank_details.entity_type = 'SF'";
+        }
+        else{
+            $union_where_final = $where_final." AND service_centres.id NOT IN (SELECT bd.entity_id FROM account_holders_bank_details bd WHERE bd.entity_type='SF')";
+             $where_final = $where_final." AND account_holders_bank_details.entity_type = 'SF'";
+        }
+        $union_query = "Select service_centres.*,NULL as bank_name,NULL as bank_account,NULL as ifsc_code, NULL as cancelled_cheque_file, NULL as beneficiary_name,NULL as is_verified,
+            NULL as account_type FROM service_centres  $union_where_final";
+        $sql  = "Select service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.bank_account,account_holders_bank_details.ifsc_code,
+                    account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,account_holders_bank_details.is_verified,account_holders_bank_details.account_type from service_centres 
+                  INNER JOIN account_holders_bank_details ON account_holders_bank_details.entity_id=service_centres.id $where_final UNION $union_query";
         $query = $this->db->query($sql);
-
-        return $query->result_array();
+       return $query->result_array();
     }
 
     /**
