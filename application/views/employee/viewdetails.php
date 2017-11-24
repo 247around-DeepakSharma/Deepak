@@ -360,6 +360,7 @@
                                     <th >Defective Part Image </th>
                                     <th >Serial Number</th>
                                     <th >Acknowledge Date BY SF </th>
+                                    <th >Estimate Given </th>
                                     <th >Remarks By SC </th>
                                     <th >Current Status </th>
                                 </tr>
@@ -376,6 +377,7 @@
                                     <td><?php if(!is_null($sp['defective_parts_pic']) ) { if($sp['defective_parts_pic'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_pic'];  ?> " target="_blank">Click Here to view Defective Part Image</a><?php } } ?></td>
                                     <td><?php echo $sp['serial_number']; ?></td>
                                     <td><?php echo $sp['acknowledge_date']; ?></td>
+                                    <td><?php echo $sp['purchase_price']; ?></td>
                                     <td><?php echo $sp['remarks_by_sc']; ?></td>
                                     <td><?php echo $sp['status']; ?></td>
                                 </tr>

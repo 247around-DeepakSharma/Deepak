@@ -6,11 +6,13 @@
             <section class="fetch_invoice_id" style="padding-left:20px;">
                 <div class="row">
                     <div class="form-inline" style="margin-left: 20px;">
-                        <div class="form-group" style="margin-right: 10px;">
-                            <label for="invoice_id">Invoice Id:</label>
-                            <input type="text" class="form-control" id="invoice_id">
+                        <div class="form-group col-md-4">
+                            <input type="text" class="form-control" id="invoice_id" placeholder="Invoice Id" style="width:100%;">
                         </div>
-                        <button class="btn btn-success" id="get_invoice_id_data">Search</button>
+                        <div class="form-group col-md-4">
+                             <input type="text" class="form-control" id="invoice_remarks" placeholder="Invoice Remarks" style="width:100%;">
+                        </div>
+                        <button class="btn btn-success col-md-2" id="get_invoice_id_data">Search</button>
                     </div>
                 </div>
             </section>
@@ -24,11 +26,12 @@
     $(document).ready(function () {
         $('#get_invoice_id_data').click(function () {
             var invoice_id = $.trim($("#invoice_id").val());
-            if (invoice_id){
+            var invoice_remarks = $.trim($("#invoice_remarks").val());
+            if (invoice_id || invoice_remarks){
                 $('#loader').show();
                 $.ajax({
                     method: 'POST',
-                    data: {invoice_id: invoice_id},
+                    data: {invoice_id: invoice_id,invoice_remarks:invoice_remarks},
                     url: '<?php echo base_url(); ?>employee/accounting/search_invoice_id',
                     success: function (response) {
                         //console.log(response);
@@ -39,7 +42,7 @@
                     }
                 });
             }else{
-                alert("Please Insert Invoice ID");
+                alert("Please Enter At Least One Field");
             }
         });
     });

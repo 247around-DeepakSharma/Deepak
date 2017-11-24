@@ -49,6 +49,7 @@
           	<th class='jumbotron' style="text-align: center">Owner Email</th>
                 <th class='jumbotron' style="text-align: center">Go To Invoice Page</th>
           	<th colspan="2" class='jumbotron' style="text-align: center">Action</th>
+                <th class='jumbotron' style="text-align: center">Send Summary Email</th>
           </tr>
 
           
@@ -92,6 +93,9 @@
                 <?php } else {?>
                  <a class="btn btn-md btn-primary" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>">Activate</a>                
                 <?php } ?>
+            </td>
+            <td>
+                <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-md btn-color">Send Mail</a>  
             </td>
             
           </tr>

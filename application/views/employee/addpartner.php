@@ -4,6 +4,38 @@
     margin:4px 0 5px !important;
     width:auto !important;
     }
+     #tabs ul{
+        margin:0px;
+        padding:0px;
+    }
+    #tabs li{
+            list-style: none;
+    float: left;
+    position: relative;
+    top: 0;
+    margin: 1px .2em 0 0;
+    border-bottom-width: 0;
+    padding: 0;
+    white-space: nowrap;
+        border: 1px solid #2c9d9c;
+    background: #d9edf7 url(images/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x;
+    font-weight: normal;
+    color: #555555;
+    border-top-right-radius: 4px;
+        border-top-left-radius: 4px;
+        border-bottom: 0px;
+    }
+    #tabs a{
+            float: left;
+    padding: .5em 1em;
+    text-decoration: none;
+    }
+    .col-md-12 {
+    padding: 10px;
+}
+.select2-container{
+    width:100% !important;
+}
 </style>
 <div id="page-wrapper">
     <div class="row">
@@ -15,20 +47,48 @@
                     } else {
                     echo "ADD PARTNER";
                     } ?></b>
-                <div class="pull-right" style="margin-top:-7px;">
+                    </div>
+                <div id="tabs" style="border:0px solid #fff;float:left;">
+                <div class="col-md-12" style="">
+                    <ul> 
+                        <?php
+                        if (!isset($query[0]['id'])) {
+                        ?>
+                        <li style="background:#fff"><a id="1" href="#tabs-1"><span class="panel-title">Partner Basic Details</span></a></li>
+                        <li><a id="2" href="#tabs-2" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Partner Documents</span></a></li>
+                        <li><a id="3" href="#tabs-3" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Partner Operation Region</span></a></li>
+                        <li><a id="4" href="#tabs-4" ><span class="panel-title" onclick="alert('Please Add Basic Details FIrst')">Partner Contracts</span></a></li>
+                        <?php
+                        }
+                        else{
+                        ?>
+                        <li style="background:#fff"><a id="1" href="#tabs-1" onclick="load_form(this.id)"><span class="panel-title">Partner Basic Details</span></a></li>
+                        <li><a id="2" href="#tabs-2"  onclick="load_form(this.id)"><span class="panel-title">Partner Documents</span></a></li>
+                        <li><a id="3" href="#tabs-3" onclick="load_form(this.id)"><span class="panel-title">Partner Operation Region</span></a></li>
+                        <li><a id="4" href="#tabs-4" onclick="load_form(this.id)"><span class="panel-title">Partner Contracts</span></a></li>
+                        <?php
+                        }
+                        ?>
+                    </ul>
+                </div>
+            </div>
+                <div class="pull-right" style="margin-top:10px;">
                     <div class="row">
-                        <?php if (isset($query[0]['id'])) { ?>
-                        <div class="col-md-6">
-                            <a class="btn btn-primary" href="<?php echo base_url(); ?>employee/partner/upload_partner_brand_logo/<?php echo $query[0]['id'] ?>/<?php echo $query[0]['public_name'] ?>" style="margin-right:15px;">Upload Partner Brand Logo</a>
+                        <div class="col-md-3" style="width: 22%;">
+                            <a class="btn btn-primary" href="<?php echo base_url(); ?>employee/partner/viewpartner" style="margin-right:5px;">View Partners</a>
                         </div>
-                        <div class="col-md-6">
+                        <?php if (isset($query[0]['id'])) { ?>
+                        <div class="col-md-3" style="width: 37.5%;">
+                            <a class="btn btn-primary" href="<?php echo base_url(); ?>employee/partner/upload_partner_brand_logo/<?php echo $query[0]['id'] ?>/<?php echo $query[0]['public_name'] ?>" style="margin-right:5px;">Upload Partner Brand Logo</a>
+                        </div>
+                        <div class="col-md-3" style="width: 22%;">
                             <a href="<?php echo base_url() ?>employee/partner/get_partner_login_details_form/<?php echo $query[0]['id'] ?>" class="btn btn-primary"><b>MANAGE LOGIN</b></a>
                         </div>
                         <?php } ?>
                     </div>
                 </div>
-            </div>
             <br>
+            <div class="clear"></div>
             <?php
                 if ($this->session->userdata('success')) {
                     echo '<div class="alert alert-success alert-dismissible" role="alert">
@@ -47,7 +107,8 @@
                     </div>';
                 }
                 ?>
-            <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_add_edit_partner_form" method="POST" enctype="multipart/form-data">
+            <div id="container_1" class="form_container">
+                      <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_add_edit_partner_form" method="POST" enctype="multipart/form-data">
                 <div>
                     <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php if (isset($query[0]['id'])) {
                         echo $query[0]['id'];
@@ -166,7 +227,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group <?php if (form_error('state')) {
+                                <div style="margin-bottom: 31px;" class="form-group <?php if (form_error('state')) {
                                     echo 'has-error';
                                     } ?>">
                                     <label for="state" class="col-md-4">State *</label>
@@ -192,7 +253,7 @@
                                         <?php echo form_error('state'); ?>
                                     </div>
                                 </div>
-                                <div class="form-group <?php if (form_error('district')) {
+                                <div style="margin-bottom: 31px;" class="form-group <?php if (form_error('district')) {
                                     echo 'has-error';
                                     } ?>">
                                     <label for="state" class="col-md-4">District *</label>
@@ -207,7 +268,7 @@
                                         <?php echo form_error('district'); ?>
                                     </div>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group " style="margin-bottom: 31px;">
                                     <label for="state" class="col-md-4">Pincode</label>
                                     <div class="col-md-8">
                                         <select class="pincode form-control" name ="pincode"  id="pincode">
@@ -219,7 +280,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group " style="margin-bottom: 31px;">
                                     <label for="partner_code" class="col-md-4">Partner Code</label>
                                     <div class="col-md-8">
                                         <select class="form-control" name ="partner_code"  id="partner_code">
@@ -268,30 +329,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group <?php if (form_error('contract_file')) {
-                                    echo 'has-error';
-                                    } ?>">
-                                    <label for="contract_file" class="col-md-4">Contract File</label>
-                                    <div class="col-md-6">
-                                        <input type="file" class="form-control"  name="contract_file">
-                                        <?php echo form_error('contract_file'); ?>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <?php
-                                            $src = base_url() . 'images/no_image.png';
-                                            $image_src = $src;
-                                            if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
-                                                $src = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $query[0]['contract_file'];
-                                                $image_src = base_url() . 'images/view_image.png';
-                                            }
-                                            ?>
-                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src; ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
-                                        <?php if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) { ?>
-                                        <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>, '<?php echo $query[0]['contract_file'] ?>', 'contract_file')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                                <div  class="form-group <?php if (form_error('account_manager_id')) {
+                                <div style="margin-bottom: 31px;" class="form-group <?php if (form_error('account_manager_id')) {
                                     echo 'has-error';
                                     } ?>">
                                     <label  for="account_manager" class="col-md-4">Account Managers </label>
@@ -364,14 +402,14 @@
                                     <label  for="upcountry_rate" class="col-md-4">Min UpCountry Rate</label>
                                     <div class="col-md-1">
                                         <input type="checkbox" name="is_upcountry" id="upcountry" style="zoom:1.5" 
-                                            <?php if (isset($query)) {
+                                            <?php if (isset($query[0])) {
                                                 if ($query[0]['is_upcountry'] == 1) {
                                                     echo "checked";
                                                 }
                                                 } ?>/>
                                     </div>
                                     <div class="col-md-3">
-                                        <input  type="number" class="form-control" value = "<?php if (isset($query)) {
+                                        <input  type="number" class="form-control" value = "<?php if (isset($query[0])) {
                                             echo $query[0]['upcountry_rate'];
                                             } ?>" name="upcountry_rate" id="upcountry_rate" placeholder="Enter KM's">
                                     </div>
@@ -380,58 +418,31 @@
                                     </div>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="upcountry_min_distance_threshold" class="col-md-4">Min Distance</label>
-                                    <div class="col-md-8">
-                                        <input  type="text" class="form-control"  name="upcountry_min_distance_threshold" value = "<?php if (isset($query)) {
-                                            echo $query[0]['upcountry_min_distance_threshold'];
-                                            } ?>">
-                                    </div>
-                                </div>
-                                <div class="form-group ">
                                     <label for="upcountry_max_distance_threshold" class="col-md-4">Max Distance</label>
                                     <div class="col-md-8">
-                                        <input  type="text" class="form-control"  name="upcountry_max_distance_threshold" value = "<?php if (isset($query)) {
-                                            echo $query[0]['upcountry_max_distance_threshold'];
+                                        <input  type="text" class="form-control"  name="upcountry_max_distance_threshold" value = "<?php if (isset($query[0])) {
+                                            echo $query[0]['upcountry_max_distance_threshold']-25;
                                             } ?>">
                                         <p>Add 25 KM Extra in Max Upcountry Distance</p>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                            </div>
+                            <div class="col-md-6">
+                                 <div class="form-group">
                                     <label  for="upcountry_approval" class="col-md-4">Upcountry Approval</label>
                                     <div class="col-md-1">
                                         <input type="checkbox" name="upcountry_approval" id="upcountry_approval" style="zoom:1.5" 
-                                            <?php if (isset($query)) {
+                                            <?php if (isset($query[0])) {
                                                 if ($query[0]['upcountry_approval'] == 1) {
                                                     echo "checked";
                                                 }
                                                 } ?> />
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label  for="upcountry_rate" class="col-md-4">Max UpCountry Rate</label>
-                                    <div class="col-md-3">
-                                        <input  type="number" class="form-control" value = "<?php if (isset($query)) {
-                                            echo $query[0]['upcountry_rate1'];
-                                            } ?>" name="upcountry_rate1" id="upcountry_rate1"    placeholder="Enter KM's">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <span><i>[Enter Rate per KM]</i></span>
-                                    </div>
-                                </div>
-                                <div class="form-group ">
-                                    <label for="upcountry_mid_distance_threshold" class="col-md-4">Middle Distance</label>
-                                    <div class="col-md-8">
-                                        <input  type="text" class="form-control"  name="upcountry_mid_distance_threshold" value = "<?php if (isset($query)) {
-                                            echo $query[0]['upcountry_mid_distance_threshold'];
-                                            } ?>">
-                                    </div>
-                                </div>
                                 <div class="form-group ">
                                     <label for="upcountry_approval_email" class="col-md-4">Upcountry Approval Email</label>
                                     <div class="col-md-8">
-                                        <input  type="text" class="form-control"  name="upcountry_approval_email" value = "<?php if (isset($query)) {
+                                        <input  type="text" class="form-control"  name="upcountry_approval_email" value = "<?php if (isset($query[0])) {
                                             echo $query[0]['upcountry_approval_email'];
                                             } ?>">
                                     </div>
@@ -448,7 +459,7 @@
                                 <div class="form-group ">
                                     <label for="is required Def parts" class="col-md-4">Is Spare Parts Required</label>
                                     <div class="col-md-1">
-                                        <input  type="checkbox" class="form-control"  name="is_def_spare_required" value = "1" <?php if (isset($query)) {
+                                        <input  type="checkbox" class="form-control"  name="is_def_spare_required" value = "1" <?php if (isset($query[0])) {
                                             if($query[0]['is_def_spare_required'] == '1'){ echo "checked"; }
                                             } ?> >
                                     </div>
@@ -566,7 +577,7 @@
                                 <label  for="is_reporting_mail" class="col-md-4">Reporting Mail</label>
                                 <div class="col-md-4">
                                     <input type="checkbox" name="is_reporting_mail" id="is_reporting_mail" style="zoom:1.5" 
-                                        <?php if (isset($query)) {
+                                        <?php if (isset($query[0])) {
                                             if ($query[0]['is_reporting_mail'] == 1) {
                                                 echo "checked";
                                             }
@@ -639,46 +650,91 @@
                     </div>
                 </div>
                 <div class="col-md-12">
+                 <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><b>Prepaid Account Details</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-6">
+                                <div class="form-group ">
+                                    <label for="is prepaid" class="col-md-4">Is Prepaid Account</label>
+                                    <div class="col-md-1">
+                                        <input  type="checkbox" class="form-control"  name="is_prepaid" value = "1" <?php if (isset($query[0])) {
+                                            if($query[0]['is_prepaid'] == '1'){ echo "checked"; }
+                                            } ?> >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group <?php if (form_error('prepaid_amount_limit')) {
+                                    echo 'has-error';
+                                    } ?>">
+                                    <label for="prepaid_amount_limit" class="col-md-4">Prepaid Minimum Amt Limit</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  name="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
+                                            echo $query[0]['prepaid_amount_limit'];
+                                            } ?>" >
+                                        <?php echo form_error('prepaid_amount_limit'); ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group <?php if (form_error('prepaid_notification_amount')) {
+                                    echo 'has-error';
+                                    } ?>">
+                                    <label for="prepaid_notification_amount" class="col-md-4">Notification Amt Limit</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  name="prepaid_notification_amount" value = "<?php if (isset($query[0]['prepaid_notification_amount'])) {
+                                            echo $query[0]['prepaid_notification_amount'];
+                                            } ?>" >
+                                        <?php echo form_error('prepaid_notification_amount'); ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group <?php if (form_error('grace_period_date')) {
+                                    echo 'has-error';
+                                    } ?>">
+                                    <label for="grace_period_date" class="col-md-4">Grace Period Date </label>
+                                    <div class="col-md-8">
+                                        <input type="text" id="grace_period_date" placeholder="Select Date When Partner De-Activate" class="form-control"  name="grace_period_date" value = "<?php if (isset($query[0]['grace_period_date'])) {
+                                            echo $query[0]['grace_period_date'];
+                                            } ?>" >
+                                        <?php echo form_error('grace_period_date'); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="clear clear_bottom">
+                    <br>
+                    <center><input type="Submit" value="<?php if (isset($query[0]['id'])) {
+                        echo "Update Partner";
+                        } else {
+                        echo "Save Partner";
+                        } ?>" class="btn btn-primary" id="submit_btn">
+                        <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/partner/viewpartner>Cancel</a>"; ?>
+                    </center>
+                </div>
+            </form>
+                </div>
+            <div class="clear"></div>
+             <div id="container_2" style="display:none" class="form_container">  
+               <form name="document_form" class="form-horizontal" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_document_form" method="POST" enctype="multipart/form-data">
+               <?php
+               if(isset($query[0]['id'])){
+                   if($query[0]['id']){
+                   ?>
+                   <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                   <?php
+                   }
+               }
+               ?>
+                     <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading"><b>Registration Details</b></div>
                         <div class="panel-body">
-                            <div class="col-md-6 form-group <?php if (form_error('agreement_start_date')) {
-                                echo 'has-error';
-                                } ?>">
-                                <label for="agreement_start_date" class="col-md-4">Partnership Start Date</label>
-                                <div class="col-md-6">
-                                    <div class="input-group input-append date" >
-                                        <?php
-                                            if (isset($query[0]['agreement_start_date'])) {
-                                                if ($query[0]['agreement_start_date'] != "0000-00-00") {
-                                                    $aggrement_date = $query[0]['agreement_start_date'];
-                                                } else {
-                                                    $aggrement_date = date("Y-m-d", strtotime($query[0]['create_date']));
-                                                }
-                                            } else {
-                                                $aggrement_date = date("Y-m-d");
-                                            }
-                                            ?>
-                                        <input type="text" class="form-control"  name="agreement_start_date" id="agreement_start_date" value = "<?php echo $aggrement_date; ?>">
-                                        <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
-                                    </div>
-                                    <?php echo form_error('agreement_start_date'); ?>
-                                </div>
-                            </div>
-                            <div class="col-md-6 form-group <?php if (form_error('agreement_end_date')) {
-                                echo 'has-error';
-                                } ?>">
-                                <label for="agreement_end_date" class="col-md-4">Partnership End Date</label>
-                                <div class="col-md-6">
-                                    <div class="input-group input-append date" >
-                                        <input type="text" class="form-control"  name="agreement_end_date" id="agreement_end_date" value = "<?php if (isset($query[0]['agreement_end_date'])) {
-                                            echo $query[0]['agreement_end_date'];
-                                            } ?>">
-                                        <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
-                                    </div>
-                                    <?php echo form_error('agreement_end_date'); ?>
-                                </div>
-                            </div>
                             <div class="col-md-12">
                                 <div class="form-group <?php if (form_error('pan')) {
                                     echo 'has-error';
@@ -839,63 +895,59 @@
                         </div>
                     </div>
                 </div>
-                 <div class="col-md-12">
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><b>Prepaid Account Details</b></div>
-                        <div class="panel-body">
-                            <div class="col-md-6">
-                                <div class="form-group ">
-                                    <label for="is prepaid" class="col-md-4">Is Prepaid Account</label>
-                                    <div class="col-md-1">
-                                        <input  type="checkbox" class="form-control"  name="is_prepaid" value = "1" <?php if (isset($query)) {
-                                            if($query[0]['is_prepaid'] == '1'){ echo "checked"; }
-                                            } ?> >
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group <?php if (form_error('prepaid_amount_limit')) {
-                                    echo 'has-error';
-                                    } ?>">
-                                    <label for="prepaid_amount_limit" class="col-md-4">Prepaid Minimum Amt Limit</label>
-                                    <div class="col-md-8">
-                                        <input type="text" class="form-control"  name="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
-                                            echo $query[0]['prepaid_amount_limit'];
-                                            } ?>" >
-                                        <?php echo form_error('prepaid_amount_limit'); ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group <?php if (form_error('prepaid_notification_amount')) {
-                                    echo 'has-error';
-                                    } ?>">
-                                    <label for="prepaid_notification_amount" class="col-md-4">Notification Amt Limit</label>
-                                    <div class="col-md-8">
-                                        <input type="text" class="form-control"  name="prepaid_notification_amount" value = "<?php if (isset($query[0]['prepaid_notification_amount'])) {
-                                            echo $query[0]['prepaid_notification_amount'];
-                                            } ?>" >
-                                        <?php echo form_error('prepaid_notification_amount'); ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group <?php if (form_error('grace_period_date')) {
-                                    echo 'has-error';
-                                    } ?>">
-                                    <label for="grace_period_date" class="col-md-4">Grace Period Date </label>
-                                    <div class="col-md-8">
-                                        <input type="text" id="grace_period_date" placeholder="Select Date When Partner De-Activate" class="form-control"  name="grace_period_date" value = "<?php if (isset($query[0]['grace_period_date'])) {
-                                            echo $query[0]['grace_period_date'];
-                                            } ?>" >
-                                        <?php echo form_error('grace_period_date'); ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                   <div class="clear clear_bottom">
+                    <br>
+                    <center><input type="Submit" value="<?php if (isset($query[0]['id'])) {
+                        echo "Update Documents";
+                        } else {
+                        echo "Save Documents";
+                        } ?>" class="btn btn-primary" id="submit_document_btn">
+                        <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/partner/viewpartner>Cancel</a>"; ?>
+                    </center>
                 </div>
-                <div class="col-md-12">
+               </form>
+                  <?php
+       if(!empty($results['partner_documents'])){
+           ?>
+                    <div id="exist_documents">
+                     <table class="table">
+    <thead>
+      <tr>
+        <th>Document Name</th>
+        <th>Document</th>
+        <th>is valid</th>
+      </tr>
+    </thead>
+    <tbody>  
+                 <?php
+       foreach($results['partner_documents'] as $value){
+       ?>
+      <tr>
+        <td><?php echo $value['document_name'] ?></td>
+        <td><a target="_blank" href=<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$value['file']?>><?php echo $value['file'] ?></a></td>
+        <td><?php echo $value['is_valid'] ?></td>
+      </tr>
+      <tr>
+          <?php
+          }
+       }
+          ?>
+  </table>
+                        </div>
+                </div>
+            <div class="clear"></div>
+            <div id="container_3" style="display:none;" class="form_container">
+                <form name="myForm" class="form-horizontal" id ="operation_region_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_partner_operation_region_form" method="POST" enctype="multipart/form-data">
+       <?php
+               if(isset($query[0]['id'])){
+                   if($query[0]['id']){
+                   ?>
+                   <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                   <?php
+                   }
+               }
+               ?>
+                     <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading"><b>Partner Operation Region</b></div>
                         <div class="panel-body">
@@ -912,7 +964,7 @@
                                     }
                                     ?>
                             <div class="col-md-12 form-group">
-                                <div class="col-md-3"><?php echo $value->services ?></div>
+                                <div class="col-md-3" style="padding: 5px 2px;"><?php echo $value->services ?></div>
                                 <select name ="select_state[<?php echo $value->id ?>][]" class=" col-md-4 select_state" multiple="multiple">
                                     <option value="all">ALL</option>
                                     <?php foreach ($results['select_state'] as $val) { ?>
@@ -924,17 +976,173 @@
                         </div>
                     </div>
                 </div>
-                <div class="clear clear_bottom">
+                    <div class="clear clear_bottom">
                     <br>
                     <center><input type="Submit" value="<?php if (isset($query[0]['id'])) {
-                        echo "Update Partner";
+                        echo "Update Operation Regions";
                         } else {
-                        echo "Save Partner";
-                        } ?>" class="btn btn-primary" id="submit_btn">
+                        echo "Save Operation Regions";
+                        } ?>" class="btn btn-primary" id="submit_document_btn">
                         <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/partner/viewpartner>Cancel</a>"; ?>
                     </center>
                 </div>
-            </form>
+                    </form>
+                </div>
+            <div class="clear"></div>
+             <div id="container_4" style="display:none" class="form_container">
+               <form name="document_form" class="form-horizontal" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_contracts" method="POST" enctype="multipart/form-data">
+               <?php
+               if(isset($query[0]['id'])){
+                   if($query[0]['id']){
+                   ?>
+                   <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                   <?php
+                   }
+               }
+               ?>
+                   <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><p><b>Contracts</b></p>
+                            <button type="button" class="btn btn-success" style="float:right;margin-top: -33px;" id="add_more_1" onclick="add_more_fields(this.id)">Add More Contracts</button>
+                        </div>
+                        <div class="panel-body contract_holder" id="contract_holder_1">
+                            <div class="col-md-6 form-group <?php if (form_error('agreement_start_date')) {
+                                echo 'has-error';
+                                } ?>">
+                                <label for="agreement_start_date" class="col-md-4">Partnership Start Date</label>
+                                <div class="col-md-6">
+                                    <div class="input-group input-append date" >
+                                        <?php
+                                            if (isset($query[0]['agreement_start_date'])) {
+                                                if ($query[0]['agreement_start_date'] != "0000-00-00") {
+                                                    $aggrement_date = $query[0]['agreement_start_date'];
+                                                } else {
+                                                    $aggrement_date = date("Y-m-d", strtotime($query[0]['create_date']));
+                                                }
+                                            } else {
+                                                $aggrement_date = date("Y-m-d");
+                                            }
+                                            ?>
+                                        <input type="date" class="form-control agreement_start_date"  name="agreement_start_date[]"  id="agreement_start_date" >
+                                        <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                    </div>
+                                    <?php echo form_error('agreement_start_date'); ?>
+                                </div>
+                            </div>
+                            <div class="col-md-6 form-group <?php if (form_error('agreement_end_date')) {
+                                echo 'has-error';
+                                } ?>">
+                                <label for="agreement_end_date" class="col-md-4">Partnership End Date</label>
+                                <div class="col-md-6">
+                                    <div class="input-group input-append date" >
+                                        <input type="date" class="form-control"  name="agreement_end_date[]" id="agreement_end_date">
+                                        <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                    </div>
+                                    <?php echo form_error('agreement_end_date'); ?>
+                                </div>
+                            </div>
+                            <div class="col-md-6" style="padding:0px;    width: 40%;">
+                                <label for="contract file" class="col-md-4" style="width:40%;">Contract Type</label>
+                            <div class="form-group <?php if (form_error('contract_file')) {
+                                    echo 'has-error';
+                                    } ?>">
+                                    <div class="col-md-4" style="width: 57%;">
+                                        <select class="form-control" name="contract_type[]" class="contract_type" required="">
+                                            <option value="">Select Contract Type</option>
+                                           <?php
+                                           foreach($results['collateral_type'] as $collateral){
+                                               ?>
+                                            <option value="<?php echo $collateral['id']?>"><?php echo $collateral['collateral_type'] ?></option>
+                                                   <?php
+                                           }
+                                           ?>
+                                    </select>
+                                        <?php echo form_error('contract_file'); ?>
+                                    </div>
+                                </div>
+                                </div>
+                            <div class="col-md-6" style="padding:0px; margin-left: 121px;">
+                                <label for="contract file" class="col-md-4">Contract File</label>
+                            <div class="form-group <?php if (form_error('contract_file')) {
+                                    echo 'has-error';
+                                    } ?>">
+                                    <div class="col-md-4" style="width: 37%;">
+                                        <input type="file" class="form-control"  name="contract_file[]" required="">
+                                        <?php echo form_error('contract_file'); ?>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <?php
+                                            $src = base_url() . 'images/no_image.png';
+                                            $image_src = $src;
+                                            if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
+                                                $src = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $query[0]['contract_file'];
+                                                $image_src = base_url() . 'images/view_image.png';
+                                            }
+                                            ?>
+                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src; ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                        <?php if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) { ?>
+                                        <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>, '<?php echo $query[0]['contract_file'] ?>', 'contract_file')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                                </div>
+                            <div class="col-md-12" style="padding:0px;">
+                                <label for="contract file" class="col-md-4">Contract Description</label>
+                                <div class="form-group" style=" margin: 0px 17px;">
+                                <textarea class="form-control" rows="5" id="contract_description" name="contract_description[]"></textarea>
+</div>
+                                <hr style="border: 1px solid #a1e8a1;">
+                                </div>
+                                </div>
+                        <div id="cloned"></div>
+                        </div>
+                    </div>
+                 
+                   <div class="clear clear_bottom">
+                    <br>
+                    <center><input type="Submit" value="<?php if (isset($query[0]['id'])) {
+                        echo "Update Contracts";
+                        } else {
+                        echo "Save Contracts";
+                        } ?>" class="btn btn-primary" id="submit_contract_btn">
+                        <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/partner/viewpartner>Cancel</a>"; ?>
+                    </center>
+                </div>
+               </form>
+                 <?php
+       if(!empty($results['partner_contracts'])){
+           ?>
+                    <div id="exist_documents">
+                     <table class="table">
+    <thead>
+      <tr>
+        <th>Contract Type</th>
+        <th>Contract File</th>
+        <th>Description</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+      </tr>
+    </thead>
+    <tbody>  
+                 <?php
+       foreach($results['partner_contracts'] as $value){
+       ?>
+      <tr>
+        <td><?php echo $value['collateral_type'] ?></td>
+        <td><a target="_blank" href=<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$value['file']?>><?php echo $value['file'] ?></a></td>
+        <td><?php echo $value['document_description'] ?></td>
+        <td><?php echo $value['start_date'] ?></td>
+        <td><?php echo $value['end_date'] ?></td>
+      </tr>
+      <tr>
+          <?php
+          }
+       }
+          ?>
+  </table>
+                        </div>
+                </div>
+                 <div class="clear"></div>
         </div>
     </div>
 </div>
@@ -954,10 +1162,9 @@
     });
     $('#account_manager').select2({
         placeholder: "Select Account Managers"
-    });
-    
-    $("#agreement_start_date").datepicker({dateFormat: 'yy-mm-dd'});
-    $("#agreement_end_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+    });    
+    //$( ".agreement_start_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
+    //$("#agreement_end_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
     $("#grace_period_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
     
     
@@ -1179,9 +1386,30 @@
     
         });
     });
-    
-    
-    
+   function load_form(tab_id){
+       total_div  = document.getElementsByClassName('form_container').length;
+       for(var i =1;i<=total_div;i++){
+           if(i != tab_id){
+             document.getElementById("container_"+i).style.display='none';
+             document.getElementById(i).style.background='#d9edf7';
+            }
+            else{
+                document.getElementById("container_"+i).style.display='block';
+                document.getElementById(i).style.background='#fff';
+            }
+       }
+   }
+   function add_more_fields(id){
+      var buttonIdArray =  id.split("_");
+      id_number = parseInt(buttonIdArray[2]);
+   var div = document.getElementById('contract_holder_'+id_number),
+ clone = div.cloneNode(true); 
+clone.id = "contract_holder_"+(id_number+1);
+document.getElementById(id).id = buttonIdArray[0]+"_"+buttonIdArray[1]+"_"+(id_number+1);
+document.getElementById("cloned").appendChild(clone); 
+//var targetDiv = document.getElementById("contract_holder_"+(id_number+1)).getElementsByClassName("contract_type")[0];
+//targetDiv.id = "contract_type_"+(id_number+1);
+   }
 </script>
 <?php $this->session->unset_userdata('error'); ?>
 <?php $this->session->unset_userdata('success'); ?>
