@@ -177,6 +177,7 @@ class Miscelleneous {
             }
         } else {
             log_message('info', __METHOD__ . " => Booking is not Assigned" . $booking_id);
+            return FALSE;
         }
     }
 
@@ -186,7 +187,7 @@ class Miscelleneous {
         foreach ($unit_details as $value) {
             $cus_net_payable += $value['customer_net_payable'];
         }
-
+        $return_status = TRUE;
         switch ($data['message']) {
             case UPCOUNTRY_BOOKING:
             case UPCOUNTRY_LIMIT_EXCEED:
@@ -340,6 +341,8 @@ class Miscelleneous {
                 $return_status = TRUE;
                 break;
         }
+        
+        return $return_status;
     }
 
     function process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id) {
