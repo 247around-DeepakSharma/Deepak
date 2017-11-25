@@ -158,26 +158,26 @@
             <td><p id="checkbox_p<?php echo $i; ?>" class="displaytrue"><?php echo $pricing_details['check_box']?></p>
             <input  type="text" name="check_box" value="<?php echo $pricing_details['check_box']?>" class="form-control displayfalse" id="checkbox_input<?php echo $i; ?>"></input>
             </td>
-            <td><p id="vendor_basic_charges_p<?php echo $i; ?>" class="displaytrue" ><?php echo round($pricing_details['vendor_basic_charges'], 2);?></p>
+            <td><p id="vendor_basic_charges_p<?php echo $i; ?>" class="displaytrue" ><?php echo sprintf("%1\$.2f",$pricing_details['vendor_basic_charges']);?></p>
              <input  type="text" name="vendor_basic_charges" value="<?php echo round($pricing_details['vendor_basic_charges'], 2)?>" class="form-control displayfalse" id="vendor_basic_charges_input<?php echo $i; ?>"></input>
 
             </td>
-            <td><p id="vendor_tax_basic_charges_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['vendor_tax_basic_charges'], 2);?></p>
+            <td><p id="vendor_tax_basic_charges_p<?php echo $i; ?>" class="displaytrue"><?php echo sprintf("%1\$.2f",$pricing_details['vendor_tax_basic_charges']);?></p>
             <input   type="text" name="vendor_tax_basic_charges" value="<?php echo round($pricing_details['vendor_tax_basic_charges'],2)?>" class="form-control displayfalse" id="vendor_tax_basic_charges_input<?php echo $i; ?>"></input>
             </td>
-            <td><p id="around_basic_charges_p<?php echo $i; ?>" class="displaytrue"> <?php echo round($pricing_details['around_basic_charges'] , 2) ?></p>
+            <td><p id="around_basic_charges_p<?php echo $i; ?>" class="displaytrue"> <?php echo sprintf("%1\$.2f",$pricing_details['around_basic_charges']); ?></p>
             <input  type="text" name="around_basic_charges" value="<?php echo round($pricing_details['around_basic_charges'],2)?>" class=" displayfalse form-control" id="around_basic_charges_input<?php echo $i; ?>"></input>
             </td>
-            <td><p id="around_tax_basic_charges_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['around_tax_basic_charges'],2)?></p>
-            <input type="text" name="around_tax_basic_charges" value="<?php echo round($pricing_details['around_tax_basic_charges'],2)?>" class="form-control displayfalse" id="around_tax_basic_charges_input<?php echo $i; ?>"></input>
+            <td><p id="around_tax_basic_charges_p<?php echo $i; ?>" class="displaytrue"><?php echo sprintf("%1\$.2f",$pricing_details['around_tax_basic_charges']);?></p>
+            <input type="text" name="around_tax_basic_charges" value="<?php echo sprintf("%1\$.2f",$pricing_details['around_tax_basic_charges']);?>" class="form-control displayfalse" id="around_tax_basic_charges_input<?php echo $i; ?>"></input>
             </td>
-            <td><p id="customer_total_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['customer_total'], 2)?></p>
-              <input  type="text" name="customer_total" value="<?php echo round($pricing_details['customer_total'],2)?>" class="form-control displayfalse" id="customer_total_input<?php echo $i; ?>"></input>
+            <td><p id="customer_total_p<?php echo $i; ?>" class="displaytrue"><?php echo sprintf("%1\$.2f",$pricing_details['customer_total']);?></p>
+              <input  type="text" name="customer_total" value="<?php echo sprintf("%1\$.2f",$pricing_details['customer_total']);?>" class="form-control displayfalse" id="customer_total_input<?php echo $i; ?>"></input>
               </td>
-            <td><p id="partner_net_payable_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['partner_net_payable'],2)?></p>
-             <input type="text" name="partner_net_payable" value="<?php echo round($pricing_details['partner_net_payable'],2)?>" class="form-control displayfalse" id="partner_net_payable_input<?php echo $i; ?>"></input></td>
-            <td><p id="customer_net_payable_p<?php echo $i; ?>" class="displaytrue"><?php echo round($pricing_details['customer_net_payable'],2)?></p>
-             <input type="text" name="customer_net_payable" value="<?php echo round($pricing_details['customer_net_payable'],2)?>" class="form-control displayfalse" id="customer_net_payable_input<?php echo $i; ?>"></input></td>
+            <td><p id="partner_net_payable_p<?php echo $i; ?>" class="displaytrue"><?php echo sprintf("%1\$.2f",$pricing_details['partner_net_payable']);?></p>
+             <input type="text" name="partner_net_payable" value="<?php echo sprintf("%1\$.2f",$pricing_details['partner_net_payable']);?>" class="form-control displayfalse" id="partner_net_payable_input<?php echo $i; ?>"></input></td>
+            <td><p id="customer_net_payable_p<?php echo $i; ?>" class="displaytrue"><?php echo sprintf("%1\$.2f",$pricing_details['customer_net_payable']);?></p>
+             <input type="text" name="customer_net_payable" value="<?php echo sprintf("%1\$.2f",$pricing_details['customer_net_payable']);?>" class="form-control displayfalse" id="customer_net_payable_input<?php echo $i; ?>"></input></td>
             <td><button class="btn btn-success btn-md displaytrue " onclick="displayPricetableInput(<?php echo $i; ?>)" id="edit<?php echo $i; ?>">Edit</button>
             <button class="btn btn-success btn-md displayfalse"  onclick ="editPriceTable(<?php echo $i; ?>, <?php echo $pricing_details['id'] ;?>)" id="submit<?php echo $i; ?>">Submit</button>
             <button  style="margin-top:10px;" class="btn btn-primary btn-md displayfalse" onclick="displayPricetableInput(<?php echo $i; ?>)" id="cancel<?php echo $i; ?>">Cancel</button>

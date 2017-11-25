@@ -3481,7 +3481,7 @@ ALTER TABLE `email_attachment_parser` CHANGE `id` `id` INT(11) NOT NULL AUTO_INC
 ALTER TABLE `file_uploads` ADD `email_message_id` VARCHAR(256) NULL DEFAULT NULL AFTER `result`;
 ALTER TABLE `email_attachment_parser` ADD `active` TINYINT(5) NOT NULL DEFAULT '0' AFTER `email_remarks`;
 
-20th-nov
+--20th-nov
 CREATE TABLE `collateral` (
   `id` int(11) NOT NULL,
   `entity_id` int(11) NOT NULL,
@@ -3572,3 +3572,13 @@ ALTER TABLE `trigger_partners` ADD `update_date` DATETIME NOT NULL AFTER `agent_
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'zopper_estimate_send', 'zopper_estimate_send', 'Please Find Attachment.', 'sales@247around.com', 'sachinj@247around.com', 'abhaya@247around', '', '1', '2017-11-02 23:56:57');
 
+ALTER TABLE `zopper_estimate_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--- sachin 24 Nov
+
+INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subject_text`, `email_function_name`, `email_remarks`, `active`, `create_date`) VALUES
+(1, 'anuj@247around.com', 'Amazon Exchange Offer', 'buyback/upload_buyback_process/process_upload_order', 'amazon', 1, '2017-11-16 10:55:48'),
+(2, 'sachinj@247around.com', 'Order delivery status ', 'buyback/upload_buyback_process/process_upload_order', 'amazon', 1, '2017-11-17 12:17:23'),
+(3, 'sachinj@247around.com', 'shipped orders report', 'employee/bookings_excel/upload_booking_for_paytm', 'paytm', 1, '2017-11-18 05:05:33');

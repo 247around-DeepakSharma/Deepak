@@ -1377,9 +1377,9 @@ class Inventory extends CI_Controller {
         $data['capacity'] = $unit_details[0]['appliance_capacity'];
         $data['model_number'] = $unit_details[0]['model_number'];
         $data['taxable_value'] = $unit_details[0]['customer_total'];
-        $data['igst_rate'] = round($unit_details[0]['tax_rate'], 2);
+        $data['igst_rate'] = sprintf("%1\$.2f",($unit_details[0]['tax_rate']));
         $data['igst_tax_amount'] = ($unit_details[0]['customer_total'] * $unit_details[0]['tax_rate'])/100;
-        $data['total_amount'] = round($data['igst_tax_amount'] + $unit_details[0]['customer_total'], 2);
+        $data['total_amount'] = sprintf("%1\$.2f",($data['igst_tax_amount'] + $unit_details[0]['customer_total']));
         $data['remarks'] = $this->input->post("estimate_remarks");
         $data['price_inword'] = convert_number_to_words(round($data['total_amount'],0));
         $data['date'] = date("jS M, Y");

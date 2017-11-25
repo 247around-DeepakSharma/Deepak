@@ -53,9 +53,11 @@ class Email_attachment_parser extends CI_Controller {
                                     $extract_file_name =  $v['file_name'];
                                     if(!empty($extract_file_name) && file_exists(TMP_FOLDER.$extract_file_name))
                                     {
+                                        //send attachment to this url for processing
                                         $url = base_url().$value['email_function_name'];
                                         $ext = pathinfo($extract_file_name,PATHINFO_EXTENSION);
                                         if(!empty($ext)){
+                                            //if file is in zip format then extract file and convert(only if it is in csv format) it into xlsx
                                             if($ext === 'zip')
                                             { 
                                                 $response = $this->miscelleneous->extract_zip_files(TMP_FOLDER.$extract_file_name,TMP_FOLDER);
@@ -76,10 +78,13 @@ class Email_attachment_parser extends CI_Controller {
                                                 }
                                             }
                                             $file_upload_response = $this->process_uploading_extract_file($url,TMP_FOLDER.$extract_file_name,$val['email_message_id']);
+                                            
+                                            //delete file from the system after processing
                                             if(file_exists(TMP_FOLDER.$extract_file_name))
                                             {
                                                 unlink(TMP_FOLDER.$extract_file_name);
                                             }
+                                            //set flag to read after processing the attachment
                                             $status = imap_setflag_full($conn,$val['email_no'],"\\Seen");
                                             if($status)
                                             {
@@ -92,12 +97,20 @@ class Email_attachment_parser extends CI_Controller {
                                         } 
                                     }else{
                                         log_message('info',__METHOD__."File Does Not Exist for email ".$val['email_no']);
+                                        $subject = "Attachment Exist But File Not Found for ".$value['email_subject_text'];
+                                        $msg = "Attachment Exist But File Not Found for ".$value['email_subject_text'];
+                                        $msg .= "<br><b>Search Condition </b> : ".$email_search_condition;
+                                        $this->notify->sendEmail(NOREPLY_EMAIL_ID,_247AROUND_SALES_EMAIL , DEVELOPER_EMAIL.",".NITS_EMAIL_ID, "", $subject, $msg, "");
                                     }
                                 }
                             } 
                             else 
                             {
                                 log_message('info',__METHOD__." attachment not found for email ". print_r($val['email_no'],true));
+                                $subject = "Attachment Not Found for ".$value['email_subject_text'];
+                                $msg = "Email attachment not found for the subject ".$value['email_subject_text'];
+                                $msg .= "<br><b>Search Condition: </b> ".$email_search_condition;
+                                $this->notify->sendEmail(NOREPLY_EMAIL_ID,_247AROUND_SALES_EMAIL , DEVELOPER_EMAIL.",".NITS_EMAIL_ID, "", $subject, $msg, "");
                             }
                         }
                     }
@@ -113,19 +126,31 @@ class Email_attachment_parser extends CI_Controller {
             else
             {
                 log_message('info',__METHOD__."Error in creating email connection");
+                $subject = "Error in creating email connection for attachment parser";
+                $msg = "There was some error in creating connection to email server for extracting the attachemnt from email.";
+                $msg .= "<br><b>File Name: </b> ".__CLASS__;
+                $msg .= "<br><b>Function Name: </b> ". __METHOD__;
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, '', "", $subject, $msg, "");
             }
         }
     }
     
+    /**
+    * @desc     It is used to send the extract file to respective controller to 
+    *           process the file data
+    * @param    void
+    * @return   void
+    */
     private function process_uploading_extract_file($url,$file_path,$email_message_id){
         log_message('info',__METHOD__."Entering...");
         
         if (function_exists('curl_file_create')) {
             $cFile = curl_file_create($file_path);
-        } else { // 
+        } else { 
             $cFile = '@' . realpath($file_path);
         }
         
+        //data to send
         $post = array(
             'file' => $cFile,
             'file_received_date' => date('Y-m-d'),
