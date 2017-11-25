@@ -538,14 +538,14 @@ EOD;
                     . " partners.summary_email_bcc, partners.public_name";
             //Get all Active partners who has "is_reporting_mail" column 1
             $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
-            foreach ($partners as $p)
+            foreach ($partners as $key => $p)
             {
                 $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id']);
                 $delimiter = ",";
                 $newline = "\r\n";
                 $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
                 write_file($csv, $new_report);
-                $this->generate_partner_summary_email_data($partners[0],$csv);
+                $this->generate_partner_summary_email_data($partners[$key],$csv);
                 
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "summary-excels/" . $csv;
