@@ -654,8 +654,8 @@ class invoices_model extends CI_Model {
                 if($c_s_gst){
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
                     $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = 9;
-                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
-                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
+                    $result[$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.09));
+                    $result[$key]['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.09));
                     $meta['cgst_total_tax_amount'] +=  $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
@@ -663,11 +663,11 @@ class invoices_model extends CI_Model {
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                     $result[$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
-                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
+                    $result[$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.18));
                     $meta['igst_total_tax_amount'] +=  $result[$key]['igst_tax_amount'];
                 }
                 
-                $result[$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
+                $result[$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
                 $meta['total_qty'] += $value['qty'];
                 $meta['total_rate'] += $value['rate'];
                 $meta['total_taxable_value'] += $value['taxable_value'];
@@ -763,15 +763,15 @@ class invoices_model extends CI_Model {
                 if ($c_s_gst) {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Intra_State.xlsx";
                     $result[$key]['cgst_rate'] = $result[$key]['sgst_rate'] = DEFAULT_TAX_RATE/2;
-                    $result[$key]['cgst_tax_amount'] = round(($value['taxable_value'] * (SERVICE_TAX_RATE/2)), 2);
-                    $result[$key]['sgst_tax_amount'] = round(($value['taxable_value'] * (SERVICE_TAX_RATE/2)), 2);
+                    $result[$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * (SERVICE_TAX_RATE/2)));
+                    $result[$key]['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * (SERVICE_TAX_RATE/2)));
                     $meta['cgst_total_tax_amount'] += $result[$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $result[$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = DEFAULT_TAX_RATE/2;
                 } else {
                     $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
                     $result[$key]['igst_rate'] = $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
-                    $result[$key]['igst_tax_amount'] = round(($value['taxable_value'] * SERVICE_TAX_RATE), 2);
+                    $result[$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * SERVICE_TAX_RATE));
                     $meta['igst_total_tax_amount'] += $result[$key]['igst_tax_amount'];
                 }
 
@@ -1014,26 +1014,26 @@ class invoices_model extends CI_Model {
                 if(empty($data['booking'][0]['gst_number'])){
                     
                     $meta['invoice_template'] = "SF_FOC_Bill_of_Supply-v1.xlsx";
-                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'],2);
+                    $data['booking'][$key]['toal_amount'] =sprintf("%1\$.2f",($value['taxable_value']));
                     
                 } else if($c_s_gst){
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
                     
                     $data['booking'][$key]['cgst_rate'] =  $data['booking'][$key]['sgst_rate'] = 9;
-                    $data['booking'][$key]['cgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
-                    $data['booking'][$key]['sgst_tax_amount'] = round(($value['taxable_value'] * 0.09),2);
+                    $data['booking'][$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.09));
+                    $data['booking'][$key]['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.09));
                     $meta['cgst_total_tax_amount'] +=  $data['booking'][$key]['cgst_tax_amount'];
                     $meta['sgst_total_tax_amount'] += $data['booking'][$key]['sgst_tax_amount'];
                     $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = 9;
-                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
+                    $data['booking'][$key]['toal_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * 0.18)));
                     
                 } else {
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
                     
                     $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
-                    $data['booking'][$key]['igst_tax_amount'] = round(($value['taxable_value'] * 0.18),2);
+                    $data['booking'][$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.18));
                     $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
-                    $data['booking'][$key]['toal_amount'] = round($value['taxable_value'] + ($value['taxable_value'] * 0.18),2);
+                    $data['booking'][$key]['toal_amount'] = sprintf("%1\$.2f",( $value['taxable_value'] + ($value['taxable_value'] * 0.18)));
                 }
                 
                
@@ -1053,15 +1053,15 @@ class invoices_model extends CI_Model {
              }
             $meta['rcm'] = 0;
             if(empty($data['booking'][0]['gst_number'])){
-                $meta['rcm'] = round(( $meta['sub_total_amount'] * 0.18), 2);
+                $meta['rcm'] = sprintf("%1\$.2f",( $meta['sub_total_amount'] * 0.18));
             }
             $meta['parts_count'] = $parts_count;
             $meta['reverse_charge'] = 0;
             $meta['reverse_charge_type'] = 'N';
-            $meta['total_taxable_value'] = round($meta['total_taxable_value'], 0);
-            $meta['cgst_total_tax_amount'] = round($meta['cgst_total_tax_amount'], 2);
-            $meta['sgst_total_tax_amount'] = round($meta['sgst_total_tax_amount'], 2);
-            $meta['igst_total_tax_amount'] = round($meta['igst_total_tax_amount'], 2);
+            $meta['total_taxable_value'] = sprintf("%1\$.2f",$meta['total_taxable_value']);
+            $meta['cgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['cgst_total_tax_amount']);
+            $meta['sgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['sgst_total_tax_amount']);
+            $meta['igst_total_tax_amount'] = sprintf("%1\$.2f",$meta['igst_total_tax_amount']);
             $meta['sub_total_amount'] = round($meta['sub_total_amount'], 0);
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
             $meta['ed'] = date("jS M, Y", strtotime($to_date_tmp));
@@ -1296,12 +1296,12 @@ class invoices_model extends CI_Model {
         
         if(!empty($commission_charge)){
             foreach ($commission_charge as $key => $value) {
-                $commission_charge[$key]['rate'] = round($value['taxable_value']/$value['qty'],2);
+                $commission_charge[$key]['rate'] = sprintf("%1\$.2f",$value['taxable_value']/$value['qty']);
                 $meta['sub_total_amount'] += $value['taxable_value'];
                 $meta['total_qty'] += $value['qty'];
             }
             
-            $meta['sub_total_amount'] = round( $meta['sub_total_amount'], 2);
+            $meta['sub_total_amount'] = sprintf("%1\$.2f",$meta['sub_total_amount']);
             $meta['invoice_template'] = "Buyback-v1.xlsx"; 
             
             $meta['sd'] = date("jS M, Y", strtotime($from_date));
