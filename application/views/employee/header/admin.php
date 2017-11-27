@@ -537,8 +537,8 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label class="radio-inline"><input type="radio" name="optradio" value="0" checked="">Without Pincode</label>
-                                    <label class="radio-inline"><input type="radio" name="optradio" value="1">With Pincode</label>
+                                    <label class="radio-inline"><input type="radio" name="pincode_optradio" value="0" checked="">Without Pincode</label>
+                                    <label class="radio-inline"><input type="radio" name="pincode_optradio" value="1">With Pincode</label>
                                 </div>
                                 <div class="modal-footer">
                                     <div class="text-right">
