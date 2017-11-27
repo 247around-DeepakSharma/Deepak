@@ -186,18 +186,7 @@
                         <td><?php echo $unit_detail['serial_number'] ?></td>
                         <td><?php echo $unit_detail['appliance_description'] ?></td>
                         <td><?php print_r($unit_detail['price_tags']); ?></td>
-                         <?php $sf_upcountry_charges = 0; if($booking_history[0]['is_upcountry'] == 1){ 
-                                        if($key == 0){
-                                            if($booking_history[0]['upcountry_paid_by_customer'] == 0){
-                                             
-                                               $sf_upcountry_charges =  $booking_history[0]['upcountry_distance'] * $booking_history[0]['sf_upcountry_rate'];
-                                            } else {
-                                                
-                                                $sf_upcountry_charges = -($booking_history[0]['customer_paid_upcountry_charges'] * basic_percentage);
 
-                                            }
-                                        }
-                                    }?>
                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                         
                         <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
@@ -241,8 +230,7 @@
                         <td>
                             <?php echo round($unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + 
                                                 $unit_detail['vendor_extra_charges']  +  $unit_detail['vendor_st_extra_charges']  + 
-                                                 $unit_detail['vendor_parts']  + $unit_detail['vendor_st_parts'] +
-                                                $sf_upcountry_charges, 2);?>
+                                                 $unit_detail['vendor_parts']  + $unit_detail['vendor_st_parts'], 2);?>
                             
                         </td>
                        
