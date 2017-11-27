@@ -34,8 +34,8 @@
                 <div class="row">
                     <div class="row">
                         <div class="form-group" style="margin-left: 31px;">
-                            <label class="radio-inline"><input type="radio" name="optradio" value="2" checked="">All</label>
-                            <label class="radio-inline"><input type="radio" name="optradio" value="1">Challans Not Tagged</label>
+                            <label class="radio-inline"><input type="radio" name="challan_optradio" value="2" checked="">All</label>
+                            <label class="radio-inline"><input type="radio" name="challan_optradio" value="1">Challans Not Tagged</label>
                         </div>
                         <div class="col-md-12" >
                             <div class="form-horizontal" style="margin-left: 20px;">
@@ -128,7 +128,7 @@
 
     $(document).ready(function () {
         $('#get_payment_history').click(function () {
-            var radio_box_val = $("input[type='radio']:checked").val();
+            var radio_box_val = $("input[name='challan_optradio']:checked").val();
             //console.log(radio_box_val);
             var type = $('#type').val();
             var partner_vendor = $('#partner_vendor').val();
