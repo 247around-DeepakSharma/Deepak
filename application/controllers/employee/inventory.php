@@ -1368,7 +1368,7 @@ class Inventory extends CI_Controller {
         $booking_id = $unit_details[0]['booking_id'];
         $where['length'] = -1;
         $where['where'] = array("booking_details.booking_id" => $booking_id);
-        $booking_details = $this->booking_model->get_bookings_by_status($where, "users.name, services");
+        $booking_details = $this->booking_model->get_bookings_by_status($where, "users.name, services, order_id");
         $data['name'] = $booking_details[0]->name;
         $data['booking_id'] = $booking_id;
         $data['services'] = $booking_details[0]->services;
@@ -1382,6 +1382,7 @@ class Inventory extends CI_Controller {
         $data['total_amount'] = sprintf("%1\$.2f",($data['igst_tax_amount'] + $unit_details[0]['customer_total']));
         $data['remarks'] = $this->input->post("estimate_remarks");
         $data['price_inword'] = convert_number_to_words(round($data['total_amount'],0));
+        $data['order_id'] = $booking_details[0]->order_id;
         $data['date'] = date("jS M, Y");
         $template = 'Estimate_Sheet.xlsx';
         // directory
