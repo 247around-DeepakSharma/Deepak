@@ -477,6 +477,9 @@ class Service_centers extends CI_Controller {
                 }
                 $upcountry = $this->upcountry_model->upcountry_booking_list($service_center_id, $value['booking_id'], true, $is_customer_paid);
                 $sf_earned = $b_earned[0]->sf_earned -$p_amount[0]['p_amount'] + $upcountry[0]['upcountry_price'];
+                if($p_amount[0]['p_amount'] > 0){
+                    $bookings[$key]['penalty'] = true;
+                }
                 $bookings[$key]['sf_earned'] = $sf_earned;
                
             }
