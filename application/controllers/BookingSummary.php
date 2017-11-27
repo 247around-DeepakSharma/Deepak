@@ -1010,8 +1010,8 @@ EOD;
                     $data['data'] = $this->reporting_utils->send_sc_crimes_report_mail_data($where);
                     if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
-                        $file_data = $this->penalty_model->get_penalty_on_booking_any(array('service_center_id' => $data['data'][0]['service_center_id'],
-                            'criteria_id' => '2', 'create_date >=' => date('Y-m-d', strtotime("-1 days"))), 'booking_id');
+                        $file_data = $this->penalty_model->get_penalty_on_booking_any(array('penalty_on_booking.service_center_id' => $data['data'][0]['service_center_id'],
+                            'penalty_on_booking.criteria_id' => '2', 'penalty_on_booking.create_date >=' => date('Y-m-d', strtotime("-1 days"))), 'booking_id');
 
                         $file_path = "";
                         if (!empty($file_data)) {

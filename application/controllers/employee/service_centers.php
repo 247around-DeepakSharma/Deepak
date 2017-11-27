@@ -2710,7 +2710,7 @@ class Service_centers extends CI_Controller {
     
     /**
      * @desc Used to get sf escalation percentage
-     * @param $service_center_id string
+     * @param $sf_id string
      * @return $escalation_per string
      */
     function get_sf_escalation($sf_id){
