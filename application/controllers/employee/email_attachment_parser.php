@@ -48,59 +48,53 @@ class Email_attachment_parser extends CI_Controller {
                         {
                             if(!empty($val['attachments']))
                             {
-                                foreach ($val['attachments'] as $v)
-                                {
-                                    $extract_file_name =  $v['file_name'];
-                                    if(!empty($extract_file_name) && file_exists(TMP_FOLDER.$extract_file_name))
-                                    {
-                                        //send attachment to this url for processing
-                                        $url = base_url().$value['email_function_name'];
-                                        $ext = pathinfo($extract_file_name,PATHINFO_EXTENSION);
-                                        if(!empty($ext)){
-                                            //if file is in zip format then extract file and convert(only if it is in csv format) it into xlsx
-                                            if($ext === 'zip')
-                                            { 
-                                                $response = $this->miscelleneous->extract_zip_files(TMP_FOLDER.$extract_file_name,TMP_FOLDER);
-                                                if($response['status'])
-                                                {
-                                                    $extract_file_name = $response['file_name'];
-                                                    $ext = pathinfo($extract_file_name,PATHINFO_EXTENSION);
-                                                    if($ext === 'csv')
-                                                    {
-                                                        $objReader = PHPExcel_IOFactory::createReader('CSV');
-                                                        $objPHPExcel = $objReader->load(TMP_FOLDER.$extract_file_name);
-                                                        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-                                                        $objWriter->save(TMP_FOLDER.pathinfo($extract_file_name,PATHINFO_FILENAME).".xlsx");
-                                                        $extract_file_name = pathinfo($extract_file_name,PATHINFO_FILENAME).".xlsx";
-                                                        $res1 =0;
-                                                        system(" chmod 777 " . TMP_FOLDER.pathinfo($extract_file_name,PATHINFO_FILENAME).".xlsx" , $res1);
+                                foreach ($val['attachments'] as $v) {
+                                    $extract_file_name = $v['file_name'];
+                                    if (!empty($extract_file_name)) {
+                                        if (file_exists(TMP_FOLDER . $extract_file_name)) {
+                                            //send attachment to this url for processing
+                                            $url = base_url() . $value['email_function_name'];
+                                            $ext = pathinfo($extract_file_name, PATHINFO_EXTENSION);
+                                            if (!empty($ext)) {
+                                                //if file is in zip format then extract file and convert(only if it is in csv format) it into xlsx
+                                                if ($ext === 'zip') {
+                                                    $response = $this->miscelleneous->extract_zip_files(TMP_FOLDER . $extract_file_name, TMP_FOLDER);
+                                                    if ($response['status']) {
+                                                        $extract_file_name = $response['file_name'];
+                                                        $ext = pathinfo($extract_file_name, PATHINFO_EXTENSION);
+                                                        if ($ext === 'csv') {
+                                                            $objReader = PHPExcel_IOFactory::createReader('CSV');
+                                                            $objPHPExcel = $objReader->load(TMP_FOLDER . $extract_file_name);
+                                                            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+                                                            $objWriter->save(TMP_FOLDER . pathinfo($extract_file_name, PATHINFO_FILENAME) . ".xlsx");
+                                                            $extract_file_name = pathinfo($extract_file_name, PATHINFO_FILENAME) . ".xlsx";
+                                                            $res1 = 0;
+                                                            system(" chmod 777 " . TMP_FOLDER . pathinfo($extract_file_name, PATHINFO_FILENAME) . ".xlsx", $res1);
+                                                        }
                                                     }
                                                 }
+                                                $file_upload_response = $this->process_uploading_extract_file($url, TMP_FOLDER . $extract_file_name, $val['email_message_id']);
+
+                                                //delete file from the system after processing
+                                                if (file_exists(TMP_FOLDER . $extract_file_name)) {
+                                                    unlink(TMP_FOLDER . $extract_file_name);
+                                                }
+                                                //set flag to read after processing the attachment
+                                                $status = imap_setflag_full($conn, $val['email_no'], "\\Seen");
+                                                if ($status) {
+                                                    log_message('info', 'Email flag set to seen');
+                                                } else {
+                                                    log_message('info', 'error in setting email flag to seen');
+                                                }
                                             }
-                                            $file_upload_response = $this->process_uploading_extract_file($url,TMP_FOLDER.$extract_file_name,$val['email_message_id']);
-                                            
-                                            //delete file from the system after processing
-                                            if(file_exists(TMP_FOLDER.$extract_file_name))
-                                            {
-                                                unlink(TMP_FOLDER.$extract_file_name);
-                                            }
-                                            //set flag to read after processing the attachment
-                                            $status = imap_setflag_full($conn,$val['email_no'],"\\Seen");
-                                            if($status)
-                                            {
-                                                log_message('info','Email flag set to seen');
-                                            }
-                                            else
-                                            {
-                                                log_message('info','error in setting email flag to seen');
-                                            }
-                                        } 
-                                    }else{
-                                        log_message('info',__METHOD__."File Does Not Exist for email ".$val['email_no']);
-                                        $subject = "Attachment Exist But File Not Found for ".$value['email_subject_text'];
-                                        $msg = "Attachment Exist But File Not Found for ".$value['email_subject_text'];
-                                        $msg .= "<br><b>Search Condition </b> : ".$email_search_condition;
-                                        $this->notify->sendEmail(NOREPLY_EMAIL_ID,_247AROUND_SALES_EMAIL , DEVELOPER_EMAIL.",".NITS_EMAIL_ID, "", $subject, $msg, "");
+                                        } else {
+                                            log_message('info', __METHOD__ . "Attachment Exist But File Not Found in the system for email " . $val['email_no']);
+                                            $subject = "Attachment Exist But File Not Found In the System for " . $value['email_subject_text'];
+                                            $msg = "Attachment Exist But File Not Found In the System for " . $value['email_subject_text'];
+                                            $msg .= "<br><b>Search Condition </b> : " . $email_search_condition;
+                                            $msg .= "<br><b>File Name </b> : " . $extract_file_name;
+                                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, _247AROUND_SALES_EMAIL, DEVELOPER_EMAIL . "," . NITS_EMAIL_ID, "", $subject, $msg, "");
+                                        }
                                     }
                                 }
                             } 
