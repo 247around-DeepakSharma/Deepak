@@ -3536,3 +3536,7 @@ INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subje
 (1, 'anuj@247around.com', 'Amazon Exchange Offer', 'buyback/upload_buyback_process/process_upload_order', 'amazon', 1, '2017-11-16 10:55:48'),
 (2, 'sachinj@247around.com', 'Order delivery status ', 'buyback/upload_buyback_process/process_upload_order', 'amazon', 1, '2017-11-17 12:17:23'),
 (3, 'sachinj@247around.com', 'shipped orders report', 'employee/bookings_excel/upload_booking_for_paytm', 'paytm', 1, '2017-11-18 05:05:33');
+
+
+-- sachin 26 nov
+INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subject_text`, `email_function_name`, `email_remarks`, `active`, `create_date`) VALUES (NULL, 'sachinj@247around.com', 'snapdeal file', 'employee/do_background_upload_excel/upload_snapdeal_file', 'snapdeal', '1', CURRENT_TIMESTAMP);
