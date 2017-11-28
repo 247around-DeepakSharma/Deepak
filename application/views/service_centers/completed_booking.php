@@ -16,6 +16,7 @@
                                     <th>User Name</th>
                                     <th>Mobile</th>
                                     <th>Service Name</th> 
+                                    <th>SF Earned</th> 
                                     <th>Closing Date</th>
                                     <th>Closing Remarks</th>
                                     <?php if ($status == "Completed") { ?> 
@@ -37,7 +38,7 @@
                                                    class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                             </td>
                                             <td>
-                                                <?php echo $row['booking_id']; ?>
+                                               <?php if(isset($row['penalty'])) { ?> <image src="<?php echo base_url();?>images/icon_image.png" /> <?php } ?><?php echo $row['booking_id']; ?>
                                             </td>
                                             <td>
                                                 <?php echo $row['customername'];?>
@@ -47,6 +48,9 @@
                                             </td>
                                             <td>
                                                 <?php echo  $row['services']; ?>
+                                            </td>
+                                            <td>
+                                                <?php echo  "Rs. ".$row['sf_earned']; ?>
                                             </td>
 
                                             <td><?php echo date('d-m-Y', strtotime($row['closed_date'])); ?></td>

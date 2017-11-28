@@ -1344,17 +1344,24 @@
                  }
         }
         function  bank_details_validation(){
-                var cheque = $('#cancelled_cheque_file').val();
+          var cheque = $('#cancelled_cheque_file').val();
+        <?php
+            if (isset($query[0]['cancelled_cheque_file'])) { ?>
+                cheque = 1;
+           <?php }
+            ?>
+             
                 var bank_name = $('#bank_name').val();
                 var account_type = $('#account_type').val();
                 var bank_account = $('#bank_account').val();
-                var ifsc_code = $('#cancelled_cheque_file').val();
+                var ifsc_code = $('#ifsc_code').val();
                 var beneficiary = $('#beneficiary_name').val();
                 if((cheque == null || cheque == '') && (bank_name == null || bank_name == '') && (account_type == null || account_type == '') && (bank_account == null || bank_account == '') && 
                         (ifsc_code == null || ifsc_code == '') && (beneficiary == null || beneficiary == '')){
                     return true;
                 }
                 else{
+                    
                     if(!(cheque == null || cheque == '') && !(bank_name == null || bank_name == '') && !(account_type == null || account_type == '') && !(bank_account == null || bank_account == '') && 
                         !(ifsc_code == null || ifsc_code == '') && !(beneficiary == null || beneficiary == '')){
                         return true;
