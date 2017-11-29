@@ -2729,20 +2729,25 @@ class Service_centers extends CI_Controller {
      */
     function get_sf_escalation($sf_id){
         if(!empty($sf_id)){
-            $select = "COUNT(booking_id) AS total_booking,SUM(if(count_escalation >= 1,count_escalation,0)) AS total_escalation";
-            $where = array('assigned_vendor_id' => $sf_id);
-            $data = $this->booking_model->get_bookings_count_by_any($select,$where);
-            if(!empty($data)){
-                if(!empty($data[0]['total_booking'])){
-                    $total_bookings = $data[0]['total_booking'];
-                    $total_escalation = $data[0]['total_escalation'];
-                    $escalation_per = ($total_escalation*100)/$total_bookings;
-                    echo sprintf("%1\$.2f",$escalation_per);
-                }
-                
-            }else{
-                echo 0;
+            $total_escalation_per = "";
+            $current_month_escalation_per = "";
+            $total_booking = $this->reusable_model->get_search_query('booking_details','count(booking_id) AS total_booking',array('assigned_vendor_id' => $sf_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+            $total_escalation = $this->reusable_model->get_search_query('vendor_escalation_log','count(booking_id) AS total_escalation',array('vendor_id' => $sf_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+            if(!empty($total_booking[0]['total_booking'])){
+                $total_escalation_per = ($total_escalation[0]['total_escalation']*100)/$total_booking[0]['total_booking'];
             }
+            
+            $current_month_booking = $this->reusable_model->get_search_query('booking_details','count(booking_id) AS total_booking',array('assigned_vendor_id' => $sf_id,"month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = month(now()) AND year(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = year(now())" => NULL),NULL,NULL,NULL,NULL,NULL)->result_array();
+            $current_month__escalation = $this->reusable_model->get_search_query('vendor_escalation_log','count(booking_id) AS total_escalation',array('vendor_id' => $sf_id,"month(create_date) = month(now()) AND year(create_date) = year(now())" => NULL),NULL,NULL,NULL,NULL,NULL)->result_array();
+            if(!empty($current_month_booking[0]['total_booking'])){
+                $current_month_escalation_per = ($current_month__escalation[0]['total_escalation']*100)/$current_month_booking[0]['total_booking'];
+            }
+            
+            $response['total_escalation_per'] = !empty($total_escalation_per)?sprintf("%1\$.2f",$total_escalation_per):0;
+            $response['current_month_escalation_per'] = !empty($current_month_escalation_per)?sprintf("%1\$.2f",$current_month_escalation_per):0;
+            
+            echo json_encode($response);
+            
         }else{
             echo 'empty';
         }
