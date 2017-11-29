@@ -528,6 +528,9 @@ define("PART_ARRANGE_BY_SAME_VENDOR", 2);
 //Zopper booking- Part Arrange By Different Vendor
 define("PART_ARRANGE_BY_DIFF_VENDOR", 1);
 
+//vijaya email_id
+define('_247AROUND_VIJAYA_EMAIL','vijaya@247around.com');
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

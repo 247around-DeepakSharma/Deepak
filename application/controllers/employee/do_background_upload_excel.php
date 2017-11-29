@@ -225,7 +225,15 @@ class Do_background_upload_excel extends CI_Controller {
      * @param boolean $validation
      */
     function send_mail_column($subject, $message, $validation,$file_type,$partner_id){
-        $to = NITS_ANUJ_EMAIL_ID.", sales@247around.com ,".$this->session->userdata('official_email');
+        if($partner_id === SNAPDEAL_ID){
+            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
+        }else if($partner_id === WYBOR_ID){
+            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
+        }else{
+            $file_upload_agent_email = "";
+        }
+        
+        $to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
         $from = "noreply@247around.com";
         $cc = "abhaya@247around.com";
         $bcc = "";
@@ -1052,8 +1060,14 @@ class Do_background_upload_excel extends CI_Controller {
      * @param string $filetype
      */
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name,$partner_id,$file_upload = true) {
-        
-	$to = NITS_ANUJ_EMAIL_ID.", sales@247around.com,".$this->session->userdata('official_email');
+        if($partner_id === SNAPDEAL_ID){
+            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
+        }else if($partner_id === WYBOR_ID){
+            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
+        }else{
+            $file_upload_agent_email = "";
+        }
+	$to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
         $from = "noreply@247around.com";
 	$cc = "abhaya@247around.com";
 	$bcc = "";
@@ -1272,9 +1286,10 @@ class Do_background_upload_excel extends CI_Controller {
         } else {
             //save file and upload on s3
             $this->miscelleneous->update_file_uploads($file_name,$_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
-            $to = $this->session->userdata('official_email');
+            $to = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
             $cc = DEVELOPER_EMAIL;
-            $subject = "Failed! Satya File is uploaded by " . $this->session->userdata('employee_id');
+            $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
+            $subject = "Failed! Satya File is uploaded by " . $agent_name;
             $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $response['msg'], "");
 
             log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
