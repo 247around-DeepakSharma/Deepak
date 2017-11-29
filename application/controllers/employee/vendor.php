@@ -2398,22 +2398,15 @@ class vendor extends CI_Controller {
         foreach($receivedData['appliance'] as $appliance_data){
                     $temp = explode("__",$appliance_data);
                     $appliance['Appliance_ID'] = $temp[0];
-                    $appliance['Appliance'] = $temp[1];
                     $tempVendor =  explode("__",$receivedData['vendor_id']);
                     $appliance['Vendor_ID'] = $tempVendor[0];
-                    $appliance['Vendor_Name'] = $tempVendor[1];
                     $appliance['Pincode'] = $receivedData['pincode'];
-                    foreach ($receivedData['brands_'.$temp[0]] as $brand){
-                              $appliance['Brand'] = $brand ;
                               foreach($areaArray as $areaData){
                                   $appliance['state'] = $areaData['state'] ;
-                                  $appliance['area'] = $areaData['area'] ;
-                                  $appliance['region'] = $areaData['region'] ;
                                   $appliance['city'] = $areaData['city'] ;
                                   $data[] = $appliance;
                               }
-                    }
-          }
+           }
             return $data;
     }
     function get_pincode_form_display_msg($displayMsgArray){
@@ -2457,10 +2450,6 @@ class vendor extends CI_Controller {
                                         if(!empty($vendor_id)){
                                             log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($value,TRUE));
                                             $displayMsgArray['success'][] = $value; 
-                                            //$cc = "anuj@247around.com";
-                                            //$to = "chhavid@247around.com";
-                                            //$subject = "Add new Combination in vendor pincode mapping";
-                                            //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, implode("||",$value), "");
                                         }
                                         else{
                                             $displayMsgArray['failed'][] = $value; 
