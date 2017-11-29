@@ -3493,7 +3493,7 @@ class Booking extends CI_Controller {
         $service_id = $this->input->post('service_id');
         $checked_option = $this->input->post('optradio');
         $excel_file = array();
-        $col = "vendor_pincode_mapping.Appliance,vendor_pincode_mapping.City, vendor_pincode_mapping.State ";
+        $col = "services.services as Appliance,vendor_pincode_mapping.City, vendor_pincode_mapping.State ";
         if($checked_option){
             $col .= ",vendor_pincode_mapping.Pincode";
             $template = '247around_serviceability_details_with_pincode.xlsx';
