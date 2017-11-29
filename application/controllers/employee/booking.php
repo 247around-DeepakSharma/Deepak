@@ -3327,8 +3327,7 @@ class Booking extends CI_Controller {
         if (!$sidx){
             $sidx = 1;
         }
-        $count = $this->db->count_all_results('appliance_product_description');
-         
+        $count = $this->reusable_model->get_search_query('appliance_product_description', 'count(id) as count', $where,NULL,NULL,NULL,NULL,NULL)->result()[0]->count;
         if ($count > 0) {
             $total_pages = ceil($count / $limit);
         } else {
@@ -3491,7 +3490,7 @@ class Booking extends CI_Controller {
      */
     function download_serviceability_data(){
         $service_id = $this->input->post('service_id');
-        $checked_option = $this->input->post('optradio');
+        $checked_option = $this->input->post('pincode_optradio');
         $excel_file = array();
         $col = "services.services as Appliance,vendor_pincode_mapping.City, vendor_pincode_mapping.State ";
         if($checked_option){

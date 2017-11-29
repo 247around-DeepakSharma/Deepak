@@ -85,8 +85,8 @@
                     <?php } ?>
                 </tr>
                 <tr>
-                    <td><?php echo round($escalation_percentage[0]['unique_installation_escalate_percentage'], 1) ?></td>
-                    <td><?php echo round($escalation_percentage[0]['unique_repair_escalate_percentage'], 1) ?></td>
+                    <td><?php echo sprintf("%1\$.2f",($escalation_percentage[0]['unique_installation_escalate_percentage'])); ?></td>
+                    <td><?php echo sprintf("%1\$.2f",($escalation_percentage[0]['unique_repair_escalate_percentage'])); ?></td>
                     <td style="border-top: 1px solid #fff;background-color: #fff;border-bottom: 1px solid #fff;border-right: 1px solid #fff;"></td>
                     <td style="border-top: 1px solid #fff;background-color: #fff;border-bottom: 1px solid #fff;border-left: 1px solid #fff;
                         <?php if(empty($this->session->userdata('is_prepaid'))){ ?> border-right: 1px solid #fff; <?php }?>"></td>

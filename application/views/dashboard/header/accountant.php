@@ -145,11 +145,11 @@
                                             <li><a href="<?php echo base_url();?>buyback/buyback_process/vendor_rejected">Rejected By CP</a></li>
                                         </ul>
                                     </li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/tag_untag_bb_orders">Claimed Process</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/tag_untag_bb_orders">Claimed Orders</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_claimed_raised_order_data">Debit Note Raised</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/filter_bb_price_list">Charges List</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process/price_sheet_upload">Upload Price Sheet</a></li>
-                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_search">Advance Search</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_search">Advanced Search</a></li>
                                 </ul>
                             </li>
                         </ul>

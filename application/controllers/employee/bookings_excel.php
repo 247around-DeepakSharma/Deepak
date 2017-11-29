@@ -119,7 +119,9 @@ class bookings_excel extends CI_Controller {
         }
 
         if (!$error) {
+            //Email Message ID - Unique for every email
             $email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
+
             //Processing File
             $response['data'] = $this->process_upload_file($inputFileName, $inputFileExtn);
             if(!empty($response['data'])){
@@ -481,10 +483,14 @@ class bookings_excel extends CI_Controller {
                             $unit_details['sub_order_id'] = $rowData[0]['order_item_id'];
 
                             $booking['booking_primary_contact_no'] = $rowData[0]['contact_number'];
-
-                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['shipped_date']);
-                            $booking['shipped_date'] = date('Y-m-d H:i:s', strtotime($dateObj2->format('d-m-Y')));
-
+                            
+                            if (is_string($rowData[0]['shipped_date'])) {
+                                $booking['shipped_date'] = date('Y-m-d H:i:s', strtotime($rowData[0]['shipped_date']));
+                            } else {
+                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['shipped_date']);
+                                $booking['shipped_date'] = date('Y-m-d H:i:s', strtotime($dateObj2->format('d-m-Y')));
+                            }
+                            
                             $booking['current_status'] = "FollowUp";
                             $booking['internal_status'] = "Missed_call_not_confirmed";
                             $booking['create_date'] = date("Y-m-d H:i:s");

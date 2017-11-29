@@ -365,7 +365,7 @@ class Accounting extends CI_Controller {
         }
         
         if(!empty($invoice_remarks)){
-            $request_data['remarks'] = $invoice_remarks;
+            $request_data["remarks like '%$invoice_remarks%' "] = NULL;
         }
         
         if(!empty($request_data)){

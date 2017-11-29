@@ -83,7 +83,7 @@
                                         <label class="control-label col-md-4 col-sm-3 col-xs-12" for="primary_contact_number">Primary Mobile No. <span class="required">*</span>
                                         </label>
                                         <div class="col-md-6 col-sm-4 col-xs-12">
-                                            <input type="tel" id="primary_contact_number" required="required" class="form-control col-md-7 col-xs-12" ng-minlength="10" ng-maxlength="10" name="phone_number" ng-model="tempData.phone_number">
+                                            <input type="number" id="primary_contact_number" required="required" class="form-control col-md-7 col-xs-12" ng-minlength="10" ng-maxlength="10" name="phone_number" ng-model="tempData.phone_number">
                                         </div>
                                         <span class="msg"  ng-show="userForm.phone_number.$dirty && userForm.phone_number.$error.required">Phone Number is required</span>
                                         <span class="msg"  ng-show="userForm.phone_number.$error.minlength">Enter Valid Phone Number</span>
@@ -93,7 +93,7 @@
                                         <label class="control-label col-md-4 col-sm-3 col-xs-12" for="alternate_conatct_number">Alt Mobile No1 
                                         </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <input type="tel" id="alternate_conatct_number" class="form-control col-md-7 col-xs-12" name="alt_phone_number_1" ng-minlength="10" ng-maxlength="10" ng-model="tempData.alt_phone_number_1">
+                                            <input type="number" id="alternate_conatct_number" class="form-control col-md-7 col-xs-12" name="alt_phone_number_1"  ng-model="tempData.alt_phone_number_1">
                                         </div>
                                         <span class="msg"  ng-show="userForm.alt_phone_number_1.$error.minlength">Enter Valid Phone Number</span>
                                         <span class="msg"  ng-show="userForm.alt_phone_number_1.$error.maxlength">Enter Valid Phone Number</span>
@@ -102,7 +102,7 @@
                                         <label class="control-label col-md-4 col-sm-3 col-xs-12" for="alternate_conatct_number2">Alt Mobile No2  
                                         </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <input type="tel" id="alternate_conatct_number2" class="form-control col-md-7 col-xs-12" name="alt_phone_number_2" ng-minlength="10" ng-maxlength="10" ng-model="tempData.alt_phone_number_2">
+                                            <input type="number" id="alternate_conatct_number2" class="form-control col-md-7 col-xs-12" name="alt_phone_number_2" ng-model="tempData.alt_phone_number_2">
                                         </div>
                                         <span class="msg"  ng-show="userForm.alt_phone_number_2.$error.minlength">Enter Valid Phone Number</span>
                                         <span class="msg"  ng-show="userForm.alt_phone_number_2.$error.maxlength">Enter Valid Phone Number</span>

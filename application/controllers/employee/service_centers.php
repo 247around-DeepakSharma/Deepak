@@ -26,6 +26,7 @@ class Service_centers extends CI_Controller {
         $this->load->model('user_model');
         $this->load->model('employee_model');
         $this->load->model('invoices_model');
+        $this->load->model('penalty_model');
         $this->load->model('inventory_model');
         $this->load->model('cp_model');
         $this->load->library("pagination");
@@ -455,7 +456,35 @@ class Service_centers extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['bookings'] = $this->service_centers_model->getcompleted_or_cancelled_booking($config['per_page'], $offset, $service_center_id, "Completed", $booking_id);
+        $bookings = $this->service_centers_model->getcompleted_or_cancelled_booking($config['per_page'], $offset, $service_center_id, "Completed", $booking_id);
+        if(!empty($bookings)){
+            foreach ($bookings as $key => $value) {
+                $where['where'] = array('booking_unit_details.booking_id' => $value['booking_id']);
+                $where['length'] = -1;
+                $select = "SUM(vendor_basic_charges + vendor_st_or_vat_basic_charges "
+                        . "+ vendor_extra_charges + vendor_st_extra_charges+ vendor_parts+ vendor_st_parts) as sf_earned";
+                $b_earned = $this->booking_model->get_bookings_by_status($where, $select);
+                
+                $penalty_select = "CASE WHEN ((count(booking_id) *  penalty_on_booking.penalty_amount) > cap_amount) THEN (cap_amount)
+
+                ELSE (COUNT(booking_id) * penalty_on_booking.penalty_amount) END  AS p_amount";
+                $penalty_where = array('booking_id' => $value['booking_id']);
+                $p_amount = $this->penalty_model->get_penalty_on_booking_any($penalty_where, $penalty_select);
+                
+                $is_customer_paid = 1;
+                if(empty($value['amount_due'])){
+                    $is_customer_paid = 0;
+                }
+                $upcountry = $this->upcountry_model->upcountry_booking_list($service_center_id, $value['booking_id'], true, $is_customer_paid);
+                $sf_earned = $b_earned[0]->sf_earned -$p_amount[0]['p_amount'] + $upcountry[0]['upcountry_price'];
+                if($p_amount[0]['p_amount'] > 0){
+                    $bookings[$key]['penalty'] = true;
+                }
+                $bookings[$key]['sf_earned'] = $sf_earned;
+               
+            }
+        }
+        $data['bookings'] = $bookings;
         $data['status'] = "Completed";
 
         $this->load->view('service_centers/header');
@@ -2708,7 +2737,7 @@ class Service_centers extends CI_Controller {
                     $total_bookings = $data[0]['total_booking'];
                     $total_escalation = $data[0]['total_escalation'];
                     $escalation_per = ($total_escalation*100)/$total_bookings;
-                    echo round($escalation_per,2);
+                    echo sprintf("%1\$.2f",$escalation_per);
                 }
                 
             }else{

@@ -118,7 +118,7 @@ class Upload_buyback_process extends CI_Controller {
             $this->miscelleneous->update_file_uploads($order_file, $_FILES['file']['tmp_name'],_247AROUND_BB_ORDER_LIST,FILE_UPLOAD_FAILED_STATUS,$email_message_id);
         } else {
            
-            $to = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):ANUJ_EMAIL_ID;
+            $to = !empty($this->session->userdata('official_email')) ? $this->session->userdata('official_email') . ", " . ANUJ_EMAIL_ID : ANUJ_EMAIL_ID;
             $cc = "abhaya@247around.com , ".NITS_EMAIL_ID;
 
             $message = "";
@@ -362,7 +362,7 @@ class Upload_buyback_process extends CI_Controller {
         if ($error) {
             $message = " Please check and upload again.";
             $this->Columfailed .= " column does not exist.";
-            $to =  !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):ANUJ_EMAIL_ID;
+            $to =  !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email') . ", " . ANUJ_EMAIL_ID : ANUJ_EMAIL_ID;
             $cc = "abhaya@247around.com,".NITS_EMAIL_ID;
             $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
             $subject = "Failure! Buyback Order is uploaded by " .$agent_name ;
