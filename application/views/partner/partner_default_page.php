@@ -330,7 +330,7 @@
         
         <?php $data = array('booking_details.partner_id' => $this->session->userdata('partner_id'), 'status' => SPARE_OOW_EST_REQUESTED);
         ?>
-         <?php $column = array(NULL,NUll,"age_of_request", NULL,NULL);?>
+         <?php $column = array(NULL,NUll,NUll,"age_of_request", NULL,NULL, NULL, NULL, NULL);?>
          var column_order = <?php echo json_encode($column);?>;
          var obj = '<?php echo json_encode($data); ?>';
          var select = '<?php echo "parts_requested, model_number, serial_number, assigned_vendor_id, "
@@ -354,7 +354,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1,3,4,5,6,7,8], //first column / numbering column
+                    "targets": [0,1,2,4,5,6,7,8,9], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
