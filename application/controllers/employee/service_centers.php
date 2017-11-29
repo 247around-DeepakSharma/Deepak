@@ -469,7 +469,7 @@ class Service_centers extends CI_Controller {
 
                 ELSE (COUNT(booking_id) * penalty_on_booking.penalty_amount) END  AS p_amount";
                 $penalty_where = array('booking_id' => $value['booking_id']);
-                $p_amount = $this->penalty_model->get_penalty_on_booking_any($penalty_where, $penalty_select);
+                $p_amount = $this->penalty_model->get_penalty_on_booking_any($penalty_where, $penalty_select, array('CASE'));
                 
                 $is_customer_paid = 1;
                 if(empty($value['amount_due'])){
