@@ -268,6 +268,7 @@ class Do_background_upload_excel extends CI_Controller {
         
 	foreach ($row_data['valid_data'] as $key => $value) {
             $phone = explode('/', $value['phone']);
+            $value['pincode'] = trim(str_replace(" ", "", trim($value['pincode'])));
 	    //echo print_r($rowData[0], true), EOL;
 	    if ($value['phone'] == "") {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
@@ -898,7 +899,7 @@ class Do_background_upload_excel extends CI_Controller {
 		exit();
 	    }
 	    // check pincode is 6 digit
-	    if (!preg_match('/^\d{6}$/', $value['pincode'])) {
+	    if (!preg_match('/^\d{6}$/', str_replace(' ', "", trim($value['pincode'])))) {
 
 		unset($data['valid_data'][$key]);
 		array_push($invalid_data, $value);
@@ -1164,18 +1165,21 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function add_user_for_invalid($row_data) {
 	foreach ($row_data as $value) {
-
-            $output = $this->user_model->search_user(trim($value['phone']));
-            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['pincode']));
+            $phone = explode('/', trim($value['phone']));
+            $output = $this->user_model->search_user($phone[0]);
+            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim(str_replace(" ", "", trim($value['pincode']))));
 
             if (empty($output)) {
                 //User doesn't exist
                 if (isset($value['customer_name']) || isset($value['phone']) || isset($value['customer_address']) || isset($value['pincode'])) {
-                    $user['name'] = $value['customer_name'];
-                    $user['phone_number'] = $value['phone'];
                     $user['user_email'] = (isset($value['email_id']) ? $value['email_id'] : "");
+                    $user['name'] = $this->miscelleneous->is_user_name_empty(trim($value['customer_name']), $user['user_email'], $phone[0]);
+                    $user['phone_number'] = $phone[0];
+                    if(isset($phone[1])){
+                        $user['alternate_phone_number'] = $phone[1];
+                    }
                     $user['home_address'] = $value['customer_address'];
-                    $user['pincode'] = $value['pincode'];
+                    $user['pincode'] = trim(str_replace(" ", "", trim($value['pincode'])));
                     $user['city'] = $value['city'];
                     $user['state'] = $distict_details['state'];
 
