@@ -679,7 +679,7 @@ $where_id = "";
      */
     function getVendorFromVendorMapping($data) {
         $this->db->distinct();
-        $this->db->select('service_centres.name As Vendor_Name, Brand, Area, Region, vendor_pincode_mapping.Pincode');
+        $this->db->select('service_centres.name As Vendor_Name, vendor_pincode_mapping.Pincode');
         $this->db->from('vendor_pincode_mapping');
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('vendor_pincode_mapping.Pincode', $data['pincode']);
@@ -753,16 +753,16 @@ $where_id = "";
             $cities = " , City";
         }
         $this->db->distinct();
-        $this->db->select('Vendor_Name as name, Vendor_ID as id, Appliance, Appliance_ID');
+        $this->db->select('vendor_pincode_mapping.Vendor_Name as name, vendor_pincode_mapping.Vendor_ID as id, services.services as Appliance, vendor_pincode_mapping.Appliance_ID');
        
         if ($vendor_id != "")
-            $this->db->where('Vendor_ID', $vendor_id);
+            $this->db->where('vendor_pincode_mapping.Vendor_ID', $vendor_id);
 
         if ($city != "")
-            $this->db->where('City', $city);
+            $this->db->where('vendor_pincode_mapping.City', $city);
 
-        $this->db->order_by('Appliance', 'ASC');
-
+        $this->db->order_by('services.services', 'ASC');
+        $this->db->join('services', 'services.id = vendor_pincode_mapping.Appliance_ID');
         $query = $this->db->get('vendor_pincode_mapping');
 
         return $query->result_array();
@@ -1077,7 +1077,9 @@ $where_id = "";
      *  @return : array of all data
      */
     function get_distinct_vendor_details($service_id){
-         $query = $this->db->query("SELECT DISTINCT Vendor_ID,Vendor_Name from vendor_pincode_mapping where Appliance_ID = ". $service_id. ' Order By Vendor_Name');
+         $query = $this->db->query("SELECT DISTINCT vendor_pincode_mapping.Vendor_ID,service_centres.name as Vendor_Name from vendor_pincode_mapping join service_centres ON "
+                 . "service_centres.id=vendor_pincode_mapping.Vendor_ID"
+                 . " where vendor_pincode_mapping.Appliance_ID = ". $service_id. ' Order By vendor_pincode_mapping.Vendor_Name');
          return $query->result_array();
     }
     /**
@@ -1091,7 +1093,8 @@ $where_id = "";
          if(!empty($pincode)){
              $where  = " AND Pincode = '".$pincode."' ";
          }
-         $query = $this->db->query("SELECT DISTINCT Appliance,Appliance_ID from vendor_pincode_mapping where Vendor_ID = ". $vendor_id. " $where Order By Appliance");
+         $query = $this->db->query("SELECT DISTINCT services.services AS Appliance,vendor_pincode_mapping.Appliance_ID from "
+                 . "vendor_pincode_mapping JOIN services ON services.id= vendor_pincode_mapping.Appliance_ID where vendor_pincode_mapping.Vendor_ID = ". $vendor_id. " $where Order By services.services");
          return $query->result_array();
     }
     
@@ -1744,6 +1747,7 @@ $where_id = "";
             $this->db->where($where);
         }
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
+        $this->db->join('services', 'services.id = vendor_pincode_mapping.Appliance_ID');
         $this->db->where('service_centres.active', '1');
         $query = $this->db->get();
         return $query->result_array();

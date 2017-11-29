@@ -1189,10 +1189,10 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     function get_serviceability_by_pincode(){
-        $sql = "SELECT City, State, Pincode,GROUP_CONCAT( DISTINCT Appliance SEPARATOR ',') as appliance
-                FROM vendor_pincode_mapping 
-                GROUP BY Pincode
-                ORDER BY City";
+        $sql = "SELECT vendor_pincode_mapping.City, vendor_pincode_mapping.State, vendor_pincode_mapping.Pincode,GROUP_CONCAT( DISTINCT services.services SEPARATOR ',') as appliance
+                FROM vendor_pincode_mapping JOIN services ON services.id = vendor_pincode_mapping.Appliance_ID 
+                GROUP BY vendor_pincode_mapping.Pincode
+                ORDER BY vendor_pincode_mapping.City";
         return $this->db->query($sql);
     }
 }

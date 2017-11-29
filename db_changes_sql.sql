@@ -3530,6 +3530,9 @@ ALTER TABLE `zopper_estimate_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 
+ALTER TABLE `vendor_pincode_mapping` DROP `Vendor_Name`;
+ALTER TABLE `vendor_pincode_mapping` DROP `Appliance`;
+ALTER TABLE `vendor_pincode_mapping` DROP `Brand`,DROP `Area`,DROP `Region`;
 --- sachin 24 Nov
 
 INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subject_text`, `email_function_name`, `email_remarks`, `active`, `create_date`) VALUES
