@@ -3586,3 +3586,6 @@ INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subje
 
 -- sachin 26 nov
 INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subject_text`, `email_function_name`, `email_remarks`, `active`, `create_date`) VALUES (NULL, 'sachinj@247around.com', 'snapdeal file', 'employee/do_background_upload_excel/upload_snapdeal_file', 'snapdeal', '1', CURRENT_TIMESTAMP);
+
+-- sachin 29 nov
+INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subject_text`, `email_function_name`, `email_remarks`, `active`, `create_date`) VALUES (NULL, 'sachinj@247around.com', 'wybor file', 'employee/do_background_upload_excel/upload_satya_file', 'wybor', '1', CURRENT_TIMESTAMP);
