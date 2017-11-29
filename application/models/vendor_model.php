@@ -1821,9 +1821,9 @@ $where_id = "";
     }
     
     function get_india_pincode_distinct_area_data($pincode) {
-            $this->db->select('state,area,region,district as city');
+            $this->db->select('state,district as city');
             $this->db->where('pincode', $pincode);
-            $this->db->group_by('area,region,district,state');
+            $this->db->group_by('district,state');
             $query = $this->db->get('india_pincode');
             return $query->result_array();
      }
