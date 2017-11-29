@@ -1383,7 +1383,7 @@ class Service_centers extends CI_Controller {
                 $rm_email = $this->get_rm_email($service_center_id);
                 $from = NOREPLY_EMAIL_ID;
 
-                $to = "anuj@247around.com, booking@247around.com";
+                $to = "booking@247around.com";
                 $cc= $rm_email.", nits@247around.com";
                
                 $subject = $this->session->userdata('service_center_name')." Updated Courier Details for Booking ID ".$booking_id;
