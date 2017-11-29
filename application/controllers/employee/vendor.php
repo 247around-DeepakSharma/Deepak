@@ -4120,7 +4120,7 @@ class vendor extends CI_Controller {
     function get_penalty_details_data($booking_id, $status){
         
         $where  = array('penalty_on_booking.booking_id'=>$booking_id,'penalty_on_booking.active' => 1);
-        $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where);
+        $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where,'*',array('*'));
         $this->load->view('employee/get_penalty_on_booking_details',array('penalty_details' => $data['penalty_details'], 'status'=>$status));
     }
     
