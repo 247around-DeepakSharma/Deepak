@@ -3589,3 +3589,7 @@ INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subje
 
 -- sachin 29 nov
 INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subject_text`, `email_function_name`, `email_remarks`, `active`, `create_date`) VALUES (NULL, 'sachinj@247around.com', 'wybor file', 'employee/do_background_upload_excel/upload_satya_file', 'wybor', '1', CURRENT_TIMESTAMP);
+---Chhavi 
+ALTER TABLE `vendor_pincode_mapping` DROP `Vendor_Name`;
+ALTER TABLE `vendor_pincode_mapping` DROP `Appliance`;
+ALTER TABLE `vendor_pincode_mapping` DROP `Brand`,DROP `Area`,DROP `Region`;
