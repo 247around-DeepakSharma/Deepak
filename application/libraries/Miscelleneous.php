@@ -1132,10 +1132,7 @@ class Miscelleneous {
 
     function sf_not_exist_for_pincode($booking) {
         $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
-        $pincode = $notFoundSfArray['pincode'];
-        $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
-FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
-        $result = $this->My_CI->reusable_model->execute_custom_select_query($sql);
+        $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
         if (!empty($result)) {
             $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
             $notFoundSfArray['state'] = $result[0]['state'];
