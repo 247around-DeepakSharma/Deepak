@@ -381,7 +381,7 @@ class Notify {
 			$this->send_email($email);
 
 			
-                        $sms['smsData']['service'] = $query1[0]['services'];
+                        $sms['smsData']['service'] = $query1[0]['services']. " ". $query1[0]['request_type'];
                         $sms['tag'] = "cancel_booking";
                         $sms['booking_id'] = $query1[0]['booking_id'];
                         $sms['type'] = "user";
