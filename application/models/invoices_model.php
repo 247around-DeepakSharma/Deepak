@@ -1044,7 +1044,7 @@ class invoices_model extends CI_Model {
                 if($value['product_or_services'] == "Product"){
                     
                     $meta['total_parts_charge'] += $value['taxable_value'];
-                    $parts_count++;
+                    $parts_count += $value['qty'];
                     
                 } else {
                     $meta['total_sc_charge'] += $value['taxable_value'];
