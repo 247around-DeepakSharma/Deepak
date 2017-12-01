@@ -79,16 +79,6 @@ class invoices_model extends CI_Model {
         return $return_data;
     }
 
-    /**
-     * Get partner Email id
-     * @param type $partnerId
-     */
-    function getEmailIdForPartner($partnerId) {
-        $this->db->select('partner_email_for_to');
-        $this->db->where('partner_id', $partnerId);
-        $query = $this->db->get('bookings_sources');
-        return $query->result_array();
-    }
 
     //Function to insert banks account/statement
     function bankAccountTransaction($account_statement) {

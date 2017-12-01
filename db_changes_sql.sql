@@ -3673,3 +3673,9 @@ ALTER TABLE `trigger_service_charges`
 <--01-Dec-2017,Chhavi-->
 ALTER TABLE `dealer_details` ADD `state` VARCHAR(100) NOT NULL AFTER `city`;
 
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'negative_foc_invoice_for_vendors', '247around - %s - FOC Invoice for period: %s to %s', 'Dear Partner, Your ... Negative Invoice Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice. <br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', '', 'abhaya@247around', '', '1', '2017-12-01 23:56:58');
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'resend_invoice', '247around - Invoice for period: %s to %s', 'Dear Partner <br/><br/> Please find attached invoice for jobs completed between %s and %s.<br/><br/> Details with breakup by job, service category is attached. Also the service rating as given by customers is shown.<br/><br/> Hope to have a long lasting working relationship with you. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice. <br/><br/>With Regards,<br/>247around Team', 'billing@247around.com', '', 'abhaya@247around', '', '1', '2017-12-01 23:56:58');
+
+
+ALTER TABLE `trigger_partners` ADD `updated_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `update_date`;
