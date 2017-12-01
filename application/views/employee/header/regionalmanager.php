@@ -85,10 +85,10 @@
                             <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/p_av"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries (Pincode Available)</a></strong>
                         </li>
                         <li class="divider"></li>
-                        <li >
+<!--                        <li >
                             <a href="<?php echo base_url() ?>employee/booking/get_missed_calls_view"><i class="fa fa-fw fa-desktop"></i> <strong> Missed Calls</strong></a>
                         </li>
-                        <li class="divider"></li>
+                        <li class="divider"></li>-->
                         <li>
                             <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/p_nav"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries (Pincode Not Available)</a></strong>
                         </li>
@@ -113,10 +113,10 @@
                             <a href="<?php echo base_url() ?>employee/inventory/get_spare_parts"><i class="fa fa-fw fa-desktop"></i> <strong> Spare Parts Booking</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/booking/get_oow_booking"><i class="fa fa-fw fa-desktop"></i> <strong> OOW Booking</strong></a>
-                        </li>
-                        <li class="divider"></li>
+    <!--                        <li>
+                                <a href="<?php echo base_url() ?>employee/booking/get_oow_booking"><i class="fa fa-fw fa-desktop"></i> <strong> OOW Booking</strong></a>
+                            </li>
+                            <li class="divider"></li>-->
                         <li>
                             <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>Completed Booking</strong></a>
                         </li>
@@ -125,10 +125,10 @@
                             <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong>Cancelled Booking</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li>
+<!--                        <li>
                             <a href="<?php echo base_url() ?>employee/booking/get_pending_booking_by_partner_id"><i class="fa fa-fw fa-desktop"></i> <strong>Repair Bookings</strong></a>
                         </li>
-                        <li class="divider"></li>
+                        <li class="divider"></li>-->
                         <li >
                             <a href="<?php echo base_url() ?>employee/vendor/get_assign_booking_form"><i class="fa fa-fw fa-desktop"></i> <strong>Assign Vendor</strong></a>
                         </li>
@@ -138,10 +138,10 @@
                             <a href="<?php echo base_url()?>employee/booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                         </li>
                          <li class="divider"></li>
-                        <li>
+<!--                        <li>
                             <a href="<?php echo base_url()?>employee/booking/auto_assigned_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Auto Assigned Booking</strong></a>
                         </li>         
-                         <li class="divider"></li>
+                         <li class="divider"></li>-->
                         <li>
                             <a href="<?php echo base_url()?>employee/upcountry/get_waiting_for_approval_upcountry_charges"><i class="fa fa-fw fa-desktop"></i> <strong>Waiting to Approve Upcountry Booking</strong></a>
                         </li>
@@ -195,10 +195,10 @@
                             <a href="<?php echo base_url() ?>employee/vendor/vendor_availability_form"><i class="fa fa-fw fa-desktop "></i> <strong> Search Service Centre</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li>
+<!--                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_add_vendor_to_pincode_form"><i class="fa fa-fw fa-desktop "></i> <strong>Add Vendor Pincode Mapping</strong></a>
                         </li>
-                        <li class="divider"></li>
+                        <li class="divider"></li>-->
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/process_vendor_pincode_delete_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
                         </li>
@@ -224,7 +224,7 @@
                 </li>
                 
                 <!-- /.dropdown -->
-                <li class="dropdown">
+<!--                <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     Appliances <i class="fa fa-caret-down"></i>
                     </a>
@@ -234,8 +234,8 @@
                             <a href="<?php echo base_url() ?>employee/booking/get_add_new_brand_form"><i class="fa fa-fw fa-desktop"></i> <strong> Add New Brand</strong></a>
                         </li>
                     </ul>
-                    <!-- /.dropdown-user -->
-                </li>
+                     /.dropdown-user 
+                </li>-->
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
