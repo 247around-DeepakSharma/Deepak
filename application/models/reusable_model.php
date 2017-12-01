@@ -108,4 +108,11 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
+    function get_state_for_rm($rmID){
+       $sql = "SELECT state_code.state FROM employee_relation  LEFT JOIN state_code ON 
+FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_relation.agent_id = '" . $rmID . "'";
+         $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 }
