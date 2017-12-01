@@ -113,52 +113,53 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * @desc: Send Invoice pdf file to vendor
-     *
-     * @param: $invoiceId- this is the id of the invoice which we want to send.
-     * @param: $vendor_partnerId- to partner's/vendor's id
-     * @param: $start_date- date from which we are calculating this invoice
-     * @param: $end_date- date upto which we are calculating this invoice
-     * @param: $vendor_partner- tells if its vendor or partner
-     * @return: void
+     * @desc Send invoice to partner
+     * @param String $invoiceId
      */
-    function sendInvoiceMail($invoiceId, $vendor_partnerId, $start_date, $end_date, $vendor_partner) {
-        log_message('info', "Entering: " . __METHOD__ . 'Invoice_id:'.$invoiceId.' vendor_partner_id:'.$vendor_partnerId.' vendor_partner:'.$vendor_partner.' start_date:'.$start_date.' end_date'.$end_date);
-        $email = $this->input->post('email');
-        // download invoice pdf file to local machine
-        if ($vendor_partner == "vendor") {
+    function sendInvoiceMail($invoiceId) {
+        log_message('info', "Entering: " . __METHOD__ . 'Invoice_id:' . $invoiceId );
+        $data = $this->invoices_model->get_invoices_details(array("invoice_id" => $invoiceId));
+        if (!empty($data)) {
+            $vendor_partnerId = $data[0]['vendor_partner_id'];
+            $start_date = $data[0]['from_date'];
+            $end_date = $data[0]['to_date'];
+            $vendor_partner = $data[0]['vendor_partner'];
+            $email = "";
+            $detailed_invoice = $this->input->post("detailed_invoice");
+            $main_invoice = $this->input->post("main_invoice");
+            $email_template = $this->booking_model->get_booking_email_template("resend_invoice");
+            // download invoice pdf file to local machine
+            if ($vendor_partner == "vendor") {
 
-            $to = $this->get_to_emailId_for_vendor($vendor_partnerId, $email);
-        } else {
-            $to = $this->get_to_emailId_for_partner($vendor_partnerId, $email);
-        }
+                $to = $this->get_to_emailId_for_vendor($vendor_partnerId, $email);
+                $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_partnerId);
+                $rem_email_id = "";
+                if (!empty($rm_details)) {
+                    $rem_email_id = ", " . $rm_details[0]['official_email'];
+                }
+                $cc = $email_template[3] . $rem_email_id;
+            } else {
+                $getEmail = $this->partner_model->getpartner_details("invoice_email_to", array('partners.id' =>$vendor_partnerId));
+                $to =  $to = $getEmail[0]['invoice_email_to'];
+                $cc = $email_template[3];
+            }
 
-        log_message('info', "vendor partner type" . print_r($vendor_partner));
-        log_message('info', "vendor partner id" . print_r($vendor_partnerId));
 
-        $cc = "billing@247around.com, " . NITS_ANUJ_EMAIL_ID;
-        $subject = "247around - Invoice for period: " . $start_date . " To " . $end_date;
-        $attachment = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-pdf/' . $invoiceId . '.pdf';
+            $subject = vsprintf($email_template[4], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
+            $message = vsprintf($email_template[0], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
+            $email_from = $email_template[2];
+            $sent = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $detailed_invoice, $main_invoice);
+            if ($sent) {
+                $userSession = array('success' => "Invoice Sent");
+                $this->session->set_userdata($userSession);
+            } else {
+                $userSession = array('error' => "Invoice sending failed");
+                $this->session->set_userdata($userSession);
+            }
 
-        $message = "Dear Partner <br/><br/>";
-        $message .= "Please find attached invoice for jobs completed between " . $start_date . " and " . $end_date . ".<br/><br/>";
-        $message .= "Details with breakup by job, service category is attached. Also the service rating as given by customers is shown.<br/><br/>";
-        $message .= "Hope to have a long lasting working relationship with you.";
-        $message .= "<br><br>With Regards,
-                    <br>247around Team<br>
-                    <br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
-                    <br>Follow us on Facebook: www.facebook.com/247around
-                    <br>Website: www.247around.com
-                    <br>Playstore - 247around -
-                    <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
-        log_message('info', "To- EmailId" . print_r($to, true));
-
-        $this->notify->sendEmail("billing@247around.com", $to, $cc, '', $subject, $message, $attachment);
-        if ($vendor_partner == "vendor") {
-            redirect(base_url() . 'employee/invoice', 'refresh');
-        } else {
-            redirect(base_url() . 'employee/invoice/invoice_partner_view', 'refresh');
+            log_message('info', "To- EmailId" . print_r($to, true));
+            redirect(base_url() . 'employee/invoice_summary/' . $vendor_partner . "/" . $vendor_partnerId, 'refresh');
         }
     }
 
@@ -189,24 +190,6 @@ class Invoice extends CI_Controller {
             $to = $getEmail[0]['primary_contact_email'] . ',' . $getEmail[0]['owner_email'] . ',' . $email;
         } else {
             $to = $getEmail[0]['primary_contact_email'] . ',' . $getEmail[0]['owner_email'];
-        }
-
-        return $to;
-    }
-
-    /**
-     * @desc : Get partner email id from table to send invoice.
-     * @param : type $partnerId
-     * @param : type $email
-     * @return : string
-     */
-    function get_to_emailId_for_partner($partnerId, $email) {
-        $getEmail = $this->invoices_model->getEmailIdForPartner($partnerId);
-        $to = "";
-        if (!empty($email)) {
-            $to = $getEmail[0]['partner_email_for_to'] . ',' . $email;
-        } else {
-            $to = $getEmail[0]['partner_email_for_to'];
         }
 
         return $to;
