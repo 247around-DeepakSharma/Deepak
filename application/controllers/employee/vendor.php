@@ -3401,35 +3401,30 @@ class vendor extends CI_Controller {
      * 
      */
     function get_sc_charges_list(){
-        $state = $this->input->post('state');
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('employee_id'));
-            $sc_charges_data = $this->service_centre_charges_model->get_service_centre_charges($state);
+        $sc_charges_data = $this->service_centre_charges_model->get_service_caharges_data("partner_id,services,category,capacity,service_category,vendor_basic_charges,"
+                . "vendor_tax_basic_charges,vendor_total,customer_net_payable");
+        $partner_id_array = array_unique(array_column($sc_charges_data, 'partner_id'));
+        foreach($partner_id_array as $partnerID){
+            $booking_sources_array[$partnerID] = '';
+             $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($partnerID);
+             if(!empty($booking_sources[0]['code'])){
+                 $booking_sources_array[$partnerID] = $booking_sources[0]['code'];
+             }
+        }
             //Looping through all the values 
             foreach ($sc_charges_data as $value) {
-                //Getting Details from Booking Sources
-                $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($value['partner_id']);
-                $code_source = $booking_sources[0]['code'];
-                
-                //Calculating vendor base charge 
-                $vendor_base_charge = $value['vendor_total']/(1+($value['rate']/100));
-                //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
-                $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
-                
-                $array_final['state'] = $state;
-                $array_final['sc_code'] = $code_source;
-                $array_final['product'] = $value['product'];
+                $array_final['sc_code'] = $booking_sources_array[$value['partner_id']];
+                $array_final['product'] = $value['services'];
                 $array_final['category'] = $value['category'];
                 $array_final['capacity'] = $value['capacity'];
                 $array_final['service_category'] = $value['service_category'];
-                $array_final['vendor_basic_charges'] = round($vendor_base_charge,0);
-                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,0);
+                $array_final['vendor_basic_charges'] = round($value['vendor_basic_charges'],0);
+                $array_final['vendor_tax_basic_charges'] = round($value['vendor_tax_basic_charges'],0);
                 $array_final['vendor_total'] = round($value['vendor_total'],0);
                 $array_final['customer_net_payable'] = round($value['customer_net_payable'],0);
-                $array_final['pod'] = $value['pod'];
-                
                 $final_array[] = $array_final;
             }
-
             $template = 'SC-Charges-List-Template.xlsx';
             //set absolute path to directory with template files
             $templateDir = __DIR__ . "/../excel-templates/";
@@ -3449,7 +3444,7 @@ class vendor extends CI_Controller {
                 ));
 
             $output_file_dir = TMP_FOLDER;
-            $output_file = ucfirst($state)."-Charges-List-" . date('j-M-Y');
+            $output_file = "Charges-List-" . date('j-M-Y');
             $output_file_name = $output_file . ".xlsx";
             $output_file_excel = $output_file_dir . $output_file_name;
             $R->render('excel', $output_file_excel);
