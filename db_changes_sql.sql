@@ -3621,3 +3621,6 @@ ALTER TABLE `trigger_service_charges`
 ALTER TABLE `trigger_service_charges`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+<--01-Dec-2017,Chhavi-->
+ALTER TABLE `dealer_details` ADD `state` VARCHAR(100) NOT NULL AFTER `city`;
+
