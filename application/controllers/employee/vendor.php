@@ -3421,7 +3421,7 @@ class vendor extends CI_Controller {
                 $code_source = $booking_sources[0]['code'];
                 
                 //Calculating vendor base charge 
-                $vendor_base_charge = $value['vendor_total']/(1+($value['rate']/100));
+                $vendor_base_charge = $value['vendor_total']/(1+(DEFAULT_TAX_RATE/100));
                 //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
                 $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
                 
@@ -3431,9 +3431,9 @@ class vendor extends CI_Controller {
                 $array_final['category'] = $value['category'];
                 $array_final['capacity'] = $value['capacity'];
                 $array_final['service_category'] = $value['service_category'];
-                $array_final['vendor_basic_charges'] = round($vendor_base_charge,0);
-                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,0);
-                $array_final['vendor_total'] = round($value['vendor_total'],0);
+                $array_final['vendor_basic_charges'] = round($vendor_base_charge,2);
+                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,2);
+                $array_final['vendor_total'] = round($value['vendor_total'],2);
                 $array_final['customer_net_payable'] = round($value['customer_net_payable'],0);
                 $array_final['pod'] = $value['pod'];
                 
