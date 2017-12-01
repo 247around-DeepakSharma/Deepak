@@ -2062,35 +2062,55 @@ class Invoice extends CI_Controller {
         $to_date = $custom_date[1];
         $invoice_type = $details['invoice_type'];
         $invoices = $this->invoices_model->get_vendor_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
-        
+
         if (!empty($invoices['booking'])) {
-            
-            if (isset($details['invoice_id'])) {
-                log_message('info', __METHOD__ . ": Invoice Id re- geneterated " . $details['invoice_id']);
-                $invoices['meta']['invoice_id'] = $details['invoice_id'];
+            if ($invoices['meta']['sub_total_amount'] > 0) {
+
+                if (isset($details['invoice_id'])) {
+                    log_message('info', __METHOD__ . ": Invoice Id re- geneterated " . $details['invoice_id']);
+                    $invoices['meta']['invoice_id'] = $details['invoice_id'];
+                } else {
+                    $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert($invoices['meta']['sc_code']);
+
+                    log_message('info', __METHOD__ . ": Invoice Id geneterated "
+                            . $invoices['meta']['invoice_id']);
+                }
+
+                $status = $this->send_request_to_create_main_excel($invoices, $invoice_type);
+                if ($status) {
+                    log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
+
+
+                    $in_detailed = $this->invoices_model->generate_vendor_foc_detailed_invoices($vendor_id, $from_date, $to_date, $is_regenerate);
+                    return $this->generate_foc_details_invoices_for_vendors($in_detailed, $invoices, $vendor_id, $invoice_type, $details['agent_id']);
+                } else {
+                    log_message('info', __FUNCTION__ . ' Invoice File did not create. invoice id' . $invoices['meta']['invoice_id']);
+                    return FALSE;
+                }
             } else {
-                $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert($invoices['meta']['sc_code']);
-
-                log_message('info', __METHOD__ . ": Invoice Id geneterated "
-                        . $invoices['meta']['invoice_id']);
-            }
-
-            $status = $this->send_request_to_create_main_excel($invoices, $invoice_type);
-            if ($status) {
-                log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
-
-             
-                $in_detailed = $this->invoices_model->generate_vendor_foc_detailed_invoices($vendor_id, $from_date, $to_date, $is_regenerate);
-                return $this->generate_foc_details_invoices_for_vendors($in_detailed, $invoices,$vendor_id, $invoice_type, $details['agent_id']);
-               
-            } else {
-                log_message('info', __FUNCTION__ . ' Invoice File did not create. invoice id' . $invoices['meta']['invoice_id']);
-                return FALSE;
+                //Negative Amount Invoice
+                $email_template = $this->booking_model->get_booking_email_template(NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
+                $message = $email_template[0];
+                $email_from = $email_template[2];
+                $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
+                $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+                $rem_email_id = "";
+                if (!empty($rm_details)) {
+                    $rem_email_id = ", " . $rm_details[0]['official_email'];
+                }
+                $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id;
+                echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
+                log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
+                
+                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "");
+              
+                return false;
             }
         } else {
-            
-            echo "Data Not Found";
-            log_message('info', __FUNCTION__ . " Data Not Found.");
+
+            echo "Data Not Found - ".$vendor_id.PHP_EOL;
+            log_message('info', __FUNCTION__ . " Data Not Found -". $vendor_id);
             return false;
         }
     }
