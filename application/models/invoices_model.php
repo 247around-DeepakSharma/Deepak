@@ -1089,10 +1089,6 @@ class invoices_model extends CI_Model {
             if ($meta['sub_total_amount'] >= 0) {
                
                 $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
-            }else if ($meta['sub_total_amount'] < 0){
-
-                return FALSE;
-                
             }
             
             $data['meta'] = $meta;
