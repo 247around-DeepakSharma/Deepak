@@ -3546,3 +3546,78 @@ INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subje
 
 -- sachin 29 nov
 INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subject_text`, `email_function_name`, `email_remarks`, `active`, `create_date`) VALUES (NULL, 'sachinj@247around.com', 'wybor file', 'employee/do_background_upload_excel/upload_satya_file', 'wybor', '1', CURRENT_TIMESTAMP);
+
+--Abhay 29 Nov
+ALTER TABLE `service_centre_charges` CHANGE `create_date` `create_date` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `service_centre_charges` ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `create_date`, ADD `agent_id` INT(11) NULL DEFAULT NULL AFTER `update_date`;
+
+
+CREATE TRIGGER `t_service_charge` BEFORE UPDATE ON `service_centre_charges`
+ FOR EACH ROW BEGIN INSERT INTO trigger_service_charges (SELECT service_centre_charges.*,  CURRENT_TIMESTAMP AS current_updated_date FROM service_centre_charges WHERE service_centre_charges.id = NEW.id); END
+
+ALTER TABLE `partner_appliance_details` CHANGE `create_date` `create_date` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `partner_appliance_details` ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `create_date`;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `trigger_service_charges`
+--
+
+CREATE TABLE `trigger_service_charges` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `state` varchar(50) NOT NULL,
+  `service_id` varchar(10) NOT NULL,
+  `category` varchar(50) NOT NULL,
+  `brand` varchar(150) DEFAULT NULL,
+  `capacity` varchar(50) DEFAULT NULL,
+  `service_category` varchar(100) NOT NULL,
+  `product_or_services` varchar(10) NOT NULL,
+  `product_type` varchar(50) DEFAULT NULL,
+  `tax_code` varchar(10) NOT NULL,
+  `active` varchar(2) NOT NULL,
+  `check_box` varchar(2) NOT NULL,
+  `pod_required` varchar(10) NOT NULL DEFAULT '0',
+  `vendor_basic_charges` decimal(10,2) NOT NULL,
+  `vendor_tax_basic_charges` decimal(10,2) NOT NULL,
+  `vendor_total` decimal(10,2) NOT NULL,
+  `vendor_basic_percentage` decimal(10,3) DEFAULT NULL,
+  `around_basic_charges` decimal(10,2) NOT NULL,
+  `around_tax_basic_charges` decimal(10,2) NOT NULL,
+  `around_total` decimal(10,2) NOT NULL,
+  `customer_total` decimal(10,2) NOT NULL,
+  `partner_payable_basic` decimal(10,2) NOT NULL,
+  `partner_payable_tax` decimal(10,2) NOT NULL,
+  `partner_net_payable` decimal(10,2) NOT NULL,
+  `customer_net_payable` decimal(10,2) NOT NULL,
+  `pod` varchar(10) NOT NULL COMMENT 'Proof of delivery, If flag is 1 then we will make required serial number',
+  `is_upcountry` int(2) DEFAULT '0',
+  `create_date` datetime DEFAULT NULL,
+  `update_date` datetime DEFAULT NULL,
+  `current_update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `agent_id` int(11) DEFAULT NULL,
+  `deleted_by` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `trigger_service_charges`
+--
+ALTER TABLE `trigger_service_charges`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `trigger_service_charges`
+--
+ALTER TABLE `trigger_service_charges`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+

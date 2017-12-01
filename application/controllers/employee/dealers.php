@@ -466,7 +466,7 @@ class Dealers extends CI_Controller {
         log_message("info", __METHOD__);
         $where_in = array("partner_id"=> $postData['partner_id']);
         $select = "partner_id, service_id, brand";
-        $partner_data = $this->partner_model->get_partner_specific_details(array(), $select, "service_id",$where_in );
+        $partner_data = $this->partner_model->get_partner_specific_details(array("active" => 1), $select, "service_id",$where_in );
         // don not remove $value
         for($i=0; $i < count($partner_data); $i++){
             $partner_data[$i]['dealer_id'] = $dealer_id;

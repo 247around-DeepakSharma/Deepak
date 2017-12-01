@@ -1790,8 +1790,8 @@ class Booking_model extends CI_Model {
         return $new_unit_id;
     }
 
-    function get_brand($where){
-        $this->db->select('*');
+    function get_brand($where, $select = "*"){
+        $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get('appliance_brands');
 
