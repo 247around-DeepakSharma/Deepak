@@ -788,7 +788,7 @@ class Miscelleneous {
             $dealer_id = $this->My_CI->dealer_model->insert_dealer_details($dealer_data);
 
             $select1 = "partner_id, service_id, brand";
-            $partner_data_sp = $this->My_CI->partner_model->get_partner_specific_details(array('partner_id' => $partner_id), $select1, "service_id");
+            $partner_data_sp = $this->My_CI->partner_model->get_partner_specific_details(array('partner_id' => $partner_id, "active" => 1), $select1, "service_id");
             if (!empty($partner_data_sp)) {
                 // don not remove $value
                 for ($i = 0; $i < count($partner_data_sp); $i++) {

@@ -955,7 +955,7 @@ class Booking extends CI_Controller {
 
         if ($booking_source[0]['partner_type'] == OEM) {
             $where = array("partner_appliance_details.service_id" => $service_id,
-                'partner_id' => $booking_source[0]['partner_id']);
+                'partner_id' => $booking_source[0]['partner_id'], "active" => 1);
             $select = 'brand As brand_name';
 
             $result = $this->partner_model->get_partner_specific_details($where, $select, "brand");
@@ -1433,7 +1433,7 @@ class Booking extends CI_Controller {
             foreach ($booking['unit_details'] as $key => $value) {
                 if ($booking['partner_type'] == OEM) {
                     $where = array("partner_appliance_details.service_id" => $booking_history[0]['service_id'],
-                        'partner_id' => $booking_history[0]['partner_id']);
+                        'partner_id' => $booking_history[0]['partner_id'], "active" => 1);
                     $select = 'brand As brand_name';
 
                     $brand = $this->partner_model->get_partner_specific_details($where, $select, "brand");
@@ -1451,8 +1451,8 @@ class Booking extends CI_Controller {
 
 
 
-                $where = array('service_id' => $booking_history[0]['service_id'], 'brand_name' => $value['brand']);
-                $brand_id_array = $this->booking_model->get_brand($where);
+                $where1 = array('service_id' => $booking_history[0]['service_id'], 'brand_name' => $value['brand']);
+                $brand_id_array = $this->booking_model->get_brand($where1);
                 if (!empty($brand_id_array)) {
 
                     $booking['unit_details'][$key]['brand_id'] = $brand_id_array[0]['id'];
