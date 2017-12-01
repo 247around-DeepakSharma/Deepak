@@ -918,7 +918,9 @@ class service_centre_charges extends CI_Controller {
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/generate_service_charges', $data);
     }
-    
+    /**
+     * @desc it called from ajax to get Call type 
+     */
     function get_service_request_type(){
         $service_id = $this->input->post("service_id");
         $price_tags = $this->input->post("price_tags");
@@ -935,7 +937,9 @@ class service_centre_charges extends CI_Controller {
         }
         echo $option;
     }
-    
+    /**
+     * @desc Generate Partner/Vendor Service Charge
+     */
     function generate_service_charges(){
        
         $form_data = $this->input->post();
