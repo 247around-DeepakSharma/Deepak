@@ -1083,7 +1083,6 @@ function get_data_for_partner_callback($booking_id) {
              $this->db->order_by($order_by, 'asc');
         }
        
-        $this->db->where('partner_appliance_details.active',1);
         $query = $this->db->get('partner_appliance_details');
        
         log_message("info", $this->db->last_query());

@@ -798,7 +798,7 @@ class Partner extends CI_Controller {
         }
         $results['partner_code_availiable'] = $code;
         //Getting Parnter Operation Region Details
-        $where = array('partner_id' => $id, "active" => 1);
+        $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
        
@@ -3323,11 +3323,11 @@ class Partner extends CI_Controller {
                                     $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id, "brand" => $brand,
                                         "service_id" => $value->id), array("active" => 1));
                                 } else {
-                                    array_push($data, array("partner_id" => $partner_id, "active" => 1, "servic_id" => $value->id,
+                                    array_push($data, array("partner_id" => $partner_id, "active" => 1, "service_id" => $value->id,
                                         "brand" => $brand, "create_date" => date("Y-m-d H:i:s")));
                                 }
                             } else {
-                                array_push($data, array("partner_id" => $partner_id, "active" => 1, "servic_id" => $value->id,
+                                array_push($data, array("partner_id" => $partner_id, "active" => 1, "service_id" => $value->id,
                                     "brand" => $brand, "create_date" => date("Y-m-d H:i:s")));
                             }
                         }
@@ -3347,11 +3347,22 @@ class Partner extends CI_Controller {
                 if (!empty($data)) {
                     // Inert Partner Appliance Details
                     $this->partner_model->insert_batch_partner_brand_relation($data);
+                    foreach($data as $b_value){
+                        $is_exits = $this->booking_model->check_brand_exists($b_value['service_id'], trim($b_value["brand"]));
+                        if (!$is_exits) {
+                            // Add new Brand in appliance brand table
+                           $this->booking_model->addNewApplianceBrand($b_value['service_id'], trim($b_value["brand"]));
+                           
+                        }
+                    }
                 }
             } else {
                 //De- Activate this partner in partner_appliace_description
                 $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id), array("active" => 0));
             }
+            $msg = "Partner Brand has been Updated Successfully";
+            $this->session->set_userdata('success', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
 
