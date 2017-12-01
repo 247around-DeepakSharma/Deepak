@@ -33,26 +33,6 @@
 }">Full View</a>
             </div>
         </div>
-        
-        <div class="clearfix"></div>
-
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel">
-                <div class="x_title">
-                    <h2>Collection Partner <small>Amount Balance</small></h2>
-                    <div class="clearfix"></div>
-                </div>
-
-                <div class="x_content">
-
-                    <p>Below Table shows <code>Collection Partner</code> Balance</p>
-
-                    <div class="table-responsive" id="table_data">
-                        <center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
-                    </div>
-                </div>
-            </div>
-        </div>
 
     </div>
 
