@@ -329,7 +329,6 @@ class Booking_model extends CI_Model {
        $this->reusable_model->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
        return $this->db->affected_rows();
     }
-
     function date_compare_queries($a, $b) {
         if ($a->booking_date == '' || $b->booking_date == '') {
             if (strtotime($a->create_date) == strtotime($b->create_date)) {
@@ -497,14 +496,13 @@ class Booking_model extends CI_Model {
        usort($temp, array($this, 'date_compare_bookings')); 
        return $temp;
     }
-    
 
     /**
      * @desc : This funtion counts total number of bookings
      * @param : void
      * @return : total number bookings
      */
-    function total_booking() {
+    public function total_booking() {
         return $this->db->count_all_results("booking_details");
     }
 
@@ -516,7 +514,7 @@ class Booking_model extends CI_Model {
      * @param : booking id and service center id
      * @return : total number of pending or rescheduled bookings
      */
-    function total_pending_booking($booking_id = "", $service_center_id = "",$partner_id = False) {
+    public function total_pending_booking($booking_id = "", $service_center_id = "",$partner_id = False) {
         $where = "";
 
         if ($booking_id != "") {
@@ -610,7 +608,7 @@ class Booking_model extends CI_Model {
      * @param : void
      * @return : total number of completed or cancelled bookings
      */
-    function total_closed_booking($status = "", $booking_id = "") {
+    public function total_closed_booking($status = "", $booking_id = "") {
         $where = "";
 
         if($booking_id != ""){
@@ -637,7 +635,7 @@ class Booking_model extends CI_Model {
      * @param : booking id
      * @return : total number of pending queries
      */
-    function total_queries($status, $booking_id = "") {
+    public function total_queries($status, $booking_id = "") {
         $where = "";
 
 	if ($booking_id != "")
@@ -666,7 +664,7 @@ class Booking_model extends CI_Model {
      * @param : user id
      * @return : total number of bookings for particular user
      */
-    function total_user_booking($user_id) {
+    public function total_user_booking($user_id) {
         $this->db->where("user_id = '$user_id'");
         $result = $this->db->count_all_results("booking_details");
         return $result;
@@ -2096,13 +2094,14 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
     
-    /**
+    
+      /**
      *  @desc : This function is used to get bookings based on booking status type
      *  @param : $post string
      *  @param : $select string
      *  @return : $output Array()
      */
-    function _get_bookings_by_status($post, $select = "") {
+  function _get_bookings_by_status($post, $select = "") {
         
         if (empty($select)) {
             $select = '*';
@@ -2271,7 +2270,7 @@ class Booking_model extends CI_Model {
      *  @param : $post string
      *  @return: Array()
      */
-   function count_all_queries($post,$pincode_status,$query_status) {
+    public function count_all_queries($post,$pincode_status,$query_status) {
         $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day");
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];

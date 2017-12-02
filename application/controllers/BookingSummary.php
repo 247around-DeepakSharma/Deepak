@@ -27,8 +27,8 @@ class BookingSummary extends CI_Controller {
         $this->load->model('penalty_model');
 
         $this->load->library('PHPReport');
-        $this->load->library('notify');
         $this->load->library('send_grid_api');
+        $this->load->library('notify');
         $this->load->library('email');
         $this->load->library('session');
         $this->load->library('s3');

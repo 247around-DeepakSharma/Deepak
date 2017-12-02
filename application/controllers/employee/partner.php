@@ -21,8 +21,8 @@ class Partner extends CI_Controller {
         $this->load->model('invoices_model');
         $this->load->model('dealer_model');
         $this->load->model('service_centers_model');
-        $this->load->model("inventory_model");
         $this->load->model('penalty_model');
+        $this->load->model("inventory_model");
         $this->load->model("service_centre_charges_model");
         $this->load->library("pagination");
         $this->load->library("session");

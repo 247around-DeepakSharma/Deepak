@@ -1196,6 +1196,7 @@ class vendor extends CI_Controller {
 
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
+
     /**
      * @desc This is used to send mail when SF does not exist in the booking pincode
      * as per vendor pincode mapping file.
@@ -2002,6 +2003,7 @@ class vendor extends CI_Controller {
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/viewvendor', array('query' => $vendor_info));
     }
+
     /**
      * @desc: This method loads add engineer view. It gets active vendor and appliance to display in a form
      * This  function is used by vendor panel and admin panel to load add engineer view
@@ -2018,8 +2020,8 @@ class vendor extends CI_Controller {
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view('employee/add_engineer', $data);
         }
-
     }
+    
     /**
      * @desc: This is used to Edit Engineer
      * params: Engineer ID
@@ -2041,6 +2043,7 @@ class vendor extends CI_Controller {
             $this->load->view('employee/add_engineer', $data);
         }
     }
+
     /**
      * @desc: This method adds engineers for a service center.
      *  This  function is used by vendor panel and admin panel to load add engineer details.
@@ -2111,6 +2114,7 @@ class vendor extends CI_Controller {
 	    $this->add_engineer();
 	}
     }
+
     /**
      * @desc: This method is used to process edit engineer form
      * params: Post data array
@@ -2418,6 +2422,7 @@ class vendor extends CI_Controller {
         }
         return $finalMsg;
     }
+
     /**
      *  @desc : This function is used to Process Add Vendor to pincode Form
      *  @param : Array of $_POST data
@@ -2481,8 +2486,8 @@ class vendor extends CI_Controller {
         }
         //Returning data in Json Encoded form
         print_r(json_encode($data));
-
-     }
+    }
+    
      /*
       * This function use to print json data of brands associated to a vendor
       * @input - vendorID
@@ -2865,6 +2870,7 @@ class vendor extends CI_Controller {
         $this->load->view('employee/sms_template_editable_grid');
         
     }
+
     /**
      * @desc: This funtion is called from AJAX to get sms templates
      * params: void
@@ -3104,6 +3110,7 @@ class vendor extends CI_Controller {
             echo "";
         }
     }
+
     /**
      * @desc: This method is used to update is_update field. It gets 0 Or 1 flag to update service center
      * @param String $service_center_id
@@ -3722,6 +3729,7 @@ class vendor extends CI_Controller {
  
         echo json_encode($responce);
     }
+
     /**
      * @desc: This funtion is called from AJAX to update vendor escalation policy
      * params: void
@@ -4138,6 +4146,7 @@ class vendor extends CI_Controller {
            }
        }
     }
+
     /**
      * @desc This method is used to delete sub office details in sub_service_center_details table via ajax call
      * @param void()
@@ -4165,6 +4174,7 @@ class vendor extends CI_Controller {
            }
        }
     }
+
     /**
      * @desc: This function is used to get the reassign partner page
      * @param: booking id
