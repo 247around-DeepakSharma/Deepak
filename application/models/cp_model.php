@@ -99,8 +99,11 @@ class Cp_model extends CI_Model {
      * @return Object
      */
     function get_bb_cp_order_list($post) {
-       
-        $this->bb_model->_get_bb_order_list_query($post,$this->bb_select);
+        $select = $this->bb_select;
+        if(isset($post['select']) && !empty($post['select'])){
+            $select = $post['select'];
+        }
+        $this->bb_model->_get_bb_order_list_query($post,$select);
         $this->db->join('bb_cp_order_action', 'bb_cp_order_action.partner_order_id = bb_unit_details.partner_order_id '
                 . 'AND bb_order_details.assigned_cp_id = bb_cp_order_action.cp_id');
 
@@ -118,7 +121,11 @@ class Cp_model extends CI_Model {
      * @return Number of rows
      */
     function cp_order_list_count_filtered($post) {
-        $this->bb_model->_get_bb_order_list_query($post,$this->bb_select);
+        $select = $this->bb_select;
+        if(isset($post['select']) && !empty($post['select'])){
+            $select = $post['select'];
+        }
+        $this->bb_model->_get_bb_order_list_query($post,$select);
         $this->db->join('bb_cp_order_action', 'bb_cp_order_action.partner_order_id = bb_unit_details.partner_order_id '
                 . 'AND bb_order_details.assigned_cp_id = bb_cp_order_action.cp_id');
 

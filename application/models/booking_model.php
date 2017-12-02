@@ -9,6 +9,25 @@ class Booking_model extends CI_Model {
         parent::__Construct();
         $this->load->model('reusable_model');
     }
+
+    /**
+     *  @desc : This function is to add new brand to our database for a service.
+     *
+     *  This helps to add any new brand found(told by customer) for any
+     *      service(like for Television, Refrigerator, etc)
+     *
+     *  @param : service id and new brand
+     *  @return : void
+     */
+    function addNewApplianceBrand($service_id, $newbrand) {
+        $data = array(
+            'service_id'=>$service_id,
+            'brand_name'=>$newbrand
+        );
+        
+        $this->db->insert('appliance_brands',$data);
+        return $this->db->insert_id();
+    }
     
     // Update Price in unit details
     function update_price_in_unit_details($data, $unit_details){
@@ -1020,25 +1039,6 @@ class Booking_model extends CI_Model {
 
             $this->db->query($sql2, $appl[$i]);
         }
-    }
-
-    /**
-     *  @desc : This function is to add new brand to our database for a service.
-     *
-     *  This helps to add any new brand found(told by customer) for any
-     *      service(like for Television, Refrigerator, etc)
-     *
-     *  @param : service id and new brand
-     *  @return : void
-     */
-    function addNewApplianceBrand($service_id, $newbrand) {
-        $data = array(
-            'service_id'=>$service_id,
-            'brand_name'=>$newbrand
-        );
-        
-        $this->db->insert('appliance_brands',$data);
-        return $this->db->insert_id();
     }
     
     /**
@@ -2324,9 +2324,7 @@ class Booking_model extends CI_Model {
         $this->db->insert('email_sent', $data);
         return $this->db->insert_id();
     }
-    function pincode_not_found_relevent_data($sql){
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
-    
 }
+    
+    
+

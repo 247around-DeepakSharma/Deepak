@@ -730,7 +730,6 @@ class Miscelleneous {
             $to = 'vijaya@247around.com';
             $cc = DEVELOPER_EMAIL;
 
-
             $subject = "Stag01 Server Might Be Down";
             $msg = "There are some issue while creating pdf for booking_id/invoice_id $id from stag01 server. Check the issue and fix it immediately";
             $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $msg, $output_file_excel);
@@ -1258,7 +1257,6 @@ class Miscelleneous {
     }
 
     /*
->>>>>>> 8af24b706... Partner SF updated History View
      * @esc: This method upload invoice image OR panel image to S3
      * @param _FILE $file
      * @return boolean|string

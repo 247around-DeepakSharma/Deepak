@@ -1987,25 +1987,38 @@ class Service_centers extends CI_Controller {
         $data['service_id'] = rawurldecode($service_id);
         $data['city'] = rawurldecode($city);
         $data['cp_id'] = $this->session->userdata('service_center_id');
-        
-        $update_data = array('current_status' => _247AROUND_BB_IN_PROCESS,
-                             'internal_status' => _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS,
-                             'acknowledge_date' => date('Y-m-d H:i:s')
-                            );
-        
-        $update_where = array('partner_order_id' => $data['order_id'], 'cp_id' => $data['cp_id']);
-        
-        //update cp action table
-        $update_id = $this->cp_model->update_bb_cp_order_action($update_where,$update_data);
-        if($update_id){
-            $this->buyback->insert_bb_state_change($data['order_id'], _247AROUND_BB_IN_PROCESS, '', $data['cp_id'], Null, $data['cp_id']);
-            
-            $this->session->set_userdata('success', 'Order has been updated successfully');
+
+        $request_data['select'] = "bb_cp_order_action.current_status";
+        $request_data['length'] = -1;
+        $request_data['where_in'] = array();
+        $request_data['where'] = array('bb_cp_order_action.current_status' => _247AROUND_BB_IN_PROCESS,
+            "bb_cp_order_action.partner_order_id" => $data['order_id']);
+        $is_inProcess = $this->cp_model->get_bb_cp_order_list($request_data);
+
+        if (!empty($is_inProcess)) {
+
+            $this->session->set_userdata('error', 'Order Already Updated');
             redirect(base_url() . 'service_center/buyback/bb_order_details');
-            
-        }else{
-            $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
-            redirect(base_url() . 'service_center/buyback/bb_order_details');
+        } else {
+            $update_data = array('current_status' => _247AROUND_BB_IN_PROCESS,
+                'internal_status' => _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS,
+                'acknowledge_date' => date('Y-m-d H:i:s')
+            );
+
+            $update_where = array('partner_order_id' => $data['order_id'], 'cp_id' => $data['cp_id']);
+
+            //update cp action table
+            $update_id = $this->cp_model->update_bb_cp_order_action($update_where, $update_data);
+            if ($update_id) {
+                $this->buyback->insert_bb_state_change($data['order_id'], _247AROUND_BB_IN_PROCESS, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS, 
+                        $data['cp_id'], Null, $data['cp_id']);
+
+                $this->session->set_userdata('success', 'Order has been updated successfully');
+                redirect(base_url() . 'service_center/buyback/bb_order_details');
+            } else {
+                $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
+                redirect(base_url() . 'service_center/buyback/bb_order_details');
+            }
         }
     }
     /**
