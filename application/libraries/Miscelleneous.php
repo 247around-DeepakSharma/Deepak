@@ -18,6 +18,7 @@ class Miscelleneous {
         $this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
         $this->My_CI->load->model('partner_model');
+        $this->My_CI->load->model('inventory_model');
         $this->My_CI->load->library('form_validation');
         $this->My_CI->load->model('service_centers_model');
     }
@@ -100,7 +101,7 @@ class Miscelleneous {
      * @param String $booking_id
      * @return boolean
      */
-    function assign_vendor_process($service_center_id, $booking_id) {
+    function assign_vendor_process($service_center_id, $booking_id,$agent_id, $agent_type) {
         log_message('info', __FUNCTION__ . " Entering...... booking_id " . $booking_id . " service center id " . $service_center_id);
         $b['assigned_vendor_id'] = $service_center_id;
         // Set Default Engineer 
@@ -135,8 +136,30 @@ class Miscelleneous {
                     log_message('info', __METHOD__ . "=> Data is not inserted into service center "
                             . "action table booking_id: " . $booking_id . ", data: " . print_r($sc_data, true));
                 }
+                //process inventory stock for each unit if price tag is wall mount
+                if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
+                    $match = array();
+                    //get the size from the capacity to know the part number
+                    preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                    if (!empty($match)) {
+                        if ($match[0] <= 32) {
+                            $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                        } else if ($match[0] > 32) {
+                            $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                        }
+                        
+                        $data['receiver_entity_id'] = $service_center_id;
+                        $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                        $data['stock'] = -1 ;
+                        $data['booking_id'] = $booking_id;
+                        $data['agent_id'] = $agent_id;
+                        $data['agent_type'] = $agent_type;
+                        
+                        $this->process_inventory_stocks($data);
+                    }
+                }
             }
-
+            
             log_message('info', __FUNCTION__ . " Exit...... booking_id " . $booking_id . " service center id " . $service_center_id);
             return true;
         } else {
@@ -1691,5 +1714,113 @@ class Miscelleneous {
             }
         }
         return $finalData;
+    }
+    
+    function send_completed_booking_email_to_customer($completedBookingsID) {
+        log_message('info', __FUNCTION__ . ' => Completed booking Email Send Function Entry');
+        $completedBookingsData = $this->My_CI->reusable_model->get_search_result_data("booking_details", "booking_details.booking_id,users.name,users.user_email,partners.public_name as partner,booking_details.booking_date as booking_date", NULL, array('partners' => 'partners.id=booking_details.partner_id', 'users' => 'booking_details.user_id=users.user_id'), NULL, NULL, array('booking_id' => $completedBookingsID), NULL);
+        foreach ($completedBookingsData as $data) {
+            $emailBasicDataArray['to'] = $data['user_email'];
+            $emailBasicDataArray['subject'] = "Completed Booking " . $data['booking_id'];
+            $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
+            $emailBasicDataArray['fromName'] = "247around Team";
+            $emailTemplateDataArray['templateId'] = COMPLETED_BOOKING_CUSTOMER_TEMPLATE;
+            unset($data['user_email']);
+            $emailTemplateDataArray['dynamicParams'] = $data;
+            $this->My_CI->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray);
+            log_message('info', __FUNCTION__ . ' => Email Sent');
+            log_message('info', __METHOD__ . "=> Email Basic Data" . print_r($emailBasicDataArray, true));
+            log_message('info', __METHOD__ . "=> Email Template Data " . print_r($emailTemplateDataArray, true));
+        }
+    }
+
+    /**
+     * @desc This function is used to update the inventory stock
+     * @param array $data
+     * @return bookean $flag
+     */
+    function process_inventory_stocks($data) {
+        log_message("info",__FUNCTION__." process inventory update". print_r($data,true));
+        $flag = FALSE;
+        /*check if part is exist in the master inventory table
+         * if exist then get the id of that part and use that id for further process
+         */
+        $is_part_exist = $this->My_CI->reusable_model->get_search_query('inventory_master_list', 'inventory_master_list.id', array('part_number' => $data['part_number']), NULL, NULL, NULL, NULL, NULL)->result_array();
+        if (!empty($is_part_exist)) {
+            /*check if entity is exist in the inventory stock table
+            * if exist then get update the stock
+            * else insert into the table
+            */
+            $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'part_id'=>$is_part_exist[0]['id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+            if (!empty($is_entity_exist)) {
+                $stock = "stock + '".$data['stock']."'";
+                $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id'=>$is_entity_exist[0]['id']), $stock);
+                if ($update_stocks) {
+                    log_message("info", __FUNCTION__." Stocks has been updated successfully");
+                    $flag = TRUE;
+                } else {
+                    log_message("info", __FUNCTION__." Error in updating stocks");
+                }
+            } else {
+                $insert_data['entity_id'] = $data['receiver_entity_id'];
+                $insert_data['entity_type'] = $data['receiver_entity_type'];
+                $insert_data['part_id'] = $is_part_exist[0]['id'];
+                $insert_data['stock'] = $data['stock'];
+                $insert_data['create_date'] = date('Y-m-d H:i:s');
+
+                $insert_id = $this->My_CI->inventory_model->insert_inventory_stock($insert_data);
+                if (!empty($insert_id)) {
+                    log_message("info", __FUNCTION__." Stocks has been inserted successfully". print_r($insert_data,true));
+                    $flag = TRUE;
+                } else {
+                    log_message("info", __FUNCTION__." Error in inserting stocks". print_r($insert_data,true));
+                }
+            }
+            
+            //insert inventory details into the inventory ledger table 
+            if ($flag) {
+                $insert_ledger_data = array('receiver_entity_id' => $data['receiver_entity_id'],
+                                            'receiver_entity_type' => $data['receiver_entity_type'],
+                                            'quantity' => $data['stock'],
+                                            'part_id' => $is_part_exist[0]['id']
+                                        );
+                if(isset($data['sender_entity_id']) && isset($data['sender_entity_type'])){
+                    $insert_ledger_data['sender_entity_id'] = $data['sender_entity_id'];
+                    $insert_ledger_data['sender_entity_type'] = $data['sender_entity_type'];
+                }
+                
+                if(isset($data['agent_id']) && isset($data['agent_type'])){
+                    $insert_ledger_data['agent_id'] = $data['agent_id'];
+                    $insert_ledger_data['agent_type'] = $data['agent_type'];
+                }
+                
+                if(isset($data['order_id'])){
+                    $insert_ledger_data['order_id'] = $data['order_id'];
+                }
+                
+                if(isset($data['booking_id'])){
+                    $insert_ledger_data['booking_id'] = $data['booking_id'];
+                }
+                
+                if(isset($data['invoice_id'])){
+                    $insert_ledger_data['invoice_id'] = $data['invoice_id'];
+                }
+
+                $insert_id = $this->My_CI->inventory_model->insert_inventory_ledger($insert_ledger_data);
+                if (!empty($insert_id)) {
+                    log_message("info", __FUNCTION__." Inventory Ledger has been inserted successfully" . print_r($insert_ledger_data, true));
+                    $flag = TRUE;
+                } else {
+                    log_message("info", __FUNCTION__." Error in inserting inventory ledger details" . print_r($insert_ledger_data, true));
+                    $flag = FALSE;
+                }
+            }else{
+                log_message("info", __FUNCTION__." Error in updating inventory" . print_r($data, true));
+            }
+        }else{
+            log_message("info", __FUNCTION__." Error in updating inventory. Part number does not exist in the inventory_master_list table" . print_r($data, true));
+        }
+        
+        return $flag;
     }
 }
