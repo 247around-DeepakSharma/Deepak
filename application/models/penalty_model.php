@@ -442,7 +442,7 @@ class Penalty_model extends CI_Model {
      * @return Array $data
      */
 
-    function get_penalty_on_booking_any($where, $select = "*", $reserved = array()){
+    function get_penalty_on_booking_any($where, $select, $reserved = array()){
         $this->db->_reserved_identifiers = $reserved;
         $this->db->select($select);
 

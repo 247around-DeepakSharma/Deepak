@@ -411,6 +411,7 @@ class Dealers extends CI_Controller {
     function getpartner_city_list(){
         log_message("info", __METHOD__);
         $data = $this->booking_model->get_city_source();
+        $data['state'] = $this->vendor_model->getall_state();
         echo json_encode($data, TRUE);
     }
     /**
@@ -435,6 +436,7 @@ class Dealers extends CI_Controller {
             $dealer_details['owner_phone_number_1'] = (isset($postData['owner_phone_number_1']) ? $postData['owner_phone_number_1']: NULL);
             $dealer_details['owner_email'] =(isset($postData['owner_email']) ? $postData['owner_email']: NULL);
             $dealer_details['create_date'] = date("Y-m-d H:i:s");
+            $dealer_details['state'] = $postData['state'];
 
             $dealer_id = $this->dealer_model->insert_dealer_details($dealer_details);
             if(!empty($dealer_id)){
@@ -466,7 +468,7 @@ class Dealers extends CI_Controller {
         log_message("info", __METHOD__);
         $where_in = array("partner_id"=> $postData['partner_id']);
         $select = "partner_id, service_id, brand";
-        $partner_data = $this->partner_model->get_partner_specific_details(array(), $select, "service_id",$where_in );
+        $partner_data = $this->partner_model->get_partner_specific_details(array("active" => 1), $select, "service_id",$where_in );
         // don not remove $value
         for($i=0; $i < count($partner_data); $i++){
             $partner_data[$i]['dealer_id'] = $dealer_id;
@@ -510,13 +512,20 @@ class Dealers extends CI_Controller {
      */
     function show_dealer_list($dealer_id = ""){
         $select = '*';
+        $dealer_data = array();
         if($dealer_id !== ''){
             $where = array('dealer_id'=> $dealer_id);
         }else{
             $where = '';
+                if($this->session->userdata('user_group') == 'regionalmanager'){
+                    $states = $this->reusable_model->get_state_for_rm($this->session->userdata('id'));
+                    $finalStateArray = array_column($states, 'state');
+                    $dealer_data = $this->reusable_model->get_search_result_data("dealer_details",$select,NULL,NULL,NULL,NULL,array("state"=>$finalStateArray),NULL);
+               }
         }
-        $dealer_data = $this->dealer_model->get_dealer_details($select,$where);
-        
+        if(!$dealer_data){
+            $dealer_data = $this->dealer_model->get_dealer_details($select,$where);
+        }
         foreach ($dealer_data as $value){
             //Getting Appliances and Brands details for dealer
             $dealer_mapping_data[] = $this->dealer_model->get_dealer_brand_mapping_details($value['dealer_id']);

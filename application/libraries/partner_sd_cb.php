@@ -55,7 +55,6 @@ class partner_sd_cb {
 
             //Update status, remarks, start & end date
             //Get start and end dates
-
             $postData = array(
                 "vendorCode" => VENDOR_CODE,
                 "caseId" => $data['booking_id'],

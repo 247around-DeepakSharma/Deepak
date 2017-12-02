@@ -644,7 +644,8 @@ function get_data_for_partner_callback($booking_id) {
         $select = " ";
         if($flag_select){
             $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, "
-                . " booking_details.booking_address,booking_details.initial_booking_date,"
+                . " booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
+                    . "booking_details.amount_due, "
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "
                 . " service_centres.pincode, service_centres.district,"
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request ";
@@ -1068,7 +1069,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param Array $where
      * @return Array
      */
-    function get_partner_specific_details($where, $select, $order_by, $where_in = ""){
+    function get_partner_specific_details($where, $select, $order_by ="", $where_in = ""){
         
         $this->db->distinct();
         $this->db->select($select);
@@ -1079,8 +1080,10 @@ function get_data_for_partner_callback($booking_id) {
                 $this->db->where_in($index, $value);
             } 
         }
-        $this->db->order_by($order_by, 'asc');
-        $this->db->where('partner_appliance_details.active',1);
+        if(!empty($order_by)){
+             $this->db->order_by($order_by, 'asc');
+        }
+       
         $query = $this->db->get('partner_appliance_details');
        
         log_message("info", $this->db->last_query());
@@ -1194,6 +1197,19 @@ function get_data_for_partner_callback($booking_id) {
                 GROUP BY vendor_pincode_mapping.Pincode
                 ORDER BY vendor_pincode_mapping.City";
         return $this->db->query($sql);
+    }
+    /**
+     * @desc Update partner appliance_details table
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function update_partner_appliance_details($where, $data){
+        if(!empty($where)){
+            $this->db->where($where);
+            return $this->db->update("partner_appliance_details",$data);
+        }
+        return FALSE;
     }
 }
 

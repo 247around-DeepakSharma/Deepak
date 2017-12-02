@@ -93,22 +93,9 @@
                     </select>
                 </div> 
             </div>
-            <div style="background-color: #EEEEEE;width:400px;height:50px;padding-bottom:20px;border-radius: 5px;" id="inner_state_div">
                 <form method="POST" action ="<?php echo base_url(); ?>employee/vendor/get_sc_charges_list" style="padding-top:8px;">
-                    <span id="state_error" style="display:none;color:red;margin-left:20px;">Please enter State</span>
-                    <div class="col-md-6">
-                        <select name="state" id="state_select" class="form-control">
-                            <option value="" disabled="" selected>Select State</option>
-                            <?php foreach ($state as $value) { ?>
-                                <option value="<?php echo $value['state'] ?>"><?php echo $value['state'] ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="submit" value="Download Charges List" onclick="return validate_form()" class="btn btn-primary" />
-                    </div>
+                        <input type="submit" value="Download Charges List" class="btn btn-primary" />
                 </form>
-            </div>
     <div id="vendor_sf_cp_list">        
  <?php } ?>
         <table class="table table-bordered table-condensed" id="vender_details">

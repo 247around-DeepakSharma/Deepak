@@ -811,7 +811,7 @@ class Miscelleneous {
             $dealer_id = $this->My_CI->dealer_model->insert_dealer_details($dealer_data);
 
             $select1 = "partner_id, service_id, brand";
-            $partner_data_sp = $this->My_CI->partner_model->get_partner_specific_details(array('partner_id' => $partner_id), $select1, "service_id");
+            $partner_data_sp = $this->My_CI->partner_model->get_partner_specific_details(array('partner_id' => $partner_id, "active" => 1), $select1, "service_id");
             if (!empty($partner_data_sp)) {
                 // don not remove $value
                 for ($i = 0; $i < count($partner_data_sp); $i++) {
@@ -1155,10 +1155,7 @@ class Miscelleneous {
 
     function sf_not_exist_for_pincode($booking) {
         $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
-        $pincode = $notFoundSfArray['pincode'];
-        $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
-FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
-        $result = $this->My_CI->reusable_model->execute_custom_select_query($sql);
+        $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
         if (!empty($result)) {
             $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
             $notFoundSfArray['state'] = $result[0]['state'];
@@ -1242,19 +1239,16 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * When we upload any new pincode and that pincode with same service_id exist in sf not found table, then this will update its active flag
      */
 
-    function update_pincode_not_found_sf_table($pincodeServiceArray) {
-        $pincodeStrring = "";
-        foreach ($pincodeServiceArray as $key => $values) {
-            $pincodeArray['(pincode=' . $values['Pincode'] . ' AND service_id=' . $values['Appliance_ID'] . ')'] = NULL;
-            $pincodeStrring .= '(pincode=' . $values['Pincode'] . ' AND service_id=' . $values['Appliance_ID'] . ')|||';
-        }
-        log_message('info', __FUNCTION__ . 'Deactivate following Combination From sf not found table. ' . print_r($pincodeArray, TRUE));
-        $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray, array('active_flag' => 0));
-        //$cc = "anuj@247around.com";
-        //$to = "chhavid@247around.com";
-        //$subject = "Get SF for following combinations";
-        //$this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $pincodeStrring, "");
-    }
+          function update_pincode_not_found_sf_table($pincodeServiceArray){
+              $pincodeStrring ="";
+              foreach($pincodeServiceArray as $key=>$values){
+                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL; 
+                        $pincodeStrring .= '(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')|||';
+              }
+            log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
+            $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray,array('active_flag'=>0));
+          }
+ 
 
     /*
      * This Function convert excel data into array, 1st row of excel data will be keys of returning array

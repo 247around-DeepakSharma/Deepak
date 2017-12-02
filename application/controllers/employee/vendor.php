@@ -1197,6 +1197,7 @@ class vendor extends CI_Controller {
 
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
+
     /**
      * @desc This is used to send mail when SF does not exist in the booking pincode
      * as per vendor pincode mapping file.
@@ -2033,6 +2034,7 @@ class vendor extends CI_Controller {
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/viewvendor', array('query' => $vendor_info));
     }
+
     /**
      * @desc: This method loads add engineer view. It gets active vendor and appliance to display in a form
      * This  function is used by vendor panel and admin panel to load add engineer view
@@ -2049,8 +2051,8 @@ class vendor extends CI_Controller {
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view('employee/add_engineer', $data);
         }
-
     }
+    
     /**
      * @desc: This is used to Edit Engineer
      * params: Engineer ID
@@ -2072,6 +2074,7 @@ class vendor extends CI_Controller {
             $this->load->view('employee/add_engineer', $data);
         }
     }
+
     /**
      * @desc: This method adds engineers for a service center.
      *  This  function is used by vendor panel and admin panel to load add engineer details.
@@ -2142,6 +2145,7 @@ class vendor extends CI_Controller {
 	    $this->add_engineer();
 	}
     }
+
     /**
      * @desc: This method is used to process edit engineer form
      * params: Post data array
@@ -2425,22 +2429,15 @@ class vendor extends CI_Controller {
         foreach($receivedData['appliance'] as $appliance_data){
                     $temp = explode("__",$appliance_data);
                     $appliance['Appliance_ID'] = $temp[0];
-                    $appliance['Appliance'] = $temp[1];
                     $tempVendor =  explode("__",$receivedData['vendor_id']);
                     $appliance['Vendor_ID'] = $tempVendor[0];
-                    $appliance['Vendor_Name'] = $tempVendor[1];
                     $appliance['Pincode'] = $receivedData['pincode'];
-                    foreach ($receivedData['brands_'.$temp[0]] as $brand){
-                              $appliance['Brand'] = $brand ;
                               foreach($areaArray as $areaData){
                                   $appliance['state'] = $areaData['state'] ;
-                                  $appliance['area'] = $areaData['area'] ;
-                                  $appliance['region'] = $areaData['region'] ;
                                   $appliance['city'] = $areaData['city'] ;
                                   $data[] = $appliance;
                               }
-                    }
-          }
+           }
             return $data;
     }
     function get_pincode_form_display_msg($displayMsgArray){
@@ -2456,6 +2453,7 @@ class vendor extends CI_Controller {
         }
         return $finalMsg;
     }
+
     /**
      *  @desc : This function is used to Process Add Vendor to pincode Form
      *  @param : Array of $_POST data
@@ -2483,10 +2481,6 @@ class vendor extends CI_Controller {
                                         if(!empty($vendor_id)){
                                             log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($value,TRUE));
                                             $displayMsgArray['success'][] = $value; 
-                                            //$cc = "anuj@247around.com";
-                                            //$to = "chhavid@247around.com";
-                                            //$subject = "Add new Combination in vendor pincode mapping";
-                                            //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, implode("||",$value), "");
                                         }
                                         else{
                                             $displayMsgArray['failed'][] = $value; 
@@ -2523,8 +2517,8 @@ class vendor extends CI_Controller {
         }
         //Returning data in Json Encoded form
         print_r(json_encode($data));
-
-     }
+    }
+    
      /*
       * This function use to print json data of brands associated to a vendor
       * @input - vendorID
@@ -2907,6 +2901,7 @@ class vendor extends CI_Controller {
         $this->load->view('employee/sms_template_editable_grid');
         
     }
+
     /**
      * @desc: This funtion is called from AJAX to get sms templates
      * params: void
@@ -3146,6 +3141,7 @@ class vendor extends CI_Controller {
             echo "";
         }
     }
+
     /**
      * @desc: This method is used to update is_update field. It gets 0 Or 1 flag to update service center
      * @param String $service_center_id
@@ -3436,35 +3432,30 @@ class vendor extends CI_Controller {
      * 
      */
     function get_sc_charges_list(){
-        $state = $this->input->post('state');
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('employee_id'));
-            $sc_charges_data = $this->service_centre_charges_model->get_service_centre_charges($state);
+        $sc_charges_data = $this->service_centre_charges_model->get_service_caharges_data("partner_id,services,category,capacity,service_category,vendor_basic_charges,"
+                . "vendor_tax_basic_charges,vendor_total,customer_net_payable");
+        $partner_id_array = array_unique(array_column($sc_charges_data, 'partner_id'));
+        foreach($partner_id_array as $partnerID){
+            $booking_sources_array[$partnerID] = '';
+             $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($partnerID);
+             if(!empty($booking_sources[0]['code'])){
+                 $booking_sources_array[$partnerID] = $booking_sources[0]['code'];
+             }
+        }
             //Looping through all the values 
             foreach ($sc_charges_data as $value) {
-                //Getting Details from Booking Sources
-                $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($value['partner_id']);
-                $code_source = $booking_sources[0]['code'];
-                
-                //Calculating vendor base charge 
-                $vendor_base_charge = $value['vendor_total']/(1+($value['rate']/100));
-                //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
-                $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
-                
-                $array_final['state'] = $state;
-                $array_final['sc_code'] = $code_source;
-                $array_final['product'] = $value['product'];
+                $array_final['sc_code'] = $booking_sources_array[$value['partner_id']];
+                $array_final['product'] = $value['services'];
                 $array_final['category'] = $value['category'];
                 $array_final['capacity'] = $value['capacity'];
                 $array_final['service_category'] = $value['service_category'];
-                $array_final['vendor_basic_charges'] = round($vendor_base_charge,0);
-                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,0);
+                $array_final['vendor_basic_charges'] = round($value['vendor_basic_charges'],0);
+                $array_final['vendor_tax_basic_charges'] = round($value['vendor_tax_basic_charges'],0);
                 $array_final['vendor_total'] = round($value['vendor_total'],0);
                 $array_final['customer_net_payable'] = round($value['customer_net_payable'],0);
-                $array_final['pod'] = $value['pod'];
-                
                 $final_array[] = $array_final;
             }
-
             $template = 'SC-Charges-List-Template.xlsx';
             //set absolute path to directory with template files
             $templateDir = __DIR__ . "/../excel-templates/";
@@ -3484,7 +3475,7 @@ class vendor extends CI_Controller {
                 ));
 
             $output_file_dir = TMP_FOLDER;
-            $output_file = ucfirst($state)."-Charges-List-" . date('j-M-Y');
+            $output_file = "Charges-List-" . date('j-M-Y');
             $output_file_name = $output_file . ".xlsx";
             $output_file_excel = $output_file_dir . $output_file_name;
             $R->render('excel', $output_file_excel);
@@ -3769,6 +3760,7 @@ class vendor extends CI_Controller {
  
         echo json_encode($responce);
     }
+
     /**
      * @desc: This funtion is called from AJAX to update vendor escalation policy
      * params: void
@@ -4151,7 +4143,7 @@ class vendor extends CI_Controller {
     function get_penalty_details_data($booking_id, $status){
         
         $where  = array('penalty_on_booking.booking_id'=>$booking_id,'penalty_on_booking.active' => 1);
-        $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where,'*',array('*'));
+        $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where,'penalty_on_booking.*',array('*'));
         $this->load->view('employee/get_penalty_on_booking_details',array('penalty_details' => $data['penalty_details'], 'status'=>$status));
     }
     
@@ -4185,6 +4177,7 @@ class vendor extends CI_Controller {
            }
        }
     }
+
     /**
      * @desc This method is used to delete sub office details in sub_service_center_details table via ajax call
      * @param void()
@@ -4212,6 +4205,7 @@ class vendor extends CI_Controller {
            }
        }
     }
+
     /**
      * @desc: This function is used to get the reassign partner page
      * @param: booking id

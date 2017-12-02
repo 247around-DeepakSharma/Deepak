@@ -24,6 +24,7 @@
                             <th>Owner Phone Number</th>
                             <th>Owner Email</th>
                             <th>City</th>
+                              <th>State</th>
                             <th>Active</th>
                         </tr>
                     </thead>
@@ -49,6 +50,7 @@
                             <td><?php echo $value['owner_phone_number_1']?></td>
                             <td><?php echo $value['owner_email']?></td>
                             <td><?php echo $value['city']?></td>
+                            <td><?php echo $value['state']?></td>
                             <td> <?php if($value['active'] === '1') { ?>
                                 <span class="label label-success">Active</span>
                                 <?php } else if($value['active'] === '0'){ ?>

@@ -1383,7 +1383,7 @@ class Service_centers extends CI_Controller {
                 $rm_email = $this->get_rm_email($service_center_id);
                 $from = NOREPLY_EMAIL_ID;
 
-                $to = "anuj@247around.com, booking@247around.com";
+                $to = "booking@247around.com";
                 $cc= $rm_email.", nits@247around.com";
                
                 $subject = $this->session->userdata('service_center_name')." Updated Courier Details for Booking ID ".$booking_id;
@@ -1792,7 +1792,7 @@ class Service_centers extends CI_Controller {
         $working_condition = $this->input->post('working_condition');
         $brand = $this->input->post('brand');
         $city = $this->input->post('city');
-       // $order_id = $this->input->post('order_id');
+        $order_id = $this->input->post('order_id');
         $cp_id = $this->input->post('cp_id');
         $where = array('cp_id' => $cp_id, 
                         'service_id' => $service_id, 
@@ -1898,7 +1898,7 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-
+    
     function validate_claimed_price(){
         $cp_claimed_price = $this->input->post('claimed_price');
         $cp_basic_charge = $this->input->post('cp_basic_charge');
@@ -2021,7 +2021,6 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-
     /**
      * @desc It check if sc update gst form first then show its profile otherwies GST form
      */

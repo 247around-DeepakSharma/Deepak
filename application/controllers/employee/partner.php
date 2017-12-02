@@ -21,8 +21,9 @@ class Partner extends CI_Controller {
         $this->load->model('invoices_model');
         $this->load->model('dealer_model');
         $this->load->model('service_centers_model');
-        $this->load->model("inventory_model");
         $this->load->model('penalty_model');
+        $this->load->model("inventory_model");
+        $this->load->model("service_centre_charges_model");
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->library('form_validation');
@@ -799,9 +800,12 @@ class Partner extends CI_Controller {
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
+        $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
+       
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.document_description,collateral.file,collateral.start_date,collateral.end_date,collateral_type.collateral_type', array("entity_id" => $id, "entity_type" => "partner"), array("collateral_type" => "collateral_type.id=collateral.collateral_id"), NULL, NULL, NULL, NULL);
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
+        
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update'));
     }
@@ -1941,7 +1945,7 @@ class Partner extends CI_Controller {
         $partner_type = $partner_data[0]['partner_type'];
         if ($partner_type == OEM) {
             //Getting Unique values of Brands for Particular Partner and service id
-            $where = array('partner_id' => $partner_id, 'service_id' => $service_id);
+            $where = array('partner_id' => $partner_id, 'service_id' => $service_id, "active" => 1);
             $data = $this->partner_model->get_partner_specific_details($where, "brand  As brand_name", "brand");
         } else {
             $data = $this->booking_model->getBrandForService($service_id);
@@ -1967,21 +1971,29 @@ class Partner extends CI_Controller {
      * 
      */
     function get_category_from_service() {
-        $partner_id = $this->input->post('partner_id');
-        $service_id = $this->input->post('service_id');
-        $category = $this->input->post('category');
-        $brand = $this->input->post('brand');
-        $partner_type = $this->input->post('partner_type');
-
-        if ($partner_type == OEM) {
-            //Getting Unique values of Category for Particular Partner ,service id and brand
-            $where = array('partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand);
-
-            $data = $this->partner_model->get_partner_specific_details($where, "category", "category");
+        $partner_id = 247010;#$this->input->post('partner_id');
+        $service_id = 46;#$this->input->post('service_id');
+        $category = "";#$this->input->post('category');
+        $brand = "Wybor";#$this->input->post('brand');
+        $partner_type = OEM;#$this->input->post('partner_type');
+        
+        if($this->input->post('is_mapping')){
+            $where = array("service_id" => $service_id);
+               
+            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "category","category");
         } else {
-            $data = $this->booking_model->getCategoryForService($service_id, $partner_id, "");
-        }
-
+            $where_in = array();
+            
+            if($partner_type == OEM){
+                
+                $where_in = array("brand" => $brand);
+            }
+            $where = array('partner_id' => $partner_id, 'service_id' => $service_id);
+            
+            
+            $data = $this->service_centre_charges_model->get_service_caharges_data("category", $where,"category", $where_in);
+        } 
+ 
         $option = "";
         foreach ($data as $value) {
             $option .= "<option ";
@@ -2009,16 +2021,24 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         $appliance_capacity = $this->input->post('capacity');
         $partner_type = $this->input->post('partner_type');
-
-        if ($partner_type == OEM) {
-            //Getting Unique values of Category for Particular Partner ,service id and brand
-            $where = array('partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand, 'category' => $category);
-            $select = "capacity";
-            $data = $this->partner_model->get_partner_specific_details($where, $select, "capacity");
+        
+        if($this->input->post("is_mapping")){
+            
+            $where = array("service_id" => $service_id);
+            $where_in = array("category" => $category);
+            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity","capacity");
         } else {
-            $data = $this->booking_model->getCapacityForCategory($service_id, $category, "", $partner_id);
+            
+            $where_in = array("category" => $category);
+            if($partner_type == OEM){
+                $where_in['brand'] = $brand;
+            }
+            $where = array('partner_id' => $partner_id, 'service_id' => $service_id);
+             
+            
+            $data = $this->service_centre_charges_model->get_service_caharges_data("capacity", $where,"capacity", $where_in);
         }
-
+        
         $capacity = "";
         foreach ($data as $value) {
 
@@ -2052,7 +2072,7 @@ class Partner extends CI_Controller {
 
         if ($partner_type == OEM) {
             //Getting Unique values of Model for Particular Partner ,service id and brand
-            $where = array("partner_id" => $partner_id, 'service_id' => $service_id, 'brand' => $brand, 'category' => $category, 'capacity' => $capacity);
+            $where = array("partner_id" => $partner_id, 'service_id' => $service_id, 'brand' => $brand, 'category' => $category, 'active'=> 1, 'capacity' => $capacity);
 
             $data = $this->partner_model->get_partner_specific_details($where, "model", "model");
         } else {
@@ -3318,6 +3338,73 @@ class Partner extends CI_Controller {
         $data['entity'] = "Partner";
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/updated_history', $data);
+    }
+    /**
+     * @desc This function is used to map brand to partner (Appliance Wise)
+     */
+    function process_partner_brand_mapping() {
+        $partner_id = $this->input->post("partner_id");
+        $services = $this->vendor_model->selectservice();
+        //Partner id should not be empty
+        if (!empty($partner_id)) {
+            $formdata = $this->input->post();
+            // index brand of array hould not be empty
+            if (!empty($formdata['brand'])) {
+                $data = array();
+                foreach ($services as $value) {
+                    // checking, array has service id as a key 
+                    if (array_key_exists($value->id, $formdata['brand'])) {
+                        $where = array("partner_id" => $partner_id, "service_id" => $value->id);
+                        $existingdata = $this->partner_model->get_partner_specific_details($where, "brand");
+                        $existing = array_column($existingdata, 'brand');
+                        //checking all brand from form has in the db , if not the push in the new array else activate brand
+                        foreach ($formdata['brand'][$value->id] as $brand) {
+                            if (!empty($existingdata)) {
+                                if (in_array($brand, $existing)) {
+                                    $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id, "brand" => $brand,
+                                        "service_id" => $value->id), array("active" => 1));
+                                } else {
+                                    array_push($data, array("partner_id" => $partner_id, "active" => 1, "service_id" => $value->id,
+                                        "brand" => $brand, "create_date" => date("Y-m-d H:i:s")));
+                                }
+                            } else {
+                                array_push($data, array("partner_id" => $partner_id, "active" => 1, "service_id" => $value->id,
+                                    "brand" => $brand, "create_date" => date("Y-m-d H:i:s")));
+                            }
+                        }
+                        //checking existing brand exist in the form brand array
+                        foreach ($existing as $value2) {
+
+                            if (!in_array($value2, $formdata['brand'][$value->id])) {
+
+                                $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id,
+                                    "service_id" => $value->id, "brand" => $value2), array("active" => 0));
+                            }
+                        }
+                    } else {
+                        $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id, "service_id" => $value->id), array("active" => 0));
+                    }
+                }
+                if (!empty($data)) {
+                    // Inert Partner Appliance Details
+                    $this->partner_model->insert_batch_partner_brand_relation($data);
+                    foreach($data as $b_value){
+                        $is_exits = $this->booking_model->check_brand_exists($b_value['service_id'], trim($b_value["brand"]));
+                        if (!$is_exits) {
+                            // Add new Brand in appliance brand table
+                           $this->booking_model->addNewApplianceBrand($b_value['service_id'], trim($b_value["brand"]));
+                           
+                        }
+                    }
+                }
+            } else {
+                //De- Activate this partner in partner_appliace_description
+                $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id), array("active" => 0));
+            }
+            $msg = "Partner Brand has been Updated Successfully";
+            $this->session->set_userdata('success', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+        }
     }
 
 }

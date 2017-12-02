@@ -199,7 +199,6 @@
                             <a href="<?php echo base_url() ?>/employee/bookings_excel/upload_satya_file"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Satya File </strong></a>
                         </li>
                         <li class="divider"></li>
-                        
                         <li >
                             <a href="<?php echo base_url() ?>/employee/upload_booking_file/upload_booking_files"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Jeeves Booking</strong></a>
                         </li>
@@ -238,9 +237,9 @@
                             <a href="<?php echo base_url()?>employee/upcountry/get_distance_between_pincodes_form"><i class="fa fa-fw fa-desktop "></i> <strong>Update Pincode Distance</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li>
+<!--                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_pincode_excel_upload_form"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Pincode Mapping Excel</strong></a>
-                        </li>
+                        </li>-->
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>

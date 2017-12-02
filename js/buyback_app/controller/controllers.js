@@ -111,6 +111,7 @@ addDealers.controller("addDealersController", function($scope, $http){
        
         $scope.partner_list = response.data.sources;
         $scope.city_list = response.data.city;
+        $scope.state_list = response.data.state;
       /// $scope.tempData = {city : $scope.city_list[0].district};
 //        $scope.$watch("sourceCityId", function(newValue, oldValue) {
 //           if(newValue) $scope.fetchAsset();
@@ -139,6 +140,7 @@ addDealers.controller("addDealersController", function($scope, $http){
                 $scope.dealerForm.$setPristine();
                 $scope.tempData = {};
                 $scope.tempData.city = {};
+                $scope.tempData.state = {};
 
             } else {
                 notifyMe(response.msg);
@@ -515,9 +517,7 @@ buyback_dashboard.controller('bb_dashboard_summary', function ($scope, $http) {
     $http.get(get_url)
         .then(function (response) {
              //console.log(response.data);
-            $("#title_count").html(response.data);
-       
-               
+            $("#title_count").html(response.data);    
     });
 });
 

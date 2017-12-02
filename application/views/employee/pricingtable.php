@@ -1,11 +1,5 @@
 <?php if(isset($source)){ ?>
 
-<!--<script type="text/javascript">
-  $(function() {
-    get_pricing_details();
-  });
-
-</script>-->
 <script src="<?php echo base_url()?>js/report.js"></script>
 <div id="page-wrapper">
    <div class="container-fluid">

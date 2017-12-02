@@ -230,10 +230,10 @@
                             <a href="<?php echo base_url() ?>employee/vendor/vendor_availability_form"><i class="fa fa-fw fa-desktop "></i> <strong> Search Service Centre</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li>
+<!--                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_pincode_excel_upload_form"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Pincode Mapping Excel</strong></a>
                         </li>
-                        <li class="divider"></li>
+                        <li class="divider"></li>-->
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_add_vendor_to_pincode_form"><i class="fa fa-fw fa-desktop "></i> <strong>Add Vendor Pincode Mapping</strong></a>
                         </li>
@@ -322,6 +322,14 @@
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/inventory/update_part_price_details"><i class="fa fa-fw fa-inr "></i> <strong> Update Zopper Price</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/service_centre_charges/generate_service_charges_view"><i class="fa fa-fw fa-desktop "></i> <strong>Generate Service Charge</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/service_centre_charges/show_charge_list"><i class="fa fa-fw fa-desktop "></i> <strong>Show Service Charge</strong></a>
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
