@@ -3546,3 +3546,73 @@ INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subje
 
 -- sachin 29 nov
 INSERT INTO `email_attachment_parser` (`id`, `email_received_from`, `email_subject_text`, `email_function_name`, `email_remarks`, `active`, `create_date`) VALUES (NULL, 'sachinj@247around.com', 'wybor file', 'employee/do_background_upload_excel/upload_satya_file', 'wybor', '1', CURRENT_TIMESTAMP);
+
+-- sachin 30 Nov
+
+CREATE TABLE `inventory_master_list` (
+  `id` int(11) NOT NULL,
+  `part_number` varchar(256) NOT NULL,
+  `part_name` varchar(256) NOT NULL,
+  `model_number` varchar(256) NOT NULL,
+  `serial_number` varchar(256) NOT NULL,
+  `description` varchar(512) NOT NULL,
+  `size` varchar(128) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `type` varchar(64) DEFAULT NULL,
+  `sender_entity_id` int(11) NOT NULL,
+  `sender_entity_type` varchar(64) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `inventory_master_list`
+--
+
+INSERT INTO `inventory_master_list` (`id`, `part_number`, `part_name`, `model_number`, `serial_number`, `description`, `size`, `price`, `type`, `sender_entity_id`, `sender_entity_type`, `create_date`) VALUES
+(1, 'B-24732', 'Bracket', '', '', 'Brackets less than 32"', '', '0.00', 'Bracket', 0, '', '2017-11-30 06:59:43'),
+(2, 'B-24733', 'Bracket', '', '', 'Brackets greater than 32"', '', '0.00', 'Bracket', 0, '', '2017-11-30 07:01:12');
+
+ALTER TABLE `inventory_master_list`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `inventory_master_list`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+CREATE TABLE `inventory_ledger` (
+  `id` int(11) NOT NULL,
+  `receiver_entity_id` int(11) DEFAULT NULL,
+  `receiver_entity_type` varchar(64) DEFAULT NULL,
+  `sender_entity_id` int(11) DEFAULT NULL,
+  `sender_entity_type` varchar(64) DEFAULT NULL,
+  `quantity` int(11) NOT NULL,
+  `part_id` int(11) DEFAULT NULL,
+  `agent_id` int(11) DEFAULT NULL,
+  `agent_type` varchar(64) NOT NULL,
+  `order_id` varchar(32) DEFAULT NULL,
+  `booking_id` varchar(64) DEFAULT NULL,
+  `invoice_id` varchar(255) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `inventory_ledger`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `inventory_ledger`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+CREATE TABLE `inventory_stocks` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_type` varchar(64) NOT NULL,
+  `part_id` int(11) NOT NULL,
+  `stock` int(11) NOT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `inventory_stocks`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `inventory_stocks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

@@ -412,5 +412,28 @@ class Inventory_model extends CI_Model {
         $this->db->where($where);
         $this->db->update("zopper_estimate_details", $data);
     }
+    
+    function insert_inventory_ledger($data){
+        $this->db->insert("inventory_ledger", $data);
+        return $this->db->insert_id();
+    }
+    
+    function insert_inventory_stock($data){
+        $this->db->insert("inventory_stocks", $data);
+        return $this->db->insert_id();
+    }
+    
+    function update_inventory_stock($where,$data){
+        $this->db->where($where);
+        $this->db->set('stock', $data, FALSE);
+        $this->db->update('inventory_stocks');
+        if($this->db->affected_rows() > 0){
+            $response = true;
+        }else{
+            $response = false;
+        }
+        
+        return $response;
+    }
 
 }

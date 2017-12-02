@@ -385,11 +385,9 @@ class Inventory extends CI_Controller {
         $order_id = $this->input->post('order_id');
         $order_received_from = $this->input->post('order_received_from');
         $order_given_to = $this->input->post('order_given_to');
-//        $data['19_24_received'] = $this->input->post('19_24_received');
         $data['19_24_received'] = '0';
         $data['26_32_received'] = $this->input->post('26_32_received');
         $data['36_42_received'] = $this->input->post('36_42_received');
-//        $data['43_received'] = $this->input->post('43_received');
         $data['43_received'] = '0';
         $data['total_received'] = $this->input->post('total_received');
         $data['received_date'] = date('Y-m-d H:i:s');
@@ -402,60 +400,89 @@ class Inventory extends CI_Controller {
             log_message('info',__FUNCTION__.' Brackets Received has been updated '. print_r($data, TRUE));
             
             //Adding value in Booking State Change
-                $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_RECEIVED, _247AROUND_BRACKETS_SHIPPED, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_RECEIVED, _247AROUND_BRACKETS_SHIPPED, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
             //Logging Success
             log_message('info', __FUNCTION__ . ' Brackets Shipped - Received state have been added in Booking State Change ');
             
-            //Sending mail to both vendor
+            //update inventory stocks
+            $inventory_stocks_data = array('receiver_entity_id'     =>  $order_received_from,
+                                            'receiver_entity_type'  =>  _247AROUND_SF_STRING,
+                                            'sender_entity_id'      =>  $order_given_to,
+                                            'sender_entity_type'    =>  _247AROUND_SF_STRING,
+                                            'order_id'              =>  $order_id,
+                                            'agent_id'              =>  $this->session->userdata('id'),
+                                            'agent_type'            =>  _247AROUND_EMPLOYEE_STRING
+                                        );
+            $inventory_stocks_data['stock'] = $data['26_32_received'];
+            $inventory_stocks_data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+            $return_response = $this->miscelleneous->process_inventory_stocks($inventory_stocks_data);
+            if($return_response){
+                $inventory_stocks_data['stock'] = $data['36_42_received'];
+                $inventory_stocks_data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                $return_response = $this->miscelleneous->process_inventory_stocks($inventory_stocks_data);
+                
+                if($return_response){
+                    
+                    //Sending mail to both vendor
             
-            //1. Sending to Order received from vendor
-            $order_received_from_email = $this->vendor_model->getVendorContact($order_received_from);
-            $order_given_to_email = $this->vendor_model->getVendorContact($order_given_to);
-            
-            $vendor_poc_mail = $order_received_from_email[0]['primary_contact_email'];
-            $vendor_owner_mail = $order_received_from_email[0]['owner_email'];
-            $order_received_from_email_to = $vendor_poc_mail.','.$vendor_owner_mail;
-            
-            $vendor_poc_mail = $order_given_to_email[0]['primary_contact_email'];
-            $vendor_owner_mail = $order_given_to_email[0]['owner_email'];
-            $order_given_to_email_to = $vendor_poc_mail.','.$vendor_owner_mail;
-            
-            //1. Sending brackets Received Mail to order received from vendor
-                   $email = array();
-                   //Getting template from Database
-                   $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_requested_from");
-                   
-                   if(!empty($template)){
-                        $email['order_id'] = $order_id;
-                        $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
-                        $emailBody = vsprintf($template[0], $email);
-                        $this->notify->sendEmail($template[2], $order_received_from_email_to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, '');
-                   }
-            
-            //Loggin send mail success
-            log_message('info',__FUNCTION__.' Received mail has been sent to order_received_from vendor '. $emailBody);
-            
-            //2. Sending mail to order_given_to vendor
-            
-            $email = array();
-                   //Getting template from Database
-                   $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_given_to");
-                   
-                   if(!empty($template)){
-                        $email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
-                        $email['order_id'] = $order_id;
-                        $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
-                        $emailBody = vsprintf($template[0], $email);
-                        
-                        $this->notify->sendEmail($template[2], $order_given_to_email_to , $template[3], '', $subject , $emailBody, '');
-                   }
-            
-            //Loggin send mail success
-            log_message('info',__FUNCTION__.' Received mail has been sent to order_given_to vendor '. $emailBody);
-            
-            //Setting success session data 
-            $this->session->set_userdata('brackets_update_success', 'Brackets Received updated Successfully');
-            
+                    //1. Sending to Order received from vendore
+                    $order_received_from_email = $this->vendor_model->getVendorContact($order_received_from);
+                    $order_given_to_email = $this->vendor_model->getVendorContact($order_given_to);
+
+                    $vendor_poc_mail = $order_received_from_email[0]['primary_contact_email'];
+                    $vendor_owner_mail = $order_received_from_email[0]['owner_email'];
+                    $order_received_from_email_to = $vendor_poc_mail.','.$vendor_owner_mail;
+
+                    $vendor_poc_mail = $order_given_to_email[0]['primary_contact_email'];
+                    $vendor_owner_mail = $order_given_to_email[0]['owner_email'];
+                    $order_given_to_email_to = $vendor_poc_mail.','.$vendor_owner_mail;
+
+                    //1. Sending brackets Received Mail to order received from vendor
+                           $email = array();
+                           //Getting template from Database
+                           $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_requested_from");
+
+                           if(!empty($template)){
+                                $email['order_id'] = $order_id;
+                                $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
+                                $emailBody = vsprintf($template[0], $email);
+                                $this->notify->sendEmail($template[2], $order_received_from_email_to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, '');
+                           }
+
+                    //Loggin send mail success
+                    log_message('info',__FUNCTION__.' Received mail has been sent to order_received_from vendor '. $emailBody);
+
+                    //2. Sending mail to order_given_to vendor
+
+                    $email = array();
+                           //Getting template from Database
+                           $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_given_to");
+
+                           if(!empty($template)){
+                                $email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
+                                $email['order_id'] = $order_id;
+                                $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
+                                $emailBody = vsprintf($template[0], $email);
+
+                                $this->notify->sendEmail($template[2], $order_given_to_email_to , $template[3], '', $subject , $emailBody, '');
+                           }
+
+                    //Loggin send mail success
+                    log_message('info',__FUNCTION__.' Received mail has been sent to order_given_to vendor '. $emailBody);
+
+                    //Setting success session data 
+                    $this->session->set_userdata('brackets_update_success', 'Brackets Received updated Successfully');
+                    
+                }else{
+                    log_message('info',__FUNCTION__.' Error In Updating Received brackets Data '. print_r($inventory_stocks_data,true));
+                    
+                    $this->session->set_userdata('brackets_update_success', 'Some error Occured!!! Please Contact Developers');
+                }
+            }else{
+                log_message('info',__FUNCTION__.' Error In Updating Received brackets Data '. print_r($inventory_stocks_data,true));
+                    
+                $this->session->set_userdata('brackets_update_success', 'Some error Occured!!! Please Contact Developers');
+            }
         }else{
             //Loggin error
             log_message('info',__FUNCTION__.' Brackets Received updated Error '. print_r($data, TRUE));
