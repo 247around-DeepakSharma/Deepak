@@ -1520,9 +1520,9 @@ class Booking_model extends CI_Model {
 
     }
 
-    function check_price_tags_status($booking_id, $unit_id_array){
+    function check_price_tags_status($booking_id, $unit_id_array,$inventory_details){
         
-        $this->db->select('id, price_tags');
+        $this->db->select('id, price_tags,appliance_capacity');
         $this->db->like('booking_id', $booking_id);
         $this->db->where_not_in('id', $unit_id_array);
         $query = $this->db->get('booking_unit_details');
@@ -1531,6 +1531,28 @@ class Booking_model extends CI_Model {
             foreach ($result as $value) {
                 $this->db->where('id', $value['id']);
                 $this->db->delete('booking_unit_details');
+                //process inventory stock for each unit if price tag is wall mount
+                if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG && !empty($inventory_details)) {
+                    $match = array();
+                    //get the size from the capacity to know the part number
+                    preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                    if (!empty($match)) {
+                        if ($match[0] <= 32) {
+                            $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                        } else if ($match[0] > 32) {
+                            $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                        }
+                        
+                        $data['receiver_entity_id'] = $inventory_details['receiver_entity_id'];
+                        $data['receiver_entity_type'] = $inventory_details['receiver_entity_type'];
+                        $data['stock'] = $inventory_details['stock'];
+                        $data['booking_id'] = $booking_id;
+                        $data['agent_id'] = $inventory_details['agent_id'];
+                        $data['agent_type'] = $inventory_details['agent_type'];
+                        
+                        $this->miscelleneous->process_inventory_stocks($data);
+                    }
+                }
             }
         }
        
@@ -1576,7 +1598,7 @@ class Booking_model extends CI_Model {
      * @param: Array
      * @return: Price tags.
      */
-    function update_booking_in_booking_details($services_details, $booking_id, $state, $update_key){
+    function update_booking_in_booking_details($services_details, $booking_id, $state, $update_key,$agent_details){
 
         $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
@@ -1636,6 +1658,11 @@ class Booking_model extends CI_Model {
                     $this->db->insert('booking_unit_details', $result);
                     $u_unit_id = $this->db->insert_id();
                     log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
+                    //process inventory stock for each unit if price tag is wall mount
+                    if($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG){
+                        $this->process_inventory($result,$agent_details);
+                    }
+                    
                 } else {
                     //$this->db->where('booking_id',  $booking_id);
                     if (empty($unit_num[0]['price_tags'])) {
@@ -1647,12 +1674,20 @@ class Booking_model extends CI_Model {
                         $this->db->insert('booking_unit_details', $result);
                         $u_unit_id = $this->db->insert_id();
                         log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
+                        //process inventory stock for each unit if price tag is wall mount
+                        if($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG){
+                            $this->process_inventory($result,$agent_details);
+                        }
                     }
                 }
             } else {
                 $this->db->insert('booking_unit_details', $result);
                 $u_unit_id = $this->db->insert_id();
                 log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
+                //process inventory stock for each unit if price tag is wall mount
+                if($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG){
+                    $this->process_inventory($result,$agent_details);
+                }
             }
         }
         $return_details['unit_id'] = $u_unit_id;
@@ -2296,6 +2331,40 @@ class Booking_model extends CI_Model {
         $this->db->insert('email_sent', $data);
         return $this->db->insert_id();
     }
+    
+    /**
+     * @desc This function is used to update the inventory stock
+     * @param array $result
+     * @param array $agent_details
+     */
+    function process_inventory($result,$agent_details) {
+        /* check if booking is assigned to sf
+         * if booking is assigned then update the inventory stock
+         * else do not perform any action on inventory
+         */
+        $sf_id = $this->reusable_model->get_search_query('booking_details', 'assigned_vendor_id', array('booking_id' => $result['booking_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+        if (!empty($sf_id)) {
+            $match = array();
+            preg_match('/[0-9]+/', $result['appliance_capacity'], $match);
+            if (!empty($match)) {
+                if ($match[0] <= 32) {
+                    $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                } else if ($match[0] > 32) {
+                    $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                }
+
+                $data['receiver_entity_id'] = $sf_id[0]['assigned_vendor_id'];
+                $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                $data['stock'] = -1;
+                $data['booking_id'] = $result['booking_id'];
+                $data['agent_id'] = $agent_details['agent_id'];
+                $data['agent_type'] = $agent_details['agent_type'];
+
+                $this->miscelleneous->process_inventory_stocks($data);
+            }
+        }
+    }
+
 }
     
     

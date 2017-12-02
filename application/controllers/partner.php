@@ -1478,7 +1478,7 @@ class Partner extends CI_Controller {
                                     case NOT_UPCOUNTRY_BOOKING:
                                     case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                                         //assign vendor
-                                        $assigned = $this->miscelleneous->assign_vendor_process($upcountry_data['vendor_id'], $booking['booking_id']);
+                                        $assigned = $this->miscelleneous->assign_vendor_process($upcountry_data['vendor_id'], $booking['booking_id'],$agent_id,_247AROUND_PARTNER_STRING);
 
                                         if ($assigned) {
                                             $url = base_url() . "employee/do_background_process/assign_booking";

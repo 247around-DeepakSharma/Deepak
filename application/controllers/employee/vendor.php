@@ -1159,6 +1159,7 @@ class vendor extends CI_Controller {
         $service_center = $this->input->post('service_center');
         $agent_id =  $this->input->post('agent_id');
         $agent_name =  $this->input->post('agent_name');
+        $agent_type =  $this->input->post('agent_type');
         $url = base_url() . "employee/do_background_process/assign_booking";
         $sf_status = $this->input->post("sf_status");
         $count = 0;
@@ -1168,7 +1169,7 @@ class vendor extends CI_Controller {
            
                 if ($service_center_id != "") {
                    
-                    $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_name);
+                    $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_type);
                     if ($assigned) {
                         //Insert log into booking state change
                        $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
@@ -1247,7 +1248,7 @@ class vendor extends CI_Controller {
         if ($this->form_validation->run()) {
             $booking_id = $this->input->post('booking_id');
             $service_center_id = $this->input->post('service');
-
+            $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
 //            if (IS_DEFAULT_ENGINEER == TRUE) {
 //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
 //            } else {
@@ -1273,9 +1274,9 @@ class vendor extends CI_Controller {
 
             $this->vendor_model->delete_previous_service_center_action($booking_id);
             $unit_details = $this->booking_model->getunit_details($booking_id);
-
+            
             foreach ($unit_details[0]['quantity'] as $value) {
-                $data = array();
+                
                 $data['current_status'] = "Pending";
                 $data['internal_status'] = "Pending";
                 $data['service_center_id'] = $service_center_id;
@@ -1284,6 +1285,36 @@ class vendor extends CI_Controller {
                 $data['update_date'] = date('Y-m-d H:i:s');
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
+                
+                /* update inventory stock for reassign sf
+                 * First increase stock for the previous sf and after that decrease stock 
+                 * for the new assigned sf
+                 */
+                $inventory_data = array();
+                $inventory_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                $inventory_data['booking_id'] = $booking_id;
+                $inventory_data['agent_id'] = $this->session->userdata('id');
+                $inventory_data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
+                    $match = array();
+                    preg_match('/[0-9]+/', $unit_details[0]['capacity'], $match);
+                    if (!empty($match)) {
+                        if ($match[0] <= 32) {
+                            $inventory_data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                        } else if ($match[0] > 32) {
+                            $inventory_data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                        }
+                        
+                        //increase stock for previous assigned vendor
+                        $inventory_data['receiver_entity_id'] = $previous_sf_id[0]['assigned_vendor_id'];
+                        $inventory_data['stock'] = 1 ;
+                        $this->miscelleneous->process_inventory_stocks($inventory_data);
+                        //decrease stock for new assigned vendor
+                        $inventory_data['receiver_entity_id'] = $service_center_id;
+                        $inventory_data['stock'] = -1 ;
+                        $this->miscelleneous->process_inventory_stocks($inventory_data);
+                    }
+                }
             }
 
             $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
