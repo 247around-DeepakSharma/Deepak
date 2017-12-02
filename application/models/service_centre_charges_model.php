@@ -163,11 +163,9 @@ class service_centre_charges_model extends CI_Model {
      * 
      */
     function get_service_centre_charges($state){
-        $this->db->select('service_centre_charges.*, tax_rates.rate , services.services as product');
-        $this->db->join('tax_rates','tax_rates.tax_code = service_centre_charges.tax_code'
-                . ' AND tax_rates.product_type = service_centre_charges.product_type '
-                . 'AND tax_rates.state = "'.$state.'"');
+        $this->db->select('service_centre_charges.*, services.services as product');
         $this->db->join('services','services.id = service_centre_charges.service_id');
+        $this->db->where_not_in('service_centre_charges.service_category', array('Spare Parts'));
         $query = $this->db->get('service_centre_charges');
         return  $query->result_array();
     }
