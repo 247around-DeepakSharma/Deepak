@@ -1302,6 +1302,7 @@ class Inventory extends CI_Controller {
                     $is_sent = $this->input->post('estimate_sent');
                    
                     if($is_sent == 1){
+
                         $sent  = $this->create_zopper_excel_sheet($unit,$success['id'] );
                         if($sent){
                             $userSession = array('success' => "Thanks To Update Booking Price. Estimate Sent to Zopper");
@@ -1475,7 +1476,7 @@ class Inventory extends CI_Controller {
         } else {
             $z['create_date'] = date("Y-m-d H:i:s");
             $s = $this->inventory_model->insert_zopper_estimate($z); 
-            array('success' => $s, 'is_exist' => false, 'id' => $s);
+            return array('success' => $s, 'is_exist' => false, 'id' => $s);
         }
     }
 
