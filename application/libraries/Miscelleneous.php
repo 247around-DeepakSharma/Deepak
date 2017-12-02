@@ -1100,6 +1100,8 @@ class Miscelleneous {
 
                     $d['active'] = 0;
                 }
+            } else {
+                $d['active'] = 1;
             }
 
             return $d;
