@@ -1268,9 +1268,9 @@ class Do_background_upload_excel extends CI_Controller {
         $response = $this->check_column_exist_in_satya_file($headings_new1);
         
         if ($response['status']) {
-            
+            $arr = array('docnum','phone','zipcode','itemname');
             //if new format of header came then change it to old header format
-            if(in_array('phone', $headings_new1)){
+            if(count($arr) == count(array_intersect($headings_new1, $arr))){
                 $flippedArr = array_flip($headings_new1);
                 foreach($flippedArr as $k => $v){
                     if($k  === 'docnum'){
