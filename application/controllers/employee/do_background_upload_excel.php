@@ -1268,9 +1268,30 @@ class Do_background_upload_excel extends CI_Controller {
         $response = $this->check_column_exist_in_satya_file($headings_new1);
         
         if ($response['status']) {
+            
+            //if new format of header came then change it to old header format
+            if(in_array('phone', $headings_new1)){
+                $flippedArr = array_flip($headings_new1);
+                foreach($flippedArr as $k => $v){
+                    if($k  === 'docnum'){
+                        $newArrHeadings[$v] = 'docno';
+                    }else if($k  === 'phone'){
+                        $newArrHeadings[$v] = 'phno';
+                    }else if($k  === 'zipcode'){
+                        $newArrHeadings[$v] = 'zipcodeb';
+                    }else if($k  === 'itemname'){
+                        $newArrHeadings[$v] = 'item_name';
+                    }else {
+                        $newArrHeadings[$v] = $k;
+                    }
+                }
+            }else{
+                $newArrHeadings = $headings_new1;
+            }
+            
             for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
                 $rowData_array = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
-                $rowData = array_combine($headings_new1, $rowData_array[0]);
+                $rowData = array_combine($newArrHeadings, $rowData_array[0]);
                 $subArray = $this->get_sub_array($rowData,array('itemcode','docno','customer','phno','address','zipcodeb','item_name','create_date'));
                 $this->make_final_array_to_insert($subArray);
             }
@@ -1289,7 +1310,7 @@ class Do_background_upload_excel extends CI_Controller {
             $to = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
             $cc = DEVELOPER_EMAIL;
             $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
-            $subject = "Failed! Satya File is uploaded by " . $agent_name;
+            $subject = "Failed! Satya File uploaded by " . $agent_name;
             $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $response['msg'], "");
 
             log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
@@ -1308,9 +1329,11 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         if (!in_array('docno', $rowData)) {
-            $message .= " DocNo Column does not exist. Please use <b>docno</> as column name.<br/><br/>";
-            $this->ColumnFailed .= " DocNo, ";
-            $error = TRUE;
+            if(!in_array('docnum', $rowData)){
+                $message .= " DocNo Column does not exist. Please use <b>docno</> as column name.<br/><br/>";
+                $this->ColumnFailed .= " DocNo, ";
+                $error = TRUE;
+            }
         }
 
         if (!in_array('customer', $rowData)) {
@@ -1321,10 +1344,12 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         if (!in_array('phno', $rowData)) {
-
-            $message .= " PHNo Column does not exist. Please use <b>phno</> as column name.<br/><br/>";
-            $this->ColumnFailed .= " PHNo , ";
-            $error = TRUE;
+            if(!in_array('phone', $rowData)){
+                $message .= " PHNo Column does not exist. Please use <b>phno</> as column name.<br/><br/>";
+                $this->ColumnFailed .= " PHNo , ";
+                $error = TRUE;
+            }
+            
         }
         if (!in_array('address', $rowData)) {
 
@@ -1333,16 +1358,19 @@ class Do_background_upload_excel extends CI_Controller {
             $error = TRUE;
         }
         if (!in_array('zipcodeb', $rowData)) {
-
-            $message .= " ZipCodeB Column does not exist. Please use <b>zipcodeb</> as column name.<br/><br/>";
-            $this->ColumnFailed .= "ZipCodeB , ";
-            $error = TRUE;
+            if(!in_array('zipcode', $rowData)){
+                $message .= " ZipCodeB Column does not exist. Please use <b>zipcodeb</> as column name.<br/><br/>";
+                $this->ColumnFailed .= "ZipCodeB , ";
+                $error = TRUE;
+            }       
         }
         if (!in_array('item_name', $rowData)) {
-
-            $message .= " Item Name Column does not exist. Please use <b>item_name</> as column name.<br/><br/>";
-            $this->ColumnFailed .= "Item Name ";
-            $error = TRUE;
+            if(!in_array('itemname', $rowData)){
+                $message .= " Item Name Column does not exist. Please use <b>item_name</> as column name.<br/><br/>";
+                $this->ColumnFailed .= "Item Name ";
+                $error = TRUE;
+            }
+            
         }
         
         if ($error) {
