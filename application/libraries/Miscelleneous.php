@@ -1098,7 +1098,7 @@ class Miscelleneous {
             );
             $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
 
-            $final_amount = $invoice_amount[0]['amount'] - $service_amount[0]['amount'];
+            $final_amount = $invoice_amount[0]['amount'] - $service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE);
 
 
 
@@ -1123,6 +1123,14 @@ class Miscelleneous {
 
                     $d['active'] = 0;
                 }
+            } else {
+                // permanent Deactivated Partner
+                if($d['active'] == 0){
+                    $d['is_notification'] = TRUE;
+                    $d['prepaid_msg'] = PREPAID_DEACTIVATED_MSG_FOR_PARTNER;
+                }
+                
+                //$d['active'] = 1;
             }
 
             return $d;

@@ -340,6 +340,10 @@ class Partner extends CI_Controller {
             } else {
                 log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  Authentication failed");
                 //echo "Authentication fail:";
+                $output = "Authentication Failed. Please Contact to 247Around Team";
+                $userSession = array('error' => $output);
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "partner/pending_booking");
             }
         } else {
             log_message('info', 'Partner add booking' . $this->session->userdata('partner_name') . " Validation failed ");
