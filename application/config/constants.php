@@ -550,5 +550,8 @@ define('_247AROUND_SF_STRING','SF');
 //247around cp string
 define('_247AROUND_CP_STRING','CP');
 
+//demo partner id
+define('_247AROUND_DEMO_PARTNER',247050);
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
