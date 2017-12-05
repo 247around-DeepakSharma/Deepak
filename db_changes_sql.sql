@@ -3698,3 +3698,6 @@ ALTER TABLE `inventory_stocks`
 
 ALTER TABLE `inventory_stocks`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--sachin 05 dec
+ALTER TABLE `email_attachment_parser` ADD `email_send_to` VARCHAR(256) NULL AFTER `email_remarks`;
