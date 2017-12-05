@@ -121,13 +121,15 @@ class bookings_excel extends CI_Controller {
         if (!$error) {
             //Email Message ID - Unique for every email
             $email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
-
+            if(!empty($this->input->post('email_send_to'))){
+                $this->email_send_to = $this->input->post('email_send_to');
+            }
             //Processing File
             $response['data'] = $this->process_upload_file($inputFileName, $inputFileExtn);
             if(!empty($response['data'])){
                 $response['upload_file_name'] = $_FILES["file"]["name"];
                 $html = $this->load->view('employee/email_paytm_upload_file_details',$response,TRUE);
-                $to = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
+                $to = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
                 $cc = NITS_EMAIL_ID.",".DEVELOPER_EMAIL;
                 $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
                 $subject = "Paytm File is uploaded by " . $agent_name;
@@ -299,7 +301,7 @@ class bookings_excel extends CI_Controller {
                 $return_data = $this->do_action_on_file_data($sheet, $highestRow, $highestColumn, $headings_new);
                 
                 if($return_data){
-                    $to = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
+                    $to = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
                     $cc = NITS_EMAIL_ID.",".DEVELOPER_EMAIL;
                     $subject = "PAYTM FILE UPLOAD FAILED!!!";
                     $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;

@@ -119,7 +119,9 @@ class Do_background_upload_excel extends CI_Controller {
         $file_name = $_FILES["file"]["name"];
         //Email Message ID - Unique for every email
         $this->email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
-
+        if(!empty($this->input->post('email_send_to'))){
+            $this->email_send_to = $this->input->post('email_send_to');
+        }
 	//  Get worksheet dimensions
 	$sheet = $objPHPExcel->getSheet(0);
 	$highestRow = $sheet->getHighestRow();
@@ -189,7 +191,8 @@ class Do_background_upload_excel extends CI_Controller {
                     array_push($data, $rowData);
                 } else {
                     $subject = "Delivery Date Column is not exist. SD Uploading Failed.";
-                    $message  = $file_name. " is not uploaded Agent Name: ".  $this->session->userdata('employee_id');
+                    $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
+                    $message  = $file_name. " is not uploaded Agent Name: ".  $agent_name;
                     $this->send_mail_column($subject, $message, false,_247AROUND_SNAPDEAL_DELIVERED,SNAPDEAL_ID);
                 }
             } 
@@ -226,9 +229,9 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function send_mail_column($subject, $message, $validation,$file_type,$partner_id){
         if($partner_id === SNAPDEAL_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else if($partner_id === WYBOR_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else{
             $file_upload_agent_email = "";
         }
@@ -1061,9 +1064,9 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name,$partner_id,$file_upload = true) {
         if($partner_id === SNAPDEAL_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else if($partner_id === WYBOR_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else{
             $file_upload_agent_email = "";
         }
@@ -1242,6 +1245,9 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         $file_name = $_FILES["file"]["name"];
+        if(!empty($this->input->post('email_send_to'))){
+            $this->email_send_to = $this->input->post('email_send_to');
+        }
 
         //  Get worksheet dimensions
         $sheet = $objPHPExcel->getSheet(0);
@@ -1305,9 +1311,16 @@ class Do_background_upload_excel extends CI_Controller {
             }
             
         } else {
+            $this->email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
             //save file and upload on s3
-            $this->miscelleneous->update_file_uploads($file_name,$_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
-            $to = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
+            $this->miscelleneous->update_file_uploads($file_name,$_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED,FILE_UPLOAD_FAILED_STATUS,$this->email_message_id);
+            if(!empty($this->input->post('email_send_to'))){
+                $to = $this->input->post('email_send_to');
+            }else if(!empty($this->session->userdata('official_email'))){
+                $to = $this->session->userdata('official_email');
+            }else{
+                $to = _247AROUND_VIJAYA_EMAIL;
+            }
             $cc = DEVELOPER_EMAIL;
             $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
             $subject = "Failed! Satya File uploaded by " . $agent_name;
