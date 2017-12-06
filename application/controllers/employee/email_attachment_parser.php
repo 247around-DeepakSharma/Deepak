@@ -73,7 +73,7 @@ class Email_attachment_parser extends CI_Controller {
                                                         }
                                                     }
                                                 }
-                                                $file_upload_response = $this->process_uploading_extract_file($url, TMP_FOLDER . $extract_file_name, $val['email_message_id']);
+                                                $file_upload_response = $this->process_uploading_extract_file($url, TMP_FOLDER . $extract_file_name, $val['email_message_id'],$value['email_send_to']);
 
                                                 //delete file from the system after processing
                                                 if (file_exists(TMP_FOLDER . $extract_file_name)) {
@@ -88,7 +88,7 @@ class Email_attachment_parser extends CI_Controller {
                                                 }
                                             }
                                         } else {
-                                            log_message('info', __METHOD__ . "Attachment Exist But File Not Found in the system for email " . $val['email_no']);
+                                            log_message('info', __METHOD__ . "Attachment Exist But File Not Found in the system for email " . $val['email_message_id']);
                                             $subject = "Attachment Exist But File Not Found In the System for " . $value['email_subject_text'];
                                             $msg = "Attachment Exist But File Not Found In the System for " . $value['email_subject_text'];
                                             $msg .= "<br><b>Search Condition </b> : " . $email_search_condition;
@@ -100,7 +100,7 @@ class Email_attachment_parser extends CI_Controller {
                             } 
                             else 
                             {
-                                log_message('info',__METHOD__." attachment not found for email ". print_r($val['email_no'],true));
+                                log_message('info',__METHOD__." attachment not found for email ". print_r($val['email_message_id'],true));
                                 $subject = "Attachment Not Found for ".$value['email_subject_text'];
                                 $msg = "Email attachment not found for the subject ".$value['email_subject_text'];
                                 $msg .= "<br><b>Search Condition: </b> ".$email_search_condition;
@@ -135,7 +135,7 @@ class Email_attachment_parser extends CI_Controller {
     * @param    void
     * @return   void
     */
-    private function process_uploading_extract_file($url,$file_path,$email_message_id){
+    private function process_uploading_extract_file($url,$file_path,$email_message_id,$email_send_to){
         log_message('info',__METHOD__."Entering...");
         
         if (function_exists('curl_file_create')) {
@@ -148,7 +148,8 @@ class Email_attachment_parser extends CI_Controller {
         $post = array(
             'file' => $cFile,
             'file_received_date' => date('Y-m-d'),
-            'email_message_id' => $email_message_id);        
+            'email_message_id' => $email_message_id,
+            'email_send_to' => $email_send_to);        
         
         $ch = curl_init();
         

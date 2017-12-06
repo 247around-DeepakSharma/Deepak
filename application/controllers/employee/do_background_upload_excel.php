@@ -119,7 +119,9 @@ class Do_background_upload_excel extends CI_Controller {
         $file_name = $_FILES["file"]["name"];
         //Email Message ID - Unique for every email
         $this->email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
-
+        if(!empty($this->input->post('email_send_to'))){
+            $this->email_send_to = $this->input->post('email_send_to');
+        }
 	//  Get worksheet dimensions
 	$sheet = $objPHPExcel->getSheet(0);
 	$highestRow = $sheet->getHighestRow();
@@ -189,7 +191,8 @@ class Do_background_upload_excel extends CI_Controller {
                     array_push($data, $rowData);
                 } else {
                     $subject = "Delivery Date Column is not exist. SD Uploading Failed.";
-                    $message  = $file_name. " is not uploaded Agent Name: ".  $this->session->userdata('employee_id');
+                    $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
+                    $message  = $file_name. " is not uploaded Agent Name: ".  $agent_name;
                     $this->send_mail_column($subject, $message, false,_247AROUND_SNAPDEAL_DELIVERED,SNAPDEAL_ID);
                 }
             } 
@@ -226,9 +229,9 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function send_mail_column($subject, $message, $validation,$file_type,$partner_id){
         if($partner_id === SNAPDEAL_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else if($partner_id === WYBOR_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else{
             $file_upload_agent_email = "";
         }
@@ -1061,9 +1064,9 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name,$partner_id,$file_upload = true) {
         if($partner_id === SNAPDEAL_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else if($partner_id === WYBOR_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else{
             $file_upload_agent_email = "";
         }
@@ -1242,6 +1245,9 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         $file_name = $_FILES["file"]["name"];
+        if(!empty($this->input->post('email_send_to'))){
+            $this->email_send_to = $this->input->post('email_send_to');
+        }
 
         //  Get worksheet dimensions
         $sheet = $objPHPExcel->getSheet(0);
@@ -1268,9 +1274,30 @@ class Do_background_upload_excel extends CI_Controller {
         $response = $this->check_column_exist_in_satya_file($headings_new1);
         
         if ($response['status']) {
+            $arr = array('docnum','phone','zipcode','itemname');
+            //if new format of header came then change it to old header format
+            if(count($arr) == count(array_intersect($headings_new1, $arr))){
+                $flippedArr = array_flip($headings_new1);
+                foreach($flippedArr as $k => $v){
+                    if($k  === 'docnum'){
+                        $newArrHeadings[$v] = 'docno';
+                    }else if($k  === 'phone'){
+                        $newArrHeadings[$v] = 'phno';
+                    }else if($k  === 'zipcode'){
+                        $newArrHeadings[$v] = 'zipcodeb';
+                    }else if($k  === 'itemname'){
+                        $newArrHeadings[$v] = 'item_name';
+                    }else {
+                        $newArrHeadings[$v] = $k;
+                    }
+                }
+            }else{
+                $newArrHeadings = $headings_new1;
+            }
+            
             for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
                 $rowData_array = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
-                $rowData = array_combine($headings_new1, $rowData_array[0]);
+                $rowData = array_combine($newArrHeadings, $rowData_array[0]);
                 $subArray = $this->get_sub_array($rowData,array('itemcode','docno','customer','phno','address','zipcodeb','item_name','create_date'));
                 $this->make_final_array_to_insert($subArray);
             }
@@ -1284,12 +1311,19 @@ class Do_background_upload_excel extends CI_Controller {
             }
             
         } else {
+            $this->email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
             //save file and upload on s3
-            $this->miscelleneous->update_file_uploads($file_name,$_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
-            $to = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
+            $this->miscelleneous->update_file_uploads($file_name,$_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED,FILE_UPLOAD_FAILED_STATUS,$this->email_message_id);
+            if(!empty($this->input->post('email_send_to'))){
+                $to = $this->input->post('email_send_to');
+            }else if(!empty($this->session->userdata('official_email'))){
+                $to = $this->session->userdata('official_email');
+            }else{
+                $to = _247AROUND_VIJAYA_EMAIL;
+            }
             $cc = DEVELOPER_EMAIL;
             $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
-            $subject = "Failed! Satya File is uploaded by " . $agent_name;
+            $subject = "Failed! Satya File uploaded by " . $agent_name;
             $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $response['msg'], "");
 
             log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
@@ -1308,9 +1342,11 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         if (!in_array('docno', $rowData)) {
-            $message .= " DocNo Column does not exist. Please use <b>docno</> as column name.<br/><br/>";
-            $this->ColumnFailed .= " DocNo, ";
-            $error = TRUE;
+            if(!in_array('docnum', $rowData)){
+                $message .= " DocNo Column does not exist. Please use <b>docno</> as column name.<br/><br/>";
+                $this->ColumnFailed .= " DocNo, ";
+                $error = TRUE;
+            }
         }
 
         if (!in_array('customer', $rowData)) {
@@ -1321,10 +1357,12 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         if (!in_array('phno', $rowData)) {
-
-            $message .= " PHNo Column does not exist. Please use <b>phno</> as column name.<br/><br/>";
-            $this->ColumnFailed .= " PHNo , ";
-            $error = TRUE;
+            if(!in_array('phone', $rowData)){
+                $message .= " PHNo Column does not exist. Please use <b>phno</> as column name.<br/><br/>";
+                $this->ColumnFailed .= " PHNo , ";
+                $error = TRUE;
+            }
+            
         }
         if (!in_array('address', $rowData)) {
 
@@ -1333,16 +1371,19 @@ class Do_background_upload_excel extends CI_Controller {
             $error = TRUE;
         }
         if (!in_array('zipcodeb', $rowData)) {
-
-            $message .= " ZipCodeB Column does not exist. Please use <b>zipcodeb</> as column name.<br/><br/>";
-            $this->ColumnFailed .= "ZipCodeB , ";
-            $error = TRUE;
+            if(!in_array('zipcode', $rowData)){
+                $message .= " ZipCodeB Column does not exist. Please use <b>zipcodeb</> as column name.<br/><br/>";
+                $this->ColumnFailed .= "ZipCodeB , ";
+                $error = TRUE;
+            }       
         }
         if (!in_array('item_name', $rowData)) {
-
-            $message .= " Item Name Column does not exist. Please use <b>item_name</> as column name.<br/><br/>";
-            $this->ColumnFailed .= "Item Name ";
-            $error = TRUE;
+            if(!in_array('itemname', $rowData)){
+                $message .= " Item Name Column does not exist. Please use <b>item_name</> as column name.<br/><br/>";
+                $this->ColumnFailed .= "Item Name ";
+                $error = TRUE;
+            }
+            
         }
         
         if ($error) {
