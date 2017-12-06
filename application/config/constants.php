@@ -452,7 +452,7 @@ define('SMS_DEACTIVATION_PASSWORD','chhavid247');
 define('SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS','-1 day');
 define('SMS_DEACTIVATION_EMAIL_SUBJECT','has requested for opt-out!');
 define('SMS_DEACTIVATION_NO_NEW_REQUEST_MSG','There is not any new request');
-
+define('PREPAID_DEACTIVATED_MSG_FOR_PARTNER','Your Account is De-Activated');
 define('PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER','Your Credit is low. Add credit');
 define('PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN','Your Credit is low. Add credit');
 define('PREPAID_LOW_AMOUNT_MSG_FOR_DEALER','Your Credit is low. Add credit');
@@ -532,6 +532,23 @@ define("PART_ARRANGE_BY_DIFF_VENDOR", 1);
 //vijaya email_id
 define('_247AROUND_VIJAYA_EMAIL','vijaya@247around.com');
 
+//less than 32" bracket part number
+define('LESS_THAN_32_BRACKETS_PART_NUMBER','B-24732');
+//greater than 32" bracket part number
+define('GREATER_THAN_32_BRACKETS_PART_NUMBER','B-24733');
+//wall mount price tag
+define('_247AROUND_WALL_MOUNT__PRICE_TAG','Wall Mount Stand');
+//247around employee string
+define('_247AROUND_EMPLOYEE_STRING','employee');
+//247around partner string
+define('_247AROUND_PARTNER_STRING','partner');
+//247around sf string
+define('_247AROUND_SF_STRING','SF');
+//247around cp string
+define('_247AROUND_CP_STRING','CP');
+
+//demo partner id
+define('_247AROUND_DEMO_PARTNER',247050);
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

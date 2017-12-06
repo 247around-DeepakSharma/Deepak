@@ -1159,6 +1159,7 @@ class vendor extends CI_Controller {
         $service_center = $this->input->post('service_center');
         $agent_id =  $this->input->post('agent_id');
         $agent_name =  $this->input->post('agent_name');
+        $agent_type =  $this->input->post('agent_type');
         $url = base_url() . "employee/do_background_process/assign_booking";
         $sf_status = $this->input->post("sf_status");
         $count = 0;
@@ -1168,7 +1169,7 @@ class vendor extends CI_Controller {
            
                 if ($service_center_id != "") {
                    
-                    $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_name);
+                    $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_type);
                     if ($assigned) {
                         //Insert log into booking state change
                        $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
@@ -1196,6 +1197,7 @@ class vendor extends CI_Controller {
 
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
+
     /**
      * @desc This is used to send mail when SF does not exist in the booking pincode
      * as per vendor pincode mapping file.
@@ -1246,7 +1248,7 @@ class vendor extends CI_Controller {
         if ($this->form_validation->run()) {
             $booking_id = $this->input->post('booking_id');
             $service_center_id = $this->input->post('service');
-
+            $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
 //            if (IS_DEFAULT_ENGINEER == TRUE) {
 //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
 //            } else {
@@ -1272,9 +1274,9 @@ class vendor extends CI_Controller {
 
             $this->vendor_model->delete_previous_service_center_action($booking_id);
             $unit_details = $this->booking_model->getunit_details($booking_id);
-
+            
             foreach ($unit_details[0]['quantity'] as $value) {
-                $data = array();
+                
                 $data['current_status'] = "Pending";
                 $data['internal_status'] = "Pending";
                 $data['service_center_id'] = $service_center_id;
@@ -1283,6 +1285,36 @@ class vendor extends CI_Controller {
                 $data['update_date'] = date('Y-m-d H:i:s');
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
+                
+                /* update inventory stock for reassign sf
+                 * First increase stock for the previous sf and after that decrease stock 
+                 * for the new assigned sf
+                 */
+                $inventory_data = array();
+                $inventory_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                $inventory_data['booking_id'] = $booking_id;
+                $inventory_data['agent_id'] = $this->session->userdata('id');
+                $inventory_data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
+                    $match = array();
+                    preg_match('/[0-9]+/', $unit_details[0]['capacity'], $match);
+                    if (!empty($match)) {
+                        if ($match[0] <= 32) {
+                            $inventory_data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                        } else if ($match[0] > 32) {
+                            $inventory_data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                        }
+                        
+                        //increase stock for previous assigned vendor
+                        $inventory_data['receiver_entity_id'] = $previous_sf_id[0]['assigned_vendor_id'];
+                        $inventory_data['stock'] = 1 ;
+                        $this->miscelleneous->process_inventory_stocks($inventory_data);
+                        //decrease stock for new assigned vendor
+                        $inventory_data['receiver_entity_id'] = $service_center_id;
+                        $inventory_data['stock'] = -1 ;
+                        $this->miscelleneous->process_inventory_stocks($inventory_data);
+                    }
+                }
             }
 
             $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
@@ -2002,6 +2034,7 @@ class vendor extends CI_Controller {
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/viewvendor', array('query' => $vendor_info));
     }
+
     /**
      * @desc: This method loads add engineer view. It gets active vendor and appliance to display in a form
      * This  function is used by vendor panel and admin panel to load add engineer view
@@ -2018,8 +2051,8 @@ class vendor extends CI_Controller {
             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view('employee/add_engineer', $data);
         }
-
     }
+    
     /**
      * @desc: This is used to Edit Engineer
      * params: Engineer ID
@@ -2041,6 +2074,7 @@ class vendor extends CI_Controller {
             $this->load->view('employee/add_engineer', $data);
         }
     }
+
     /**
      * @desc: This method adds engineers for a service center.
      *  This  function is used by vendor panel and admin panel to load add engineer details.
@@ -2111,6 +2145,7 @@ class vendor extends CI_Controller {
 	    $this->add_engineer();
 	}
     }
+
     /**
      * @desc: This method is used to process edit engineer form
      * params: Post data array
@@ -2418,6 +2453,7 @@ class vendor extends CI_Controller {
         }
         return $finalMsg;
     }
+
     /**
      *  @desc : This function is used to Process Add Vendor to pincode Form
      *  @param : Array of $_POST data
@@ -2481,8 +2517,8 @@ class vendor extends CI_Controller {
         }
         //Returning data in Json Encoded form
         print_r(json_encode($data));
-
-     }
+    }
+    
      /*
       * This function use to print json data of brands associated to a vendor
       * @input - vendorID
@@ -2865,6 +2901,7 @@ class vendor extends CI_Controller {
         $this->load->view('employee/sms_template_editable_grid');
         
     }
+
     /**
      * @desc: This funtion is called from AJAX to get sms templates
      * params: void
@@ -3104,6 +3141,7 @@ class vendor extends CI_Controller {
             echo "";
         }
     }
+
     /**
      * @desc: This method is used to update is_update field. It gets 0 Or 1 flag to update service center
      * @param String $service_center_id
@@ -3396,7 +3434,7 @@ class vendor extends CI_Controller {
     function get_sc_charges_list(){
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('employee_id'));
         $sc_charges_data = $this->service_centre_charges_model->get_service_caharges_data("partner_id,services,category,capacity,service_category,vendor_basic_charges,"
-                . "vendor_tax_basic_charges,vendor_total,customer_net_payable");
+                . "vendor_tax_basic_charges,vendor_total,customer_net_payable",array("partner_id <> " => _247AROUND_DEMO_PARTNER));
         $partner_id_array = array_unique(array_column($sc_charges_data, 'partner_id'));
         foreach($partner_id_array as $partnerID){
             $booking_sources_array[$partnerID] = '';
@@ -3722,6 +3760,7 @@ class vendor extends CI_Controller {
  
         echo json_encode($responce);
     }
+
     /**
      * @desc: This funtion is called from AJAX to update vendor escalation policy
      * params: void
@@ -4138,6 +4177,7 @@ class vendor extends CI_Controller {
            }
        }
     }
+
     /**
      * @desc This method is used to delete sub office details in sub_service_center_details table via ajax call
      * @param void()
@@ -4165,6 +4205,7 @@ class vendor extends CI_Controller {
            }
        }
     }
+
     /**
      * @desc: This function is used to get the reassign partner page
      * @param: booking id

@@ -21,8 +21,8 @@ class Partner extends CI_Controller {
         $this->load->model('invoices_model');
         $this->load->model('dealer_model');
         $this->load->model('service_centers_model');
-        $this->load->model("inventory_model");
         $this->load->model('penalty_model');
+        $this->load->model("inventory_model");
         $this->load->model("service_centre_charges_model");
         $this->load->library("pagination");
         $this->load->library("session");
@@ -340,6 +340,10 @@ class Partner extends CI_Controller {
             } else {
                 log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  Authentication failed");
                 //echo "Authentication fail:";
+                $output = "Authentication Failed. Please Contact to 247Around Team";
+                $userSession = array('error' => $output);
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "partner/pending_booking");
             }
         } else {
             log_message('info', 'Partner add booking' . $this->session->userdata('partner_name') . " Validation failed ");
@@ -986,6 +990,32 @@ class Partner extends CI_Controller {
                 $data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED;
 
                 $this->vendor_model->update_service_center_action($booking_id, $data_vendor);
+                //get the unit details data and update the inventory stock
+                $booking_unit_details = $this->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL),NULL, NULL, NULL, NULL, NULL)->result_array();
+                if (!empty($booking_unit_details)) {    
+                    //process each unit if price tag is wall mount
+                    foreach($booking_unit_details as $value){
+                        $match = array();
+                        //get the size from the capacity to know the part number
+                        preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                        if (!empty($match)) {
+                            if ($match[0] <= 32) {
+                                $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                            } else if ($match[0] > 32) {
+                                $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                            }
+
+                            $data['receiver_entity_id'] = $booking_data[0]['assigned_vendor_id'];
+                            $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                            $data['stock'] = 1;
+                            $data['booking_id'] = $booking_id;
+                            $data['agent_id'] = $this->session->userdata('agent_id');
+                            $data['agent_type'] = _247AROUND_PARTNER_STRING;
+
+                            $this->miscelleneous->process_inventory_stocks($data);
+                        }
+                    }
+                }
             }
 
             //Log this state change as well for this booking
@@ -1380,14 +1410,27 @@ class Partner extends CI_Controller {
                 $unit_details['ud_update_date'] = date('Y-m-d H:i:s');
                 $unit_details['booking_status'] = "Pending";
                 $customer_net_payable += ($explode[1] - $explode[2]);
-
-                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key);
+                
+                $agent_details['agent_id'] = $this->session->userdata('agent_id');
+                $agent_details['agent_type'] = _247AROUND_PARTNER_STRING;
+                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key,$agent_details);
                 array_push($updated_unit_id, $result['unit_id']);
             }
 
             if (!empty($updated_unit_id)) {
                 log_message('info', __METHOD__ . " UNIT ID: " . print_r($updated_unit_id, true));
-                $this->booking_model->check_price_tags_status($booking_id, $updated_unit_id);
+                $sf_id = $this->reusable_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+                if(!empty($sf_id)){
+                    $inventory_details = array('receiver_entity_id' => $sf_id[0]['assigned_vendor_id'],
+                                                'receiver_entity_type' => _247AROUND_SF_STRING,
+                                                'stock' => 1,
+                                                'agent_id' => $this->session->userdata('agent_id'),
+                                                'agent_type' => _247AROUND_PARTNER_STRING,
+                                                );
+                }else{
+                    $inventory_details = array();
+                }
+                $this->booking_model->check_price_tags_status($booking_id, $updated_unit_id,$inventory_details);
             }
 
             $booking_details['amount_due'] = $post['amount_due'];
@@ -2441,16 +2484,18 @@ class Partner extends CI_Controller {
                     $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
                     $partner_id = _247AROUND;
                     $type = " Email";
+                    $agent_type = _247AROUND_EMPLOYEE_STRING;
                 } else {
                     $agent_id = $this->session->userdata('agent_id');
                     $agent_name = $this->session->userdata('partner_name');
                     $partner_id = $this->session->userdata('partner_id');
                     $type = " Panel";
+                    $agent_type = _247AROUND_PARTNER_STRING;
                 }
                 // Insert log into booking state change
                 $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, $partner_id);
 
-                $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id);
+                $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id,$agent_id,$agent_type);
                 if ($assigned) {
 
                     log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);

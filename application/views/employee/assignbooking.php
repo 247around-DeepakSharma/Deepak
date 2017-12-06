@@ -61,6 +61,7 @@
                         <center>
                             <input type="hidden" name="agent_id" value="<?php echo  $this->session->userdata('id'); ?>" />
                             <input type="hidden" name="agent_name" value="<?php echo  $this->session->userdata('employee_id'); ?>" />
+                            <input type="hidden" name="agent_type" value="<?php echo  _247AROUND_EMPLOYEE_STRING ?>" />
                             <div id="loading">
                                 <input type="Submit" id="submit_button" value="Save" class="btn btn-primary btn-lg">
 <!--                                <input type="Reset" value="Cancel" class="btn btn-danger btn-lg">-->

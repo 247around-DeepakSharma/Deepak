@@ -517,9 +517,7 @@ buyback_dashboard.controller('bb_dashboard_summary', function ($scope, $http) {
     $http.get(get_url)
         .then(function (response) {
              //console.log(response.data);
-            $("#title_count").html(response.data);
-       
-               
+            $("#title_count").html(response.data);    
     });
 });
 

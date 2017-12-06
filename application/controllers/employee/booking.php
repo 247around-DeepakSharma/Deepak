@@ -279,7 +279,9 @@ class Booking extends CI_Controller {
                         default:
 
                             log_message('info', __METHOD__ . " Update Booking Unit Details: " . " Previous booking id: " . $booking_id);
-                            $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state'], $b_key);
+                            $agent_details['agent_id'] = $this->session->userdata('id');
+                            $agent_details['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                            $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state'], $b_key,$agent_details);
 
                             array_push($updated_unit_id, $result['unit_id']);
                             break;
@@ -288,7 +290,18 @@ class Booking extends CI_Controller {
             }
             if (!empty($updated_unit_id)) {
                 log_message('info', __METHOD__ . " UNIT ID: " . print_r($updated_unit_id, true));
-                $this->booking_model->check_price_tags_status($booking['booking_id'], $updated_unit_id);
+                $sf_id = $this->reusable_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+                if(!empty($sf_id)){
+                    $inventory_details = array('receiver_entity_id' => $sf_id[0]['assigned_vendor_id'],
+                                                'receiver_entity_type' => _247AROUND_SF_STRING,
+                                                'stock' => 1,
+                                                'agent_id' => $this->session->userdata('id'),
+                                                'agent_type' => _247AROUND_EMPLOYEE_STRING,
+                                                );
+                }else{
+                    $inventory_details = array();
+                }
+                $this->booking_model->check_price_tags_status($booking['booking_id'], $updated_unit_id,$inventory_details);
             }
 
             $this->user_model->edit_user($user);
@@ -320,6 +333,7 @@ class Booking extends CI_Controller {
                             $async_data['service_center'] = array($booking['booking_id'] => $upcountry_data['vendor_id']);
                             $async_data['agent_id'] = _247AROUND_DEFAULT_AGENT;
                             $async_data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
+                            $async_data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
                             $this->asynchronous_lib->do_background_process($url, $async_data);
 
                             break;
@@ -843,7 +857,32 @@ class Booking extends CI_Controller {
             $cancellation_text = $this->input->post("cancellation_reason_text");
 
             $this->miscelleneous->process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id);
+            //get the unit details data and update the inventory stock
+            $booking_details = $this->reusable_model->get_search_query('booking_details', 'booking_details.assigned_vendor_id,booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL,'booking_details.assigned_vendor_id IS NOT null'=>NULL), array('booking_unit_details'=>'booking_details.booking_id = booking_unit_details.booking_id'), NULL, NULL, NULL, NULL)->result_array();
+            if (!empty($booking_details)) { 
+                //process each unit if price tag is wall mount
+                foreach($booking_details as $value){
+                    $match = array();
+                    //get the size from the capacity to know the part number
+                    preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                    if (!empty($match)) {
+                        if ($match[0] <= 32) {
+                            $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                        } else if ($match[0] > 32) {
+                            $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                        }
 
+                        $data['receiver_entity_id'] = $value['assigned_vendor_id'];
+                        $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                        $data['stock'] = 1;
+                        $data['booking_id'] = $booking_id;
+                        $data['agent_id'] = $agent_id;
+                        $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+
+                        $this->miscelleneous->process_inventory_stocks($data);
+                    }
+                }
+            }
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
             log_message('info', __FUNCTION__ . " Validation Failed Booking ID: " . $booking_id . " Done By " . $this->session->userdata('employee_id'));
@@ -1006,7 +1045,12 @@ class Booking extends CI_Controller {
             print_r(json_encode($data, true));
         } else {
             $data['code'] = -247;
-            $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
+            if(isset($prepaid['prepaid_msg'])){
+                $data['prepaid_msg'] = $prepaid['prepaid_msg'];
+            } else {
+                $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
+            }
+            
             echo json_encode($data,true);
         }
     }
@@ -1995,6 +2039,32 @@ class Booking extends CI_Controller {
                 $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
                 log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
                 $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+                //get the unit details data and update the inventory stock
+                $booking_unit_details = $this->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL),NULL, NULL, NULL, NULL, NULL)->result_array();
+                if (!empty($booking_unit_details)) {    
+                    //process each unit if price tag is wall mount
+                    foreach($booking_unit_details as $value){
+                        $match = array();
+                        //get the size from the capacity to know the part number
+                        preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                        if (!empty($match)) {
+                            if ($match[0] <= 32) {
+                                $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                            } else if ($match[0] > 32) {
+                                $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                            }
+
+                            $data['receiver_entity_id'] = $assigned_vendor_id;
+                            $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                            $data['stock'] = -1;
+                            $data['booking_id'] = $booking_id;
+                            $data['agent_id'] = $this->session->userdata('id');
+                            $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+
+                            $this->miscelleneous->process_inventory_stocks($data);
+                        }
+                    }
+                }
             }
 
 

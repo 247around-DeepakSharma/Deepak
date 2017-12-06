@@ -79,16 +79,6 @@ class invoices_model extends CI_Model {
         return $return_data;
     }
 
-    /**
-     * Get partner Email id
-     * @param type $partnerId
-     */
-    function getEmailIdForPartner($partnerId) {
-        $this->db->select('partner_email_for_to');
-        $this->db->where('partner_id', $partnerId);
-        $query = $this->db->get('bookings_sources');
-        return $query->result_array();
-    }
 
     //Function to insert banks account/statement
     function bankAccountTransaction($account_statement) {
@@ -1018,6 +1008,7 @@ class invoices_model extends CI_Model {
                     
                 } else if($c_s_gst){
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
+                    
                     $data['booking'][$key]['cgst_rate'] =  $data['booking'][$key]['sgst_rate'] = 9;
                     $data['booking'][$key]['cgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.09));
                     $data['booking'][$key]['sgst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.09));
@@ -1028,11 +1019,11 @@ class invoices_model extends CI_Model {
                     
                 } else {
                     $meta['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
+                    
                     $data['booking'][$key]['igst_rate'] =  $meta['igst_tax_rate'] = DEFAULT_TAX_RATE;
                     $data['booking'][$key]['igst_tax_amount'] = sprintf("%1\$.2f",($value['taxable_value'] * 0.18));
                     $meta['igst_total_tax_amount'] +=  $data['booking'][$key]['igst_tax_amount'];
                     $data['booking'][$key]['toal_amount'] = sprintf("%1\$.2f",( $value['taxable_value'] + ($value['taxable_value'] * 0.18)));
-                    
                 }
                 
                

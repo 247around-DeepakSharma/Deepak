@@ -3621,8 +3621,83 @@ ALTER TABLE `trigger_service_charges`
 ALTER TABLE `trigger_service_charges`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
-<--01-Dec-2017,Chhavi-->
+--01-Dec-2017,Chhavi-->
 ALTER TABLE `dealer_details` ADD `state` VARCHAR(100) NOT NULL AFTER `city`;
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'negative_foc_invoice_for_vendors', '247around - %s - FOC Invoice for period: %s to %s', 'Dear Partner, Your ... Negative Invoice Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice. <br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', '', 'abhaya@247around', '', '1', '2017-12-01 23:56:58');
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'resend_invoice', '247around - Invoice for period: %s to %s', 'Dear Partner <br/><br/> Please find attached invoice for jobs completed between %s and %s.<br/><br/> Details with breakup by job, service category is attached. Also the service rating as given by customers is shown.<br/><br/> Hope to have a long lasting working relationship with you. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice. <br/><br/>With Regards,<br/>247around Team', 'billing@247around.com', '', 'abhaya@247around', '', '1', '2017-12-01 23:56:58');
 
+ALTER TABLE `trigger_partners` ADD `updated_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `update_date`;
+
+-- sachin 30 Nov
+
+CREATE TABLE `inventory_master_list` (
+  `id` int(11) NOT NULL,
+  `part_number` varchar(256) NOT NULL,
+  `part_name` varchar(256) NOT NULL,
+  `model_number` varchar(256) NOT NULL,
+  `serial_number` varchar(256) NOT NULL,
+  `description` varchar(512) NOT NULL,
+  `size` varchar(128) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `type` varchar(64) DEFAULT NULL,
+  `sender_entity_id` int(11) NOT NULL,
+  `sender_entity_type` varchar(64) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `inventory_master_list`
+--
+
+INSERT INTO `inventory_master_list` (`id`, `part_number`, `part_name`, `model_number`, `serial_number`, `description`, `size`, `price`, `type`, `sender_entity_id`, `sender_entity_type`, `create_date`) VALUES
+(1, 'B-24732', 'Bracket', '', '', 'Brackets less than 32"', '', '0.00', 'Bracket', 0, '', '2017-11-30 06:59:43'),
+(2, 'B-24733', 'Bracket', '', '', 'Brackets greater than 32"', '', '0.00', 'Bracket', 0, '', '2017-11-30 07:01:12');
+
+ALTER TABLE `inventory_master_list`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `inventory_master_list`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+CREATE TABLE `inventory_ledger` (
+  `id` int(11) NOT NULL,
+  `receiver_entity_id` int(11) DEFAULT NULL,
+  `receiver_entity_type` varchar(64) DEFAULT NULL,
+  `sender_entity_id` int(11) DEFAULT NULL,
+  `sender_entity_type` varchar(64) DEFAULT NULL,
+  `quantity` int(11) NOT NULL,
+  `part_id` int(11) DEFAULT NULL,
+  `agent_id` int(11) DEFAULT NULL,
+  `agent_type` varchar(64) NOT NULL,
+  `order_id` varchar(32) DEFAULT NULL,
+  `booking_id` varchar(64) DEFAULT NULL,
+  `invoice_id` varchar(255) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `inventory_ledger`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `inventory_ledger`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+CREATE TABLE `inventory_stocks` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_type` varchar(64) NOT NULL,
+  `part_id` int(11) NOT NULL,
+  `stock` int(11) NOT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `inventory_stocks`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `inventory_stocks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--sachin 05 dec
+ALTER TABLE `email_attachment_parser` ADD `email_send_to` VARCHAR(256) NULL AFTER `email_remarks`;
