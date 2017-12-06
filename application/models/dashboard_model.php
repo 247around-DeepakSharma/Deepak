@@ -354,4 +354,35 @@ class dashboard_model extends CI_Model {
          $this->db->where($where);
          $this->db->update("query_report", $data);
      }
+     function get_sf_escalation_by_rm_by_sf_by_date($startDate=NULL,$endDate=NULL,$sf_id=NULL,$rm_id=NULL){
+    $escalation_where=array();
+    $booking_where=array();
+    $escalation_join = array("employee_relation"=>"FIND_IN_SET( vendor_escalation_log.vendor_id , employee_relation.service_centres_id )");
+    $booking_join = array("employee_relation"=>"FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )");
+    $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date,employee_relation.agent_id as rm_id';
+    $escalation_select = 'count(vendor_escalation_log.booking_id) AS total_escalation,vendor_escalation_log.vendor_id,vendor_escalation_log.create_date as escalation_date,employee_relation.agent_id as rm_id';
+    $booking_groupBy = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
+    $escalation_groupBy = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
+    if($rm_id){
+       $escalation_where['employee_relation.agent_id'] = $rm_id;
+       $booking_where['employee_relation.agent_id'] = $rm_id;
+    }
+    if($sf_id){
+       $escalation_where['vendor_escalation_log.vendor_id'] = $sf_id;
+       $booking_where['booking_details.assigned_vendor_id'] = $sf_id;
+       $booking_groupBy[] = "month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))";
+       $escalation_groupBy[] = "month(vendor_escalation_log.create_date)";
+    }
+    if(!($startDate) && !($endDate)){
+            $booking_where["month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = month(now()) AND year(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = year(now())"] = NULL;
+            $escalation_where["month(vendor_escalation_log.create_date) = month(now()) AND year(vendor_escalation_log.create_date) = year(now())"] =NULL;
+       }
+       else{
+            $booking_where["STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') >='".$startDate."' AND STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') <'".$endDate."'"] = NULL;
+            $escalation_where["date(vendor_escalation_log.create_date) >= '".$startDate."' AND date(vendor_escalation_log.create_date) < '".$endDate."'"] =  NULL;
+       }
+    $data['booking'] = $this->reusable_model->get_search_result_data('booking_details',$booking_select,$booking_where,$booking_join,NULL,NULL,NULL,NULL,$booking_groupBy);
+    $data['escalation'] = $this->reusable_model->get_search_result_data('vendor_escalation_log',$escalation_select,$escalation_where,$escalation_join,NULL,NULL,NULL,NULL,$escalation_groupBy);
+    return $data;
+     }
 }
