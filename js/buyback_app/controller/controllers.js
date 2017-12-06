@@ -521,7 +521,6 @@ buyback_dashboard.controller('bb_dashboard_summary', function ($scope, $http) {
     });
 });
 
-
 rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
     var get_url = baseUrl + "/employee/dashboard/get_buyback_balanced_amount";
     var pincode_url = baseUrl + "/employee/dashboard/get_pincode_not_found_sf_details/5";
@@ -531,8 +530,19 @@ rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
      $http.get(pincode_url).then(function (response) {
             $("#pincode_table_data").html(response.data);
      });
+    //var escalation_url = baseUrl + "/employee/dashboard/get_sf_escalation_by_rm";
+     $scope.loadView = function(escalation_url){
+     $http.get(escalation_url).then(function (response) {
+          $scope.escalationData = response.data;
+            $("#sf_json_data").val(JSON.stringify(response.data));
+     });
+ }
+  $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/36");
+  $scope.daterangeloadView = function(){
+     var dateRange = $('#daterange_id').val().split(" - ");
+     $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/36/"+dateRange[0]+"/"+dateRange[1]);
+}
 });
-
 rm_missing_pincode.controller('rm_missing_pincode_controller', function ($scope, $http) {
     var pincode_url = baseUrl + "/employee/dashboard/get_pincode_not_found_sf_details";
      $http.get(pincode_url).then(function (response) {

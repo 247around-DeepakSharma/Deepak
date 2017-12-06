@@ -818,5 +818,117 @@ class Dashboard extends CI_Controller {
             echo "Data Not Found";
         }
     }
-
+function get_sf_escalation_by_rm($rm_id,$startDate=NULL,$endDate=NULL){
+    $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,$rm_id);
+    $sfArray = $this->reusable_model->get_search_result_data("service_centres","id,name",NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+    foreach($sfArray as $sfData){
+        $sfIDNameArray["vendor_".$sfData['id']]= $sfData['name'];
+    }
+    foreach($escalationBookingData['booking'] as $bookingData){
+        if($bookingData['assigned_vendor_id'] !=''){
+            $SfBookingArray["vendor_".$bookingData['assigned_vendor_id']] = $bookingData['total_booking'];
+        }
+    }
+    foreach($escalationBookingData['escalation'] as $escalationData){
+        if($escalationData['vendor_id'] !=0 ){
+           $tempArray= array("esclation_per"=>round((($escalationData['total_escalation']*100)/$SfBookingArray["vendor_".$escalationData['vendor_id']]),2),"vendor_id"=>$escalationData['vendor_id'],
+               "total_booking"=>$SfBookingArray["vendor_".$escalationData['vendor_id']],"total_escalation"=>$escalationData['total_escalation'],"vendor_name"=>$sfIDNameArray["vendor_".$escalationData['vendor_id']]);
+           $esclationPercentage[]=$tempArray;
+       }
+    }
+    echo json_encode($esclationPercentage);
+}
+function get_escalation_data($sfID,$startDate=NULL,$endDate=NULL){
+    $escalation_where["vendor_escalation_log.vendor_id"] =$sfID;
+    if(!($startDate) && !($endDate)){
+            $escalation_where["month(vendor_escalation_log.create_date) = month(now()) AND year(vendor_escalation_log.create_date) = year(now())"] =NULL;
+       }
+       else{
+            $escalation_where["date(vendor_escalation_log.create_date) >= '".$startDate."' AND date(vendor_escalation_log.create_date) < '".$endDate."'"] =  NULL;
+       }
+    $data = $this->reusable_model->get_search_result_data('vendor_escalation_log',"count(DISTINCT booking_details.booking_id) AS total_booking,count(vendor_escalation_log.booking_id) "
+            . "AS total_escalation,booking_details.assigned_vendor_id,	services.services,service_centres.name,booking_details.is_upcountry,booking_details.request_type",$escalation_where,
+                    array("booking_details"=>"vendor_escalation_log.booking_id=booking_details.booking_id","services"=>"services.id=booking_details.service_id"
+                        ,"service_centres"=>"service_centres.id=booking_details.assigned_vendor_id"),
+                    NULL,array("total_escalation"=>"DESC"),NULL,
+                    NULL,array("booking_details.service_id","booking_details.is_upcountry","booking_details.request_type"));
+    return $data;
+}
+function get_escalation_chart_data_by_one_matrix($data,$key){
+    $applianceEscalationData = array();
+    foreach($data as $escalationData){
+        if(array_key_exists($escalationData[$key], $applianceEscalationData)){
+            $applianceEscalationData[$escalationData[$key]] = $escalationData['total_escalation']+$applianceEscalationData[$escalationData[$key]];
+        }
+        else{
+             $applianceEscalationData[$escalationData[$key]] = $escalationData['total_escalation'];
+        }
+    }
+    return $applianceEscalationData;
+}
+function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
+    $resultArray= array();
+    foreach ($data as $escalationData){
+        if(array_key_exists($escalationData[$baseKey], $resultArray)){
+            if(array_key_exists($escalationData[$otherKey], $resultArray[$escalationData[$baseKey]])){
+                $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]]+$escalationData['total_booking'];
+            }
+            else{
+                $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $escalationData['total_booking'];
+            }
+        }
+        else{
+            $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $escalationData['total_booking'];
+        }
+    }
+    return $resultArray;
+}
+ function get_escalations_chart_data($sfID){    
+        $requestTypeNewArray['Installation'] = $requestTypeNewArray['Repair'] = 0;
+        $data = $this->get_escalation_data($sfID);
+        // get escalation by upcountry
+        $upcountryData= $this->get_escalation_chart_data_by_one_matrix($data,"is_upcountry");
+        if(array_key_exists("1", $upcountryData)){
+            $finalData['upcountry']['upcountry'] = $upcountryData[1];
+        }
+         if(array_key_exists("0", $upcountryData)){
+            $finalData['upcountry']['non_upcountry'] = $upcountryData[0];
+         }
+        // get escalation by appliance
+        $finalData['appliance'] = $this->get_escalation_chart_data_by_one_matrix($data,"services");
+        // get escalation by request type
+        $requestTypeData = $this->get_escalation_chart_data_by_one_matrix($data,"request_type");
+        // convert all request type into installation and Repair
+        foreach($requestTypeData as $requestName => $esclation){
+            if (strpos($requestName, 'repair') !== false) {
+                $requestTypeNewArray['Repair'] = $esclation+$requestTypeNewArray['Repair'];
+            }
+            else{
+                 $requestTypeNewArray['Installation'] = $esclation+$requestTypeNewArray['Installation'];
+            }
+        }
+        $finalData['request_type'] = $requestTypeNewArray;
+        $applianceUpcountryArray = $this->get_escalation_chart_data_by_two_matrix($data,"services","is_upcountry");
+        foreach($applianceUpcountryArray as $key=>$value){
+            if(array_key_exists("1", $value)){
+            $finalData['service_upcountry'][$key][] = array("Upcountry",$value[1]);
+        }
+         if(array_key_exists("0", $value)){
+            $finalData['service_upcountry'][$key][] = array("Non_Upcountry",$value[0]);
+         }
+        }
+        echo json_encode($finalData);
+    }
+    function get_sf_performance_bar_chart_data($sf){
+        //echo date('M');
+        $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date(NULL,NULL,$sf);
+        echo "<pre>";
+        print_r($data);
+    }
+    function escalation_full_view(){
+        $data['full_view_data'] = json_decode($this->input->post("sf_json_data"),true);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/escalation_full_view',$data);
+        $this->load->view('dashboard/dashboard_footer');
+    }
 }

@@ -34,7 +34,7 @@ class reusable_model extends CI_Model {
      * @output array(result of query satisfied the where condition)
      */
     
-    function get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray){
+    function get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray,$groupBY=array()){
         $this->db->select($select,FALSE);
         if(!empty($where)){
             $this->db->where($where);
@@ -67,6 +67,9 @@ class reusable_model extends CI_Model {
                     $this->db->where_in($fieldName, $conditionArray);
             }
         }
+        if(!empty($groupBY)){
+            $this->db->group_by($groupBY);
+        }
        return $query = $this->db->get($table);   
     }
     /*
@@ -91,13 +94,14 @@ class reusable_model extends CI_Model {
         return $this->db->affected_rows();
     }
     
-     function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray){
-       $this->db->_reserved_identifiers = array('*','CASE','STR_TO_DATE','%d-%m-%Y,"")');
-       $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
-      return $query->result_array();
+     function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray,$groupBY=array()){
+       $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+       $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray,$groupBY);
+       return $query->result_array();
+       //echo$this->db->last_query();
      }
     function get_search_result_count($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray){
-       $this->db->_reserved_identifiers = array('*','CASE');
+       $this->db->_reserved_identifiers = array('*','CASE','FIND_IN_SET');
        $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
        return $this->db->affected_rows();
     }

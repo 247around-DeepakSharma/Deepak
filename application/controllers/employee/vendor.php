@@ -4886,4 +4886,9 @@ class vendor extends CI_Controller {
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/updated_history',$data);
     }
+    function show_escalation_graph_by_sf($sfID){
+        $data=array();
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/sf_escalation_view', array('data' => array("vendor_id"=>$sfID)));
+    }
 }

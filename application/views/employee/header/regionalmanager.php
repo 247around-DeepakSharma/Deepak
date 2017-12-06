@@ -204,6 +204,10 @@
                         </li>
                         <li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url()?>employee/upcountry/get_distance_between_pincodes_form"><i class="fa fa-fw fa-desktop "></i> <strong>Update Pincode Distance</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url()?>employee/vendor/show_vendor_documents_view"><i class="fa fa-fw fa-desktop "></i> <strong>SF Document List</strong></a>
                         </li>
                         <li class="divider"></li>
