@@ -1452,7 +1452,7 @@ class Inventory extends CI_Controller {
            
             if($pdf_response['response'] === 'Success'){
                 $output_pdf_file_name = $pdf_response['output_pdf_file'];
-                $attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/misc-images/' . $output_pdf_file_name;
+                $attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/jobcards-pdf/' . $output_pdf_file_name;
                 log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
             } else if($pdf_response['response'] === 'Error'){
                 
