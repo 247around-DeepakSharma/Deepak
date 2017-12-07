@@ -1649,7 +1649,7 @@ class Partner extends CI_Controller {
             if (!empty($invoice_name)) {
                 $template = $this->booking_model->get_booking_email_template("OOW_invoice_sent");
                 if (!empty($template)) {
-                    $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/misc-images/" . $invoice_name;
+                    $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $invoice_name;
                     $subject = vsprintf($template[4], $booking_id);
                     $emailBody = vsprintf($template[0], $this->input->post("invoice_amount"));
                     $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment);
