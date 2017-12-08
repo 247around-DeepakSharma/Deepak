@@ -11,14 +11,15 @@
     }
 </style>
 <div class ="right_col">
-<!--    <div class="calender_holder">
-    <form class="form-inline"style="float:right;background: #46b8da;color: #fff;padding: 3px;border-radius: 4px;margin-right:70px;">
+    <div class="calender_holder"style="margin-right: 50px;float: right;">
+        <form class="form-inline"style="float:left;background: #46b8da;color: #fff;padding: 3px;border-radius: 4px;">
         <div class="form-group">
             <input type="text" class="form-control" name="daterange" id="daterange_id">
         </div>
-        <a href="#" ng-click="daterangeloadView()" class="btn btn-default" style="margin:0px;">Get Data</a>
+            <a href="#" onclick="get_date_data()" class="btn btn-default" style="margin:0px;">Get Data</a>
     </form>
-        </div>-->
+   </div>
+    <div class="picChartHolder">
     <div class="clear"></div>
     <div id="upcountry_chart" style="float:left;width:35%">
             <div class="x_panel">
@@ -69,11 +70,31 @@
         </div>
     </div>
 </div>
-
+    <div class="clear"></div>
+    <div class="barChartHolder">
+         <div id="performance_chart" align="center">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Escalation <small></small></h2>
+                    <div class="nav navbar-right panel_toolbox">
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif3" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                </div>
+                <div class="x_content">
+                    <div id="state_type_booking_chart"></div>
+                </div>
+        </div>
+    </div>
+    </div>
+</div>
 <script>
     var post_request = 'POST';
      $(document).ready(function(){
-        get_escalations_pie_chart();
+        pie_chart_url =  '<?php echo base_url(); ?>employee/dashboard/get_escalations_chart_data/<?php echo $data['vendor_id']; ?>';
+        get_escalations_pie_chart(pie_chart_url);
         get_sf_performance_bar_chart();
     });
  function sendAjaxRequest(postData, url,type) {
@@ -83,20 +104,36 @@
             type: type
         });
     }
-    function get_sf_performance_bar_chart(){
+   function get_sf_performance_bar_chart(){
         $('#loader_gif3').fadeIn();
         $('#state_type_booking_chart').fadeOut();
         var data = {};
         url =  '<?php echo base_url(); ?>employee/dashboard/get_sf_performance_bar_chart_data/<?php echo $data['vendor_id']; ?>';
         sendAjaxRequest(data,url,post_request).done(function(response){
             var obj =JSON.parse(response);
+            var finalArray =[];
+             for (var key in obj) {
+                 var newObj = {};
+                  var tempArray =[];
+                 if(key !== "months"){
+                     for (var i =0 ;i<obj[key].length;i++ ) { 
+                             tempArray.push(Number(obj[key][i]));
+                         }
+                    newObj.name = key;
+                    newObj.data = tempArray;
+                    finalArray.push(newObj);
+             }
+             }
+            seriesData =finalArray;
+            categoriesData = obj.months;
+            createBarChart("performance_chart","Monthly Performance Chart",'Service Centers Data','Numbers',categoriesData,seriesData);
         });
     }
-    function get_escalations_pie_chart(){
+    function get_escalations_pie_chart(customUrl){
         $('#loader_gif3').fadeIn();
         $('#state_type_booking_chart').fadeOut();
         var data = {};
-        url =  '<?php echo base_url(); ?>employee/dashboard/get_escalations_chart_data/<?php echo $data['vendor_id']; ?>';
+        url =  customUrl;
         sendAjaxRequest(data,url,post_request).done(function(response){
             $('#loader_gif3').fadeOut();
             var obj =JSON.parse(response);
@@ -139,7 +176,6 @@
                          newdrilldownObj.data = tempArray2;
                          
             }
-            console.log(JSON.stringify(finalArray));
                    var seriesData = [newdrilldownObj];
                     var data =finalArray;
                     var htmlID = "appliance";
@@ -210,7 +246,7 @@ Highcharts.chart(htmlID, {
         pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of total<br/>'
     },
     series: [{
-        name: 'Brands',
+        name: 'Appliance',
         colorByPoint: true,
         data:baseData
     }],
@@ -218,5 +254,69 @@ Highcharts.chart(htmlID, {
         series: drilldownData
     }
 });
+    }
+    
+    function createBarChart(htmlDiv,titleText,subTitleTax,yAxisTax,categoriesData,seriesData){
+    Highcharts.chart(htmlDiv, {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: titleText
+    },
+    subtitle: {
+        text: subTitleTax
+    },
+    xAxis: {
+        categories: categoriesData,
+        crosshair: true
+    },
+    yAxis: {
+        min: 0,
+        title: {
+            text: yAxisTax
+        }
+    },
+    tooltip: {
+        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y} </b></td></tr>',
+        footerFormat: '</table>',
+        shared: true,
+        useHTML: true
+    },
+    plotOptions: {
+        column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+        }
+    },
+    series: seriesData
+});
+  }
+ $(function() {
+        var d = new Date();
+        n = d.getMonth()+1;
+        y = d.getFullYear();
+        date = d.getDate();
+    $('input[name="daterange"]').daterangepicker({
+        timePicker: true,
+        timePickerIncrement: 30,
+        locale: {
+            format: 'YYYY-MM-DD'
+        },
+        startDate: y+'-'+n+'-01'
+    });
+});
+//$('#daterange_id').change(){
+//    alert($('#daterange_id').val);
+//    }
+$("daterange_id").change(function(){
+    alert( $('#daterange_id').val());
+});
+function get_date_data(){
+    var dateRange = $('#daterange_id').val().split(" - ");
+    pie_chart_url =  '<?php echo base_url(); ?>employee/dashboard/get_escalations_chart_data/<?php echo $data['vendor_id']; ?>/'+dateRange[0]+"/"+dateRange[1];
+   get_escalations_pie_chart(pie_chart_url);
     }
     </script>
