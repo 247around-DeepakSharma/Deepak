@@ -193,6 +193,7 @@ class Buyback_process extends CI_Controller {
         $service_id = $this->input->post("service_id");
         $current_status = $this->input->post("current_status");
         $internal_status = $this->input->post("internal_status");
+        $invoice = $this->input->post("invoice");
         $cp_id = $this->input->post("cp_id");
         $post['where'] = array();
         $post['where_in'] = array();
@@ -200,6 +201,12 @@ class Buyback_process extends CI_Controller {
             $order_date = explode("-", $date_range);
             $post['where']['order_date >= '] =  date("Y-m-d", strtotime(trim($order_date[0])));
             $post['where']['order_date < '] = date('Y-m-d', strtotime('+1 day', strtotime(trim($order_date[1]))));
+        }
+        if($invoice == "Yes"){
+            $post['where']['cp_invoice_id IS NOT NULL '] =  NULL;
+            
+        } else if($invoice == "No"){
+            $post['where']['cp_invoice_id IS NULL '] =  NULL;
         }
         if(!empty($delivery_date)){
             $d_date = explode("-", $delivery_date);
