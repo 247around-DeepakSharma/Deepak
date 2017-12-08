@@ -1330,7 +1330,7 @@ class Inventory extends CI_Controller {
                    
                     if($is_sent == 1){
 
-                        $sent  = $this->create_zopper_excel_sheet($unit,$success['id'] );
+                        $sent  = $this->create_zopper_excel_sheet($unit,$success['id'], $data );
                         if($sent){
                             $userSession = array('success' => "Thanks To Update Booking Price. Estimate Sent to Zopper");
                         } else {
@@ -1392,7 +1392,7 @@ class Inventory extends CI_Controller {
      * @param String $id
      * @return boolean
      */
-    function create_zopper_excel_sheet($unit_details, $id){
+    function create_zopper_excel_sheet($unit_details, $id, $formdata){
         $booking_id = $unit_details[0]['booking_id'];
         $where['length'] = -1;
         $where['where'] = array("booking_details.booking_id" => $booking_id);
@@ -1400,18 +1400,76 @@ class Inventory extends CI_Controller {
         $data['name'] = $booking_details[0]->name;
         $data['booking_id'] = $booking_id;
         $data['services'] = $booking_details[0]->services;
-        $data['brand'] = $unit_details[0]['appliance_brand'];
         $data['category'] = $unit_details[0]['appliance_category'];
         $data['capacity'] = $unit_details[0]['appliance_capacity'];
-        $data['model_number'] = $unit_details[0]['model_number'];
-        $data['taxable_value'] = $unit_details[0]['customer_total'];
-        $data['igst_rate'] = sprintf("%1\$.2f",($unit_details[0]['tax_rate']));
-        $data['igst_tax_amount'] = ($unit_details[0]['customer_total'] * $unit_details[0]['tax_rate'])/100;
-        $data['total_amount'] = sprintf("%1\$.2f",($data['igst_tax_amount'] + $unit_details[0]['customer_total']));
         $data['remarks'] = $this->input->post("estimate_remarks");
-        $data['price_inword'] = convert_number_to_words(round($data['total_amount'],0));
         $data['order_id'] = $booking_details[0]->order_id;
         $data['date'] = date("jS M, Y");
+        
+        $l_data = array();
+       
+       $total_igst_tax_amount = $total_amount = 0;
+        if($formdata["service_charge"] > 0){
+           $data1 = array();
+           $data1['brand'] = $unit_details[0]['appliance_brand']; 
+           $data1['model_number'] = $unit_details[0]['model_number'];
+           $data1['service_type'] = "Service Charge";
+           $data1['taxable_value'] = $formdata["service_charge"];
+           $data1['igst_rate'] = DEFAULT_TAX_RATE;
+           $data1['igst_tax_amount'] = ($formdata["service_charge"] * DEFAULT_TAX_RATE)/100;
+         
+           $total_igst_tax_amount =  $total_igst_tax_amount + $data1['igst_tax_amount'];
+           $data1['total_amount'] = sprintf("%1\$.2f",( $data1['igst_tax_amount'] + $formdata["service_charge"]));
+           $total_amount = $total_amount + $data1['total_amount'];
+           array_push($l_data, $data1);
+        }
+        
+        if($formdata["transport_charge"] > 0){
+           $data1 = array();
+           $data1['brand'] = $unit_details[0]['appliance_brand']; 
+           $data1['model_number'] = $unit_details[0]['model_number'];
+           $data1['service_type'] = "Transport Charge";
+           $data1['taxable_value'] = $formdata["transport_charge"];
+           $data1['igst_rate'] = DEFAULT_TAX_RATE;
+           $data1['igst_tax_amount']  = ($formdata["transport_charge"] * DEFAULT_TAX_RATE)/100;
+           $total_igst_tax_amount =  $total_igst_tax_amount + $data1['igst_tax_amount'];
+           $data1['total_amount'] = sprintf("%1\$.2f",($data1['igst_tax_amount']  + $formdata["transport_charge"]));
+           $total_amount = $total_amount + $data1['total_amount'];
+           array_push($l_data, $data1);
+        }
+        if($formdata["courier_charge"] > 0){
+           $data1 = array();
+           $data1['brand'] = $unit_details[0]['appliance_brand']; 
+           $data1['model_number'] = $unit_details[0]['model_number'];
+           $data1['service_type'] = "Courier Charge";
+           $data1['taxable_value'] = $formdata["courier_charge"];
+           $data1['igst_rate'] = DEFAULT_TAX_RATE;
+           $data1['igst_tax_amount'] = ($formdata["courier_charge"] * DEFAULT_TAX_RATE)/100;
+          
+           $total_igst_tax_amount =  $total_igst_tax_amount + $data1['igst_tax_amount'];
+           $data1['total_amount'] = sprintf("%1\$.2f",($data1['igst_tax_amount']  + $formdata["courier_charge"]));
+           $total_amount += $data1['total_amount'];
+           array_push($l_data, $data1);
+        }
+        
+        if($formdata["part_estimate_given"] > 0){
+           $data1 = array();
+           $data1['brand'] = $unit_details[0]['appliance_brand']; 
+           $data1['model_number'] = $unit_details[0]['model_number'];
+           $data1['service_type'] = "Part Charge";
+           $data1['taxable_value'] = $formdata["part_estimate_given"] + $formdata['around_part_commission'];
+           $data1['igst_rate'] = DEFAULT_TAX_RATE;
+           $data1['igst_tax_amount']  = (($formdata["part_estimate_given"] + $formdata['around_part_commission']) * DEFAULT_TAX_RATE)/100;
+         
+           $total_igst_tax_amount =  $total_igst_tax_amount + $data1['igst_tax_amount'];
+           $data1['total_amount'] = sprintf("%1\$.2f",($data1['igst_tax_amount'] + $formdata["part_estimate_given"] + $formdata['around_part_commission']));
+           $total_amount += $data1['total_amount'];
+           array_push($l_data, $data1);
+        }
+        $data['price_inword'] = convert_number_to_words(round($total_amount,0));
+        $data['taxable_value'] = sprintf("%1\$.2f",($unit_details[0]['customer_total']));
+        $data['igst_tax_amount'] = sprintf("%1\$.2f",($total_igst_tax_amount));
+        $data['total_amount'] = sprintf("%1\$.2f",($total_amount));
         $template = 'Estimate_Sheet.xlsx';
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -1429,6 +1487,14 @@ class Inventory extends CI_Controller {
                 'id' => 'estimate',
                 'repeat' => false,
                 'data' => $data,
+                'format' => array(
+                    'date' => array('datetime' => 'd/M/Y')
+                )
+            ),
+            array(
+                'id' => 'data',
+                'repeat' => TRUE,
+                'data' => $l_data,
                 'format' => array(
                     'date' => array('datetime' => 'd/M/Y')
                 )
@@ -1461,7 +1527,7 @@ class Inventory extends CI_Controller {
            }
            
             $this->notify->sendEmail($emailtemplate[2], $emailtemplate[1], $emailtemplate[3], '', $subject, $emailtemplate[0], $attachement_url);
-
+           
             $this->inventory_model->update_zopper_estimate(array('id' => $id), array(
                 "estimate_sent" => 1,
                 "estimate_file" => $output_pdf_file_name,
