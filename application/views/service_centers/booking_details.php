@@ -243,7 +243,7 @@
             <?php }?>
         </div>
         <div class="tab-pane fade in" id="tab3">
-            <?php if (isset($booking_history['spare_parts'])) { $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
+            <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
             <div class="col-md-12">
                 <h1 style='font-size:24px;'>Spare Parts Requested By SF</h1>
                 <div class="col-md-12" style="padding-left:1px;">
@@ -287,11 +287,42 @@
                             </tr>
                             <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
                                 $defective_parts_shipped = TRUE;
-                                } } ?>
+                                } if($sp['purchase_price'] > 0){ $estimate_given = TRUE; }  } ?>
                         </tbody>
                     </table>
                 </div>
             </div>
+            <?php 
+                if($estimate_given){ ?>
+                         <div class="col-md-12">
+
+                        <h1 style='font-size:24px;'>Estimate Given</h1>
+                        <div class="col-md-12" style="padding-left:1px;">
+                            <table class="table  table-striped table-bordered" >
+                                <thead>
+                                    <tr>
+                                    <th >Estimate Given</th>
+                                    <th >Estimate Given Date </th>
+                                    <th >Status </th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                     <?php foreach ($booking_history['spare_parts'] as $sp){ if($sp['purchase_price'] > 0) { ?>
+                                <tr>
+                                   
+                                    <td><?php echo $sp['sell_price']; ?></td>
+                                    <td><?php echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); ?></td>
+                                    <td><?php echo $sp['status']; ?></td>
+                                </tr>
+                                     <?php  } } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> 
+                   <?php  }
+                    
+                    ?>
             <?php if ($parts_shipped) { ?>
             <div class="col-md-12">
                 <h1 style='font-size:24px;'>Spare Parts Shipped</h1>
