@@ -1537,8 +1537,10 @@ class Miscelleneous {
         $affectedRows = 0;
         // Remove all columns which has blank values
         foreach ($bankDetailsArray as $key => $value) {
-            if ($value == '' || $value == '0') {
-                unset($bankDetailsArray[$key]);
+            if($key != 'is_verified'){
+                if ($value == '' || $value == '0') {
+                    unset($bankDetailsArray[$key]);
+                }
             }
         }
 
@@ -1557,11 +1559,11 @@ class Miscelleneous {
                 $agentID = $bankDetailsArray['agent_id'];
                 unset($bankDetailsArray['entity_id']);
                 unset($bankDetailsArray['agent_id']);
-                // check is there any new updation for bank table or not
+                // check is there any new updation for bank table or not     
                 $affectedRows = $this->My_CI->reusable_model->update_table('account_holders_bank_details', $bankDetailsArray, $where);
                 if ($affectedRows == 1) {
                     //if yes then update table
-                    return $this->My_CI->reusable_model->update_table('account_holders_bank_details', array('is_verified' => 0, 'agent_id' => $agentID), $where);
+                    return $this->My_CI->reusable_model->update_table('account_holders_bank_details', array('agent_id' => $agentID), $where);
                 } else {
                     //if not then don't update the table
                     return $affectedRows;

@@ -47,6 +47,7 @@
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
 
         <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
+        <script src="http://localhost/247around/js/moment.min.js"></script>
            <script src="<?php echo base_url()?>js/daterangepicker.js"></script>
         <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
         <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">

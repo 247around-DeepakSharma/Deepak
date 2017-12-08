@@ -537,10 +537,12 @@ rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
             $("#sf_json_data").val(JSON.stringify(response.data));
      });
  }
-  $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/36");
+ var rm_id = $('#session_id_holder').val();
+  $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/"+rm_id);
   $scope.daterangeloadView = function(){
      var dateRange = $('#daterange_id').val().split(" - ");
-     $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/36/"+dateRange[0]+"/"+dateRange[1]);
+     var rm_id = $('#session_id_holder').val();
+     $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/"+rm_id+"/"+dateRange[0]+"/"+dateRange[1]);
 }
 });
 rm_missing_pincode.controller('rm_missing_pincode_controller', function ($scope, $http) {

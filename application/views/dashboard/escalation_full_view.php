@@ -24,6 +24,7 @@
                 <div class="x_content">
 
 <div class="table-responsive" id="escalation_data">
+    <input type="text" id="session_id_holder" style="display:none;" value="<?php if($this->session->userdata('user_group') == 'regionalmanager') {echo $this->session->userdata('id');} ?>">
     <button type="button" class="btn btn-info" ng-click="mytoggle=!mytoggle" id="order_by_toggal" onclick="change_toggal_text()"style="float:right">Sort By Number Of Escalation</button>
 <form class="form-inline"style="float:left;background: #46b8da;color: #fff;padding: 3px;border-radius: 4px;">
         <div class="form-group">
@@ -76,12 +77,17 @@ display: block;
         }
     }
 $(function() {
+        var d = new Date();
+        n = d.getMonth()+1;
+        y = d.getFullYear();
+        date = d.getDate();
     $('input[name="daterange"]').daterangepicker({
         timePicker: true,
         timePickerIncrement: 30,
         locale: {
             format: 'YYYY-MM-DD'
-        }
+        },
+        startDate: y+'-'+n+'-01'
     });
 });
     </script>
