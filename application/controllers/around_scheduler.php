@@ -1077,7 +1077,7 @@ class Around_scheduler extends CI_Controller {
             foreach ($data as $value) {
                // Update bb order details 
                 $this->bb_model->update_bb_order_details(array('partner_order_id' => $value->partner_order_id), 
-                       array("acknowledge_date"=> date("Y-m-d H:i:s")));
+                       array("acknowledge_date"=> date("Y-m-d H:i:s"), "current_status" => "Completed", "internal_status" => "Completed"));
                 // Update Unit Details
                 $this->bb_model->update_bb_unit_details(array('partner_order_id' => $value->partner_order_id), 
                        array("order_status"=> "Delivered"));
