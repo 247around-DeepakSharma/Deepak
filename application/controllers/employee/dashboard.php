@@ -819,7 +819,9 @@ class Dashboard extends CI_Controller {
         }
     }
 function get_sf_escalation_by_rm($rm_id,$startDate=NULL,$endDate=NULL){
-    $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,$rm_id);
+    $groupBy['booking'] = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
+    $groupBy['escalation'] = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
+    $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,$rm_id,$groupBy);
     $sfArray = $this->reusable_model->get_search_result_data("service_centres","id,name",NULL,NULL,NULL,NULL,NULL,NULL,NULL);
     foreach($sfArray as $sfData){
         $sfIDNameArray["vendor_".$sfData['id']]= $sfData['name'];
@@ -883,9 +885,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     return $resultArray;
 }
- function get_escalations_chart_data($sfID){    
+ function get_escalations_chart_data($sfID,$startDate=NULL,$endDate=NULL){    
         $requestTypeNewArray['Installation'] = $requestTypeNewArray['Repair'] = 0;
-        $data = $this->get_escalation_data($sfID);
+        $data = $this->get_escalation_data($sfID,$startDate,$endDate);
         // get escalation by upcountry
         $upcountryData= $this->get_escalation_chart_data_by_one_matrix($data,"is_upcountry");
         if(array_key_exists("1", $upcountryData)){
@@ -920,10 +922,36 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         echo json_encode($finalData);
     }
     function get_sf_performance_bar_chart_data($sf){
-        //echo date('M');
-        $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date(NULL,NULL,$sf);
-        echo "<pre>";
-        print_r($data);
+    //Current Date    
+    $endDate=date('Y-m-d');
+    $startMonth = date("m")+1;
+    $lastYear = date("Y")-1;
+    if($startMonth==13){
+        $startMonth=1;
+        $lastYear=date('Y-m-d');
+    }
+    $startDateTemp = strtotime($startMonth.'/01/'.$lastYear);
+    // End Date will be - "1st Day of current Month before a year ago"
+    $startDate = date('Y-m-d',$startDateTemp);
+    $groupBy['booking'] = array("MONTHNAME(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))");
+    $groupBy['escalation'] = array("MONTHNAME(vendor_escalation_log.create_date)");
+    $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,$sf,NULL,$groupBy);
+    foreach($data['escalation'] as $escalationData){
+        $escalationAssociativeArray[$escalationData['escalation_month']]= $escalationData['total_escalation'];
+    }
+    foreach($data['booking'] as $bookingData){
+        if(array_key_exists($bookingData['booking_month'], $escalationAssociativeArray)){
+            $escalation = $escalationAssociativeArray[$bookingData['booking_month']]; 
+        }
+        else{
+            $escalation = 0; 
+        }
+        $monthlyData['bookings'][] = $bookingData['total_booking'];
+        $monthlyData['escalation'][] = $escalation; 
+        $monthlyData['escalationPercentage'][] = round((($escalation*100)/$bookingData['total_booking']),2);
+        $monthlyData['months'][] = $bookingData['booking_month'];
+    }
+    echo json_encode($monthlyData);
     }
     function escalation_full_view(){
         $data['full_view_data'] = json_decode($this->input->post("sf_json_data"),true);
