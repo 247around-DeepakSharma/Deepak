@@ -3009,6 +3009,10 @@ class Booking extends CI_Controller {
     function get_advance_search_result_view(){
         $receieved_Data = $this->input->post(); 
         $data = $this->get_advance_search_result_data($receieved_Data);
+        foreach ($data['data'] as $index=>$serachResultData){
+            $booking_with_link = "<a href =".base_url() . "employee/booking/viewdetails/".$serachResultData[1]." target='_blank'>".$serachResultData[1]."</a>";
+            $data['data'][$index][1] = $booking_with_link;
+        }
         echo json_encode($data);
     }
        
@@ -3523,6 +3527,10 @@ class Booking extends CI_Controller {
     function get_bulk_search_result_view(){
        $receieved_Data = $this->input->post(); 
        $data = $this->get_bulk_search_result_data($receieved_Data);
+       foreach ($data['data'] as $index=>$serachResultData){
+            $booking_with_link = "<a href =".base_url() . "employee/booking/viewdetails/".$serachResultData[1]." target='_blank'>".$serachResultData[1]."</a>";
+            $data['data'][$index][1] = $booking_with_link;
+        }
         echo json_encode($data);
     }
     function download_booking_bulk_search_snapshot(){
