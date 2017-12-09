@@ -1128,7 +1128,7 @@ class invoices_model extends CI_Model {
                     . "`booking_unit_details`.appliance_category,"
                     . "rating_stars, "
                     . " `booking_unit_details`.appliance_capacity, 
-                     `booking_unit_details`.  product_or_services, "
+                     `booking_unit_details`.  product_or_services, services,"
                     . " around_net_payable, "
                     . " $select (around_comm_extra_charges + around_st_extra_charges) as additional_charges,"
                     . " (around_comm_parts + around_st_parts) AS parts_cost, "
