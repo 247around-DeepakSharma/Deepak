@@ -2212,6 +2212,7 @@ class Invoice extends CI_Controller {
             if (isset($file['invoice_file_excel'])) {
                 $data['invoice_file_excel'] = $file['invoice_file_excel'];
             }
+            $data['agent_id'] = $this->session->userdata("id");
             $status = $this->invoices_model->action_partner_invoice($data);
 
             if ($status) {
