@@ -84,6 +84,52 @@
                     </div>
             </div>
         </div>
+                <div class="clearfix"></div>
+<!--<div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Escalation</h2>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="x_content">
+
+<div class="table-responsive" id="pending_booking_data">
+    <button type="button" class="btn btn-info" ng-click="pendingBookingToggle=!pendingBookingToggle" value="Sort By 3 days" id="order_by_toggal" onclick="change_toggal_text(this.value,'Sort By More than 5 days')"style="float:right">Sort By 3 days</button>
+    <p>
+    <table class="table table-striped table-bordered jambo_table bulk_action">
+    <thead>
+      <tr>
+        <th>S.no</th>
+        <th>Vendor</th>
+        <th>Pending Bookings More Than 5 Days</th>
+        <th>Pending Bookings More than 3 days</th>
+        <th>Monthly Cancelled Bookings</th>
+        <th>Monthly Completed Bookings</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="y in pendingBookingData |orderBy:!pendingBookingToggle?'-greater_than_5_days':'-last_3_day' | limitTo:5">
+        <td>{{$index+1}}</td>
+        <td>{{y.name}}</td>
+        <td>{{y.greater_than_5_days}}</td>
+        <td>{{y.last_3_day}}</td>
+        <td>{{y.month_cancelled}}</td>
+        <td>{{y.monthly_completed}}</td>
+      </tr>
+    </tbody>
+    </table>
+                    <center><img id="loader_gif_unit_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                    </div>
+                </div>
+                <div class="full_view_form_container" style="float:right;">
+                <form method="post" action="<?php echo base_url()?>employee/dashboard/escalation_full_view" target="_blank">
+                    <input type="text"  id="sf_json_data" name="sf_json_data" value="apple" style="display:none;"/>
+                    <button type="submit" class="btn btn-success">Full View</button>
+                    </form>
+                    </div>
+            </div>
+        </div>-->
     </div>
     </div>
     <!-- END -->

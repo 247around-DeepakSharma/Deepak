@@ -292,9 +292,13 @@ class Booking_utilities {
 
            $final_way[] = $way_final;
        }
-       
+       return array("final_way"=>$final_way,"state_final"=>$state_final);
+}
+
+   function booking_report_by_service_center($sf_list,$cron_flag) {
+       $bookingReportData = $this->get_booking_report_by_service_center_data($sf_list);
        //Getting States and City List
-       foreach($final_way as $value){
+       foreach($bookingReportData['final_way'] as $value){
            $state_array[] = $value['state'];
            $city_array[] = $value['city'];
            $sf_array[] = $value['service_center_name'];
@@ -396,8 +400,6 @@ class Booking_utilities {
                            </thead>
                            <tbody >';
        
-
-       $show_state = [];
        $greater_than_5_days = 0;
        $overall_greater_than_5_days = 0;
        $yesterday_booked = 0;
@@ -414,10 +416,10 @@ class Booking_utilities {
        $overall_last_2_day = 0;
        $last_3_day = 0;
        $overall_last_3_day = 0;
-       $state_final = array_unique($state_final);
+       $state_final = array_unique($bookingReportData['state_final']);
        foreach ($state_final as $val) {
 
-           foreach ($final_way as $key => $value) {
+           foreach ($bookingReportData['final_way'] as $key => $value) {
                
                //Getting  RM Details
                 $employee_relation = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($value['service_center_id']);

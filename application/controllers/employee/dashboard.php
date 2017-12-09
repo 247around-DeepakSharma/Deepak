@@ -923,6 +923,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     function get_sf_performance_bar_chart_data($sf){
     //Current Date    
+    $monthlyData = array();
     $endDate=date('Y-m-d');
     $startMonth = date("m")+1;
     $lastYear = date("Y")-1;
@@ -959,4 +960,41 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $this->load->view('dashboard/escalation_full_view',$data);
         $this->load->view('dashboard/dashboard_footer');
     }
+//        function pending_booking_by_rm($rmID){
+//        $serviceCentersIDArray= $this->vendor_model->get_employee_relation($rmID);
+//        if(!empty($serviceCentersIDArray)){
+//            $serviceCentersIDList = $serviceCentersIDArray[0]['service_centres_id'];
+//            $sfArray = $this->reusable_model->get_search_result_data("service_centres","id,name",NULL,NULL,NULL,NULL,array("id"=>explode(",",$serviceCentersIDList)),NULL,NULL);
+//            foreach($sfArray as $sfData){
+//                $sfIDNameArray["vendor_".$sfData['id']]= $sfData['name'];
+//            }
+//        }
+//        $data = $this->reporting_utils->get_booking_by_service_center($serviceCentersIDList); 
+//        foreach($data['data'] as $sfID=>$sfData){
+//            $final_data['monthly_completed'] = 0;
+//            $final_data['month_cancelled'] =0;
+//            $final_data['last_2_day'] =0;
+//            $final_data['last_3_day'] =0;
+//            $final_data['greater_than_5_days'] =0;
+//            $final_data['id'] =$sfID;
+//            $final_data['name'] =$sfIDNameArray["vendor_".$sfID];
+//            if(array_key_exists('month_completed', $sfData)){
+//                $final_data['monthly_completed'] = $sfData['month_completed']['completed'];
+//            }
+//            if(array_key_exists('month_cancelled', $sfData)){
+//                $final_data['month_cancelled'] = $sfData['month_cancelled']['cancelled'];
+//            }
+//            if(array_key_exists('last_2_day', $sfData)){
+//                $final_data['last_2_day'] = $sfData['last_2_day']['booked'];
+//            }
+//            if(array_key_exists('last_3_day', $sfData)){
+//                $final_data['last_3_day'] = $sfData['last_3_day']['booked'];
+//            }
+//             if(array_key_exists('greater_than_5_days', $sfData)){
+//                $final_data['greater_than_5_days'] = $sfData['greater_than_5_days']['booked'];
+//             }
+//             $ServiceCenterBookingData[]= $final_data;
+//        }
+//        echo json_encode($ServiceCenterBookingData);
+//    }
 }
