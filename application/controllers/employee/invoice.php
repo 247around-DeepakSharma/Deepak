@@ -819,7 +819,7 @@ class Invoice extends CI_Controller {
                 //SMS has been sent or not
                 'sms_sent' => 1,
                 //Add 1 month to end date to calculate due date
-                'due_date' => date("Y-m-d", strtotime($meta['ed'] . "+1 month")),
+                'due_date' => date("Y-m-d"),
                 //add agent_id
                 'agent_id' => $agent_id,
                 "cgst_tax_rate" => $meta['cgst_tax_rate'],
@@ -1617,7 +1617,7 @@ class Invoice extends CI_Controller {
                         'mail_sent' => 1,
                         'sms_sent' => $send_mail,
                         //Add 1 month to end date to calculate due date
-                        'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
+                        'due_date' => date("Y-m-d"),
                         'agent_id' => $details['agent_id'],
                         "cgst_tax_rate" => $invoice['meta']['cgst_tax_rate'],
                         "sgst_tax_rate" => $invoice['meta']['sgst_tax_rate'],
@@ -2212,6 +2212,7 @@ class Invoice extends CI_Controller {
             if (isset($file['invoice_file_excel'])) {
                 $data['invoice_file_excel'] = $file['invoice_file_excel'];
             }
+            $data['agent_id'] = $this->session->userdata("id");
             $status = $this->invoices_model->action_partner_invoice($data);
 
             if ($status) {
@@ -2283,7 +2284,10 @@ class Invoice extends CI_Controller {
     }
 
     function get_create_update_invoice_input($vendor_partner) {
-        $data['invoice_id'] = $this->input->post('invoice_id');
+        $invoice_id_tmp = $this->input->post('invoice_id');
+        $invoice_id_tmp_1 = str_replace("/","-",$invoice_id_tmp); 
+        $invoice_id = str_replace("_","-",$invoice_id_tmp_1);
+        $data['invoice_id'] = $invoice_id;
         $data['type'] = $this->input->post('type');
         $data['vendor_partner'] = $vendor_partner;
         $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
@@ -2311,6 +2315,7 @@ class Invoice extends CI_Controller {
         $data['invoice_date'] = date('Y-m-d', strtotime($this->input->post('invoice_date')));
         $data['type_code'] = $this->input->post('around_type');
         
+       
         return $data;
     }
 

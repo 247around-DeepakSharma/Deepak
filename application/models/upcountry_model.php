@@ -191,12 +191,9 @@ class Upcountry_model extends CI_Model {
         $up_data = array();
         
         if ($partner_data[0]['is_upcountry'] == 1) {
-            if (($partner_data[0]['upcountry_mid_distance_threshold'] * 2) > $upcountry_vendor_details['upcountry_distance']) {
-
-                $partner_upcountry_rate = $partner_data[0]['upcountry_rate'];
-            } else {
-                $partner_upcountry_rate = $partner_data[0]['upcountry_rate1'];
-            }
+            
+            $partner_upcountry_rate = $partner_data[0]['upcountry_rate'];
+            
             $partner_upcountry_approval = $partner_data[0]['upcountry_approval'];
             $min_threshold_distance = $this->vendor_min_up_distance *2;
             $max_threshold_distance = $partner_data[0]['upcountry_max_distance_threshold'] * 2;
