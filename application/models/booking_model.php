@@ -178,41 +178,6 @@ class Booking_model extends CI_Model {
 
         return $this->db->insert_id();
     }
-
-    /**
-     *  @desc : This function converts a Completed/Cancelled Booking into Pending booking
-     * and schedules it to new booking date & time.
-     *
-     *  @param : String $booking_id Booking Id
-     *  @param : Array $data New Booking Date and Time
-     *  @param : current_status
-     *  @return :
-     */
-    function convert_booking_to_pending($booking_id, $data, $status) {
-    // update booking details
-    $this->db->where(array('booking_id' => $booking_id, 'current_status' => $status));
-    $this->db->update('booking_details', $data);
-    //update unit details
-    $this->db->where('booking_id', $booking_id);
-    $this->db->update('booking_unit_details', array('booking_status' => '' ));
-    // get service center id
-    $this->db->select('assigned_vendor_id');
-    $this->db->where('booking_id', $booking_id);
-    $query = $this->db->get('booking_details');
-    if($query->num_rows >0){
-        $result = $query->result_array();
-
-        $service_center_data['internal_status'] = "Pending";
-        $service_center_data['current_status'] = "Pending";
-        $service_center_data['update_date'] = date("Y-m-d H:i:s");
-        //update service center action table
-        $this->db->where('booking_id', $booking_id);
-        $this->db->where('service_center_id', $result[0]['assigned_vendor_id']);
-        $this->db->update('service_center_booking_action', $service_center_data);
-    }
-
-    }
-     
     
     /**
      * @Desc: This function is used to get the partner status from partner_status table

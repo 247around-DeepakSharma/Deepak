@@ -72,7 +72,7 @@
                                     <td>
                                         <?php if(!empty($row['defective_part_shipped'])){?>
                                         <div >
-                                            <a onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"href="<?php echo base_url();?>partner/acknowledge_received_defective_parts/<?php echo $row['booking_id'];?>" <?php echo empty($row['defective_part_shipped'])?'disabled="disabled"':''?>>Received</a></td></div>
+                                            <a onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"href="<?php echo base_url();?>partner/acknowledge_received_defective_parts/<?php echo $row['booking_id'];?>/<?php echo $this->session->userdata("partner_id");?>" <?php echo empty($row['defective_part_shipped'])?'disabled="disabled"':''?>>Received</a></td></div>
                                         <?php }?>
                                     <td>
                                         <div class="dropdown" >

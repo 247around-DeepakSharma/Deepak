@@ -106,7 +106,7 @@ class ApiDataRequest extends CI_Controller {
             $row[] = "<a style='color:#337ab7' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$sp_list->serial_number_pic."' target = '_blank' >Click Here</a>";
 
             $c = '"'.$sp_list->id.'", "'.$sp_list->booking_id.'", "'.$sp_list->assigned_vendor_id.'", "'.$sp_list->amount_due.'" ';
-            $row[] = '<input type="number" onkeypress="return isNumberKey(event)" id="estimate_cost" class="col-md-8"/>';
+            $row[] = '<input type="number" step="0.01" id="estimate_cost_'.$sp_list->id.'" class="col-md-8"/>';
             $row[] = "<button id='btn_oow_".$sp_list->id."' "
                     . "class = 'btn btn-sm btn-info' onclick='update_spare_estimate_cost(".$c .")' >Submit</button>";
 
@@ -131,7 +131,7 @@ class ApiDataRequest extends CI_Controller {
             $row[] = $sp_list->age_of_request;
             
             $c = '"'.$sp_list->id.'", "'.$sp_list->booking_id.'", "'.$sp_list->assigned_vendor_id.'", "'.$sp_list->amount_due.'" ';
-            $row[] = '<input type="number" onkeypress="return isNumberKey(event)" id="estimate_cost" class="col-md-8"/>';
+            $row[] = '<input type="number" step="0.01" id="estimate_cost_'.$sp_list->id.'" class="col-md-8"/>';
             if($sp_list->partner_id != _247AROUND ){
                 $row[] = "";
                 
@@ -240,6 +240,12 @@ class ApiDataRequest extends CI_Controller {
                 $result = $this->booking_model->_insert_data_in_booking_unit_details($unit[0], 1, 1);
                 
                 $booking['amount_due'] = ($amount_due + $data['sell_price']);
+                $booking['internal_status'] = SPARE_OOW_EST_GIVEN;
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $unit[0]['partner_id'], $booking_id);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                }
                 // Update Booking Table
                 $this->booking_model->update_booking($booking_id, $booking);
                

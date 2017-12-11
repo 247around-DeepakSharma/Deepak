@@ -1998,7 +1998,7 @@ class Booking extends CI_Controller {
         $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
         $data['current_status'] = 'Pending';
-        $data['internal_status'] = 'Scheduled';
+        $data['internal_status'] = "Booking Opened From ".$status;
         $data['update_date'] = date("Y-m-d H:i:s");
         $data['cancellation_reason'] = NULL;
         $data['closed_date'] = NULL;
@@ -2023,7 +2023,8 @@ class Booking extends CI_Controller {
             echo "Please Select Booking Timeslot.";
         } else {
             log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
-            $this->booking_model->convert_booking_to_pending($booking_id, $data, $status);
+            $this->booking_model->update_booking($booking_id, $data);
+            
             $assigned_vendor_id = $this->input->post("assigned_vendor_id");
             if (!empty($assigned_vendor_id)) {
                 $service_center_data['internal_status'] = "Pending";
@@ -2068,7 +2069,7 @@ class Booking extends CI_Controller {
             }
 
 
-            $unit_details['booking_status'] = "Pending";
+            $unit_details['booking_status'] = _247AROUND_PENDING;
             $unit_details['vendor_to_around'] = "0.00";
             $unit_details['around_to_vendor'] = "0.00";
             $unit_details['ud_closed_date'] = NULL;
@@ -2126,7 +2127,7 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ ."Booking_ID: " .$booking_id);
         
         $status = array("current_status" => "FollowUp",
-            "internal_status" => "FollowUp",
+            "internal_status" => "Cancelled Query to FollowUp",
             "cancellation_reason" => NULL,
             "closed_date" => NULL);
 
