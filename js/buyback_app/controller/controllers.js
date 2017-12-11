@@ -522,37 +522,45 @@ buyback_dashboard.controller('bb_dashboard_summary', function ($scope, $http) {
 });
 
 rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
-    var get_url = baseUrl + "/employee/dashboard/get_buyback_balanced_amount";
+    //Missing Pincode Start
     var pincode_url = baseUrl + "/employee/dashboard/get_pincode_not_found_sf_details/5";
-    $http.get(get_url).then(function (response) {
-            $("#table_data").html(response.data);
-     });
-     $http.get(pincode_url).then(function (response) {
+    $http.get(pincode_url).then(function (response) {
             $("#pincode_table_data").html(response.data);
      });
-    //var escalation_url = baseUrl + "/employee/dashboard/get_sf_escalation_by_rm";
+     // Missing Pincode End
+    //Escalation Start
      $scope.loadView = function(escalation_url){
      $http.get(escalation_url).then(function (response) {
           $scope.escalationData = response.data;
+          // Set Return JSON to full view input value
             $("#sf_json_data").val(JSON.stringify(response.data));
      });
  }
+ // Get RM id 
  var rm_id = $('#session_id_holder').val();
   $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/"+rm_id);
+  // This function will call after date change to load the data
   $scope.daterangeloadView = function(){
      var dateRange = $('#daterange_id').val().split(" - ");
      var rm_id = $('#session_id_holder').val();
      $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/"+rm_id+"/"+dateRange[0]+"/"+dateRange[1]);
 }
+//Escalation End
+//Pending Booking Start
+// var pending_booking_url = baseUrl + "/employee/dashboard/pending_booking_by_rm/"+rm_id;
+//    $http.get(pending_booking_url).then(function (response) {
+//            $scope.pendingBookingData = response.data;
+//     });
+//Pending Booking End
 });
-rm_missing_pincode.controller('rm_missing_pincode_controller', function ($scope, $http) {
+//Missing Pincode Full View
+         rm_missing_pincode.controller('rm_missing_pincode_controller', function ($scope, $http) {
     var pincode_url = baseUrl + "/employee/dashboard/get_pincode_not_found_sf_details";
      $http.get(pincode_url).then(function (response) {
             $("#pincode_table_data_full_view").html(response.data);
      });
      });
-     
-     bracket_allocation.controller('bracketAllocationController', function ($scope, $http) {
+    bracket_allocation.controller('bracketAllocationController', function ($scope, $http) {
     var bracket_url = baseUrl + "/employee/partner/get_bracket_allocation_form_data";
      $http.get(bracket_url).then(function (response) {
              $scope.partner_list = response.data.partner;
