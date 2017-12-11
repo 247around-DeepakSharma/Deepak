@@ -3758,3 +3758,7 @@ ALTER TABLE `inventory_stocks`
 
 --sachin 05 dec
 ALTER TABLE `email_attachment_parser` ADD `email_send_to` VARCHAR(256) NULL AFTER `email_remarks`;
+
+
+--Abhay
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'notification_to_send_defective_parts', 'Pending Defective Parts - %s', 'Dear Partner <br/><br/> Please Send Defective Parts for below Booking. %s <br/><br/>With Regards,<br/>247around Team', 'booking@247around.com', '', 'abhaya@247around', '', '1', '2017-12-11 23:56:58');
