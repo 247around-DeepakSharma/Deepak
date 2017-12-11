@@ -519,7 +519,7 @@
                                         <a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a>
                                     </td>
                                       <td>
-                                        <?php if(!is_null($row['parts_shipped'])){ ?>  <a class="btn btn-sm btn-success" href="<?php echo base_url(); ?>service_center/acknowledge_delivered_spare_parts/<?php echo $row['booking_id']; ?>/<?php echo $this->session->userdata('service_center_id') ?>/<?php echo $this->session->userdata('id') ?>" style="<?php if(is_null($row['parts_shipped'])){ echo 'pointer-events:none;';}?>">Received</a> <?php } else { echo "Part Shippment Pending";} ?>
+                                        <?php if(!is_null($row['parts_shipped'])){ ?>  <a class="btn btn-sm btn-success" href="<?php echo base_url(); ?>service_center/acknowledge_delivered_spare_parts/<?php echo $row['booking_id']; ?>/<?php echo $this->session->userdata('service_center_id') ?>/<?php echo $this->session->userdata('service_center_agent_id') ?>/<?php echo $row['partner_id']; ?>" style="<?php if(is_null($row['parts_shipped'])){ echo 'pointer-events:none;';}?>">Received</a> <?php } else { echo "Part Shippment Pending";} ?>
                                         </td>
                                 </tr>
                                 <?php $sn_no1++; } ?>
