@@ -1147,6 +1147,60 @@ class Around_scheduler extends CI_Controller {
         log_message("info", "EXIT...");
 
     }
+    
+    /**
+     * @desc This is used to send email with those booking who has pending to send defective parts
+     */
+    function send_notfication_to_send_defective_parts() {
+        log_message("info", __METHOD__);
+        $select = "id,name,CONCAT(primary_contact_email,',',owner_email) as sf_email";
+        $where1 = array('active' => 1);
+        $data = $this->vendor_model->getVendorDetails($select, $where1);
+        foreach ($data as $value) {
+            $where = array(
+                "spare_parts_details.defective_part_required" => 1,
+                "spare_parts_details.service_center_id" => $value['id'],
+                "status IN ('Delivered', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED . "')  " => NULL
+            );
+
+            $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as parts_shipped, "
+                    . " spare_parts_details.booking_id, name, spare_parts_details.update_date ";
+
+            $group_by = "spare_parts_details.booking_id";
+            $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED . "', spare_parts_details.create_date ASC";
+            $spare_parts = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
+            if (!empty($spare_parts)) {
+                log_message("info", __METHOD__ . " " . $value['name'] . " has Defective Part Pending");
+                $template1 = array(
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                );
+
+                $this->table->set_template($template1);
+
+                $this->table->set_heading(array('Booking ID', 'Customer Name', 'Parts Name', 'Age of Part Pending'));
+                foreach ($spare_parts as $sp) {
+                    $age_requested = date_diff(date_create($sp['update_date']), date_create('today'));
+                    $this->table->add_row($sp['booking_id'], $sp['name'], $sp['parts_shipped'], $age_requested->days . " Days");
+                }
+
+                $this->table->set_template($template1);
+                $html_table = $this->table->generate();
+
+                $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
+                $to = $rm_details[0]['official_email'] . "," . $value['sf_email'];
+
+                $template = $this->booking_model->get_booking_email_template("notification_to_send_defective_parts");
+                $body = vsprintf($template[0], $html_table);
+
+                $from = $template[2];
+                $cc = $template[3];
+                $subject = vsprintf($template[4], $value['name']);
+
+                $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "");
+                log_message("info", __METHOD__ . " " . $value['name'] . " Email Sent");
+            }
+        }
+    }
 
 }
 
