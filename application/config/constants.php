@@ -550,5 +550,7 @@ define('_247AROUND_CP_STRING','CP');
 //demo partner id
 define('_247AROUND_DEMO_PARTNER',247050);
 
+define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',7);
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

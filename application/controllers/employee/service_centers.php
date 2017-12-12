@@ -224,17 +224,20 @@ class Service_centers extends CI_Controller {
             }
             // Insert data into booking state change
             $this->insert_details_in_state_change($booking_id, 'InProcess_Completed', $closing_remarks);
-            
+            $partner_id = $this->input->post("partner_id");
             if($is_update_spare_parts){
                 foreach ($sp_required_id as $sp_id) {
                     
                     $sp['status'] = DEFECTIVE_PARTS_PENDING;
                     $this->service_centers_model->update_spare_parts(array('id'=>$sp_id), $sp);
-                }  
+                } 
+                
+                $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING,  $partner_id);
                 
                 redirect(base_url()."service_center/get_defective_parts_booking");
                 
             } else {
+                $this->update_booking_internal_status($booking_id, "InProcess_Completed",  $partner_id);
                 redirect(base_url() . "service_center/pending_booking");
             } 
         }
@@ -328,7 +331,7 @@ class Service_centers extends CI_Controller {
                     $data['update_date'] = date('Y-m-d H:i:s');
 
                     $this->vendor_model->update_service_center_action($booking_id, $data);
-
+                    $this->update_booking_internal_status($booking_id, "InProcess_Cancelled",  $partner_id);
                     $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change);
                     redirect(base_url() . "service_center/pending_booking");
                     break;
@@ -559,7 +562,8 @@ class Service_centers extends CI_Controller {
             $this->vendor_model->update_service_center_action($booking_id, $data);
 
             $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason']);
-           
+            $partner_id = $this->input->post("partner_id");
+            $this->update_booking_internal_status($booking_id, $reason,  $partner_id);
             $userSession = array('success' => 'Booking Updated');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "service_center/pending_booking");
@@ -781,7 +785,7 @@ class Service_centers extends CI_Controller {
 
                 case SPARE_PARTS_REQUIRED:
                 case SPARE_OOW_EST_REQUESTED: 
-                    log_message('info', __FUNCTION__. " ".SPARE_OOW_EST_REQUESTED." :". $this->session->userdata('service_center_id'));
+                    log_message('info', __FUNCTION__. " ".$reason." :". $this->session->userdata('service_center_id'));
                     $this->update_spare_parts();
                     break;
                  
@@ -796,7 +800,7 @@ class Service_centers extends CI_Controller {
                             $this->process_cancel_booking($booking_id);
                             
                             $to = NITS_ANUJ_EMAIL_ID;
-                            $cc= "";
+                            $cc= "abhaya@247around.com";
                             $bcc = "";
                             $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
                             $message = "Auto Cancelled Booking ". $booking_id;
@@ -805,11 +809,12 @@ class Service_centers extends CI_Controller {
                         } else {
                             $this->default_update(true, true);
                         }
+                        
                         break;
 
                   case "Engineer on route":    
                   case CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER: 
-                      log_message('info', __FUNCTION__. "Engineer on route". $this->session->userdata('service_center_id'));
+                      log_message('info', __FUNCTION__." ".$reason." ". $this->session->userdata('service_center_id'));
                       $this->default_update(true, true);
                       break;
 
@@ -819,6 +824,19 @@ class Service_centers extends CI_Controller {
         }
         
         log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
+    }
+    
+    function update_booking_internal_status($booking_id, $internal_status, $partner_id){
+       
+        $booking['internal_status'] = $internal_status;
+        
+        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+        if (!empty($partner_status)) {
+            $booking['partner_current_status'] = $partner_status[0];
+            $booking['partner_internal_status'] = $partner_status[1];
+        }
+        
+        $this->booking_model->update_booking($booking_id, $booking);
     }
     /**
      * @desc:
@@ -847,6 +865,8 @@ class Service_centers extends CI_Controller {
                 $this->asynchronous_lib->do_background_process($url, $send);
             }
         }
+        $partner_id = $this->input->post("partner_id");
+        $this->update_booking_internal_status($booking_id,  $sc_data['internal_status'], $partner_id);
         log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
         if ($redirect) {
             $userSession = array('success' => 'Booking Updated');
@@ -959,6 +979,8 @@ class Service_centers extends CI_Controller {
                 $sc_data['update_date'] = date("Y-m-d H:i:s");
 
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                
+                $this->update_booking_internal_status($booking_id, $status,  $data['partner_id']);
 
                 $userSession = array('success' => 'Booking Updated');
                 $this->session->set_userdata($userSession);
@@ -999,7 +1021,7 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to update acknowledge date by SF
      * @param String $booking_id
      */
-    function acknowledge_delivered_spare_parts($booking_id, $service_center_id, $id){
+    function acknowledge_delivered_spare_parts($booking_id, $service_center_id, $id, $partner_id){
         log_message('info', __FUNCTION__. " Booking ID: ". $booking_id.' service_center_id: '.$service_center_id.' id: '.$id);
       //  $this->checkUserSession();
         if (!empty($booking_id)) {
@@ -1013,6 +1035,13 @@ class Service_centers extends CI_Controller {
             if ($ss) { //if($ss){
                 $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
                 $booking['update_date'] =  date("Y-m-d H:i:s");
+                $booking['internal_status'] = SPARE_PARTS_DELIVERED;
+        
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_PARTS_DELIVERED, $partner_id, $booking_id);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                }
                 $b_status = $this->booking_model->update_booking($booking_id, $booking);
                 if ($b_status) {
                     $state_change['booking_id'] = $booking_id;
@@ -1025,9 +1054,16 @@ class Service_centers extends CI_Controller {
                     } else { //count($booking_state_change)
                         $state_change['old_state'] = "Pending";
                     }
-          
-                $state_change['agent_id'] = 1;
-                $state_change['partner_id'] = _247AROUND;
+           
+        
+                if($this->session->userdata('service_center_id')){
+                    $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
+                    $state_change['service_center_id'] = $login_data['entity_id'] = $this->session->userdata('service_center_id');
+                } else {
+                    $state_change['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                    $state_change['partner_id'] = _247AROUND;
+                }
+                
                 $state_change['remarks'] = "SF acknowledged to receive spare parts";
 
                 // Insert data into booking state change
@@ -1037,27 +1073,35 @@ class Service_centers extends CI_Controller {
                     $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                    if( $this->session->userdata('service_center_id')){
+                        $userSession = array('success' => 'Booking Updated');
+                        $this->session->set_userdata($userSession);
+                    }
 
-                  //  $userSession = array('success' => 'Booking Updated');
-                  //  $this->session->set_userdata($userSession);
                 } else {//if ($b_status) {
                     
                         log_message('info', __FUNCTION__ . " Booking is not updated. Service_center ID: " 
                                 . $service_center_id .
                                 "Booking ID: " . $booking_id);
-//                        $userSession = array('success' => 'Please Booking is not updated');
-//                        $this->session->set_userdata($userSession);
+                        if( $this->session->userdata('service_center_id')){
+                            $userSession = array('success' => 'Please Booking is not updated');
+                            $this->session->set_userdata($userSession);
+                        }
                     }
                 } else {
                     log_message('info', __FUNCTION__ . " Spare parts ack date is not updated Service_center ID: "
                             . $service_center_id .
                             "Booking ID: " . $booking_id);
-//                    $userSession = array('success' => 'Please Booking is not updated');
-//                    $this->session->set_userdata($userSession);
+                    if( $this->session->userdata('service_center_id')){
+                        $userSession = array('success' => 'Please Booking is not updated');
+                        $this->session->set_userdata($userSession);
+                    }
                 }
             }
             log_message('info', __FUNCTION__. " Exit Service_center ID: ". $service_center_id);
-           // redirect(base_url() . "service_center/pending_booking");
+            if( $this->session->userdata('service_center_id')){
+                redirect(base_url() . "service_center/pending_booking");
+            }
 
     }
     /**
@@ -1067,7 +1111,7 @@ class Service_centers extends CI_Controller {
     function get_booking_id_to_convert_pending_for_spare_parts(){
         $data = $this->service_centers_model->get_booking_id_to_convert_pending_for_spare_parts();
         foreach($data as $value){
-            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['id']);
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['id'], $value['partner_id']);
         }
     }
     
@@ -2796,7 +2840,8 @@ class Service_centers extends CI_Controller {
                 $this->service_centers_model->update_spare_parts(array('id' => $sp_data[0]->id), array("status" => SPARE_PARTS_REQUESTED, 'date_of_request' => date('Y-m-d')));
 
                 $this->insert_details_in_state_change($booking_id, SPARE_PARTS_REQUESTED, ESTIMATE_APPROVED_BY_CUSTOMER);
-
+                $partner_id = $this->input->post("partner_id");
+                $this->update_booking_internal_status($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER,  $partner_id);
                 $userSession = array('success' => 'Booking Updated');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/pending_booking");

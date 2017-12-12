@@ -1248,7 +1248,7 @@ class vendor extends CI_Controller {
         if ($this->form_validation->run()) {
             $booking_id = $this->input->post('booking_id');
             $service_center_id = $this->input->post('service');
-            $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+            $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id, booking_details.partner_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
 //            if (IS_DEFAULT_ENGINEER == TRUE) {
 //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
 //            } else {
@@ -1269,6 +1269,12 @@ class vendor extends CI_Controller {
                 'upcountry_partner_approved' => 1,
                 'upcountry_paid_by_customer' => 0,
                 'upcountry_distance' => NULL);
+            
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+            if (!empty($partner_status)) {
+                $assigned_data['partner_current_status'] = $partner_status[0];
+                $assigned_data['partner_internal_status'] = $partner_status[1];
+            }
 
             $this->booking_model->update_booking($booking_id, $assigned_data);
 

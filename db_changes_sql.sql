@@ -3701,3 +3701,48 @@ ALTER TABLE `inventory_stocks`
 
 --sachin 05 dec
 ALTER TABLE `email_attachment_parser` ADD `email_send_to` VARCHAR(256) NULL AFTER `email_remarks`;
+
+--Abhay
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'notification_to_send_defective_parts', 'Pending Defective Parts - %s', 'Dear Partner <br/><br/> Please Send Defective Parts for below Booking. %s <br/><br/>With Regards,<br/>247around Team', 'booking@247around.com', '', 'abhaya@247around', '', '1', '2017-12-11 23:56:58');
+
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247010', 'Pending', 'Customer asked to reschedule', 'Customer asked to reschedule', 'Customer asked to reschedule');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247010', 'Pending', 'Product not delivered to customer', 'Product not delivered to customer', 'Product not delivered to customer');
+
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247010', 'Pending', 'Spare Estimate Approved By Customer', 'Spare Estimate Approved By Customer', 'Spare Estimate Approved By Customer');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247010', 'Pending', 'Spare Parts Requested', 'Spare Parts Requested', 'Spare Parts Requested');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247010', 'Pending', 'Request Quote for Spare Part', 'Request Quote for Spare Part', 'Request Quote for Spare Part');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247010', 'Pending', 'Customer not reachable / Customer not picked phone', 'Customer not reachable / Customer not picked phone', 'Customer not reachable / Customer not picked phone');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247010', 'Pending', 'Engineer on route', 'Engineer on route', 'Engineer on route');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247010', 'Pending', 'Spare Parts Delivered to SF', 'Spare Parts Delivered to SF', 'Spare Parts Delivered to SF');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247010', 'Pending', 'InProcess_Completed', 'InProcess_Completed', 'InProcess_Completed');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247010', 'Pending', 'Defective Part Pending', 'Defective Part Pending', 'Defective Part Pending');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247001', 'Pending', 'InProcess_Cancelled', 'InProcess_Cancelled', 'InProcess_Cancelled');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247001', 'Pending', 'Spare Estimate Cost Given', 'Spare Estimate Cost Given', 'Spare Estimate Cost Given');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247001', 'Pending', 'Booking Opened From Completed', 'Booking Opened From Completed', 'Booking Opened From Completed');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247001', 'Pending', 'Booking Opened From Cancelled', 'Booking Opened From Cancelled', 'Booking Opened From Cancelled');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247001', 'Pending', 'Cancelled Query to FollowUp', 'Cancelled Query to FollowUp', 'Cancelled Query to FollowUp');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247001', 'Pending', 'Spare Parts Shipped by Partner', 'Spare Parts Shipped by Partner', 'Spare Parts Shipped by Partner');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247001', 'Pending', 'Defective Part Received By Partner', 'Defective Part Received By Partner', 'Defective Part Received By Partner');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247001', 'Pending', 'Defective Part Rejected By Partner', 'Defective Part Rejected By Partner', 'Defective Part Rejected By Partner');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247001', 'Pending', 'Assigned_vendor', 'Assigned_vendor', 'Assigned_vendor');
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247001', 'Pending', 'UPCOUNTRY BOOKING NEED TO APPROVAL', 'UPCOUNTRY BOOKING NEED TO APPROVAL', 'UPCOUNTRY BOOKING NEED TO APPROVAL');

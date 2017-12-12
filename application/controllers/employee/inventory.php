@@ -1066,12 +1066,16 @@ class Inventory extends CI_Controller {
     
     function spare_part_booking_on_tab(){
         log_message('info', __FUNCTION__. "Entering... ");
-         $this->checkUserSession();
+        $this->checkUserSession();
 	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-        $total_rows =  $this->booking_model->get_spare_parts_booking(0, "All");
-        
-	$config['total_rows'] = $total_rows[0]['count'];
-        $data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['total_rows'], $offset);
+            
+        $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id"));
+        $vendor_id = array();
+        if(!empty($sf)){
+            $vendor_id = explode(",", $sf[0]["service_centres_id"]);;
+        }
+
+        $data['spare_parts'] = $this->booking_model->get_spare_parts_booking(-1, $offset, $vendor_id);
         $this->load->view('employee/sparepart_on_tab' , $data);
     }
     /**

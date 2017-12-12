@@ -115,6 +115,11 @@ class Miscelleneous {
             }
         }
         $b['upcountry_partner_approved'] = '1';
+        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, _247AROUND, $booking_id);
+        if (!empty($partner_status)) {
+            $b['partner_current_status'] = $partner_status[0];
+            $b['partner_internal_status'] = $partner_status[1];
+        }
         //Assign service centre and engineer
         $assigned = $this->My_CI->vendor_model->assign_service_center_for_booking($booking_id, $b);
         if ($assigned) {
@@ -270,6 +275,12 @@ class Miscelleneous {
                         $booking['upcountry_partner_approved'] = '0';
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['amount_due'] = $cus_net_payable;
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL, 
+                                $query1[0]['partner_id'], $booking_id);
+                        if (!empty($partner_status)) {
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['partner_internal_status'] = $partner_status[1];
+                        }
 
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $this->My_CI->service_centers_model->delete_booking_id($booking_id);

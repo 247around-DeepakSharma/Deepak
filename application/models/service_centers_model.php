@@ -303,9 +303,9 @@ class Service_centers_model extends CI_Model {
      * @return type Array
      */
     function get_updated_spare_parts_booking($sc_id){
-        $sql = "SELECT distinct sp.* "
-                . " FROM spare_parts_details as sp, service_center_booking_action as sc "
-                . " WHERE  sp.booking_id = sc.booking_id "
+        $sql = "SELECT distinct sp.*, bd.partner_id "
+                . " FROM spare_parts_details as sp, service_center_booking_action as sc, booking_details as bd "
+                . " WHERE  sp.booking_id = sc.booking_id  AND sp.booking_id = bd.booking_id "
                 . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = 'Shipped') AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
                 . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."') "
                 . " AND sc.service_center_id = '$sc_id' ";
@@ -496,11 +496,12 @@ class Service_centers_model extends CI_Model {
      * @return Array
      */
     function get_booking_id_to_convert_pending_for_spare_parts(){
-        $sql = "SELECT sp.id, sp.booking_id, scb.service_center_id FROM `spare_parts_details` as sp, service_center_booking_action as scb "
-                . " WHERE (DATEDIFF(CURRENT_TIMESTAMP , sp.`shipped_date`) >= 2) "
+        $sql = "SELECT sp.id, sp.booking_id, scb.service_center_id, b.partner_id FROM `spare_parts_details` as sp, service_center_booking_action as scb, booking_details as b "
+                . " WHERE (DATEDIFF(CURRENT_TIMESTAMP , sp.`shipped_date`) >= '".AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF."') "
                 . " AND sp.status = 'Shipped' "
                 . " AND scb.current_status = 'InProcess' "
                 . " AND scb.booking_id = sp.booking_id "
+                . " AND sp.booking_id = b.booking_id "
                 . " AND scb.internal_status = 'Spare Parts Shipped by Partner' ";
         $query =  $this->db->query($sql);
         log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());

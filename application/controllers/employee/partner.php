@@ -1458,6 +1458,8 @@ class Partner extends CI_Controller {
                     $sc_data['internal_status'] = _247AROUND_PENDING;
                     $booking_details['cancellation_reason'] = NULL;
                     $booking_details['closed_date'] = NULL;
+                    
+                    $booking_details['internal_status'] = "Booking Opened From Cancelled";
 
                     $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
                 }
@@ -1619,6 +1621,16 @@ class Partner extends CI_Controller {
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                
+                $booking['internal_status'] = SPARE_PARTS_SHIPPED;
+        
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                }
+        
+                $this->booking_model->update_booking($booking_id, $booking);
 
                 $userSession = array('success' => 'Parts Updated');
                 $this->session->set_userdata($userSession);
@@ -1859,7 +1871,7 @@ class Partner extends CI_Controller {
      * @desc: Partner acknowledge to receive defective spare parts
      * @param String $booking_id
      */
-    function acknowledge_received_defective_parts($booking_id, $is_cron = "") {
+    function acknowledge_received_defective_parts($booking_id, $partner_id, $is_cron = "") {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id);
 
         if (empty($is_cron)) {
@@ -1878,6 +1890,16 @@ class Partner extends CI_Controller {
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = _247AROUND_COMPLETED;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+            
+            $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED;
+        
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+            }
+            
+            $this->booking_model->update_booking($booking_id, $booking);
 
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
@@ -1921,6 +1943,17 @@ class Partner extends CI_Controller {
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = $rejection_reason;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+            
+            $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED;
+        
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], 
+                    $this->session->userdata('partner_id'), $booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+            }
+            
+            $this->booking_model->update_booking($booking_id, $booking);
 
             $userSession = array('success' => 'Defective Parts Rejected To SF');
             $this->session->set_userdata($userSession);
@@ -2477,8 +2510,7 @@ class Partner extends CI_Controller {
         if (!empty($data)) {
             if ($data[0]['upcountry_partner_approved'] == 0 & empty($data[0]['assigned_vendor_id'])) {
                 log_message('info', __FUNCTION__ . " => On Approval Booking Id" . $booking_id);
-                $this->booking_model->update_booking($booking_id, array('upcountry_partner_approved' => '1'));
-
+                
                 if ($status == 0) {// means request from mail
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
@@ -2923,7 +2955,7 @@ class Partner extends CI_Controller {
 
                 //update acknowledge
                 foreach ($defective_parts_acknowledge_data as $value) {
-                    $this->acknowledge_received_defective_parts($value['booking_id'], true);
+                    $this->acknowledge_received_defective_parts($value['booking_id'], $partner['id'], true);
                 }
 
                 $this->table->set_heading('Booking Id', 'Defective Part Shipped Date');
