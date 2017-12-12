@@ -528,9 +528,9 @@ define("COMMISION_CHARGE_HSN_CODE", "996111");
 //sales email_id
 define('_247AROUND_SALES_EMAIL','sales@247around.com');
 //email attachment reader email
-define('EMAIL_ATTACHMENT_READER_EMAIL','sachinj@247around.com');
+define('EMAIL_ATTACHMENT_READER_EMAIL','installations@247around.com');
 //email attachment reader email password
-define('EMAIL_ATTACHMENT_READER_PASSWORD','sachinj');
+define('EMAIL_ATTACHMENT_READER_PASSWORD','247around@@installations');
 
 //Zopper booking- Part Arrange By Same Vendor
 define("PART_ARRANGE_BY_SAME_VENDOR", 2);
