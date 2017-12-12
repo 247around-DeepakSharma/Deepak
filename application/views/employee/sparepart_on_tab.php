@@ -5,7 +5,7 @@
                 <div class="panel panel-default">
                     <div class="panel-body" >
                        
-                            <table id="today_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <table id="spare_parts_requested_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 
                                 <thead >
                                     <tr>
@@ -88,7 +88,7 @@
                 <div class="panel panel-default">
                     <div class="panel-body" >
                         <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
-                            <table id="today_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <table id="defective_part_shipped_by_SF_approved_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 
                                 <thead >
                                     <tr>
@@ -150,7 +150,7 @@
                 <div class="panel panel-default">
                     <div class="panel-body" >
                         <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
-                            <table id="today_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <table id="defective_part_shipped_by_sf_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 
                                 <thead >
                                     <tr>
@@ -220,7 +220,7 @@
                 <div class="panel panel-default">
                     <div class="panel-body" >
                         <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
-                            <table id="today_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <table id="defective_part_pending_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 
                                 <thead >
                                     <tr>
@@ -282,7 +282,7 @@
                 <div class="panel panel-default">
                     <div class="panel-body" >
                         <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
-                            <table id="today_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <table id="partner_shipped_part" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 
                                 <thead >
                                     <tr>
@@ -345,7 +345,7 @@
                 <div class="panel panel-default">
                     <div class="panel-body" >
                         <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
-                            <table id="today_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <table id="sf_received_part" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 
                                 <thead >
                                     <tr>
@@ -398,3 +398,91 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('#spare_parts_requested_table').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8 ]
+                    },
+                    title: 'spare_parts_requested'
+                }
+            ]
+        });
+       
+        $('#partner_shipped_part').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9 ]
+                    },
+                    title: 'partner_shipped_part'
+                }
+            ]
+        });
+       
+        $('#sf_received_part').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9 ]
+                    },
+                    title: 'sf_received_part'
+                }
+            ]
+        });
+       
+        $('#defective_part_pending_table').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
+                    },
+                    title: 'defective_part_pending'
+                }
+            ]
+        });
+       
+        $('#defective_part_shipped_by_sf_table').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
+                    },
+                    title: 'defective_part_shipped_by_sf'
+                }
+            ]
+       });
+       
+       $('#defective_part_shipped_by_SF_approved_table').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9]
+                    },
+                    title: 'defective_part_shipped_by_SF_approved'
+                }
+            ]
+       });
+    });
+</script>

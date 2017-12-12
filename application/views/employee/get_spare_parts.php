@@ -1,3 +1,29 @@
+<style>
+    a.dt-button {
+        position: relative;
+        display: inline-block;
+        box-sizing: border-box;
+        margin-right: 0.333em;
+        padding: 6px 21px;
+        font-size: inherit;
+        border: 1px solid #2e6da4;
+        border-radius: 2px;
+        cursor: pointer;
+        color: #f9f9f9;
+        white-space: nowrap;
+        overflow: hidden;
+        background-color: #337ab7;
+        background-image: none;
+    }
+    a.dt-button:hover:not(.disabled),a.dt-button.active:not(.disabled) {
+        border: 1px solid #2e6da4;
+        background-color: #143958!important;
+        background-image: none!important;
+    }
+    div.dt-button-background{
+        position: inherit;
+    }
+</style>
 <?php if($this->uri->segment(4)){ $sn_no =  $this->uri->segment(4) +1; } else{ $sn_no = 1;} ?>
 <div class="container-fluid">
    <div class="row" style="margin-top: 40px;">
