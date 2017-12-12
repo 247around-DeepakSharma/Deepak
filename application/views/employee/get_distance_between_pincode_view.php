@@ -44,11 +44,13 @@
                             <div class="form-inline" style="margin-left: 20px;">
                                 <div class="form-group" style="margin-right: 10px;">
                                     <label for="pincode1">Pincode 1:</label>
-                                    <input type="text" class="form-control allownumericwithdecimal" id="txtSource" >
+                                    <input type="text" class="form-control allownumericwithdecimal" id="txtSource1" >
+                                    <input type="hidden" class="form-control" id="txtSource" >
                                 </div>
                                 <div class="form-group" style="margin-right: 10px;">
                                     <label for="pincode2">Pincode 2:</label>
-                                    <input type="text" class="form-control allownumericwithdecimal" id="txtDestination">
+                                    <input type="text" class="form-control allownumericwithdecimal" id="txtDestination1">
+                                    <input type="hidden" class="form-control" id="txtDestination">
                                 </div>
                                 <button class="btn btn-success" id="get_distance">Get Distance</button>
                             </div>
@@ -132,12 +134,21 @@
                 event.preventDefault();
             }
         });
+        
+        $(document).on('keyup', '#txtSource1', function (e) {
+          var pincode1 = $('#txtSource1').val();
+           $('#txtSource').val(pincode1);
+        });
+         $(document).on('keyup', '#txtDestination1', function (e) {
+          var pincode1 = $('#txtDestination1').val();
+           $('#txtDestination').val(pincode1);
+        });
 
         $(document).ready(function () {
             $('#get_distance').click(function () {
                 GetRoute();
-                var pincode1 = $('#txtSource').val();
-                var pincode2 = $('#txtDestination').val();
+                var pincode1 = $('#txtSource1').val();
+                var pincode2 = $('#txtDestination1').val();
                 if (pincode1.length === 6 && pincode2.length === 6) {
                     $.ajax({
                         method: 'POST',
