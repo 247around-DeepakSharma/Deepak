@@ -1196,10 +1196,12 @@ class Inventory extends CI_Controller {
         $select = '*';
         
         //check sf_role 
-        if($sf_role === 'order_received_from'){
-            $where = "order_received_from = '$sf_id'";
-        }else if($sf_role === 'order_given_to'){
-            $where = "order_given_to = '$sf_id'";
+        if(!empty($sf_id)){
+            if($sf_role === 'order_received_from'){
+                $where["order_received_from = '$sf_id'"] = NULL;
+            }else if($sf_role === 'order_given_to'){
+                $where["order_given_to = '$sf_id'"] = NULL;
+            }
         }
         
         //check daterange selected or not
@@ -1207,10 +1209,15 @@ class Inventory extends CI_Controller {
             $start_date = date('Y-m-d 00:00:00', strtotime($this->input->post('start_date')));
             $end_date = date('Y-m-d 23:59:59', strtotime($this->input->post('end_date')));   
             
-            $where .= " AND order_date >= '$start_date' AND order_date <= '$end_date'";
+            $where[" order_date >= '$start_date' AND order_date <= '$end_date'"] = NULL;
         }
         
-        $brackets_data = $this->get_brackets_data_by($select, $where);
+        if(!empty($where)){
+            $brackets_data = $this->get_brackets_data_by($select, $where);
+        }else{
+            $brackets_data = "<div class='text-danger text-center'> <b> No Data Found <b></div>";
+        }
+        
         
         return $brackets_data;
     }
