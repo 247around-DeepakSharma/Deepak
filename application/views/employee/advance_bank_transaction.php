@@ -134,7 +134,7 @@
                 <span id="errmsg1"></span>
             </div>
             <div class="form-group">
-                <label for="name" class="col-md-2">Amount <span class="red">*</span></label>
+                <label for="name" class="col-md-2">Amount (With TDS) <span class="red">*</span></label>
                 <div class="col-md-6">
                     <input type="text" class="form-control" id="amount" name="amount" value="" required>
                 </div>

@@ -2726,7 +2726,7 @@ class Invoice extends CI_Controller {
             
             $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
                     $data['partner_vendor_id'], $data['transaction_date'],
-                    $amount, $data['tds_amount']);
+                    $amount, $data['tds_amount'], "Credit");
             if($invoice_id){
                 $data['invoice_id'] = $invoice_id;
                 $data['is_advance'] = 1;
@@ -2735,6 +2735,15 @@ class Invoice extends CI_Controller {
             
         } else if ($data['credit_debit'] == "Debit") {
             $data['debit_amount'] = $amount;
+            if($data['partner_vendor'] == "vendor"){
+                  $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
+                    $data['partner_vendor_id'], $data['transaction_date'],
+                    $amount, $data['tds_amount'], "Debit");
+                if($invoice_id){
+                    $data['invoice_id'] = $invoice_id;
+                    $data['is_advance'] = 1;
+                }
+            }
         }
 
        
@@ -2758,10 +2767,10 @@ class Invoice extends CI_Controller {
         }
     }
     
-    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds) {
+    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype) {
 
         if ($vendor_partner == "vendor") {
-            $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id, "is_cp" => 1));
+            $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id));
         } else if ($vendor_partner == "partner") {
             $entity = $this->partner_model->getpartner_details("partners.id, gst_number, "
                     . "state,address as company_address, "
@@ -2771,13 +2780,25 @@ class Invoice extends CI_Controller {
         
         if (!empty($entity)) {
             if ($vendor_partner == "vendor") {
+                if($txntype == "Credit"){
+                    $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
+                    $data['type'] = BUYBACK_VOUCHER;
+                    $basic_price = $amount;
 
-                $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
-                $data['type'] = BUYBACK_VOUCHER;
-                $basic_price = $amount;
+                    $data['parts_cost'] = $basic_price;
+                    $amount_collected_paid = $amount;
+                    $data['type_code'] = "B";
+                    $data['amount_collected_paid'] = -$amount_collected_paid;
+                } else {
+                    $data['invoice_id'] = $this->create_invoice_id_to_insert($entity[0]['sc_code']."-RV");
+                    $data['type'] = VENDOR_VOUCHER;
+                    $basic_price = $amount;
+                    $amount_collected_paid = $amount;
+                    $data['total_service_charge'] = $basic_price;
+                    $data['type_code'] = "A";
+                    $data['amount_collected_paid'] = $amount_collected_paid;
+                }
                 
-                $data['parts_cost'] = $basic_price;
-                $amount_collected_paid = $amount;
                 
             } else {
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-PV");
@@ -2796,9 +2817,11 @@ class Invoice extends CI_Controller {
                 $data['total_service_charge'] = $response['meta']['total_taxable_value'];
                 $data['invoice_file_pdf'] = $response['meta']['copy_file'];
                 $amount_collected_paid = $amount - $tds;
+                $data['type_code'] = "B";
+                $data['amount_collected_paid'] = -$amount_collected_paid;
             }
 
-            $data['type_code'] = "B";
+            
             $data['vendor_partner'] = $vendor_partner;
             $data['vendor_partner_id'] = $vendor_partner_id;
             $data['invoice_date'] = $date;
@@ -2808,7 +2831,7 @@ class Invoice extends CI_Controller {
             
             $data['total_amount_collected'] = $amount;
             $data['around_royalty'] = 0;
-            $data['amount_collected_paid'] = -$amount_collected_paid;
+            
             $data['agent_id'] = $this->session->userdata('id');
             $data['create_date'] = date("Y-m-d H:i:s");
             $data['hsn_code'] = HSN_CODE;
