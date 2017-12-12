@@ -18,7 +18,7 @@
                     }
                     ?>
                 <h1 class="page-header">
-                    <b> Upload Satya File</b>
+                    <b> Upload Akai File</b>
                 </h1>
                 <form class="form-horizontal"  id="fileinfo" onsubmit="return submitForm();" name="fileinfo"  method="POST" enctype="multipart/form-data">
                     <div class="form-group  <?php if (form_error('excel')) {
@@ -31,7 +31,7 @@
                                 echo 'File size or file type is not supported. Allowed extentions are "xls" or "xlsx". Maximum file size is 2 MB.';
                                 } ?>
                         </div>
-                        <input type= "submit"  class="btn btn-danger btn-md" value ="Upload" >
+                        <input type= "submit"  class="btn btn-success btn-md" value ="Upload" >
                     </div>
                 </form>
                 <div class="col-md-12" style="margin-top:20px;">
@@ -62,7 +62,7 @@
     
         var fd = new FormData(document.getElementById("fileinfo"));
         fd.append("label", "WEBUPLOAD");
-        fd.append('file_type','<?php echo _247AROUND_SATYA_DELIVERED; ?>');
+        fd.append('file_type','<?php echo _247AROUND_AKAI_DELIVERED; ?>');
         $.ajax({
             url: "<?php echo base_url() ?>employee/do_background_upload_excel/process_upload_file",
             type: "POST",
@@ -86,7 +86,7 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
                 type: "POST",
-                data: {file_type: '<?php echo _247AROUND_SATYA_DELIVERED; ?>'}
+                data: {file_type: '<?php echo _247AROUND_AKAI_DELIVERED; ?>'}
             },
             columnDefs: [
                 {
