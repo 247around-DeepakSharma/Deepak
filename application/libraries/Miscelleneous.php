@@ -1049,6 +1049,10 @@ class Miscelleneous {
                     $data['partner_id'] = PAYTM;
                     $data['source'] = 'SP';
                     break;
+                case AKAI_ID:
+                    $data['partner_id'] = AKAI_ID;
+                    $data['source'] = 'PA';
+                    break;
             }
         }
 

@@ -617,5 +617,17 @@ class bookings_excel extends CI_Controller {
 
         return $error;
     }
+    
+    /*
+     * @desc: This function is to upload the Satya File
+     * @param: void
+     * @return: void
+     */
+
+    public function upload_akai_file() {
+        
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->load->view('employee/upload_akai_file');
+    }
 
 }

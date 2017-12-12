@@ -3806,3 +3806,11 @@ INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_cur
 
 INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES (NULL, '247001', 'Pending', 'UPCOUNTRY BOOKING NEED TO APPROVAL', 'UPCOUNTRY BOOKING NEED TO APPROVAL', 'UPCOUNTRY BOOKING NEED TO APPROVAL');
 
+--sachin 11 dec
+ALTER TABLE `email_attachment_parser` ADD `file_type` VARCHAR(128) NULL AFTER `email_function_name`;
+UPDATE `email_attachment_parser` SET `email_function_name` = 'employee/do_background_upload_excel/process_upload_file' WHERE `email_attachment_parser`.`id` = 5;
+UPDATE `email_attachment_parser` SET `file_type` = 'Satya-Delivered' WHERE `email_attachment_parser`.`id` = 5;
+INSERT INTO `email_attachment_parser` 
+(`id`, `email_received_from`, `email_subject_text`, `email_function_name`, 
+`file_type`, `email_remarks`, `email_send_to`, `active`, `create_date`) 
+VALUES (NULL, 'sachinj@247around.com', 'akai file', 'employee/do_background_upload_excel/process_upload_file', 'Akai-Delivered', 'Akai', 'dfg@247around.com', '1', '2017-11-29 11:42:30');
