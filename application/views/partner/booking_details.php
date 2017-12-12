@@ -129,7 +129,7 @@
                               
                                 <tr>
                                     <th>Status: </th>
-                                    <td><?php echo $booking_history[0]['current_status']; ?></td>
+                                    <td><?php echo $booking_history[0]['current_status']." / ".$booking_history[0]['partner_internal_status']; ?></td>
                                     <th>Cancellation Reason: </th>
                                     <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                                 </tr>
