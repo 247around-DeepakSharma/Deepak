@@ -71,14 +71,16 @@ class Booking extends CI_Controller {
      *
      *  @return : void
      */
-    public function index($user_id) {
+    public function index() {
         if ($this->input->post()) {
             $primary_contact_no = $this->input->post('booking_primary_contact_no');
+            $user_id = $this->input->post("user_id");
+            
             //Check Validation
             $checkValidation = $this->validate_booking();
             if ($checkValidation) {
                 log_message('info', __FUNCTION__);
-                log_message('info', " Booking Insert User ID: " . $user_id);
+                log_message('info', " Booking Insert Contact No: " . $primary_contact_no);
                 $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
                 if ($status) {
                     log_message('info', __FUNCTION__ . " Partner callback  " . $status['booking_id']);
@@ -115,9 +117,8 @@ class Booking extends CI_Controller {
      */
     function getAllBookingInput($user_id, $booking_id) {
         log_message('info', __FUNCTION__);
-        log_message('info', " Booking Insert User ID: " . $user_id . " Booking ID" . $booking_id . " Done By " . $this->session->userdata('employee_id'));
+        log_message('info', " Booking Insert " . $user_id . " Booking ID" . $booking_id . " Done By " . $this->session->userdata('employee_id'));
 
-        $user['user_id'] = $booking['user_id'] = $user_id;
         $updated_unit_id = array();
 
         // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
@@ -125,6 +126,9 @@ class Booking extends CI_Controller {
         $upcountry_data_json = $this->input->post('upcountry_data');
         $upcountry_data = json_decode($upcountry_data_json, TRUE);
         $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
+        
+        $user['user_id'] = $user_id = $booking['user_id'];
+        
         if ($booking) {
 
             // All category comming in array eg-- array([0]=> TV-LCD, [1]=> TV-LED)
@@ -167,7 +171,7 @@ class Booking extends CI_Controller {
 
                 $services_details = array();
                 $appliances_details = array();
-                $appliances_details['user_id'] = $user_id;
+                $appliances_details['user_id'] = $booking['user_id'];;
 
                 $appliances_details['brand'] = $services_details['appliance_brand'] = $value; // brand
                 // get category from appiance category array for only specific key.
@@ -303,9 +307,10 @@ class Booking extends CI_Controller {
                 }
                 $this->booking_model->check_price_tags_status($booking['booking_id'], $updated_unit_id,$inventory_details);
             }
-
-            $this->user_model->edit_user($user);
-
+            if($booking_id != INSERT_NEW_BOOKING){
+                $this->user_model->edit_user($user);
+            }            
+            
             if ($booking['type'] == 'Booking') {
 
                 if (empty($booking['state'])) {
@@ -373,16 +378,15 @@ class Booking extends CI_Controller {
      * @return boolean
      */
     function insert_data_in_booking_details($booking_id, $user_id, $quantity) {
-        $booking = $this->get_booking_input();
-
+        $booking = $this->get_booking_input($user_id);
+        
         $remarks = $this->input->post('query_remarks');
 
         $booking['quantity'] = $quantity;
-        $booking['user_id'] = $user_id;
-
+       
         switch ($booking_id) {
             case INSERT_NEW_BOOKING:
-                $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
+                $booking['booking_id'] = $this->create_booking_id($booking['user_id'], $booking['source'], $booking['type'], $booking['booking_date']);
                 $is_send_sms = 1;
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
@@ -533,7 +537,7 @@ class Booking extends CI_Controller {
      * @desc: this method returns Booking data in array
      * @return Array
      */
-    function get_booking_input() {
+    function get_booking_input($user_id) {
         log_message('info', __FUNCTION__);
         $booking['service_id'] = $this->input->post('service_id');
         $booking['source'] = $this->input->post('source_code');
@@ -557,6 +561,25 @@ class Booking extends CI_Controller {
         $booking['update_date'] = date("Y-m-d H:i:s");
         $partner_details = $this->partner_model->getpartner_details('bookings_sources.partner_id', array('bookings_sources.code' => $booking['source']));
         $booking['partner_id'] = $partner_details[0]['partner_id'];
+        
+        if(empty($user_id)){
+            $user['phone_number'] = $booking['booking_primary_contact_no'];
+            $user['name'] = $this->input->post('user_name');
+            $user['user_email'] = $this->input->post('user_email');
+            $user['home_address'] = $booking['booking_address'];
+            $user['city'] = $booking['city'];
+            $user['state'] =  $booking['state'];
+            $user['pincode'] = $booking['booking_pincode'] ;
+            $user['alternate_phone_number'] = $booking['booking_alternate_contact_no'];
+            $user['create_date'] = date("Y-m-d H:i:s");
+        
+            $user_id = $this->user_model->add_user($user);
+            
+
+            $this->booking_model->addSampleAppliances($user_id, 5);
+        }
+        
+        $booking['user_id'] = $user_id;
 
         return $booking;
     }
@@ -665,6 +688,7 @@ class Booking extends CI_Controller {
     function addbooking($phone_number) {
         $data = $this->booking_model->get_city_source();
         $data['user'] = $this->user_model->search_user($phone_number);
+        $data['phone_number'] = $phone_number;
         $where_internal_status = array("page" => "FollowUp", "active" => '1');
         $data['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
