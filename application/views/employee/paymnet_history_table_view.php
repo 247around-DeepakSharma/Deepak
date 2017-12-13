@@ -66,7 +66,7 @@
 <!--                            <td><?php //echo round($value['num_bookings'],0); $num_bookings += $value['num_bookings'];?></td>-->
 <!--                            <td><?php //echo round($value['penalty_amount'],0); $debit_penalty += $value['penalty_amount'];?></td>
                             <td><?php //echo round($value['credit_penalty_amount'],0); $credit_penalty += $value['credit_penalty_amount'];?></td>-->
-                            <td><?php echo round(($value['penalty_amount'] + $value['credit_penalty_amount']),0) ; $discount_amt += ($value['penalty_amount'] + $value['credit_penalty_amount']);?></td>
+                            <td><?php echo round(($value['credit_penalty_amount'] - $value['penalty_amount']),0) ; $discount_amt += ($value['credit_penalty_amount'] - $value['penalty_amount']);?></td>
                             <td><?php echo round($value['cgst_tax_amount'],0); $cgst += $value['cgst_tax_amount']; ?></td>
                             <td><?php echo round($value['sgst_tax_amount'],0); $sgst += $value['sgst_tax_amount']; ?></td>
                             <td><?php echo round($value['igst_tax_amount'],0); $igst += $value['igst_tax_amount']; ?></td>
