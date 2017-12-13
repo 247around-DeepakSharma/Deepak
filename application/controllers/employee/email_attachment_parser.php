@@ -73,7 +73,7 @@ class Email_attachment_parser extends CI_Controller {
                                                         }
                                                     }
                                                 }
-                                                $file_upload_response = $this->process_uploading_extract_file($url, TMP_FOLDER . $extract_file_name, $val['email_message_id'],$value['email_send_to']);
+                                                $file_upload_response = $this->process_uploading_extract_file($url, TMP_FOLDER . $extract_file_name, $val['email_message_id'],$value['email_send_to'],$value['file_type']);
 
                                                 //delete file from the system after processing
                                                 if (file_exists(TMP_FOLDER . $extract_file_name)) {
@@ -135,7 +135,7 @@ class Email_attachment_parser extends CI_Controller {
     * @param    void
     * @return   void
     */
-    private function process_uploading_extract_file($url,$file_path,$email_message_id,$email_send_to){
+    private function process_uploading_extract_file($url,$file_path,$email_message_id,$email_send_to,$file_type){
         log_message('info',__METHOD__."Entering...");
         
         if (function_exists('curl_file_create')) {
@@ -149,7 +149,8 @@ class Email_attachment_parser extends CI_Controller {
             'file' => $cFile,
             'file_received_date' => date('Y-m-d'),
             'email_message_id' => $email_message_id,
-            'email_send_to' => $email_send_to);        
+            'email_send_to' => $email_send_to,
+            'file_type' => $file_type);        
         
         $ch = curl_init();
         

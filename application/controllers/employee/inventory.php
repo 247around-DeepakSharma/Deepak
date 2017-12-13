@@ -1066,12 +1066,16 @@ class Inventory extends CI_Controller {
     
     function spare_part_booking_on_tab(){
         log_message('info', __FUNCTION__. "Entering... ");
-         $this->checkUserSession();
+        $this->checkUserSession();
 	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-        $total_rows =  $this->booking_model->get_spare_parts_booking(0, "All");
-        
-	$config['total_rows'] = $total_rows[0]['count'];
-        $data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['total_rows'], $offset);
+            
+        $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id"));
+        $vendor_id = array();
+        if(!empty($sf)){
+            $vendor_id = explode(",", $sf[0]["service_centres_id"]);;
+        }
+
+        $data['spare_parts'] = $this->booking_model->get_spare_parts_booking(-1, $offset, $vendor_id);
         $this->load->view('employee/sparepart_on_tab' , $data);
     }
     /**
@@ -1196,10 +1200,12 @@ class Inventory extends CI_Controller {
         $select = '*';
         
         //check sf_role 
-        if($sf_role === 'order_received_from'){
-            $where = "order_received_from = '$sf_id'";
-        }else if($sf_role === 'order_given_to'){
-            $where = "order_given_to = '$sf_id'";
+        if(!empty($sf_id)){
+            if($sf_role === 'order_received_from'){
+                $where["order_received_from = '$sf_id'"] = NULL;
+            }else if($sf_role === 'order_given_to'){
+                $where["order_given_to = '$sf_id'"] = NULL;
+            }
         }
         
         //check daterange selected or not
@@ -1207,10 +1213,15 @@ class Inventory extends CI_Controller {
             $start_date = date('Y-m-d 00:00:00', strtotime($this->input->post('start_date')));
             $end_date = date('Y-m-d 23:59:59', strtotime($this->input->post('end_date')));   
             
-            $where .= " AND order_date >= '$start_date' AND order_date <= '$end_date'";
+            $where[" order_date >= '$start_date' AND order_date <= '$end_date'"] = NULL;
         }
         
-        $brackets_data = $this->get_brackets_data_by($select, $where);
+        if(!empty($where)){
+            $brackets_data = $this->get_brackets_data_by($select, $where);
+        }else{
+            $brackets_data = "<div class='text-danger text-center'> <b> No Data Found <b></div>";
+        }
+        
         
         return $brackets_data;
     }

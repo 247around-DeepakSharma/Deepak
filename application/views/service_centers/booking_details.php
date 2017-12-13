@@ -91,7 +91,7 @@
                             
                             <tr>
                                 <th>Status </th>
-                                <td><?php echo $booking_history[0]['current_status']; ?></td>
+                                <td><?php echo $booking_history[0]['current_status']." / ". $booking_history[0]['internal_status']; ?></td>
                                 <th>Rescheduled Reason: </th>
                                 <td><?php echo $booking_history[0]['reschedule_reason']; ?></td>
                             </tr>

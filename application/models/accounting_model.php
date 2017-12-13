@@ -110,7 +110,7 @@ class accounting_model extends CI_Model {
                 . " IFNULL(sc.tin_no, partners.tin) as tin_no, "
                 . " to_date,total_service_charge,"
                 . " `total_additional_service_charge`,vpi.`service_tax`,"
-                . " `parts_cost`,`vat`,`total_amount_collected`,"
+                . " `parts_cost`,`parts_count`,`vat`,`total_amount_collected`,"
                 . " `around_royalty`,`amount_collected_paid`,"
                 . " `hsn_code`,`cgst_tax_amount`,`igst_tax_amount`,"
                 . "`sgst_tax_amount`,`cgst_tax_rate`,"

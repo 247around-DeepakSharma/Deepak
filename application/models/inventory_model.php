@@ -318,7 +318,7 @@ class Inventory_model extends CI_Model {
      */
     function get_filtered_brackets($select, $where){
         $this->db->select($select);
-        $this->db->where($where);
+        $this->db->where($where,null,false);
         $this->db->from('brackets');
         $query = $this->db->get();
         return $query->result_array();

@@ -188,6 +188,8 @@ define("JEEEVES_ID", 247030);
 define("WYBOR_ID", 247010);
 //ZOPPER ID
 define("ZOPPER_ID", 247012);
+//AKAI ID
+define("AKAI_ID", 247034);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
 //Define Email ID to send system health emails
@@ -209,6 +211,8 @@ define('_247AROUND_SNAPDEAL_SHIPPED','Snapdeal-Shipped');
 define('_247AROUND_PAYTM_DELIVERED','Paytm-Delivered');
 //Define Constant for Satya File 
 define('_247AROUND_SATYA_DELIVERED','Satya-Delivered');
+//Define Constant for Akai File 
+define('_247AROUND_AKAI_DELIVERED','Akai-Delivered');
 //Define Constant for Vendor Pincode Excel File Type
 define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 //Define Constant for Vendor Pincode Excel File Type
@@ -423,6 +427,7 @@ define('CLAIM_SETTLED','Claim Settled');
 
 define('BUYBACK_VOUCHER','Buyback_Voucher');
 define('PARTNER_VOUCHER','Partner_Voucher');
+define('VENDOR_VOUCHER','Vendor_Voucher');
 
 define('CLAIM_DEBIT_NOTE_RAISED','Claim Debit Note Raised');
 
@@ -549,6 +554,8 @@ define('_247AROUND_CP_STRING','CP');
 
 //demo partner id
 define('_247AROUND_DEMO_PARTNER',247050);
+
+define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',7);
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
