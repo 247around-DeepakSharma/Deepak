@@ -1141,6 +1141,7 @@ class service_centre_charges extends CI_Controller {
     }
     
     function price_table(){
+      //Do not try to un-comment
       //  $str = '{"service_id":"46","partner_id":"247010","brand":["Belco","Ego Vision","Wybor"],"category":["TV-LED"],"capacity":["16 Inch"],"request_type":"Installation & Demo","product_or_services":"","free":"1","label":"WEBUPLOAD"}';
       //  $_POST = json_decode($str, TRUE);
         $form_data = $this->input->post();
@@ -1170,12 +1171,13 @@ class service_centre_charges extends CI_Controller {
     }
     
     function delete_service_charges(){
+        //Do not try to un-comment
 //        $str = '{"delete_charge":["1499","1500","1501","1663","1664","1665","1827","1828","1829","9804","9805","9806","9829","9830","9831","9854","9855","9856"],"label":"WEBUPLOAD"}';
 //        $_POST = json_decode($str, true);
         $form_data = $this->input->post('delete_charge');
         if(!empty($form_data)){
             $agent_id = $this->session->userdata("id");
-            $this->service_centre_charges_model->insert_deleted_s_charge_in_trriger($agent_id, $form_data);
+            $this->service_centre_charges_model->insert_deleted_s_charge_in_trigger($agent_id, $form_data);
             $status = $this->service_centre_charges_model->delete_service_charges($form_data);
             if($status){
                 echo "success";

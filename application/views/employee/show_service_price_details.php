@@ -83,7 +83,7 @@
                                         <div class="bizcontent">
                                             <input type="checkbox" name="paid" autocomplete="off" value="1">
                                             <span class="glyphicon glyphicon-ok glyphicon-lg"></span>
-                                            <h5>POD</h5>
+                                            <h5>PAID</h5>
                                         </div>
                                     </label>
                                 </div>

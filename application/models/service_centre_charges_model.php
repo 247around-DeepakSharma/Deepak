@@ -351,7 +351,7 @@ class service_centre_charges_model extends CI_Model {
      * @param int $charges_id
      * @return type
      */
-    function insert_deleted_s_charge_in_trriger($agent_id, $charges_id){
+    function insert_deleted_s_charge_in_trigger($agent_id, $charges_id){
         $id = implode(",", $charges_id);
         if(!empty($id)){
              $sql = "INSERT INTO trigger_service_charges (SELECT service_centre_charges.*, CURRENT_TIMESTAMP AS current_updated_date, "

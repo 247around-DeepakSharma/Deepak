@@ -2008,11 +2008,11 @@ class Partner extends CI_Controller {
      * 
      */
     function get_category_from_service() {
-        $partner_id = 247010;#$this->input->post('partner_id');
-        $service_id = 46;#$this->input->post('service_id');
-        $category = "";#$this->input->post('category');
-        $brand = "Wybor";#$this->input->post('brand');
-        $partner_type = OEM;#$this->input->post('partner_type');
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $category = $this->input->post('category');
+        $brand = $this->input->post('brand');
+        $partner_type = $this->input->post('partner_type');
         
         if($this->input->post('is_mapping')){
             $where = array("service_id" => $service_id);
