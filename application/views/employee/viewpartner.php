@@ -43,12 +43,14 @@
           	<th class='jumbotron' style="text-align: center">PoC Name</th>
           	<th class='jumbotron' style="text-align: center">PoC Phone</th>
           	<th class='jumbotron' style="text-align: center">PoC Email</th>
-                    <th class='jumbotron' style="text-align: center">Customer Care Phone</th>
+                <th class='jumbotron' style="text-align: center">Customer Care Phone</th>
           	<th class='jumbotron' style="text-align: center">Owner Name</th>
           	<th class='jumbotron' style="text-align: center">Owner Phone</th>
           	<th class='jumbotron' style="text-align: center">Owner Email</th>
                 <th class='jumbotron' style="text-align: center">Go To Invoice Page</th>
-          	<th  class='jumbotron' style="text-align: center">Action</th>
+                <th  class='jumbotron' style="text-align: center">Action</th>
+                <th class='jumbotron' style="text-align: center">Generate Price</th>
+                <th class='jumbotron' style="text-align: center">Modify Price</th>
                 <th class='jumbotron' style="text-align: center">Send Summary Email</th>
           </tr>
 
@@ -93,6 +95,12 @@
                 <?php } else {?>
                  <a class="btn btn-md btn-primary" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>">Activate</a>                
                 <?php } ?>
+            </td>
+            <td>
+                <a href="<?php echo base_url();?>employee/service_centre_charges/generate_service_charges_view/<?php echo $row['id'];?>" class="btn btn-md btn-success">Gen. Price</a>  
+            </td>
+             <td>
+                <a href="<?php echo base_url();?>employee/service_centre_charges/show_charge_list/<?php echo $row['id'];?>" class="btn btn-md btn-primary">Modify Price</a>  
             </td>
             <td>
                 <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-md btn-color">Send Mail</a>  

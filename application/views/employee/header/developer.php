@@ -331,13 +331,7 @@
                             <a href="<?php echo base_url()?>employee/inventory/update_part_price_details"><i class="fa fa-fw fa-inr "></i> <strong> Update Zopper Price</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li >
-                            <a href="<?php echo base_url() ?>employee/service_centre_charges/generate_service_charges_view"><i class="fa fa-fw fa-desktop "></i> <strong>Generate Service Charge</strong></a>
-                        </li>
-                        <li class="divider"></li>
-                        <li >
-                            <a href="<?php echo base_url() ?>employee/service_centre_charges/show_charge_list"><i class="fa fa-fw fa-desktop "></i> <strong>Show Service Charge</strong></a>
-                        </li>
+                        
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
