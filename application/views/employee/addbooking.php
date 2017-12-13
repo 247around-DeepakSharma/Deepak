@@ -42,7 +42,7 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Add Booking</div>
             <div class="panel-body">
-                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/booking/index/<?php echo $user[0]['user_id'];?>"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/booking/index/<?php echo $phone_number;?>"  method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
@@ -50,15 +50,16 @@
                                     <label for="name" class="col-md-4">Name</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="upcountry_data" value="" id="upcountry_data" /> 
+                                         <input type="hidden" name="user_id" value="<?php if(!empty($user)){ echo $user[0]['user_id'];} ?>" id="user_id" /> 
                                          <input type="hidden" name="partner_type" value="" id="partner_type" />
                                           <input type="hidden" name="assigned_vendor_id" value="" id="assigned_vendor_id" />
-                                        <input type="text" class="form-control" id="name" name="user_name" value = "<?php echo $user[0]['name'] ?>" readonly="readonly">
+                                          <input type="text" class="form-control" placeholder="Enter User Name" id="name" name="user_name" value = "<?php if(!empty($user)){ echo $user[0]['name'];} ?>" <?php if(!empty($user)){ ?>readonly="readonly" <?php } ?>>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $user[0]['phone_number']?>" required>
+                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $phone_number; ?>" <?php if(empty($user)){ echo "readonly"; }?> required>
                                     </div>
                                 </div>
                                  <div class="form-group <?php
@@ -67,7 +68,7 @@
                                 } ?>">
                                      <label for="booking_pincode" class="col-md-4">Pincode * </label>
                                 <div class="col-md-6">
-                                     <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} ?>" placeholder="Enter Area Pin" > 
+                                     <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(!empty($user)){ if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} } ?>" placeholder="Enter Area Pin" > 
                                     <span id="error_pincode" style="color:red"></span>
                                         <?php echo form_error('booking_pincode'); ?>
                                 </div>
@@ -83,12 +84,12 @@
                                                 foreach ($city as $key => $cites) {
 
                                                     ?>
-                                            <option <?php if(strtolower($cites['district']) == strtolower($user[0]['city'])){ echo "Selected"; $flag = 1; }?>><?php echo $cites['district']; ?></option>
+                                            <option <?php  if(!empty($user)){ if(strtolower($cites['district']) == strtolower($user[0]['city'])){ echo "Selected"; $flag = 1; } }?>><?php echo $cites['district']; ?></option>
                                             <?php  }
                                                 ?>
-                                           <?php if($flag == 0){ ?>
-                                            <option selected="selected" ><?php echo $user[0]['city']; ?></option>
-                                            <?php } ?>
+                                           <?php if($flag == 0){  if(!empty($user)){ ?>
+                                           <option selected="selected" ><?php echo $user[0]['city']; ?></option>
+                                            <?php } } ?>
                                         </select>
                                     </div>
                                 </div>
@@ -126,14 +127,14 @@
                                 <div class="form-group ">
                                     <label  class="col-md-4">Email</label>
                                     <div class="col-md-6">
-                                        <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php echo $user[0]['user_email']; ?>">
+                                        <input type="email" class="form-control" placeholder="Enter Email"  id="booking_user_email" name="user_email" value = "<?php if(!empty($user)){ echo $user[0]['user_email']; } ?>">
 
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="booking_alternate_contact_no" class="col-md-4">Alternate No</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $user[0]['alternate_phone_number']?>" >
+                                        <input type="text" class="form-control booking_alternate_contact_no" placeholder="Enter Alternate No"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php  if(!empty($user)){ echo $user[0]['alternate_phone_number']; }?>" >
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -338,7 +339,7 @@
                             <div class="form-group">
                                 <label  for="booking_address" class="col-md-4">Booking Address *</label>
                                 <div class="col-md-6">
-                                    <textarea class="form-control" rows="4" id="booking_address" name="home_address"   ><?php echo $user[0]['home_address']; ?></textarea>
+                                    <textarea class="form-control" rows="4" id="booking_address" name="home_address"   ><?php if(!empty($user)){ echo $user[0]['home_address']; } ?></textarea>
                                 </div>
                             </div>
                              <div class="form-group ">
@@ -394,7 +395,7 @@
                         foreach($follow_up_internal_status as $status){?>
                      <div class="radio">
                         <label>
-                        <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>" <?php if(isset($booking_history[0]['internal_status'])){ if( $status->status == $booking_history[0]['internal_status']){ echo "checked";}} ?> >
+                        <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>"  >
                          <?php  echo $status->status;?>
                         </label>
                      </div>
