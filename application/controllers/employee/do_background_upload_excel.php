@@ -300,6 +300,7 @@ class Do_background_upload_excel extends CI_Controller {
 
 	    if (empty($output)) {
 		//User doesn't exist
+                $user = array();
                 $user['user_email'] = (isset($value['email_id']) ? $value['email_id'] : "");
                 $user['name'] = $this->miscelleneous->is_user_name_empty(trim($value['customer_name']), $user['user_email'], $phone[0]);
 		$user['phone_number'] = $phone[0];
