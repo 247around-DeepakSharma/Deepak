@@ -18,7 +18,7 @@
                 </div>
                 <div class="x_content">
                      <form action="#" method="POST" id="reAssignForm" name="reAssignForm">
-                    <table id="datatable1" class="table table-striped table-bordered table-responsive" style="width: 100%; margin-bottom: 100px;">
+                    <table id="search_datatable1" class="table table-striped table-bordered table-responsive" style="width: 100%; margin-bottom: 100px;background-color: #fff;">
                         <thead>
                             <tr>
                                 <th>No.</th>
@@ -126,7 +126,20 @@
     });
     
     $(document).ready(function () {
-        table = $('#datatable1').DataTable();
+        table = $('#search_datatable1').DataTable({
+            "pageLength":'25',
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
+                    },
+                    title: 'buyback_order'
+                }
+            ]
+        });
     });
     
     function showDialogueBox(url){
