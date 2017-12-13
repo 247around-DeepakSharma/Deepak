@@ -200,7 +200,7 @@ class Booking_utilities {
     *
     */
 
-   function booking_report_by_service_center($sf_list,$cron_flag) {
+   function get_booking_report_by_service_center_data($sf_list) {
 
        $data = $this->My_CI->reporting_utils->get_booking_by_service_center($sf_list);
        
