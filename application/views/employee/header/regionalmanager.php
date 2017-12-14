@@ -203,14 +203,14 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/vendor_availability_form"><i class="fa fa-fw fa-desktop "></i> <strong> Search Service Centre</strong></a>
                         </li>
-                        <li class="divider"></li>
+<!--                        <li class="divider"></li>-->
 <!--                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_add_vendor_to_pincode_form"><i class="fa fa-fw fa-desktop "></i> <strong>Add Vendor Pincode Mapping</strong></a>
                         </li>
                         <li class="divider"></li>-->
-                        <li>
+<!--                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/process_vendor_pincode_delete_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
-                        </li>
+                        </li>-->
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/upcountry/get_distance_between_pincodes_form"><i class="fa fa-fw fa-desktop "></i> <strong>Update Pincode Distance</strong></a>
@@ -330,10 +330,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/inventory/show_brackets_list"><i class="fa fa-fw fa-desktop "></i> <strong>Show Brackets List</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
+                        <!-- <li class="divider"></li>
+                       <li>
                             <a href="<?php echo base_url()?>employee/inventory/get_vendor_inventory_list_form"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Inventory Details</strong></a>
-                        </li>
+                        </li>-->
                         
                     </ul>
                     <!-- /.dropdown-user -->

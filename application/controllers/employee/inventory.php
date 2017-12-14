@@ -199,11 +199,12 @@ class Inventory extends CI_Controller {
         //Getting ID of logged in user
         $id = $this->session->userdata('id');
             //Getting employee relation if present
+          if($this->session->userdata('user_group') == 'regionalmanager'){
             $sf_list_array = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list_array)) {
                 $sf_list = $sf_list_array[0]['service_centres_id'];
             }
-        
+          }
         if ($page == 0) {
 	    $page = 50;
 	}
