@@ -1055,8 +1055,15 @@ class Miscelleneous {
                     break;
             }
         }
-
-        return $data;
+        
+        $blocked_brand = $this->My_CI->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['partner_id'], "brand" => $brand), "*");
+       
+        if(!empty($blocked_brand)){
+            return false;
+        } else {
+            
+            return $data;
+        }
     }
 
     /**
