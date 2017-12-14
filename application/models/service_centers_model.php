@@ -196,16 +196,19 @@ class Service_centers_model extends CI_Model {
     /**
      *
      */
-    function getcharges_filled_by_service_center($booking_id) {
-
+    function getcharges_filled_by_service_center($booking_id,$whereIN=array()) {
         $this->db->distinct();
         $this->db->select('booking_id, amount_paid, admin_remarks, service_center_remarks, cancellation_reason');
         if ($booking_id != "") {
             $this->db->where('booking_id', $booking_id);
         }
-        
         $this->db->where('current_status', 'InProcess');
         $this->db->where_in('internal_status',array('Completed','Cancelled'));
+        if(!empty($whereIN)){
+             foreach ($whereIN as $fieldName=>$conditionArray){
+                     $this->db->where_in($fieldName, $conditionArray);
+             }
+         }
         $query = $this->db->get('service_center_booking_action');
         $booking = $query->result_array();
 

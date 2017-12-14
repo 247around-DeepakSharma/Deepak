@@ -1395,14 +1395,12 @@ class Booking_model extends CI_Model {
      * @param: void
      * @return: Array of charges
      */
-    function get_booking_for_review($booking_id) {
-       
-        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id);
+    function get_booking_for_review($booking_id,$whereIN=array()) {
+        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$whereIN);
         foreach ($charges as $key => $value) {
             $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id']);
         }
-
         return $charges;
     }
 
@@ -1446,21 +1444,21 @@ class Booking_model extends CI_Model {
      * @param: void
      * @return: void
      */
-    function review_reschedule_bookings_request(){
-
+    function review_reschedule_bookings_request($whereIN=array()){
         $this->db->select('distinct(service_center_booking_action.booking_id),assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
-
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id');
         $this->db->where('service_center_booking_action.internal_status', "Reschedule");
-
+         if(!empty($whereIN)){
+             foreach ($whereIN as $fieldName=>$conditionArray){
+                     $this->db->where_in($fieldName, $conditionArray);
+             }
+         }
         $query = $this->db->get();
-
         $result = $query->result_array();
-
         return $result;
     }
 

@@ -1693,10 +1693,15 @@ class Booking extends CI_Controller {
      * @return : array of charges to view
      */
     function review_bookings($booking_id = "") {
+        $whereIN = array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+            $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
+        }
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
-        $data['charges'] = $this->booking_model->get_booking_for_review($booking_id);
-        $data['data'] = $this->booking_model->review_reschedule_bookings_request();
-
+        $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$whereIN);
+        $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/review_booking', $data);
     }

@@ -330,10 +330,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/inventory/show_brackets_list"><i class="fa fa-fw fa-desktop "></i> <strong>Show Brackets List</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
+                        <!-- <li class="divider"></li>
+                       <li>
                             <a href="<?php echo base_url()?>employee/inventory/get_vendor_inventory_list_form"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Inventory Details</strong></a>
-                        </li>
+                        </li>-->
                         
                     </ul>
                     <!-- /.dropdown-user -->
