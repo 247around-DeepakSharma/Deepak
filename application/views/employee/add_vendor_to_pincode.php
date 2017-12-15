@@ -23,11 +23,22 @@ select[multiple], select[size]{
 #brand_container{
     display: inline;
 }
+.appliance_checked_container{
+        background: #fff828;
+    border-radius: 8px;
+}
+.vendor_exists_services{
+    background:#acf7b2;
+    border-radius: 8px;
+}
 </style>
 <div id="page-wrapper" >
    <div class="container" >
       	<div class="panel panel-info" style="margin-top:20px;">
          	<div class="panel-heading">Assign Vendor to Pincode</div>
+                <div class="pull-right">
+                    <p><span style="padding: 8px 12px;margin: 10px;" class="appliance_checked_container">Requested Appliance</span><span style="padding: 8px 12px;"  class="vendor_exists_services">Service Center Already worked for</span></p>
+                </div>
          	<div class="panel-body">
         		
          		<div class="row">
@@ -61,23 +72,26 @@ select[multiple], select[size]{
                                                 <div class="form-group">
                                                     <label for="appliance" class="col-md-4" style="margin:0px 0px 20px 0px;">Appliance*</label>
                                                     <div id="appliance_brand_container">
-                            <?php foreach($all_appliance as $key=>$values){
+                            <?php 
+                            $allCheckedValue = array();
+                            foreach($all_appliance as $key=>$values){
                                                   $checked="";
                                                   $disabled="disabled";
                                                   if(isset($selected_appliance)){
                                                             foreach($selected_appliance as $applianceData){
                                                                       if($applianceData['service_id'] == $values->id){
                                                                                 $checked="checked";
+                                                                                $allCheckedValue[] = $values->id."__".$values->services;
                                                                       } 
                                                              }
                                                   }?>
                                
-                                   <div id="appliance_container" class="col-md-4">
-                               <input  id="<?php echo $key?>" style="display:inline" type="checkbox" name="appliance[]" value="<?php echo $values->id."__".$values->services ?>" <?php echo $checked?>><?php echo $values->services;?>
+                                                        <div id="appliance_container" style="width: 30%;margin: 4px 4px;" class="col-md-4 <?php if($checked=='checked'){echo "appliance_checked_container";} ?>">
+                                                            <input  id="<?php echo $key?>" style="display:inline" type="checkbox"  name="appliance[]" value="<?php echo $values->id."__".$values->services ?>" <?php echo $checked?>><?php echo $values->services;?>
                                </div>
                                                  
-                                       <?php } ?>
-                                                        
+                                       <?php } ?>   
+                                                        <p id="already_selected_boxes" style="display:none;"><?php echo json_encode($allCheckedValue); ?></p>
                                </div>   
                            </div>
                               <?php } ?>
@@ -97,7 +111,7 @@ select[multiple], select[size]{
     </div>
 </div>
     </div>
-
+    <p id="last_vendor_value_holder" style="display:none;"></p>
 <script type="text/javascript">
 $(".brands").select2();
 $(".vendor").select2();
@@ -111,11 +125,11 @@ $(".vendor").select2();
             var selectedAppliance =0;
             for(var x=0;x<applianceCount;x++){
                      isChecked = document.getElementById(x).checked;
-                      if(isChecked == true){
+                      if(isChecked === true){
                           var selectedAppliance = 1;
                       }
                   }
-                  if(selectedAppliance==0){
+                  if(selectedAppliance===0){
                       alert("Please Select Atleast 1 Appliance");
                       exit();
                   }
@@ -123,4 +137,31 @@ $(".vendor").select2();
                         document.getElementById("vendor_form").submit();
                   }
         }
+        function checkUncheckVendorServices(checkboxValue,className,response){
+             var obj = JSON.parse(response);
+             var alreadyExistServicesObj = JSON.parse($("#already_selected_boxes").html());
+            for(var i=0;i<obj.length;i++){
+            if($.inArray(obj[i].service, alreadyExistServicesObj) > -1){
+            }
+            else{
+              $(":checkbox[value='"+obj[i].service+"']").prop("checked",checkboxValue);
+              $(":checkbox[value='"+obj[i].service+"']").parent().attr('class', className);
+          }
+          }
+        }
+$("#vendor").change(function(){
+   var vendor_id = $("#vendor").val().split("_")[0];
+    $.ajax({
+        type: 'GET',
+        url: '<?php echo base_url()?>employee/vendor/getServicesForVendor/'+vendor_id,
+        success: function (response) {
+            var lastVendorData = $("#last_vendor_value_holder").html();
+            if(lastVendorData !== ''){
+                checkUncheckVendorServices("","col-md-4",lastVendorData);
+            }
+            checkUncheckVendorServices("true","col-md-4 vendor_exists_services",response);
+            $("#last_vendor_value_holder").html(response);
+       }
+    });
+});
 </script>

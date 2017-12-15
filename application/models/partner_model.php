@@ -1211,5 +1211,18 @@ function get_data_for_partner_callback($booking_id) {
         }
         return FALSE;
     }
+    /**
+     * @desc This is used to get partner blocked brand 
+     * @param Array $where
+     * @param String $select
+     * @return Array
+     */
+    function get_partner_blocklist_brand($where, $select){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("blacklist_brand");
+        return $query->result_array();
+        
+    }
 }
 

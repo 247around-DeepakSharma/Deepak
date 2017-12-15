@@ -15,6 +15,9 @@ select { width: 8.5em;height:2em; }
                 <option value='active' <?php echo isset($selected) && $selected['all_active'] == 'active'? 'selected="selected"':''?>>ACTIVE</option>
             </select>
             </div>
+            <?php
+           if($this->session->userdata('user_group') != 'regionalmanager'){
+            ?>
             <div class='col-md-4 form-group'>
             <select name='rm' id='rm'>
                 <option value='all' <?php echo isset($selected) && $selected['rm'] == 'all'? 'selected="selected"':''?>>ALL</option>
@@ -23,6 +26,9 @@ select { width: 8.5em;height:2em; }
                 <?php }?>
             </select>
             </div>
+        <?php
+           }
+        ?>
             <div class='col-md-2'>
             <input type='submit' value="Filter" class='btn btn-primary'>
             </div>

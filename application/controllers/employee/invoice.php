@@ -51,28 +51,51 @@ class Invoice extends CI_Controller {
      * Load invoicing form
      */
     public function index() {
+        $invoicingSummary = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1), true);
         $select = "service_centres.name, service_centres.id";
-        $data['service_center'] = $this->vendor_model->getVendorDetails($select);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1), true);
-
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+          $rmSpecificData = $this->get_rm_specific_service_centers_invoice_data($this->session->userdata('id'),$invoicingSummary);
+          $whereIN = array("id"=>$rmSpecificData['serviceCenters']);
+          $data['invoicing_summary']= $rmSpecificData["invoiceSummaryData"];
+        }
+        else{
+            $whereIN = NULL;
+            $data['invoicing_summary'] = $invoicingSummary;
+        }
+        $data['service_center'] = $this->reusable_model->get_search_result_data("service_centres",$select,NULL,NULL,NULL,NULL,$whereIN,NULL,array());
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
     }
     
+    function get_rm_specific_service_centers_invoice_data($rmID,$invoicingSummary){
+          $sf_list = $this->vendor_model->get_employee_relation($rmID);
+          $tempArray= array();
+          $serviceCenters = $sf_list[0]['service_centres_id'];
+          $serviceCentersArray = explode(",",$serviceCenters);
+          foreach($invoicingSummary as $invoiceSummaryData){
+              if (in_array($invoiceSummaryData['id'], $serviceCentersArray)){
+                  $tempArray[] = $invoiceSummaryData;
+              }
+          }
+          return array("serviceCenters"=>$serviceCentersArray,"invoiceSummaryData"=>$tempArray);
+    }
     public function invoice_listing_ajax($vendor_type = ""){
         $vendor_partner = $this->input->post('vendor_partner');
         $sf_cp = json_decode($this->input->post('sf_cp'), true);
         if($vendor_type != ""){
             $sf_cp['active'] = $vendor_type;
         }
-        
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($vendor_partner,$sf_cp);
-        
-        if($vendor_partner === 'vendor'){
-           
+          $invoicingSummary= $this->invoices_model->getsummary_of_invoice($vendor_partner,$sf_cp);
+          if($this->session->userdata('user_group') == 'regionalmanager'){
+          $rmSpecificData = $this->get_rm_specific_service_centers_invoice_data($this->session->userdata('id'),$invoicingSummary);
+          $data['invoicing_summary']= $rmSpecificData["invoiceSummaryData"];
+        }
+        else{
+            $data['invoicing_summary'] = $invoicingSummary;
+        }
+        if($vendor_partner === 'vendor'){ 
             $data['service_center'] = "service_center";
         }else{
-            
             $data['partner'] = "partner";
         }
         $data['is_ajax'] = TRUE;

@@ -1024,15 +1024,12 @@ class vendor extends CI_Controller {
         $id = $this->session->userdata('id');   
         $active = "1";
         $data['active_state'] = $active;
-        
         if(!empty($this->input->get())){
             $data = $this->input->get();
             if($data['active_state'] == 'all'){
                 $active = "";
             }
-        
         }
-
         //Getting employee relation if present for logged in user
         $sf_list = $this->vendor_model->get_employee_relation($id);
         if (!empty($sf_list)) {
@@ -1043,7 +1040,6 @@ class vendor extends CI_Controller {
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data));
-        
     }
 
     /**
@@ -3358,31 +3354,36 @@ class vendor extends CI_Controller {
         $this->checkUserSession();
         //Getting RM Lists
         $rm = $this->employee_model->get_rm_details();
-
-        if(!empty($this->input->post())){
-            $data = $this->input->post();
-            if($data['all_active'] == 'active'){
-                $active = 1;
-            }else{
-                $active = "";
-            }
-            if($data['rm'] != 'all'){
-                //Getting RM to SF Relation
-                $sf_list = $this->vendor_model->get_employee_relation($data['rm']);
-                $query = $this->vendor_model->viewvendor("", $active, $sf_list[0]['service_centres_id']);
-            }else{
-                $query = $this->vendor_model->viewvendor("", $active, '');
-            }
-            
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm,'selected'=>$data));
-            
-        }else{
-            $query = $this->vendor_model->viewvendor("", "", "");
-            
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm));
+        $current_rm_id = '';
+        $active = '';
+        $serviceCenters ='';
+        $selectedData["all_active"] = "all";
+        $selectedData["rm"] = $rm;
+        $data = array();
+        if($this->input->post()){
+            $data = $this->input->post();   
         }
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $current_rm_id = $this->session->userdata('id');
+        }
+        if(array_key_exists("rm",$data)){
+            if($data['rm'] != 'all'){
+                $selectedData["rm"] = $current_rm_id = $data['rm'];
+            }
+        }
+         if(array_key_exists("all_active",$data)){
+             if($data['all_active'] == 'active'){
+                $active = 1;
+                $selectedData["all_active"] = "active";
+             }
+        }
+        if($current_rm_id != ''){
+            $sf_list = $this->vendor_model->get_employee_relation($current_rm_id);
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+        }
+        $query = $this->vendor_model->viewvendor("", $active, $serviceCenters);
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm,'selected'=>$selectedData));
     }
     
     /**
@@ -4333,7 +4334,15 @@ class vendor extends CI_Controller {
      */
     function get_service_center_details(){
         $select = "service_centres.name, service_centres.id";
-        $data = $this->vendor_model->getVendorDetails($select);
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id') );
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+            $whereIN = array("id"=>explode(",",$serviceCenters));
+        }
+        else{
+            $whereIN = NULL;
+        }
+        $data= $this->reusable_model->get_search_result_data("service_centres",$select,NULL,NULL,NULL,NULL,$whereIN,NULL,array());
         $option = '<option selected="" disabled="">Select Service Center</option>';
 
         foreach ($data as $value) {
@@ -4439,8 +4448,9 @@ class vendor extends CI_Controller {
           * This function will return the view to upload the vendor pin code mapping file
           */
          function upload_pin_code_vendor($vendorID){
+                    $serviceArray = $this->reusable_model->get_search_result_data("services","services",NULL,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
                     $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                    $this->load->view('employee/vendor_pincode_upload',array('vendorID'=>$vendorID));
+                    $this->load->view('employee/vendor_pincode_upload',array('vendorID'=>$vendorID,"services"=>$serviceArray));
           }
           /*
            * This function will save the vendor upload pincode file in file uploads table
@@ -4734,8 +4744,9 @@ class vendor extends CI_Controller {
                   $state  =   $this->vendor_model->get_state_from_india_pincode($pincode);
                   if(empty($state['state'])){
                      $states  =   $this->vendor_model->getall_state();
+                     $city  =   $this->vendor_model->getDistrict_from_india_pincode();
                      $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                     $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states));
+                     $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states,'city'=>$city));
                      return false;
                   }
                   else{
@@ -4751,17 +4762,13 @@ class vendor extends CI_Controller {
                $data = $this->input->post();
                $pincode = $data['pincode'];
                $state = $data['states'];
-               $districtArray = explode(",",$data['district']);
-               $length = count($districtArray);
+               $cityArray = $data['city'];
+               $length = count($cityArray);
                for($i=0;$i<$length;$i++){
-                              $tempArray['district'] = $districtArray[$i];
-                              $tempArray['taluk'] = $districtArray[$i];
-                              $tempArray['region'] = $districtArray[$i];
-                              $tempArray['division'] = $districtArray[$i];
-                              $tempArray['area'] = $districtArray[$i];
-                              $tempArray['state'] = $state;
-                              $tempArray['pincode'] = $pincode;
-                   $insertArray[] = $tempArray;
+                    $tempArray['district'] = $cityArray[$i];
+                    $tempArray['state'] = $state;
+                    $tempArray['pincode'] = $pincode;
+                    $insertArray[] = $tempArray;
                }
                $insertResult = $this->vendor_model->insert_india_pincode_in_batch($insertArray);
                if($insertResult){
@@ -4893,8 +4900,12 @@ class vendor extends CI_Controller {
         $this->load->view('employee/updated_history',$data);
     }
     function show_escalation_graph_by_sf($sfID){
-        $data=array();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/sf_escalation_view', array('data' => array("vendor_id"=>$sfID)));
     }
+    function getServicesForVendor($vendorID){
+        $appliance  = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","CONCAT(vendor_pincode_mapping.Appliance_ID,'__',services.services) as service",
+                array("Vendor_ID"=>$vendorID),array("services"=>"services.id=vendor_pincode_mapping.Appliance_ID"),NULL,NULL,NULL,NULL,array("Appliance_ID"));
+        echo json_encode($appliance);
+        }
 }

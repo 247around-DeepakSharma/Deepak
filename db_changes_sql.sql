@@ -3754,3 +3754,50 @@ INSERT INTO `email_attachment_parser`
 (`id`, `email_received_from`, `email_subject_text`, `email_function_name`, 
 `file_type`, `email_remarks`, `email_send_to`, `active`, `create_date`) 
 VALUES (NULL, 'sachinj@247around.com', 'akai file', 'employee/do_background_upload_excel/process_upload_file', 'Akai-Delivered', 'Akai', 'dfg@247around.com', '1', '2017-11-29 11:42:30');
+
+
+
+--
+-- Table structure for table `blacklist_brand`
+--
+
+CREATE TABLE `blacklist_brand` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `service_id` int(11) NOT NULL,
+  `brand` varchar(128) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `blacklist_brand`
+--
+
+INSERT INTO `blacklist_brand` (`id`, `partner_id`, `service_id`, `brand`) VALUES
+(1, 1, 46, 'Weston'),
+(2, 1, 46, 'Activa'),
+(3, 1, 46, 'Polaroid'),
+(4, 1, 46, 'ITH'),
+(5, 1, 46, 'Digismart'),
+(6, 1, 46, 'Dutsun'),
+(7, 1, 46, 'I Grasp'),
+(8, 1, 46, 'Grasp');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `blacklist_brand`
+--
+ALTER TABLE `blacklist_brand`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `blacklist_brand`
+--
+ALTER TABLE `blacklist_brand`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
