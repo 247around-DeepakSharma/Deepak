@@ -56,15 +56,19 @@
                                </select>
                            </div>
                         </div> 
-                       <div class="repeat_input_container">
-                           <div class="form-group">
-                           <label for="district" class="col-md-4">District/City*</label>
-                           <div class="col-md-6">
-                               <input type="text" class="form-control" id="district" name="district" value = "">
-                                <input style='float:right;margin-top: 16px;' type="button" id="submitform" class="btn btn-info " onclick="addNewInputFields()" value="Add More District/City"/>
-                           </div>
-                        </div>
-                       </div>
+                        <div class="form-group">
+                                <label for="City" class="col-md-4">City*</label>
+                                <div class="col-md-6">
+                                    <select type="text" class="form-control"  id="city" name="city[]" required multiple>
+                                                 <option value="">Select City</option>
+                                                 <?php if (isset($city)){?>
+                                                         <?php foreach ($city as $key => $values) { ?>
+                                                         <option  value="<?php echo $values['district'] ?>" > <?php echo $values['district'];?></option>
+                                                         <?php } 
+                                                 }?>
+                                    </select>
+                                </div>
+                        </div> 
                    </div>
                </form>
                     <div class="button_container">
@@ -77,58 +81,18 @@
 </div>
 </div>
 <script type="text/javascript">
-    var district = [];
-    function isEmpty(id){
-        var value = document.getElementById(id).value;
-        if(!value){
-            alert(id+" Should Not be blank");
-            return false;
-        }
-        return value;
-    }
-     function cancel(index){
-            district.splice(index, 1);
-            createView();
-    }
-    function createView(){
-        document.getElementById("view_display_holder").style.border = "1px solid #2c9d9c";
-        var view = '<ul class="list-inline ul_holder" style="margin: 0px auto;background: #2c9d9c;border: 0px;">';
-        var view = view+'<li class="list-inline-item view_container" ><b>City/District</b></li>';
-        var view = view+'<li class="list-inline-item view_container" style="margin-left: -3.6px;"><b>Cancel</b></li>';
-        var view = view+'</ul>';
-        var length = district.length;
-        for(var i = 0;i<length;i++){
-            var view = view+'<ul class="list-inline ul_holder" style="margin: 0px auto;border: 0px;">';
-            view = view+'<li class="list-inline-item view_container" >'+district[i]+'</li>';
-            view = view+'<li class="list-inline-item view_container" onclick="cancel('+i+')">Cancel</li>';
-            view = view+'</ul>';
-            view = view+'<hr style="margin: 0px;">';
-        }
-        document.getElementById("view_display_holder").innerHTML = view;
-    }
-    function addNewInputFields(){
-             districtValue = isEmpty("district");
-             if(districtValue){
-                    var length = district.length;
-                    district[length] = document.getElementById("district").value;
-                    document.getElementById("district").value = '';
-                    document.getElementById("states").disabled = true;
-                    createView();
-        } 
-    }
+$("#city").select2();
+$("#states").select2();
     function savePincode(){  
-        var  stateValue  = isEmpty("states");
-        var  pincode  = isEmpty("pincode");
-        if(stateValue && pincode){
-            var length = district.length;
-             if(length>0){
-                document.getElementById("district").value = district.toString();
-                document.getElementById("states").disabled = false;
-                document.getElementById("pincode_form").submit();
-             }
+        var  stateValue  = $("#states").val();
+        var  pincode  = $("#pincode").val();
+        var  city  = $("#city").val();
+        if(stateValue && pincode && city){
+           document.getElementById("pincode_form").submit();
+       }
              else{
-                 alert("Please Add atleast 1 District/City");
+                 alert("Please Select All Fields");
              }
     }
-    }
+
     </script>
