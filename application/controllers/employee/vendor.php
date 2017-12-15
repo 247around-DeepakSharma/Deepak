@@ -4903,8 +4903,12 @@ class vendor extends CI_Controller {
         $this->load->view('employee/updated_history',$data);
     }
     function show_escalation_graph_by_sf($sfID){
-        $data=array();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/sf_escalation_view', array('data' => array("vendor_id"=>$sfID)));
     }
+    function getServicesForVendor($vendorID){
+        $appliance  = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","CONCAT(vendor_pincode_mapping.Appliance_ID,'__',services.services) as service",
+                array("Vendor_ID"=>$vendorID),array("services"=>"services.id=vendor_pincode_mapping.Appliance_ID"),NULL,NULL,NULL,NULL,array("Appliance_ID"));
+        echo json_encode($appliance);
+        }
 }
