@@ -4744,8 +4744,9 @@ class vendor extends CI_Controller {
                   $state  =   $this->vendor_model->get_state_from_india_pincode($pincode);
                   if(empty($state['state'])){
                      $states  =   $this->vendor_model->getall_state();
+                     $city  =   $this->vendor_model->getDistrict_from_india_pincode();
                      $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                     $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states));
+                     $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states,'city'=>$city));
                      return false;
                   }
                   else{
@@ -4761,17 +4762,13 @@ class vendor extends CI_Controller {
                $data = $this->input->post();
                $pincode = $data['pincode'];
                $state = $data['states'];
-               $districtArray = explode(",",$data['district']);
-               $length = count($districtArray);
+               $cityArray = $data['city'];
+               $length = count($cityArray);
                for($i=0;$i<$length;$i++){
-                              $tempArray['district'] = $districtArray[$i];
-                              $tempArray['taluk'] = $districtArray[$i];
-                              $tempArray['region'] = $districtArray[$i];
-                              $tempArray['division'] = $districtArray[$i];
-                              $tempArray['area'] = $districtArray[$i];
-                              $tempArray['state'] = $state;
-                              $tempArray['pincode'] = $pincode;
-                   $insertArray[] = $tempArray;
+                    $tempArray['district'] = $cityArray[$i];
+                    $tempArray['state'] = $state;
+                    $tempArray['pincode'] = $pincode;
+                    $insertArray[] = $tempArray;
                }
                $insertResult = $this->vendor_model->insert_india_pincode_in_batch($insertArray);
                if($insertResult){
@@ -4903,8 +4900,12 @@ class vendor extends CI_Controller {
         $this->load->view('employee/updated_history',$data);
     }
     function show_escalation_graph_by_sf($sfID){
-        $data=array();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/sf_escalation_view', array('data' => array("vendor_id"=>$sfID)));
     }
+    function getServicesForVendor($vendorID){
+        $appliance  = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","CONCAT(vendor_pincode_mapping.Appliance_ID,'__',services.services) as service",
+                array("Vendor_ID"=>$vendorID),array("services"=>"services.id=vendor_pincode_mapping.Appliance_ID"),NULL,NULL,NULL,NULL,array("Appliance_ID"));
+        echo json_encode($appliance);
+        }
 }
