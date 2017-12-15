@@ -511,28 +511,175 @@ class Dealers extends CI_Controller {
      * @return void
      */
     function show_dealer_list($dealer_id = ""){
-        $select = '*';
-        $dealer_data = array();
-        if($dealer_id !== ''){
-            $where = array('dealer_id'=> $dealer_id);
-        }else{
-            $where = '';
-                if($this->session->userdata('user_group') == 'regionalmanager'){
-                    $states = $this->reusable_model->get_state_for_rm($this->session->userdata('id'));
-                    $finalStateArray = array_column($states, 'state');
-                    $dealer_data = $this->reusable_model->get_search_result_data("dealer_details",$select,NULL,NULL,NULL,NULL,array("state"=>$finalStateArray),NULL);
-               }
-        }
-        if(!$dealer_data){
-            $dealer_data = $this->dealer_model->get_dealer_details($select,$where);
-        }
-        foreach ($dealer_data as $value){
-            //Getting Appliances and Brands details for dealer
-            $dealer_mapping_data[] = $this->dealer_model->get_dealer_brand_mapping_details($value['dealer_id']);
+        $data['dealer_id'] = $dealer_id;
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('dealers/show_dealers_list',$data);
+    }
+    
+    function get_dealers(){
+        $post = $this->get_post_data();
+        $new_post = $this->get_filtered_data($post);
+        $select = "dealer_details.dealer_id,dealer_details.dealer_name,dealer_details.dealer_phone_number_1,dealer_details.city,"
+                . "dealer_details.state,dealer_details.active";
+        $list = $this->dealer_model->get_dealer_mapping_details($new_post,$select);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $dealer_list) {
+            $no++;
+            $dealer_list['dealer_mapping_data'] = $this->dealer_model->get_dealer_brand_mapping_details($dealer_list['dealer_id']);
+            $row =  $this->dealer_table_data($dealer_list, $no);
+            $data[] = $row;
         }
         
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-        $this->load->view('dealers/show_dealers_list',array('dealers'=>$dealer_data,'dealers_mapping'=>$dealer_mapping_data));
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->dealer_model->get_dealer_mapping_details($new_post,'count(distinct(dealer_details.dealer_id)) as numrows')[0]['numrows'],
+            "recordsFiltered" =>  $this->dealer_model->get_dealer_mapping_details($new_post,'count(distinct(dealer_details.dealer_id)) as numrows')[0]['numrows'],
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+    }
+    
+    function get_post_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        $post['status'] = $this->input->post('status');
+
+        return $post;
+    }
+    
+    function get_filtered_data($data){
+        $dealer_id = $this->input->post('dealer_id');
+        
+        if(!empty($dealer_id)){
+            $data['where']['dealer_details.dealer_id'] =  $dealer_id;
+        }
+        
+        if ($this->session->userdata('user_group') == 'regionalmanager') {
+            $states = $this->reusable_model->get_state_for_rm($this->session->userdata('id'));
+            $finalStateArray = array_column($states, 'state');
+            $data['where_in'] = array("dealer_details.state" => $finalStateArray);
+        }
+        
+        $data['column_order'] = array(NULL,'dealer_details.dealer_name','dealer_details.dealer_phone_number_1',NULL,NULL,NULL,NULL);
+        $data['column_search'] = array('dealer_details.dealer_name','dealer_details.dealer_phone_number_1','dealer_details.city');
+        
+        return $data;
+    }
+    
+    function dealer_table_data($dealer_list, $no){
+        $row = array();
+        $dealer_partner_brand = "";
+        if (!empty($dealer_list['dealer_mapping_data'])) {
+            foreach ($dealer_list['dealer_mapping_data'] as $val) {
+                $dealer_partner_brand .= ' <b>' . $val['public_name'] . '</b> - ' . $val['services'] . '</b> - ' . $val['brand'] . ' ,';
+            }
+            
+            $dealer_partner_brand = rtrim($dealer_partner_brand, ",");
+        }
+        $row[] = $no;
+        $row[] = "<a href='".base_url()."employee/dealers/edit_dealer_details/".$dealer_list['dealer_id']."'>".$dealer_list['dealer_name']."</a>";
+        $row[] = $dealer_list['dealer_phone_number_1'];
+        $row[] = $dealer_list['city'];
+        $row[] = $dealer_list['state'];
+        $row[] = $dealer_partner_brand;
+        if($dealer_list['active'] === '1') {
+            $row[] = "<span class='label label-success'>Active</span>";
+        }else{
+            $row[] = "<span class='label label-danger'>Deactivate</span>";
+        }
+        
+        return $row;
+        
+    }
+    
+    function edit_dealer_details($dealer_id){
+        $this->checkAdminSession();
+        $condition = array('dealer_details.dealer_id' => $dealer_id);
+        $select = "*";
+        
+        $data['dealer_details'] = $this->reusable_model->get_search_query('dealer_details', $select,$condition,NULL,NULL,NULL,NULL,NULL)->result_array();
+        
+        if(!empty($data['dealer_details'])){
+            $data['dealer_city_source'] = $this->booking_model->get_city_source();
+            $data['state'] = $this->vendor_model->getall_state();
+            $data['dealer_partner_mapping'] = $this->dealer_model->get_dealer_brand_mapping_details($dealer_id);
+            $data['dealer_partner_mapping_id']= array_unique(array_column($data['dealer_partner_mapping'], 'id'));
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->load->view('dealers/edit_dealer_details',$data);
+        }else{
+            echo "No Dealer found";
+        }
+    }
+    
+    function process_edit_dealer($dealer_id){
+        log_message("info", __METHOD__);
+        $this->checkAdminSession();
+        if(!empty($dealer_id)){
+            $dealer_details['dealer_name'] = $this->input->post('dealer_name');
+            $dealer_details['city'] = !empty($this->input->post('city'))?$this->input->post('city'):NULL;
+            $dealer_details['dealer_phone_number_1'] = $this->input->post('dealer_phone_number_1');
+            $dealer_details['dealer_email'] = !empty($this->input->post('dealer_email'))?$this->input->post('dealer_email'):NULL;
+            $dealer_details['owner_name'] = !empty($this->input->post('owner_name'))?$this->input->post('owner_name'):NULL;
+            $dealer_details['owner_phone_number_1'] = !empty($this->input->post('owner_phone_number_1'))?$this->input->post('owner_phone_number_1'):NULL;
+            $dealer_details['owner_email'] =!empty($this->input->post('owner_email'))?$this->input->post('owner_email'):NULL;
+            $dealer_details['state'] = !empty($this->input->post('state'))?$this->input->post('state'):NULL;
+            //update dealer details
+            $update_res = $this->dealer_model->update_dealer($dealer_details,array('dealer_id'=>$dealer_id));
+            
+            if(!empty($update_res)){
+                //dealer partner mapping to be updated
+                $dealer_partner_mapping_data = !empty($this->input->post('partner_id'))?$this->input->post('partner_id'):array();
+                //initial dealer partner mapping data
+                $ini_dealer_partner_mapping_data = explode(',', $this->input->post('ini_delaer_partner_mapping'));
+                //get dealer partner mapping data which need to be deleted
+                $del_partner_dealer_mapping_data = array_diff($ini_dealer_partner_mapping_data, $dealer_partner_mapping_data); 
+                //get new dealer partner mapping data 
+                $new_partner_dealer_mapping_data = array_diff($dealer_partner_mapping_data, $del_partner_dealer_mapping_data);
+                
+                //add new dealer partner mapping data if it is not exist in the table
+                if (!empty($new_partner_dealer_mapping_data)) {
+                    foreach ($new_partner_dealer_mapping_data as $value) {
+                        if (!in_array($value, $ini_dealer_partner_mapping_data)) {
+                            $data['partner_id'] = $value;
+                            $data['city'] = $dealer_details['city'];
+                            $status = $this->add_dealer_mapping($data, $dealer_id);
+                            if (!empty($status)) {
+                                log_message("info", "Delaer Partner Mapping Created successfully");
+                            } else {
+                                log_message("info", "Error In creating Delaer Partner Mapping");
+                            }
+                        }
+                    }
+                }
+                
+                //delete partner mapping data
+                if(!empty($del_partner_dealer_mapping_data)){
+                    foreach ($del_partner_dealer_mapping_data as $value){
+                            $status =  $this->dealer_model->delete_dealer_brand_mapping(array('partner_id' => $value,'dealer_id' => $dealer_id));
+                            if(!empty($status)){
+                                log_message("info", "Delaer Partner Mapping Deleted successfully");
+                            }else{
+                                log_message("info", "Error In deleting Delaer Partner Mapping");
+                            }
+                        }      
+                }
+                
+                $this->session->set_flashdata('success_msg','Details has been updated successfully.');
+                redirect(base_url() . "employee/dealers/show_dealer_list");
+            }else{
+                $this->session->set_flashdata('error_msg','Error In updating Details!!! Please Try Again');
+                redirect(base_url() . "employee/dealers/edit_dealer_details/$dealer_id");
+            }
+        }else{
+            $this->session->set_flashdata('error_msg','Dealer Details Not Found');
+            redirect(base_url() . "employee/dealers/show_dealer_list");
+        }
     }
    
 
