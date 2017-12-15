@@ -178,47 +178,31 @@
                                                 <td><?php echo $price['price_tags'] ?></td>
                                                 <td id="<?php echo "amount_due".$count; ?>"><?php echo $price['customer_net_payable']; ?></td>
                                                 <td>  
-                                                    <?php  if ($price['product_or_services'] == "Service"){ ?>
+                                                    <?php if($price['product_or_services'] != "Product"){  ?>
                                                     
-                                                    <input  id="<?php echo "basic_charge".$count; ?>" type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
-                                                    $paid_basic_charges += $price['customer_paid_basic_charges'];
-                                                    if (!empty($price['customer_paid_basic_charges'])) {
-                                                    echo $price['customer_paid_basic_charges'];
-                                                    } else {
-                                                    echo "0";
-                                                    }
-                                                    ?>">
+                                                    <input  id="<?php echo "basic_charge".$count; ?>" type="<?php  if (($price['product_or_services'] == "Service" 
+                                                            && $price['customer_net_payable'] == 0) ){ echo "hidden";} ?>" 
+                                                            class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "0">
                                                     <?php } ?>
                                                 </td>
-                                                <td>  <input id="<?php echo "extra_charge".$count; ?>"  type="<?php  if ($price['product_or_services'] == "Product") { echo "hidden";} else { echo "text";} ?>" class="form-control cost"  name="<?php echo "additional_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
-                                                    $paid_additional_charges += $price['customer_paid_extra_charges'];
-                                                    if (!empty($price['customer_paid_extra_charges'])) {
-                                                    echo $price['customer_paid_extra_charges'];
-                                                    } else {
-                                                    echo "0";
-                                                    }
-                                                    ?>">
+                                                <td>  <input id="<?php echo "extra_charge".$count; ?>"  type="<?php  if ($price['product_or_services'] == "Product") { 
+                                                    echo "hidden";} else { echo "text";} ?>" class="form-control cost"  
+                                                    name="<?php echo "additional_charge[" . $price['unit_id'] . "]" ?>"  
+                                                    value = "0">
                                                 </td>
                                                 <td>  
-                                                     <?php  if ($price['product_or_services'] == "Product"){ ?>
                                                     
-                                                    <input  id="<?php echo "basic_charge".$count; ?>" type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
-                                                    $paid_basic_charges += $price['customer_paid_basic_charges'];
-                                                    if (!empty($price['customer_paid_basic_charges'])) {
-                                                    echo $price['customer_paid_basic_charges'];
-                                                    } else {
-                                                    echo "0";
-                                                    }
-                                                    ?>">
-                                                    <?php } ?>
-                                                    <input id="<?php echo "parts_cost".$count; ?>"  type="<?php  if ($price['product_or_services'] == "Product") { echo "hidden";} else { echo "text";}?>" class="form-control cost"  name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "<?php
-                                                    $paid_parts_cost += $price['customer_paid_parts'];
-                                                    if (!empty($price['customer_paid_parts'])) {
-                                                    echo $price['customer_paid_parts'];
-                                                    } else {
-                                                    echo "0";
-                                                    }
-                                                    ?>" >
+                                                    
+                                                    <input  id="<?php echo "basic_charge".$count; ?>" type="<?php if ($price['product_or_services'] == "Product"
+                                                            && $price['customer_net_payable'] > 0){ echo "text"; } 
+                                                            else { echo "hidden";}?>" class="form-control cost" 
+                                                            name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "0">
+                                                   
+                                                    <input id="<?php echo "parts_cost".$count; ?>"  type="<?php if($price['product_or_services'] == "Service"){ 
+                                                        if ($price['product_or_services'] == "Product" && $price['customer_net_payable'] == 0) { 
+                                                            echo "hidden";} else { echo "text";} } else { echo "text";}?>" 
+                                                            class="form-control cost" 
+                                                            name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "0" >
                                                 </td>
                                                 <td>
                                                     <div class="row">
