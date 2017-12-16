@@ -1264,7 +1264,12 @@ class Inventory extends CI_Controller {
 
                 $data['order_given_to'][$key] = $this->vendor_model->getVendorContact($value['order_given_to'])[0]['name'];
             }
-            $response = $this->load->view('employee/show_filtered_brackets_list', $data);
+            if($this->input->post('sf_id')){
+                $response = $this->load->view('service_centers/show_filtered_brackets_list', $data);
+            }else{
+                $response = $this->load->view('employee/show_filtered_brackets_list', $data);
+            }
+            
         } else {
             $response = "No Data Found";
         }
@@ -1621,6 +1626,35 @@ class Inventory extends CI_Controller {
         } else {
             return true;
         }
+    }
+    
+    /**
+     * @desc: This function is used to get the last two month brackets order given to sf
+     * @param: void
+     * @return: JSON $response
+     */
+    function get_brackets_details(){
+        $where= array('order_given_to' => $this->input->post('sf_id'),
+                      'is_received' => 1,
+                      "received_date >= (DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 2 MONTH)" => NULL);
+        $data = $this->reusable_model->get_search_query('brackets',"DATE_FORMAT(received_date, '%b') AS month,SUM(26_32_received) as l_32,SUM(36_42_received) as g_32",$where,NULL,NULL,array('month'=> 'asc'),NULL,NULL,'month')->result_array();
+        $response = array();
+        if(!empty($data)){
+            foreach($data as $value){
+                switch ($value['month']){
+                    case date('M'):
+                        $response['cm_less_than_32'] = !empty($value['l_32'])?$value['l_32']:0;
+                        $response['cm_greater_than_32'] = !empty($value['g_32'])?$value['g_32']:0;
+                        break;
+                    case date("M", strtotime("last month")):
+                        $response['lm_less_than_32'] = !empty($value['l_32'])?$value['l_32']:0;
+                        $response['lm_greater_than_32'] =!empty($value['g_32'])? $value['g_32']:0;
+                        break;
+                }
+            }
+        }
+        
+        echo json_encode($response);
     }
 
 }

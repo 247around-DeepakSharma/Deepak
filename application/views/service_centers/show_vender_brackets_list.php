@@ -56,21 +56,43 @@
         </div>
     </div>
     <div class="row">
-        <div class="filter_brackets">
-            <hr>
-            <div class="filter_box">
-                <div class="col-sm-4">
-                    <select class="form-control" id="sf_id" name="sf_id">
-                        <option selected="" disabled="">Select Service Center</option>
-                    </select>
-                </div>
-                <div class="col-sm-4">
-                    <input type="text" class="form-control valid" id="daterange" name="daterange" placeholder="Order Date">
-                </div>
-                <div class="col-sm-4">
-                    <div class="btn btn-success" id="filter">Filter</div>
-                </div>
-            </div>
+        <div class="col-md-6">
+            <table class="table table-bordered table-responsive">
+                <tr>
+                    <td rowspan='2' class="text-center" style="padding-top: 25px;">
+                        <strong>Last Month Order Received</strong>
+                    </td>
+                    <td >
+                        <strong>Less than 32 Inch</strong>
+                    </td>
+                    <td>
+                        <strong>32 Inch & Above</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="lm_less_than_32">0</td>
+                    <td id="lm_greater_than_32">0</td>
+                </tr>
+            </table>
+        </div> 
+        <div class="col-md-6">
+            <table class="table table-bordered table-responsive">
+                <tr>
+                    <td rowspan='2' class="text-center" style="padding-top: 25px;">
+                        <strong>Current Month Order Received</strong>
+                    </td>
+                    <td >
+                        <strong>Less than 32 Inch</strong>
+                    </td>
+                    <td>
+                        <strong>32 Inch & Above</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="cm_less_than_32">0</td>
+                    <td id="cm_greater_than_32">0</td>
+                </tr>
+            </table>
         </div>
     </div>
     <hr>
@@ -275,6 +297,21 @@
                     $('#sf_id').select2().html(response);
                 }
             });
+            
+            $.ajax({
+                method:'POST',
+                url:"<?php echo base_url(); ?>employee/inventory/get_brackets_details",
+                data:{sf_id: <?php echo $this->session->userdata('service_center_id');?>},
+                success:function(response){
+                    if(response !== ""){
+                        var data = JSON.parse(response);
+                        $("#lm_less_than_32").html(data.lm_less_than_32);
+                        $("#lm_greater_than_32").html(data.lm_greater_than_32);
+                        $("#cm_less_than_32").html(data.cm_less_than_32);
+                        $("#cm_greater_than_32").html(data.cm_greater_than_32);
+                    }
+                }
+            });
         });
         
         $('#filter').click(function(){
@@ -312,7 +349,7 @@
                $.ajax({
                     method:'POST',
                     url: "<?php echo base_url();?>employee/inventory/get_brackets_detailed_list",
-                    data: {'order_id':order_id,'type':'search'},
+                    data: {'order_id':order_id,'type':'search',sf_id:<?php echo $this->session->userdata('service_center_id');?>},
                     success:function(response){
                         //console.log(response);
                         if(response === 'No Data Found'){
