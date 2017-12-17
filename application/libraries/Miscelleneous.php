@@ -1714,56 +1714,41 @@ class Miscelleneous {
         return $response;
     }
 
-    function table_updated_history_view($orignalTable, $triggeredTable) {
+    function table_updated_history_view($orignalTable, $triggeredTable, $entityID) {
         $finalData = array();
-        $orderByArray[$triggeredTable . '.id,' . $triggeredTable . '.update_date'] = 'ASC';
+        $orderByArray[$triggeredTable . '.id,' . $triggeredTable . '.update_date'] = 'DESC';
         $joinArray = array("employee" => "employee.id=" . $triggeredTable . ".agent_id");
-        $triggeredTableData = $this->My_CI->reusable_model->get_search_result_data($triggeredTable, $triggeredTable . ".*,employee.full_name", NULL, $joinArray, NULL, $orderByArray, NULL, NULL);
-        $orignalTableTempData = $this->My_CI->reusable_model->get_search_result_data($orignalTable, "*", NULL, NULL, NULL, NULL, NULL, NULL);
-        foreach ($orignalTableTempData as $tempData) {
-            $orignalTableData[$tempData['id']] = $tempData;
-        }
-        foreach ($triggeredTableData as $index => $data) {
-            if (array_key_exists($data['id'], $finalData)) {
-                if ($data['id'] == $triggeredTableData[($index - 1)]['id']) {
-                    $finalData[$data['id']]['data'][] = array_keys(array_diff($data, $triggeredTableData[$index - 1]));
-                    $finalData[$data['id']]['update_date'][] = $data['update_date'];
-                    $finalData[$data['id']]['updated_by'][] = $data['full_name'];
-                }
-            } else {
-                $orignalData = array();
-                if (array_key_exists($data['id'], $orignalTableData)) {
-                    $orignalData = $orignalTableData[$data['id']];
-                }
-                $finalData[$data['id']]['data'][] = array_keys(array_diff($orignalData, $data));
-                $finalData[$data['id']]['update_date'][] = $data['update_date'];
-                $finalData[$data['id']]['updated_by'][] = $data['full_name'];
-                if ($orignalTable == "service_centres") {
-                    $finalData[$data['id']]['public_name'] = $data['name'];
-                } else {
-                    $finalData[$data['id']]['public_name'] = $data['public_name'];
+        $triggeredTableData = $this->My_CI->reusable_model->get_search_result_data($triggeredTable, $triggeredTable . ".*,employee.full_name", array($triggeredTable.".id" => $entityID), $joinArray, NULL, $orderByArray, NULL, NULL);
+        $orignalTableData = $this->My_CI->reusable_model->get_search_result_data($orignalTable, "*", array($orignalTable.".id" => $entityID), NULL, NULL, NULL, NULL, NULL);
+        array_unshift($triggeredTableData,$orignalTableData[0]);
+        if(count($triggeredTableData)>1){
+            foreach ($triggeredTableData as $index => $data) {
+                if($index < count($triggeredTableData)-1){
+                    $finalData['data'][] = array_keys(array_diff($data,$triggeredTableData[$index+1]));
+                    $finalData['update_date'][] = $triggeredTableData[$index+1]['update_date'];
+                    $finalData['updated_by'][] = $triggeredTableData[$index+1]['full_name'];
                 }
             }
         }
         return $finalData;
     }
     
-    function send_completed_booking_email_to_customer($completedBookingsID) {
-        log_message('info', __FUNCTION__ . ' => Completed booking Email Send Function Entry');
-        $completedBookingsData = $this->My_CI->reusable_model->get_search_result_data("booking_details", "booking_details.booking_id,users.name,users.user_email,partners.public_name as partner,booking_details.booking_date as booking_date", NULL, array('partners' => 'partners.id=booking_details.partner_id', 'users' => 'booking_details.user_id=users.user_id'), NULL, NULL, array('booking_id' => $completedBookingsID), NULL);
-        foreach ($completedBookingsData as $data) {
-            $emailBasicDataArray['to'] = $data['user_email'];
-            $emailBasicDataArray['subject'] = "Completed Booking " . $data['booking_id'];
-            $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
-            $emailBasicDataArray['fromName'] = "247around Team";
-            $emailTemplateDataArray['templateId'] = COMPLETED_BOOKING_CUSTOMER_TEMPLATE;
-            unset($data['user_email']);
-            $emailTemplateDataArray['dynamicParams'] = $data;
-            $this->My_CI->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray);
-            log_message('info', __FUNCTION__ . ' => Email Sent');
-            log_message('info', __METHOD__ . "=> Email Basic Data" . print_r($emailBasicDataArray, true));
-            log_message('info', __METHOD__ . "=> Email Template Data " . print_r($emailTemplateDataArray, true));
-        }
+ function send_completed_booking_email_to_customer($completedBookingsID){
+      log_message('info', __FUNCTION__ . ' => Completed booking Email Send Function Entry');
+        $completedBookingsData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,users.name,users.user_email,partners.public_name as partner,booking_details.booking_date as booking_date",NULL,array('partners'=>'partners.id=booking_details.partner_id','users'=>'booking_details.user_id=users.user_id'),NULL,NULL,array('booking_id'=>$completedBookingsID),NULL);
+        foreach($completedBookingsData as $data){
+        $emailBasicDataArray['to'] = $data['user_email'];
+        $emailBasicDataArray['subject'] = "Completed Booking ".$data['booking_id'];
+        $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
+        $emailBasicDataArray['fromName'] = "247around Team";
+        $emailTemplateDataArray['templateId'] = COMPLETED_BOOKING_CUSTOMER_TEMPLATE;
+        unset($data['user_email']);
+        $emailTemplateDataArray['dynamicParams'] = $data;
+        $this->My_CI->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray);
+        log_message('info', __FUNCTION__ . ' => Email Sent');
+        log_message('info', __METHOD__ . "=> Email Basic Data" . print_r($emailBasicDataArray, true));
+       log_message('info', __METHOD__ . "=> Email Template Data " . print_r($emailTemplateDataArray, true));
+            }
     }
 
     /**
