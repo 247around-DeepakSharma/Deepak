@@ -3435,5 +3435,16 @@ class Partner extends CI_Controller {
             redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
+    
+    /**
+     * @desc: this function is used to reset the partner login details
+     * @param: void
+     * @return: void
+     */
+    function reset_partner_password(){
+        $this->checkUserSession();
+        $this->load->view('partner/header');
+        $this->load->view('partner/reset_partner_passsword');
+    }
 
 }
