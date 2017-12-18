@@ -3861,3 +3861,8 @@ ALTER TABLE `blacklist_brand`
 --
 ALTER TABLE `blacklist_brand`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+-- sachin 18 dec
+INSERT INTO `email_template` 
+(`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'reset_vendor_login_details', 'Your Password Reset Request Processed Successfully - 247Around', 'Dear Partner,<br><br> Your password has been reset as per 247around security policy.<br><br> URL: <a href="https://www.aroundhomzapp.com/service_center/login">https://www.aroundhomzapp.com/service_center/login</a><br><br> <b>Username: </b>%s<br><b>Password: </b>%s<br><br> Please use the ERP panel for your closures going forward. In case of any issues, write to us or call us.<br><br> Regards,<br> 247around Team', 'noreply@247around.com', 'sachinj@247around.com', 'anuj@247around.com,nits@247around.com', '', '1', '2016-09-27 00:00:00');
