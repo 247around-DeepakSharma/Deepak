@@ -1833,4 +1833,49 @@ class Partner extends CI_Controller {
         
         return False;
     }
+    /**
+     * @desc: This is used to get distnace between pincode
+     */
+    function getDistanceBetweenPincode() {
+        $origins = $this->input->get("origins");
+        $destinations = $this->input->get("destinations");
+        
+        if(strlen($origins) != 6 &&strlen($destinations) != 6){
+            $distance['status'] = "REQUEST_DENIED";
+            print_r(json_encode($distance, true));
+            exit();
+        }
+        if (!empty($origins) && !empty($destinations)) {
+            $is_distance = $this->upcountry_model->get_distance_between_pincodes($origins, $destinations);
+            if (!empty($is_distance)) {
+                $distance['destination_addresses'] = "[" . $destinations . ", India]";
+                $distance['origin_addresses'] = "[" . $origins . ", India]";
+                $distance['distance'] = array("text" => $is_distance[0]['distance'] . " KM", "value" => $is_distance[0]['distance']);
+                $distance['status'] = "OK";
+
+                print_r(json_encode($distance, true));
+            } else {
+                $is_distance1 = $this->upcountry_model->calculate_distance_between_pincode($origins, "", $destinations, "");
+
+                if ($is_distance1) {
+                    $distance1 = (round($is_distance1['distance']['value'] / 1000, 2));
+                    $distance['destination_addresses'] = "[" . $destinations . ", India]";
+                    $distance['origin_addresses'] = "[" . $origins . ", India]";
+                    $distance['distance'] = array("text" => $distance1 . " KM", "value" => $$distance1);
+                    $distance['status'] = "OK";
+                    print_r(json_encode($distance, true));
+                } else {
+                    $distance['destination_addresses'] = "[" . $destinations . ", India]";
+                    $distance['origin_addresses'] = "[" . $origins . ", India]";
+                    $distance['status'] = "REQUEST_DENIED";
+
+                    print_r(json_encode($distance, true));
+                }
+            }
+        } else {
+            $distance['status'] = "REQUEST_DENIED";
+            print_r(json_encode($distance, true));
+        }
+    }
+
 }
