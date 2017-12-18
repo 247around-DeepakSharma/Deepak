@@ -39,18 +39,13 @@ class Invoice extends CI_Controller {
         $this->load->library('s3');
         $this->load->library('table');
 
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
-            return TRUE;
-        } else {
-            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
-            redirect(base_url() . "employee/login");
-        }
     }
 
     /**
      * Load invoicing form
      */
     public function index() {
+        $this->checkUserSession();
         $invoicingSummary = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1), true);
         $select = "service_centres.name, service_centres.id";
         if($this->session->userdata('user_group') == 'regionalmanager'){
@@ -68,6 +63,7 @@ class Invoice extends CI_Controller {
     }
     
     function get_rm_specific_service_centers_invoice_data($rmID,$invoicingSummary){
+          $this->checkUserSession();
           $sf_list = $this->vendor_model->get_employee_relation($rmID);
           $tempArray= array();
           $serviceCenters = $sf_list[0]['service_centres_id'];
@@ -80,6 +76,7 @@ class Invoice extends CI_Controller {
           return array("serviceCenters"=>$serviceCentersArray,"invoiceSummaryData"=>$tempArray);
     }
     public function invoice_listing_ajax($vendor_type = ""){
+        $this->checkUserSession();
         $vendor_partner = $this->input->post('vendor_partner');
         $sf_cp = json_decode($this->input->post('sf_cp'), true);
         if($vendor_type != ""){
@@ -110,6 +107,7 @@ class Invoice extends CI_Controller {
      * @return: void
      */
     function getInvoicingData() {
+        $this->checkUserSession();
         $invoice_period = $this->input->post('invoice_period');
         if($invoice_period === 'all'){
             $data = array('vendor_partner' => $this->input->post('source'),
@@ -140,6 +138,7 @@ class Invoice extends CI_Controller {
      * @param String $invoiceId
      */
     function sendInvoiceMail($invoiceId) {
+         $this->checkUserSession();
         log_message('info', "Entering: " . __METHOD__ . 'Invoice_id:' . $invoiceId );
         $data = $this->invoices_model->get_invoices_details(array("invoice_id" => $invoiceId));
         if (!empty($data)) {
@@ -192,7 +191,7 @@ class Invoice extends CI_Controller {
      * @return: void
      */
     function invoice_partner_view() {
-
+        $this->checkUserSession();
         $data['partner'] = $this->partner_model->getpartner("", false);
         $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
         
@@ -224,6 +223,7 @@ class Invoice extends CI_Controller {
      *  @return : void
      */
     function get_add_new_transaction($vendor_partner = "", $id = "") {
+        $this->checkUserSession();
         $data['vendor_partner'] = $vendor_partner;
         $data['id'] = $id;
         $data['invoice_id_array'] = $this->input->post('invoice_id');
@@ -246,7 +246,7 @@ class Invoice extends CI_Controller {
      * @param String $id (Bank transaction id)
      */
     function update_banktransaction($id) {
-
+        $this->checkUserSession();
         $details = $this->invoices_model->get_bank_transactions_details('*',array('id' => $id));
         if (!empty($details)) {
             $data['vendor_partner'] = $details[0]['partner_vendor'];
@@ -290,6 +290,7 @@ class Invoice extends CI_Controller {
      *  @return : void
      */
     function post_add_new_transaction() {
+        $this->checkUserSession();
         $account_statement['partner_vendor'] = $this->input->post('partner_vendor');
         $account_statement['partner_vendor_id'] = $this->input->post('partner_vendor_id');
         $account_statement['bankname'] = $this->input->post('bankname');
@@ -402,6 +403,7 @@ class Invoice extends CI_Controller {
     }
 
     function send_payment_sms_to_vendor($account_statement) {
+         $this->checkUserSession();
         $vendor_arr = $this->vendor_model->getVendorContact($account_statement['partner_vendor_id']);
         $v = $vendor_arr[0];
 
@@ -422,6 +424,7 @@ class Invoice extends CI_Controller {
      *  @return : void
      */
     function getPartnerOrVendor($par_ven) {
+         $this->checkUserSession();
         $vendor_partner_id = $this->input->post('vendor_partner_id');
         $flag = $this->input->post('invoice_flag');
         echo "<option value='' selected disabled>Select Entity</option>";
@@ -467,6 +470,7 @@ class Invoice extends CI_Controller {
      * @return: void
      */
     function delete_banktransaction($transaction_id, $vendor_partner, $vendor_partner_id) {
+         $this->checkUserSession();
         log_message('info', __METHOD__ . 'for transaction_id: '.$transaction_id.' vendor_partner: '.$vendor_partner. ' vendor_partner_id: '.$vendor_partner_id);
         
         $this->invoices_model->delete_banktransaction($transaction_id);
@@ -487,6 +491,7 @@ class Invoice extends CI_Controller {
      */
 
     function show_all_transactions($type = 'vendor') {
+         $this->checkUserSession();
         //Reset type to vendor if some other value is there
         $possible_type = array('vendor', 'partner', 'all');
         if (!in_array($type, $possible_type)) {
@@ -503,6 +508,7 @@ class Invoice extends CI_Controller {
      * @desc: generate details partner Detailed invoices
      */
     function create_partner_invoices_detailed($partner_id, $f_date, $t_date, $invoice_type, $misc_data, $agent_id, $hsn_code) {
+        
         log_message('info', __METHOD__ . "=> " . $invoice_type . " Partner Id " . $partner_id . ' invoice_type: ' . $invoice_type . ' agent_id: ' . $agent_id);
         $data = $this->invoices_model->getpartner_invoices($partner_id, $f_date, $t_date);
         $files = array();
@@ -1238,6 +1244,7 @@ class Invoice extends CI_Controller {
      * @desc: This Method loads invoice form
      */
     function get_invoices_form() {
+        $this->checkUserSession();
         $data['vendor_partner'] = "vendor";
         $data['id'] = "";
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
@@ -1249,6 +1256,7 @@ class Invoice extends CI_Controller {
      * This methd is used to get data from Form.
      */
     function process_invoices_form() {
+         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Entering......");
         $details['vendor_partner'] = $this->input->post('partner_vendor');
         $details['invoice_type'] = $this->input->post('invoice_version');
@@ -1324,6 +1332,7 @@ class Invoice extends CI_Controller {
      * @param String $invoice_type
      */
     function regenerate_invoice($invoice_id, $invoice_type) {
+         $this->checkUserSession();
         log_message('info',__FUNCTION__.'Invoice_id: ' . $invoice_id.' Invoice_type: '.$invoice_type);
         
         $where = array('invoice_id' => $invoice_id);
@@ -1533,6 +1542,7 @@ class Invoice extends CI_Controller {
      * @param: Vendor id
      */
     function invoice_summary($vendor_partner, $vendor_partner_id) {
+         $this->checkUserSession();
         if ($vendor_partner == 'vendor') {
             $select = "service_centres.name, service_centres.id";
             $data['service_center'] = $this->vendor_model->getVendorDetails($select);
@@ -2127,6 +2137,7 @@ class Invoice extends CI_Controller {
      * @param String $invoice_id
      */
     function insert_update_invoice($vendor_partner, $invoice_id = FALSE) {
+         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Entering.... Invoice_id: " . $invoice_id. ' vendor_partner: '.$vendor_partner);
         if ($invoice_id) {
             $where = array('invoice_id' => $invoice_id);
@@ -2143,6 +2154,7 @@ class Invoice extends CI_Controller {
      * @param String $vendor_partner
      */
     function process_insert_update_invoice($vendor_partner) {
+         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Entering...." . $vendor_partner);
         $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner', 'required|trim|xss_clean');
         $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|trim|xss_clean');
@@ -2611,6 +2623,7 @@ class Invoice extends CI_Controller {
      * @desc: This is used to Insert CRM SETUP/QC invoice invoice
      */
     function generate_crm_setup() {
+         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Entering....");
         $this->form_validation->set_rules('partner_name', 'Partner Name', 'trim|xss_clean');
         $this->form_validation->set_rules('partner_id', 'Partner ID', 'required|trim|xss_clean');
@@ -2725,6 +2738,7 @@ class Invoice extends CI_Controller {
      * @param int $id
      */
     function get_advance_bank_transaction($vendor_partner = "", $id = "") {
+         $this->checkUserSession();
         $data['vendor_partner'] = $vendor_partner;
         $data['id'] = $id;
 
@@ -2737,6 +2751,7 @@ class Invoice extends CI_Controller {
      * @desc Add new bank transaction
      */
     function process_advance_payment() {
+         $this->checkUserSession();
         $data['partner_vendor'] = $this->input->post("partner_vendor");
         $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
         $data['credit_debit'] = $this->input->post("credit_debit");
@@ -3079,5 +3094,120 @@ class Invoice extends CI_Controller {
         $data['payment_history'] = $this->invoices_model->get_payment_history($select,array('payment_history.invoice_id'=>$invoice_id),true);
         echo $this->load->view('employee/show_invoice_payment_history_list',$data);
     }
+    /**
+     * @desc This method is used to generate oow spare parts
+     * @param int $spare_id
+     */
+    function generate_oow_parts_invoice($spare_id) {
+        $req['where'] = array("spare_parts_details.id" => $spare_id);
+        $req['length'] = -1;
+        $req['select'] = "spare_parts_details.purchase_price, parts_requested, spare_parts_details.service_center_id, spare_parts_details.booking_id";
+        $sp_data = $this->inventory_model->get_spare_parts_query($req);
+        if (!empty($sp_data)) {
+            $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
+                    . "company_name,address as company_address,district,"
+                    . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
+            $data = array();
+            $data[0]['description'] = ucwords($sp_data[0]->parts_requested) . " (" . $sp_data[0]->booking_id . ") ";
+            $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * REPAIR_OOW_AROUND_PERCENTAGE;
+            $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, DEFAULT_TAX_RATE);
+            $data[0]['taxable_value'] = ($amount - $tax_charge);
+            $data[0]['product_or_services'] = "Product";
+            $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
+            $data[0]['company_name'] = $vendor_details[0]['company_name'];
+            $data[0]['company_address'] = $vendor_details[0]['company_address'];
+            $data[0]['district'] = $vendor_details[0]['district'];
+            $data[0]['pincode'] = $vendor_details[0]['pincode'];
+            $data[0]['state'] = $vendor_details[0]['state'];
+            $data[0]['rate'] = "";
+            $data[0]['qty'] = 1;
+            $data[0]['hsn_code'] = SPARE_HSN_CODE;
+            $sd = $ed = $invoice_date = date("Y-m-d");
+
+            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_date);
+            $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+            $status = $this->send_request_to_create_main_excel($response, "final");
+            if ($status) {
+                log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $sp_data[0]->service_center_id . " Spare Id " . $spare_id);
+
+                $convert = $this->send_request_to_convert_excel_to_pdf($response['meta']['invoice_id'], "final");
+                $output_pdf_file_name = $convert['main_pdf_file_name'];
+                $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+                $response['meta']['copy_file'] = $convert['copy_file'];
+
+                $email_template = $this->booking_model->get_booking_email_template(SPARE_INVOICE_EMAIL_TAG);
+                $subject = vsprintf($email_template[4], array($vendor_details[0]['company_name'], $sp_data[0]->booking_id));
+                $message = $email_template[0];
+                $email_from = $email_template[2];
+
+                $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($sp_data[0]->service_center_id);
+                $rem_email_id = "";
+                if (!empty($rm_details)) {
+                    $rem_email_id = ", " . $rm_details[0]['official_email'];
+                }
+                $to = $vendor_details[0]['owner_email'] . ", " . $vendor_details[0]['primary_contact_email'];
+                $cc = $email_template[3] . ", " . $rem_email_id;
+
+                $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
+
+                $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
+                exec($cmd);
+                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "");
+
+                unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
+                unlink(TMP_FOLDER . $output_pdf_file_name);
+                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
+
+                $invoice_details = array(
+                    'invoice_id' => $response['meta']['invoice_id'],
+                    'type_code' => 'A',
+                    'type' => "Cash",
+                    'vendor_partner' => 'vendor',
+                    'vendor_partner_id' => $sp_data[0]->service_center_id,
+                    'invoice_file_main' => $response['meta']['invoice_file_main'],
+                    'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
+                    'from_date' => date("Y-m-d", strtotime($sd)), //??? Check this next time, format should be YYYY-MM-DD
+                    'to_date' => date("Y-m-d", strtotime($ed)),
+                    'parts_cost' => $response['meta']['total_taxable_value'],
+                    'parts_count' => 1,
+                    'total_amount_collected' => $response['meta']['sub_total_amount'],
+                    'invoice_date' => date("Y-m-d"),
+                    'around_royalty' => $response['meta']['sub_total_amount'],
+                    'due_date' => date("Y-m-d"),
+                    //Amount needs to be collected from Vendor
+                    'amount_collected_paid' => $response['meta']['sub_total_amount'],
+                    //add agent_id
+                    'agent_id' => _247AROUND_DEFAULT_AGENT,
+                    "cgst_tax_rate" => $response['meta']['cgst_tax_rate'],
+                    "sgst_tax_rate" => $response['meta']['sgst_tax_rate'],
+                    "igst_tax_rate" => $response['meta']['igst_tax_rate'],
+                    "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
+                    "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
+                    "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
+                    "hsn_code" => SPARE_HSN_CODE,
+                    "invoice_file_pdf" => $response['meta']['copy_file'],
+                    "remarks" => $data[0]['description']
+                );
+
+                $this->invoices_model->insert_new_invoice($invoice_details);
+                log_message('info', __METHOD__ . ": Invoice ID inserted");
+
+                $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array("sell_invoice_id" => $response['meta']['invoice_id']));
+                log_message('info', __METHOD__ . ": Invoice Updated in Spare Parts " . $response['meta']['invoice_id']);
+
+                $this->booking_model->update_booking_unit_details(array("booking_id" => $sp_data[0]->booking_id, "price_tags" => "Spare Parts"), array("pay_from_sf" => 0));
+                log_message('info', __METHOD__ . ": ...Exit" . $response['meta']['invoice_id']);
+            }
+        }
+    }
     
+    function checkUserSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+            return TRUE;
+        } else {
+            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
+            redirect(base_url() . "employee/login");
+        }
+    }
+
 }

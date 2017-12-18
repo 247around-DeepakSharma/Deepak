@@ -3801,3 +3801,6 @@ ALTER TABLE `blacklist_brand`
 --
 ALTER TABLE `blacklist_brand`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'spare_invoice_sent', '247around - %s. Invoice for period: %s to %s', 'Dear Partner, <br/> <br/> Please find attached invoice for Spare Parts. <br/> <br/> With Regards, <br>247around Team<br/> <br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015<br/> Follow us on Facebook: www.facebook.com/247around<br/> Website: www.247around.com<br/> Playstore - 247around -<br/> https://play.google.com/store/apps/details?id=com.handymanapp<br/>', 'billing@247around.com', '', 'nits@247around.com,anuj@247around.com,abhaya@247around.com', '', '1', '2017-12-18 23:56:57');
+ALTER TABLE `booking_unit_details` ADD `pay_from_sf` INT(1) NOT NULL DEFAULT '1' AFTER `pay_to_sf`;
