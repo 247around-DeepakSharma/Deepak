@@ -416,9 +416,6 @@ define('SHOP_ADDRESS_ACTIVATED','Shop Address Activated');
 define('BB_CP_ADDRESS','CP_ADDRESS');
 
 define('CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER','Customer not visited to service center');
-define("HSN_CODE", "998715");
-define("STAND_HSN_CODE", "8302");
-
 
 define('_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN', 'Broken');
 define('CLAIM_APPROVED','Claim Approved');
@@ -467,7 +464,6 @@ define("PARTNER_INVOICE_BUTTON", "CRM Setup Invoice");
 define("CT_INVOICE_BUTTON", "Sweetener Invoice");
 define("QC_INVOICE_DESCRIPTION", "Service Charges for QC");
 define("CRM_SETUP_INVOICE_DESCRIPTION", "Annual Setup Charges");
-define("QC_HSN_CODE", 998397);
 define("TAT_BREACH_DAYS", "-45 days");
 
 // QC Balance Read Email Constant
@@ -481,6 +477,7 @@ define('SPARE_OOW_EST_GIVEN','Spare Estimate Cost Given');
 define('SPARE_OOW_EST_MARGIN','0.25');
 define('REPAIR_OOW_PARTS_PRICE_TAGS','Spare Parts');
 define('REPAIR_OOW_VENDOR_PERCENTAGE','10');
+define('REPAIR_OOW_AROUND_PERCENTAGE','0.15');
 
 define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
 define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
@@ -521,7 +518,6 @@ define("AUTO_ACK_ADMIN_REMARKS", "Auto Acknowledge");
 //missing_pincode_email
 define("MISSING_PINCODE_EMAIL_TO",NITS_ANUJ_EMAIL_ID);
 
-define("COMMISION_CHARGE_HSN_CODE", "96617");
 //sales email_id
 define('_247AROUND_SALES_EMAIL','sales@247around.com');
 //email attachment reader email
@@ -556,6 +552,12 @@ define('_247AROUND_CP_STRING','CP');
 define('_247AROUND_DEMO_PARTNER',247050);
 
 define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',7);
+define("QC_HSN_CODE", 998397);
+define("HSN_CODE", "998715");
+define("STAND_HSN_CODE", "8302");
+define("COMMISION_CHARGE_HSN_CODE", "96617");
+define("SPARE_HSN_CODE", "85299090");
+define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

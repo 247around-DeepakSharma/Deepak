@@ -1135,7 +1135,7 @@ class invoices_model extends CI_Model {
                     . " (customer_paid_basic_charges + customer_paid_extra_charges + customer_paid_parts) as amount_paid  "
                     . " From booking_details, booking_unit_details, services, service_centres
                     WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  
-                    AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' 
+                    AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND pay_from_sf = 1
                     $is_invoice_null
                     AND assigned_vendor_id = '" . $vendor_id . "' "
                     . " AND `booking_unit_details`.booking_status = 'Completed' $where";
@@ -1176,6 +1176,7 @@ class invoices_model extends CI_Model {
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
                 AND ud.service_id = services.id
+                AND pay_from_sf = 1
                 AND sc.id = bd.assigned_vendor_id
                 $is_foc_null
                 $where
