@@ -1845,11 +1845,17 @@ class Partner extends CI_Controller {
             print_r(json_encode($distance, true));
             exit();
         }
+        
+        if(is_numeric($origins) && is_numeric($destinations)){ } else {
+            $distance['status'] = "REQUEST_DENIED";
+            print_r(json_encode($distance, true));
+            exit();
+        }
         if (!empty($origins) && !empty($destinations)) {
             $is_distance = $this->upcountry_model->get_distance_between_pincodes($origins, $destinations);
             if (!empty($is_distance)) {
-                $distance['destination_addresses'] = "[" . $destinations . ", India]";
-                $distance['origin_addresses'] = "[" . $origins . ", India]";
+                $distance['destination_addresses'] = array($destinations, "India");
+                $distance['origin_addresses'] = array($origins, "India");
                 $distance['distance'] = array("text" => $is_distance[0]['distance'] . " KM", "value" => $is_distance[0]['distance']);
                 $distance['status'] = "OK";
 
@@ -1859,14 +1865,14 @@ class Partner extends CI_Controller {
 
                 if ($is_distance1) {
                     $distance1 = (round($is_distance1['distance']['value'] / 1000, 2));
-                    $distance['destination_addresses'] = "[" . $destinations . ", India]";
-                    $distance['origin_addresses'] = "[" . $origins . ", India]";
+                    $distance['destination_addresses'] = array($destinations, "India");
+                    $distance['origin_addresses'] = array($origins, "India");
                     $distance['distance'] = array("text" => $distance1 . " KM", "value" => $$distance1);
                     $distance['status'] = "OK";
                     print_r(json_encode($distance, true));
                 } else {
-                    $distance['destination_addresses'] = "[" . $destinations . ", India]";
-                    $distance['origin_addresses'] = "[" . $origins . ", India]";
+                    $distance['destination_addresses'] = array($destinations, "India");
+                    $distance['origin_addresses'] = array($origins, "India");
                     $distance['status'] = "REQUEST_DENIED";
 
                     print_r(json_encode($distance, true));
