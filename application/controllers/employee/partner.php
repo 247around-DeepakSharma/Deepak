@@ -3368,13 +3368,6 @@ class Partner extends CI_Controller {
         }
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
     }
-
-    function get_partner_updation_history_view() {
-        $data['updation_history'] = $this->miscelleneous->table_updated_history_view('partners', 'trigger_partners');
-        $data['entity'] = "Partner";
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/updated_history', $data);
-    }
     /**
      * @desc This function is used to map brand to partner (Appliance Wise)
      */

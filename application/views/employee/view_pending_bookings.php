@@ -394,10 +394,11 @@
         }
     }  
     
-    function get_penalty_details(booking_id,status){
+    function get_penalty_details(booking_id,status,sf_id){
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/vendor/get_penalty_details_data/' + booking_id+"/"+status,
+            data: {sf_id:sf_id},
             success: function (data) {
              $("#open_model").html(data);   
              $('#penaltycancelmodal').modal('toggle');

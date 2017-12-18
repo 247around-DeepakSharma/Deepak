@@ -408,7 +408,7 @@
                             <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-color' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                         </td>
                         <td>
-                            <a class='btn btn-sm btn-color col-md-4' style='margin-left:10px;padding-right: 17px;' onclick='get_penalty_details("<?php echo $row->booking_id; ?>","<?php echo $row->current_status; ?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
+                            <a class='btn btn-sm btn-color col-md-4' style='margin-left:10px;padding-right: 17px;' onclick='get_penalty_details("<?php echo $row->booking_id; ?>","<?php echo $row->current_status; ?>","<?php echo $row->assigned_vendor_id;?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
                         </td>
                     </tr>
                     <?php $count++; $offset++;
@@ -506,8 +506,8 @@
                             if($row->penalty_active == 1){
                                
                             ?>  
-                            <!-- <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='return assign_id("<?php echo $row->booking_id?>","<?php echo $row->current_status?>")' data-toggle='modal' data-target='#penaltycancelmodal' href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a> -->
-                            <a class='btn btn-sm col-md-4 btn-color' style='margin-left:10px' onclick='get_penalty_details("<?php echo $row->booking_id?>","<?php echo $row->current_status?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
+                            <!-- <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='return assign_id("<?php //echo $row->booking_id?>","<?php //echo $row->current_status?>")' data-toggle='modal' data-target='#penaltycancelmodal' href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a> -->
+                            <a class='btn btn-sm col-md-4 btn-color' style='margin-left:10px' onclick='get_penalty_details("<?php echo $row->booking_id?>","<?php echo $row->current_status?>","<?php echo $row->assigned_vendor_id;?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
                             <?php     
                             }
                             
@@ -610,7 +610,7 @@
                                
                             ?>  
                             <!-- <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='return assign_id("<?php echo $row->booking_id?>","<?php echo $row->current_status?>")' data-toggle='modal' data-target='#penaltycancelmodal' href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a> -->
-                            <a class='btn btn-sm btn-color col-md-4' style='margin-left:10px' onclick='get_penalty_details("<?php echo $row->booking_id?>","<?php echo $row->current_status?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
+                            <a class='btn btn-sm btn-color col-md-4' style='margin-left:10px' onclick='get_penalty_details("<?php echo $row->booking_id?>","<?php echo $row->current_status?>","<?php echo $row->assigned_vendor_id;?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
                             <?php     
                             }
                             
@@ -705,11 +705,12 @@
         
     }
     
-    function get_penalty_details(booking_id,status){
+    function get_penalty_details(booking_id,status,sf_id){
 
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/vendor/get_penalty_details_data/' + booking_id+"/"+status,
+            data: {sf_id:sf_id},
             success: function (data) {
                 if(data === 'penalty not found'){
                     var html = "<div class='text-center text-danger'><strong>"+data+"</strong></div>"

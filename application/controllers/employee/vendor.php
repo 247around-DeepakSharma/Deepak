@@ -4151,7 +4151,15 @@ class vendor extends CI_Controller {
         
         $where  = array('penalty_on_booking.booking_id'=>$booking_id,'penalty_on_booking.active' => 1);
         $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where,'penalty_on_booking.*',array('*'));
-        $this->load->view('employee/get_penalty_on_booking_details',array('penalty_details' => $data['penalty_details'], 'status'=>$status));
+        if($this->input->post('sf_id')){
+            $remove_penalty_where = array('penalty_on_booking.service_center_id' => $this->input->post('sf_id'),
+                        'penalty_on_booking.active' => 0,
+                        'penalty_on_booking.update_date >= (NOW() - INTERVAL 1 MONTH)' => NULL);
+            $data['remove_penalty_details'] = $this->reusable_model->get_search_query('penalty_on_booking','name as sf_name,count(*) as count',$remove_penalty_where,array('penalty_details'=>'penalty_on_booking.criteria_id = penalty_details.id','service_centres' => 'penalty_on_booking.service_center_id = service_centres.id'),NULL,NULL,NULL,NULL)->result_array();
+        }else{
+            $data['remove_penalty_details'] = "";
+        }
+        $this->load->view('employee/get_penalty_on_booking_details',array('penalty_details' => $data['penalty_details'], 'status'=>$status,'remove_penalty_details'=>$data['remove_penalty_details']));
     }
     
     /**
@@ -4893,11 +4901,25 @@ class vendor extends CI_Controller {
             echo "fail";
         }
     }
-       function get_partner_updation_history_view(){
-        $data['updation_history'] = $this->miscelleneous->table_updated_history_view('service_centres','trigger_service_centres');
-        $data['entity'] = "Service Centers";
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/updated_history',$data);
+       function get_partner_vendor_updation_history_view($entityID,$orignalTable,$triggerTable){
+        $data = $this->miscelleneous->table_updated_history_view($orignalTable,$triggerTable,$entityID);
+       $table = '<table class="table table-striped table-bordered table-responsive">
+    <thead><tr>
+        <th>S.N</th>
+        <th>Action Performed On</th>
+        <th>Action Performed By</th>
+        <th>Date</th>
+      </tr></thead>
+    <tbody>';
+       if(!empty($data)){
+       foreach($data['data'] as $index=>$updatedData){
+      $table .= '<tr>
+        <td>'.($index+1).'</td>
+        <td>'.implode(",</br>",$updatedData).'</td>
+        <td>'.$data['updated_by'][$index].'</td>
+        <td>'.$data['update_date'][$index].'</td>
+      </tr>'; }}
+   echo $table .= '</tbody></table>';
     }
     function show_escalation_graph_by_sf($sfID){
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -4905,7 +4927,7 @@ class vendor extends CI_Controller {
     }
     function getServicesForVendor($vendorID){
         $appliance  = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","CONCAT(vendor_pincode_mapping.Appliance_ID,'__',services.services) as service",
-                array("Vendor_ID"=>$vendorID),array("services"=>"services.id=vendor_pincode_mapping.Appliance_ID"),NULL,NULL,NULL,NULL,array("Appliance_ID"));
+        array("Vendor_ID"=>$vendorID),array("services"=>"services.id=vendor_pincode_mapping.Appliance_ID"),NULL,NULL,NULL,NULL,array("Appliance_ID"));
         echo json_encode($appliance);
         }
 }
