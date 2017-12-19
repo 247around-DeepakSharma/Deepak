@@ -159,7 +159,7 @@ class vendor_model extends CI_Model {
     
     function update_service_centers_login($where, $data){
         $this->db->where($where);
-        $this->db->update("service_centers_login", $data);
+        return $this->db->update("service_centers_login", $data);
     }
 
 
