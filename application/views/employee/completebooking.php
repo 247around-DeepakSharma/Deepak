@@ -229,10 +229,12 @@
                                                     ?>">
                                                 </td>
                                                 <td>  
-                                                     
+                                                    
+                                                    <?php if($price['product_or_services'] != "Service"){  ?>
                                                     <input  id="<?php echo "basic_charge".$count; ?>" type="<?php if ($price['product_or_services'] == "Product"
                                                             && $price['customer_net_payable'] > 0){ echo "text"; } 
-                                                            else { echo "hidden";}?>" class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
+                                                            else { echo "hidden";}?>" class="form-control cost" 
+                                                            name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
                                                     $paid_basic_charges += $price['customer_paid_basic_charges'];
                                                     if (!empty($price['customer_paid_basic_charges'])) {
                                                     echo $price['customer_paid_basic_charges'];
@@ -240,10 +242,12 @@
                                                     echo "0";
                                                     }
                                                     ?>">
-                                                   
-                                                    <input id="<?php echo "parts_cost".$count; ?>"  type="<?php if($price['product_or_services'] == "Service"){ 
+                                                    <?php } ?>
+                                                 
+                                                    <input id="<?php echo "parts_cost".$count; ?>"  type="<?php if($price['product_or_services'] != "Service"){ 
                                                         if ($price['product_or_services'] == "Product" && $price['customer_net_payable'] == 0) { 
-                                                            echo "hidden";} else { echo "text";} } else { echo "text";}?>" class="form-control cost"  
+                                                            echo "text";} else { echo "hidden";} } else { echo "text";}?>" 
+                                                            class="form-control cost" 
                                                             name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "<?php
                                                     $paid_parts_cost += $price['customer_paid_parts'];
                                                     if (!empty($price['customer_paid_parts'])) {
@@ -252,6 +256,7 @@
                                                     echo "0";
                                                     }
                                                     ?>" >
+                                                    
                                                 </td>
 								<td>
 								    <div class="row">
