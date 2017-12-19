@@ -165,7 +165,7 @@
         sendAjaxRequest(postData, url).done(function (data) {
            
             $("#appliance_brand option[value !='Select Brand']").remove();
-            $('#appliance_brand').append("<option selected disabled>Select Brand</option>").change();
+            
             $('#appliance_brand').append(data).change();
             getCategory();
              getcapacity();
@@ -194,7 +194,7 @@
             sendAjaxRequest(postData, url).done(function (data) {
     
               $("#category option[value !='Select Category']").remove();
-              $('#category').append("<option selected disabled>Select Category</option>").change();
+             
               $('#category').append(data).change();
     
                getcapacity();
@@ -218,7 +218,7 @@
             
             sendAjaxRequest(postData, url).done(function (data) {
                $("#capacity option[value !='Select Capacity']").remove();
-               $('#capacity').append("<option selected disabled>Select Capacity</option>").change();
+               
                $('#capacity').append(data).change();
     
             });
