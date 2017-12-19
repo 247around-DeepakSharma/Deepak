@@ -59,6 +59,21 @@
                 color: #333;
                 font-weight: 700;
             }
+            .submitBtn{
+                margin-top:5px;
+                background:#2C9D9C;
+                color:#fff;
+            }
+
+            .submitBtn:hover{
+                background:#DADADA;
+            }
+            .marginBottom-0 {margin-bottom:0;}
+            .dropdown-submenu{position:relative;}
+            .dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;}
+            .dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
+            .dropdown-submenu:hover>a:after{border-left-color:#555;}
+            .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
         </style>
     </head>
     <body>
@@ -184,6 +199,8 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php echo $this->session->userdata('partner_name'); ?><span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 <li><a href="<?php echo base_url(); ?>employee/partner/show_partner_edit_details_form">Edit Details</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="<?php echo base_url(); ?>employee/partner/reset_partner_password">Reset Password</a></li>
                             </ul>
                         </li>
                         <li><a href="<?php echo base_url() ?>employee/partner/logout"><i class="fa fa-fw fa-power-off"></i></a></li>
@@ -197,21 +214,27 @@
 
 
         <!-- Modal -->
-
-    </body>
-</html>
-<style type="text/css">
-    .submitBtn{
-        margin-top:5px;
-        background:#2C9D9C;
-        color:#fff;
-    }
-
-    .submitBtn:hover{
-        background:#DADADA;
-    }
-</style>
 <script type="text/javascript">
+    
+    (function($){
+        $(document).ready(function(){
+            $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                $(this).parent().siblings().removeClass('open');
+                $(this).parent().toggleClass('open');
+            });
+        });
+                
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/partner/get_contact_us_page/<?php echo $this->session->userdata('partner_id') ?>',
+            success: function (data) {
+                $("#contactUsModalData").html(data);   
+            }
+        });
+    })(jQuery);
+    
     function submit_button() {
         var phone = $("#phone_number").val();
 
@@ -226,9 +249,8 @@
         } else {
             return false;
         }
-
-
     }
+    
     function checkStringLength() {
         var searched_text = $("#searched_text").val();
         if (searched_text.length < 9) {
@@ -238,31 +260,5 @@
 
     }
 </script>
-        <script type="text/javascript">
-            (function($){
-                $(document).ready(function(){
-                    $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        $(this).parent().siblings().removeClass('open');
-                        $(this).parent().toggleClass('open');
-                    });
-                });
-                
-                $.ajax({
-                    type: 'POST',
-                    url: '<?php echo base_url(); ?>employee/partner/get_contact_us_page/<?php echo $this->session->userdata('partner_id')?>',
-                    success: function (data) {
-                        $("#contactUsModalData").html(data);   
-                    }
-                });
-            })(jQuery);
-        </script>
-        <style type="text/css">
-            .marginBottom-0 {margin-bottom:0;}
-            .dropdown-submenu{position:relative;}
-            .dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;}
-            .dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
-            .dropdown-submenu:hover>a:after{border-left-color:#555;}
-            .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
-        </style>
+    </body>
+</html>
