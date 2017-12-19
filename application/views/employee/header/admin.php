@@ -222,9 +222,9 @@
                             <a href="<?php echo base_url() ?>employee/partner/bracket_allocation"><i class="fa fa-fw fa-desktop "></i> <strong>Add Brackets Data</strong></a>
                         </li>
                          <li class="divider"></li>
-                        <li >
+<!--                        <li >
                             <a href="<?php echo base_url() ?>employee/partner/get_partner_updation_history_view"><i class="fa fa-fw fa-desktop "></i> <strong>Updation History</strong></a>
-                        </li>
+                        </li>-->
                     </ul>
                     <!-- /.dropdown-alerts -->
                 </li>
@@ -312,10 +312,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/vendor/show_bank_details"><i class="fa fa-fw fa-desktop "></i> <strong>Bank Details</strong></a>
                         </li>
-                        <li class="divider"></li>
+<!--                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/vendor/get_partner_updation_history_view"><i class="fa fa-fw fa-desktop "></i> <strong>Updation History</strong></a>
-                        </li>
+                        </li>-->
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
