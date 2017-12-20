@@ -3812,3 +3812,12 @@ VALUES (NULL, 'reset_vendor_login_details', 'Your Password Reset Request Process
 
 UPDATE `email_template` SET `template` = 'Dear Partner<br><br> Please find below your updated login details.<br><br> <b>Username: </b>%s<br><b>Password: </b>%s<br><br> Please use the ERP panel for your closures going forward. In case of any issues, write to us or call us.<br><br> Regards,<br> 247around Team' WHERE `email_template`.`id` = 47;
 UPDATE `email_template` SET `subject` = 'New Login Details - 247around' WHERE `email_template`.`id` = 47;
+
+--sachin 19 dec
+ALTER TABLE `inventory_master_list` CHANGE `sender_entity_id` `entity_id` INT(11) NOT NULL;
+ALTER TABLE `inventory_master_list` CHANGE `sender_entity_type` `entity_type` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+ALTER TABLE `inventory_ledger` CHANGE `part_id` `inventory_id` INT(11) NULL DEFAULT NULL;
+ALTER TABLE `inventory_ledger` ADD `remarks` VARCHAR(1024) NULL AFTER `invoice_id`, ADD `active` TINYINT NOT NULL DEFAULT '1' AFTER `remarks`;
+ALTER TABLE `inventory_master_list` CHANGE `id` `inventory_id` INT(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `inventory_stocks` CHANGE `part_id` `inventory_id` INT(11) NOT NULL;
+ALTER TABLE `booking_unit_details` ADD `inventory_id` INT(11) NOT NULL AFTER `is_spare_parts`;
