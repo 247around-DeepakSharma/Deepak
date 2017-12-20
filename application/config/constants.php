@@ -525,10 +525,6 @@ define("MISSING_PINCODE_EMAIL_TO", "ayush.bafna@paytmmall.com, sales@247around.c
 
 //sales email_id
 define('_247AROUND_SALES_EMAIL','sales@247around.com');
-//email attachment reader email
-define('EMAIL_ATTACHMENT_READER_EMAIL','installations@247around.com');
-//email attachment reader email password
-define('EMAIL_ATTACHMENT_READER_PASSWORD','247around@@installations');
 
 //Zopper booking- Part Arrange By Same Vendor
 define("PART_ARRANGE_BY_SAME_VENDOR", 2);
@@ -549,7 +545,7 @@ define('_247AROUND_EMPLOYEE_STRING','employee');
 //247around partner string
 define('_247AROUND_PARTNER_STRING','partner');
 //247around sf string
-define('_247AROUND_SF_STRING','SF');
+define('_247AROUND_SF_STRING','vendor');
 //247around cp string
 define('_247AROUND_CP_STRING','CP');
 
