@@ -1,3 +1,4 @@
+
 <?php
 
 if (!defined('BASEPATH')) {
@@ -110,8 +111,9 @@ class User extends CI_Controller {
         
         $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select);
         if(!empty($phone_number) && empty($data['Bookings'])){
-            $output['phone_number'] = $phone_number;
-            $this->loadViews($output);
+          //  $output['phone_number'] = $phone_number;
+            redirect(base_url()."employee/booking/addbooking/".$phone_number);
+            //$this->loadViews($output);
         } else {
              $this->load_search_view($data, $view);
         }

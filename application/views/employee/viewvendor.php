@@ -93,22 +93,9 @@
                     </select>
                 </div> 
             </div>
-            <div style="background-color: #EEEEEE;width:400px;height:50px;padding-bottom:20px;border-radius: 5px;" id="inner_state_div">
                 <form method="POST" action ="<?php echo base_url(); ?>employee/vendor/get_sc_charges_list" style="padding-top:8px;">
-                    <span id="state_error" style="display:none;color:red;margin-left:20px;">Please enter State</span>
-                    <div class="col-md-6">
-                        <select name="state" id="state_select" class="form-control">
-                            <option value="" disabled="" selected>Select State</option>
-                            <?php foreach ($state as $value) { ?>
-                                <option value="<?php echo $value['state'] ?>"><?php echo $value['state'] ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="submit" value="Download Charges List" onclick="return validate_form()" class="btn btn-primary" />
-                    </div>
+                        <input type="submit" value="Download Charges List" class="btn btn-primary" />
                 </form>
-            </div>
     <div id="vendor_sf_cp_list">        
  <?php } ?>
         <table class="table table-bordered table-condensed" id="vender_details">
@@ -127,6 +114,7 @@
           	<th class="jumbotron">Permanent</th>
                 <th class="jumbotron">Add Pin Code</th>
                 <th class="jumbotron">Resend Login Details</th>
+                <th class="jumbotron">View History</th>
           </tr>
 
           
@@ -182,6 +170,7 @@
             </td>
             <td><button type="button" class="btn btn-small btn-success" id="<?php echo $row['id']; ?>" data-toggle="modal" data-target="#pin_code" onclick="createPinCodeForm(this.id,<?php echo "'".$row['name']."'"  ?>)">Pin Code</button></td>
             <td><a class="btn btn-warning" href="<?php echo base_url();?>employee/vendor/resend_login_details/vendor/<?php echo $row['id']?>">Resend Login Details</a></td>
+            <td>  <button type="button" class="btn btn-info btn-lg fa fa-eye" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" style="padding: 11px 6px;margin: 0px 10px;"></button></td>
           </tr>
           <?php } ?>
         </table>
@@ -260,6 +249,29 @@
 
   </div>
 </div>
+ 
+  <!-- This model class is used Update History View-->
+  <div class="modal fade" id="history_view" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Updated History View</h4>
+        </div>
+        <div class="modal-body">
+            <div id="table_container"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+</div>
  <script>
      function permanentVendorOff(vendorID){
          $.ajax({
@@ -283,6 +295,16 @@
                     else{
                         permanentVendorOff(vendorID);
                     }
+                }
+            });
+     }
+     function get_history_view(vendorID){
+     $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/get_partner_vendor_updation_history_view/' + vendorID+'/service_centres/trigger_service_centres',
+                success: function(response) {
+                    console.log(response);
+                    $("#table_container").html(response);
                 }
             });
      }

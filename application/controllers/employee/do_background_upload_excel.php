@@ -119,7 +119,9 @@ class Do_background_upload_excel extends CI_Controller {
         $file_name = $_FILES["file"]["name"];
         //Email Message ID - Unique for every email
         $this->email_message_id = !($this->input->post('email_message_id') === NULL)?$this->input->post('email_message_id'):'';
-
+        if(!empty($this->input->post('email_send_to'))){
+            $this->email_send_to = $this->input->post('email_send_to');
+        }
 	//  Get worksheet dimensions
 	$sheet = $objPHPExcel->getSheet(0);
 	$highestRow = $sheet->getHighestRow();
@@ -189,7 +191,8 @@ class Do_background_upload_excel extends CI_Controller {
                     array_push($data, $rowData);
                 } else {
                     $subject = "Delivery Date Column is not exist. SD Uploading Failed.";
-                    $message  = $file_name. " is not uploaded Agent Name: ".  $this->session->userdata('employee_id');
+                    $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
+                    $message  = $file_name. " is not uploaded Agent Name: ".  $agent_name;
                     $this->send_mail_column($subject, $message, false,_247AROUND_SNAPDEAL_DELIVERED,SNAPDEAL_ID);
                 }
             } 
@@ -226,9 +229,11 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function send_mail_column($subject, $message, $validation,$file_type,$partner_id){
         if($partner_id === SNAPDEAL_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else if($partner_id === WYBOR_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
+        }else if($partner_id === AKAI_ID){
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else{
             $file_upload_agent_email = "";
         }
@@ -239,16 +244,16 @@ class Do_background_upload_excel extends CI_Controller {
         $bcc = "";
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
         log_message('info', __FUNCTION__ . "=> Validation ". $validation."  ".$message);
-        if($validation == false){
-            if($partner_id == SNAPDEAL_ID){
-                if($file_type === 'delivered'){
-                $type = _247AROUND_SNAPDEAL_DELIVERED;
-            }else{
-                $type = _247AROUND_SNAPDEAL_SHIPPED;
+        if ($validation == false) {
+            if ($partner_id == SNAPDEAL_ID) {
+                if ($file_type === 'delivered') {
+                    $type = _247AROUND_SNAPDEAL_DELIVERED;
+                } else {
+                    $type = _247AROUND_SNAPDEAL_SHIPPED;
+                }
+                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES["file"]["tmp_name"], $type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
             }
-            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],$type,FILE_UPLOAD_FAILED_STATUS,$this->email_message_id);
-            }
-            
+
             exit();
         }
     }
@@ -295,6 +300,7 @@ class Do_background_upload_excel extends CI_Controller {
 
 	    if (empty($output)) {
 		//User doesn't exist
+                $user = array();
                 $user['user_email'] = (isset($value['email_id']) ? $value['email_id'] : "");
                 $user['name'] = $this->miscelleneous->is_user_name_empty(trim($value['customer_name']), $user['user_email'], $phone[0]);
 		$user['phone_number'] = $phone[0];
@@ -1061,12 +1067,15 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name,$partner_id,$file_upload = true) {
         if($partner_id === SNAPDEAL_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_SALES_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else if($partner_id === WYBOR_ID){
-            $file_upload_agent_email = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
+        }else if($partner_id === AKAI_ID){
+            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
         }else{
             $file_upload_agent_email = "";
         }
+        
 	$to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
         $from = "noreply@247around.com";
 	$cc = "abhaya@247around.com";
@@ -1212,48 +1221,142 @@ class Do_background_upload_excel extends CI_Controller {
         return true;
     }
     
-    function upload_satya_file() {
-        //log_message('info', __FUNCTION__ . "=> Satya File Upload: Beginning processing...");
+    /**
+     * @desc: This function is used to process upload booking file for all partner
+     * @param void
+     * @param void
+     */
+    function process_upload_file() {
+        log_message("info", __METHOD__ . " File Upload: Beginning processing...");
+        
+        //check file type
+        $upload_file_type = $this->input->post('file_type');
+        
+        if(!empty($this->input->post('email_send_to'))){
+            $this->email_send_to = $this->input->post('email_send_to');
+        }
+        
+        //get email msg id in the case of automatic file upload
+        $this->email_message_id = !($this->input->post('email_message_id') === NULL) ? $this->input->post('email_message_id') : '';
+        
+        //get file extension and file tmp name
+        $file_status = $this->get_upload_file_type();
+        
+        //if file type is valid then validate header for processing
+        if ($file_status['status']) {
+            //get file header
+            $header_data = $this->read_upload_file_header($file_status);
+            $this->ColumnFailed = "";
+            //check all required header and file type 
+            if ($header_data['status']) {
+                $header_data = array_merge($header_data,$file_status);
+                $header_data['file_type'] = $upload_file_type;
+                //process file upload accoding to upload file type
+                switch ($upload_file_type) {
+                    case _247AROUND_SATYA_DELIVERED:
+                        $redirect_to = 'upload_satya_file';
+                        $header_data['partner_id'] = WYBOR_ID;
+                        $response = $this->process_satya_file_upload($header_data);
+                        break;
+                    case _247AROUND_AKAI_DELIVERED:
+                        $redirect_to = 'upload_akai_file';
+                        $header_data['partner_id'] = AKAI_ID;
+                        $response = $this->process_akai_file_upload($header_data);
+                        break;
+                }
+                
+                //if file uploaded successfully then log else send email 
+                if ($response['status']) {
+                    log_message("info", "File Uploaded successfully");
+                } else {
+                    
+                    //save file and upload on s3
+                    $this->miscelleneous->update_file_uploads($header_data['file_name'], $file_status['file_tmp_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
+                    
+                    //get email details 
+                    if (!empty($this->email_send_to)) {
+                        $to = $this->email_send_to;
+                    } else if (!empty($this->session->userdata('official_email'))) {
+                        $to = $this->session->userdata('official_email');
+                    } else {
+                        $to = _247AROUND_VIJAYA_EMAIL;
+                    }
+                    $cc = DEVELOPER_EMAIL;
+                    $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
+                    $subject = "Failed! $upload_file_type File uploaded by " . $agent_name;
+                    $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $response['msg'], "");
 
+                    log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
+                    $this->session->set_flashdata('file_error', $this->ColumnFailed);
+                    redirect(base_url() . "employee/booking_excel/$redirect_to");
+                }
+            } else {
+                $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+                redirect(base_url() . "employee/booking_excel/$redirect_to");
+            }
+        } else {
+            $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+            redirect(base_url() . "employee/booking_excel/$redirect_to");
+        }
+    }
+    
+    
+    /**
+     * @desc: This function is used to get the file type
+     * @param void
+     * @param $response array
+     */
+    private function get_upload_file_type(){
         if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
             $pathinfo = pathinfo($_FILES["file"]["name"]);
 
             switch ($pathinfo['extension']) {
                 case 'xlsx':
-                    $inputFileName = $_FILES['file']['tmp_name'];
-                    $inputFileExtn = 'Excel2007';
+                    $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
+                    $response['file_ext'] = 'Excel2007';
                     break;
                 case 'xls':
-                    $inputFileName = $_FILES['file']['tmp_name'];
-                    $inputFileExtn = 'Excel5';
+                    $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
+                    $response['file_ext'] = 'Excel5';
                     break;
             }
+            
+            $response['status'] =  True;
         } else {
             log_message('info', __FUNCTION__ . ' Empty File Uploaded for Satya File Upload');
-            $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
-            redirect(base_url() . "employee/booking_excel/upload_satya_file");
+            $response['status'] =  False;
         }
-
+        
+        return $response;
+        
+    }
+    
+    /**
+     * @desc: This function is used to get the file header
+     * @param $file array
+     * @param $response array
+     */
+    private function read_upload_file_header($file){
+        
         try {
-            $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
-            $objPHPExcel = $objReader->load($inputFileName);
+            $objReader = PHPExcel_IOFactory::createReader($file['file_ext']);
+            $objPHPExcel = $objReader->load($file['file_tmp_name']);
         } catch (Exception $e) {
-            die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
+            die('Error loading file "' . pathinfo($file['file_tmp_name'], PATHINFO_BASENAME) . '": ' . $e->getMessage());
         }
 
         $file_name = $_FILES["file"]["name"];
+        
 
         //  Get worksheet dimensions
         $sheet = $objPHPExcel->getSheet(0);
         $highestRow = $sheet->getHighestDataRow();
         $highestColumn = $sheet->getHighestDataColumn();
-
+        $response['status'] =  TRUE;
         //Validation for Empty File
         if ($highestRow <= 1) {
-            //Logging
-            log_message('info', __FUNCTION__ . ' Empty File Uploaded for Satya File Upload');
-            $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
-            redirect(base_url() . "employee/booking_excel/upload_satya_file");
+            log_message('info', __FUNCTION__ . ' Empty File Uploaded');
+            $response['status'] =  False;
         }
 
         $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
@@ -1263,41 +1366,85 @@ class Do_background_upload_excel extends CI_Controller {
             array_push($headings_new, str_replace(array(" "), "_", $heading));
         }
         
-        $this->ColumnFailed = "";
         $headings_new1 = array_map('strtolower', $headings_new[0]);
-        $response = $this->check_column_exist_in_satya_file($headings_new1);
+        
+        $response['file_name'] =  $file_name;
+        $response['header_data'] =  $headings_new1;
+        $response['sheet'] =  $sheet;
+        $response['highest_row'] =  $highestRow;
+        $response['highest_column'] =  $highestColumn;
+        
+        return $response;
+    }
+    
+    /**
+     * @desc: This function is used to process the satya file upload
+     * @param $data array
+     * @param $response array
+     */
+    function process_satya_file_upload($data) {
+        log_message('info', __FUNCTION__ . "=> Satya File Upload: Beginning processing...");
+        $response = $this->check_column_exist_in_satya_file($data['header_data']);
         
         if ($response['status']) {
-            for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
-                $rowData_array = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
-                $rowData = array_combine($headings_new1, $rowData_array[0]);
+            $arr = array('docnum','phone','zipcode','itemname');
+            //if new format of header came then change it to old header format
+            if(count($arr) == count(array_intersect($data['header_data'], $arr))){
+                $flippedArr = array_flip($data['header_data']);
+                foreach($flippedArr as $k => $v){
+                    if($k  === 'docnum'){
+                        $newArrHeadings[$v] = 'docno';
+                    }else if($k  === 'phone'){
+                        $newArrHeadings[$v] = 'phno';
+                    }else if($k  === 'zipcode'){
+                        $newArrHeadings[$v] = 'zipcodeb';
+                    }else if($k  === 'itemname'){
+                        $newArrHeadings[$v] = 'item_name';
+                    }else {
+                        $newArrHeadings[$v] = $k;
+                    }
+                }
+            }else{
+                $newArrHeadings = $data['header_data'];
+            }
+            
+            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                $rowData = array_combine($newArrHeadings, $rowData_array[0]);
                 $subArray = $this->get_sub_array($rowData,array('itemcode','docno','customer','phno','address','zipcodeb','item_name','create_date'));
-                $this->make_final_array_to_insert($subArray);
+                $this->get_final_satya_data($subArray);
             }
             
             if(!empty($this->finalArray)){
                 //process file to insert bookings
-                $this->process_upload_sd_file($this->finalArray,'delivered', $file_name,WYBOR_ID);
+                $this->process_upload_sd_file($this->finalArray,'delivered', $data['file_name'],$data['partner_id']);
                 
                 //save file and upload on s3
-                $this->miscelleneous->update_file_uploads($file_name,$_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS);
+                $this->miscelleneous->update_file_uploads($data['file_name'],$data['file_tmp_name'], $data['file_type'],FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
             }
             
-        } else {
-            //save file and upload on s3
-            $this->miscelleneous->update_file_uploads($file_name,$_FILES['file']['tmp_name'], _247AROUND_SATYA_DELIVERED,FILE_UPLOAD_FAILED_STATUS);
-            $to = !empty($this->session->userdata('official_email'))?$this->session->userdata('official_email'):_247AROUND_VIJAYA_EMAIL;
-            $cc = DEVELOPER_EMAIL;
-            $agent_name = !empty($this->session->userdata('emp_name'))?$this->session->userdata('emp_name'):_247AROUND_DEFAULT_AGENT_NAME;
-            $subject = "Failed! Satya File is uploaded by " . $agent_name;
-            $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $response['msg'], "");
-
-            log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
-            $this->session->set_flashdata('file_error', $this->ColumnFailed);
-            redirect(base_url() . "employee/booking_excel/upload_satya_file");
+            $response['status'] = TRUE;
         }
+        
+        return $response;
     }
-
+    
+    /**
+     * @desc: This function is used to get the sub array from the array
+     * @param $parentArray array
+     * @param $subsetArrayToGet array
+     * @param array
+     */
+    function get_sub_array(array $parentArray, array $subsetArrayToGet)
+    {
+        return array_intersect_key($parentArray, array_flip($subsetArrayToGet));
+    }
+    
+    /**
+     * @desc: This function is used to validate satya file header
+     * @param $rowData array
+     * @param $return_response array
+     */
     private function check_column_exist_in_satya_file($rowData) {
         $message = "";
         $error = false;
@@ -1308,9 +1455,11 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         if (!in_array('docno', $rowData)) {
-            $message .= " DocNo Column does not exist. Please use <b>docno</> as column name.<br/><br/>";
-            $this->ColumnFailed .= " DocNo, ";
-            $error = TRUE;
+            if(!in_array('docnum', $rowData)){
+                $message .= " DocNo Column does not exist. Please use <b>docno</> as column name.<br/><br/>";
+                $this->ColumnFailed .= " DocNo, ";
+                $error = TRUE;
+            }
         }
 
         if (!in_array('customer', $rowData)) {
@@ -1321,10 +1470,12 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         if (!in_array('phno', $rowData)) {
-
-            $message .= " PHNo Column does not exist. Please use <b>phno</> as column name.<br/><br/>";
-            $this->ColumnFailed .= " PHNo , ";
-            $error = TRUE;
+            if(!in_array('phone', $rowData)){
+                $message .= " PHNo Column does not exist. Please use <b>phno</> as column name.<br/><br/>";
+                $this->ColumnFailed .= " PHNo , ";
+                $error = TRUE;
+            }
+            
         }
         if (!in_array('address', $rowData)) {
 
@@ -1333,16 +1484,19 @@ class Do_background_upload_excel extends CI_Controller {
             $error = TRUE;
         }
         if (!in_array('zipcodeb', $rowData)) {
-
-            $message .= " ZipCodeB Column does not exist. Please use <b>zipcodeb</> as column name.<br/><br/>";
-            $this->ColumnFailed .= "ZipCodeB , ";
-            $error = TRUE;
+            if(!in_array('zipcode', $rowData)){
+                $message .= " ZipCodeB Column does not exist. Please use <b>zipcodeb</> as column name.<br/><br/>";
+                $this->ColumnFailed .= "ZipCodeB , ";
+                $error = TRUE;
+            }       
         }
         if (!in_array('item_name', $rowData)) {
-
-            $message .= " Item Name Column does not exist. Please use <b>item_name</> as column name.<br/><br/>";
-            $this->ColumnFailed .= "Item Name ";
-            $error = TRUE;
+            if(!in_array('itemname', $rowData)){
+                $message .= " Item Name Column does not exist. Please use <b>item_name</> as column name.<br/><br/>";
+                $this->ColumnFailed .= "Item Name ";
+                $error = TRUE;
+            }
+            
         }
         
         if ($error) {
@@ -1358,12 +1512,12 @@ class Do_background_upload_excel extends CI_Controller {
         return $return_response;
     }
     
-    function get_sub_array(array $parentArray, array $subsetArrayToGet)
-    {
-        return array_intersect_key($parentArray, array_flip($subsetArrayToGet));
-    }
-    
-    function make_final_array_to_insert($data){
+    /**
+     * @desc: This function is used to make data for satya file
+     * @param $data array
+     * @param void 
+     */
+    function get_final_satya_data($data){
         $tmpArr['unique_id'] = 'Around';
         $tmpArr['referred_date_and_time'] = '';
         $tmpArr['sub_order_id'] = $data['docno'];
@@ -1379,6 +1533,131 @@ class Do_background_upload_excel extends CI_Controller {
         $tmpArr['email_id'] = '';
         $tmpArr['call_type_installation_table_top_installationdemo_service'] = '';
         $tmpArr['partner_source'] = "Satya-delivered-excel";
+        
+        array_push($this->finalArray, $tmpArr);
+    }
+    
+    /**
+     * @desc: This function is used to process the Akai file upload
+     * @param $data array
+     * @param $response array
+     */
+    private function process_akai_file_upload($data){
+        log_message('info', __FUNCTION__ . "=> Akai File Upload: Beginning processing...");
+        $response = $this->check_column_exist_in_akai_file($data['header_data']);
+        
+        //if all column exist then retrive data from the file else send error mail
+        if ($response['status']) {
+            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                $subArray = $this->get_sub_array($rowData,array('bill_no','customer','contact_no','address','pincode','item_name','ssdate','alternate_contact','product'));
+                $this->get_final_akai_data($subArray);
+            }
+            
+            if(!empty($this->finalArray)){
+                //process file to insert bookings
+                $this->process_upload_sd_file($this->finalArray,'delivered', $data['file_name'],$data['partner_id']);
+                
+                //save file and upload on s3
+                $this->miscelleneous->update_file_uploads($data['file_name'],$data['file_tmp_name'], $data['file_type'],FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
+            }
+            
+            $response['status'] = TRUE;
+        }
+        
+        return $response;
+    }
+    
+    /**
+     * @desc: This function is used to validate Akai file header
+     * @param $rowData array
+     * @param $return_response array
+     */
+    private function check_column_exist_in_akai_file($rowData){
+        $message = "";
+        $error = false;
+        if (!in_array('bill_no', $rowData)) {
+            $message .= " bill_no Column does not exist.  Please use <b>bill_no</b> as column name.<br/><br/>";
+            $this->ColumnFailed .= " bill_no, ";
+            $error = TRUE;
+        }
+
+        if (!in_array('customer', $rowData)) {
+
+            $message .= " Customer Column does not exist. Please use <b>customer</b> as column name.<br/><br/>";
+            $this->ColumnFailed .= "Customer , ";
+            $error = TRUE;
+        }
+
+        if (!in_array('contact_no', $rowData)) {
+            if(!in_array('contact_no', $rowData)){
+                $message .= " contact_no Column does not exist. Please use <b>contact_no</b> as column name.<br/><br/>";
+                $this->ColumnFailed .= " PHNo , ";
+                $error = TRUE;
+            }
+            
+        }
+        if (!in_array('address', $rowData)) {
+
+            $message .= " Address Column does not exist. Please use <b>address</b> as column name.<br/><br/>";
+            $this->ColumnFailed .= " Address , ";
+            $error = TRUE;
+        }
+        
+        if (!in_array('pincode', $rowData)) {
+            $message .= " Pincode Column does not exist. Please use <b>pincode</b> as column name.<br/><br/>";
+            $this->ColumnFailed .= "ZipCodeB , ";
+            $error = TRUE;
+        }
+        
+        if (!in_array('item_name', $rowData)) {
+            if(!in_array('itemname', $rowData)){
+                $message .= " Item Name Column does not exist. Please use <b>item_name</b> as column name.<br/><br/>";
+                $this->ColumnFailed .= "Item Name ";
+                $error = TRUE;
+            }
+            
+        }
+        
+        if ($error) {
+            $message .= " Please check and upload again.";
+            $this->ColumnFailed .= " column does not exist.";
+            $return_response['status'] = FALSE;
+            $return_response['msg'] = $message;
+        } else {
+            $return_response['status'] = TRUE;
+            $return_response['msg'] = '';
+        }
+
+        return $return_response;
+    }
+    
+    /**
+     * @desc: This function is used to make data for akai file
+     * @param $data array
+     * @param void 
+     */
+    private function get_final_akai_data($data){
+        $tmpArr['unique_id'] = 'Around';
+        $tmpArr['referred_date_and_time'] = '';
+        $tmpArr['sub_order_id'] = $data['bill_no'];
+        $tmpArr['brand'] = 'Akai';
+        $tmpArr['model'] = '';
+        $tmpArr['product'] = $data['product'];
+        $tmpArr['product_type'] = $data['item_name'];
+        $tmpArr['customer_name'] = $data['customer'];
+        $tmpArr['customer_address'] = $data['address'];
+        $tmpArr['pincode'] = $data['pincode'];
+        $tmpArr['city'] = '';
+        if(isset($data['alternate_contact']) && !empty($data['alternate_contact'])){
+            $tmpArr['phone'] = $data['contact_no']."/".$data['alternate_contact'];
+        }else{
+            $tmpArr['phone'] = $data['contact_no'];
+        }
+        $tmpArr['email_id'] = '';
+        $tmpArr['call_type_installation_table_top_installationdemo_service'] = '';
+        $tmpArr['partner_source'] = "Akai-delivered-excel";
         
         array_push($this->finalArray, $tmpArr);
     }

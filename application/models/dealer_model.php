@@ -39,11 +39,13 @@ class Dealer_model extends CI_Model {
         if(!empty($condition['where'])){
              $this->db->where($condition['where']);
         }
-       
         
-        if(!empty($condition['where_in'])){
-            $this->db->where_in($condition['where_in']);
+        if (isset($condition['where_in'])) {
+            foreach ($condition['where_in'] as $index => $value) {
+                $this->db->where_in($index, $value);
+            }
         }
+        
         if (!empty($condition['search'])) {
             $key = 0;
             $like = "";
@@ -60,8 +62,26 @@ class Dealer_model extends CI_Model {
 
             $this->db->where($like, null, false);
         }
+        
+        if (!empty($condition['search_value'])) {
+            $like = "";
+            foreach ($condition['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $condition['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $condition['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        
         if(!empty($condition['order_by'])){
             $this->db->order_by($condition['order_by']);
+        }else if(!empty ($condition['order'])){
+            $this->db->order_by($condition['column_order'][$condition['order'][0]['column']], $condition['order'][0]['dir']);
         }
         
         $query = $this->db->get();
@@ -114,12 +134,55 @@ class Dealer_model extends CI_Model {
      * @return Array
      */
     function get_dealer_brand_mapping_details($dealer_id){
-        $sql = "SELECT p.public_name,s.services,dbm.brand "
+        $sql = "SELECT p.id,p.public_name,s.services,dbm.brand "
                 . "FROM dealer_brand_mapping AS dbm "
                 . "LEFT JOIN partners AS p ON dbm.partner_id = p.id "
                 . "LEFT JOIN services AS s ON dbm.service_id = s.id "
                 . "WHERE dealer_id = '$dealer_id'";
         $query= $this->db->query($sql);
         return $query->result_array();
+    }
+    
+    /**
+     * @desc: This is used to update the dealer details
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     */
+    function update_dealer($data,$where){
+        $this->db->where($where);
+        return $this->db->update('dealer_details', $data);
+    }
+    
+    /**
+     * @desc: This is used to update the dealer brand mapping
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     */
+    function update_dealer_brand_mapping($data,$where){
+        $this->db->where($where);
+        $this->db->update('dealer_brand_mapping', $data);
+        if($this->db->affected_rows() > 0){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+    }
+    
+    /**
+     * @desc: This is used to update the dealer brand mapping
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     */
+    function delete_dealer_brand_mapping($where){
+        $this->db->where($where);
+        $this->db->delete('dealer_brand_mapping');
+        if($this->db->affected_rows() > 0 ){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
     }
 }

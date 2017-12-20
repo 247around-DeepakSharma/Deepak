@@ -82,72 +82,37 @@ class service_centre_charges_model extends CI_Model {
         
         $query3['source'] = $this->partner_model->get_all_partner_source();
 
-        $query4['categories'] = $this->getcategory();
+        $query4['categories'] = $this->get_service_caharges_data("category", "", "category");
         
-        $query5['capacities'] = $this->getcapacity();
+        $query5['capacities'] = $this->get_service_caharges_data("capacity", "", "category");
 
-        $query6['appliances'] = $this->getappliances();
+        $query6['appliances'] = $this->get_service_caharges_data("service_category", "", "service_category");
         
         return array_merge($query1, $query2, $query3, $query4, $query5, $query6);
         
     }
-
-    function getcategory(){
-      $this->db->distinct();
-      $this->db->select('category');
-      $query = $this->db->get('service_centre_charges');
-
-      return  $query->result_array();
-    }
-
-    function getcapacity(){
-        $this->db->distinct();
-        $this->db->select('capacity');
-        $sql = $this->db->get('service_centre_charges');
-        
-        return $sql->result_array();
-    }
-
-    function getappliances(){
-      $this->db->distinct();
-      $this->db->select('service_category');
-      $sql = $this->db->get('service_centre_charges');
-        
-      return $sql->result_array();
-    }
     
-    function get_pricing_details($data){
-        $this->db->select('service_centre_charges.*,services.services');
+    function get_service_caharges_data($select, $where = array(), $order_by ="", $where_in = array()){
+        $this->db->distinct();
+        $this->db->select($select);
+        if(!empty($where_in)){
+            foreach($where_in as $index => $value){
+                $this->db->where_in($index, $value);
+            } 
+        }
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('service_centre_charges');
+        if(!empty($order_by)){
+            $this->db->order_by($order_by);
+        }
         
-        if($data['source'] !=""){
-          $this->db->where('partner_id', $data['source']);
-        }
-
-//        if($data['city'] != ""){
-//          $this->db->where('city', $data['city']);
-//        }
-
-        if($data['service_id'] != ""){
-          $this->db->where('service_id', $data['service_id']);
-        }
-
-        if($data['category'] != ""){
-          $this->db->where('category', $data['category']);
-        }
-
-        if($data['capacity'] != ""){
-          $this->db->where('capacity', $data['capacity']);
-        }
-
-        if($data['appliances'] != ""){
-          $this->db->where('service_category', $data['appliances']);
-        }
-
-        $this->db->join('services', 'services.id = service_centre_charges.service_id');
-
-        $sql = $this->db->get('service_centre_charges');
+        $this->db->join("services", "services.id = service_centre_charges.service_id");
+        $query = $this->db->get();
         
-        return $sql->result_array();
+    	return $query->result_array();
+        
     }
 
     function editPriceTable($data){
@@ -188,18 +153,11 @@ class service_centre_charges_model extends CI_Model {
      * @return: array
      * 
      */
-    function get_partner_price_data($data){
+    function get_partner_price_data($where, $where_in = array()){
         
         $this->db->select('category , capacity , service_category , customer_total , partner_payable_basic , customer_net_payable,vendor_total,pod,is_upcountry,vendor_basic_percentage');
         $this->db->from('service_centre_charges');
-        $this->db->where('partner_id', $data['partner_id']);
-        
-        if ($data['service_id'] != NULL){
-            $this->db->where('service_id', $data['service_id']);
-        } 
-        if ($data['service_category'] != NULL){
-            $this->db->where('service_category', $data['service_category']);
-        }    
+        $this->db->where($where);
         $this->db->where('active', 1);
         $query = $this->db->get();
         return $query->result_array();
@@ -354,5 +312,53 @@ class service_centre_charges_model extends CI_Model {
         $this->_get_service_centre_charges($post,'count(category) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
+    }
+    
+    function get_service_request_type($where, $select){
+        $this->db->distinct();
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->order_by("service_category","ASC");
+        $query = $this->db->get('request_type');
+        
+    	return $query->result_array();
+    }
+    
+    function getServiceCategoryMapping($where, $select, $order_by, $where_in = array()){
+        $this->db->distinct();
+        $this->db->select($select);
+        if(!empty($where_in)){
+            foreach($where_in as $index => $value){
+                $this->db->where_in($index, $value);
+            } 
+        }
+        $this->db->where($where);
+        $this->db->order_by($order_by);
+        $query = $this->db->get('service_category_mapping');
+        
+    	return $query->result_array();
+    }
+    
+    function delete_service_charges($where_in){
+       if(!empty($where_in)){
+           $this->db->where_in('id', $where_in);
+           return $this->db->delete("service_centre_charges");
+       } 
+    }
+    /**
+     * @desc This is used to insert service charges data before delete in trigger_service_charges table
+     * @param int $agent_id
+     * @param int $charges_id
+     * @return type
+     */
+    function insert_deleted_s_charge_in_trriger($agent_id, $charges_id){
+        $id = implode(",", $charges_id);
+        if(!empty($id)){
+             $sql = "INSERT INTO trigger_service_charges (SELECT service_centre_charges.*, CURRENT_TIMESTAMP AS current_updated_date, "
+                . "'$agent_id' AS deleted_by FROM service_centre_charges WHERE service_centre_charges.id IN ($id))";
+            $this->db->query($sql);
+            
+        }
+       
     }
 }

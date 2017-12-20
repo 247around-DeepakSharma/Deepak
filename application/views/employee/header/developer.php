@@ -18,6 +18,7 @@
         <link href="<?php echo base_url()?>css/daterangepicker.css" rel="stylesheet">
         <!-- Custom Fonts -->
         <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href="https://cdn.datatables.net/buttons/1.4.0/css/buttons.dataTables.min.css" rel="stylesheet">
         <script src="<?php echo base_url()?>js/jquery.js"></script>
          <!-- Load jQuery UI Main CSS-->
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
@@ -39,9 +40,16 @@
         <script type="text/javascript" src="<?php echo base_url()?>js/plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-
         <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+        <script src='https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js'></script>
+        <script src='//cdn.datatables.net/buttons/1.2.1/js/buttons.flash.min.js'></script>
+        <script src='//cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js'></script>
+        <script src='//cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js'></script>
+        <script src='//cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js'></script>
+        <script src='//cdn.datatables.net/buttons/1.2.1/js/buttons.html5.min.js'></script>
+        <script src='//cdn.datatables.net/buttons/1.2.1/js/buttons.print.min.js'></script>
+        <script src='https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js'></script>
         <script src="<?php echo base_url()?>/js/moment.min.js"></script>
         <script src="<?php echo base_url()?>js/daterangepicker.js"></script>
         <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
@@ -201,6 +209,10 @@
                         </li>
                         <li class="divider"></li>
                         <li >
+                            <a href="<?php echo base_url() ?>/employee/bookings_excel/upload_akai_file"><i class="fa fa-fw fa-desktop "></i> <strong>Upload Akai File</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
                             <a href="<?php echo base_url() ?>employee/service_centre_charges/show_partner_service_price"><i class="fa fa-fw fa-desktop "></i> <strong>Partner Price List</strong></a>
                         </li>
                         <li class="divider"></li>
@@ -225,18 +237,18 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/vendor_availability_form"><i class="fa fa-fw fa-desktop "></i> <strong> Search Service Centre</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
+<!--                        <li class="divider"></li>-->
+<!--                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_pincode_excel_upload_form"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Pincode Mapping Excel</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
+                        <li class="divider"></li>-->
+<!--                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_add_vendor_to_pincode_form"><i class="fa fa-fw fa-desktop "></i> <strong>Add Vendor Pincode Mapping</strong></a>
-                        </li>
-                        <li class="divider"></li>
+                        </li>-->
+<!--                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/process_vendor_pincode_delete_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
-                        </li>
+                        </li>-->
 
                         <li class="divider"></li>
                         <li class="dropdown dropdown-submenu">
@@ -317,6 +329,14 @@
                          <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/inventory/update_part_price_details"><i class="fa fa-fw fa-inr "></i> <strong> Update Zopper Price</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/service_centre_charges/generate_service_charges_view"><i class="fa fa-fw fa-desktop "></i> <strong>Generate Service Charge</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/service_centre_charges/show_charge_list"><i class="fa fa-fw fa-desktop "></i> <strong>Show Service Charge</strong></a>
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->

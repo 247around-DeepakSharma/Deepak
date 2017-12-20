@@ -36,9 +36,29 @@
                 padding: 20px;
                 margin-top:150px;
             }
+            .reset_btn{
+                background-color: #708090;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+                border: none;
+                display: inline-block;
+                outline: 0;
+                padding: 6px 16px;
+                vertical-align: middle;
+                overflow: hidden;
+                text-decoration: none!important;
+                color: #fff;
+                text-align: center;
+                cursor: pointer;
+                white-space: nowrap;
+                margin-top:10px;
+            }
+            .reset_btn:hover{
+                background-color: #fff;
+                color: #333;
+            }
+            
         </style>
     </head>
-</html>
 <body>
     <div class="welcome_text">
         <nav class="navbar navbar-inverse nab-border">
@@ -67,45 +87,80 @@
                     <div class="tab-content"  style="padding:20px; ">
                         <img src="<?php echo base_url() ?>images/logo.jpg" style="display: inline;">
                         <p style="display: inline; color: #fff;margin-left:33px;font-size: 22px; ">Welcome to  247around CRM</p>
-                        <div class="tab-pane fade in active">
-                            <?php
-                            if ($this->session->userdata('error')) {
-                                echo '<div class="col-sm-offset-1 col-sm-10 col-sm-offset-2 alert alert-danger alert-dismissible" role="alert">
+                        <?php
+                        if ($this->session->userdata('error')) {
+                            echo '<div class="col-sm-offset-1 col-sm-10 col-sm-offset-2 alert alert-danger alert-dismissible" role="alert">
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                         <strong>' . $this->session->userdata('error') . '</strong>
                                     </div>';
-                            }
-                            ?>
-                            <form class="form-horizontal" action="<?php echo base_url(); ?>employee/login/service_center_login" style="margin-top:45px;" method="post" id="login_form">
-                                <div class="form-group">
-                                    <div class="col-sm-offset-1 col-sm-10 col-sm-offset-1">
-                                        <div class = "input-group">
-                                            <span class = "input-group-addon"><i class="fa fa-user" aria-hidden="true"></i></span>
-                                            <input type = "text" class = "form-control" name="user_name" placeholder = "User Name">
+                        }
+                        if ($this->session->userdata('success')) {
+                            echo '<div class="col-sm-offset-1 col-sm-10 col-sm-offset-2 alert alert-success alert-dismissible" role="alert">
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <strong>' . $this->session->userdata('success') . '</strong>
+                                    </div>';
+                        }
+                        ?>
+                        <div class="row">
+                            <div class="reset_password" style="display:none;">
+                                <form class="form-horizontal" action="<?php echo base_url(); ?>employee/login/reset_service_center_login" style="margin-top:45px;" method="post" id="login_form">
+                                    <div class="form-group">
+                                        <div class="col-sm-offset-1 col-sm-10 col-sm-offset-1">
+                                            <div class = "input-group">
+                                                <span class = "input-group-addon"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                                                <input type = "email" class = "form-control" name="email" placeholder = "Enter Your Email" required="">
+                                            </div>
+                                        </div>
+                                        &nbsp;<span id="errmsg"></span>
+                                        <div class="form-group">
+                                            <div class="col-sm-12">
+                                                <button type="submit" class="reset_btn">Submit</button>
+                                            </div>
                                         </div>
                                     </div>
-                                    &nbsp;<span id="errmsg"></span>
-
+                                </form>
+                                <div class="row">
+                                    <a href="javascript:void(0);" style="color: #fff;" id="go_back">Login</a>
                                 </div>
+                            </div>
+                            <div class="login_form">
+                                <form class="form-horizontal" action="<?php echo base_url(); ?>employee/login/service_center_login" style="margin-top:45px;" method="post" id="login_form">
+                                    <div class="form-group">
+                                        <div class="col-sm-offset-1 col-sm-10 col-sm-offset-1">
+                                            <div class = "input-group">
+                                                <span class = "input-group-addon"><i class="fa fa-user" aria-hidden="true"></i></span>
+                                                <input type = "text" class = "form-control" name="user_name" placeholder = "User Name">
+                                            </div>
+                                        </div>
+                                        &nbsp;<span id="errmsg"></span>
 
-                                <div class="form-group">
-                                    <div class="col-sm-offset-1 col-sm-10 col-sm-offset-1">
-                                        <div class = "input-group">
-                                            <span class = "input-group-addon"><i class="fa fa-key" aria-hidden="true"></i></span>
-                                            <input type = "password" class = "form-control" name="password" placeholder = "Password">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="col-sm-offset-1 col-sm-10 col-sm-offset-1">
+                                            <div class = "input-group">
+                                                <span class = "input-group-addon"><i class="fa fa-key" aria-hidden="true"></i></span>
+                                                <input type = "password" class = "form-control" name="password" placeholder = "Password">
+                                            </div>
+                                        </div>
+                                        &nbsp;<span id="errmsg1"></span>
+                                    </div>
+                                    <!--<a href="#" class="pull-right" style="color: #fff;margin-right: 77px;">Forgot password</a>-->
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <button type="submit" class="login_btn">Sign in</button>
                                         </div>
                                     </div>
-                                    &nbsp;<span id="errmsg1"></span>
+                                </form>
+                                
+                                <div class="row">
+                                    <a href="javascript:void(0);" style="color: #fff;" id="reset_link">Can’t access your account?</a>
                                 </div>
-                                <!--<a href="#" class="pull-right" style="color: #fff;margin-right: 77px;">Forgot password</a>-->
-                                <div class="form-group">
-                                    <div class="col-sm-12">
-                                        <button type="submit" class="login_btn">Sign in</button>
-                                    </div>
-                                </div>
-                            </form>
+                            </div> 
                         </div>
                     </div>
                     <!-- end md-4 -->
@@ -294,6 +349,19 @@
         </div>
 
     </div>
+    
+    <?php $this->session->unset_userdata('error'); ?>
+    <?php $this->session->unset_userdata('success'); ?>
+    <script>
+        $('#reset_link').click(function(){
+            $('.login_form').hide();
+            $('.reset_password').show();
+        });
+        $('#go_back').click(function(){
+            $('.reset_password').hide();
+            $('.login_form').show();
+        });
+    </script>
 
 
 

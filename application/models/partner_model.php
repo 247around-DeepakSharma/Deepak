@@ -345,7 +345,7 @@ function get_data_for_partner_callback($booking_id) {
             booking_primary_contact_no AS Phone, 
             user_email As 'Email ID', 
             request_type AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
-            partner_current_status AS 'Status By Brand', 
+            partner_internal_status AS 'Status By Brand', 
             CASE WHEN(current_status = 'Rescheduled') THEN (reschedule_reason) ELSE ('') END AS 'Remarks by Brand',
             'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
@@ -373,7 +373,7 @@ function get_data_for_partner_callback($booking_id) {
             booking_primary_contact_no AS Phone, 
             user_email As 'Email ID', 
             request_type AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
-            partner_current_status AS 'Status By Brand', 
+            partner_internal_status AS 'Status By Brand', 
             CASE WHEN(current_status = 'Rescheduled') THEN (reschedule_reason) ELSE ('') END AS 'Remarks by Brand',
             'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
@@ -1069,7 +1069,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param Array $where
      * @return Array
      */
-    function get_partner_specific_details($where, $select, $order_by, $where_in = ""){
+    function get_partner_specific_details($where, $select, $order_by ="", $where_in = ""){
         
         $this->db->distinct();
         $this->db->select($select);
@@ -1080,8 +1080,10 @@ function get_data_for_partner_callback($booking_id) {
                 $this->db->where_in($index, $value);
             } 
         }
-        $this->db->order_by($order_by, 'asc');
-        $this->db->where('partner_appliance_details.active',1);
+        if(!empty($order_by)){
+             $this->db->order_by($order_by, 'asc');
+        }
+       
         $query = $this->db->get('partner_appliance_details');
        
         log_message("info", $this->db->last_query());
@@ -1190,11 +1192,37 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     function get_serviceability_by_pincode(){
-        $sql = "SELECT City, State, Pincode,GROUP_CONCAT( DISTINCT Appliance SEPARATOR ',') as appliance
-                FROM vendor_pincode_mapping 
-                GROUP BY Pincode
-                ORDER BY City";
+        $sql = "SELECT vendor_pincode_mapping.City, vendor_pincode_mapping.State, vendor_pincode_mapping.Pincode,GROUP_CONCAT( DISTINCT services.services SEPARATOR ',') as appliance
+                FROM vendor_pincode_mapping JOIN services ON services.id = vendor_pincode_mapping.Appliance_ID 
+                GROUP BY vendor_pincode_mapping.Pincode
+                ORDER BY vendor_pincode_mapping.City";
         return $this->db->query($sql);
+    }
+    /**
+     * @desc Update partner appliance_details table
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function update_partner_appliance_details($where, $data){
+        if(!empty($where)){
+            $this->db->where($where);
+            return $this->db->update("partner_appliance_details",$data);
+        }
+        return FALSE;
+    }
+    /**
+     * @desc This is used to get partner blocked brand 
+     * @param Array $where
+     * @param String $select
+     * @return Array
+     */
+    function get_partner_blocklist_brand($where, $select){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("blacklist_brand");
+        return $query->result_array();
+        
     }
 }
 

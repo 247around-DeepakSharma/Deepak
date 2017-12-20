@@ -79,16 +79,6 @@ class invoices_model extends CI_Model {
         return $return_data;
     }
 
-    /**
-     * Get partner Email id
-     * @param type $partnerId
-     */
-    function getEmailIdForPartner($partnerId) {
-        $this->db->select('partner_email_for_to');
-        $this->db->where('partner_id', $partnerId);
-        $query = $this->db->get('bookings_sources');
-        return $query->result_array();
-    }
 
     //Function to insert banks account/statement
     function bankAccountTransaction($account_statement) {
@@ -1099,10 +1089,6 @@ class invoices_model extends CI_Model {
             if ($meta['sub_total_amount'] >= 0) {
                
                 $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
-            }else if ($meta['sub_total_amount'] < 0){
-
-                return FALSE;
-                
             }
             
             $data['meta'] = $meta;
@@ -1142,14 +1128,14 @@ class invoices_model extends CI_Model {
                     . "`booking_unit_details`.appliance_category,"
                     . "rating_stars, "
                     . " `booking_unit_details`.appliance_capacity, 
-                     `booking_unit_details`.  product_or_services, "
+                     `booking_unit_details`.  product_or_services, services,"
                     . " around_net_payable, "
                     . " $select (around_comm_extra_charges + around_st_extra_charges) as additional_charges,"
                     . " (around_comm_parts + around_st_parts) AS parts_cost, "
                     . " (customer_paid_basic_charges + customer_paid_extra_charges + customer_paid_parts) as amount_paid  "
                     . " From booking_details, booking_unit_details, services, service_centres
                     WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  
-                    AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' 
+                    AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND pay_from_sf = 1
                     $is_invoice_null
                     AND assigned_vendor_id = '" . $vendor_id . "' "
                     . " AND `booking_unit_details`.booking_status = 'Completed' $where";
@@ -1190,6 +1176,7 @@ class invoices_model extends CI_Model {
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
                 AND ud.service_id = services.id
+                AND pay_from_sf = 1
                 AND sc.id = bd.assigned_vendor_id
                 $is_foc_null
                 $where
@@ -1349,7 +1336,7 @@ class invoices_model extends CI_Model {
                 THEN (bb_unit_details.cp_claimed_price) 
                 ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge,partner_tracking_id, city,order_key,
                 CASE WHEN(acknowledge_date IS NOT NULL) 
-                THEN (acknowledge_date) ELSE (delivery_date) END AS delivery_date, order_date,
+                THEN (DATE_FORMAT( acknowledge_date,  '%d-%m-%Y' ) ) ELSE (DATE_FORMAT(delivery_date,  '%d-%m-%Y' )) END AS delivery_date, order_date,
                 order_date, services, bb_order_details.partner_order_id";
             $group_by = "";
         }

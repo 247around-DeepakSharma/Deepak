@@ -50,6 +50,7 @@
                 <th class='jumbotron' style="text-align: center">Go To Invoice Page</th>
           	<th  class='jumbotron' style="text-align: center">Action</th>
                 <th class='jumbotron' style="text-align: center">Send Summary Email</th>
+                <th class='jumbotron' style="text-align: center">View History</th>
           </tr>
 
           
@@ -97,7 +98,7 @@
             <td>
                 <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-md btn-color">Send Mail</a>  
             </td>
-            
+            <td>  <button type="button" class="btn btn-info btn-lg fa fa-eye" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" style="padding: 11px 6px;margin: 0px 10px;"></button></td>
           </tr>
           <?php } ?>
         </table>
@@ -107,3 +108,35 @@
       </div>
     </div>
 </div>      
+<!-- This model class is used Update History View-->
+  <div class="modal fade" id="history_view" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Updated History View</h4>
+        </div>
+        <div class="modal-body">
+            <div id="table_container"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+<script>
+    function get_history_view(partnerID){
+     $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/get_partner_vendor_updation_history_view/'+partnerID+'/partners/trigger_partners',
+                success: function(response) {
+                    console.log(response);
+                    $("#table_container").html(response);
+                }
+            });
+     }
+    </script>

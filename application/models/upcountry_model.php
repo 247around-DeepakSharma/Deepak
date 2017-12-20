@@ -191,12 +191,9 @@ class Upcountry_model extends CI_Model {
         $up_data = array();
         
         if ($partner_data[0]['is_upcountry'] == 1) {
-            if (($partner_data[0]['upcountry_mid_distance_threshold'] * 2) > $upcountry_vendor_details['upcountry_distance']) {
-
-                $partner_upcountry_rate = $partner_data[0]['upcountry_rate'];
-            } else {
-                $partner_upcountry_rate = $partner_data[0]['upcountry_rate1'];
-            }
+            
+            $partner_upcountry_rate = $partner_data[0]['upcountry_rate'];
+            
             $partner_upcountry_approval = $partner_data[0]['upcountry_approval'];
             $min_threshold_distance = $this->vendor_min_up_distance *2;
             $max_threshold_distance = $partner_data[0]['upcountry_max_distance_threshold'] * 2;
@@ -736,19 +733,26 @@ class Upcountry_model extends CI_Model {
                 if($partner_id == PAYTM){
                     $m_data = $this->generate_paytm_upcountry_distance($value['sub_vendor_id'], $value["upcountry_pincode"], $value['booking_pincode']);
                     if(!empty($m_data)){
-                         $result[$key]['upcountry_distance'] = $m_data[0]['distance'];
-                         $result[$key]['upcountry_price'] = $m_data[0]['distance'] * $value['partner_upcountry_rate'];
-                         $result[$key]['municipal_limit'] = $m_data[0]['municipal_limit'];
-                         $result[$key]['district'] = $m_data[0]['district'];
+                         if($m_data[0]['distance'] > 0){
+                            $result[$key]['upcountry_distance'] = $m_data[0]['distance'];
+                            $result[$key]['upcountry_price'] = $m_data[0]['distance'] * $value['partner_upcountry_rate'];
+                            $result[$key]['municipal_limit'] = $m_data[0]['municipal_limit'];
+                            $result[$key]['district'] = $m_data[0]['district'];
+                         } else {
+                             unset($result[$key]);
+                         }
+                         
                     } else {
                         $result[$key]['municipal_limit'] = "";
                         $result[$key]['district'] = "";
                     }
                 }
+                if(isset($result[$key])){
+                    $total_price += $result[$key]['upcountry_price'];
+                    $total_booking += $value['count_booking'];
+                    $total_distance += $result[$key]['upcountry_distance'];
+                }
                 
-                $total_price += $result[$key]['upcountry_price'];
-                $total_booking += $value['count_booking'];
-                $total_distance += $result[$key]['upcountry_distance'];
             }
             $result[0]['total_upcountry_price'] = $total_price;
             $result[0]['total_booking'] = $total_booking;

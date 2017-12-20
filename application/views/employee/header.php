@@ -161,18 +161,18 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/vendor_availability_form"><i class="fa fa-fw fa-desktop "></i> <strong> Search Service Centre</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
+<!--                        <li class="divider"></li>-->
+<!--                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_pincode_excel_upload_form"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Pincode Mapping Excel</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
+                        <li class="divider"></li>-->
+<!--                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_add_vendor_to_pincode_form"><i class="fa fa-fw fa-desktop "></i> <strong>Add Vendor Pincode Mapping</strong></a>
-                        </li>
-                        <li class="divider"></li>
+                        </li>-->
+<!--                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/process_vendor_pincode_delete_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
-                        </li>
+                        </li>-->
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_sms_template_editable_grid" ><i class="fa fa-fw fa-desktop"></i> <strong> SMS Template Grid</strong></a>
                         </li>
@@ -284,10 +284,10 @@
                       </li>
 
                       <li class="divider"></li>-->
-                        <li>
+<!--                        <li>
                             <a href="<?php echo base_url()?>employee/vendor/vendor_performance_view"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Performance</strong></a>
                         </li>
-                        <li class="divider"></li>
+                        <li class="divider"></li>-->
                         <li>
                             <a href="<?php echo base_url()?>employee/user/get_user_count_view" ><i class="fa fa-fw fa-desktop"></i> <strong> Bookings</strong></a>
                         </li>

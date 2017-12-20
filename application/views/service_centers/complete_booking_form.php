@@ -116,6 +116,7 @@
                     }?>
                     <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
                     <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
+                    <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
                    
                     <?php $count = 0; foreach ($bookng_unit_details as $key => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
@@ -175,7 +176,7 @@
                                                     </div>
                                                     <?php } ?>
                                                 </td>
-                                                <td><?php echo $price['price_tags'] ?></td>
+                                                <td id="<?php echo "price_tags".$count; ?>"><?php echo $price['price_tags'] ?></td>
                                                 <td id="<?php echo "amount_due".$count; ?>"><?php echo $price['customer_net_payable']; ?></td>
                                                 <td>  
                                                     <?php if($price['product_or_services'] != "Product"){  ?>
@@ -310,8 +311,6 @@
                     </center>
             </div>
             </form>
-               <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>')" class="btn btn-lg" style="background-color: #2C9D9A;
-                                border-color: #2C9D9A; color:#fff;" value="Complete Booking">
             <!-- end Panel Body  -->
         </div>
     </div>
@@ -386,8 +385,8 @@ function onsubmit_form(upcountry_flag, number_of_div) {
                     }
                 }
             }
-
             var amount_due = $("#amount_due" + div_no[2]).text();
+            var price_tags = $("#price_tags" + div_no[2]).text();
             var basic_charge = $("#basic_charge" + div_no[2]).val();
             var additional_charge = $("#extra_charge" + div_no[2]).val();
             var parts_cost = $("#parts_cost" + div_no[2]).val();
@@ -397,19 +396,33 @@ function onsubmit_form(upcountry_flag, number_of_div) {
                     alert("Please fill amount collected from customer, Amount Due: Rs." + amount_due);
                     flag = 1;
                 }
+                
+                if(price_tags === '<?php echo REPAIR_OOW_PARTS_PRICE_TAGS;?>'){
+                    if(Number(basic_charge) < Number(amount_due))
+                       alert("Please fill amount collected from customer, Amount Due: Rs." + amount_due);
+                       flag = 1;
+                       
+                }
+            }
+        } else if(div_no[0] === "cancelled"){
+            var price_tags = $("#price_tags" + div_no[2]).text();
+            var amount_due = $("#amount_due" + div_no[2]).text();
+            if(price_tags === '<?php echo REPAIR_OOW_PARTS_PRICE_TAGS;?>'){
+                alert("You can not mark as a not delivered of Spare Parts. fill amount collected from customer, Amount Due: Rs." + amount_due);
+                flag = 1;
             }
         }
     });
-    if (Number(number_of_div) !== div_count) {
+    if (Number(number_of_div) !== Number(div_count)) {
         alert('Please Select All Services Delivered Or Not Delivered.');
-        $flag = 1;
+        flag = 1;
         return false;
     }
     if ($.inArray('completed', is_completed_checkbox) !== -1) {
 
     } else {
         alert('Please Select atleast one Completed or Delivered checkbox.');
-        $flag = 1;
+        flag = 1;
         return false;
 
     }
