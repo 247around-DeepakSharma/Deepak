@@ -129,7 +129,6 @@ class Blogs extends CI_Controller {
      */
 
     function unpublish($id) {
-//        $query = $this->blogs_model->unpublish($id);    // $query looks unused
         $this->blogs_model->unpublish($id);
 
         $query = $this->blogs_model->view_blogs();
