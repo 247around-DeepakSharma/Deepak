@@ -1761,87 +1761,114 @@ class Miscelleneous {
      * @return bookean $flag
      */
     function process_inventory_stocks($data) {
-        log_message("info",__FUNCTION__." process inventory update". print_r($data,true));
+        log_message("info", __FUNCTION__ . " process inventory update" . print_r($data, true));
         $flag = FALSE;
-        /*check if part is exist in the master inventory table
-         * if exist then get the id of that part and use that id for further process
-         */
-        $is_part_exist = $this->My_CI->reusable_model->get_search_query('inventory_master_list', 'inventory_master_list.id', array('part_number' => $data['part_number']), NULL, NULL, NULL, NULL, NULL)->result_array();
-        if (!empty($is_part_exist)) {
-            /*check if entity is exist in the inventory stock table
-            * if exist then get update the stock
-            * else insert into the table
-            */
-            $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'part_id'=>$is_part_exist[0]['id']), NULL, NULL, NULL, NULL, NULL)->result_array();
-            if (!empty($is_entity_exist)) {
-                $stock = "stock + '".$data['stock']."'";
-                $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id'=>$is_entity_exist[0]['id']), $stock);
-                if ($update_stocks) {
-                    log_message("info", __FUNCTION__." Stocks has been updated successfully");
-                    $flag = TRUE;
+        $is_process = FALSE;
+        
+        if ($data['receiver_entity_type'] === _247AROUND_SF_STRING) {
+            //check if sf is working with brackets with 247around
+            $is_brackets = $this->My_CI->vendor_model->getVendorDetails('brackets_flag', array('id' => $data['receiver_entity_id']))[0]['brackets_flag'];
+            if (!empty($is_brackets)) {
+                $is_process = TRUE;
+                log_message("info","sf id: ".$data['receiver_entity_id']." is working with brackets with 247around");
+            } else {
+                $is_process = FALSE;
+                log_message("info","sf id: ".$data['receiver_entity_id']." is not working with brackets with 247around");
+            }
+        } else {
+            $is_process = TRUE;
+        }
+
+        if ($is_process) {
+            /* check if part is exist in the master inventory table
+             * if exist then get the id of that part and use that id for further process
+             */
+            $is_part_exist = $this->My_CI->reusable_model->get_search_query('inventory_master_list', 'inventory_master_list.inventory_id', array('part_number' => $data['part_number']), NULL, NULL, NULL, NULL, NULL)->result_array();
+            if (!empty($is_part_exist)) {
+                /* check if entity is exist in the inventory stock table
+                 * if exist then get update the stock
+                 * else insert into the table
+                 */
+                $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                if (!empty($is_entity_exist)) {
+                    $stock = "stock + '" . $data['stock'] . "'";
+                    $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
+                    if ($update_stocks) {
+                        log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
+                        $flag = TRUE;
+                    } else {
+                        log_message("info", __FUNCTION__ . " Error in updating stocks");
+                    }
                 } else {
-                    log_message("info", __FUNCTION__." Error in updating stocks");
+                    $insert_data['entity_id'] = $data['receiver_entity_id'];
+                    $insert_data['entity_type'] = $data['receiver_entity_type'];
+                    $insert_data['inventory_id'] = $is_part_exist[0]['inventory_id'];
+                    $insert_data['stock'] = $data['stock'];
+                    $insert_data['create_date'] = date('Y-m-d H:i:s');
+
+                    $insert_id = $this->My_CI->inventory_model->insert_inventory_stock($insert_data);
+                    if (!empty($insert_id)) {
+                        log_message("info", __FUNCTION__ . " Stocks has been inserted successfully" . print_r($insert_data, true));
+                        $flag = TRUE;
+                    } else {
+                        log_message("info", __FUNCTION__ . " Error in inserting stocks" . print_r($insert_data, true));
+                    }
+                }
+
+                //insert inventory details into the inventory ledger table 
+                if ($flag) {
+                    $insert_ledger_data = array('receiver_entity_id' => $data['receiver_entity_id'],
+                        'receiver_entity_type' => $data['receiver_entity_type'],
+                        'quantity' => $data['stock'],
+                        'inventory_id' => $is_part_exist[0]['inventory_id']
+                    );
+                    if (isset($data['sender_entity_id']) && isset($data['sender_entity_type'])) {
+                        $insert_ledger_data['sender_entity_id'] = $data['sender_entity_id'];
+                        $insert_ledger_data['sender_entity_type'] = $data['sender_entity_type'];
+                    }
+
+                    if (isset($data['agent_id']) && isset($data['agent_type'])) {
+                        $insert_ledger_data['agent_id'] = $data['agent_id'];
+                        $insert_ledger_data['agent_type'] = $data['agent_type'];
+                    }
+
+                    if (isset($data['order_id'])) {
+                        $insert_ledger_data['order_id'] = $data['order_id'];
+                    }
+
+                    if (isset($data['booking_id'])) {
+                        $insert_ledger_data['booking_id'] = $data['booking_id'];
+                    }
+
+                    if (isset($data['invoice_id'])) {
+                        $insert_ledger_data['invoice_id'] = $data['invoice_id'];
+                    }
+
+                    $insert_id = $this->My_CI->inventory_model->insert_inventory_ledger($insert_ledger_data);
+                    if (!empty($insert_id)) {
+                        log_message("info", __FUNCTION__ . " Inventory Ledger has been inserted successfully" . print_r($insert_ledger_data, true));
+                        $flag = TRUE;
+                        if (isset($data['booking_id']) && !empty($data['booking_id'])) {
+                            $update = $this->My_CI->booking_model->update_booking_unit_details_by_any(array('booking_id' => $data['booking_id'], 'price_tags like "' . _247AROUND_WALL_MOUNT__PRICE_TAG . '"' => NULL), array('inventory_id' => $is_part_exist[0]['inventory_id']));
+                            if (!empty($update)) {
+                                log_message("info", "Inventory id updated successfully in booking unit details for booking_id " . $data['booking_id']);
+                            } else {
+                                log_message("info", "error in updating inventory_id in unit details for booking_id " . $data['booking_id']);
+                            }
+                        }
+                    } else {
+                        log_message("info", __FUNCTION__ . " Error in inserting inventory ledger details" . print_r($insert_ledger_data, true));
+                        $flag = FALSE;
+                    }
+                } else {
+                    log_message("info", __FUNCTION__ . " Error in updating inventory" . print_r($data, true));
                 }
             } else {
-                $insert_data['entity_id'] = $data['receiver_entity_id'];
-                $insert_data['entity_type'] = $data['receiver_entity_type'];
-                $insert_data['part_id'] = $is_part_exist[0]['id'];
-                $insert_data['stock'] = $data['stock'];
-                $insert_data['create_date'] = date('Y-m-d H:i:s');
-
-                $insert_id = $this->My_CI->inventory_model->insert_inventory_stock($insert_data);
-                if (!empty($insert_id)) {
-                    log_message("info", __FUNCTION__." Stocks has been inserted successfully". print_r($insert_data,true));
-                    $flag = TRUE;
-                } else {
-                    log_message("info", __FUNCTION__." Error in inserting stocks". print_r($insert_data,true));
-                }
+                log_message("info", __FUNCTION__ . " Error in updating inventory. Part number does not exist in the inventory_master_list table" . print_r($data, true));
             }
-            
-            //insert inventory details into the inventory ledger table 
-            if ($flag) {
-                $insert_ledger_data = array('receiver_entity_id' => $data['receiver_entity_id'],
-                                            'receiver_entity_type' => $data['receiver_entity_type'],
-                                            'quantity' => $data['stock'],
-                                            'part_id' => $is_part_exist[0]['id']
-                                        );
-                if(isset($data['sender_entity_id']) && isset($data['sender_entity_type'])){
-                    $insert_ledger_data['sender_entity_id'] = $data['sender_entity_id'];
-                    $insert_ledger_data['sender_entity_type'] = $data['sender_entity_type'];
-                }
-                
-                if(isset($data['agent_id']) && isset($data['agent_type'])){
-                    $insert_ledger_data['agent_id'] = $data['agent_id'];
-                    $insert_ledger_data['agent_type'] = $data['agent_type'];
-                }
-                
-                if(isset($data['order_id'])){
-                    $insert_ledger_data['order_id'] = $data['order_id'];
-                }
-                
-                if(isset($data['booking_id'])){
-                    $insert_ledger_data['booking_id'] = $data['booking_id'];
-                }
-                
-                if(isset($data['invoice_id'])){
-                    $insert_ledger_data['invoice_id'] = $data['invoice_id'];
-                }
-
-                $insert_id = $this->My_CI->inventory_model->insert_inventory_ledger($insert_ledger_data);
-                if (!empty($insert_id)) {
-                    log_message("info", __FUNCTION__." Inventory Ledger has been inserted successfully" . print_r($insert_ledger_data, true));
-                    $flag = TRUE;
-                } else {
-                    log_message("info", __FUNCTION__." Error in inserting inventory ledger details" . print_r($insert_ledger_data, true));
-                    $flag = FALSE;
-                }
-            }else{
-                log_message("info", __FUNCTION__." Error in updating inventory" . print_r($data, true));
-            }
-        }else{
-            log_message("info", __FUNCTION__." Error in updating inventory. Part number does not exist in the inventory_master_list table" . print_r($data, true));
         }
-        
+
         return $flag;
     }
+
 }
