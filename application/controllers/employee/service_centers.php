@@ -461,10 +461,14 @@ class Service_centers extends CI_Controller {
             foreach ($bookings as $key => $value) {
                 $where['where'] = array('booking_unit_details.booking_id' => $value['booking_id']);
                 $where['length'] = -1;
-                $select = "SUM(vendor_basic_charges + vendor_st_or_vat_basic_charges "
+                $select = "(vendor_basic_charges + vendor_st_or_vat_basic_charges "
                         . "+ vendor_extra_charges + vendor_st_extra_charges+ vendor_parts+ vendor_st_parts) as sf_earned";
                 $b_earned = $this->booking_model->get_bookings_by_status($where, $select);
-                
+                $unit_amount = 0;
+                foreach($b_earned as $earn){
+                    $unit_amount += $earn->sf_earned;
+                }
+               
                 $penalty_select = "CASE WHEN ((count(booking_id) *  penalty_on_booking.penalty_amount) > cap_amount) THEN (cap_amount)
 
                 ELSE (COUNT(booking_id) * penalty_on_booking.penalty_amount) END  AS p_amount";
@@ -476,7 +480,7 @@ class Service_centers extends CI_Controller {
                     $is_customer_paid = 0;
                 }
                 $upcountry = $this->upcountry_model->upcountry_booking_list($service_center_id, $value['booking_id'], true, $is_customer_paid);
-                $sf_earned = $b_earned[0]->sf_earned -$p_amount[0]['p_amount'] + $upcountry[0]['upcountry_price'];
+                $sf_earned = $unit_amount -$p_amount[0]['p_amount'] + $upcountry[0]['upcountry_price'];
                 if($p_amount[0]['p_amount'] > 0){
                     $bookings[$key]['penalty'] = true;
                 }
