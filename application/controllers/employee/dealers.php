@@ -530,7 +530,7 @@ class Dealers extends CI_Controller {
             $row =  $this->dealer_table_data($dealer_list, $no);
             $data[] = $row;
         }
-        
+        $new_post['length'] = -1;
         $output = array(
             "draw" => $this->input->post('draw'),
             "recordsTotal" => $this->dealer_model->get_dealer_mapping_details($new_post,'count(distinct(dealer_details.dealer_id)) as numrows')[0]['numrows'],
