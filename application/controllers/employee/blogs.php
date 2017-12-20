@@ -144,7 +144,6 @@ class Blogs extends CI_Controller {
      */
 
     function delete($id) {
-//        $query = $this->blogs_model->delete($id);     // $query looks unused
         $this->blogs_model->delete($id);
 
         $query = $this->blogs_model->view_blogs();
