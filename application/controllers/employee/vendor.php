@@ -4150,7 +4150,7 @@ class vendor extends CI_Controller {
     function get_penalty_details_data($booking_id, $status){
         
         $where  = array('penalty_on_booking.booking_id'=>$booking_id,'penalty_on_booking.active' => 1);
-        $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where,'penalty_on_booking.*',array('*'));
+        $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where,'penalty_on_booking.*,name',array('*'));
         if($this->input->post('sf_id')){
             $remove_penalty_where = array('penalty_on_booking.service_center_id' => $this->input->post('sf_id'),
                         'penalty_on_booking.active' => 0,
