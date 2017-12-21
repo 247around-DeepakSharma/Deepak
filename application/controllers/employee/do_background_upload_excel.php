@@ -309,7 +309,7 @@ class Do_background_upload_excel extends CI_Controller {
                 }
 		$user['home_address'] = $value['customer_address'];
 		$user['pincode'] = trim($value['pincode']);
-		$user['city'] = $value['city'];
+		$user['city'] = !empty($value['city'])?$value['city']:$distict_details['city'];
 		$user['state'] = $distict_details['state'];
 
 		$user_id = $this->user_model->add_user($user);
@@ -480,7 +480,7 @@ class Do_background_upload_excel extends CI_Controller {
                     $booking['current_status'] = "FollowUp";
                     $booking['type'] = "Query";
                     $booking['booking_address'] = $value['customer_address'];
-                    $booking['city'] = $value['city'];
+                    $booking['city'] = !empty($value['city'])?$value['city']:$distict_details['city'];;
                     $booking['state'] = $distict_details['state'];
                     $booking['district'] = $distict_details['district'];
                     $booking['taluk'] = $distict_details['taluk'];
@@ -1203,7 +1203,7 @@ class Do_background_upload_excel extends CI_Controller {
                     }
                     $user['home_address'] = $value['customer_address'];
                     $user['pincode'] = trim(str_replace(" ", "", trim($value['pincode'])));
-                    $user['city'] = $value['city'];
+                    $user['city'] = !empty($value['city'])?$value['city']:$distict_details['city'];;
                     $user['state'] = $distict_details['state'];
 
                     $user_id = $this->user_model->add_user($user);
