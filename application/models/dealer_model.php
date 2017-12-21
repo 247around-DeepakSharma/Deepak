@@ -78,6 +78,10 @@ class Dealer_model extends CI_Model {
             $this->db->where($like, null, false);
         }
         
+        if ($condition['length'] != -1) {
+            $this->db->limit($condition['length'], $condition['start']);
+        }
+        
         if(!empty($condition['order_by'])){
             $this->db->order_by($condition['order_by']);
         }else if(!empty ($condition['order'])){
