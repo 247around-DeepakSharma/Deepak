@@ -143,7 +143,7 @@
                                         <select onchange= "getAppliance('<?php echo $booking_history[0]['service_id'];?>')" class="booking_source form-control"  id="source_code" name="source_code" required>
                                             <option selected="selected" disabled="disabled">Select Booking Source</option>
                                             <?php foreach ($sources as $key => $values) { ?>
-                                            <option data-id="<?php echo $values['partner_id']; ?>" <?php if($values['code'] == $booking_history[0]['source']){ echo "selected"; } ?> value=<?php echo $values['code']; ?>>
+                                            <option data-id="<?php echo $values['partner_id']; ?>" <?php if($values['partner_id'] == $booking_history[0]['partner_id']){ echo "selected"; } ?> value=<?php echo $values['code']; ?>>
                                                 <?php echo $values['source']; }    ?>
                                             </option>
                                         </select>
