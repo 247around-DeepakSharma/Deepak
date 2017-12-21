@@ -128,7 +128,7 @@ class Invoice_dashboard_model extends CI_Model {
                 . " AND ud_closed_date >= '$from_date'  "
                 . " AND ud_closed_date < '$to_date'  "
                 . " AND partner_id = '$partner_id'  "
-                . " AND price_tags = 'Installation & Demo'  AND service_id ='46'  )";
+                . " AND price_tags LIKE '%Installation%'  AND service_id ='46'  )";
         
         $query = $this->db->query($sql);
         log_message('info', $this->db->last_query());
@@ -287,7 +287,7 @@ class Invoice_dashboard_model extends CI_Model {
                 SELECT 1 
                 FROM booking_unit_details AS u2
                 WHERE u1.booking_id = u2.booking_id
-                AND u2.price_tags =  'Installation & Demo'
+                AND u2.price_tags LIKE '%Installation%'
                 )
                 ORDER BY  `u1`.`create_date` DESC ";
         $query = $this->db->query($sql);
