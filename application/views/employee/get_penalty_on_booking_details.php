@@ -1,9 +1,9 @@
 <?php if(!empty($penalty_details)){ ?>
 <div class="panel panel-default">
     <div class="panel-heading">
-        <?php if(!empty($remove_penalty_details)) { ?> 
-        <h5 class="text-center text-danger">Penalty Removed For <b><?php echo $remove_penalty_details[0]['sf_name'];?></b> In Last 1 Month = <?php echo $remove_penalty_details[0]['count'];?></h5>
-        <?php } ?>
+        <?php if(!empty($remove_penalty_details)) { foreach($remove_penalty_details as $value) {?> 
+        <h5 class="text-center text-danger">Penalty Removed For <b><?php echo $value['sf_name'];?></b> In Last Month = <?php echo $value['count'];?></h5>
+        <?php }} ?>
     </div>
     <div class="panel-body">
         <div class="table-responsive">
