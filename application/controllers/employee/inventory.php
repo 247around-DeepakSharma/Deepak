@@ -1413,7 +1413,15 @@ class Inventory extends CI_Controller {
         $booking_id = $unit_details[0]['booking_id'];
         $where['length'] = -1;
         $where['where'] = array("booking_details.booking_id" => $booking_id);
-        $booking_details = $this->booking_model->get_bookings_by_status($where, "users.name, services, order_id");
+        //RM Specific Bookings
+         $sfIDArray =array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        $booking_details = $this->booking_model->get_bookings_by_status($where, "users.name, services, order_id",$sfIDArray);
         $data['name'] = $booking_details[0]->name;
         $data['booking_id'] = $booking_id;
         $data['services'] = $booking_details[0]->services;
