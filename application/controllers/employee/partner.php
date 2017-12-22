@@ -1631,7 +1631,13 @@ class Partner extends CI_Controller {
                 }
         
                 $this->booking_model->update_booking($booking_id, $booking);
-
+                if (!empty($incoming_invoice_pdf)) {
+                    // Send OOW invoice to aditya
+                    $url = base_url() . "employee/invoice/generate_oow_parts_invoice/".$id;
+                    $async_data['booking_id'] = $booking_id;
+                    $this->asynchronous_lib->do_background_process($url, $async_data);
+                }
+                
                 $userSession = array('success' => 'Parts Updated');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_spare_parts_booking");
@@ -2698,6 +2704,7 @@ class Partner extends CI_Controller {
         $partner_name = $this->input->post('partner_name');
         $partner_id = $this->input->post('partner_id');
         if (!empty($partner_name) && !empty($partner_id)) {
+            //Do not remove unused $tmp_name. 
             foreach ($_FILES["partner_brand_logo"]["tmp_name"] as $key => $tmp_name) {
 
                 $tmpFile = $_FILES['partner_brand_logo']['tmp_name'][$key];
