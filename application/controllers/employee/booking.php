@@ -1469,7 +1469,8 @@ class Booking extends CI_Controller {
                 $condition = array(
                 "where" => array('dealer_details.dealer_id' => $booking_history[0]['dealer_id']));
                 $select = " dealer_details.dealer_id, dealer_name, dealer_phone_number_1";
-        
+                $condition['length'] = -1;
+               
                  $dealer_details = $this->dealer_model->get_dealer_mapping_details($condition, $select);
                  if($dealer_details){
                       $booking['booking_history'][0]['dealer_phone_number'] = $dealer_details[0]['dealer_phone_number_1'];
