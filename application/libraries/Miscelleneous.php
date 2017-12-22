@@ -274,7 +274,7 @@ class Miscelleneous {
                         $booking['upcountry_partner_approved'] = '0';
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['amount_due'] = $cus_net_payable;
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL, 
+                        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL, 
                                 $query1[0]['partner_id'], $booking_id);
                         if (!empty($partner_status)) {
                             $booking['partner_current_status'] = $partner_status[0];
@@ -1106,9 +1106,11 @@ class Miscelleneous {
      * @return int
      */
     function get_partner_prepaid_amount($partner_id) {
+        //Get Partner details
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,"
                 . "grace_period_date,prepaid_notification_amount ", array('partners.id' => $partner_id));
         if (!empty($partner_details)) {
+            //Get Partner invoice amout
             $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id,
                 'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) '
                     . 'THEN ( amount_collected_paid -`amount_paid`) END)  AS amount');
@@ -1117,15 +1119,14 @@ class Miscelleneous {
                 'partner_invoice_id is null' => NULL,
                 'booking_status IN ("' . _247AROUND_PENDING . '", "' . _247AROUND_FOLLOWUP . '", "' . _247AROUND_COMPLETED . '")' => NULL
             );
+            // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
             $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
-
+            // calculate final amount of partner
             $final_amount = $invoice_amount[0]['amount'] - $service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE);
-
-
 
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
             $d['prepaid_amount'] = $final_amount;
-
+            // If final amount is greater than notification amount then we will display notification in the Partner CRM
             if ($final_amount > $partner_details[0]['prepaid_notification_amount']) {
 
                 $d['is_notification'] = FALSE;
@@ -1134,18 +1135,19 @@ class Miscelleneous {
             }
             $d['prepaid_msg'] = "";
             $d['active'] = $partner_details[0]['is_active'];
-
+            // partner is_prepaid falg shoud be 1 and prepaid_amount_limit is should be greater than partner final amount
             if (($partner_details[0]['is_prepaid'] == 1) & $partner_details[0]['prepaid_amount_limit'] > $final_amount) {
+                // Display low amount msg on Partner CRM
                 $d['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER;
-
+                //If grace preiod is not and less than current date then partner is not able to insert new booking
                 if (!empty($partner_details[0]['grace_period_date']) && (date("Y-m-d") > date("Y-m-d", strtotime($partner_details[0]['grace_period_date'])))) {
                     $d['active'] = 0;
                 } else if (empty($partner_details[0]['grace_period_date'])) {
-
+                // If grace period is empty and they have low balance then partner is not able to inert new booking
                     $d['active'] = 0;
                 }
             } else {
-                // permanent Deactivated Partner
+                // permanent Deactivated Partner then display De-Activate MSG
                 if($d['active'] == 0){
                     $d['is_notification'] = TRUE;
                     $d['prepaid_msg'] = PREPAID_DEACTIVATED_MSG_FOR_PARTNER;
