@@ -3,7 +3,7 @@
 <script src="http://rawgit.com/wasikuss/select2-multi-checkboxes/master/select2.multi-checkboxes.js"></script>
 <div id="page-wrapper" >
 <div class="panel-heading">
-    <h4>Generate <?php echo $public_name;?> Price </h4>
+    <h4>Show <?php echo $public_name;?> Price </h4>
 </div>
 <form method="POST" action="#"  class="form-horizontal" name="service_charge" id="service_charge">
     <div class="row">

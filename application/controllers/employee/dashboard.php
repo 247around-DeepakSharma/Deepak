@@ -824,6 +824,9 @@ class Dashboard extends CI_Controller {
      * @input - RM id , Dates are optional
      */
 function get_sf_escalation_by_rm($rm_id,$startDate=NULL,$endDate=NULL){
+    $sfIDNameArray = array();
+    $SfBookingArray = array();
+    $esclationPercentage = array();
     //create groupby array for booking(group by rm and then vendor)
     $groupBy['booking'] = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
     //create groupby array for escalation(group by rm and then vendor)
@@ -833,22 +836,28 @@ function get_sf_escalation_by_rm($rm_id,$startDate=NULL,$endDate=NULL){
     // get Service center name and id
     $sfArray = $this->reusable_model->get_search_result_data("service_centres","id,name",NULL,NULL,NULL,NULL,NULL,NULL,NULL);
     // Create an associative array for service Center and ID
-    foreach($sfArray as $sfData){
-        $sfIDNameArray["vendor_".$sfData['id']]= $sfData['name'];
+    if($sfArray){
+        foreach($sfArray as $sfData){
+            $sfIDNameArray["vendor_".$sfData['id']]= $sfData['name'];
+        }
     }
     //Create Associative array for Vendor booking(Pass Vendor ID get vendor Booking)
-    foreach($escalationBookingData['booking'] as $bookingData){
-        if($bookingData['assigned_vendor_id'] !=''){
-            $SfBookingArray["vendor_".$bookingData['assigned_vendor_id']] = $bookingData['total_booking'];
+    if($escalationBookingData['booking']){
+        foreach($escalationBookingData['booking'] as $bookingData){
+            if($bookingData['assigned_vendor_id'] !=''){
+                $SfBookingArray["vendor_".$bookingData['assigned_vendor_id']] = $bookingData['total_booking'];
+            }
         }
     }
     //Run Escalation Data through loop to calculate final matrix(total_escalation,total_booking,escalation% etc)For each and every vendor 
+    if($escalationBookingData['escalation']){
     foreach($escalationBookingData['escalation'] as $escalationData){
         if($escalationData['vendor_id'] !=0 ){
            $tempArray= array("esclation_per"=>round((($escalationData['total_escalation']*100)/$SfBookingArray["vendor_".$escalationData['vendor_id']]),2),"vendor_id"=>$escalationData['vendor_id'],
                "total_booking"=>$SfBookingArray["vendor_".$escalationData['vendor_id']],"total_escalation"=>$escalationData['total_escalation'],"vendor_name"=>$sfIDNameArray["vendor_".$escalationData['vendor_id']]);
            $esclationPercentage[]=$tempArray;
        }
+    }
     }
     //Echo final matrix array to use for Angular JS
     echo json_encode($esclationPercentage);
