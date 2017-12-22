@@ -2721,8 +2721,16 @@ class Booking extends CI_Controller {
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day";
+        //RM Specific Bookings
+         $sfIDArray =array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
         
-        $list = $this->booking_model->get_bookings_by_status($new_post,$select);
+        $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray);
         unset($new_post['order_performed_on_count']);
         $data = array();
         $no = $post['start'];
