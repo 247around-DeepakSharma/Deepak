@@ -3196,7 +3196,7 @@ class Invoice extends CI_Controller {
                 $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array("sell_invoice_id" => $response['meta']['invoice_id']));
                 log_message('info', __METHOD__ . ": Invoice Updated in Spare Parts " . $response['meta']['invoice_id']);
 
-                $this->booking_model->update_booking_unit_details(array("booking_id" => $sp_data[0]->booking_id, "price_tags" => "Spare Parts"), array("pay_from_sf" => 0));
+                $this->booking_model->update_booking_unit_details_by_any(array("booking_id" => $sp_data[0]->booking_id, "price_tags" => "Spare Parts"), array("pay_from_sf" => 0));
                 log_message('info', __METHOD__ . ": ...Exit" . $response['meta']['invoice_id']);
             }
         }
