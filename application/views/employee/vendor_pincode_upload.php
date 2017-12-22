@@ -34,13 +34,13 @@
                                         <thead>
                                             <?php
                                             foreach($services as $index=>$serviceName){
-                                                if($index%10== 0){
-                                                    echo "<tr style='font-size: 13px;'>";
+                                                if($index%5== 0){
+                                                    echo "<tr>";
                                                 }
                                             ?>
                                            <td><?php echo$serviceName['services']; ?></td>
                                             <?php
-                                           if(($index+1)%10 == 0){
+                                           if(($index+1)%5== 0){
                                                     echo "</tr>";
                                                 }
                                             }
