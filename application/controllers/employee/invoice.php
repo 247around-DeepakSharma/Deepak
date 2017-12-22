@@ -3140,13 +3140,14 @@ class Invoice extends CI_Controller {
                 $message = $email_template[0];
                 $email_from = $email_template[2];
 
-                $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($sp_data[0]->service_center_id);
-                $rem_email_id = "";
-                if (!empty($rm_details)) {
-                    $rem_email_id = ", " . $rm_details[0]['official_email'];
-                }
-                $to = $vendor_details[0]['owner_email'] . ", " . $vendor_details[0]['primary_contact_email'];
-                $cc = $email_template[3] . ", " . $rem_email_id;
+               // $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($sp_data[0]->service_center_id);
+//                $rem_email_id = "";
+//                if (!empty($rm_details)) {
+//                    $rem_email_id = ", " . $rm_details[0]['official_email'];
+//                }
+               // $to = $vendor_details[0]['owner_email'] . ", " . $vendor_details[0]['primary_contact_email'];
+                $to = $email_template[3];
+                $cc ="";
 
                 $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
 
