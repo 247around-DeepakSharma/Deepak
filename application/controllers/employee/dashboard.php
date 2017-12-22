@@ -853,8 +853,16 @@ function get_sf_escalation_by_rm($rm_id,$startDate=NULL,$endDate=NULL){
     if($escalationBookingData['escalation']){
     foreach($escalationBookingData['escalation'] as $escalationData){
         if($escalationData['vendor_id'] !=0 ){
-           $tempArray= array("esclation_per"=>round((($escalationData['total_escalation']*100)/$SfBookingArray["vendor_".$escalationData['vendor_id']]),2),"vendor_id"=>$escalationData['vendor_id'],
-               "total_booking"=>$SfBookingArray["vendor_".$escalationData['vendor_id']],"total_escalation"=>$escalationData['total_escalation'],"vendor_name"=>$sfIDNameArray["vendor_".$escalationData['vendor_id']]);
+           $vendorBooking = 0;
+           $vendorName = "";
+           if(array_key_exists("vendor_".$escalationData['vendor_id'], $SfBookingArray)){
+               $vendorBooking = $SfBookingArray["vendor_".$escalationData['vendor_id']];
+           }
+           if(array_key_exists("vendor_".$escalationData['vendor_id'], $sfIDNameArray)){
+               $vendorName = $sfIDNameArray["vendor_".$escalationData['vendor_id']];
+           }
+           $tempArray= array("esclation_per"=>round((($escalationData['total_escalation']*100)/$vendorBooking),2),"vendor_id"=>$escalationData['vendor_id'],
+               "total_booking"=>$vendorBooking,"total_escalation"=>$escalationData['total_escalation'],"vendor_name"=>$vendorName);
            $esclationPercentage[]=$tempArray;
        }
     }
