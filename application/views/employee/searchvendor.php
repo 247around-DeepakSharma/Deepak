@@ -101,14 +101,12 @@
     <th>No.</th>
 	<th>Vendor Name</th>
 	<th>Pincode</th>
-	<th>Area</th>
 	<tbody>
 	<?php $i=1; foreach ($vendor as $key => $value) { ?>
 	    <tr>
 	    <td><?php echo $i; ?></td>
 		<td><?php echo $value['Vendor_Name'] ?></td>
 		<td><?php echo $value['Pincode'] ?></td>
-		<td><?php echo $value['Area']; ?></td>
 		</tr>
 	<?php $i++ ; } ?>
 		

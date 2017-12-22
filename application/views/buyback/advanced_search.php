@@ -73,7 +73,14 @@ var shop_list_details = [];
                                         <option ng-repeat="y in internal_status_list" value="{{y.internal_status}}">{{y.internal_status}}</option>   
                                     </select>
                                 </div>
+                                <div class="col-md-4 form-group" style="margin-top: 8px;">
+                                    <label style="margin-right: 10px;"> Is Invoiced:  </label>
+                     
+                                    <input type="radio" name="invoice" value="Yes"  class="invoice_change" style="margin-right: 10px;"/> Yes
+                                    <input type="radio" name="invoice" value="No" class="invoice_change" style="margin-left: 10px;" /> No
+                                </div>
                             </div>
+                            
                         </div>
                         <hr>
                        </form>
@@ -205,6 +212,15 @@ var shop_list_details = [];
             $('#search_value').val(s_value);
         }); 
         
+       
+        $('input:radio[name="invoice"]').change(function() {
+  
+            ad_table.ajax.reload( function ( json ) {
+                create_dropdown();
+            });
+       });
+       
+       
         
         ad_table = $('#datatable1').DataTable({
             "processing": true, //Feature control the processing indicator.
@@ -224,6 +240,7 @@ var shop_list_details = [];
                     d.service_id = getMultipleSelectedValues("service_id");
                     d.current_status =  getMultipleSelectedValues("current_status");
                     d.internal_status = getMultipleSelectedValues("internal_status");
+                    d.invoice = $('input[name="invoice"]:checked').val();
                     d.cp_id = $("#cp_id").val();
                     d.status =  10;
                     

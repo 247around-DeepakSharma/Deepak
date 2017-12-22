@@ -110,6 +110,19 @@
                     <div class="row">
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12">
+                                <label for="pincode">State *</label>
+                                   <select name="city" id="city" required="required" ui-select2 class="form-control"  ng-model="tempData.state"
+                                         ng-options="option1.state as option1.state for option1 in state_list" required
+                                         data-placeholder="Select State" >
+                                     <option value="" disabled="" ng-show="false"></option>
+                                 </select>
+                                 <span class="msg"  ng-show="dealerForm.state.$dirty && dealerForm.state.$error.required">State is required</span>
+                                
+                            </div>
+                            
+                        </div>  
+                        <div class="col-md-4 ">
+                            <div class="form-group col-md-12">
                                 <label for="pincode">City *</label>
                                  <select name="city" id="city" required="required" ui-select2 class="form-control"  ng-model="tempData.city"
                                          ng-options="option1.district as option1.district for option1 in city_list" required

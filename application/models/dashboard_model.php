@@ -354,4 +354,43 @@ class dashboard_model extends CI_Model {
          $this->db->where($where);
          $this->db->update("query_report", $data);
      }
+     /*
+      * This function is used to get Escalation On the basis of vendor,RM,Dates
+      */
+     function get_sf_escalation_by_rm_by_sf_by_date($startDate=NULL,$endDate=NULL,$sf_id=NULL,$rm_id=NULL,$groupBy){
+         //Create Blank Where Array For escalation and Booking
+    $escalation_where=array();
+    $booking_where=array();
+    //Create Join  Array For escalation and Booking (JOIN With employee Relation to get RM)
+    $escalation_join = array("employee_relation"=>"FIND_IN_SET( vendor_escalation_log.vendor_id , employee_relation.service_centres_id )");
+    $booking_join = array("employee_relation"=>"FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )");
+    //Create Select String for booking and escalation
+    $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date,employee_relation.agent_id as rm_id,MONTHNAME(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_month';
+    $escalation_select = 'count(vendor_escalation_log.booking_id) AS total_escalation,vendor_escalation_log.vendor_id,vendor_escalation_log.create_date as escalation_date,employee_relation.agent_id as rm_id,MONTHNAME(vendor_escalation_log.create_date) as escalation_month';
+   // If rm id is set add rm id in where array for booking and escalation
+    if($rm_id){
+       $escalation_where['employee_relation.agent_id'] = $rm_id;
+       $booking_where['employee_relation.agent_id'] = $rm_id;
+    }
+     // If sf id is set add sf id in where array for booking and escalation
+    if($sf_id){
+       $escalation_where['vendor_escalation_log.vendor_id'] = $sf_id;
+       $booking_where['booking_details.assigned_vendor_id'] = $sf_id;
+    }
+    // If dates are Set Then add date in where array for booking and escalation
+    if(!($startDate) && !($endDate)){
+            $booking_where["month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = month(now()) AND year(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = year(now())"] = NULL;
+            $escalation_where["month(vendor_escalation_log.create_date) = month(now()) AND year(vendor_escalation_log.create_date) = year(now())"] =NULL;
+       }
+       //If dates are not set set them for current Month
+       else{
+            $booking_where["STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') >='".$startDate."' AND STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') <'".$endDate."'"] = NULL;
+            $escalation_where["date(vendor_escalation_log.create_date) >= '".$startDate."' AND date(vendor_escalation_log.create_date) < '".$endDate."'"] =  NULL;
+       }
+       //Get Booking data for above define where condition,select,join and requested group by
+    $data['booking'] = $this->reusable_model->get_search_result_data('booking_details',$booking_select,$booking_where,$booking_join,NULL,NULL,NULL,NULL,$groupBy['booking']);
+       //Get Escalation data for above define where condition,select,join and requested group by
+    $data['escalation'] = $this->reusable_model->get_search_result_data('vendor_escalation_log',$escalation_select,$escalation_where,$escalation_join,NULL,NULL,NULL,NULL,$groupBy['escalation']);
+    return $data;
+     }
 }

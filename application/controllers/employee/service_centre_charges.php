@@ -354,6 +354,7 @@ class service_centre_charges extends CI_Controller {
         $data['pod'] = isset($row[26]) ? $row[26] : '';
         $data['is_upcountry'] = isset($row[27]) ? $row[27] : '';
         $data['vendor_basic_percentage'] = isset($row[28]) ? $row[28] : '';
+        $data['create_date'] = date("Y-m-d H:i:s");
 
         return $data;
     }
@@ -394,25 +395,6 @@ class service_centre_charges extends CI_Controller {
         $this->load->view('employee/pricingtable', $data);
     }
 
-    /**
-     *  @desc  : filter pricing table
-     *  @param : source, city, service id, category, capacity, appliances
-     *  @return : void
-     */
-//    function get_pricing_details() {
-//        $partner_code = $this->input->post('source');
-//        $data['city'] = $this->input->post('city');
-//        $data['service_id'] = $this->input->post('service_id');
-//        $data['category'] = $this->input->post('category');
-//        $data['capacity'] = $this->input->post('capacity');
-//        $data['appliances'] = $this->input->post('appliances');
-//        $data['source'] = $this->booking_model->get_price_mapping_partner_code($partner_code);
-//
-//        $price['price'] = $this->service_centre_charges_model->get_pricing_details($data);
-//        $table = $this->load->view('employee/pricingtable', $price);
-//
-//        print_r($table);
-//    }
 
     /**
      *  @desc  : Edit pricing table
@@ -916,6 +898,293 @@ class service_centre_charges extends CI_Controller {
         $data['vendor_basic_percentage'] = 0;
         
         array_push($this->dataToInsert, $data);
+    }
+    /**
+     * 
+     * @param type $partner_id@desc This is used to load generate Price Form
+     */
+    function generate_service_charges_view($partner_id){
+        $partner_data = $this->partner_model->getpartner_details("partner_type, public_name",array("partner_id" => $partner_id));
+        $partner_type = $partner_data[0]['partner_type'];
+        $data['partner_type'] = $partner_type;
+        $data['partner_id'] = $partner_id;
+        $data['public_name'] = $partner_data[0]['public_name'];
+        if ($partner_type == OEM) {
+
+            $data['appliances'] = $this->partner_model->get_partner_specific_services($partner_id);
+        } else {
+            $data['appliances'] = $services = $this->booking_model->selectservice();
+        }
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/generate_service_charges', $data);
+    }
+    /**
+     * @desc it called from ajax to get Call type 
+     */
+    function get_service_request_type(){
+        $service_id = $this->input->post("service_id");
+        $price_tags = $this->input->post("price_tags");
+        $data = $this->service_centre_charges_model->get_service_request_type(array("service_id" => $service_id), "*");
+        $option = "";
+        foreach ($data as $value) {
+            $option .= "<option ";
+            if ($price_tags === $value['service_category']) {
+                $option .= " selected ";
+            } else if (count($data) == 1) {
+                $option .= " selected ";
+            }
+            $option .= " data-type = '".$value['product_or_services']."' value='" . $value['service_category'] . "'>" . $value['service_category'] . "</option>";
+        }
+        echo $option;
+    }
+    /**
+     * @desc Generate Partner/Vendor Service Charge
+     */
+    function generate_service_charges(){
+       
+        $form_data = $this->input->post();
+        $where = array("service_id" => $form_data['service_id'], 'partner_id' => $form_data['partner_id'], 
+            
+            'service_category LIKE "%'.$form_data['request_type'].'%"' => NULL);
+        
+        $where_in['category'] = $form_data['category'];
+        if(!isset($form_data['free'])){
+            $form_data['free'] = 0;
+        }
+        if(!isset($form_data['free_upcountry'])){
+            $form_data['free_upcountry'] = 0;
+        }
+        if(!isset($form_data['paid_upcountry'])){
+            $form_data['paid_upcountry'] = 0;
+        }
+        if(!isset($form_data['paid'])){
+            $form_data['paid'] = 0;
+        }
+        if(!isset($form_data['free_pod'])){
+            $form_data['free_pod'] = 0;
+        }
+        if(!isset($form_data['paid_pod'])){
+            $form_data['paid_pod'] = 0;
+        }
+        if(!isset($form_data['paid'])){
+            $form_data['paid'] = 0;
+        }
+        if(!empty($form_data['brand'])){
+            $where_in['brand'] = $form_data['brand'];
+        }
+        if(!empty($form_data['capacity'])){
+            $where_in['capacity'] = $form_data['capacity'];
+        }
+        $charges = $this->service_centre_charges_model->get_service_caharges_data("*", $where, "", $where_in);
+        $key_data = array();
+        foreach($charges as $value){
+            $str ="paid";
+            if($value['partner_net_payable'] > 0){
+                $str = 'free';
+            }
+            $key = str_replace(' ', '', $value['category'].$value['brand'].$value['capacity'].$form_data['request_type'].$str);
+            $key_data[$key]= "";
+            
+        }
+        
+        $data = array();
+        $existing_key = array();
+        if(!empty($form_data['brand'])){
+            $data['brand'] = $form_data['brand'];
+            $existing_key[] = 'brand';
+        } else {
+            $data['brand'] = array("");
+            $existing_key[] = 'brand';
+        }
+        if(!empty($form_data['category'])){
+             $data['category'] = $form_data['category'];
+             $existing_key[] = 'category';
+        } else {
+             $data['category'] = array("");
+             $existing_key[] = 'category';
+        }
+         if(!empty($form_data['capacity'])){
+            $data['capacity'] = $form_data['capacity'];
+            $existing_key[] = 'capacity';
+        } else {
+            $data['capacity'] = array("");
+            $existing_key[] = 'capacity';
+        }
+
+       $combos = $this->generate_combinations($data);
+       $service_data = $this->generate_service_charges_data($form_data, $combos, $existing_key, $key_data);
+       if(!empty($service_data['service_charge'])){
+           $this->service_centre_charges_model->insert_data_in_temp("service_centre_charges", $service_data['service_charge']);
+       }
+       if(!empty($service_data['duplicate'])){
+           $service_data['delete'] = FALSE;
+           $this->load->view("employee/duplicate_service_charge", $service_data);
+       } else {
+           echo "success";
+       }
+       
+    }
+    
+    function generate_service_charges_data($form_data, $combos, $existing_key, $key_data){
+        $stmp = array();
+        $duplicate_data = array();
+        foreach($combos as  $value){
+            $data = array();
+            foreach ($value as $key1 => $value1){
+                $data[$existing_key[$key1]] = $value1;
+                
+            }
+            $data['service_id'] = $form_data['service_id'];
+            $data['partner_id'] = $form_data['partner_id'];
+            $data['product_or_services'] = $form_data['product_or_services'];
+            $data['agent_id'] = $this->session->userdata("id");
+            $data['create_date'] = date("Y-m-d H:i:s");
+            $fp = array();
+            if($form_data['free'] == 1 && $form_data['paid'] == 1){
+                $fp[] = "free";
+                $fp[] = "paid";
+                
+            } else if($form_data['free'] == 1){
+                $fp[] = "free";
+                
+            } else if($form_data['paid'] == 1){
+                $fp[] = "paid";
+                
+            }
+            
+            foreach ($fp as $free_paid){
+                $data['service_category'] = $form_data['request_type'];
+                $data['tax_code'] = "VAT";
+                if($free_paid == "free"){
+                    $str = "free";
+                    if($data['product_or_services'] == "Service"){
+                        $data['service_category'] = $data['service_category']."(Free)";
+                        $data['tax_code'] = "ST";
+                    }
+                    $data['pod'] = $form_data['free_pod'];
+                    $data['is_upcountry'] = $form_data['free_upcountry'];
+                    $data['customer_total'] = $form_data['free_customer_total'];
+                    $data['customer_net_payable'] = 0;
+                    
+                    $data['partner_net_payable'] = $form_data['free_customer_total'];
+                    $vendor_tax = $form_data['free_vendor_total'] * SERVICE_TAX_RATE;
+                    $vendor_total = $form_data['free_vendor_total'] + $vendor_tax;
+                    $data['vendor_basic_charges'] = $form_data['free_vendor_total'];
+                    $data['vendor_total'] = $vendor_total;
+                    $data['vendor_tax_basic_charges'] =$vendor_tax;
+                    $data['vendor_basic_percentage'] = ($vendor_total/$data['customer_total'])*100;
+                } else if($free_paid == "paid"){
+                    $str = "paid";
+                    if($data['product_or_services'] == "Service"){
+                        $data['service_category'] = $data['service_category']."(Paid)";
+                        $data['tax_code'] = "ST";
+                    }
+                    $data['pod'] = $form_data['paid_pod'];
+                    $data['is_upcountry'] = $form_data['paid_upcountry'];
+                    $data['customer_total'] = $form_data['paid_customer_total'];
+                    $data['customer_net_payable'] = $form_data['paid_customer_total'];
+                    $data['partner_net_payable'] = 0;
+                    $data['vendor_total'] =  $form_data['paid_vendor_total'];
+                    $data['vendor_tax_basic_charges'] = $this->booking_model->get_calculated_tax_charge($form_data['paid_vendor_total'], DEFAULT_TAX_RATE );
+                    $data['vendor_basic_charges'] = $data['vendor_total'] - $data["vendor_tax_basic_charges"];
+                    $data['vendor_basic_percentage'] = ($data['vendor_total']/$data['customer_total'])*100;
+                }
+
+                $data['active'] = 1;
+                $data['check_box'] = 1;
+                $newkey = str_replace(' ', '', $data['category'].$data['brand'].$data['capacity'].$form_data['request_type'].$str);
+                if (array_key_exists($newkey, $key_data)) {
+                    array_push($duplicate_data, $data);
+                } else {
+                    array_push($stmp, $data );
+                }       
+            }
+        }
+        
+        return array("duplicate" => $duplicate_data,
+            "service_charge" => $stmp);
+    }
+    
+    function generate_combinations($data, &$all = array(), $group = array(), $value = null, $i = 0) {
+        $keys = array_keys($data);
+        if (isset($value) === true) {
+            array_push($group, $value);
+        }
+
+        if ($i >= count($data)) {
+            array_push($all, $group);
+        } else {
+            $currentKey = $keys[$i];
+            $currentElement = $data[$currentKey];
+            foreach ($currentElement as $val) {
+                $this->generate_combinations($data, $all, $group, $val, $i + 1);
+            }
+        }
+
+        return $all;
+    }
+    
+    function show_charge_list($partner_id){
+        $partner_data = $this->partner_model->getpartner_details("partner_type, public_name",array("partner_id" => $partner_id));
+        $partner_type = $partner_data[0]['partner_type'];
+        $data['partner_type'] = $partner_type;
+        $data['partner_id'] = $partner_id;
+        $data['public_name'] = $partner_data[0]['public_name'];
+        if ($partner_type == OEM) {
+
+            $data['appliances'] = $this->partner_model->get_partner_specific_services($partner_id);
+        } else {
+            $data['appliances'] = $services = $this->booking_model->selectservice();
+        }
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/show_service_price_details', $data);
+    }
+    
+    function price_table(){
+      //Do not try to un-comment
+      //  $str = '{"service_id":"46","partner_id":"247010","brand":["Belco","Ego Vision","Wybor"],"category":["TV-LED"],"capacity":["16 Inch"],"request_type":"Installation & Demo","product_or_services":"","free":"1","label":"WEBUPLOAD"}';
+      //  $_POST = json_decode($str, TRUE);
+        $form_data = $this->input->post();
+        $where = array("service_id" => $form_data['service_id'], 'partner_id' => $form_data['partner_id'], 
+            
+            'service_category LIKE "%'.$form_data['request_type'].'%"' => NULL);
+        if(isset($form_data['paid']) && isset($form_data['free'])){
+           
+        } else if(isset($form_data['paid']) && !isset($form_data['free'])){
+            $where['customer_net_payable > 0'] = NULL;
+        } else if(!isset($form_data['paid']) && isset($form_data['free'])){
+            $where['partner_net_payable > 0 '] = NULL;
+        }
+        
+        $where_in['category'] = $form_data['category'];
+        if(!empty($form_data['brand'])){
+            $where_in['brand'] = $form_data['brand'];
+        }
+        if(!empty($form_data['capacity'])){
+            $where_in['capacity'] = $form_data['capacity'];
+        }
+        
+        $charges['duplicate'] = $this->service_centre_charges_model->get_service_caharges_data("service_centre_charges.*, services", $where, "id", $where_in);
+        $charges['delete'] = true;
+        $charges['public_name'] = $this->input->post("public_name");
+        $this->load->view("employee/duplicate_service_charge", $charges);
+    }
+    
+    function delete_service_charges(){
+        //Do not try to un-comment
+//        $str = '{"delete_charge":["1499","1500","1501","1663","1664","1665","1827","1828","1829","9804","9805","9806","9829","9830","9831","9854","9855","9856"],"label":"WEBUPLOAD"}';
+//        $_POST = json_decode($str, true);
+        $form_data = $this->input->post('delete_charge');
+        if(!empty($form_data)){
+            $agent_id = $this->session->userdata("id");
+            $this->service_centre_charges_model->insert_deleted_s_charge_in_trigger($agent_id, $form_data);
+            $status = $this->service_centre_charges_model->delete_service_charges($form_data);
+            if($status){
+                echo "success";
+            } else {
+                echo "error";
+            }
+        }
     }
 
 }

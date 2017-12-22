@@ -74,9 +74,9 @@ $(document).ready(function () {
     });
     
     function update_spare_estimate_cost(spare_id, booking_id, assigned_vendor_id, amount_due){
-       var estimate_cost = $("#estimate_cost").val();
+       var estimate_cost = $("#estimate_cost_"+spare_id).val();
       
-       if(estimate_cost > 1){
+       if(Number(estimate_cost) > 1){
             swal({
                 title: "Do You Want To Continue?",
                 type: "warning",

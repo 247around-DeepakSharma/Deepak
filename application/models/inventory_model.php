@@ -318,7 +318,7 @@ class Inventory_model extends CI_Model {
      */
     function get_filtered_brackets($select, $where){
         $this->db->select($select);
-        $this->db->where($where);
+        $this->db->where($where,null,false);
         $this->db->from('brackets');
         $query = $this->db->get();
         return $query->result_array();
@@ -411,6 +411,29 @@ class Inventory_model extends CI_Model {
     function update_zopper_estimate($where, $data){
         $this->db->where($where);
         $this->db->update("zopper_estimate_details", $data);
+    }
+    
+    function insert_inventory_ledger($data){
+        $this->db->insert("inventory_ledger", $data);
+        return $this->db->insert_id();
+    }
+    
+    function insert_inventory_stock($data){
+        $this->db->insert("inventory_stocks", $data);
+        return $this->db->insert_id();
+    }
+    
+    function update_inventory_stock($where,$data){
+        $this->db->where($where);
+        $this->db->set('stock', $data, FALSE);
+        $this->db->update('inventory_stocks');
+        if($this->db->affected_rows() > 0){
+            $response = true;
+        }else{
+            $response = false;
+        }
+        
+        return $response;
     }
 
 }

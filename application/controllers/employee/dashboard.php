@@ -818,5 +818,240 @@ class Dashboard extends CI_Controller {
             echo "Data Not Found";
         }
     }
-
+    /*
+     * This Function is used to get all sf's escalaltion related to a specific RM, 
+     * This function get data from Both tables(Booking,Escalation) to get escalaltion %
+     * @input - RM id , Dates are optional
+     */
+function get_sf_escalation_by_rm($rm_id,$startDate=NULL,$endDate=NULL){
+    $sfIDNameArray = array();
+    $SfBookingArray = array();
+    $esclationPercentage = array();
+    //create groupby array for booking(group by rm and then vendor)
+    $groupBy['booking'] = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
+    //create groupby array for escalation(group by rm and then vendor)
+    $groupBy['escalation'] = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
+    // get escalation data and booking data for all vendor related to rm
+    $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,$rm_id,$groupBy);
+    // get Service center name and id
+    $sfArray = $this->reusable_model->get_search_result_data("service_centres","id,name",NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+    // Create an associative array for service Center and ID
+    if($sfArray){
+        foreach($sfArray as $sfData){
+            $sfIDNameArray["vendor_".$sfData['id']]= $sfData['name'];
+        }
+    }
+    //Create Associative array for Vendor booking(Pass Vendor ID get vendor Booking)
+    if($escalationBookingData['booking']){
+        foreach($escalationBookingData['booking'] as $bookingData){
+            if($bookingData['assigned_vendor_id'] !=''){
+                $SfBookingArray["vendor_".$bookingData['assigned_vendor_id']] = $bookingData['total_booking'];
+            }
+        }
+    }
+    //Run Escalation Data through loop to calculate final matrix(total_escalation,total_booking,escalation% etc)For each and every vendor 
+    if($escalationBookingData['escalation']){
+    foreach($escalationBookingData['escalation'] as $escalationData){
+        if($escalationData['vendor_id'] !=0 ){
+           $tempArray= array("esclation_per"=>round((($escalationData['total_escalation']*100)/$SfBookingArray["vendor_".$escalationData['vendor_id']]),2),"vendor_id"=>$escalationData['vendor_id'],
+               "total_booking"=>$SfBookingArray["vendor_".$escalationData['vendor_id']],"total_escalation"=>$escalationData['total_escalation'],"vendor_name"=>$sfIDNameArray["vendor_".$escalationData['vendor_id']]);
+           $esclationPercentage[]=$tempArray;
+       }
+    }
+    }
+    //Echo final matrix array to use for Angular JS
+    echo json_encode($esclationPercentage);
+}
+/*
+ * This is a helper function to get escalation data by Vendor For get_escalations_chart_data()
+ * This function get all escalation for a vendor and then get appliance,upcountry,request_type information for all escalated bookings
+ * @input - Vendor ID, Dates are optional
+ */
+function get_escalation_data($sfID,$startDate=NULL,$endDate=NULL){
+    //Create Where Array for escalation table
+    $escalation_where["vendor_escalation_log.vendor_id"] =$sfID;
+    //if dates are there then add given dates in where condition  
+    if(!($startDate) && !($endDate)){
+            $escalation_where["month(vendor_escalation_log.create_date) = month(now()) AND year(vendor_escalation_log.create_date) = year(now())"] =NULL;
+       }
+       //if dates are not set get current month escalaltion data
+       else{
+            $escalation_where["date(vendor_escalation_log.create_date) >= '".$startDate."' AND date(vendor_escalation_log.create_date) < '".$endDate."'"] =  NULL;
+       }
+       //get vendor total escalation total booking group by serviceID,Upcountry and requestType
+    $data = $this->reusable_model->get_search_result_data('vendor_escalation_log',"count(DISTINCT booking_details.booking_id) AS total_booking,count(vendor_escalation_log.booking_id) "
+            . "AS total_escalation,booking_details.assigned_vendor_id,	services.services,service_centres.name,booking_details.is_upcountry,booking_details.request_type",$escalation_where,
+                    array("booking_details"=>"vendor_escalation_log.booking_id=booking_details.booking_id","services"=>"services.id=booking_details.service_id"
+                        ,"service_centres"=>"service_centres.id=booking_details.assigned_vendor_id"),
+                    NULL,array("total_escalation"=>"DESC"),NULL,
+                    NULL,array("booking_details.service_id","booking_details.is_upcountry","booking_details.request_type"));
+    return $data;
+}
+/* 
+ * This is a helper function to get data for pi chart (eg- Pass upcountry as key it will return an associative array for all upcountry total and non upcountry ) For function get_escalations_chart_data()
+ * @input - Data(Which we get From get_escalation_data function),Key(On which basis you want to break down the data eg- (Upcountry,Appliance,RequestType))
+ */
+function get_escalation_chart_data_by_one_matrix($data,$key){
+    $applianceEscalationData = array();
+    foreach($data as $escalationData){
+        if(array_key_exists($escalationData[$key], $applianceEscalationData)){
+            $applianceEscalationData[$escalationData[$key]] = $escalationData['total_escalation']+$applianceEscalationData[$escalationData[$key]];
+        }
+        else{
+             $applianceEscalationData[$escalationData[$key]] = $escalationData['total_escalation'];
+        }
+    }
+    return $applianceEscalationData;
+}
+/*
+ * This is a helper function For get_escalations_chart_data() to get data breack down for pi chart on the basis of 2 keys
+ */
+function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
+    $resultArray= array();
+    foreach ($data as $escalationData){
+        if(array_key_exists($escalationData[$baseKey], $resultArray)){
+            if(array_key_exists($escalationData[$otherKey], $resultArray[$escalationData[$baseKey]])){
+                $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]]+$escalationData['total_booking'];
+            }
+            else{
+                $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $escalationData['total_booking'];
+            }
+        }
+        else{
+            $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $escalationData['total_booking'];
+        }
+    }
+    return $resultArray;
+}
+/*
+ * This function is used to get escalation data for vendor PI chart
+ * On the basis of request it returns break down of data into 1 key or 2 key(Key - Upcountry,Appliance,Request Type) 
+ * @input- Vendor ID , Dates are optional
+ */
+ function get_escalations_chart_data($sfID,$startDate=NULL,$endDate=NULL){    
+     //Create blank request type array (All request type will be divide only in Installation and Repair)
+        $requestTypeNewArray['Installation'] = $requestTypeNewArray['Repair'] = 0;
+        // Get Escalation Data For Vendor
+        $data = $this->get_escalation_data($sfID,$startDate,$endDate);
+        // get escalation by upcountry
+        $upcountryData= $this->get_escalation_chart_data_by_one_matrix($data,"is_upcountry");
+        if(array_key_exists("1", $upcountryData)){
+            $finalData['upcountry']['upcountry'] = $upcountryData[1];
+        }
+         if(array_key_exists("0", $upcountryData)){
+            $finalData['upcountry']['non_upcountry'] = $upcountryData[0];
+         }
+        // get escalation by appliance
+        $finalData['appliance'] = $this->get_escalation_chart_data_by_one_matrix($data,"services");
+        // get escalation by request type
+        $requestTypeData = $this->get_escalation_chart_data_by_one_matrix($data,"request_type");
+        // convert all request type into installation and Repair
+        foreach($requestTypeData as $requestName => $esclation){
+            if (strpos($requestName, 'repair') !== false) {
+                $requestTypeNewArray['Repair'] = $esclation+$requestTypeNewArray['Repair'];
+            }
+            else{
+                 $requestTypeNewArray['Installation'] = $esclation+$requestTypeNewArray['Installation'];
+            }
+        }
+        $finalData['request_type'] = $requestTypeNewArray;
+        // Get Data Breack Down into Appliance And then Upcountry 
+        $applianceUpcountryArray = $this->get_escalation_chart_data_by_two_matrix($data,"services","is_upcountry");
+        // Convert Upcountry O key as  non-upcountry and key 1 as upcountry
+        foreach($applianceUpcountryArray as $key=>$value){
+            if(array_key_exists("1", $value)){
+            $finalData['service_upcountry'][$key][] = array("Upcountry",$value[1]);
+        }
+         if(array_key_exists("0", $value)){
+            $finalData['service_upcountry'][$key][] = array("Non_Upcountry",$value[0]);
+         }
+        }
+        echo json_encode($finalData);
+    }
+    /*
+     * This function is used to create Vendor Escalaltion Performance Chart(Bar Chart)
+     */
+    function get_sf_performance_bar_chart_data($sf){
+    // Create Start Date and End Date to Get Data For last 1 year from Today
+    $monthlyData = array();
+    $endDate=date('Y-m-d');
+    $startMonth = date("m")+1;
+    $lastYear = date("Y")-1;
+    if($startMonth==13){
+        $startMonth=1;
+        $lastYear=date('Y-m-d');
+    }
+    $startDateTemp = strtotime($startMonth.'/01/'.$lastYear);
+    // End Date will be - "1st Day of current Month before a year ago"
+    $startDate = date('Y-m-d',$startDateTemp);
+    //Create Group by array for booking and escalation
+    $groupBy['booking'] = array("MONTHNAME(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))");
+    $groupBy['escalation'] = array("MONTHNAME(vendor_escalation_log.create_date)");
+    // Get escalation by vendor group by date
+    $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,$sf,NULL,$groupBy);
+    // Create Associative array for escalation (Pass Vendor ID Return Escalation number)
+    foreach($data['escalation'] as $escalationData){
+        $escalationAssociativeArray[$escalationData['escalation_month']]= $escalationData['total_escalation'];
+    }
+    // Loop through all booking's Unique Vendor  to get month vise escalation,booking,percentageescalation
+    foreach($data['booking'] as $bookingData){
+        if(array_key_exists($bookingData['booking_month'], $escalationAssociativeArray)){
+            $escalation = $escalationAssociativeArray[$bookingData['booking_month']]; 
+        }
+        else{
+            $escalation = 0; 
+        }
+        $monthlyData['bookings'][] = $bookingData['total_booking'];
+        $monthlyData['escalation'][] = $escalation; 
+        $monthlyData['escalationPercentage'][] = round((($escalation*100)/$bookingData['total_booking']),2);
+        $monthlyData['months'][] = $bookingData['booking_month'];
+    }
+    echo json_encode($monthlyData);
+    }
+    /*
+     * This Function is used to get Full view Of escalation
+     */
+    function escalation_full_view(){
+        $data['full_view_data'] = json_decode($this->input->post("sf_json_data"),true);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/escalation_full_view',$data);
+        $this->load->view('dashboard/dashboard_footer');
+    }
+//        function pending_booking_by_rm($rmID){
+//        $serviceCentersIDArray= $this->vendor_model->get_employee_relation($rmID);
+//        if(!empty($serviceCentersIDArray)){
+//            $serviceCentersIDList = $serviceCentersIDArray[0]['service_centres_id'];
+//            $sfArray = $this->reusable_model->get_search_result_data("service_centres","id,name",NULL,NULL,NULL,NULL,array("id"=>explode(",",$serviceCentersIDList)),NULL,NULL);
+//            foreach($sfArray as $sfData){
+//                $sfIDNameArray["vendor_".$sfData['id']]= $sfData['name'];
+//            }
+//        }
+//        $data = $this->reporting_utils->get_booking_by_service_center($serviceCentersIDList); 
+//        foreach($data['data'] as $sfID=>$sfData){
+//            $final_data['monthly_completed'] = 0;
+//            $final_data['month_cancelled'] =0;
+//            $final_data['last_2_day'] =0;
+//            $final_data['last_3_day'] =0;
+//            $final_data['greater_than_5_days'] =0;
+//            $final_data['id'] =$sfID;
+//            $final_data['name'] =$sfIDNameArray["vendor_".$sfID];
+//            if(array_key_exists('month_completed', $sfData)){
+//                $final_data['monthly_completed'] = $sfData['month_completed']['completed'];
+//            }
+//            if(array_key_exists('month_cancelled', $sfData)){
+//                $final_data['month_cancelled'] = $sfData['month_cancelled']['cancelled'];
+//            }
+//            if(array_key_exists('last_2_day', $sfData)){
+//                $final_data['last_2_day'] = $sfData['last_2_day']['booked'];
+//            }
+//            if(array_key_exists('last_3_day', $sfData)){
+//                $final_data['last_3_day'] = $sfData['last_3_day']['booked'];
+//            }
+//             if(array_key_exists('greater_than_5_days', $sfData)){
+//                $final_data['greater_than_5_days'] = $sfData['greater_than_5_days']['booked'];
+//             }
+//             $ServiceCenterBookingData[]= $final_data;
+//        }
+//        echo json_encode($ServiceCenterBookingData);
+//    }
 }

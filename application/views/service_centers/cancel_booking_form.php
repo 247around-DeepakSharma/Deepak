@@ -51,9 +51,28 @@
                </div>
                 <input type="hidden" name="partner_id" value="<?php if (isset($user_and_booking_details[0]['partner_id'])) {echo $user_and_booking_details[0]['partner_id']; } ?>">
                <div>
-                <div class="col-md-6 col-md-offset-4">
-                  
-                     <input type="submit" value="Cancel Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
+                <div class="col-md-6 col-md-offset-3">
+                   <?php $isdisable = false; if(isset($user_and_booking_details['spare_parts'])){ 
+                       foreach($user_and_booking_details['spare_parts'] as $sp){
+                           switch ($sp['status']){
+                               case "Shipped":
+                               case "Defective Part Pending":
+                               case "Defective Part Received By Partner":
+                               case "Defective Part Rejected By Partner":
+                               case "Defective Part Shipped By SF":
+                               case "Delivered": 
+                                   $isdisable= true;
+                                   break;
+                           }
+                          
+                       }
+                   } ?>
+                    <?php if($isdisable) { ?>
+                    <p style="margin-bottom:60px;"> <strong> You are unable to cancel this booking because Spare Parts Shipped.</strong></p>
+                    <?php } else { ?>
+                        <input type="submit" value="Cancel Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
+                    <?php }?>
+                     
                     
                   
                   </div>

@@ -17,7 +17,7 @@
                     <div class="col-lg-12">
                     <div  id="success"></div> 
                         <form class="form-inline" action="<?php echo base_url()?>employee/vendor/process_upload_pin_code_vendor" method="POST" enctype="multipart/form-data">
-                            <div class="col-md-6">
+                            <div class="col-md-6" style="width:30%">
                                     <div class="form-group">
                                         <input type="file" class="form-control"  name="file" required="">
                                     </div>
@@ -28,34 +28,27 @@
                                 </div>
                                </div>
                             
-                            <div class='col-md-6'>                    
-<!--                                <div class='col-md-12'>
-                                    <b><i>Last Pincode Added</i></b>
-                                    <div class="pull-right">Total Pincode&nbsp;:&nbsp;&nbsp;<b><?php //echo $total_pincode?></b></div>
-                                </div><hr>-->
-                                <div class="col-md-12">
+                            <div class='col-md-6' style="width:70%">
+                                <p style="font-size: 18px;"><b>Please write Appliance Name Only From Below List</b></p>
                                     <table class='table table-condensed table-bordered'>
                                         <thead>
-                                            <tr>
-                                                <td style="background: #D3D3D3;font-weight: bold">Vendor Name</td>
-                                                <td style="background: #D3D3D3;font-weight: bold">Appliance</td>
-                                                <td style="background: #D3D3D3;font-weight: bold">Brand</td>
-                                                <td style="background: #D3D3D3;font-weight: bold">Area</td>
-                                                <td style="background: #D3D3D3;font-weight: bold">Pincode</td>
-                                                <td style="background: #D3D3D3;font-weight: bold">Region</td>
-                                                <td style="background: #D3D3D3;font-weight: bold">City</td>
-                                                <td style="background: #D3D3D3;font-weight: bold">State</td>
-                                            </tr>
+                                            <?php
+                                            foreach($services as $index=>$serviceName){
+                                                if($index%5== 0){
+                                                    echo "<tr>";
+                                                }
+                                            ?>
+                                           <td><?php echo$serviceName['services']; ?></td>
+                                            <?php
+                                           if(($index+1)%5== 0){
+                                                    echo "</tr>";
+                                                }
+                                            }
+                                            ?>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                    <?php if(!empty($latest_vendor_pincode[0])){ foreach($latest_vendor_pincode[0] as $key=>$value){
-                                        echo '<td>'.$value.'</td>';
-                                    } }?>
-                                            </tr>
                                         </tbody>
                                     </table>
-                                </div>
                             </div>
                         </form>
                     

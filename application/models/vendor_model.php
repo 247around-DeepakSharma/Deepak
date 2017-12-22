@@ -19,7 +19,7 @@ class vendor_model extends CI_Model {
      * @return: array of vendor details
      */
     function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '') {
-$where_id = "";
+        $where_id = "";
         $where_active = "";
         $where_sf = "";
         $where_final = "";
@@ -59,20 +59,10 @@ $where_id = "";
         if($active === "" && $is_cp !== ""){
             $where_final = "where service_centres.is_cp = '1'";
         }
-        
-        if(!$where_final){
-            $union_where_final = "WHERE service_centres.id NOT IN (SELECT bd.entity_id FROM account_holders_bank_details bd WHERE bd.entity_type='SF')";
-            $where_final = "WHERE account_holders_bank_details.entity_type = 'SF'";
-        }
-        else{
-            $union_where_final = $where_final." AND service_centres.id NOT IN (SELECT bd.entity_id FROM account_holders_bank_details bd WHERE bd.entity_type='SF')";
-             $where_final = $where_final." AND account_holders_bank_details.entity_type = 'SF'";
-        }
-        $union_query = "Select service_centres.*,NULL as bank_name,NULL as bank_account,NULL as ifsc_code, NULL as cancelled_cheque_file, NULL as beneficiary_name,NULL as is_verified,
-            NULL as account_type FROM service_centres  $union_where_final";
-        $sql  = "Select service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.bank_account,account_holders_bank_details.ifsc_code,
-                    account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,account_holders_bank_details.is_verified,account_holders_bank_details.account_type from service_centres 
-                  INNER JOIN account_holders_bank_details ON account_holders_bank_details.entity_id=service_centres.id $where_final UNION $union_query";
+        $sql = "Select service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.account_type,account_holders_bank_details.bank_account,"
+                . "account_holders_bank_details.ifsc_code,account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,"
+                . "account_holders_bank_details.is_verified  from service_centres LEFT JOIN account_holders_bank_details ON account_holders_bank_details.entity_id=service_centres.id AND account_holders_bank_details"
+                . ".entity_type='SF ' $where_final";
         $query = $this->db->query($sql);
        return $query->result_array();
     }
@@ -169,7 +159,7 @@ $where_id = "";
     
     function update_service_centers_login($where, $data){
         $this->db->where($where);
-        $this->db->update("service_centers_login", $data);
+        return $this->db->update("service_centers_login", $data);
     }
 
 
@@ -679,7 +669,7 @@ $where_id = "";
      */
     function getVendorFromVendorMapping($data) {
         $this->db->distinct();
-        $this->db->select('service_centres.name As Vendor_Name, Brand, Area, Region, vendor_pincode_mapping.Pincode');
+        $this->db->select('service_centres.name As Vendor_Name, vendor_pincode_mapping.Pincode');
         $this->db->from('vendor_pincode_mapping');
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('vendor_pincode_mapping.Pincode', $data['pincode']);
@@ -688,7 +678,7 @@ $where_id = "";
 //            $this->db->where('vendor_pincode_mapping.City', $data['city']);
 
         if (!empty($data['service_id']))
-            $this->db->where('Appliance_ID', $data['service_id']);
+            $this->db->where('vendor_pincode_mapping.Appliance_ID', $data['service_id']);
 
         $this->db->where('service_centres.active', 1);
         //Checking Temporary On/Off values
@@ -753,16 +743,16 @@ $where_id = "";
             $cities = " , City";
         }
         $this->db->distinct();
-        $this->db->select('Vendor_Name as name, Vendor_ID as id, Appliance, Appliance_ID');
+        $this->db->select('vendor_pincode_mapping.Vendor_Name as name, vendor_pincode_mapping.Vendor_ID as id, services.services as Appliance, vendor_pincode_mapping.Appliance_ID');
        
         if ($vendor_id != "")
-            $this->db->where('Vendor_ID', $vendor_id);
+            $this->db->where('vendor_pincode_mapping.Vendor_ID', $vendor_id);
 
         if ($city != "")
-            $this->db->where('City', $city);
+            $this->db->where('vendor_pincode_mapping.City', $city);
 
-        $this->db->order_by('Appliance', 'ASC');
-
+        $this->db->order_by('services.services', 'ASC');
+        $this->db->join('services', 'services.id = vendor_pincode_mapping.Appliance_ID');
         $query = $this->db->get('vendor_pincode_mapping');
 
         return $query->result_array();
@@ -1077,7 +1067,9 @@ $where_id = "";
      *  @return : array of all data
      */
     function get_distinct_vendor_details($service_id){
-         $query = $this->db->query("SELECT DISTINCT Vendor_ID,Vendor_Name from vendor_pincode_mapping where Appliance_ID = ". $service_id. ' Order By Vendor_Name');
+         $query = $this->db->query("SELECT DISTINCT vendor_pincode_mapping.Vendor_ID,service_centres.name as Vendor_Name from vendor_pincode_mapping join service_centres ON "
+                 . "service_centres.id=vendor_pincode_mapping.Vendor_ID"
+                 . " where vendor_pincode_mapping.Appliance_ID = ". $service_id. ' Order By service_centres.name');
          return $query->result_array();
     }
     /**
@@ -1089,9 +1081,10 @@ $where_id = "";
      function get_distinct_vendor_service_details($vendor_id, $pincode=""){
          $where = "";
          if(!empty($pincode)){
-             $where  = " AND Pincode = '".$pincode."' ";
+             $where  = " AND vendor_pincode_mapping.Pincode = '".$pincode."' ";
          }
-         $query = $this->db->query("SELECT DISTINCT Appliance,Appliance_ID from vendor_pincode_mapping where Vendor_ID = ". $vendor_id. " $where Order By Appliance");
+         $query = $this->db->query("SELECT DISTINCT services.services AS Appliance,vendor_pincode_mapping.Appliance_ID from "
+                 . "vendor_pincode_mapping JOIN services ON services.id= vendor_pincode_mapping.Appliance_ID where vendor_pincode_mapping.Vendor_ID = ". $vendor_id. " $where Order By services.services");
          return $query->result_array();
     }
     
@@ -1744,6 +1737,7 @@ $where_id = "";
             $this->db->where($where);
         }
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
+        $this->db->join('services', 'services.id = vendor_pincode_mapping.Appliance_ID');
         $this->db->where('service_centres.active', '1');
         $query = $this->db->get();
         return $query->result_array();
@@ -1817,9 +1811,9 @@ $where_id = "";
     }
     
     function get_india_pincode_distinct_area_data($pincode) {
-            $this->db->select('state,area,region,district as city');
+            $this->db->select('state,district as city');
             $this->db->where('pincode', $pincode);
-            $this->db->group_by('area,region,district,state');
+            $this->db->group_by('district,state');
             $query = $this->db->get('india_pincode');
             return $query->result_array();
      }
@@ -1839,48 +1833,12 @@ $where_id = "";
      }
      
      function get_vendor_with_bank_details($select,$where){
-         if($select){
-             $selectArray = explode(",",$select);
-             foreach ($selectArray as $value){
-                 if (strpos(trim($value), 'account_holders_bank_details') !== false) {
-                     $tempArray = explode("account_holders_bank_details.",$value);
-                     $unionSelectArray[]  =  "NULL as".$tempArray[1];
-                  }
-                  else{
-                       $unionSelectArray[]  =  $value;
-                  }
-             }
-             $union_select = implode(",",$unionSelectArray);
-         }
-            $where_final = '';
-        if($where){
-            foreach ($where as $key=>$value){
-                if($value == NULL){
-                    $valueString = '';
-                }
-                else{
-                    $valueString = '='.$value;
-                }
-                if(!$where_final){
-                    $where_final = "WHERE $key $valueString";
-                }
-                else{
-                    $where_final = $where_final." AND $key $valueString";
-                }
-            }
+         $this->db->select($select,FALSE);
+        if(!empty($where)){
+           $this->db->where($where);
         }
-        if(!$where_final){
-            $union_where_final = "WHERE service_centres.id NOT IN (SELECT bd.entity_id FROM account_holders_bank_details bd WHERE bd.entity_type='SF')";
-            $where_final = "WHERE account_holders_bank_details.entity_type = 'SF'";
-        }
-        else{
-            $union_where_final = $where_final." AND service_centres.id NOT IN (SELECT bd.entity_id FROM account_holders_bank_details bd WHERE bd.entity_type='SF')";
-             $where_final = $where_final." AND account_holders_bank_details.entity_type = 'SF'";
-        }
-        $union_query = "Select ".$union_select." FROM service_centres  $union_where_final";
-        $sql  = "Select ".$select." from service_centres 
-                  INNER JOIN account_holders_bank_details ON account_holders_bank_details.entity_id=service_centres.id $where_final UNION $union_query";
-        $query = $this->db->query($sql);
-       return $query->result_array();
+        $this->db->join('account_holders_bank_details', 'account_holders_bank_details.entity_id = service_centres.id AND account_holders_bank_details.entity_type="SF"','left');
+        $sql = $this->db->get('service_centres');
+        return $sql->result_array();
      }
 }

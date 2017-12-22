@@ -18,6 +18,7 @@ class Miscelleneous {
         $this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
         $this->My_CI->load->model('partner_model');
+        $this->My_CI->load->model('inventory_model');
         $this->My_CI->load->library('form_validation');
         $this->My_CI->load->model('service_centers_model');
     }
@@ -100,7 +101,7 @@ class Miscelleneous {
      * @param String $booking_id
      * @return boolean
      */
-    function assign_vendor_process($service_center_id, $booking_id) {
+    function assign_vendor_process($service_center_id, $booking_id,$agent_id, $agent_type) {
         log_message('info', __FUNCTION__ . " Entering...... booking_id " . $booking_id . " service center id " . $service_center_id);
         $b['assigned_vendor_id'] = $service_center_id;
         // Set Default Engineer 
@@ -113,6 +114,11 @@ class Miscelleneous {
             }
         }
         $b['upcountry_partner_approved'] = '1';
+        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, _247AROUND, $booking_id);
+        if (!empty($partner_status)) {
+            $b['partner_current_status'] = $partner_status[0];
+            $b['partner_internal_status'] = $partner_status[1];
+        }
         //Assign service centre and engineer
         $assigned = $this->My_CI->vendor_model->assign_service_center_for_booking($booking_id, $b);
         if ($assigned) {
@@ -135,8 +141,30 @@ class Miscelleneous {
                     log_message('info', __METHOD__ . "=> Data is not inserted into service center "
                             . "action table booking_id: " . $booking_id . ", data: " . print_r($sc_data, true));
                 }
+                //process inventory stock for each unit if price tag is wall mount
+                if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
+                    $match = array();
+                    //get the size from the capacity to know the part number
+                    preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                    if (!empty($match)) {
+                        if ($match[0] <= 32) {
+                            $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                        } else if ($match[0] > 32) {
+                            $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                        }
+                        
+                        $data['receiver_entity_id'] = $service_center_id;
+                        $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                        $data['stock'] = -1 ;
+                        $data['booking_id'] = $booking_id;
+                        $data['agent_id'] = $agent_id;
+                        $data['agent_type'] = $agent_type;
+                        
+                        $this->process_inventory_stocks($data);
+                    }
+                }
             }
-
+            
             log_message('info', __FUNCTION__ . " Exit...... booking_id " . $booking_id . " service center id " . $service_center_id);
             return true;
         } else {
@@ -246,6 +274,12 @@ class Miscelleneous {
                         $booking['upcountry_partner_approved'] = '0';
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['amount_due'] = $cus_net_payable;
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL, 
+                                $query1[0]['partner_id'], $booking_id);
+                        if (!empty($partner_status)) {
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['partner_internal_status'] = $partner_status[1];
+                        }
 
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $this->My_CI->service_centers_model->delete_booking_id($booking_id);
@@ -730,7 +764,6 @@ class Miscelleneous {
             $to = 'vijaya@247around.com';
             $cc = DEVELOPER_EMAIL;
 
-
             $subject = "Stag01 Server Might Be Down";
             $msg = "There are some issue while creating pdf for booking_id/invoice_id $id from stag01 server. Check the issue and fix it immediately";
             $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $msg, $output_file_excel);
@@ -788,7 +821,7 @@ class Miscelleneous {
             $dealer_id = $this->My_CI->dealer_model->insert_dealer_details($dealer_data);
 
             $select1 = "partner_id, service_id, brand";
-            $partner_data_sp = $this->My_CI->partner_model->get_partner_specific_details(array('partner_id' => $partner_id), $select1, "service_id");
+            $partner_data_sp = $this->My_CI->partner_model->get_partner_specific_details(array('partner_id' => $partner_id, "active" => 1), $select1, "service_id");
             if (!empty($partner_data_sp)) {
                 // don not remove $value
                 for ($i = 0; $i < count($partner_data_sp); $i++) {
@@ -1016,10 +1049,21 @@ class Miscelleneous {
                     $data['partner_id'] = PAYTM;
                     $data['source'] = 'SP';
                     break;
+                case AKAI_ID:
+                    $data['partner_id'] = AKAI_ID;
+                    $data['source'] = 'PA';
+                    break;
             }
         }
-
-        return $data;
+        
+        $blocked_brand = $this->My_CI->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['partner_id'], "brand" => $brand), "*");
+       
+        if(!empty($blocked_brand)){
+            return false;
+        } else {
+            
+            return $data;
+        }
     }
 
     /**
@@ -1075,7 +1119,7 @@ class Miscelleneous {
             );
             $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
 
-            $final_amount = $invoice_amount[0]['amount'] - $service_amount[0]['amount'];
+            $final_amount = $invoice_amount[0]['amount'] - $service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE);
 
 
 
@@ -1100,6 +1144,14 @@ class Miscelleneous {
 
                     $d['active'] = 0;
                 }
+            } else {
+                // permanent Deactivated Partner
+                if($d['active'] == 0){
+                    $d['is_notification'] = TRUE;
+                    $d['prepaid_msg'] = PREPAID_DEACTIVATED_MSG_FOR_PARTNER;
+                }
+                
+                //$d['active'] = 1;
             }
 
             return $d;
@@ -1132,10 +1184,7 @@ class Miscelleneous {
 
     function sf_not_exist_for_pincode($booking) {
         $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
-        $pincode = $notFoundSfArray['pincode'];
-        $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
-FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
-        $result = $this->My_CI->reusable_model->execute_custom_select_query($sql);
+        $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
         if (!empty($result)) {
             $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
             $notFoundSfArray['state'] = $result[0]['state'];
@@ -1250,16 +1299,17 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $excelDataArray = array();
         for ($i = 2; $i <= $highestRow; $i++) {
             $excelDataArray = $sheet->rangeToArray('A' . $i . ':' . $highestColumn . $i, NULL, TRUE, FALSE);
-            foreach ($excelDataArray[0] as $key => $data) {
-                $excelAssociatedArray[$newHeading[$key]] = trim($data);
+            if(array_filter($excelDataArray[0])) {
+                foreach ($excelDataArray[0] as $key => $data) {
+                    $excelAssociatedArray[$newHeading[$key]] = trim($data);
+                }
+                $finalExcelDataArray[] = $excelAssociatedArray;
             }
-            $finalExcelDataArray[] = $excelAssociatedArray;
         }
         return $finalExcelDataArray;
     }
 
     /*
->>>>>>> 8af24b706... Partner SF updated History View
      * @esc: This method upload invoice image OR panel image to S3
      * @param _FILE $file
      * @return boolean|string
@@ -1505,8 +1555,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $affectedRows = 0;
         // Remove all columns which has blank values
         foreach ($bankDetailsArray as $key => $value) {
-            if ($value == '' || $value == '0') {
-                unset($bankDetailsArray[$key]);
+            if($key != 'is_verified'){
+                if ($value == '' || $value == '0') {
+                    unset($bankDetailsArray[$key]);
+                }
             }
         }
 
@@ -1525,11 +1577,11 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $agentID = $bankDetailsArray['agent_id'];
                 unset($bankDetailsArray['entity_id']);
                 unset($bankDetailsArray['agent_id']);
-                // check is there any new updation for bank table or not
+                // check is there any new updation for bank table or not     
                 $affectedRows = $this->My_CI->reusable_model->update_table('account_holders_bank_details', $bankDetailsArray, $where);
                 if ($affectedRows == 1) {
                     //if yes then update table
-                    return $this->My_CI->reusable_model->update_table('account_holders_bank_details', array('is_verified' => 0, 'agent_id' => $agentID), $where);
+                    return $this->My_CI->reusable_model->update_table('account_holders_bank_details', array('agent_id' => $agentID), $where);
                 } else {
                     //if not then don't update the table
                     return $affectedRows;
@@ -1662,37 +1714,157 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         return $response;
     }
 
-    function table_updated_history_view($orignalTable, $triggeredTable) {
+    function table_updated_history_view($orignalTable, $triggeredTable, $entityID) {
         $finalData = array();
-        $orderByArray[$triggeredTable . '.id,' . $triggeredTable . '.update_date'] = 'ASC';
+        $orderByArray[$triggeredTable . '.id,' . $triggeredTable . '.update_date'] = 'DESC';
         $joinArray = array("employee" => "employee.id=" . $triggeredTable . ".agent_id");
-        $triggeredTableData = $this->My_CI->reusable_model->get_search_result_data($triggeredTable, $triggeredTable . ".*,employee.full_name", NULL, $joinArray, NULL, $orderByArray, NULL, NULL);
-        $orignalTableTempData = $this->My_CI->reusable_model->get_search_result_data($orignalTable, "*", NULL, NULL, NULL, NULL, NULL, NULL);
-        foreach ($orignalTableTempData as $tempData) {
-            $orignalTableData[$tempData['id']] = $tempData;
-        }
-        foreach ($triggeredTableData as $index => $data) {
-            if (array_key_exists($data['id'], $finalData)) {
-                if ($data['id'] == $triggeredTableData[($index - 1)]['id']) {
-                    $finalData[$data['id']]['data'][] = array_keys(array_diff($data, $triggeredTableData[$index - 1]));
-                    $finalData[$data['id']]['update_date'][] = $data['update_date'];
-                    $finalData[$data['id']]['updated_by'][] = $data['full_name'];
-                }
-            } else {
-                $orignalData = array();
-                if (array_key_exists($data['id'], $orignalTableData)) {
-                    $orignalData = $orignalTableData[$data['id']];
-                }
-                $finalData[$data['id']]['data'][] = array_keys(array_diff($orignalData, $data));
-                $finalData[$data['id']]['update_date'][] = $data['update_date'];
-                $finalData[$data['id']]['updated_by'][] = $data['full_name'];
-                if ($orignalTable == "service_centres") {
-                    $finalData[$data['id']]['public_name'] = $data['name'];
-                } else {
-                    $finalData[$data['id']]['public_name'] = $data['public_name'];
+        $triggeredTableData = $this->My_CI->reusable_model->get_search_result_data($triggeredTable, $triggeredTable . ".*,employee.full_name", array($triggeredTable.".id" => $entityID), $joinArray, NULL, $orderByArray, NULL, NULL);
+        $orignalTableData = $this->My_CI->reusable_model->get_search_result_data($orignalTable, "*", array($orignalTable.".id" => $entityID), NULL, NULL, NULL, NULL, NULL);
+        array_unshift($triggeredTableData,$orignalTableData[0]);
+        if(count($triggeredTableData)>1){
+            foreach ($triggeredTableData as $index => $data) {
+                if($index < count($triggeredTableData)-1){
+                    $finalData['data'][] = array_keys(array_diff($data,$triggeredTableData[$index+1]));
+                    $finalData['update_date'][] = $triggeredTableData[$index+1]['update_date'];
+                    $finalData['updated_by'][] = $triggeredTableData[$index+1]['full_name'];
                 }
             }
         }
         return $finalData;
     }
+    
+ function send_completed_booking_email_to_customer($completedBookingsID){
+      log_message('info', __FUNCTION__ . ' => Completed booking Email Send Function Entry');
+        $completedBookingsData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,users.name,users.user_email,partners.public_name as partner,booking_details.booking_date as booking_date",NULL,array('partners'=>'partners.id=booking_details.partner_id','users'=>'booking_details.user_id=users.user_id'),NULL,NULL,array('booking_id'=>$completedBookingsID),NULL);
+        foreach($completedBookingsData as $data){
+        $emailBasicDataArray['to'] = $data['user_email'];
+        $emailBasicDataArray['subject'] = "Completed Booking ".$data['booking_id'];
+        $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
+        $emailBasicDataArray['fromName'] = "247around Team";
+        $emailTemplateDataArray['templateId'] = COMPLETED_BOOKING_CUSTOMER_TEMPLATE;
+        unset($data['user_email']);
+        $emailTemplateDataArray['dynamicParams'] = $data;
+        $this->My_CI->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray);
+        log_message('info', __FUNCTION__ . ' => Email Sent');
+        log_message('info', __METHOD__ . "=> Email Basic Data" . print_r($emailBasicDataArray, true));
+       log_message('info', __METHOD__ . "=> Email Template Data " . print_r($emailTemplateDataArray, true));
+            }
+    }
+
+    /**
+     * @desc This function is used to update the inventory stock
+     * @param array $data
+     * @return bookean $flag
+     */
+    function process_inventory_stocks($data) {
+        log_message("info", __FUNCTION__ . " process inventory update" . print_r($data, true));
+        $flag = FALSE;
+        $is_process = FALSE;
+        
+        if ($data['receiver_entity_type'] === _247AROUND_SF_STRING) {
+            //check if sf is working with brackets with 247around
+            $is_brackets = $this->My_CI->vendor_model->getVendorDetails('brackets_flag', array('id' => $data['receiver_entity_id']))[0]['brackets_flag'];
+            if (!empty($is_brackets)) {
+                $is_process = TRUE;
+                log_message("info","sf id: ".$data['receiver_entity_id']." is working with brackets with 247around");
+            } else {
+                $is_process = FALSE;
+                log_message("info","sf id: ".$data['receiver_entity_id']." is not working with brackets with 247around");
+            }
+        } else {
+            $is_process = TRUE;
+        }
+
+        if ($is_process) {
+            /* check if part is exist in the master inventory table
+             * if exist then get the id of that part and use that id for further process
+             */
+            $is_part_exist = $this->My_CI->reusable_model->get_search_query('inventory_master_list', 'inventory_master_list.inventory_id', array('part_number' => $data['part_number']), NULL, NULL, NULL, NULL, NULL)->result_array();
+            if (!empty($is_part_exist)) {
+                /* check if entity is exist in the inventory stock table
+                 * if exist then get update the stock
+                 * else insert into the table
+                 */
+                $is_entity_exist = $this->My_CI->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $data['receiver_entity_id'], 'entity_type' => $data['receiver_entity_type'], 'inventory_id' => $is_part_exist[0]['inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                if (!empty($is_entity_exist)) {
+                    $stock = "stock + '" . $data['stock'] . "'";
+                    $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
+                    if ($update_stocks) {
+                        log_message("info", __FUNCTION__ . " Stocks has been updated successfully");
+                        $flag = TRUE;
+                    } else {
+                        log_message("info", __FUNCTION__ . " Error in updating stocks");
+                    }
+                } else {
+                    $insert_data['entity_id'] = $data['receiver_entity_id'];
+                    $insert_data['entity_type'] = $data['receiver_entity_type'];
+                    $insert_data['inventory_id'] = $is_part_exist[0]['inventory_id'];
+                    $insert_data['stock'] = $data['stock'];
+                    $insert_data['create_date'] = date('Y-m-d H:i:s');
+
+                    $insert_id = $this->My_CI->inventory_model->insert_inventory_stock($insert_data);
+                    if (!empty($insert_id)) {
+                        log_message("info", __FUNCTION__ . " Stocks has been inserted successfully" . print_r($insert_data, true));
+                        $flag = TRUE;
+                    } else {
+                        log_message("info", __FUNCTION__ . " Error in inserting stocks" . print_r($insert_data, true));
+                    }
+                }
+
+                //insert inventory details into the inventory ledger table 
+                if ($flag) {
+                    $insert_ledger_data = array('receiver_entity_id' => $data['receiver_entity_id'],
+                        'receiver_entity_type' => $data['receiver_entity_type'],
+                        'quantity' => $data['stock'],
+                        'inventory_id' => $is_part_exist[0]['inventory_id']
+                    );
+                    if (isset($data['sender_entity_id']) && isset($data['sender_entity_type'])) {
+                        $insert_ledger_data['sender_entity_id'] = $data['sender_entity_id'];
+                        $insert_ledger_data['sender_entity_type'] = $data['sender_entity_type'];
+                    }
+
+                    if (isset($data['agent_id']) && isset($data['agent_type'])) {
+                        $insert_ledger_data['agent_id'] = $data['agent_id'];
+                        $insert_ledger_data['agent_type'] = $data['agent_type'];
+                    }
+
+                    if (isset($data['order_id'])) {
+                        $insert_ledger_data['order_id'] = $data['order_id'];
+                    }
+
+                    if (isset($data['booking_id'])) {
+                        $insert_ledger_data['booking_id'] = $data['booking_id'];
+                    }
+
+                    if (isset($data['invoice_id'])) {
+                        $insert_ledger_data['invoice_id'] = $data['invoice_id'];
+                    }
+
+                    $insert_id = $this->My_CI->inventory_model->insert_inventory_ledger($insert_ledger_data);
+                    if (!empty($insert_id)) {
+                        log_message("info", __FUNCTION__ . " Inventory Ledger has been inserted successfully" . print_r($insert_ledger_data, true));
+                        $flag = TRUE;
+                        if (isset($data['booking_id']) && !empty($data['booking_id'])) {
+                            $update = $this->My_CI->booking_model->update_booking_unit_details_by_any(array('booking_id' => $data['booking_id'], 'price_tags like "' . _247AROUND_WALL_MOUNT__PRICE_TAG . '"' => NULL), array('inventory_id' => $is_part_exist[0]['inventory_id']));
+                            if (!empty($update)) {
+                                log_message("info", "Inventory id updated successfully in booking unit details for booking_id " . $data['booking_id']);
+                            } else {
+                                log_message("info", "error in updating inventory_id in unit details for booking_id " . $data['booking_id']);
+                            }
+                        }
+                    } else {
+                        log_message("info", __FUNCTION__ . " Error in inserting inventory ledger details" . print_r($insert_ledger_data, true));
+                        $flag = FALSE;
+                    }
+                } else {
+                    log_message("info", __FUNCTION__ . " Error in updating inventory" . print_r($data, true));
+                }
+            } else {
+                log_message("info", __FUNCTION__ . " Error in updating inventory. Part number does not exist in the inventory_master_list table" . print_r($data, true));
+            }
+        }
+
+        return $flag;
+    }
+
 }

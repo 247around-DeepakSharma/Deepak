@@ -199,11 +199,12 @@ class Inventory extends CI_Controller {
         //Getting ID of logged in user
         $id = $this->session->userdata('id');
             //Getting employee relation if present
+          if($this->session->userdata('user_group') == 'regionalmanager'){
             $sf_list_array = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list_array)) {
                 $sf_list = $sf_list_array[0]['service_centres_id'];
             }
-        
+          }
         if ($page == 0) {
 	    $page = 50;
 	}
@@ -385,11 +386,9 @@ class Inventory extends CI_Controller {
         $order_id = $this->input->post('order_id');
         $order_received_from = $this->input->post('order_received_from');
         $order_given_to = $this->input->post('order_given_to');
-//        $data['19_24_received'] = $this->input->post('19_24_received');
         $data['19_24_received'] = '0';
         $data['26_32_received'] = $this->input->post('26_32_received');
         $data['36_42_received'] = $this->input->post('36_42_received');
-//        $data['43_received'] = $this->input->post('43_received');
         $data['43_received'] = '0';
         $data['total_received'] = $this->input->post('total_received');
         $data['received_date'] = date('Y-m-d H:i:s');
@@ -402,60 +401,89 @@ class Inventory extends CI_Controller {
             log_message('info',__FUNCTION__.' Brackets Received has been updated '. print_r($data, TRUE));
             
             //Adding value in Booking State Change
-                $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_RECEIVED, _247AROUND_BRACKETS_SHIPPED, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_RECEIVED, _247AROUND_BRACKETS_SHIPPED, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
             //Logging Success
             log_message('info', __FUNCTION__ . ' Brackets Shipped - Received state have been added in Booking State Change ');
             
-            //Sending mail to both vendor
+            //update inventory stocks
+            $inventory_stocks_data = array('receiver_entity_id'     =>  $order_received_from,
+                                            'receiver_entity_type'  =>  _247AROUND_SF_STRING,
+                                            'sender_entity_id'      =>  $order_given_to,
+                                            'sender_entity_type'    =>  _247AROUND_SF_STRING,
+                                            'order_id'              =>  $order_id,
+                                            'agent_id'              =>  $this->session->userdata('id'),
+                                            'agent_type'            =>  _247AROUND_EMPLOYEE_STRING
+                                        );
+            $inventory_stocks_data['stock'] = $data['26_32_received'];
+            $inventory_stocks_data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+            $return_response = $this->miscelleneous->process_inventory_stocks($inventory_stocks_data);
+            if($return_response){
+                $inventory_stocks_data['stock'] = $data['36_42_received'];
+                $inventory_stocks_data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                $return_response = $this->miscelleneous->process_inventory_stocks($inventory_stocks_data);
+                
+                if($return_response){
+                    
+                    //Sending mail to both vendor
             
-            //1. Sending to Order received from vendor
-            $order_received_from_email = $this->vendor_model->getVendorContact($order_received_from);
-            $order_given_to_email = $this->vendor_model->getVendorContact($order_given_to);
-            
-            $vendor_poc_mail = $order_received_from_email[0]['primary_contact_email'];
-            $vendor_owner_mail = $order_received_from_email[0]['owner_email'];
-            $order_received_from_email_to = $vendor_poc_mail.','.$vendor_owner_mail;
-            
-            $vendor_poc_mail = $order_given_to_email[0]['primary_contact_email'];
-            $vendor_owner_mail = $order_given_to_email[0]['owner_email'];
-            $order_given_to_email_to = $vendor_poc_mail.','.$vendor_owner_mail;
-            
-            //1. Sending brackets Received Mail to order received from vendor
-                   $email = array();
-                   //Getting template from Database
-                   $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_requested_from");
-                   
-                   if(!empty($template)){
-                        $email['order_id'] = $order_id;
-                        $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
-                        $emailBody = vsprintf($template[0], $email);
-                        $this->notify->sendEmail($template[2], $order_received_from_email_to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, '');
-                   }
-            
-            //Loggin send mail success
-            log_message('info',__FUNCTION__.' Received mail has been sent to order_received_from vendor '. $emailBody);
-            
-            //2. Sending mail to order_given_to vendor
-            
-            $email = array();
-                   //Getting template from Database
-                   $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_given_to");
-                   
-                   if(!empty($template)){
-                        $email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
-                        $email['order_id'] = $order_id;
-                        $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
-                        $emailBody = vsprintf($template[0], $email);
-                        
-                        $this->notify->sendEmail($template[2], $order_given_to_email_to , $template[3], '', $subject , $emailBody, '');
-                   }
-            
-            //Loggin send mail success
-            log_message('info',__FUNCTION__.' Received mail has been sent to order_given_to vendor '. $emailBody);
-            
-            //Setting success session data 
-            $this->session->set_userdata('brackets_update_success', 'Brackets Received updated Successfully');
-            
+                    //1. Sending to Order received from vendore
+                    $order_received_from_email = $this->vendor_model->getVendorContact($order_received_from);
+                    $order_given_to_email = $this->vendor_model->getVendorContact($order_given_to);
+
+                    $vendor_poc_mail = $order_received_from_email[0]['primary_contact_email'];
+                    $vendor_owner_mail = $order_received_from_email[0]['owner_email'];
+                    $order_received_from_email_to = $vendor_poc_mail.','.$vendor_owner_mail;
+
+                    $vendor_poc_mail = $order_given_to_email[0]['primary_contact_email'];
+                    $vendor_owner_mail = $order_given_to_email[0]['owner_email'];
+                    $order_given_to_email_to = $vendor_poc_mail.','.$vendor_owner_mail;
+
+                    //1. Sending brackets Received Mail to order received from vendor
+                           $email = array();
+                           //Getting template from Database
+                           $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_requested_from");
+
+                           if(!empty($template)){
+                                $email['order_id'] = $order_id;
+                                $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
+                                $emailBody = vsprintf($template[0], $email);
+                                $this->notify->sendEmail($template[2], $order_received_from_email_to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, '');
+                           }
+
+                    //Loggin send mail success
+                    log_message('info',__FUNCTION__.' Received mail has been sent to order_received_from vendor '. $emailBody);
+
+                    //2. Sending mail to order_given_to vendor
+
+                    $email = array();
+                           //Getting template from Database
+                           $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_given_to");
+
+                           if(!empty($template)){
+                                $email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
+                                $email['order_id'] = $order_id;
+                                $subject = vsprintf($template[4], $order_received_from_email[0]['company_name']);
+                                $emailBody = vsprintf($template[0], $email);
+
+                                $this->notify->sendEmail($template[2], $order_given_to_email_to , $template[3], '', $subject , $emailBody, '');
+                           }
+
+                    //Loggin send mail success
+                    log_message('info',__FUNCTION__.' Received mail has been sent to order_given_to vendor '. $emailBody);
+
+                    //Setting success session data 
+                    $this->session->set_userdata('brackets_update_success', 'Brackets Received updated Successfully');
+                    
+                }else{
+                    log_message('info',__FUNCTION__.' Error In Updating Received brackets Data '. print_r($inventory_stocks_data,true));
+                    
+                    $this->session->set_userdata('brackets_update_success', 'Some error Occured!!! Please Contact Developers');
+                }
+            }else{
+                log_message('info',__FUNCTION__.' Error In Updating Received brackets Data '. print_r($inventory_stocks_data,true));
+                    
+                $this->session->set_userdata('brackets_update_success', 'Some error Occured!!! Please Contact Developers');
+            }
         }else{
             //Loggin error
             log_message('info',__FUNCTION__.' Brackets Received updated Error '. print_r($data, TRUE));
@@ -1039,12 +1067,16 @@ class Inventory extends CI_Controller {
     
     function spare_part_booking_on_tab(){
         log_message('info', __FUNCTION__. "Entering... ");
-         $this->checkUserSession();
+        $this->checkUserSession();
 	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-        $total_rows =  $this->booking_model->get_spare_parts_booking(0, "All");
-        
-	$config['total_rows'] = $total_rows[0]['count'];
-        $data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['total_rows'], $offset);
+            
+        $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id"));
+        $vendor_id = array();
+        if(!empty($sf)){
+            $vendor_id = explode(",", $sf[0]["service_centres_id"]);;
+        }
+
+        $data['spare_parts'] = $this->booking_model->get_spare_parts_booking(-1, $offset, $vendor_id);
         $this->load->view('employee/sparepart_on_tab' , $data);
     }
     /**
@@ -1169,10 +1201,12 @@ class Inventory extends CI_Controller {
         $select = '*';
         
         //check sf_role 
-        if($sf_role === 'order_received_from'){
-            $where = "order_received_from = '$sf_id'";
-        }else if($sf_role === 'order_given_to'){
-            $where = "order_given_to = '$sf_id'";
+        if(!empty($sf_id)){
+            if($sf_role === 'order_received_from'){
+                $where["order_received_from = '$sf_id'"] = NULL;
+            }else if($sf_role === 'order_given_to'){
+                $where["order_given_to = '$sf_id'"] = NULL;
+            }
         }
         
         //check daterange selected or not
@@ -1180,10 +1214,15 @@ class Inventory extends CI_Controller {
             $start_date = date('Y-m-d 00:00:00', strtotime($this->input->post('start_date')));
             $end_date = date('Y-m-d 23:59:59', strtotime($this->input->post('end_date')));   
             
-            $where .= " AND order_date >= '$start_date' AND order_date <= '$end_date'";
+            $where[" order_date >= '$start_date' AND order_date <= '$end_date'"] = NULL;
         }
         
-        $brackets_data = $this->get_brackets_data_by($select, $where);
+        if(!empty($where)){
+            $brackets_data = $this->get_brackets_data_by($select, $where);
+        }else{
+            $brackets_data = "<div class='text-danger text-center'> <b> No Data Found <b></div>";
+        }
+        
         
         return $brackets_data;
     }
@@ -1225,7 +1264,12 @@ class Inventory extends CI_Controller {
 
                 $data['order_given_to'][$key] = $this->vendor_model->getVendorContact($value['order_given_to'])[0]['name'];
             }
-            $response = $this->load->view('employee/show_filtered_brackets_list', $data);
+            if($this->input->post('sf_id')){
+                $response = $this->load->view('service_centers/show_filtered_brackets_list', $data);
+            }else{
+                $response = $this->load->view('employee/show_filtered_brackets_list', $data);
+            }
+            
         } else {
             $response = "No Data Found";
         }
@@ -1283,7 +1327,7 @@ class Inventory extends CI_Controller {
                     }
                     $sf_service =  $data['service_charge'] * basic_percentage * (1 + SERVICE_TAX_RATE);
                     $venor_percentage = (($sf_service + $sf_parts)/$customer_total) * 100;
-                    $u['customer_total'] = $unit[0]['customer_total'] = $unit[0]['partner_net_payable'] =  
+                    $u['customer_total'] = $u['partner_net_payable'] = $unit[0]['customer_total'] = $unit[0]['partner_net_payable'] =  
                             $unit[0]['partner_paid_basic_charges'] =
                         $u['partner_paid_basic_charges'] =    $customer_total;
                     $unit[0]["vendor_basic_percentage"] = $venor_percentage;
@@ -1303,7 +1347,7 @@ class Inventory extends CI_Controller {
                    
                     if($is_sent == 1){
 
-                        $sent  = $this->create_zopper_excel_sheet($unit,$success['id'] );
+                        $sent  = $this->create_zopper_excel_sheet($unit,$success['id'], $data );
                         if($sent){
                             $userSession = array('success' => "Thanks To Update Booking Price. Estimate Sent to Zopper");
                         } else {
@@ -1365,26 +1409,92 @@ class Inventory extends CI_Controller {
      * @param String $id
      * @return boolean
      */
-    function create_zopper_excel_sheet($unit_details, $id){
+    function create_zopper_excel_sheet($unit_details, $id, $formdata){
         $booking_id = $unit_details[0]['booking_id'];
         $where['length'] = -1;
         $where['where'] = array("booking_details.booking_id" => $booking_id);
-        $booking_details = $this->booking_model->get_bookings_by_status($where, "users.name, services, order_id");
+        //RM Specific Bookings
+         $sfIDArray =array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        $booking_details = $this->booking_model->get_bookings_by_status($where, "users.name, services, order_id",$sfIDArray);
         $data['name'] = $booking_details[0]->name;
         $data['booking_id'] = $booking_id;
         $data['services'] = $booking_details[0]->services;
-        $data['brand'] = $unit_details[0]['appliance_brand'];
         $data['category'] = $unit_details[0]['appliance_category'];
         $data['capacity'] = $unit_details[0]['appliance_capacity'];
-        $data['model_number'] = $unit_details[0]['model_number'];
-        $data['taxable_value'] = $unit_details[0]['customer_total'];
-        $data['igst_rate'] = sprintf("%1\$.2f",($unit_details[0]['tax_rate']));
-        $data['igst_tax_amount'] = ($unit_details[0]['customer_total'] * $unit_details[0]['tax_rate'])/100;
-        $data['total_amount'] = sprintf("%1\$.2f",($data['igst_tax_amount'] + $unit_details[0]['customer_total']));
         $data['remarks'] = $this->input->post("estimate_remarks");
-        $data['price_inword'] = convert_number_to_words(round($data['total_amount'],0));
         $data['order_id'] = $booking_details[0]->order_id;
         $data['date'] = date("jS M, Y");
+        
+        $l_data = array();
+       
+       $total_igst_tax_amount = $total_amount = 0;
+        if($formdata["service_charge"] > 0){
+           $data1 = array();
+           $data1['brand'] = $unit_details[0]['appliance_brand']; 
+           $data1['model_number'] = $unit_details[0]['model_number'];
+           $data1['service_type'] = "Service Charge";
+           $data1['taxable_value'] = $formdata["service_charge"];
+           $data1['igst_rate'] = DEFAULT_TAX_RATE;
+           $data1['igst_tax_amount'] = ($formdata["service_charge"] * DEFAULT_TAX_RATE)/100;
+         
+           $total_igst_tax_amount =  $total_igst_tax_amount + $data1['igst_tax_amount'];
+           $data1['total_amount'] = sprintf("%1\$.2f",( $data1['igst_tax_amount'] + $formdata["service_charge"]));
+           $total_amount = $total_amount + $data1['total_amount'];
+           array_push($l_data, $data1);
+        }
+        
+        if($formdata["transport_charge"] > 0){
+           $data1 = array();
+           $data1['brand'] = $unit_details[0]['appliance_brand']; 
+           $data1['model_number'] = $unit_details[0]['model_number'];
+           $data1['service_type'] = "Transport Charge";
+           $data1['taxable_value'] = $formdata["transport_charge"];
+           $data1['igst_rate'] = DEFAULT_TAX_RATE;
+           $data1['igst_tax_amount']  = ($formdata["transport_charge"] * DEFAULT_TAX_RATE)/100;
+           $total_igst_tax_amount =  $total_igst_tax_amount + $data1['igst_tax_amount'];
+           $data1['total_amount'] = sprintf("%1\$.2f",($data1['igst_tax_amount']  + $formdata["transport_charge"]));
+           $total_amount = $total_amount + $data1['total_amount'];
+           array_push($l_data, $data1);
+        }
+        if($formdata["courier_charge"] > 0){
+           $data1 = array();
+           $data1['brand'] = $unit_details[0]['appliance_brand']; 
+           $data1['model_number'] = $unit_details[0]['model_number'];
+           $data1['service_type'] = "Courier Charge";
+           $data1['taxable_value'] = $formdata["courier_charge"];
+           $data1['igst_rate'] = DEFAULT_TAX_RATE;
+           $data1['igst_tax_amount'] = ($formdata["courier_charge"] * DEFAULT_TAX_RATE)/100;
+          
+           $total_igst_tax_amount =  $total_igst_tax_amount + $data1['igst_tax_amount'];
+           $data1['total_amount'] = sprintf("%1\$.2f",($data1['igst_tax_amount']  + $formdata["courier_charge"]));
+           $total_amount += $data1['total_amount'];
+           array_push($l_data, $data1);
+        }
+        
+        if($formdata["part_estimate_given"] > 0){
+           $data1 = array();
+           $data1['brand'] = $unit_details[0]['appliance_brand']; 
+           $data1['model_number'] = $unit_details[0]['model_number'];
+           $data1['service_type'] = "Part Charge";
+           $data1['taxable_value'] = $formdata["part_estimate_given"] + $formdata['around_part_commission'];
+           $data1['igst_rate'] = DEFAULT_TAX_RATE;
+           $data1['igst_tax_amount']  = (($formdata["part_estimate_given"] + $formdata['around_part_commission']) * DEFAULT_TAX_RATE)/100;
+         
+           $total_igst_tax_amount =  $total_igst_tax_amount + $data1['igst_tax_amount'];
+           $data1['total_amount'] = sprintf("%1\$.2f",($data1['igst_tax_amount'] + $formdata["part_estimate_given"] + $formdata['around_part_commission']));
+           $total_amount += $data1['total_amount'];
+           array_push($l_data, $data1);
+        }
+        $data['price_inword'] = convert_number_to_words(round($total_amount,0));
+        $data['taxable_value'] = sprintf("%1\$.2f",($unit_details[0]['customer_total']));
+        $data['igst_tax_amount'] = sprintf("%1\$.2f",($total_igst_tax_amount));
+        $data['total_amount'] = sprintf("%1\$.2f",($total_amount));
         $template = 'Estimate_Sheet.xlsx';
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -1402,6 +1512,14 @@ class Inventory extends CI_Controller {
                 'id' => 'estimate',
                 'repeat' => false,
                 'data' => $data,
+                'format' => array(
+                    'date' => array('datetime' => 'd/M/Y')
+                )
+            ),
+            array(
+                'id' => 'data',
+                'repeat' => TRUE,
+                'data' => $l_data,
                 'format' => array(
                     'date' => array('datetime' => 'd/M/Y')
                 )
@@ -1425,7 +1543,7 @@ class Inventory extends CI_Controller {
            
             if($pdf_response['response'] === 'Success'){
                 $output_pdf_file_name = $pdf_response['output_pdf_file'];
-                $attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/misc-images/' . $output_pdf_file_name;
+                $attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/jobcards-pdf/' . $output_pdf_file_name;
                 log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
             } else if($pdf_response['response'] === 'Error'){
                 
@@ -1434,7 +1552,7 @@ class Inventory extends CI_Controller {
            }
            
             $this->notify->sendEmail($emailtemplate[2], $emailtemplate[1], $emailtemplate[3], '', $subject, $emailtemplate[0], $attachement_url);
-
+           
             $this->inventory_model->update_zopper_estimate(array('id' => $id), array(
                 "estimate_sent" => 1,
                 "estimate_file" => $output_pdf_file_name,
@@ -1516,6 +1634,35 @@ class Inventory extends CI_Controller {
         } else {
             return true;
         }
+    }
+    
+    /**
+     * @desc: This function is used to get the last two month brackets order given to sf
+     * @param: void
+     * @return: JSON $response
+     */
+    function get_brackets_details(){
+        $where= array('order_given_to' => $this->input->post('sf_id'),
+                      'is_received' => 1,
+                      "received_date >= (DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 2 MONTH)" => NULL);
+        $data = $this->reusable_model->get_search_query('brackets',"DATE_FORMAT(received_date, '%b') AS month,SUM(26_32_received) as l_32,SUM(36_42_received) as g_32",$where,NULL,NULL,array('month'=> 'asc'),NULL,NULL,'month')->result_array();
+        $response = array();
+        if(!empty($data)){
+            foreach($data as $value){
+                switch ($value['month']){
+                    case date('M'):
+                        $response['cm_less_than_32'] = !empty($value['l_32'])?$value['l_32']:0;
+                        $response['cm_greater_than_32'] = !empty($value['g_32'])?$value['g_32']:0;
+                        break;
+                    case date("M", strtotime("last month")):
+                        $response['lm_less_than_32'] = !empty($value['l_32'])?$value['l_32']:0;
+                        $response['lm_greater_than_32'] =!empty($value['g_32'])? $value['g_32']:0;
+                        break;
+                }
+            }
+        }
+        
+        echo json_encode($response);
     }
 
 }

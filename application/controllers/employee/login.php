@@ -22,6 +22,7 @@ class Login extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library("session");
         $this->load->library('user_agent');
+        $this->load->library('notify');
     }
 
     /**
@@ -371,7 +372,7 @@ class Login extends CI_Controller {
        
         if ($agent) {
             //get partner details now
-            $partner_details = $this->partner_model->getpartner($agent[0]['entity_id'],FALSE);
+            $partner_details = $this->partner_model->getpartner($agent[0]['entity_id'],TRUE);
             if($partner_details){
                 $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
                         $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],0);
@@ -510,7 +511,119 @@ class Login extends CI_Controller {
             redirect(base_url() . "service_center/login");
         }
     }
+    
+    /**
+     * @desc: this function is used to reset the service center login details
+     * @param: void
+     * @return: void
+     */
+    function reset_service_center_login() {
+        $owner_email = $this->input->post('email');
+        $is_email_exist = $this->vendor_model->getVendorDetails('id,name,owner_name,primary_contact_name,sc_code', array('owner_email' => $owner_email));
+        if (!empty($is_email_exist)) {
+            $new_password = substr((strtolower(str_shuffle($is_email_exist[0]['name'] . $is_email_exist[0]['sc_code']))), 0, 6);
+            $new_login_details['clear_text'] = $new_password;
+            $new_login_details['password'] = md5($new_password);
+            $update = $this->vendor_model->update_service_centers_login(array('service_center_id' => $is_email_exist[0]['id']), $new_login_details);
+            if (!empty($update)) {
+                log_message('info', __METHOD__ . " Password Reset Successfully for " . $is_email_exist[0]['name']);
+                $rm_official_email = $this->vendor_model->get_rm_sf_relation_by_sf_id($is_email_exist[0]['id'])[0]['official_email'];
+                //Getting template from Database
+                $login_template = $this->booking_model->get_booking_email_template("reset_vendor_login_details");
+                if (!empty($login_template)) {
+                    
+                    $login_email['username'] = strtolower($is_email_exist[0]['sc_code']);
+                    $login_email['password'] = $new_login_details['clear_text'];
+                    
+                    $login_subject = $login_template[4];
+                    $login_emailBody = vsprintf($login_template[0], $login_email);
+                    
+                    $this->notify->sendEmail($login_template[2], $owner_email, $login_template[3]. "," . $rm_official_email, "",$login_subject, $login_emailBody, "");
+                    
+                    log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
+                } else {
+                    //Logging Error
+                    log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                }
+                
+                $userSession = array('success' => 'New login details has been send to your registered email.');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/login");
+            } else {
+                $userSession = array('error' => 'Error In Ressting Password. Please Try Again!!!');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/login");
+            }
+        } else {
+            $userSession = array('error' => 'Email Id does not exist.');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "service_center/login");
+        }
+    }
+    
+    /**
+     * @desc: this function is used to reset the partner login details
+     * @param: void
+     * @return: void
+     */
+    function process_reset_entity_password(){
+        $this->form_validation->set_rules('old_pw', 'Current Password', 'required|trim');
+        $this->form_validation->set_rules('new_pw', 'New Password', 'required|trim');
+        $this->form_validation->set_rules('re_new_pw', 'Reenter Password', 'required|trim');
+        if($this->form_validation->run() === false){
+            $msg = "Please Fill All The Details";
+            $this->session->set_userdata('error', $msg);
+            redirect(base_url() . 'employee/partner/reset_partner_password');
+        }else{
+            $old_pw = trim($this->input->post('old_pw'));
+            $new_pw = trim($this->input->post('new_pw'));
+            $re_new_pw = trim($this->input->post('re_new_pw'));
+            $entity_id = trim($this->input->post('entity_id'));
+            $entity = trim($this->input->post('entity_type'));
+            if($new_pw === $re_new_pw){
+                $agent = $this->dealer_model->entity_login(array('password' => md5($old_pw),'entity'=>$entity,'entity_id'=>$entity_id));
+                if(!empty($agent)){
+                    $data = array('password' => md5($new_pw),
+                              'clear_password' => $new_pw);
+                    $update = $this->partner_model->update_login_details($data,array('agent_id'=>$agent[0]['agent_id']));
+                    if(!empty($update)){
+                        //send email
+                        $login_template = $this->booking_model->get_booking_email_template("resend_login_details");
+                        if (!empty($login_template)) {
+                            $login_email['username'] = strtolower($agent[0]['user_id']);
+                            $login_email['password'] = $new_pw;
 
+                            $login_subject = $login_template[4];
+                            $login_emailBody = vsprintf($login_template[0], $login_email);
+                            $this->notify->sendEmail($login_template[2], $agent[0]['email'], $login_template[3], "",$login_subject, $login_emailBody, "");
+
+                            log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
+                        } else {
+                            //Logging Error
+                            log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                        }
+                        
+                        $msg = "Your password has been reset successfully.";
+                        $this->session->set_userdata('success', $msg);
+                        redirect(base_url() . 'employee/partner/reset_partner_password');
+                    }else{
+                        $msg = "Something went wrong. Please Try Again";
+                        $this->session->set_userdata('error', $msg);
+                        redirect(base_url() . 'employee/partner/reset_partner_password');
+                    }
+                }else{
+                    $msg = "Old Password does not match with any details. Please fill correct current password";
+                    $this->session->set_userdata('error', $msg);
+                    redirect(base_url() . 'employee/partner/reset_partner_password');
+                }
+            }else{
+                $msg = "New password does not match with reenter password";
+                $this->session->set_userdata('error', $msg);
+                redirect(base_url() . 'employee/partner/reset_partner_password');   
+            }
+        }
+
+    }
 
 }
 

@@ -23,6 +23,7 @@ class Partner extends CI_Controller {
         $this->load->model('service_centers_model');
         $this->load->model('penalty_model');
         $this->load->model("inventory_model");
+        $this->load->model("service_centre_charges_model");
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->library('form_validation');
@@ -298,7 +299,7 @@ class Partner extends CI_Controller {
                 // Send the request
                 $response = curl_exec($ch);
 
-                log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted error mgs" . print_r($response, true));
+                log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking response mgs" . print_r($response, true));
                 // Decode the response
                 $responseData = json_decode($response, TRUE);
 
@@ -803,9 +804,12 @@ class Partner extends CI_Controller {
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
+        $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
+       
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.document_description,collateral.file,collateral.start_date,collateral.end_date,collateral_type.collateral_type', array("entity_id" => $id, "entity_type" => "partner"), array("collateral_type" => "collateral_type.id=collateral.collateral_id"), NULL, NULL, NULL, NULL);
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
+        
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update'));
     }
@@ -986,6 +990,32 @@ class Partner extends CI_Controller {
                 $data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED;
 
                 $this->vendor_model->update_service_center_action($booking_id, $data_vendor);
+                //get the unit details data and update the inventory stock
+                $booking_unit_details = $this->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL),NULL, NULL, NULL, NULL, NULL)->result_array();
+                if (!empty($booking_unit_details)) {    
+                    //process each unit if price tag is wall mount
+                    foreach($booking_unit_details as $value){
+                        $match = array();
+                        //get the size from the capacity to know the part number
+                        preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                        if (!empty($match)) {
+                            if ($match[0] <= 32) {
+                                $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                            } else if ($match[0] > 32) {
+                                $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                            }
+
+                            $data['receiver_entity_id'] = $booking_data[0]['assigned_vendor_id'];
+                            $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                            $data['stock'] = 1;
+                            $data['booking_id'] = $booking_id;
+                            $data['agent_id'] = $this->session->userdata('agent_id');
+                            $data['agent_type'] = _247AROUND_PARTNER_STRING;
+
+                            $this->miscelleneous->process_inventory_stocks($data);
+                        }
+                    }
+                }
             }
 
             //Log this state change as well for this booking
@@ -1380,14 +1410,27 @@ class Partner extends CI_Controller {
                 $unit_details['ud_update_date'] = date('Y-m-d H:i:s');
                 $unit_details['booking_status'] = "Pending";
                 $customer_net_payable += ($explode[1] - $explode[2]);
-
-                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key);
+                
+                $agent_details['agent_id'] = $this->session->userdata('agent_id');
+                $agent_details['agent_type'] = _247AROUND_PARTNER_STRING;
+                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key,$agent_details);
                 array_push($updated_unit_id, $result['unit_id']);
             }
 
             if (!empty($updated_unit_id)) {
                 log_message('info', __METHOD__ . " UNIT ID: " . print_r($updated_unit_id, true));
-                $this->booking_model->check_price_tags_status($booking_id, $updated_unit_id);
+                $sf_id = $this->reusable_model->get_search_query('booking_details','assigned_vendor_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+                if(!empty($sf_id)){
+                    $inventory_details = array('receiver_entity_id' => $sf_id[0]['assigned_vendor_id'],
+                                                'receiver_entity_type' => _247AROUND_SF_STRING,
+                                                'stock' => 1,
+                                                'agent_id' => $this->session->userdata('agent_id'),
+                                                'agent_type' => _247AROUND_PARTNER_STRING,
+                                                );
+                }else{
+                    $inventory_details = array();
+                }
+                $this->booking_model->check_price_tags_status($booking_id, $updated_unit_id,$inventory_details);
             }
 
             $booking_details['amount_due'] = $post['amount_due'];
@@ -1415,6 +1458,8 @@ class Partner extends CI_Controller {
                     $sc_data['internal_status'] = _247AROUND_PENDING;
                     $booking_details['cancellation_reason'] = NULL;
                     $booking_details['closed_date'] = NULL;
+                    
+                    $booking_details['internal_status'] = "Booking Opened From Cancelled";
 
                     $this->service_centers_model->update_service_centers_action_table($booking_id, $sc_data);
                 }
@@ -1576,6 +1621,16 @@ class Partner extends CI_Controller {
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                
+                $booking['internal_status'] = SPARE_PARTS_SHIPPED;
+        
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                }
+        
+                $this->booking_model->update_booking($booking_id, $booking);
 
                 $userSession = array('success' => 'Parts Updated');
                 $this->session->set_userdata($userSession);
@@ -1606,7 +1661,7 @@ class Partner extends CI_Controller {
             if (!empty($invoice_name)) {
                 $template = $this->booking_model->get_booking_email_template("OOW_invoice_sent");
                 if (!empty($template)) {
-                    $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/misc-images/" . $invoice_name;
+                    $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $invoice_name;
                     $subject = vsprintf($template[4], $booking_id);
                     $emailBody = vsprintf($template[0], $this->input->post("invoice_amount"));
                     $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment);
@@ -1816,7 +1871,7 @@ class Partner extends CI_Controller {
      * @desc: Partner acknowledge to receive defective spare parts
      * @param String $booking_id
      */
-    function acknowledge_received_defective_parts($booking_id, $is_cron = "") {
+    function acknowledge_received_defective_parts($booking_id, $partner_id, $is_cron = "") {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id);
 
         if (empty($is_cron)) {
@@ -1835,6 +1890,16 @@ class Partner extends CI_Controller {
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = _247AROUND_COMPLETED;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+            
+            $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED;
+        
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+            }
+            
+            $this->booking_model->update_booking($booking_id, $booking);
 
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
@@ -1878,6 +1943,17 @@ class Partner extends CI_Controller {
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = $rejection_reason;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+            
+            $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED;
+        
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], 
+                    $this->session->userdata('partner_id'), $booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+            }
+            
+            $this->booking_model->update_booking($booking_id, $booking);
 
             $userSession = array('success' => 'Defective Parts Rejected To SF');
             $this->session->set_userdata($userSession);
@@ -1906,7 +1982,7 @@ class Partner extends CI_Controller {
         $partner_type = $partner_data[0]['partner_type'];
         if ($partner_type == OEM) {
             //Getting Unique values of Brands for Particular Partner and service id
-            $where = array('partner_id' => $partner_id, 'service_id' => $service_id);
+            $where = array('partner_id' => $partner_id, 'service_id' => $service_id, "active" => 1);
             $data = $this->partner_model->get_partner_specific_details($where, "brand  As brand_name", "brand");
         } else {
             $data = $this->booking_model->getBrandForService($service_id);
@@ -1937,16 +2013,24 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         $brand = $this->input->post('brand');
         $partner_type = $this->input->post('partner_type');
-
-        if ($partner_type == OEM) {
-            //Getting Unique values of Category for Particular Partner ,service id and brand
-            $where = array('partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand);
-
-            $data = $this->partner_model->get_partner_specific_details($where, "category", "category");
+        
+        if($this->input->post('is_mapping')){
+            $where = array("service_id" => $service_id);
+               
+            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "category","category");
         } else {
-            $data = $this->booking_model->getCategoryForService($service_id, $partner_id, "");
-        }
-
+            $where_in = array();
+            
+            if($partner_type == OEM){
+                
+                $where_in = array("brand" => $brand);
+            }
+            $where = array('partner_id' => $partner_id, 'service_id' => $service_id);
+            
+            
+            $data = $this->service_centre_charges_model->get_service_caharges_data("category", $where,"category", $where_in);
+        } 
+ 
         $option = "";
         foreach ($data as $value) {
             $option .= "<option ";
@@ -1974,16 +2058,24 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         $appliance_capacity = $this->input->post('capacity');
         $partner_type = $this->input->post('partner_type');
-
-        if ($partner_type == OEM) {
-            //Getting Unique values of Category for Particular Partner ,service id and brand
-            $where = array('partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand, 'category' => $category);
-            $select = "capacity";
-            $data = $this->partner_model->get_partner_specific_details($where, $select, "capacity");
+        
+        if($this->input->post("is_mapping")){
+            
+            $where = array("service_id" => $service_id);
+            $where_in = array("category" => $category);
+            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity","capacity");
         } else {
-            $data = $this->booking_model->getCapacityForCategory($service_id, $category, "", $partner_id);
+            
+            $where_in = array("category" => $category);
+            if($partner_type == OEM){
+                $where_in['brand'] = $brand;
+            }
+            $where = array('partner_id' => $partner_id, 'service_id' => $service_id);
+             
+            
+            $data = $this->service_centre_charges_model->get_service_caharges_data("capacity", $where,"capacity", $where_in);
         }
-
+        
         $capacity = "";
         foreach ($data as $value) {
 
@@ -2017,7 +2109,7 @@ class Partner extends CI_Controller {
 
         if ($partner_type == OEM) {
             //Getting Unique values of Model for Particular Partner ,service id and brand
-            $where = array("partner_id" => $partner_id, 'service_id' => $service_id, 'brand' => $brand, 'category' => $category, 'capacity' => $capacity);
+            $where = array("partner_id" => $partner_id, 'service_id' => $service_id, 'brand' => $brand, 'category' => $category, 'active'=> 1, 'capacity' => $capacity);
 
             $data = $this->partner_model->get_partner_specific_details($where, "model", "model");
         } else {
@@ -2418,23 +2510,24 @@ class Partner extends CI_Controller {
         if (!empty($data)) {
             if ($data[0]['upcountry_partner_approved'] == 0 & empty($data[0]['assigned_vendor_id'])) {
                 log_message('info', __FUNCTION__ . " => On Approval Booking Id" . $booking_id);
-                $this->booking_model->update_booking($booking_id, array('upcountry_partner_approved' => '1'));
-
+                
                 if ($status == 0) {// means request from mail
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
                     $partner_id = _247AROUND;
                     $type = " Email";
+                    $agent_type = _247AROUND_EMPLOYEE_STRING;
                 } else {
                     $agent_id = $this->session->userdata('agent_id');
                     $agent_name = $this->session->userdata('partner_name');
                     $partner_id = $this->session->userdata('partner_id');
                     $type = " Panel";
+                    $agent_type = _247AROUND_PARTNER_STRING;
                 }
                 // Insert log into booking state change
                 $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, $partner_id);
 
-                $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id);
+                $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id,$agent_id,$agent_type);
                 if ($assigned) {
 
                     log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
@@ -2862,7 +2955,7 @@ class Partner extends CI_Controller {
 
                 //update acknowledge
                 foreach ($defective_parts_acknowledge_data as $value) {
-                    $this->acknowledge_received_defective_parts($value['booking_id'], true);
+                    $this->acknowledge_received_defective_parts($value['booking_id'], $partner['id'], true);
                 }
 
                 $this->table->set_heading('Booking Id', 'Defective Part Shipped Date');
@@ -3275,12 +3368,83 @@ class Partner extends CI_Controller {
         }
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
     }
+    /**
+     * @desc This function is used to map brand to partner (Appliance Wise)
+     */
+    function process_partner_brand_mapping() {
+        $partner_id = $this->input->post("partner_id");
+        $services = $this->vendor_model->selectservice();
+        //Partner id should not be empty
+        if (!empty($partner_id)) {
+            $formdata = $this->input->post();
+            // index brand of array hould not be empty
+            if (!empty($formdata['brand'])) {
+                $data = array();
+                foreach ($services as $value) {
+                    // checking, array has service id as a key 
+                    if (array_key_exists($value->id, $formdata['brand'])) {
+                        $where = array("partner_id" => $partner_id, "service_id" => $value->id);
+                        $existingdata = $this->partner_model->get_partner_specific_details($where, "brand");
+                        $existing = array_column($existingdata, 'brand');
+                        //checking all brand from form has in the db , if not the push in the new array else activate brand
+                        foreach ($formdata['brand'][$value->id] as $brand) {
+                            if (!empty($existingdata)) {
+                                if (in_array($brand, $existing)) {
+                                    $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id, "brand" => $brand,
+                                        "service_id" => $value->id), array("active" => 1));
+                                } else {
+                                    array_push($data, array("partner_id" => $partner_id, "active" => 1, "service_id" => $value->id,
+                                        "brand" => $brand, "create_date" => date("Y-m-d H:i:s")));
+                                }
+                            } else {
+                                array_push($data, array("partner_id" => $partner_id, "active" => 1, "service_id" => $value->id,
+                                    "brand" => $brand, "create_date" => date("Y-m-d H:i:s")));
+                            }
+                        }
+                        //checking existing brand exist in the form brand array
+                        foreach ($existing as $value2) {
 
-    function get_partner_updation_history_view() {
-        $data['updation_history'] = $this->miscelleneous->table_updated_history_view('partners', 'trigger_partners');
-        $data['entity'] = "Partner";
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/updated_history', $data);
+                            if (!in_array($value2, $formdata['brand'][$value->id])) {
+
+                                $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id,
+                                    "service_id" => $value->id, "brand" => $value2), array("active" => 0));
+                            }
+                        }
+                    } else {
+                        $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id, "service_id" => $value->id), array("active" => 0));
+                    }
+                }
+                if (!empty($data)) {
+                    // Inert Partner Appliance Details
+                    $this->partner_model->insert_batch_partner_brand_relation($data);
+                    foreach($data as $b_value){
+                        $is_exits = $this->booking_model->check_brand_exists($b_value['service_id'], trim($b_value["brand"]));
+                        if (!$is_exits) {
+                            // Add new Brand in appliance brand table
+                           $this->booking_model->addNewApplianceBrand($b_value['service_id'], trim($b_value["brand"]));
+                           
+                        }
+                    }
+                }
+            } else {
+                //De- Activate this partner in partner_appliace_description
+                $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id), array("active" => 0));
+            }
+            $msg = "Partner Brand has been Updated Successfully";
+            $this->session->set_userdata('success', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+        }
+    }
+    
+    /**
+     * @desc: this function is used to reset the partner login details
+     * @param: void
+     * @return: void
+     */
+    function reset_partner_password(){
+        $this->checkUserSession();
+        $this->load->view('partner/header');
+        $this->load->view('partner/reset_partner_passsword');
     }
 
 }

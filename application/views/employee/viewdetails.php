@@ -114,8 +114,8 @@
                             <tr>
                                 <th>Booking Address: </th>
                                 <td><?php echo $booking_history[0]['booking_address'];?></td>
-                                 <th>Booking City: </th>
-                                <td><?php echo $booking_history[0]['city']; ?></td>
+                                 <th>Booking City/District: </th>
+                                <td><?php echo ($booking_history[0]['city']."/".$booking_history[0]['district']); ?></td>
                             </tr>
                           
                             <tr>
@@ -341,9 +341,8 @@
                         </table>
                     </div>
                     <?php } ?>
-
-
-                    <?php if(isset($booking_history['spare_parts'])){ $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
+                                    
+                    <?php if(isset($booking_history['spare_parts'])){ $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
 
                     <div class="col-md-12">
 
@@ -360,7 +359,6 @@
                                     <th >Defective Part Image </th>
                                     <th >Serial Number</th>
                                     <th >Acknowledge Date BY SF </th>
-                                    <th >Estimate Given </th>
                                     <th >Remarks By SC </th>
                                     <th >Current Status </th>
                                 </tr>
@@ -371,25 +369,61 @@
                                 <tr>
                                     <td><?php echo $sp['model_number']; ?></td>
                                     <td><?php echo $sp['parts_requested']; ?></td>
-                                    <td><?php echo $sp['create_date']; ?></td>
+                                    <td><?php echo date("d-m-Y", strtotime($sp['create_date'])); ?></td>
                                     <td><?php if(!is_null($sp['invoice_pic']) ) { if($sp['invoice_pic'] != '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php } } ?></td>
                                     <td><?php if(!is_null($sp['serial_number_pic'])) { if( $sp['serial_number_pic'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['serial_number_pic'];  ?> " target="_blank">Click Here to view Serial Number Image</a><?php } } ?></td>
                                     <td><?php if(!is_null($sp['defective_parts_pic']) ) { if($sp['defective_parts_pic'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_pic'];  ?> " target="_blank">Click Here to view Defective Part Image</a><?php } } ?></td>
                                     <td><?php echo $sp['serial_number']; ?></td>
                                     <td><?php echo $sp['acknowledge_date']; ?></td>
-                                    <td><?php echo $sp['purchase_price']; ?></td>
                                     <td><?php echo $sp['remarks_by_sc']; ?></td>
                                     <td><?php echo $sp['status']; ?></td>
                                 </tr>
                                      <?php  if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
                                          $defective_parts_shipped = TRUE;
-                                     } } ?>
+                                     } if($sp['purchase_price'] > 0){ $estimate_given = TRUE; } } ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
+                    <?php 
+                    if($estimate_given){ ?>
+                         <div class="col-md-12">
 
+                        <h1 style='font-size:24px;'>Estimate Given By Partner</h1>
+                        <div class="col-md-12" style="padding-left:1px;">
+                            <table class="table  table-striped table-bordered" >
+                                <thead>
+                                    <tr>
+                                  
+                                    <th >Estimate Given</th>
+                                    <th >Sell Price </th>
+                                    <th >Estimate Invoice</th>
+                                    <th >Estimate Given Date </th>
+                                    <th >Status </th>
+                                    
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                     <?php foreach ($booking_history['spare_parts'] as $sp){ if($sp['purchase_price'] > 0) { ?>
+                                <tr>
+                                   
+                                    <td><?php echo $sp['purchase_price']; ?></td>
+                                    <td><?php echo $sp['sell_price']; ?></td>
+                                    <td><?php if(!is_null($sp['incoming_invoice_pdf'])) { if( $sp['incoming_invoice_pdf'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $sp['incoming_invoice_pdf'];  ?> " target="_blank">Click Here</a><?php } } ?></td>
+                                    <td><?php if(!empty($sp['estimate_cost_given_date'])){ echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
+                                    
+                                    <td><?php echo $sp['status']; ?></td>
+                                </tr>
+                                     <?php  } } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> 
+                   <?php  }
+                    
+                    ?>
                      <?php if($parts_shipped){ ?>
                     <div class="col-md-12">
                         <h1 style='font-size:24px;'>Spare Parts Shipped By Partner</h1>

@@ -18,6 +18,7 @@
         <link href="<?php echo base_url()?>css/daterangepicker.css" rel="stylesheet">
         <!-- Custom Fonts -->
         <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href="https://cdn.datatables.net/buttons/1.4.0/css/buttons.dataTables.min.css" rel="stylesheet">
         <script src="<?php echo base_url()?>js/jquery.js"></script>
          <!-- Load jQuery UI Main CSS-->
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
@@ -39,14 +40,22 @@
         <script type="text/javascript" src="<?php echo base_url()?>js/plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net/js/jquery.dataTables.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-
         <script src="<?php echo base_url()?>assest/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
         <script src="<?php echo base_url()?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+        <script src='https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js'></script>
+        <script src='//cdn.datatables.net/buttons/1.2.1/js/buttons.flash.min.js'></script>
+        <script src='//cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js'></script>
+        <script src='//cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js'></script>
+        <script src='//cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js'></script>
+        <script src='//cdn.datatables.net/buttons/1.2.1/js/buttons.html5.min.js'></script>
+        <script src='//cdn.datatables.net/buttons/1.2.1/js/buttons.print.min.js'></script>
+        <script src='https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js'></script>
         <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
         <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
 
         <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
+        <script src="<?php echo base_url();?>/js/moment.min.js"></script>
            <script src="<?php echo base_url()?>js/daterangepicker.js"></script>
         <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
         <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
@@ -85,10 +94,10 @@
                             <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/p_av"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries (Pincode Available)</a></strong>
                         </li>
                         <li class="divider"></li>
-                        <li >
+<!--                        <li >
                             <a href="<?php echo base_url() ?>employee/booking/get_missed_calls_view"><i class="fa fa-fw fa-desktop"></i> <strong> Missed Calls</strong></a>
                         </li>
-                        <li class="divider"></li>
+                        <li class="divider"></li>-->
                         <li>
                             <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/p_nav"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries (Pincode Not Available)</a></strong>
                         </li>
@@ -113,10 +122,10 @@
                             <a href="<?php echo base_url() ?>employee/inventory/get_spare_parts"><i class="fa fa-fw fa-desktop"></i> <strong> Spare Parts Booking</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/booking/get_oow_booking"><i class="fa fa-fw fa-desktop"></i> <strong> OOW Booking</strong></a>
-                        </li>
-                        <li class="divider"></li>
+    <!--                        <li>
+                                <a href="<?php echo base_url() ?>employee/booking/get_oow_booking"><i class="fa fa-fw fa-desktop"></i> <strong> OOW Booking</strong></a>
+                            </li>
+                            <li class="divider"></li>-->
                         <li>
                             <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>Completed Booking</strong></a>
                         </li>
@@ -125,10 +134,10 @@
                             <a href="<?php echo base_url() ?>employee/booking/view_bookings_by_status/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong>Cancelled Booking</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li>
+<!--                        <li>
                             <a href="<?php echo base_url() ?>employee/booking/get_pending_booking_by_partner_id"><i class="fa fa-fw fa-desktop"></i> <strong>Repair Bookings</strong></a>
                         </li>
-                        <li class="divider"></li>
+                        <li class="divider"></li>-->
                         <li >
                             <a href="<?php echo base_url() ?>employee/vendor/get_assign_booking_form"><i class="fa fa-fw fa-desktop"></i> <strong>Assign Vendor</strong></a>
                         </li>
@@ -138,10 +147,10 @@
                             <a href="<?php echo base_url()?>employee/booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                         </li>
                          <li class="divider"></li>
-                        <li>
+<!--                        <li>
                             <a href="<?php echo base_url()?>employee/booking/auto_assigned_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Auto Assigned Booking</strong></a>
                         </li>         
-                         <li class="divider"></li>
+                         <li class="divider"></li>-->
                         <li>
                             <a href="<?php echo base_url()?>employee/upcountry/get_waiting_for_approval_upcountry_charges"><i class="fa fa-fw fa-desktop"></i> <strong>Waiting to Approve Upcountry Booking</strong></a>
                         </li>
@@ -194,13 +203,17 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/vendor_availability_form"><i class="fa fa-fw fa-desktop "></i> <strong> Search Service Centre</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
+<!--                        <li class="divider"></li>-->
+<!--                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_add_vendor_to_pincode_form"><i class="fa fa-fw fa-desktop "></i> <strong>Add Vendor Pincode Mapping</strong></a>
                         </li>
+                        <li class="divider"></li>-->
+<!--                        <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/process_vendor_pincode_delete_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
+                        </li>-->
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/vendor/process_vendor_pincode_delete_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
+                            <a href="<?php echo base_url()?>employee/upcountry/get_distance_between_pincodes_form"><i class="fa fa-fw fa-desktop "></i> <strong>Update Pincode Distance</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
@@ -224,7 +237,7 @@
                 </li>
                 
                 <!-- /.dropdown -->
-                <li class="dropdown">
+<!--                <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     Appliances <i class="fa fa-caret-down"></i>
                     </a>
@@ -234,8 +247,8 @@
                             <a href="<?php echo base_url() ?>employee/booking/get_add_new_brand_form"><i class="fa fa-fw fa-desktop"></i> <strong> Add New Brand</strong></a>
                         </li>
                     </ul>
-                    <!-- /.dropdown-user -->
-                </li>
+                     /.dropdown-user 
+                </li>-->
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -282,10 +295,10 @@
                             <a href="<?php echo base_url()?>BookingSummary/show_reports_chart" ><i class="fa fa-fw fa-desktop"></i> <strong> RM Performance Stats</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li>
+<!--                        <li>
                             <a href="<?php echo base_url()?>employee/vendor/vendor_performance_view"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Performance</strong></a>
                         </li>
-                        <li class="divider"></li>
+                        <li class="divider"></li>-->
                         <li>
                             <a href="<?php echo base_url()?>employee/user/get_user_count_view" ><i class="fa fa-fw fa-desktop"></i> <strong> Bookings</strong></a>
                         </li>
@@ -317,10 +330,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/inventory/show_brackets_list"><i class="fa fa-fw fa-desktop "></i> <strong>Show Brackets List</strong></a>
                         </li>
-                        <li class="divider"></li>
-                        <li>
+                        <!-- <li class="divider"></li>
+                       <li>
                             <a href="<?php echo base_url()?>employee/inventory/get_vendor_inventory_list_form"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Inventory Details</strong></a>
-                        </li>
+                        </li>-->
                         
                     </ul>
                     <!-- /.dropdown-user -->

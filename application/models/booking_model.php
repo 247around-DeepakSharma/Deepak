@@ -9,6 +9,25 @@ class Booking_model extends CI_Model {
         parent::__Construct();
         $this->load->model('reusable_model');
     }
+
+    /**
+     *  @desc : This function is to add new brand to our database for a service.
+     *
+     *  This helps to add any new brand found(told by customer) for any
+     *      service(like for Television, Refrigerator, etc)
+     *
+     *  @param : service id and new brand
+     *  @return : void
+     */
+    function addNewApplianceBrand($service_id, $newbrand) {
+        $data = array(
+            'service_id'=>$service_id,
+            'brand_name'=>$newbrand
+        );
+        
+        $this->db->insert('appliance_brands',$data);
+        return $this->db->insert_id();
+    }
     
     // Update Price in unit details
     function update_price_in_unit_details($data, $unit_details){
@@ -159,41 +178,6 @@ class Booking_model extends CI_Model {
 
         return $this->db->insert_id();
     }
-
-    /**
-     *  @desc : This function converts a Completed/Cancelled Booking into Pending booking
-     * and schedules it to new booking date & time.
-     *
-     *  @param : String $booking_id Booking Id
-     *  @param : Array $data New Booking Date and Time
-     *  @param : current_status
-     *  @return :
-     */
-    function convert_booking_to_pending($booking_id, $data, $status) {
-    // update booking details
-    $this->db->where(array('booking_id' => $booking_id, 'current_status' => $status));
-    $this->db->update('booking_details', $data);
-    //update unit details
-    $this->db->where('booking_id', $booking_id);
-    $this->db->update('booking_unit_details', array('booking_status' => '' ));
-    // get service center id
-    $this->db->select('assigned_vendor_id');
-    $this->db->where('booking_id', $booking_id);
-    $query = $this->db->get('booking_details');
-    if($query->num_rows >0){
-        $result = $query->result_array();
-
-        $service_center_data['internal_status'] = "Pending";
-        $service_center_data['current_status'] = "Pending";
-        $service_center_data['update_date'] = date("Y-m-d H:i:s");
-        //update service center action table
-        $this->db->where('booking_id', $booking_id);
-        $this->db->where('service_center_id', $result[0]['assigned_vendor_id']);
-        $this->db->update('service_center_booking_action', $service_center_data);
-    }
-
-    }
-     
     
     /**
      * @Desc: This function is used to get the partner status from partner_status table
@@ -709,7 +693,7 @@ class Booking_model extends CI_Model {
         $partner_name = "";
         if($join !=""){
             $service_center_name = ",service_centres.name as vendor_name, service_centres.min_upcountry_distance, service_centres.district as sc_district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, "
-		. "service_centres.primary_contact_name, service_centres.owner_email,service_centres.owner_name, "
+		. "service_centres.primary_contact_name, service_centres.owner_email,service_centres.owner_name, gst_no, "
 		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, service_centres.primary_contact_email,service_centres.owner_phone_1, service_centres.phone_1 ";
 	    $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
@@ -1020,25 +1004,6 @@ class Booking_model extends CI_Model {
 
             $this->db->query($sql2, $appl[$i]);
         }
-    }
-
-    /**
-     *  @desc : This function is to add new brand to our database for a service.
-     *
-     *  This helps to add any new brand found(told by customer) for any
-     *      service(like for Television, Refrigerator, etc)
-     *
-     *  @param : service id and new brand
-     *  @return : void
-     */
-    function addNewApplianceBrand($service_id, $newbrand) {
-        $data = array(
-            'service_id'=>$service_id,
-            'brand_name'=>$newbrand
-        );
-        
-        $this->db->insert('appliance_brands',$data);
-        return $this->db->insert_id();
     }
     
     /**
@@ -1430,14 +1395,12 @@ class Booking_model extends CI_Model {
      * @param: void
      * @return: Array of charges
      */
-    function get_booking_for_review($booking_id) {
-       
-        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id);
+    function get_booking_for_review($booking_id,$whereIN=array()) {
+        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$whereIN);
         foreach ($charges as $key => $value) {
             $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id']);
         }
-
         return $charges;
     }
 
@@ -1481,21 +1444,21 @@ class Booking_model extends CI_Model {
      * @param: void
      * @return: void
      */
-    function review_reschedule_bookings_request(){
-
+    function review_reschedule_bookings_request($whereIN=array()){
         $this->db->select('distinct(service_center_booking_action.booking_id),assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
-
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id');
         $this->db->where('service_center_booking_action.internal_status', "Reschedule");
-
+         if(!empty($whereIN)){
+             foreach ($whereIN as $fieldName=>$conditionArray){
+                     $this->db->where_in($fieldName, $conditionArray);
+             }
+         }
         $query = $this->db->get();
-
         $result = $query->result_array();
-
         return $result;
     }
 
@@ -1520,9 +1483,9 @@ class Booking_model extends CI_Model {
 
     }
 
-    function check_price_tags_status($booking_id, $unit_id_array){
+    function check_price_tags_status($booking_id, $unit_id_array,$inventory_details){
         
-        $this->db->select('id, price_tags');
+        $this->db->select('id, price_tags,appliance_capacity');
         $this->db->like('booking_id', $booking_id);
         $this->db->where_not_in('id', $unit_id_array);
         $query = $this->db->get('booking_unit_details');
@@ -1531,6 +1494,28 @@ class Booking_model extends CI_Model {
             foreach ($result as $value) {
                 $this->db->where('id', $value['id']);
                 $this->db->delete('booking_unit_details');
+                //process inventory stock for each unit if price tag is wall mount
+                if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG && !empty($inventory_details)) {
+                    $match = array();
+                    //get the size from the capacity to know the part number
+                    preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                    if (!empty($match)) {
+                        if ($match[0] <= 32) {
+                            $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                        } else if ($match[0] > 32) {
+                            $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                        }
+                        
+                        $data['receiver_entity_id'] = $inventory_details['receiver_entity_id'];
+                        $data['receiver_entity_type'] = $inventory_details['receiver_entity_type'];
+                        $data['stock'] = $inventory_details['stock'];
+                        $data['booking_id'] = $booking_id;
+                        $data['agent_id'] = $inventory_details['agent_id'];
+                        $data['agent_type'] = $inventory_details['agent_type'];
+                        
+                        $this->miscelleneous->process_inventory_stocks($data);
+                    }
+                }
             }
         }
        
@@ -1576,7 +1561,7 @@ class Booking_model extends CI_Model {
      * @param: Array
      * @return: Price tags.
      */
-    function update_booking_in_booking_details($services_details, $booking_id, $state, $update_key){
+    function update_booking_in_booking_details($services_details, $booking_id, $state, $update_key,$agent_details){
 
         $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
@@ -1636,6 +1621,11 @@ class Booking_model extends CI_Model {
                     $this->db->insert('booking_unit_details', $result);
                     $u_unit_id = $this->db->insert_id();
                     log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
+                    //process inventory stock for each unit if price tag is wall mount
+                    if($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG){
+                        $this->process_inventory($result,$agent_details);
+                    }
+                    
                 } else {
                     //$this->db->where('booking_id',  $booking_id);
                     if (empty($unit_num[0]['price_tags'])) {
@@ -1647,12 +1637,20 @@ class Booking_model extends CI_Model {
                         $this->db->insert('booking_unit_details', $result);
                         $u_unit_id = $this->db->insert_id();
                         log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
+                        //process inventory stock for each unit if price tag is wall mount
+                        if($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG){
+                            $this->process_inventory($result,$agent_details);
+                        }
                     }
                 }
             } else {
                 $this->db->insert('booking_unit_details', $result);
                 $u_unit_id = $this->db->insert_id();
                 log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
+                //process inventory stock for each unit if price tag is wall mount
+                if($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG){
+                    $this->process_inventory($result,$agent_details);
+                }
             }
         }
         $return_details['unit_id'] = $u_unit_id;
@@ -1788,8 +1786,8 @@ class Booking_model extends CI_Model {
         return $new_unit_id;
     }
 
-    function get_brand($where){
-        $this->db->select('*');
+    function get_brand($where, $select = "*"){
+        $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get('appliance_brands');
 
@@ -1926,12 +1924,18 @@ class Booking_model extends CI_Model {
      * @param : booking_primary_contact_no
      * @return : array of booking details
      */
-    function get_spare_parts_booking($limit, $start){
+    function get_spare_parts_booking($limit, $start, $vendor_id = array()){
         if($limit == "All"){
             $select = "count(spare_parts_details.booking_id) as count";
         } else {
             $select = "spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, service_centres.name as sc_name, bookings_sources.source, booking_details.current_status";
-            $this->db->limit($limit, $start);
+            if($limit != -1){
+                $this->db->limit($limit, $start);
+            }
+            
+        }
+        if(!empty($vendor_id)){
+            $this->db->where_in("assigned_vendor_id", $vendor_id);
         }
         $this->db->select($select);
         $this->db->from('spare_parts_details'); 
@@ -1940,8 +1944,7 @@ class Booking_model extends CI_Model {
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id');
         $this->db->join('bookings_sources','bookings_sources.partner_id = booking_details.partner_id');
         $this->db->where_in("current_status", array("Pending","Rescheduled"));
-        $this->db->order_by('spare_parts_details.create_date', 'desc');
-        
+        $this->db->order_by('spare_parts_details.create_date', 'desc');  
         $query = $this->db->get();
       
         return $query->result_array();
@@ -2146,10 +2149,13 @@ class Booking_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-    function get_bookings_by_status($post, $select = "") {
+    function get_bookings_by_status($post, $select = "",$sfIDArray=array()) {
         $this->_get_bookings_by_status($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
+        }
+        if($sfIDArray){
+            $this->db->where_in('booking_details.assigned_vendor_id', $sfIDArray);
         }
         $query = $this->db->get();
         return $query->result();
@@ -2161,7 +2167,17 @@ class Booking_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_bookings_by_status($post){
+        $sfIDArray =array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
         $this->_get_bookings_by_status($post,'count(distinct(booking_details.booking_id)) as numrows');
+        if($sfIDArray){
+            $this->db->where_in('booking_details.assigned_vendor_id', $sfIDArray);
+        }
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -2324,9 +2340,41 @@ class Booking_model extends CI_Model {
         $this->db->insert('email_sent', $data);
         return $this->db->insert_id();
     }
-    function pincode_not_found_relevent_data($sql){
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
     
+    /**
+     * @desc This function is used to update the inventory stock
+     * @param array $result
+     * @param array $agent_details
+     */
+    function process_inventory($result,$agent_details) {
+        /* check if booking is assigned to sf
+         * if booking is assigned then update the inventory stock
+         * else do not perform any action on inventory
+         */
+        $sf_id = $this->reusable_model->get_search_query('booking_details', 'assigned_vendor_id', array('booking_id' => $result['booking_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+        if (!empty($sf_id)) {
+            $match = array();
+            preg_match('/[0-9]+/', $result['appliance_capacity'], $match);
+            if (!empty($match)) {
+                if ($match[0] <= 32) {
+                    $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                } else if ($match[0] > 32) {
+                    $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                }
+
+                $data['receiver_entity_id'] = $sf_id[0]['assigned_vendor_id'];
+                $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                $data['stock'] = -1;
+                $data['booking_id'] = $result['booking_id'];
+                $data['agent_id'] = $agent_details['agent_id'];
+                $data['agent_type'] = $agent_details['agent_type'];
+
+                $this->miscelleneous->process_inventory_stocks($data);
+            }
+        }
+    }
+
 }
+    
+    
+

@@ -123,7 +123,7 @@
                         <input type="hidden" name="partner_order_key" value="" id="partner_order_key">
                         <input type="hidden" name="cp_id" value="<?php echo $cp_id; ?>" id="cp_id">
                         <input type="hidden" name = "cp_basic_charge" value="<?php echo round($cp_basic_charge[0]['cp_basic_charge']); ?>" id="cp_basic_charge">
-                        <input type="submit" class="btn btn-success" id="submit" value="Submit">
+                        <input type="submit" onclick="show_loading()" class="btn btn-success" id="submit" value="Submit">
                     </div>
                 </div>
             </div>
@@ -309,7 +309,24 @@
            return true;
         }
         
+        function show_loading(){
+           
+          $('body').loadingModal({
+            position: 'auto',
+            text: 'Loading Please Wait...',
+            color: '#fff',
+            opacity: '0.7',
+            backgroundColor: 'rgb(0,0,0)',
+            animation: 'wave'
+          });
+             $("#submit").button('loading');
+            return true;
+        }
+        
 </script>
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+
+<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <?php 
 $this->session->unset_userdata('success');
 $this->session->unset_userdata('error');

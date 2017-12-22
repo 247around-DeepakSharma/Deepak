@@ -188,6 +188,8 @@ define("JEEEVES_ID", 247030);
 define("WYBOR_ID", 247010);
 //ZOPPER ID
 define("ZOPPER_ID", 247012);
+//AKAI ID
+define("AKAI_ID", 247034);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
 //Define Email ID to send system health emails
@@ -209,6 +211,8 @@ define('_247AROUND_SNAPDEAL_SHIPPED','Snapdeal-Shipped');
 define('_247AROUND_PAYTM_DELIVERED','Paytm-Delivered');
 //Define Constant for Satya File 
 define('_247AROUND_SATYA_DELIVERED','Satya-Delivered');
+//Define Constant for Akai File 
+define('_247AROUND_AKAI_DELIVERED','Akai-Delivered');
 //Define Constant for Vendor Pincode Excel File Type
 define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 //Define Constant for Vendor Pincode Excel File Type
@@ -351,6 +355,7 @@ define('RATING_NEW_STATE','Completed_With_Rating');
 define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com, arunk@247around.com");
 
 //Email IDs when SF is not found in Vendor Pincode Mapping file
+define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "");
 
 
@@ -369,6 +374,7 @@ define('PARTNER_INVOICE_DETAILED_EMAIL_TAG','partner_invoice_detailed');
 define('CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG','cash_details_invoices_for_vendors');
 define("BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG", "buyback_details_invoices_for_vendors");
 define('FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG','foc_details_invoices_for_vendors');
+define('NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG','negative_foc_invoice_for_vendors');
 define('BRACKETS_INVOICE_EMAIL_TAG','send_brackets_invoice_mail');
 define('DRAFT_BRACKETS_INVOICE_EMAIL_TAG','send_draft_brackets_invoice_mail');
 define('CRM_SETUP_INVOICE_EMAIL_TAG','crm_setup_invoice');
@@ -411,9 +417,6 @@ define('SHOP_ADDRESS_ACTIVATED','Shop Address Activated');
 define('BB_CP_ADDRESS','CP_ADDRESS');
 
 define('CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER','Customer not visited to service center');
-define("HSN_CODE", "998715");
-define("STAND_HSN_CODE", "8302");
-
 
 define('_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN', 'Broken');
 define('CLAIM_APPROVED','Claim Approved');
@@ -422,6 +425,7 @@ define('CLAIM_SETTLED','Claim Settled');
 
 define('BUYBACK_VOUCHER','Buyback_Voucher');
 define('PARTNER_VOUCHER','Partner_Voucher');
+define('VENDOR_VOUCHER','Vendor_Voucher');
 
 define('CLAIM_DEBIT_NOTE_RAISED','Claim Debit Note Raised');
 
@@ -451,7 +455,7 @@ define('SMS_DEACTIVATION_PASSWORD','chhavid247');
 define('SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS','-1 day');
 define('SMS_DEACTIVATION_EMAIL_SUBJECT','has requested for opt-out!');
 define('SMS_DEACTIVATION_NO_NEW_REQUEST_MSG','There is not any new request');
-
+define('PREPAID_DEACTIVATED_MSG_FOR_PARTNER','Your Account is De-Activated');
 define('PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER','Your Credit is low. Add credit');
 define('PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN','Your Credit is low. Add credit');
 define('PREPAID_LOW_AMOUNT_MSG_FOR_DEALER','Your Credit is low. Add credit');
@@ -461,7 +465,6 @@ define("PARTNER_INVOICE_BUTTON", "CRM Setup Invoice");
 define("CT_INVOICE_BUTTON", "Sweetener Invoice");
 define("QC_INVOICE_DESCRIPTION", "Service Charges for QC");
 define("CRM_SETUP_INVOICE_DESCRIPTION", "Annual Setup Charges");
-define("QC_HSN_CODE", 998397);
 
 define("TAT_BREACH_DAYS", "-45 days");
 
@@ -476,6 +479,7 @@ define('SPARE_OOW_EST_GIVEN','Spare Estimate Cost Given');
 define('SPARE_OOW_EST_MARGIN','0.25');
 define('REPAIR_OOW_PARTS_PRICE_TAGS','Spare Parts');
 define('REPAIR_OOW_VENDOR_PERCENTAGE','10');
+define('REPAIR_OOW_AROUND_PERCENTAGE','0.15');
 
 define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
 define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
@@ -518,13 +522,9 @@ define("ESTIMATE_APPROVED_BY_CUSTOMER", "Spare Estimate Approved By Customer");
 //missing_pincode_email
 define("MISSING_PINCODE_EMAIL_TO", "ayush.bafna@paytmmall.com, sales@247around.com, rohit1.verma@paytm.com, simranpreet.sawhney@paytm.com, ankur.sethi@paytm.com, shivam.awasthi@paytm.com, nits@247around.com, ashish.singh@paytm.com, simranpreet.sawhney@paytmmall.com, aditya1.agrawal@paytmmall.com");
 
-define("COMMISION_CHARGE_HSN_CODE", "996111");
+
 //sales email_id
 define('_247AROUND_SALES_EMAIL','sales@247around.com');
-//email attachment reader email
-define('EMAIL_ATTACHMENT_READER_EMAIL','installations@247around.com');
-//email attachment reader email password
-define('EMAIL_ATTACHMENT_READER_PASSWORD','247around@@installations');
 
 //Zopper booking- Part Arrange By Same Vendor
 define("PART_ARRANGE_BY_SAME_VENDOR", 2);
@@ -534,6 +534,32 @@ define("PART_ARRANGE_BY_DIFF_VENDOR", 1);
 //vijaya email_id
 define('_247AROUND_VIJAYA_EMAIL','vijaya@247around.com');
 
+//less than 32" bracket part number
+define('LESS_THAN_32_BRACKETS_PART_NUMBER','B-24732');
+//greater than 32" bracket part number
+define('GREATER_THAN_32_BRACKETS_PART_NUMBER','B-24733');
+//wall mount price tag
+define('_247AROUND_WALL_MOUNT__PRICE_TAG','Wall Mount Stand');
+//247around employee string
+define('_247AROUND_EMPLOYEE_STRING','employee');
+//247around partner string
+define('_247AROUND_PARTNER_STRING','partner');
+//247around sf string
+define('_247AROUND_SF_STRING','vendor');
+//247around cp string
+define('_247AROUND_CP_STRING','CP');
+
+//demo partner id
+define('_247AROUND_DEMO_PARTNER',247050);
+
+define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',7);
+define("QC_HSN_CODE", 998397);
+define("HSN_CODE", "998715");
+define("STAND_HSN_CODE", "8302");
+define("COMMISION_CHARGE_HSN_CODE", "96617");
+define("SPARE_HSN_CODE", "85299090");
+define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
+define('ACCOUNTANT_EMAILID',"adityag@247around.com" );
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

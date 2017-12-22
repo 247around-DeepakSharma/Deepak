@@ -16,6 +16,7 @@ require_once BASEPATH . 'libraries/spout-2.4.3/src/Spout/Autoloader/autoload.php
 class vendor extends CI_Controller {
    var  $vendorPinArray = array();
    var  $filePath = "";
+   var $existServices=array();
     function __Construct() {
         parent::__Construct();
         $this->load->model('employee_model');
@@ -1023,15 +1024,12 @@ class vendor extends CI_Controller {
         $id = $this->session->userdata('id');   
         $active = "1";
         $data['active_state'] = $active;
-        
         if(!empty($this->input->get())){
             $data = $this->input->get();
             if($data['active_state'] == 'all'){
                 $active = "";
             }
-        
         }
-
         //Getting employee relation if present for logged in user
         $sf_list = $this->vendor_model->get_employee_relation($id);
         if (!empty($sf_list)) {
@@ -1042,7 +1040,6 @@ class vendor extends CI_Controller {
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data));
-        
     }
 
     /**
@@ -1158,6 +1155,7 @@ class vendor extends CI_Controller {
         $service_center = $this->input->post('service_center');
         $agent_id =  $this->input->post('agent_id');
         $agent_name =  $this->input->post('agent_name');
+        $agent_type =  $this->input->post('agent_type');
         $url = base_url() . "employee/do_background_process/assign_booking";
         $sf_status = $this->input->post("sf_status");
         $count = 0;
@@ -1167,7 +1165,7 @@ class vendor extends CI_Controller {
            
                 if ($service_center_id != "") {
                    
-                    $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_name);
+                    $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $agent_id, $agent_type);
                     if ($assigned) {
                         //Insert log into booking state change
                        $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
@@ -1246,7 +1244,7 @@ class vendor extends CI_Controller {
         if ($this->form_validation->run()) {
             $booking_id = $this->input->post('booking_id');
             $service_center_id = $this->input->post('service');
-
+            $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id, booking_details.partner_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
 //            if (IS_DEFAULT_ENGINEER == TRUE) {
 //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
 //            } else {
@@ -1267,14 +1265,20 @@ class vendor extends CI_Controller {
                 'upcountry_partner_approved' => 1,
                 'upcountry_paid_by_customer' => 0,
                 'upcountry_distance' => NULL);
+            
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+            if (!empty($partner_status)) {
+                $assigned_data['partner_current_status'] = $partner_status[0];
+                $assigned_data['partner_internal_status'] = $partner_status[1];
+            }
 
             $this->booking_model->update_booking($booking_id, $assigned_data);
 
             $this->vendor_model->delete_previous_service_center_action($booking_id);
             $unit_details = $this->booking_model->getunit_details($booking_id);
-
+            
             foreach ($unit_details[0]['quantity'] as $value) {
-                $data = array();
+                
                 $data['current_status'] = "Pending";
                 $data['internal_status'] = "Pending";
                 $data['service_center_id'] = $service_center_id;
@@ -1283,6 +1287,36 @@ class vendor extends CI_Controller {
                 $data['update_date'] = date('Y-m-d H:i:s');
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
+                
+                /* update inventory stock for reassign sf
+                 * First increase stock for the previous sf and after that decrease stock 
+                 * for the new assigned sf
+                 */
+                $inventory_data = array();
+                $inventory_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                $inventory_data['booking_id'] = $booking_id;
+                $inventory_data['agent_id'] = $this->session->userdata('id');
+                $inventory_data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
+                    $match = array();
+                    preg_match('/[0-9]+/', $unit_details[0]['capacity'], $match);
+                    if (!empty($match)) {
+                        if ($match[0] <= 32) {
+                            $inventory_data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                        } else if ($match[0] > 32) {
+                            $inventory_data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                        }
+                        
+                        //increase stock for previous assigned vendor
+                        $inventory_data['receiver_entity_id'] = $previous_sf_id[0]['assigned_vendor_id'];
+                        $inventory_data['stock'] = 1 ;
+                        $this->miscelleneous->process_inventory_stocks($inventory_data);
+                        //decrease stock for new assigned vendor
+                        $inventory_data['receiver_entity_id'] = $service_center_id;
+                        $inventory_data['stock'] = -1 ;
+                        $this->miscelleneous->process_inventory_stocks($inventory_data);
+                    }
+                }
             }
 
             $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
@@ -2397,22 +2431,15 @@ class vendor extends CI_Controller {
         foreach($receivedData['appliance'] as $appliance_data){
                     $temp = explode("__",$appliance_data);
                     $appliance['Appliance_ID'] = $temp[0];
-                    $appliance['Appliance'] = $temp[1];
                     $tempVendor =  explode("__",$receivedData['vendor_id']);
                     $appliance['Vendor_ID'] = $tempVendor[0];
-                    $appliance['Vendor_Name'] = $tempVendor[1];
                     $appliance['Pincode'] = $receivedData['pincode'];
-                    foreach ($receivedData['brands_'.$temp[0]] as $brand){
-                              $appliance['Brand'] = $brand ;
                               foreach($areaArray as $areaData){
                                   $appliance['state'] = $areaData['state'] ;
-                                  $appliance['area'] = $areaData['area'] ;
-                                  $appliance['region'] = $areaData['region'] ;
                                   $appliance['city'] = $areaData['city'] ;
                                   $data[] = $appliance;
                               }
-                    }
-          }
+           }
             return $data;
     }
     function get_pincode_form_display_msg($displayMsgArray){
@@ -2456,10 +2483,6 @@ class vendor extends CI_Controller {
                                         if(!empty($vendor_id)){
                                             log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($value,TRUE));
                                             $displayMsgArray['success'][] = $value; 
-                                            //$cc = "anuj@247around.com";
-                                            //$to = "chhavid@247around.com";
-                                            //$subject = "Add new Combination in vendor pincode mapping";
-                                            //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, implode("||",$value), "");
                                         }
                                         else{
                                             $displayMsgArray['failed'][] = $value; 
@@ -3331,31 +3354,36 @@ class vendor extends CI_Controller {
         $this->checkUserSession();
         //Getting RM Lists
         $rm = $this->employee_model->get_rm_details();
-
-        if(!empty($this->input->post())){
-            $data = $this->input->post();
-            if($data['all_active'] == 'active'){
-                $active = 1;
-            }else{
-                $active = "";
-            }
-            if($data['rm'] != 'all'){
-                //Getting RM to SF Relation
-                $sf_list = $this->vendor_model->get_employee_relation($data['rm']);
-                $query = $this->vendor_model->viewvendor("", $active, $sf_list[0]['service_centres_id']);
-            }else{
-                $query = $this->vendor_model->viewvendor("", $active, '');
-            }
-            
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm,'selected'=>$data));
-            
-        }else{
-            $query = $this->vendor_model->viewvendor("", "", "");
-            
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm));
+        $current_rm_id = '';
+        $active = '';
+        $serviceCenters ='';
+        $selectedData["all_active"] = "all";
+        $selectedData["rm"] = $rm;
+        $data = array();
+        if($this->input->post()){
+            $data = $this->input->post();   
         }
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $current_rm_id = $this->session->userdata('id');
+        }
+        if(array_key_exists("rm",$data)){
+            if($data['rm'] != 'all'){
+                $selectedData["rm"] = $current_rm_id = $data['rm'];
+            }
+        }
+         if(array_key_exists("all_active",$data)){
+             if($data['all_active'] == 'active'){
+                $active = 1;
+                $selectedData["all_active"] = "active";
+             }
+        }
+        if($current_rm_id != ''){
+            $sf_list = $this->vendor_model->get_employee_relation($current_rm_id);
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+        }
+        $query = $this->vendor_model->viewvendor("", $active, $serviceCenters);
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm,'selected'=>$selectedData));
     }
     
     /**
@@ -3411,9 +3439,17 @@ class vendor extends CI_Controller {
      * 
      */
     function get_sc_charges_list(){
-        $state = $this->input->post('state');
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('employee_id'));
-            $sc_charges_data = $this->service_centre_charges_model->get_service_centre_charges($state);
+        $sc_charges_data = $this->service_centre_charges_model->get_service_caharges_data("partner_id,services,category,capacity,service_category,vendor_basic_charges,"
+                . "vendor_tax_basic_charges,vendor_total,customer_net_payable",array("partner_id <> " => _247AROUND_DEMO_PARTNER));
+        $partner_id_array = array_unique(array_column($sc_charges_data, 'partner_id'));
+        foreach($partner_id_array as $partnerID){
+            $booking_sources_array[$partnerID] = '';
+             $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($partnerID);
+             if(!empty($booking_sources[0]['code'])){
+                 $booking_sources_array[$partnerID] = $booking_sources[0]['code'];
+             }
+        }
             //Looping through all the values 
             foreach ($sc_charges_data as $value) {
                 //Getting Details from Booking Sources
@@ -3435,11 +3471,8 @@ class vendor extends CI_Controller {
                 $array_final['vendor_tax_basic_charges'] = round($vendor_tax,2);
                 $array_final['vendor_total'] = round($value['vendor_total'],2);
                 $array_final['customer_net_payable'] = round($value['customer_net_payable'],0);
-                $array_final['pod'] = $value['pod'];
-                
                 $final_array[] = $array_final;
             }
-
             $template = 'SC-Charges-List-Template.xlsx';
             //set absolute path to directory with template files
             $templateDir = __DIR__ . "/../excel-templates/";
@@ -3459,7 +3492,7 @@ class vendor extends CI_Controller {
                 ));
 
             $output_file_dir = TMP_FOLDER;
-            $output_file = ucfirst($state)."-Charges-List-" . date('j-M-Y');
+            $output_file = "Charges-List-" . date('j-M-Y');
             $output_file_name = $output_file . ".xlsx";
             $output_file_excel = $output_file_dir . $output_file_name;
             $R->render('excel', $output_file_excel);
@@ -4127,8 +4160,17 @@ class vendor extends CI_Controller {
     function get_penalty_details_data($booking_id, $status){
         
         $where  = array('penalty_on_booking.booking_id'=>$booking_id,'penalty_on_booking.active' => 1);
-        $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where,'penalty_on_booking.*',array('*'));
-        $this->load->view('employee/get_penalty_on_booking_details',array('penalty_details' => $data['penalty_details'], 'status'=>$status));
+        $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where,'penalty_on_booking.*,name',array('*'));
+        if($this->input->post('sf_id')){
+            $remove_penalty_where = array('penalty_on_booking.booking_id' => $booking_id,
+                        'penalty_on_booking.active' => 0,
+                        'penalty_on_booking.update_date >= (NOW() - INTERVAL 1 MONTH)' => NULL);
+            $data['remove_penalty_details'] = $this->reusable_model->get_search_query('penalty_on_booking','name as sf_name,count(*) as count',$remove_penalty_where,array('penalty_details'=>'penalty_on_booking.criteria_id = penalty_details.id','service_centres' => 'penalty_on_booking.service_center_id = service_centres.id'),NULL,NULL,NULL,NULL,'penalty_on_booking.service_center_id')->result_array();
+        }else{
+            $data['remove_penalty_details'] = "";
+        }
+        
+        $this->load->view('employee/get_penalty_on_booking_details',array('penalty_details' => $data['penalty_details'], 'status'=>$status,'remove_penalty_details'=>$data['remove_penalty_details']));
     }
     
     /**
@@ -4311,7 +4353,15 @@ class vendor extends CI_Controller {
      */
     function get_service_center_details(){
         $select = "service_centres.name, service_centres.id";
-        $data = $this->vendor_model->getVendorDetails($select);
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id') );
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+            $whereIN = array("id"=>explode(",",$serviceCenters));
+        }
+        else{
+            $whereIN = NULL;
+        }
+        $data= $this->reusable_model->get_search_result_data("service_centres",$select,NULL,NULL,NULL,NULL,$whereIN,NULL,array());
         $option = '<option selected="" disabled="">Select Service Center</option>';
 
         foreach ($data as $value) {
@@ -4405,7 +4455,10 @@ class vendor extends CI_Controller {
            */
         function download_vendor_pin_code($vendorID){ 
                     ob_start();
-                    $pincodeArray =  $this->vendor_model->check_vendor_details(array("Vendor_ID"=>$vendorID));
+                    $join = array("service_centres"=>"service_centres.id = pm.Vendor_ID","services"=>"services.id=pm.Appliance_ID");
+                    $orderBYArray = array("services.services"=>"ASC");
+                    $pincodeArray = $this->reusable_model->get_search_result_data("vendor_pincode_mapping pm","pm.Pincode,pm.City,pm.State,service_centres.name as Vendor_Name,services.services as Appliance",
+                            array("pm.Vendor_ID"=>$vendorID),$join,NULL,$orderBYArray,NULL,NULL);
                     $config = array('template' => "vendor_pin_code.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
                     log_message('info', __FUNCTION__ . ' Download Data ' . print_r($pincodeArray, TRUE));
                     $this->miscelleneous->downloadExcel($pincodeArray,$config);
@@ -4414,8 +4467,9 @@ class vendor extends CI_Controller {
           * This function will return the view to upload the vendor pin code mapping file
           */
          function upload_pin_code_vendor($vendorID){
+                    $serviceArray = $this->reusable_model->get_search_result_data("services","services",array("isBookingActive"=>1),NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
                     $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                    $this->load->view('employee/vendor_pincode_upload',array('vendorID'=>$vendorID));
+                    $this->load->view('employee/vendor_pincode_upload',array('vendorID'=>$vendorID,"services"=>$serviceArray));
           }
           /*
            * This function will save the vendor upload pincode file in file uploads table
@@ -4473,17 +4527,28 @@ class vendor extends CI_Controller {
           /*
            * This function checkes uploded vendor mapping pincode file must have only 1 vendor 
            */
-          function is_file_contains_only_valid_vendor($vendorID,$index,$data){
-                    $msg = TRUE;
-                        if($data['vendor_id'] !=''){
-                                if($data['vendor_id'] !== $vendorID){
-                                          $msg = "File Contains more then 1 Vendor, Error at line ".($index+2);
-                                }
-                        }
-                        else{
-                                           $msg = "File Contains Blank Vendor_ID, Error at line ".($index+2);
-                        }
-                   return $msg;
+          function is_file_contains_only_valid_service(){
+              $uniqueServicesArray = array();
+              foreach ($this->vendorPinArray as $index=>$data){
+                  $uniqueServicesArray[$data['appliance']][] = $index;  
+              }
+             $serviceTableData = array();
+             $serviceTableData =  $this->reusable_model->get_search_result_data("services","id,services",NULL,NULL,NULL,NULL,array("services"=>array_keys($uniqueServicesArray)),NULL);
+             $existServices =array();
+             foreach($serviceTableData as $serviceData){
+                    $this->existServices[$serviceData['services']] = $serviceData['id'] ; 
+             }
+              $wrongServiceArray = array_diff(array_keys($uniqueServicesArray),array_keys($this->existServices));
+              if($wrongServiceArray){
+               foreach($wrongServiceArray as $wrongService){
+                   $msg[]= implode(",",$uniqueServicesArray[$wrongService]);
+               }
+               $msg = implode(",",$msg)." Lines Contains Wrong Appliance,Please Select Appliance only from appliance list Or Check the Spelling</br>";
+               return $msg;
+            }
+            else{
+                return TRUE;
+            }
           }
           /*
            * This function checks is Uploded file blank
@@ -4513,11 +4578,12 @@ class vendor extends CI_Controller {
           /*
            * This function checks area_brand_pincode_serviceID Combination must be unique in uploded vendor pincode mapping file
            */
-          function delete_duplicate_pincode_service_brand_area($excelDataArray){
+          function delete_duplicate_pincode_service(){
               $msg = true;
               $tempArray = array();
+              $excelDataArray = $this->vendorPinArray;
               foreach($excelDataArray as $index=>$data){
-                    $uniqueString = $data['pincode'].",".$data['area'].",".$data['appliance_id'].",".$data['brand'];
+                    $uniqueString = $data['pincode'].",".$data['appliance'];
                     if(array_key_exists($uniqueString, $tempArray)){
                         unset($excelDataArray[$index]);
                     }
@@ -4551,11 +4617,10 @@ class vendor extends CI_Controller {
                                                   $readerVersion = $this->get_excel_reader_version($file['file']['name']);
                                                   $this->vendorPinArray =  $this->miscelleneous->excel_to_Array_converter($file,$readerVersion);
                                                   $msg['blank'] = $this->is_uploded_file_blank($this->vendorPinArray);
-                                                  $msg['unique_combination'] = $this->delete_duplicate_pincode_service_brand_area($this->vendorPinArray);
                                                   if($msg['blank'] == 1){
+                                                      $msg['valid_service'] = $this->is_file_contains_only_valid_service(); 
+                                                      if($msg['valid_service'] == 1){
                                                             foreach($this->vendorPinArray as $index=>$data){
-                                                                        $msg['vendor'] = $this->is_file_contains_only_valid_vendor($vendorID,$index,$data); 
-                                                                        if($msg['vendor'] == 1){
                                                                                 $msg['pin_code'] = $this->is_pin_code_valid($index,$data);
                                                                                 if($msg['pin_code'] == 1){
                                                                                           $msg['field_blank'] = $this->is_any_field_blank($index,$data);
@@ -4566,12 +4631,12 @@ class vendor extends CI_Controller {
                                                                                 else{
                                                                                           return $msg['pin_code'];
                                                                                 }
-                                                                        }
-                                                                        else{
-                                                                                return $msg['vendor'];
-                                                                        }
                                                             }
-                                                            
+                                                            $this->delete_duplicate_pincode_service();
+                                                      }
+                                                      else{
+                                                          return $msg['valid_service'];
+                                                      }
                                                   }
                                                   else{
                                                              return $msg['blank'];
@@ -4594,14 +4659,9 @@ class vendor extends CI_Controller {
                     if($deleteMsg == TRUE){
                               $finalInsertArray = array();
                               foreach($this->vendorPinArray as $key=>$data){
-                                        $insertArray['Vendor_Name'] = $data['vendor_name'];
-                                        $insertArray['Vendor_ID'] = $data['vendor_id'];
-                                        $insertArray['Appliance'] = $data['appliance'];
-                                        $insertArray['Appliance_ID'] = $data['appliance_id'];
-                                        $insertArray['Brand'] = $data['brand'];
-                                        $insertArray['Area'] = $data['area'];
+                                        $insertArray['Vendor_ID'] = $vendorID;
+                                        $insertArray['Appliance_ID'] = $this->existServices[$data['appliance']];
                                         $insertArray['Pincode'] = $data['pincode'];
-                                        $insertArray['Region'] = $data['region'];
                                         $insertArray['City'] = $data['city'];
                                         $insertArray['State'] = $data['state'];
                                         $finalInsertArray[] = $insertArray;
@@ -4628,7 +4688,7 @@ class vendor extends CI_Controller {
           function manage_pincode_not_found_sf_table(){
               foreach($this->vendorPinArray as $key=>$values){
                         $temp['Pincode'] = $values['pincode'];
-                        $temp['Appliance_ID'] = $values['appliance_id'];
+                        $temp['Appliance_ID'] = $this->existServices[$values['appliance']];
                         $pincodeServiceArray[] = $temp;
               }
               $this->miscelleneous->update_pincode_not_found_sf_table($pincodeServiceArray);
@@ -4703,8 +4763,9 @@ class vendor extends CI_Controller {
                   $state  =   $this->vendor_model->get_state_from_india_pincode($pincode);
                   if(empty($state['state'])){
                      $states  =   $this->vendor_model->getall_state();
+                     $city  =   $this->vendor_model->getDistrict_from_india_pincode();
                      $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                     $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states));
+                     $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states,'city'=>$city));
                      return false;
                   }
                   else{
@@ -4720,17 +4781,13 @@ class vendor extends CI_Controller {
                $data = $this->input->post();
                $pincode = $data['pincode'];
                $state = $data['states'];
-               $districtArray = explode(",",$data['district']);
-               $length = count($districtArray);
+               $cityArray = $data['city'];
+               $length = count($cityArray);
                for($i=0;$i<$length;$i++){
-                              $tempArray['district'] = $districtArray[$i];
-                              $tempArray['taluk'] = $districtArray[$i];
-                              $tempArray['region'] = $districtArray[$i];
-                              $tempArray['division'] = $districtArray[$i];
-                              $tempArray['area'] = $districtArray[$i];
-                              $tempArray['state'] = $state;
-                              $tempArray['pincode'] = $pincode;
-                   $insertArray[] = $tempArray;
+                    $tempArray['district'] = $cityArray[$i];
+                    $tempArray['state'] = $state;
+                    $tempArray['pincode'] = $pincode;
+                    $insertArray[] = $tempArray;
                }
                $insertResult = $this->vendor_model->insert_india_pincode_in_batch($insertArray);
                if($insertResult){
@@ -4855,10 +4912,33 @@ class vendor extends CI_Controller {
             echo "fail";
         }
     }
-       function get_partner_updation_history_view(){
-        $data['updation_history'] = $this->miscelleneous->table_updated_history_view('service_centres','trigger_service_centres');
-        $data['entity'] = "Service Centers";
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/updated_history',$data);
+       function get_partner_vendor_updation_history_view($entityID,$orignalTable,$triggerTable){
+        $data = $this->miscelleneous->table_updated_history_view($orignalTable,$triggerTable,$entityID);
+       $table = '<table class="table table-striped table-bordered table-responsive">
+    <thead><tr>
+        <th>S.N</th>
+        <th>Action Performed On</th>
+        <th>Action Performed By</th>
+        <th>Date</th>
+      </tr></thead>
+    <tbody>';
+       if(!empty($data)){
+       foreach($data['data'] as $index=>$updatedData){
+      $table .= '<tr>
+        <td>'.($index+1).'</td>
+        <td>'.implode(",</br>",$updatedData).'</td>
+        <td>'.$data['updated_by'][$index].'</td>
+        <td>'.$data['update_date'][$index].'</td>
+      </tr>'; }}
+   echo $table .= '</tbody></table>';
     }
+    function show_escalation_graph_by_sf($sfID){
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/sf_escalation_view', array('data' => array("vendor_id"=>$sfID)));
+    }
+    function getServicesForVendor($vendorID){
+        $appliance  = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","CONCAT(vendor_pincode_mapping.Appliance_ID,'__',services.services) as service",
+        array("Vendor_ID"=>$vendorID),array("services"=>"services.id=vendor_pincode_mapping.Appliance_ID"),NULL,NULL,NULL,NULL,array("Appliance_ID"));
+        echo json_encode($appliance);
+        }
 }

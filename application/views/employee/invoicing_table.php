@@ -27,6 +27,7 @@
          <th>Select</th>
          <th>ReGenerate</th>
          <th>Update</th>
+         <th>Resend</th>
         
       </tr>
    </thead>
@@ -51,9 +52,9 @@
          
          <td><?php echo $invoice['invoice_id']; ?>
              <p style="margin-top:15px;">
-                 <a  href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_file_main']; ?>">Main</a>
+                 <a  href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php echo $invoice['invoice_file_main']; ?>">Main</a>
              </p> <p style="margin-top:15px;">
-             <a  href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_detailed_excel']; ?>">Detail</a>
+             <a  href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php echo $invoice['invoice_detailed_excel']; ?>">Detail</a>
              </p> <p style="margin-top:15px;">
              <a  href="javascript:void(0);" class="get_invoice_payment_history" data-id="<?php echo $invoice['invoice_id'];?>">History</a>
              </p>
@@ -103,16 +104,14 @@
          <td>
              <a href="<?php echo base_url()?>employee/invoice/insert_update_invoice/<?php echo $invoice['vendor_partner'];?>/<?php echo $invoice['invoice_id'];?>" <?php if($invoice['amount_paid'] > 0 ) { echo "disabled"; } ?> class="btn btn-sm btn-info" >Update</a>
          </td>
+         </td>
          
 
           <?php  $count = $count+1;  ?>
-<!--         <td class="col-md-6">
-          <form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php //echo $invoice['invoice_id'].'/'.$invoice['vendor_partner_id'].'/'.$invoice['from_date'].'/'.$invoice['to_date'].'/'.$invoice['vendor_partner']; ?>" >
-
-            <input type="text" class="form-control"  name="email" >
-            <input style ="margin-top:8px;" type="submit"  value="Send Mail" >
-            </form>
-         </td>-->
+         <td class="col-md-6">
+             <a href="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id']; ?>" class="btn btn-sm btn-primary">Resend Invoice</a>
+          
+         </td>
 
 
       </tr>
