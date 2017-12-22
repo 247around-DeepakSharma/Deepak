@@ -182,7 +182,7 @@ class Service_centers extends CI_Controller {
             //$internal_status = "Cancelled";
             $getremarks = $this->booking_model->getbooking_charges($booking_id);
             $i = 0;
-            
+           
             foreach ($customer_basic_charge as $unit_id => $value) {
                  // variable $unit_id  is existing id in booking unit details table of given booking id 
                  $data = array();
@@ -2847,10 +2847,6 @@ class Service_centers extends CI_Controller {
                 $partner_id = $this->input->post("partner_id");
                 $this->update_booking_internal_status($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER,  $partner_id);
                 
-                $url = base_url() . "employee/invoice/generate_oow_parts_invoice/".$sp_data[0]->id;
-                $async_data['booking_id'] = $booking_id;
-                $this->asynchronous_lib->do_background_process($url, $async_data);
-        
                 $userSession = array('success' => 'Booking Updated');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/pending_booking");
