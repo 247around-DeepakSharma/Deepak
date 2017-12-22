@@ -25,7 +25,7 @@
         <?php foreach($duplicate as $key => $value){ ?>
         <tr>
             <td><?php echo $key+1; ?></td>
-            <td><?php echo $public_name; ?></td>
+            <td><?php if(isset($public_name)) { echo $public_name;}  ?></td>
             <td><?php if(isset($value['services'])) {echo $value['services'];} else { echo $value['service_id'];}; ?></td>
             <td><?php echo $value['brand']; ?></td>
             <td><?php echo $value['category']; ?></td>
