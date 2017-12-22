@@ -4457,7 +4457,7 @@ class vendor extends CI_Controller {
           * This function will return the view to upload the vendor pin code mapping file
           */
          function upload_pin_code_vendor($vendorID){
-                    $serviceArray = $this->reusable_model->get_search_result_data("services","services",NULL,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+                    $serviceArray = $this->reusable_model->get_search_result_data("services","services",array("isBookingActive"=>1),NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
                     $this->load->view('employee/header/'.$this->session->userdata('user_group'));
                     $this->load->view('employee/vendor_pincode_upload',array('vendorID'=>$vendorID,"services"=>$serviceArray));
           }
