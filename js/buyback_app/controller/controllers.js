@@ -538,7 +538,6 @@ rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
  }
  // Get RM id 
  var rm_id = $('#session_id_holder').val();
- console.log(rm_id);
   $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/"+rm_id);
   // This function will call after date change to load the data
   $scope.daterangeloadView = function(){
