@@ -114,8 +114,8 @@
                             <tr>
                                 <th>Booking Address: </th>
                                 <td><?php echo $booking_history[0]['booking_address'];?></td>
-                                 <th>Booking City: </th>
-                                <td><?php echo $booking_history[0]['city']; ?></td>
+                                 <th>Booking City/District: </th>
+                                <td><?php echo ($booking_history[0]['city']."/".$booking_history[0]['district']); ?></td>
                             </tr>
                           
                             <tr>
