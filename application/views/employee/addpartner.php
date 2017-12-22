@@ -1181,9 +1181,9 @@
                    <div class="clear clear_bottom">
                         <br>
                         <center><input type="Submit" value="<?php if (isset($query[0]['id'])) {
-                            echo "Update Contracts";
+                            echo "Update Brand";
                             } else {
-                            echo "Save Contracts";
+                            echo "Save Brand";
                             } ?>" class="btn btn-primary" id="submit_contract_btn">
                             <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/partner/viewpartner>Cancel</a>"; ?>
                         </center>

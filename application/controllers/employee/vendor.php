@@ -4150,15 +4150,16 @@ class vendor extends CI_Controller {
     function get_penalty_details_data($booking_id, $status){
         
         $where  = array('penalty_on_booking.booking_id'=>$booking_id,'penalty_on_booking.active' => 1);
-        $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where,'penalty_on_booking.*',array('*'));
+        $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where,'penalty_on_booking.*,name',array('*'));
         if($this->input->post('sf_id')){
-            $remove_penalty_where = array('penalty_on_booking.service_center_id' => $this->input->post('sf_id'),
+            $remove_penalty_where = array('penalty_on_booking.booking_id' => $booking_id,
                         'penalty_on_booking.active' => 0,
                         'penalty_on_booking.update_date >= (NOW() - INTERVAL 1 MONTH)' => NULL);
-            $data['remove_penalty_details'] = $this->reusable_model->get_search_query('penalty_on_booking','name as sf_name,count(*) as count',$remove_penalty_where,array('penalty_details'=>'penalty_on_booking.criteria_id = penalty_details.id','service_centres' => 'penalty_on_booking.service_center_id = service_centres.id'),NULL,NULL,NULL,NULL)->result_array();
+            $data['remove_penalty_details'] = $this->reusable_model->get_search_query('penalty_on_booking','name as sf_name,count(*) as count',$remove_penalty_where,array('penalty_details'=>'penalty_on_booking.criteria_id = penalty_details.id','service_centres' => 'penalty_on_booking.service_center_id = service_centres.id'),NULL,NULL,NULL,NULL,'penalty_on_booking.service_center_id')->result_array();
         }else{
             $data['remove_penalty_details'] = "";
         }
+        
         $this->load->view('employee/get_penalty_on_booking_details',array('penalty_details' => $data['penalty_details'], 'status'=>$status,'remove_penalty_details'=>$data['remove_penalty_details']));
     }
     

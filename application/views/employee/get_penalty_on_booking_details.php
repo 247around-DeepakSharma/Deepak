@@ -1,9 +1,9 @@
 <?php if(!empty($penalty_details)){ ?>
 <div class="panel panel-default">
     <div class="panel-heading">
-        <?php if(!empty($remove_penalty_details)) { ?> 
-        <h5 class="text-center text-danger">Penalty Removed For <b><?php echo $remove_penalty_details[0]['sf_name'];?></b> In Last 1 Month = <?php echo $remove_penalty_details[0]['count'];?></h5>
-        <?php } ?>
+        <?php if(!empty($remove_penalty_details)) { foreach($remove_penalty_details as $value) {?> 
+        <h5 class="text-center text-danger">Penalty Removed For <b><?php echo $value['sf_name'];?></b> In Last Month = <?php echo $value['count'];?></h5>
+        <?php }} ?>
     </div>
     <div class="panel-body">
         <div class="table-responsive">
@@ -12,6 +12,7 @@
                     <tr>
                         <th class="text-center">Booking Id</th>
                         <th class="text-center">Penalty Date</th>
+                        <th class="text-center">SF Name</th>
                         <th class="text-center">Remarks</th>
                         <th class="text-center">Penalty Remove Reason</th>
                         <th class="text-center">Remove Penalty</th>
@@ -28,6 +29,7 @@
                         <td>
                             <?php echo date_format(date_create($row['create_date']),"d/m/Y");?>
                         </td>
+                        <td><?php echo $row['name'];?></td>
                         <td><?php if(!empty($row['remarks'])){echo $row['remarks'];}else{ echo "No remarks Found";} ?></td>
                         <td>
                             <textarea rows="3" cols="40" name="penalty_remove_reason[]" placeholder="Enter Penalty removal reason" id="penalty_remove_reason"></textarea>

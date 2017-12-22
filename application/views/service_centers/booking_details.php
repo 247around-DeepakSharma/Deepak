@@ -312,7 +312,7 @@
                                 <tr>
                                    
                                     <td><?php echo $sp['sell_price']; ?></td>
-                                    <td><?php echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); ?></td>
+                                    <td><?php if(!empty($sp['estimate_cost_given_date'])){ echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
                                     <td><?php echo $sp['status']; ?></td>
                                 </tr>
                                      <?php  } } ?>

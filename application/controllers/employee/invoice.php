@@ -1944,7 +1944,7 @@ class Invoice extends CI_Controller {
             }
                 $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
             
-            $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id.", adityag@gmail.247around.com";
+            $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id.",".ACCOUNTANT_EMAILID;
             $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                 
             //get email template from database

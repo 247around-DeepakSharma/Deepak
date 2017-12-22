@@ -2069,29 +2069,32 @@ class Booking extends CI_Controller {
                 $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
                 log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
                 $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
-                //get the unit details data and update the inventory stock
-                $booking_unit_details = $this->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL),NULL, NULL, NULL, NULL, NULL)->result_array();
-                if (!empty($booking_unit_details)) {    
-                    //process each unit if price tag is wall mount
-                    foreach($booking_unit_details as $value){
-                        $match = array();
-                        //get the size from the capacity to know the part number
-                        preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
-                        if (!empty($match)) {
-                            if ($match[0] <= 32) {
-                                $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
-                            } else if ($match[0] > 32) {
-                                $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                //if booking status is cancelled then do action on inventory
+                if ($status === _247AROUND_CANCELLED) {
+                    //get the unit details data and update the inventory stock
+                    $booking_unit_details = $this->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id, "booking_unit_details.price_tags like '%" . _247AROUND_WALL_MOUNT__PRICE_TAG . "%'" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
+                    if (!empty($booking_unit_details)) {
+                        //process each unit if price tag is wall mount
+                        foreach ($booking_unit_details as $value) {
+                            $match = array();
+                            //get the size from the capacity to know the part number
+                            preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                            if (!empty($match)) {
+                                if ($match[0] <= 32) {
+                                    $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                                } else if ($match[0] > 32) {
+                                    $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                                }
+
+                                $data['receiver_entity_id'] = $assigned_vendor_id;
+                                $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                $data['stock'] = -1;
+                                $data['booking_id'] = $booking_id;
+                                $data['agent_id'] = $this->session->userdata('id');
+                                $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+
+                                $this->miscelleneous->process_inventory_stocks($data);
                             }
-
-                            $data['receiver_entity_id'] = $assigned_vendor_id;
-                            $data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                            $data['stock'] = -1;
-                            $data['booking_id'] = $booking_id;
-                            $data['agent_id'] = $this->session->userdata('id');
-                            $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
-
-                            $this->miscelleneous->process_inventory_stocks($data);
                         }
                     }
                 }

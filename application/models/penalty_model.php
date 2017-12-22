@@ -449,6 +449,7 @@ class Penalty_model extends CI_Model {
         $this->db->where($where);
         $this->db->from('penalty_on_booking');
         $this->db->join("penalty_details", "penalty_on_booking.criteria_id = penalty_details.id");
+        $this->db->join("service_centres", "penalty_on_booking.service_center_id = service_centres.id");
         $query = $this->db->get();
         return $query->result_array();
     }

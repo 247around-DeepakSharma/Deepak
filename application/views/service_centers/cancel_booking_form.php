@@ -55,6 +55,7 @@
                    <?php $isdisable = false; if(isset($user_and_booking_details['spare_parts'])){ 
                        foreach($user_and_booking_details['spare_parts'] as $sp){
                            switch ($sp['status']){
+                               case "Shipped":
                                case "Defective Part Pending":
                                case "Defective Part Received By Partner":
                                case "Defective Part Rejected By Partner":

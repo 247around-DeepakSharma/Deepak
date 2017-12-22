@@ -26,7 +26,7 @@
                 <div class="form-group col-md-12 ">
                     <label for="Appliance">Brand *</label>
                     <select  style="<?php if($partner_type != OEM){ echo 'display:none'; }?>" class="form-control select2-multiple2" id="appliance_brand" name="brand[]" onchange="getCategory()" multiple>
-                        <option selected disabled  >Select Brand</option>
+                        
                     </select>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                 <div class="form-group col-md-12 ">
                     <label for="Appliance">Category *</label>
                     <select class="form-control select2-multiple2" id="category" name="category[]" onchange="getcapacity()" multiple>
-                        <option selected disabled  >Select Category</option>
+                       
                     </select>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                 <div class="form-group col-md-12 ">
                     <label for="Appliance">Capacity *</label>
                     <select name="capacity[]" id="capacity" class="form-control select2-multiple2"  multiple>
-                        <option selected disabled  >Select Capacity</option>
+                      
                     </select>
                 </div>
             </div>
@@ -50,7 +50,7 @@
                 <div class="form-group col-md-12 ">
                     <label for="Appliance">Service Category *</label>
                     <select class="form-control" id="request_type" name="request_type"  onchange="getproduct_or_services()">
-                        <option selected disabled  >Select Service category</option>
+                       
                     </select>
                     <input type="hidden" id="product_or_services" name="product_or_services" />
                 </div>
@@ -257,7 +257,7 @@
         sendAjaxRequest(postData, url).done(function (data) {
            
             $("#appliance_brand option[value !='Select Brand']").remove();
-            $('#appliance_brand').append("<option selected disabled>Select Brand</option>").change();
+            
             $('#appliance_brand').append(data).change();
             getCategory();
              getcapacity();
@@ -286,7 +286,7 @@
             sendAjaxRequest(postData, url).done(function (data) {
     
               $("#category option[value !='Select Category']").remove();
-              $('#category').append("<option selected disabled>Select Category</option>").change();
+             
               $('#category').append(data).change();
     
                getcapacity();
@@ -310,7 +310,7 @@
             
             sendAjaxRequest(postData, url).done(function (data) {
                $("#capacity option[value !='Select Capacity']").remove();
-               $('#capacity').append("<option selected disabled>Select Capacity</option>").change();
+              
                $('#capacity').append(data).change();
     
             });

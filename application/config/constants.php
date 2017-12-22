@@ -520,10 +520,6 @@ define("MISSING_PINCODE_EMAIL_TO",NITS_ANUJ_EMAIL_ID);
 
 //sales email_id
 define('_247AROUND_SALES_EMAIL','sales@247around.com');
-//email attachment reader email
-define('EMAIL_ATTACHMENT_READER_EMAIL','installations@247around.com');
-//email attachment reader email password
-define('EMAIL_ATTACHMENT_READER_PASSWORD','247around@@installations');
 
 //Zopper booking- Part Arrange By Same Vendor
 define("PART_ARRANGE_BY_SAME_VENDOR", 2);
@@ -544,7 +540,7 @@ define('_247AROUND_EMPLOYEE_STRING','employee');
 //247around partner string
 define('_247AROUND_PARTNER_STRING','partner');
 //247around sf string
-define('_247AROUND_SF_STRING','SF');
+define('_247AROUND_SF_STRING','vendor');
 //247around cp string
 define('_247AROUND_CP_STRING','CP');
 
@@ -558,6 +554,7 @@ define("STAND_HSN_CODE", "8302");
 define("COMMISION_CHARGE_HSN_CODE", "96617");
 define("SPARE_HSN_CODE", "85299090");
 define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
+define('ACCOUNTANT_EMAILID',"adityag@247around.com" );
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
