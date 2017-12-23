@@ -1664,7 +1664,7 @@ class Partner extends CI_Controller {
 
         if ($request_type == REPAIR_OOW_TAG) {
             $allowedExts = array("PDF", "pdf");
-            $invoice_name = $this->miscelleneous->upload_file_to_s3($_FILES["incoming_invoice"], "sp_parts_invoice", $allowedExts, $booking_id, "misc-images", "incoming_invoice_pdf");
+            $invoice_name = $this->miscelleneous->upload_file_to_s3($_FILES["incoming_invoice"], "sp_parts_invoice", $allowedExts, $booking_id, "invoices-excel", "incoming_invoice_pdf");
             if (!empty($invoice_name)) {
                 $template = $this->booking_model->get_booking_email_template("OOW_invoice_sent");
                 if (!empty($template)) {
