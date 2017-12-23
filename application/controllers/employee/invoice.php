@@ -794,7 +794,7 @@ class Invoice extends CI_Controller {
                 $rem_email_id = ", " . $rm_details[0]['official_email'];
             }
             $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
-            $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id;
+            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
             $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                 
             //get email template from database
@@ -1060,7 +1060,7 @@ class Invoice extends CI_Controller {
                 $email_from = $email_template[2];
                 $to = $invoice_data['meta']['owner_email'] . ", " . $invoice_data['meta']['primary_contact_email'];
                 
-                $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id;
+                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
                 $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                  //Upload Excel files to AWS
                 $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
@@ -1711,9 +1711,9 @@ class Invoice extends CI_Controller {
 
         $vendor_data = $this->vendor_model->getVendorContact($vendor_id);
         $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
-        $cc = NITS_ANUJ_EMAIL_ID;
+        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
         if (!empty($rm_details)) {
-           $cc = NITS_ANUJ_EMAIL_ID . ", " . $rm_details[0]['official_email'];
+           $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . ", " . $rm_details[0]['official_email'];
         }
         
         //get email template from database
@@ -1944,7 +1944,7 @@ class Invoice extends CI_Controller {
             }
                 $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
             
-            $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id.",".ACCOUNTANT_EMAILID;
+            $cc = ANUJ_EMAIL_ID . $rem_email_id.",".ACCOUNTANT_EMAILID;
             $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                 
             //get email template from database
@@ -2115,7 +2115,7 @@ class Invoice extends CI_Controller {
                 if (!empty($rm_details)) {
                     $rem_email_id = ", " . $rm_details[0]['official_email'];
                 }
-                $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id;
+                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
                 echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
                 log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
                 
@@ -2463,7 +2463,7 @@ class Invoice extends CI_Controller {
         $to = $vendor_detail[0]['owner_email'] . ", " . $vendor_detail[0]['primary_contact_email'];
 
         $subject = "247around - " . $vendor_detail[0]['company_name'] . " - " . $type . "  Invoice for period: " . $start_date . " to " . $end_date;
-        $cc = NITS_ANUJ_EMAIL_ID;
+        $cc = NITS_ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
 
         $this->email->from('billing@247around.com', '247around Team');
         $this->email->to($to);
@@ -2928,7 +2928,7 @@ class Invoice extends CI_Controller {
             $message = $email_template[0];
             $email_from = $email_template[2];
 
-            $to = NITS_ANUJ_EMAIL_ID;
+            $to = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
             $cc = "";
            
             $this->upload_invoice_to_S3($invoice_id, false);
@@ -3069,7 +3069,7 @@ class Invoice extends CI_Controller {
         //send email
         $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_details[0]['id']); 
         $to = $vendor_details[0]['owner_email'].",".$this->session->userdata('official_email').",".$get_rm_email[0]['official_email'];
-        $cc = ANUJ_EMAIL_ID;
+        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
         //get email template from database
         $email_template = $this->booking_model->get_booking_email_template(BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG);
         $subject = vsprintf($email_template[4], array($vendor_details[0]['company_name']));
