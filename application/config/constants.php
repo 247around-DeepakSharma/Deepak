@@ -551,7 +551,7 @@ define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',7);
 define("QC_HSN_CODE", 998397);
 define("HSN_CODE", "998715");
 define("STAND_HSN_CODE", "8302");
-define("COMMISION_CHARGE_HSN_CODE", "96617");
+define("COMMISION_CHARGE_HSN_CODE", "996111");
 define("SPARE_HSN_CODE", "85299090");
 define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
 define('ACCOUNTANT_EMAILID',"adityag@247around.com" );
