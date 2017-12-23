@@ -560,6 +560,7 @@ define("COMMISION_CHARGE_HSN_CODE", "996111");
 define("SPARE_HSN_CODE", "85299090");
 define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
 define('ACCOUNTANT_EMAILID',"adityag@247around.com" );
+define('SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION',7 );
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
