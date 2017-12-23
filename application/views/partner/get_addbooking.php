@@ -199,7 +199,7 @@
                                 <div class="form-group col-md-5 ">
                                     <label for="Appliance unit ">Unit* <span id="error_seller" style="color: red;"></label>
                                      
-                                    <select type="text" style="width:55%" class="form-control"  id="appliance_unit" name="appliance_unit" >
+                                    <select type="text" style="width:55%" class="form-control" onchange="final_price()"   id="appliance_unit" name="appliance_unit" >
                                       
                                         <?php for($i =1; $i <26; $i++) { ?>
                                         <option value="<?php echo $i;?>"><?php echo $i; ?></option>
@@ -950,6 +950,7 @@
         var price = 0;
         var price_array ;
         ch =0;
+        var appliance_unit =$("#appliance_unit").val();
 
          $("input[type=checkbox]:checked").each(function(i) {
             price_array = $(this).val().split('_');
@@ -965,7 +966,7 @@
             $("#grand_total").val("0.00");
             
         } else {
-            var final_price = Number(price);
+            var final_price = Number(price) * Number(appliance_unit);;
             $("#grand_total").val(final_price.toFixed(2));
         }
         
