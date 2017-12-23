@@ -1281,6 +1281,7 @@ class Partner extends CI_Controller {
                     "search" => array(),
                     "order_by" => "");
                 $select = "dealer_details.dealer_id, dealer_name, dealer_phone_number_1";
+                $condition['length'] = -1;
                 $dealer_data = $this->dealer_model->get_dealer_mapping_details($condition, $select);
 
                 if (!empty($dealer_data)) {
