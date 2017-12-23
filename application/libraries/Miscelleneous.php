@@ -1061,10 +1061,10 @@ class Miscelleneous {
         if(!empty($blocked_brand)){
            $data['partner_id'] = _247AROUND;
            $data['source'] = 'SB';
-        } else {
+        } 
             
-            return $data;
-        }
+        return $data;
+        
     }
 
     /**
