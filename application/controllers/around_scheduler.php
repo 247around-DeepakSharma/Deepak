@@ -1160,11 +1160,13 @@ class Around_scheduler extends CI_Controller {
             $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "spare_parts_details.service_center_id" => $value['id'],
-                "status IN ('Delivered', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED . "')  " => NULL
+                "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED . "')  " => NULL,
+                "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.update_date, '%Y-%m-%d')) > '".SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION."'" => NULL
             );
 
             $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as parts_shipped, "
-                    . " spare_parts_details.booking_id, name, spare_parts_details.update_date ";
+                    . " spare_parts_details.booking_id, name, spare_parts_details.update_date, "
+                    . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.update_date, '%Y-%m-%d')) AS age_of_part_pending ";
 
             $group_by = "spare_parts_details.booking_id";
             $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED . "', spare_parts_details.create_date ASC";
@@ -1179,25 +1181,27 @@ class Around_scheduler extends CI_Controller {
 
                 $this->table->set_heading(array('Booking ID', 'Customer Name', 'Parts Name', 'Age of Part Pending'));
                 foreach ($spare_parts as $sp) {
-                    $age_requested = date_diff(date_create($sp['update_date']), date_create('today'));
-                    $this->table->add_row($sp['booking_id'], $sp['name'], $sp['parts_shipped'], $age_requested->days . " Days");
+                   
+                    $this->table->add_row($sp['booking_id'], $sp['name'], $sp['parts_shipped'], $sp['age_of_part_pending'] . " Days");
                 }
 
                 $this->table->set_template($template1);
                 $html_table = $this->table->generate();
 
                 $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
-                $to = $rm_details[0]['official_email'] . "," . $value['sf_email'];
+                $to =  $value['sf_email'];
+                $bcc = "abhaya@247around.com";
 
                 $template = $this->booking_model->get_booking_email_template("notification_to_send_defective_parts");
                 $body = vsprintf($template[0], $html_table);
 
                 $from = $template[2];
-                $cc = $template[3];
+                $cc = $template[3].", ".$rm_details[0]['official_email'];
                 $subject = vsprintf($template[4], $value['name']);
 
-                $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "");
+                $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "");
                 log_message("info", __METHOD__ . " " . $value['name'] . " Email Sent");
+               
             }
         }
     }
