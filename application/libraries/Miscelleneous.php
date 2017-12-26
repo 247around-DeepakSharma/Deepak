@@ -1108,6 +1108,7 @@ class Miscelleneous {
      */
     function get_partner_prepaid_amount($partner_id) {
         //Get Partner details
+       
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,"
                 . "grace_period_date,prepaid_notification_amount ", array('partners.id' => $partner_id));
         if (!empty($partner_details)) {
@@ -1118,12 +1119,12 @@ class Miscelleneous {
             $where = array(
                 'partner_id' => $partner_id,
                 'partner_invoice_id is null' => NULL,
-                'booking_status IN ("' . _247AROUND_PENDING . '", "' . _247AROUND_FOLLOWUP . '", "' . _247AROUND_COMPLETED . '")' => NULL
+                'booking_status IN ("' . _247AROUND_PENDING . '", "'  . _247AROUND_COMPLETED . '")' => NULL
             );
             // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
             $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
             // calculate final amount of partner
-            $final_amount = $invoice_amount[0]['amount'] - $service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE);
+            $final_amount = $invoice_amount[0]['amount'] + $service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE);
 
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
             $d['prepaid_amount'] = $final_amount;
