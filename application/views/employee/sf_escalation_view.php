@@ -14,9 +14,8 @@
     <div class="calender_holder"style="margin-right: 50px;float: right;">
         <form class="form-inline"style="float:left;background: #46b8da;color: #fff;padding: 3px;border-radius: 4px;">
         <div class="form-group">
-            <input type="text" class="form-control" name="daterange" id="daterange_id">
+            <input type="text" class="form-control" name="daterange" id="daterange_id" onchange="get_date_data()">
         </div>
-            <a href="#" onclick="get_date_data()" class="btn btn-default" style="margin:0px;">Get Data</a>
     </form>
    </div>
     <div class="picChartHolder">
@@ -197,9 +196,9 @@
     title: {
         text: title
     },
-    tooltip: {
-        pointFormat: '{series.name}: <b>{series.y}:</b>'
-    },
+//    tooltip: {
+//        pointFormat: '{series.name}: <b>{series.y}:</b>'
+//    },
     plotOptions: {
         pie: {
             allowPointSelect: true,
@@ -214,7 +213,7 @@
         }
     },
     series: [{
-        name: 'Brands',
+        name: "Total",
         colorByPoint: true,
         data: data
     }]

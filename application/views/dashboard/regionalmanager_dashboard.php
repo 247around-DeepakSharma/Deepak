@@ -48,9 +48,9 @@
     <button type="button" class="btn btn-info" ng-click="mytoggle=!mytoggle" id="order_by_toggal" onclick="change_toggal_text()"style="float:right">Sort By Number Of Escalation</button>
     <form class="form-inline"style="float:left;background: #46b8da;color: #fff;padding: 3px;border-radius: 4px;">
         <div class="form-group">
-            <input type="text" class="form-control" name="daterange" id="daterange_id">
+            <input type="text" class="form-control" name="daterange" id="daterange_id" ng-change="daterangeloadView()" ng-model="dates">
         </div>
-        <a href="#" ng-click="daterangeloadView()" class="btn btn-default" style="margin:0px;">Get Data</a>
+<!--        <a href="#" ng-click="daterangeloadView()" class="btn btn-default" style="margin:0px;">Get Data</a>-->
     </form>
     <p>
     <table class="table table-striped table-bordered jambo_table bulk_action">
