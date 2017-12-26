@@ -1837,8 +1837,8 @@ class Partner extends CI_Controller {
      * @desc: This is used to get distnace between pincode
      */
     function getDistanceBetweenPincode() {
-        $origins = $this->input->get("origins");
-        $destinations = $this->input->get("destinations");
+        $origins = $this->input->get("origin");
+        $destinations = $this->input->get("destination");
         
         if(strlen($origins) != 6 &&strlen($destinations) != 6){
             $distance['status'] = "REQUEST_DENIED";
@@ -1858,8 +1858,8 @@ class Partner extends CI_Controller {
                 $distance['origin_addresses'] = array($origins, "India");
                 $distance['distance'] = array("text" => $is_distance[0]['distance'] . " KM", "value" => $is_distance[0]['distance']);
                 $distance['status'] = "OK";
-
-                print_r(json_encode($distance, true));
+              echo   $html = "<p style='float:right;'><img style='width:268px;' src='".base_url()."images/powered-by-google.png'></p><p id='data'>".json_encode($distance, true)."</p>";
+              
             } else {
                 $is_distance1 = $this->upcountry_model->calculate_distance_between_pincode($origins, "", $destinations, "");
 
@@ -1867,9 +1867,10 @@ class Partner extends CI_Controller {
                     $distance1 = (round($is_distance1['distance']['value'] / 1000, 2));
                     $distance['destination_addresses'] = array($destinations, "India");
                     $distance['origin_addresses'] = array($origins, "India");
-                    $distance['distance'] = array("text" => $distance1 . " KM", "value" => $$distance1);
+                    $distance['distance'] = array("text" => $distance1 . " KM", "value" => $distance1);
                     $distance['status'] = "OK";
-                    print_r(json_encode($distance, true));
+                   
+                    echo "<p style='float:right;'><img style='width:268px;' src='".base_url()."images/powered-by-google.png'></p><p id='data'>".json_encode($distance, true)."</p>";
                 } else {
                     $distance['destination_addresses'] = array($destinations, "India");
                     $distance['origin_addresses'] = array($origins, "India");

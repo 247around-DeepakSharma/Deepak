@@ -211,6 +211,10 @@
 <!--                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/process_vendor_pincode_delete_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
                         </li>-->
+<li class="divider"></li>
+<li>
+                            <a href="<?php echo base_url()?>employee/vendor/download_sf_list_excel"><i class="fa fa-fw fa-desktop "></i> <strong>Download SF List</strong></a>
+                        </li>
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/upcountry/get_distance_between_pincodes_form"><i class="fa fa-fw fa-desktop "></i> <strong>Update Pincode Distance</strong></a>

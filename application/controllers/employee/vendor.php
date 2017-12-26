@@ -3198,7 +3198,13 @@ class vendor extends CI_Controller {
        
         $where = array('active' => '1','on_off' => '1');
         $select = "*";
-        $vendor = $this->vendor_model->getVendorDetails($select, $where);
+        $whereIN = array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+            $whereIN =array("id"=>explode(",",$serviceCenters));
+        }
+        $vendor = $this->vendor_model->getVendorDetails($select, $where,'name',$whereIN);
         log_message('info', __FUNCTION__);
 
         $template = 'SF_List_Template.xlsx';
@@ -3438,7 +3444,7 @@ class vendor extends CI_Controller {
      * 
      * 
      */
-    function get_sc_charges_list(){
+  function get_sc_charges_list(){
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('employee_id'));
         $sc_charges_data = $this->service_centre_charges_model->get_service_caharges_data("partner_id,services,category,capacity,service_category,vendor_basic_charges,"
                 . "vendor_tax_basic_charges,vendor_total,customer_net_payable",array("partner_id <> " => _247AROUND_DEMO_PARTNER));
@@ -3452,24 +3458,14 @@ class vendor extends CI_Controller {
         }
             //Looping through all the values 
             foreach ($sc_charges_data as $value) {
-                //Getting Details from Booking Sources
-                $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($value['partner_id']);
-                $code_source = $booking_sources[0]['code'];
-                
-                //Calculating vendor base charge 
-                $vendor_base_charge = $value['vendor_total']/(1+(DEFAULT_TAX_RATE/100));
-                //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
-                $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
-                
-                $array_final['state'] = $state;
-                $array_final['sc_code'] = $code_source;
-                $array_final['product'] = $value['product'];
+                $array_final['sc_code'] = $booking_sources_array[$value['partner_id']];
+                $array_final['product'] = $value['services'];
                 $array_final['category'] = $value['category'];
                 $array_final['capacity'] = $value['capacity'];
                 $array_final['service_category'] = $value['service_category'];
-                $array_final['vendor_basic_charges'] = round($vendor_base_charge,2);
-                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,2);
-                $array_final['vendor_total'] = round($value['vendor_total'],2);
+                $array_final['vendor_basic_charges'] = round($value['vendor_basic_charges'],0);
+                $array_final['vendor_tax_basic_charges'] = round($value['vendor_tax_basic_charges'],0);
+                $array_final['vendor_total'] = round($value['vendor_total'],0);
                 $array_final['customer_net_payable'] = round($value['customer_net_payable'],0);
                 $final_array[] = $array_final;
             }
@@ -4158,19 +4154,32 @@ class vendor extends CI_Controller {
     }
     
     function get_penalty_details_data($booking_id, $status){
-        
+
         $where  = array('penalty_on_booking.booking_id'=>$booking_id,'penalty_on_booking.active' => 1);
         $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where,'penalty_on_booking.*,name',array('*'));
-        if($this->input->post('sf_id')){
-            $remove_penalty_where = array('penalty_on_booking.booking_id' => $booking_id,
+
+        $sf_id =  array_unique(array_map(function ($k) {
+                            return $k['service_center_id'];
+                        }, $data['penalty_details']));
+        $array = array();
+        foreach($sf_id as $value){
+            $date = "DATE_FORMAT( CURRENT_DATE - INTERVAL 1 MONTH, '%Y/%m/01' ) ";
+            $date1 = "DATE_FORMAT( CURRENT_DATE, '%Y/%m/01' )";
+            $remove_penalty_where = array('penalty_on_booking.service_center_id' => $value,
                         'penalty_on_booking.active' => 0,
-                        'penalty_on_booking.update_date >= (NOW() - INTERVAL 1 MONTH)' => NULL);
-            $data['remove_penalty_details'] = $this->reusable_model->get_search_query('penalty_on_booking','name as sf_name,count(*) as count',$remove_penalty_where,array('penalty_details'=>'penalty_on_booking.criteria_id = penalty_details.id','service_centres' => 'penalty_on_booking.service_center_id = service_centres.id'),NULL,NULL,NULL,NULL,'penalty_on_booking.service_center_id')->result_array();
-        }else{
-            $data['remove_penalty_details'] = "";
+                         'penalty_on_booking.penalty_remove_date < '.$date1.'' => NULL,
+                        'penalty_on_booking.penalty_remove_date >= '.$date.'' => NULL);
+           
+            $remove_penalty = $this->reusable_model->get_search_query('penalty_on_booking','name as sf_name,count(*) as count',$remove_penalty_where,array('service_centres' => 'penalty_on_booking.service_center_id = service_centres.id'),NULL,NULL,NULL,NULL,'penalty_on_booking.service_center_id')->result_array();
+          
+            if(!empty($remove_penalty)){
+                array_push($array,$remove_penalty[0]);
+            }
         }
         
-        $this->load->view('employee/get_penalty_on_booking_details',array('penalty_details' => $data['penalty_details'], 'status'=>$status,'remove_penalty_details'=>$data['remove_penalty_details']));
+        $data['remove_penalty_details'] = $array;
+        $data['status'] = $status;
+        $this->load->view('employee/get_penalty_on_booking_details',$data);
     }
     
     /**
@@ -4872,7 +4881,8 @@ class vendor extends CI_Controller {
         }
     }
     function pending_bookings_on_vendor($vendorID){
-         $count = $this->reusable_model->get_search_result_count("booking_details","booking_id",array('assigned_vendor_id'=>$vendorID),NULL,NULL,NULL,NULL,NULL);
+         $count = $this->reusable_model->get_search_result_count("booking_details","booking_id",array('assigned_vendor_id'=>$vendorID),NULL,NULL,NULL,
+                 array("current_status"=>array("Rescheduled","Pending")),NULL );
          echo $count;
     }
     
