@@ -3438,7 +3438,7 @@ class vendor extends CI_Controller {
      * 
      * 
      */
-    function get_sc_charges_list(){
+  function get_sc_charges_list(){
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('employee_id'));
         $sc_charges_data = $this->service_centre_charges_model->get_service_caharges_data("partner_id,services,category,capacity,service_category,vendor_basic_charges,"
                 . "vendor_tax_basic_charges,vendor_total,customer_net_payable",array("partner_id <> " => _247AROUND_DEMO_PARTNER));
@@ -3452,24 +3452,14 @@ class vendor extends CI_Controller {
         }
             //Looping through all the values 
             foreach ($sc_charges_data as $value) {
-                //Getting Details from Booking Sources
-                $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($value['partner_id']);
-                $code_source = $booking_sources[0]['code'];
-                
-                //Calculating vendor base charge 
-                $vendor_base_charge = $value['vendor_total']/(1+(DEFAULT_TAX_RATE/100));
-                //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
-                $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
-                
-                $array_final['state'] = $state;
-                $array_final['sc_code'] = $code_source;
-                $array_final['product'] = $value['product'];
+                $array_final['sc_code'] = $booking_sources_array[$value['partner_id']];
+                $array_final['product'] = $value['services'];
                 $array_final['category'] = $value['category'];
                 $array_final['capacity'] = $value['capacity'];
                 $array_final['service_category'] = $value['service_category'];
-                $array_final['vendor_basic_charges'] = round($vendor_base_charge,2);
-                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,2);
-                $array_final['vendor_total'] = round($value['vendor_total'],2);
+                $array_final['vendor_basic_charges'] = round($value['vendor_basic_charges'],0);
+                $array_final['vendor_tax_basic_charges'] = round($value['vendor_tax_basic_charges'],0);
+                $array_final['vendor_total'] = round($value['vendor_total'],0);
                 $array_final['customer_net_payable'] = round($value['customer_net_payable'],0);
                 $final_array[] = $array_final;
             }
