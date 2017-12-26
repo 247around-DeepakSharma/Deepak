@@ -23,6 +23,7 @@ class Login extends CI_Controller {
         $this->load->library("session");
         $this->load->library('user_agent');
         $this->load->library('notify');
+        $this->load->driver('cache');
     }
 
     /**
