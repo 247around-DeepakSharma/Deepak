@@ -4868,7 +4868,8 @@ class vendor extends CI_Controller {
         }
     }
     function pending_bookings_on_vendor($vendorID){
-         $count = $this->reusable_model->get_search_result_count("booking_details","booking_id",array('assigned_vendor_id'=>$vendorID),NULL,NULL,NULL,NULL,NULL);
+         $count = $this->reusable_model->get_search_result_count("booking_details","booking_id",array('assigned_vendor_id'=>$vendorID),NULL,NULL,NULL,
+                 array("current_status"=>array("Rescheduled","Pending")),NULL );
          echo $count;
     }
     
