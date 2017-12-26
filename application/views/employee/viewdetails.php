@@ -547,6 +547,7 @@
                                 <th class="jumbotron" style="text-align: center">Date</th>
                                 <th class="jumbotron" style="text-align: center">Status</th>
                                 <th class="jumbotron" style="text-align: center">Penalty Amount</th>
+                                <th class="jumbotron" style="text-align: center">Penalty On SF</th>
                                 <th class="jumbotron" style="text-align: center">Agent Name</th>
                                 <th class="jumbotron" style="text-align: center">Remarks</th>
                             </tr>
@@ -562,6 +563,7 @@
                                     </td>
                                     <td><?php echo 'Penalty Added' ?></td>
                                     <td><?php echo $penalty[$key]['penalty_amount']; ?></td>
+                                    <td><?php echo $penalty[$key]['sf_name']; ?></td>
                                     <td><?php echo $penalty[$key]['agent_name']; ?></td>
                                     <td><?php echo $penalty[$key]['remarks']; ?></td>
 
@@ -577,6 +579,7 @@
                                     </td>
                                     <td><?php echo 'Penalty Removed' ?></td>
                                     <td><?php echo $penalty[$key]['penalty_amount']; ?></td>
+                                    <td><?php echo $penalty[$key]['sf_name']; ?></td>
                                     <td><?php echo $penalty[$key]['agent_name']; ?></td>
                                     <td><?php echo $penalty[$key]['penalty_remove_reason']; ?></td>
 
