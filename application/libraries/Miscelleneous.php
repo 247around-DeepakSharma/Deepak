@@ -1125,7 +1125,7 @@ class Miscelleneous {
             // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
             $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
             // calculate final amount of partner
-            $final_amount = $invoice_amount[0]['amount'] + $service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE);
+            $final_amount = -($invoice_amount[0]['amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)));
 
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
             $d['prepaid_amount'] = $final_amount;
