@@ -693,11 +693,15 @@ class vendor_model extends CI_Model {
      * @param: Array
      * @return : Array
      */
-    function getVendorDetails($select, $where ="" , $order_by='name') {
-        
+    function getVendorDetails($select, $where ="" , $order_by='name',$whereIN=array()) {
         $this->db->select($select,FALSE);
         if(!empty($where)){
            $this->db->where($where);
+        }
+        if(!empty($whereIN)){
+            foreach ($whereIN as $fieldName=>$conditionArray){
+                    $this->db->where_in($fieldName, $conditionArray);
+            }
         }
         $this->db->order_by($order_by);
         $sql = $this->db->get('service_centres');
