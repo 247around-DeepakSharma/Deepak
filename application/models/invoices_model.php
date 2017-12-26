@@ -618,7 +618,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($result_data['result'])) {
             $result =  $result_data['result'];
-            $response = $this->_set_partner_excel_invoice_data($result,$from_date_tmp,$to_date_tmp);
+            $response = $this->_set_partner_excel_invoice_data($result,$from_date_tmp,$to_date_tmp, "Tax Invoice");
 
             $data['booking'] = $response['booking'];
             $data['meta'] = $response['meta'];
@@ -631,7 +631,7 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_date = false){
+    function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_type, $invoice_date = false){
          $c_s_gst =$this->check_gst_tax_type($result[0]['state']);
             
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
@@ -681,6 +681,7 @@ class invoices_model extends CI_Model {
             $meta['gst_number'] = $result[0]['gst_number'];
             $meta['reverse_charge_type'] = "N";
             $meta['reverse_charge'] = '';
+            $meta['invoice_type'] = $invoice_type;
            
             $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
             if($result[0]['description'] == QC_INVOICE_DESCRIPTION){
@@ -786,6 +787,7 @@ class invoices_model extends CI_Model {
             $meta['ed'] = date("jS M, Y", strtotime($to_date_temp));
             $meta['invoice_date'] = date("jS M, Y");
             $meta['reference_invoice_id'] = "";
+            $meta['invoice_type'] = "Tax Invoice";
 
             $data1['meta'] = $meta;
             $data1['booking'] = $result;
@@ -1249,6 +1251,7 @@ class invoices_model extends CI_Model {
             
             $meta['reverse_charge_type'] = "N";
             $meta['reverse_charge'] = '';
+            $meta['invoice_type'] = 'Tax Invoice';
            
             $meta['total_qty'] =  $meta['total_rate'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
             $commission_charge[0]['hsn_code'] = COMMISION_CHARGE_HSN_CODE;
