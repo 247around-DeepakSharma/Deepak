@@ -73,21 +73,29 @@ function partner_vendor1(vendor_partner_id){
                 submitHandler: function(form) {
                     var partner_invoice_id  = $("#name").val();
                     if(partner_invoice_id === "All"){
-                        var fd = new FormData(document.getElementById("fileinfo"));
-                        fd.append("label", "WEBUPLOAD");
-                        $.ajax({
-                                type: 'POST',
-                                url: '<?php echo base_url() ?>employee/invoice/process_invoices_form',
-                                data: fd,
-                                processData: false,
-                                contentType: false,
-                                success: function (data) {
-                                 // console.log(data);
-                                 
-                                }
-                              });
-                              alert("Process submitted. Please Wait..");
-                        return false;
+                        var vendor_partner = $("input[name='partner_vendor']:checked").val();
+                        
+                        if(vendor_partner === "vendor"){
+                        var fd = new FormData(document.getElementById("myForm1"));
+                            fd.append("label", "WEBUPLOAD");
+
+                            $.ajax({
+                                    type: 'POST',
+                                    url: '<?php echo base_url() ?>employee/invoice/process_invoices_form',
+                                    data: fd,
+                                    processData: false,
+                                    contentType: false,
+                                    success: function (data) {
+                                      console.log(data);
+
+                                    }
+                                  });
+                                  alert("Process submitted. Please Wait..");
+                            return false;
+                        } else {
+                         alert("We can not generate partner All invoice");
+                         return false;
+                        }
                       
                         
                     } else {
@@ -208,7 +216,7 @@ color: red;
 		  <label for="name" class="col-md-2">Invoice Type<span class="red">*</span></label>
                   <div class="col-md-6" style="margin-left:-15px;">
 <!--		     <span class="col-md-2"><input type="radio"  id="myRadio1" name="vendor_invoice_type" value = "all" checked >All </span>-->
-                      <span class="col-md-2"><input type="radio"  id="myRadio2" name="vendor_invoice_type" value = "foc" >FOC</span>
+                      <span class="col-md-2"><input type="radio"  id="myRadio2" name="vendor_invoice_type" value = "foc" checked>FOC</span>
                       <span class="col-md-2"><input type="radio"  id="myRadio3" name="vendor_invoice_type" value = "cash" >CASH</span>
                       <span class="col-md-4" id="brackets"><input type="radio"  id="myRadio4" name="vendor_invoice_type" value = "brackets" >BRACKETS</span>
                       <span class="col-md-2" ><input type="radio"  id="myRadio5" name="vendor_invoice_type" value = "buyback" >Buyback</span>

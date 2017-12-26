@@ -1069,11 +1069,7 @@ class Booking extends CI_Controller {
             print_r(json_encode($data, true));
         } else {
             $data['code'] = -247;
-            if(isset($prepaid['prepaid_msg'])){
-                $data['prepaid_msg'] = $prepaid['prepaid_msg'];
-            } else {
-                $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
-            }
+            $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
             
             echo json_encode($data,true);
         }

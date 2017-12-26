@@ -1536,7 +1536,7 @@ class Inventory extends CI_Controller {
            
             $subject = vsprintf($emailtemplate[4], $data['name']);
           //  $emailBody = vsprintf($emailtemplate[0], $estimate_cost);
-            $json_result = $this->miscelleneous->convert_excel_to_pdf(TMP_FOLDER.$output_file_excel,$booking_id, "misc-images");
+            $json_result = $this->miscelleneous->convert_excel_to_pdf(TMP_FOLDER.$output_file_excel,$booking_id, "jobcards-pdf");
             $pdf_response = json_decode($json_result,TRUE);
             $output_pdf_file_name = $output_file_excel;
             $attachement_url = TMP_FOLDER.$output_file_excel;

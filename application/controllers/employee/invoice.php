@@ -794,7 +794,7 @@ class Invoice extends CI_Controller {
                 $rem_email_id = ", " . $rm_details[0]['official_email'];
             }
             $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
-            $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id;
+            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
             $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                 
             //get email template from database
@@ -1060,7 +1060,7 @@ class Invoice extends CI_Controller {
                 $email_from = $email_template[2];
                 $to = $invoice_data['meta']['owner_email'] . ", " . $invoice_data['meta']['primary_contact_email'];
                 
-                $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id;
+                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
                 $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                  //Upload Excel files to AWS
                 $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
@@ -1711,9 +1711,9 @@ class Invoice extends CI_Controller {
 
         $vendor_data = $this->vendor_model->getVendorContact($vendor_id);
         $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
-        $cc = NITS_ANUJ_EMAIL_ID;
+        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
         if (!empty($rm_details)) {
-           $cc = NITS_ANUJ_EMAIL_ID . ", " . $rm_details[0]['official_email'];
+           $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . ", " . $rm_details[0]['official_email'];
         }
         
         //get email template from database
@@ -1944,7 +1944,7 @@ class Invoice extends CI_Controller {
             }
                 $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
             
-            $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id.",".ACCOUNTANT_EMAILID;
+            $cc = ANUJ_EMAIL_ID . $rem_email_id.",".ACCOUNTANT_EMAILID;
             $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                 
             //get email template from database
@@ -2105,21 +2105,24 @@ class Invoice extends CI_Controller {
                 }
             } else {
                 //Negative Amount Invoice
-                $email_template = $this->booking_model->get_booking_email_template(NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
-                $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
-                $message = $email_template[0];
-                $email_from = $email_template[2];
-                $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
-                $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
-                $rem_email_id = "";
-                if (!empty($rm_details)) {
-                    $rem_email_id = ", " . $rm_details[0]['official_email'];
+                if($invoice_type == "final"){
+                    $email_template = $this->booking_model->get_booking_email_template(NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                    $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
+                    $message = $email_template[0];
+                    $email_from = $email_template[2];
+                    $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
+                    $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+                    $rem_email_id = "";
+                    if (!empty($rm_details)) {
+                        $rem_email_id = ", " . $rm_details[0]['official_email'];
+                    }
+                    $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
+                    echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
+                    log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
+
+                    $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "");
                 }
-                $cc = NITS_ANUJ_EMAIL_ID . $rem_email_id;
-                echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
-                log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
                 
-                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "");
               
                 return false;
             }
@@ -2463,7 +2466,7 @@ class Invoice extends CI_Controller {
         $to = $vendor_detail[0]['owner_email'] . ", " . $vendor_detail[0]['primary_contact_email'];
 
         $subject = "247around - " . $vendor_detail[0]['company_name'] . " - " . $type . "  Invoice for period: " . $start_date . " to " . $end_date;
-        $cc = NITS_ANUJ_EMAIL_ID;
+        $cc = NITS_ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
 
         $this->email->from('billing@247around.com', '247around Team');
         $this->email->to($to);
@@ -2658,7 +2661,7 @@ class Invoice extends CI_Controller {
             $invoice_id = $this->create_invoice_id_to_insert("Around");
             
             $response = $this->generate_partner_additional_invoice($partner_data[0], $description,
-            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code);
+            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, "Tax Invoice");
             $basic_sc_charge = $response['meta']['total_taxable_value'];
             $invoice_details = array(
                 'invoice_id' => $invoice_id,
@@ -2819,7 +2822,7 @@ class Invoice extends CI_Controller {
         if (!empty($entity)) {
             if ($vendor_partner == "vendor") {
                 if($txntype == "Credit"){
-                    $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-RV");
+                    $data['invoice_id'] = $this->create_invoice_id_to_insert("ARD-RV");
                     $data['type'] = BUYBACK_VOUCHER;
                     $basic_price = $amount;
 
@@ -2839,13 +2842,13 @@ class Invoice extends CI_Controller {
                 
                 
             } else {
-                $data['invoice_id'] = $this->create_invoice_id_to_insert("Around-PV");
+                $data['invoice_id'] = $this->create_invoice_id_to_insert("ARD-PV");
                 if($tds > 0){
                     $data['tds_amount'] = $tds;
                 }
                 $data['type'] = PARTNER_VOUCHER;
                 $response = $this->generate_partner_additional_invoice($entity[0], PARTNER_ADVANCE_DESCRIPTION,
-                        $amount, $data['invoice_id'], $date,  $date,  $date, HSN_CODE);
+                        $amount, $data['invoice_id'], $date,  $date,  $date, HSN_CODE, "Receipt Voucher");
                 
                 $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $response['meta']['cgst_total_tax_amount'];
                 $data['igst_tax_amount'] = $response['meta']['igst_total_tax_amount'];
@@ -2854,6 +2857,9 @@ class Invoice extends CI_Controller {
 
                 $data['total_service_charge'] = $response['meta']['total_taxable_value'];
                 $data['invoice_file_pdf'] = $response['meta']['copy_file'];
+                $data['invoice_file_main'] = $response['meta']['invoice_file_main'];
+                $data['invoice_file_excel'] = $response['meta']['invoice_file_excel'];
+              
                 $amount_collected_paid = $amount - $tds;
                 $data['type_code'] = "B";
                 $data['amount_collected_paid'] = -$amount_collected_paid;
@@ -2894,7 +2900,7 @@ class Invoice extends CI_Controller {
      * @return Array
      */
     function generate_partner_additional_invoice($partner_data, $description,
-            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code){
+            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, $invoice_type){
         log_message("info", __METHOD__." Partner ID ".$partner_data['id']);
         $data = array();
         $data[0]['description'] =  $description;
@@ -2911,9 +2917,14 @@ class Invoice extends CI_Controller {
         $data[0]['qty'] = 1;
         $data[0]['hsn_code'] = $hsn_code;
                 
-        $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_date);
+        $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type,$invoice_date);
         log_message("info", __METHOD__." Partner Advance Excel Data generated ".$partner_data['id']);
         $response['meta']['invoice_id'] = $invoice_id;
+        if($invoice_type == "Receipt Voucher"){
+            $response['meta']['sd'] = "";
+            $response['meta']['ed'] = "";
+        }
+       
         $status = $this->send_request_to_create_main_excel($response, "final");
         if($status){
             log_message("info", __METHOD__." Partner Advance Excel generated ".$partner_data['id']);
@@ -2922,13 +2933,14 @@ class Invoice extends CI_Controller {
             $output_pdf_file_name = $convert['main_pdf_file_name'];
             $response['meta']['invoice_file_main'] = $output_pdf_file_name;
             $response['meta']['copy_file'] = $convert['copy_file'];
+            $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
             
             $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_DETAILED_EMAIL_TAG);
             $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
             $message = $email_template[0];
             $email_from = $email_template[2];
 
-            $to = NITS_ANUJ_EMAIL_ID;
+            $to = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
             $cc = "";
            
             $this->upload_invoice_to_S3($invoice_id, false);
@@ -3069,7 +3081,7 @@ class Invoice extends CI_Controller {
         //send email
         $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_details[0]['id']); 
         $to = $vendor_details[0]['owner_email'].",".$this->session->userdata('official_email').",".$get_rm_email[0]['official_email'];
-        $cc = ANUJ_EMAIL_ID;
+        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
         //get email template from database
         $email_template = $this->booking_model->get_booking_email_template(BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG);
         $subject = vsprintf($email_template[4], array($vendor_details[0]['company_name']));
@@ -3124,7 +3136,7 @@ class Invoice extends CI_Controller {
             $data[0]['hsn_code'] = SPARE_HSN_CODE;
             $sd = $ed = $invoice_date = date("Y-m-d");
 
-            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_date);
+            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
             $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
             $status = $this->send_request_to_create_main_excel($response, "final");
             if ($status) {
@@ -3196,7 +3208,7 @@ class Invoice extends CI_Controller {
                 $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array("sell_invoice_id" => $response['meta']['invoice_id']));
                 log_message('info', __METHOD__ . ": Invoice Updated in Spare Parts " . $response['meta']['invoice_id']);
 
-                $this->booking_model->update_booking_unit_details(array("booking_id" => $sp_data[0]->booking_id, "price_tags" => "Spare Parts"), array("pay_from_sf" => 0));
+                $this->booking_model->update_booking_unit_details_by_any(array("booking_id" => $sp_data[0]->booking_id, "price_tags" => "Spare Parts"), array("pay_from_sf" => 0));
                 log_message('info', __METHOD__ . ": ...Exit" . $response['meta']['invoice_id']);
             }
         }
