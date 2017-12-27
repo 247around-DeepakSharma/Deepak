@@ -359,6 +359,8 @@ class dashboard_model extends CI_Model {
       */
      function get_sf_escalation_by_rm_by_sf_by_date($startDate=NULL,$endDate=NULL,$sf_id=NULL,$rm_id=NULL,$groupBy){
          //Create Blank Where Array For escalation and Booking
+    $booking_orderBy["month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))"] = "ASC";
+    $escalation_orderBy["month(vendor_escalation_log.create_date)"] = "ASC";
     $escalation_where=array();
     $booking_where=array();
     //Create Join  Array For escalation and Booking (JOIN With employee Relation to get RM)
@@ -388,9 +390,9 @@ class dashboard_model extends CI_Model {
             $escalation_where["date(vendor_escalation_log.create_date) >= '".$startDate."' AND date(vendor_escalation_log.create_date) < '".$endDate."'"] =  NULL;
        }
        //Get Booking data for above define where condition,select,join and requested group by
-    $data['booking'] = $this->reusable_model->get_search_result_data('booking_details',$booking_select,$booking_where,$booking_join,NULL,NULL,NULL,NULL,$groupBy['booking']);
+    $data['booking'] = $this->reusable_model->get_search_result_data('booking_details',$booking_select,$booking_where,$booking_join,NULL,$booking_orderBy,NULL,NULL,$groupBy['booking']);
        //Get Escalation data for above define where condition,select,join and requested group by
-    $data['escalation'] = $this->reusable_model->get_search_result_data('vendor_escalation_log',$escalation_select,$escalation_where,$escalation_join,NULL,NULL,NULL,NULL,$groupBy['escalation']);
+    $data['escalation'] = $this->reusable_model->get_search_result_data('vendor_escalation_log',$escalation_select,$escalation_where,$escalation_join,NULL,$escalation_orderBy,NULL,NULL,$groupBy['escalation']);
     return $data;
      }
 }
