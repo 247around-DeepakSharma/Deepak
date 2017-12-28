@@ -3820,4 +3820,8 @@ ALTER TABLE `inventory_ledger` CHANGE `part_id` `inventory_id` INT(11) NULL DEFA
 ALTER TABLE `inventory_ledger` ADD `remarks` VARCHAR(1024) NULL AFTER `invoice_id`, ADD `active` TINYINT NOT NULL DEFAULT '1' AFTER `remarks`;
 ALTER TABLE `inventory_master_list` CHANGE `id` `inventory_id` INT(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `inventory_stocks` CHANGE `part_id` `inventory_id` INT(11) NOT NULL;
-ALTER TABLE `booking_unit_details` ADD `inventory_id` INT(11) NOT NULL AFTER `is_spare_parts`;
+ALTER TABLE `booking_unit_details` ADD `inventory_id` INT(11) NULL DEFAULT NULL AFTER `is_spare_parts`;
+
+
+--Abhay 28 Dec
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'prepaid_low_balance', 'Dear partner, your current balance is running low. Please recharge your account urgently for uninterrupted service. 247around Team', '', '1', CURRENT_TIMESTAMP);
