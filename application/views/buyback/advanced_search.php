@@ -73,6 +73,9 @@ var shop_list_details = [];
                                         <option ng-repeat="y in internal_status_list" value="{{y.internal_status}}">{{y.internal_status}}</option>   
                                     </select>
                                 </div>
+                                <div class="col-md-4 form-group">
+                                    <input type="text" placeholder="Acknowledge Date" class="form-control" id="acknowledge_date" name="acknowledge_date"/>
+                                </div>
                                 <div class="col-md-4 form-group" style="margin-top: 8px;">
                                     <label style="margin-right: 10px;"> Is Invoiced:  </label>
                      
@@ -96,6 +99,7 @@ var shop_list_details = [];
                                         <th>City</th>
                                         <th>Order Date</th>
                                         <th>Delivery Date</th>
+                                        <th>Acknowledge Date</th>
                                         <th>Status</th>
                                         <th>Exchange Value</th>
                                         <th>CP Charge</th>
@@ -207,6 +211,34 @@ var shop_list_details = [];
              }
         });
         
+        $('input[name="acknowledge_date"]').daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                format: 'YYYY/MM/DD',
+                 cancelLabel: 'Clear'
+            }
+           
+        });
+        $('input[name="acknowledge_date"]').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));
+            ad_table.ajax.reload( function ( json ) {
+               create_dropdown();
+             } );
+             
+        });
+
+        $('input[name="acknowledge_date"]').on('cancel.daterangepicker', function(ev, picker) {
+             var value1 = $('input[name="acknowledge_date"]').val();
+             
+             if(value1 !== ''){
+                $(this).val('');
+
+                ad_table.ajax.reload( function ( json ) {
+                   create_dropdown();
+                 } );
+             }
+        });
+        
         $('#datatable1').on('search.dt', function() {
             var s_value = $('.dataTables_filter input').val();
             $('#search_value').val(s_value);
@@ -242,6 +274,7 @@ var shop_list_details = [];
                     d.internal_status = getMultipleSelectedValues("internal_status");
                     d.invoice = $('input[name="invoice"]:checked').val();
                     d.cp_id = $("#cp_id").val();
+                    d.acknowledge_date = $('input[name="acknowledge_date"]').val();
                     d.status =  10;
                     
                  }
