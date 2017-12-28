@@ -11,8 +11,6 @@
     }
 </style>
 <div class="right_col" role="main" ng-app="rm_dashboard">
-    
-
     <div class="row" ng-controller="rm_dashboardController">
 <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
@@ -30,7 +28,6 @@
         <div class="form-group">
             <input type="text" class="form-control" name="daterange" id="daterange_id" ng-change="daterangeloadView()" ng-model="dates">
         </div>
-<!--        <a href="#" ng-click="daterangeloadView()" class="btn btn-default" style="margin:0px;">Get Data</a>-->
     </form>
     <table class="table table-striped table-bordered jambo_table bulk_action">
     <thead>
@@ -45,7 +42,7 @@
     <tbody>
      <tr ng-repeat="y in escalationData  |orderBy:!mytoggle?'-esclation_per':'-total_escalation'">
         <td>{{$index+1}}</td>
-        <td><a type="button" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/vendor/show_escalation_graph_by_sf/{{y.vendor_id}}">{{y.vendor_name}}</a></td>
+         <td><a type="button" id="vendor_{{y.vendor_id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/vendor/show_escalation_graph_by_sf/{{y.vendor_id}}/{{y.startDate}}/{{y.endDate}}">{{y.vendor_name}}</a></td>
         <td>{{y.total_booking}}</td>
         <td>{{y.total_escalation}}</td>
          <td>{{y.esclation_per}}%</td>
@@ -77,17 +74,16 @@ display: block;
         }
     }
 $(function() {
-        var d = new Date();
-        n = d.getMonth()+1;
-        y = d.getFullYear();
-        date = d.getDate();
+       var startDate = '<?php echo $this->input->post('s_date'); ?>';
+        var endDate = '<?php echo $this->input->post('e_date'); ?>';
     $('input[name="daterange"]').daterangepicker({
         timePicker: true,
         timePickerIncrement: 30,
         locale: {
             format: 'YYYY-MM-DD'
         },
-        startDate: y+'-'+n+'-01'
+        startDate: startDate,
+        endDate: endDate
     });
 });
     </script>
