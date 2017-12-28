@@ -195,6 +195,7 @@ class Buyback_process extends CI_Controller {
         $internal_status = $this->input->post("internal_status");
         $invoice = $this->input->post("invoice");
         $cp_id = $this->input->post("cp_id");
+        $acknowledge_date = $this->input->post("acknowledge_date");
         $post['where'] = array();
         $post['where_in'] = array();
         if(!empty($date_range)){
@@ -212,6 +213,11 @@ class Buyback_process extends CI_Controller {
             $d_date = explode("-", $delivery_date);
             $post['where']['delivery_date >= '] =  date("Y-m-d", strtotime(trim($d_date[0])));
             $post['where']['delivery_date < '] = date('Y-m-d', strtotime('+1 day', strtotime(trim($d_date[1]))));
+        }
+        if(!empty($acknowledge_date)){
+            $d_date = explode("-", $acknowledge_date);
+            $post['where']['bb_order_details.acknowledge_date >= '] =  date("Y-m-d", strtotime(trim($d_date[0])));
+            $post['where']['bb_order_details.acknowledge_date < '] = date('Y-m-d', strtotime('+1 day', strtotime(trim($d_date[1]))));
         }
         if(!empty($city)){
              $post['where_in']['city'] = !is_array($city)?explode(',', $city):$city;
@@ -1188,6 +1194,7 @@ class Buyback_process extends CI_Controller {
         $row[] = $order_list->city;
         $row[] = $order_list->order_date;
         $row[] = $order_list->delivery_date;
+        $row[] = $order_list->acknowledge_date;
         $row[] = $order_list->current_status;
         $row[] = $order_list->partner_basic_charge;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);

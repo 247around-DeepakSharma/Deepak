@@ -2075,13 +2075,12 @@ class Service_centers extends CI_Controller {
     function gst_update_form(){
         //$this->checkUserSession();
         log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
-        $data = $this->service_centers_model->get_gst_details_table_data(array('service_center_id' => 
-            $this->session->userdata('service_center_id')));
-        if(empty($data)){
-
+        $data = $this->reusable_model->get_search_result_data("service_centres","id as service_center_id,company_name,address as company_address,pan_no as company_pan_number"
+                . ",is_gst_doc as is_gst,gst_no as company_gst_number,gst_file as gst_certificate_file,signature_file",
+               array("id"=>$this->session->userdata('service_center_id')),NULL,NULL,NULL,NULL,NULL,array());
+        if($data[0]['is_gst'] == NULL){
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/gst_update_form');
-         
         } else {
             $this->load->view('service_centers/header'); 
             $this->load->view('service_centers/gst_details_view', $data[0]);
@@ -2137,13 +2136,11 @@ class Service_centers extends CI_Controller {
                 $gst_details['gst_certificate_file'] = $gst_file_name;
                 $gst_details['create_date'] = date('Y-m-d H:i:s');
                 $gst_details['signature_file'] = $this->input->post('signature_file_name');
-                $gst_details_id = $this->service_centers_model->insert_gst_details_data($gst_details);
-                if ($gst_details_id) {
-                    $sc['is_gst_doc'] = $gst_details['is_gst'];
-                    $sc['gst_no'] = $gst_details['company_gst_number'];
-                    $sc['gst_file'] = $gst_details['gst_certificate_file'];
-                    $sc['signature_file'] = $gst_details['signature_file'];
-                    $sc['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                $sc['is_gst_doc'] = $gst_details['is_gst'];
+                $sc['gst_no'] = $gst_details['company_gst_number'];
+                $sc['gst_file'] = $gst_details['gst_certificate_file'];
+                $sc['signature_file'] = $gst_details['signature_file'];
+                $sc['agent_id'] = _247AROUND_DEFAULT_AGENT;
                    $this->vendor_model->edit_vendor($sc, $this->session->userdata('service_center_id'));
 
                     $template = array(
@@ -2171,7 +2168,6 @@ class Service_centers extends CI_Controller {
                     $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "");
 
                     redirect(base_url() . "service_center/gst_details");
-                }
             }
         }
     }

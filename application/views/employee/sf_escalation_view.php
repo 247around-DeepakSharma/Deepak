@@ -92,7 +92,7 @@
 <script>
     var post_request = 'POST';
      $(document).ready(function(){
-        pie_chart_url =  '<?php echo base_url(); ?>employee/dashboard/get_escalations_chart_data/<?php echo $data['vendor_id']; ?>';
+        pie_chart_url =  '<?php echo base_url(); ?>employee/dashboard/get_escalations_chart_data/<?php echo $data['vendor_id']; ?>/<?php echo $data['startDate']; ?>/<?php echo $data['endDate']; ?>';
         get_escalations_pie_chart(pie_chart_url);
         get_sf_performance_bar_chart();
     });
@@ -294,17 +294,16 @@ Highcharts.chart(htmlID, {
 });
   }
  $(function() {
-        var d = new Date();
-        n = d.getMonth()+1;
-        y = d.getFullYear();
-        date = d.getDate();
+        var startDate = '<?php echo $data['startDate']; ?>';
+        var endDate = '<?php echo $data['endDate']; ?>';
     $('input[name="daterange"]').daterangepicker({
         timePicker: true,
         timePickerIncrement: 30,
         locale: {
             format: 'YYYY-MM-DD'
         },
-        startDate: y+'-'+n+'-01'
+        startDate: startDate,
+        endDate: endDate
     });
 });
 //$('#daterange_id').change(){
@@ -315,7 +314,7 @@ $("daterange_id").change(function(){
 });
 function get_date_data(){
     var dateRange = $('#daterange_id').val().split(" - ");
-    pie_chart_url =  '<?php echo base_url(); ?>employee/dashboard/get_escalations_chart_data/<?php echo $data['vendor_id']; ?>/'+dateRange[0]+"/"+dateRange[1];
+    pie_chart_url =  '<?php echo base_url(); ?>employee/dashboard/get_escalations_chart_data/<?php echo $data['vendor_id']; ?>/'+dateRange[0]+"/"+dateRange[1]; 
    get_escalations_pie_chart(pie_chart_url);
     }
     </script>

@@ -456,9 +456,9 @@ define('SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS','-1 day');
 define('SMS_DEACTIVATION_EMAIL_SUBJECT','has requested for opt-out!');
 define('SMS_DEACTIVATION_NO_NEW_REQUEST_MSG','There is not any new request');
 define('PREPAID_DEACTIVATED_MSG_FOR_PARTNER','Your Account is De-Activated');
-define('PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER','Your Credit is low. Add credit');
-define('PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN','Your Credit is low. Add credit');
-define('PREPAID_LOW_AMOUNT_MSG_FOR_DEALER','Your Credit is low. Add credit');
+define('PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER','Low Balance, Please Recharge Your Account Immediately');
+define('PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN','Low Balance, Please Inform Brand To Recharge Account Immediately');
+define('PREPAID_LOW_AMOUNT_MSG_FOR_DEALER','Low Balance, Please Ask Brand To Recharge Account Immediately');
 
 define("PARTNER_ADVANCE_DESCRIPTION", "Advance Payment");
 define("PARTNER_INVOICE_BUTTON", "CRM Setup Invoice");
