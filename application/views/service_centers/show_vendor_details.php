@@ -646,6 +646,62 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label  for="service_tax_no" class="col-md-4">GST No.</label>
+                                    <div class="col-md-7">
+                                        <input type="text" class="form-control"  id ="gst_no" name="gst_no" value = "<?php
+                                        if (isset($query[0]['gst_no'])) {
+                                            echo $query[0]['gst_no'];
+                                        }
+                                        ?>" disabled="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="service_tax_no" class="col-md-4">GST File</label>
+                                    <div class="col-md-7">
+                                        <input type="file" class="form-control"  name="gst_file" value = "<?php
+                                        if (isset($query[0]['gst_file'])) {
+                                            echo $query[0]['gst_file'];
+                                        }
+                                        ?>" disabled="">
+                                    </div>
+                                    <div class="col-md-1">
+                                        <?php
+                                        if (isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])) {
+                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$query[0]['gst_file'];
+                                            ?>
+                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black" title="Click to view" /></a>
+
+                                            <?php
+                                        } else {
+                                            $src = base_url() . 'images/no_image.png';
+                                            ?>
+                                            <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" />
+                                        <?php }
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3" style="margin-left:60px;">
+                                <div class="checkbox">
+                                    <label>
+                                        <b style="font-size: 18px;">Not Available</b>   
+                                    </label>
+                                    <input type="checkbox"  value="0" id="is_st_doc" name ="is_st_doc" <?php
+                                    if (isset($query[0]['is_gst_doc'])) {
+                                        if ($query[0]['is_gst_doc'] == 0) {
+                                            echo "checked";
+                                        }
+                                    }
+                                    ?> style="    margin-left: 24px;margin-top: 5px;" disabled="">
+                                </div>
+                            </div>
+                        </div>
 
                     </div>
                 </div>

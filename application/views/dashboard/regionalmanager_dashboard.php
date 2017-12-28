@@ -66,7 +66,7 @@
     <tbody>
      <tr ng-repeat="y in escalationData  |orderBy:!mytoggle?'-esclation_per':'-total_escalation' | limitTo : 5">
         <td>{{$index+1}}</td>
-        <td><a type="button" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/vendor/show_escalation_graph_by_sf/{{y.vendor_id}}">{{y.vendor_name}}</a></td>
+        <td><a type="button" id="vendor_{{y.vendor_id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/vendor/show_escalation_graph_by_sf/{{y.vendor_id}}/{{y.startDate}}/{{y.endDate}}">{{y.vendor_name}}</a></td>
         <td>{{y.total_booking}}</td>
         <td>{{y.total_escalation}}</td>
          <td>{{y.esclation_per}}%</td>
@@ -77,7 +77,9 @@
                     </div>
                 </div>
                 <div class="full_view_form_container" style="float:right;">
-                <form method="post" action="<?php echo base_url()?>employee/dashboard/escalation_full_view" target="_blank">
+                    <form method="post" id="full_view_form" action="<?php echo base_url()?>employee/dashboard/escalation_full_view" target="_blank">
+                        <input type="text" name="s_date" id="s_date" style="display:none;">
+                        <input type="text" name="e_date" id="e_date" style="display:none;">
                     <input type="text"  id="sf_json_data" name="sf_json_data" value="apple" style="display:none;"/>
                     <button type="submit" class="btn btn-success">Full View</button>
                     </form>

@@ -538,11 +538,16 @@ rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
  }
  // Get RM id 
  var rm_id = $('#session_id_holder').val();
-  $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/"+rm_id);
+ var intialDateRange = $('#daterange_id').val().split(" - ");
+  $("#s_date").val(intialDateRange[0]);
+   $("#e_date").val(intialDateRange[1]);
+  $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/"+rm_id+"/"+intialDateRange[0]+"/"+intialDateRange[1]);
   // This function will call after date change to load the data
   $scope.daterangeloadView = function(){
      var dateRange = $('#daterange_id').val().split(" - ");
      var rm_id = $('#session_id_holder').val();
+     $("#s_date").val(dateRange[0]);
+     $("#e_date").val(dateRange[1]);
      $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/"+rm_id+"/"+dateRange[0]+"/"+dateRange[1]);
 }
 //Escalation End

@@ -823,7 +823,7 @@ class Dashboard extends CI_Controller {
      * This function get data from Both tables(Booking,Escalation) to get escalaltion %
      * @input - RM id , Dates are optional
      */
-function get_sf_escalation_by_rm($rm_id,$startDate=NULL,$endDate=NULL){
+function get_sf_escalation_by_rm($rm_id,$startDate,$endDate){
     $sfIDNameArray = array();
     $SfBookingArray = array();
     $esclationPercentage = array();
@@ -862,7 +862,7 @@ function get_sf_escalation_by_rm($rm_id,$startDate=NULL,$endDate=NULL){
                $vendorName = $sfIDNameArray["vendor_".$escalationData['vendor_id']];
            }
            $tempArray= array("esclation_per"=>round((($escalationData['total_escalation']*100)/$vendorBooking),2),"vendor_id"=>$escalationData['vendor_id'],
-               "total_booking"=>$vendorBooking,"total_escalation"=>$escalationData['total_escalation'],"vendor_name"=>$vendorName);
+               "total_booking"=>$vendorBooking,"total_escalation"=>$escalationData['total_escalation'],"vendor_name"=>$vendorName,"startDate"=>$startDate,"endDate"=>$endDate);
            $esclationPercentage[]=$tempArray;
        }
     }
@@ -938,6 +938,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
  */
  function get_escalations_chart_data($sfID,$startDate=NULL,$endDate=NULL){    
      //Create blank request type array (All request type will be divide only in Installation and Repair)
+        $finalData['upcountry']= array();
+        $finalData['request_type'] = array();
         $requestTypeNewArray['Installation'] = $requestTypeNewArray['Repair'] = 0;
         // Get Escalation Data For Vendor
         $data = $this->get_escalation_data($sfID,$startDate,$endDate);
@@ -954,15 +956,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         // get escalation by request type
         $requestTypeData = $this->get_escalation_chart_data_by_one_matrix($data,"request_type");
         // convert all request type into installation and Repair
-        foreach($requestTypeData as $requestName => $esclation){
-            if (strpos($requestName, 'repair') !== false) {
-                $requestTypeNewArray['Repair'] = $esclation+$requestTypeNewArray['Repair'];
+        if(!empty($requestTypeData)){
+            foreach($requestTypeData as $requestName => $esclation){
+                if (strpos($requestName, 'repair') !== false) {
+                    $requestTypeNewArray['Repair'] = $esclation+$requestTypeNewArray['Repair'];
+                }
+                else{
+                     $requestTypeNewArray['Installation'] = $esclation+$requestTypeNewArray['Installation'];
+                }
             }
-            else{
-                 $requestTypeNewArray['Installation'] = $esclation+$requestTypeNewArray['Installation'];
-            }
+            $finalData['request_type'] = $requestTypeNewArray;
         }
-        $finalData['request_type'] = $requestTypeNewArray;
         // Get Data Breack Down into Appliance And then Upcountry 
         $applianceUpcountryArray = $this->get_escalation_chart_data_by_two_matrix($data,"services","is_upcountry");
         // Convert Upcountry O key as  non-upcountry and key 1 as upcountry
@@ -980,6 +984,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      * This function is used to create Vendor Escalaltion Performance Chart(Bar Chart)
      */
     function get_sf_performance_bar_chart_data($sf){
+     $escalationAssociativeArray = array();
     // Create Start Date and End Date to Get Data For last 1 year from Today
     $monthlyData = array();
     $endDate=date('Y-m-d');
