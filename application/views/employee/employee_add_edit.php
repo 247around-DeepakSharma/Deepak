@@ -189,9 +189,9 @@
                         ?>">
                             <label  for="groups" class="col-md-4">Groups</label>
                             <div class="col-md-7">
-                                <select id="groups" class="form-control" name ="groups">
+                                <select id="groups" class="form-control" name ="groups" disabled="">
                                                 <option selected disabled>Select Groups</option>
-                                                <option value ="admin" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == _247AROUND_ADMIN ){echo 'selected';}?> >ADMIN</option>
+                                                <option value ="admin" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == _247AROUND_ADMIN ){echo 'selected'; }?> >ADMIN</option>
                                                 <option value ="developer" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == _247AROUND_DEVELOPER ){echo 'selected';}?> >Developer</option>
                                                 <option value ="regionalmanager" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == _247AROUND_RM ){echo 'selected';}?> >Regional Managers</option>
                                                 <option value ="closure" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == _247AROUND_CLOSURE ){echo 'selected';}?> >Closure</option>

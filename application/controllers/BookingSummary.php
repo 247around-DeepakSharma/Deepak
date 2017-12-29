@@ -25,7 +25,7 @@ class BookingSummary extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->model('partner_model');
         $this->load->model('penalty_model');
-
+        $this->load->library('miscelleneous');
         $this->load->library('PHPReport');
         $this->load->library('send_grid_api');
         $this->load->library('notify');
@@ -959,8 +959,7 @@ EOD;
                 $where = "AND service_centres.id IN (" . $sf_list . ")";
             }
             $data['data'] = $this->reporting_utils->get_sc_crimes($where);
-
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/get_crimes', $data);
         } else {
             //The function is being called from CRON
@@ -1056,8 +1055,7 @@ EOD;
         $data['data'] = $this->reporting_utils->get_unassigned_crimes();
 
         if ($is_mail == 0) {
-
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/unassigned_table', $data);
         } else if ($is_mail == 1) {
 
@@ -1095,7 +1093,7 @@ EOD;
         $data['data'] = $this->reporting_utils->get_agent_daily_reports($flag);
 
         //print_r($data);
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/agent_working_details', $data);
 
         //echo json_encode($data);
@@ -1237,8 +1235,7 @@ EOD;
 
         //Checking flag to display in CRM
         if ($flag == 0) {
-
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/get_rm_crimes', $final_array);
         } else {
 
@@ -1392,9 +1389,7 @@ EOD;
         $data['last_3_day'] = $last_3_day_st_trimmed;
         $data['greater_than_5_days'] = $greater_than_5_days_st_trimmed;
         $data['user_group'] = $this->session->userdata('user_group');
-
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_reports_chart', $data);
     }
 
@@ -1416,8 +1411,7 @@ EOD;
             $sf_list = $sf_list[0]['service_centres_id'];
         }
         $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list, '');
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_service_center_report', $data);
     }
 
@@ -1433,7 +1427,7 @@ EOD;
         $endDate = date('Y-m-d 23:59:59', $timestamp);
         $bookingStatus = 'Completed';
         $data['data'] = $this->reporting_utils->get_partners_booking_report_chart_data($startDate, $endDate, $bookingStatus);
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_partners_booking_report_chart', $data);
     }
 
@@ -1464,7 +1458,7 @@ EOD;
     function download_latest_uploaded_file() {
         log_message('info', __FUNCTION__ . ' => Entering, Agent_id:' . $this->session->userdata('id'));
         $data['latest_file'] = $this->reporting_utils->get_all_latest_uploaded_file();
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/download_latest_uploaded_file', $data);
     }
 

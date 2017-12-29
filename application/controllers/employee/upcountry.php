@@ -40,8 +40,7 @@ class Upcountry extends CI_Controller {
         $data['state'] = $this->input->post("state");
         if (!empty($data['service_center_id'])) {
             $data['all_state'] = $this->vendor_model->getall_state();
-
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/assign_vendor_to_upcountry', $data);
         } else {
             echo "Please Vist Again";
@@ -123,8 +122,7 @@ class Upcountry extends CI_Controller {
      */
     function get_upcountry_failed_details() {
         $upcountry_details['details'] = $this->upcountry_model->get_upcountry_failed_details();
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upcountry_failed_details', $upcountry_details);
     }
 
@@ -259,7 +257,7 @@ class Upcountry extends CI_Controller {
      */
     function get_waiting_for_approval_upcountry_charges() {
         $data['booking_details'] = $this->upcountry_model->get_waiting_for_approval_upcountry_charges("");
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_waiting_to_approval_upcountry', $data);
     }
 
@@ -282,7 +280,7 @@ class Upcountry extends CI_Controller {
      */
     function get_distance_between_pincodes_form() {
         $data['is_ajax'] = false;
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_distance_between_pincode_view', $data);
     }
 

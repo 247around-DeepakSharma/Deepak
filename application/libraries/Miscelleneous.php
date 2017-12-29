@@ -21,6 +21,7 @@ class Miscelleneous {
         $this->My_CI->load->model('inventory_model');
         $this->My_CI->load->library('form_validation');
         $this->My_CI->load->model('service_centers_model');
+        $this->My_CI->load->driver('cache');
     }
 
     /**
@@ -1870,5 +1871,51 @@ class Miscelleneous {
 
         return $flag;
     }
-
+/*
+ * This Is a helper function to create Navigation and upload in cache
+ * This Function is use to get nav data and convert data into structure Format
+ * @input - Navigation Type (eg- main_nav,right_nav)
+ */
+    private function get_main_nav_data($nav_type){
+        $where = array("header_navigation.groups LIKE '%".$this->My_CI->session->userdata('user_group')."%'"=>NULL,"header_navigation.is_active"=>"1");
+        $where["header_navigation.nav_type"]=$nav_type;
+        $parentArray = $structuredData=$navFlowArray=array();
+        $data= $this->My_CI->reusable_model->get_search_result_data("header_navigation","header_navigation.*,GROUP_CONCAT(p_m.title) as parent_name",$where,
+                array("header_navigation p_m"=>"FIND_IN_SET(p_m.id,header_navigation.parent_ids)"),NULL,array("level"=>"ASC"),NULL,array("header_navigation p_m"=>"LEFT"),array('header_navigation.id'));
+         foreach($data as $navData){
+            $structuredData["id_".$navData['id']]['title'] = $navData['title'];
+            $structuredData["id_".$navData['id']]['link'] = $navData['link'];
+            $structuredData["id_".$navData['id']]['level'] = $navData['level'];
+            $structuredData["id_".$navData['id']]['parent_ids'] = $navData['parent_ids'];
+            $structuredData["id_".$navData['id']]['groups'] = $navData['groups'];
+            $structuredData["id_".$navData['id']]['is_active'] = $navData['is_active'];
+            $structuredData["id_".$navData['id']]['parent_name'] = $navData['parent_name'];
+             if($navData['parent_ids'] == ''){
+                $parentArray[] = $navData['id'];}
+            else{
+                    $navFlowArray["id_".$navData['parent_ids']][] = $navData['id'];}    
+        }
+        return array("parents"=> $parentArray,"navData"=>$structuredData,"navFlow"=>$navFlowArray);
+    }
+    /*
+     * This Function is used to create navigation and set it into cache
+     */
+    function set_header_navigation_in_cache(){
+        $data['main_nav'] = $this->get_main_nav_data("main_nav");
+        $data['right_nav'] = $this->get_main_nav_data("right_nav");
+        $msg = $this->My_CI->load->view('employee/header/header_navigation',$data,TRUE);
+        $this->My_CI->cache->file->save('navigationHeader', $msg, 36000);
+    }
+    /*
+     * This Function used to load navigation header from cache
+     */
+    function load_nav_header(){
+        //Check is navigation there in cache?
+        // If not then create navigation and loads into cache
+        if(!$this->My_CI->cache->file->get('navigationHeader')){
+                $this->set_header_navigation_in_cache();               
+         }
+         //Print navigation header from cache
+        echo $this->My_CI->cache->file->get('navigationHeader');
+    }
 }

@@ -58,7 +58,7 @@ class Invoice extends CI_Controller {
             $data['invoicing_summary'] = $invoicingSummary;
         }
         $data['service_center'] = $this->reusable_model->get_search_result_data("service_centres",$select,NULL,NULL,NULL,NULL,$whereIN,NULL,array());
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/invoice_list', $data);
     }
     
@@ -194,8 +194,7 @@ class Invoice extends CI_Controller {
         $this->checkUserSession();
         $data['partner'] = $this->partner_model->getpartner("", false);
         $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
-        
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/invoice_list', $data);
     }
 
@@ -236,8 +235,7 @@ class Invoice extends CI_Controller {
             $where = array('amount_paid' => '0');
             $data['invoice_id_list'] = $this->invoices_model->get_invoices_details($where);
         }
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addnewtransaction', $data);
     }
 
@@ -278,8 +276,7 @@ class Invoice extends CI_Controller {
 
             $data['tds_amount'] = $tds;
             $data['amount_collected'] = $amount_collected;
-
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/addnewtransaction', $data);
         }
     }
@@ -499,8 +496,7 @@ class Invoice extends CI_Controller {
         }
 
         $invoice['bank_statement'] = $this->invoices_model->get_all_bank_transactions($type);
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/view_transactions', $invoice);
     }
 
@@ -1247,7 +1243,7 @@ class Invoice extends CI_Controller {
         $this->checkUserSession();
         $data['vendor_partner'] = "vendor";
         $data['id'] = "";
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_invoices_form', $data);
     }
 
@@ -1552,7 +1548,7 @@ class Invoice extends CI_Controller {
 
         $data['vendor_partner_id'] = $vendor_partner_id;
         $data['vendor_partner'] = $vendor_partner;
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/invoices_details', $data);
     }
     
@@ -2148,7 +2144,7 @@ class Invoice extends CI_Controller {
             $invoice_details['invoice_details'] = $this->invoices_model->get_invoices_details($where);
         }
         $invoice_details['vendor_partner'] = $vendor_partner;
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/insert_update_invoice', $invoice_details);
     }
 
@@ -2744,9 +2740,7 @@ class Invoice extends CI_Controller {
          $this->checkUserSession();
         $data['vendor_partner'] = $vendor_partner;
         $data['id'] = $id;
-
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/advance_bank_transaction', $data);
     }
 
@@ -2964,7 +2958,7 @@ class Invoice extends CI_Controller {
      * @return void 
      */
     function show_purchase_brackets_credit_note_form() {
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/purchase_brackets_credit_note_form');
     }
 

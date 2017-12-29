@@ -74,7 +74,7 @@
       </div>
    </div>
 </div>
-<?php $this->session->unset_userdata('file_error'); ?>
+<?php if($this->session->flashdata('file_error')) {$this->session->unset_userdata('file_error');} ?>
 <!-- -->
 <script>
 function submitForm() {
