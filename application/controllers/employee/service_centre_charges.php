@@ -900,8 +900,8 @@ class service_centre_charges extends CI_Controller {
         array_push($this->dataToInsert, $data);
     }
     /**
-     * 
-     * @param type $partner_id@desc This is used to load generate Price Form
+     * @desc This is used to load generate Price Form
+     * @param type $partner_id
      */
     function generate_service_charges_view($partner_id){
         $partner_data = $this->partner_model->getpartner_details("partner_type, public_name",array("partner_id" => $partner_id));
@@ -1058,7 +1058,7 @@ class service_centre_charges extends CI_Controller {
                 if($free_paid == "free"){
                     $str = "free";
                     if($data['product_or_services'] == "Service"){
-                        $data['service_category'] = $data['service_category']."(Free)";
+                        $data['service_category'] = $data['service_category']." (Free)";
                         $data['tax_code'] = "ST";
                     }
                     $data['pod'] = $form_data['free_pod'];
@@ -1076,7 +1076,7 @@ class service_centre_charges extends CI_Controller {
                 } else if($free_paid == "paid"){
                     $str = "paid";
                     if($data['product_or_services'] == "Service"){
-                        $data['service_category'] = $data['service_category']."(Paid)";
+                        $data['service_category'] = $data['service_category']." (Paid)";
                         $data['tax_code'] = "ST";
                     }
                     $data['pod'] = $form_data['paid_pod'];
