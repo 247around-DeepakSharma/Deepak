@@ -108,8 +108,8 @@
     </div>
 </div>
 <?php 
-$this->session->unset_userdata('brackets_success');
-$this->session->unset_userdata('brackets_error');
+ if ($this->session->userdata('brackets_success')) {$this->session->unset_userdata('brackets_success');}
+ if ($this->session->userdata('brackets_error')) {$this->session->unset_userdata('brackets_error');}
 ?>
 <script type="text/javascript">
     

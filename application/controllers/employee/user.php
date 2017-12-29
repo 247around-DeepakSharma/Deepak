@@ -23,6 +23,7 @@ class User extends CI_Controller {
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->library('s3');
+        $this->load->library('miscelleneous');
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
             return TRUE;
         } else {
@@ -32,7 +33,7 @@ class User extends CI_Controller {
 
     public function index() {
         $data['partner'] = $this->partner_model->get_all_partner_source();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/finduser', $data);
     }
 
@@ -132,7 +133,7 @@ class User extends CI_Controller {
      *  @param: Array
      */
     function load_search_view($data,$view){
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view($view, $data);
     }
 
@@ -167,7 +168,7 @@ class User extends CI_Controller {
         
         //gets all states while adding user as users can be of any state
         $results['state'] = $this->vendor_model->getall_state();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/adduser', $results);
     }
 
@@ -235,8 +236,7 @@ class User extends CI_Controller {
 
         $data['user'] = $this->user_model->search_user($phone_number);
         $data['state'] = $this->vendor_model->getall_state();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-        
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/edituser', $data);
     }
 
@@ -282,24 +282,19 @@ class User extends CI_Controller {
             }
 
             $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
-
             $config['base_url'] = base_url() . "employee/user/user_details/0/0/$phone_number";
             $config['total_rows'] = $this->booking_model->total_user_booking($output[0]['user_id']);
             $config['per_page'] = $page;
             $config['uri_segment'] = 5;
             $config['first_link'] = 'First';
             $config['last_link'] = 'Last';
-
             $this->pagination->initialize($config);
             $links = $this->pagination->create_links();
-
             $data1 = $output;
             $query = $this->user_model->booking_history($phone_number, $config['per_page'], $offset);
             $data = $query;
-
             $appliance_details = $this->user_model->appliance_details($phone_number);
-
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/bookinghistory', array('data1' => $data1, 'data' => $data, 'links' =>
                 $links, 'appliance_details' => $appliance_details));
         }
@@ -312,8 +307,7 @@ class User extends CI_Controller {
      */
     function get_user_count_view() {
         $data = $this->user_model->get_city_source();
-
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/getusers', $data);
     }
 
@@ -338,7 +332,7 @@ class User extends CI_Controller {
      */
     function user_count() {
         $data = $this->user_model->get_city_source();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/transactionalusers', $data);
     }
 
@@ -361,7 +355,7 @@ class User extends CI_Controller {
      * 
      */
     function add_employee(){
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/employee_add_edit');
 }
     
@@ -391,7 +385,7 @@ class User extends CI_Controller {
     function show_employee_list(){
         $data['data'] = $this->employee_model->get_employee();
         $data['session_data'] = $this->session->all_userdata();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/employee_list',$data);
     }
     
@@ -401,10 +395,10 @@ class User extends CI_Controller {
      * @return: view
      * 
      */
-    function update_employee($id){
-        $data['id'] = $id;
-        $data['query'] = $this->employee_model->getemployeefromid($id);
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+    function update_employee(){   
+        $data['id'] = $this->session->userdata('id');
+        $data['query'] = $this->employee_model->getemployeefromid($data['id']);
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/employee_add_edit',$data);
     }
     
@@ -435,7 +429,7 @@ class User extends CI_Controller {
      */
     function show_holiday_list(){
         $data['data'] = $this->employee_model->get_holiday_list();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_holiday_list',$data);
     }
      

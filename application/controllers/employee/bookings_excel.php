@@ -60,7 +60,7 @@ class bookings_excel extends CI_Controller {
 
     public function index() {
         
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->miscelleneous->load_nav_header();
 	$this->load->view('employee/upload_bookings_excel');
     }
 
@@ -71,9 +71,8 @@ class bookings_excel extends CI_Controller {
      */
 
     public function upload_shipped_products_excel() {
-        
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
-	$this->load->view('employee/upload_shippings_excel');
+          $this->miscelleneous->load_nav_header();
+          $this->load->view('employee/upload_shippings_excel');
     }
 
     /*
@@ -84,7 +83,7 @@ class bookings_excel extends CI_Controller {
 
     public function upload_delivered_products_for_paytm_excel() {
        
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->miscelleneous->load_nav_header();
 	$this->load->view('employee/upload_delivered_excel');
     }
 
@@ -278,7 +277,7 @@ class bookings_excel extends CI_Controller {
 
     public function upload_satya_file() {
         
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->miscelleneous->load_nav_header();
 	$this->load->view('employee/upload_satya_file');
     }
     
@@ -627,7 +626,7 @@ class bookings_excel extends CI_Controller {
 
     public function upload_akai_file() {
         
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->miscelleneous->load_nav_header();
 	$this->load->view('employee/upload_akai_file');
     }
 

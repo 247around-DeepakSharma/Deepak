@@ -55,8 +55,8 @@
     </div>
         
 </div>
-<?php $this->session->unset_userdata('success_msg'); ?>
-<?php $this->session->unset_userdata('error_msg'); ?>
+<?php if ($this->session->flashdata('success_msg')) {$this->session->unset_userdata('success_msg');} ?>
+<?php if ($this->session->flashdata('error_msg')) {$this->session->unset_userdata('error_msg');} ?>
 <script type="text/javascript">
     var dealer_id = '<?php echo $dealer_id;?>';
     $(document).ready(function () {

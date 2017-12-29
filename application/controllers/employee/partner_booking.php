@@ -25,7 +25,7 @@ class Partner_booking extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('user_model');
         $this->load->model('vendor_model');
-
+        $this->load->library('miscelleneous');
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library("session");
@@ -50,7 +50,7 @@ class Partner_booking extends CI_Controller {
         if (!empty($error)) {
             $source['error'] = $error;
         }
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/partner_upload_booking', $source);
     }
 
@@ -89,7 +89,7 @@ class Partner_booking extends CI_Controller {
 	if (!empty($error)) {
 	    $source['error'] = $error;
 	}
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->miscelleneous->load_nav_header();
 	$this->load->view('employee/upload_partners_cancelled_bookings', $source);
     }
 
