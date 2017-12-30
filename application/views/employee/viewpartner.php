@@ -38,15 +38,12 @@
           <tr>
           	<th class='jumbotron'>ID</th>
                 <th width="200px;" class='jumbotron' style="text-align: center">Company Name</th>
-                <th width="200px;" class='jumbotron' style="text-align: center">Public Name (Partner Code)</th>
+                <th width="200px;" class='jumbotron' style="text-align: center">Login</th>
                 <th width="500px;" class='jumbotron' style="text-align: center">Appliances/Brands</th>
           	<th class='jumbotron' style="text-align: center">PoC Name</th>
           	<th class='jumbotron' style="text-align: center">PoC Phone</th>
           	<th class='jumbotron' style="text-align: center">PoC Email</th>
                 <th class='jumbotron' style="text-align: center">Customer Care Phone</th>
-          	<th class='jumbotron' style="text-align: center">Owner Name</th>
-          	<th class='jumbotron' style="text-align: center">Owner Phone</th>
-          	<th class='jumbotron' style="text-align: center">Owner Email</th>
                 <th class='jumbotron' style="text-align: center">Go To Invoice Page</th>
                 <th  class='jumbotron' style="text-align: center">Action</th>
                 <th class='jumbotron' style="text-align: center">Generate Price</th>
@@ -59,10 +56,13 @@
           <?php foreach($query as $key =>$row){?>
           <tr>
             <td><?=($key+1).'.';?></td>
-            <td><a href="<?php echo base_url();?>employee/partner/editpartner/<?=$row['id'];?>"><?=$row['company_name'];?></a></td>
-            <td><?php echo $row['public_name'] ; ?> (<b><?php echo $row['code'] ; ?></b>)
-            <br/> <br/>
-            <a href="javascript:void(0)" class="btn btn-sm btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)'  title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>">Login</a>  
+            <td>
+                <a href="<?php echo base_url();?>employee/partner/editpartner/<?=$row['id'];?>"><?=$row['company_name'];?></a>
+                <br/>
+                <strong><?php echo $row['public_name'] ; ?> (<b><?php echo $row['code'] ; ?></b>)</strong>
+            </td>
+            <td>
+                <a href="javascript:void(0)" class="btn btn-sm btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)'  title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>">Login</a>  
             </td>
                 <td>
                     <?php
@@ -83,12 +83,6 @@
           	</td>
           	<td><?=$row['primary_contact_email'];?></td>
                 <td><?=$row['customer_care_contact'];?></td>
-          	<td><?=$row['owner_name'];?></td>
-          	<td>
-          	    <?=$row['owner_phone_1'];?>
-          	</td>
-          	
-          	<td><?=$row['owner_email'];?></td>
                 <td><a href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $row['id']; ?>" target="_blank" class="btn btn-info">Invoice</a></td>
                 
           	<td><?php if($row['is_active']==1){ ?>
