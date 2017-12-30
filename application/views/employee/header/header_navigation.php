@@ -89,6 +89,7 @@
                  <li class="dropdown "><a class="dropdown-toggle" data-toggle="dropdown" href="<?php echo $link?>"><?php echo $main_nav['navData']["id_".$p_id]['title']?> <i class="fa fa-caret-down"></i></a>
                      <ul class="dropdown-menu">
                          <?php
+                         $t=0;
                      foreach($main_nav['navFlow']["id_".$p_id] as $childID){
                          $childLink='';
                             if($main_nav['navData']["id_".$childID]['link'] !=''){
@@ -124,7 +125,16 @@
                              ?>
                           </li>
                           <li class="divider"></li>
+                          <?php                        
+                          if(($main_nav['navData']["id_".$p_id]['title'] == 'Reports') && $t==0){
+                              $t++;
+                          ?>
+                          <li>
+                            <a href="" data-toggle="modal" data-target="#sidebar-right" id="export_data"><i class="fa fa-fw fa-desktop"></i> <strong>Download serviceability Report</strong></a>
+                        </li>
+                        <li class="divider"></li>
                              <?php   
+                          }
                      }
                      ?>
                              </ul>
@@ -162,7 +172,37 @@
         </nav>
         
         <!-- end export data Modal -->
-        
+        <div class="export_modal">
+            <div class="modal fade right" id="sidebar-right" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="main_modal_title">Export Serviceability Data</h4>
+                        </div>
+                        <div class="modal-body" id="main_modal_body">
+                            <form action="<?php echo base_url();?>employee/booking/download_serviceability_data" method="post" target="_blank">
+                                <div class="form-group">
+                                    <select class="form-control" id="modal_service_id" name="service_id[]" multiple="multiple" required=""> 
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="radio-inline"><input type="radio" name="pincode_optradio" value="0" checked="">Without Pincode</label>
+                                    <label class="radio-inline"><input type="radio" name="pincode_optradio" value="1">With Pincode</label>
+                                </div>
+                                <div class="modal-footer">
+                                    <div class="text-right">
+                                        <div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                                        <input type="submit" class="btn btn-success" value="Export">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
         
          <!-- end export data Modal -->
         <script type="text/javascript">
@@ -253,5 +293,36 @@
             </form>
             <label class="search_fab " for="search_in"> <i class="fa fa-search" aria-hidden="true" ></i> </label>
 
+        </div>
+        <div class="export_modal">
+            <div class="modal fade right" id="sidebar-right" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="main_modal_title">Export Serviceability Data</h4>
+                        </div>
+                        <div class="modal-body" id="main_modal_body">
+                            <form action="<?php echo base_url();?>employee/booking/download_serviceability_data" method="post" target="_blank">
+                                <div class="form-group">
+                                    <select class="form-control" id="modal_service_id" name="service_id[]" multiple="multiple" required=""> 
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="radio-inline"><input type="radio" name="pincode_optradio" value="0" checked="">Without Pincode</label>
+                                    <label class="radio-inline"><input type="radio" name="pincode_optradio" value="1">With Pincode</label>
+                                </div>
+                                <div class="modal-footer">
+                                    <div class="text-right">
+                                        <div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                                        <input type="submit" class="btn btn-success" value="Export">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
         </div>
         
