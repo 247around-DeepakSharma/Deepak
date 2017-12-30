@@ -75,7 +75,7 @@
                         <table class="table  table-striped table-bordered" >
                             <tr>
                                 <th >Booking ID: </th>
-                                <td><?php echo $booking_history[0]['booking_id']; ?></td>
+                                <td><?php echo "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$booking_history[0]['booking_jobcard_filename']."'>".$booking_history[0]['booking_id']."</a>"; ?></td>
                                 <th >Order ID: </th>
                                 <td><?php if(!empty($booking_history)){  echo $booking_history[0]['order_id'];
                                                     $src = base_url() . 'images/no_image.png';
