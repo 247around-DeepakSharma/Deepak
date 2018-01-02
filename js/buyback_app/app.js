@@ -10,3 +10,5 @@ var taggingUntaggingBbOrders = angular.module("tagUntagBbOrders", []);
 var rm_dashboard = angular.module("rm_dashboard", []);
 var rm_missing_pincode = angular.module("rm_missing_pincode", []);
 var bracket_allocation = angular.module("bracket_allocation", []);
+var rm_escalation = angular.module("rm_escalation", []);
+var admin_dashboard = angular.module("admin_dashboard", []);
