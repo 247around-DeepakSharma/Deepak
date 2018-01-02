@@ -724,7 +724,10 @@ class Dashboard extends CI_Controller {
                   break;
               }
           }
-                   $this->table->add_row($i,$pincode,$structuredData['state'],$structuredData['city'],"<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>","<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"); 
+                   $this->table->add_row($i,$pincode,$structuredData['state'],$structuredData['city'],
+                           "<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>",
+                           "<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"
+                           ."<a style='margin: 0px;padding: 6px;float:right;' class='btn btn-info ' href='".base_url()."employee/dashboard/wrong_pincode_handler/".$pincode."'>Wrong Pincode</a>"); 
                    $i++;
         }
         echo $this->table->generate();
@@ -1131,5 +1134,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     //Echo final matrix array to use for Angular JS
     echo json_encode($esclationPercentage);
+    }
+    function wrong_pincode_handler($pincode){
+        $this->reusable_model->update_table("sf_not_exist_booking_details",array("is_pincode_valid"=>0),array("pincode"=>$pincode));
+        $this->session->set_userdata(array("wrong_pincode_msg"=>"Pincode has been marked as Wrong Pincode Successfully"));
+        redirect(base_url().'employee/dashboard');
     }
 }

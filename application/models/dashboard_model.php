@@ -342,6 +342,7 @@ class dashboard_model extends CI_Model {
             }
             $this->db->order_by('count(pincode) DESC');
             $this->db->where('active_flag',1); 
+            $this->db->where('is_pincode_valid',1); 
             $this->db->join('services', 'services.id = sf.service_id','left');
             $this->db->join('employee', 'employee.id = sf.rm_id',"left");
             if($limit){
