@@ -25,11 +25,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($spare_parts as $key => $value) {  
+                                    <?php 
+                                    $index=0;
+                                    foreach ($spare_parts as $key => $value) {  
                                         if($value['status'] == 'Spare Parts Requested'){
+                                            $index++;
                                     ?>
                                     <tr id="<?php echo $value['booking_id']."_1";?>">
-                                        <td class="text-center"><?php echo ($key +1); ?></td>
+                                        <td class="text-center"><?php echo $index ; ?></td>
                                         <td class="text-center"><a 
                                           href="<?php echo base_url(); ?>employee/booking/viewdetails/<?php echo $value['booking_id']; ?>" target='_blank' title='view'><?php echo $value['booking_id'];?></a>
                                         </td>
