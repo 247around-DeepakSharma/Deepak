@@ -704,6 +704,7 @@ class Service_centers extends CI_Controller {
                 $current_date = date_create(date('Y-m-d'));
                 $current_booking_date = date_create(date('Y-m-d', strtotime($data['bookinghistory'][0]['booking_date'])));
                 $is_est_approved = false;
+                $spareShipped = false;
                 if (isset($data['bookinghistory']['spare_parts'])) {
 
                     foreach ($data['bookinghistory']['spare_parts'] as $sp) {
@@ -711,8 +712,21 @@ class Service_centers extends CI_Controller {
                             array_push($data['internal_status'], array("status" => ESTIMATE_APPROVED_BY_CUSTOMER));
                             $is_est_approved = true; 
                         }
+                        
+                        switch ($sp['status']){
+                               case "Shipped":
+                               case "Defective Part Pending":
+                               case "Defective Part Received By Partner":
+                               case "Defective Part Rejected By Partner":
+                               case "Defective Part Shipped By SF":
+                               case "Delivered": 
+                                  $spareShipped = TRUE;
+                                   break;
+                           }
                     }
                 }
+                
+                $data['spare_shipped'] = $spareShipped;
                 $date_diff = date_diff($current_date, $current_booking_date);
                 $data['Service_Center_Visit'] = 0;
                 // We will not display internal status after 1st day.
@@ -761,75 +775,78 @@ class Service_centers extends CI_Controller {
      *  IF Spare Parts is selected then call update_spare_parts method
      *  Otherwise its get method name from table. If method name is not exist in the table default_update perform.  
      */
-    function process_update_booking(){
-       log_message('info', __FUNCTION__. " Service_center ID: ". $this->session->userdata('service_center_id')." Booking Id: ".  $this->input->post('booking_id'));
+    function process_update_booking() {
+        log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         // Check User Session
         $this->checkUserSession();
-        
+
         // Check form validation
         $f_status = $this->checkvalidation_for_update_by_service_center();
-        if($f_status){
+        if ($f_status) {
             $reason = $this->input->post('reason');
 
             switch ($reason) {
                 case CUSTOMER_ASK_TO_RESCHEDULE:
-                    log_message('info', __FUNCTION__. CUSTOMER_ASK_TO_RESCHEDULE." Request: ". $this->session->userdata('service_center_id'));
+                    log_message('info', __FUNCTION__ . CUSTOMER_ASK_TO_RESCHEDULE . " Request: " . $this->session->userdata('service_center_id'));
                     $this->save_reschedule_request();
                     break;
 
-                 case PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
-                    log_message('info', __FUNCTION__.PRODUCT_NOT_DELIVERED_TO_CUSTOMER. " Request: ". $this->session->userdata('service_center_id'));
+                case PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
+                    log_message('info', __FUNCTION__ . PRODUCT_NOT_DELIVERED_TO_CUSTOMER . " Request: " . $this->session->userdata('service_center_id'));
                     $this->save_reschedule_request();
                     break;
-                  case ESTIMATE_APPROVED_BY_CUSTOMER:
-                      log_message('info', __FUNCTION__.ESTIMATE_APPROVED_BY_CUSTOMER. " Request: ". $this->session->userdata('service_center_id'));
-                      $booking_id = $this->input->post('booking_id');
-                      $this->approve_oow($booking_id);
-                      break;
+                case ESTIMATE_APPROVED_BY_CUSTOMER:
+                    log_message('info', __FUNCTION__ . ESTIMATE_APPROVED_BY_CUSTOMER . " Request: " . $this->session->userdata('service_center_id'));
+                    $booking_id = $this->input->post('booking_id');
+                    $this->approve_oow($booking_id);
+                    break;
 
                 case SPARE_PARTS_REQUIRED:
-                case SPARE_OOW_EST_REQUESTED: 
-                    log_message('info', __FUNCTION__. " ".$reason." :". $this->session->userdata('service_center_id'));
+                case SPARE_OOW_EST_REQUESTED:
+                    log_message('info', __FUNCTION__ . " " . $reason . " :" . $this->session->userdata('service_center_id'));
                     $this->update_spare_parts();
                     break;
-                 
-                 case CUSTOMER_NOT_REACHABLE:
-                     log_message('info', __FUNCTION__. CUSTOMER_NOT_REACHABLE. $this->session->userdata('service_center_id'));
-                        $day = $this->input->post('days');
-                        $sc_remarks = $this->input->post('sc_remarks');
-                        if($day == 2){
+
+                case CUSTOMER_NOT_REACHABLE:
+                    log_message('info', __FUNCTION__ . CUSTOMER_NOT_REACHABLE . $this->session->userdata('service_center_id'));
+                    $day = $this->input->post('days');
+                    $sc_remarks = $this->input->post('sc_remarks');
+                    $spare_shipped = $this->input->post("spare_shipped");
+                    if ($spare_shipped) {
+                        if ($day == 2) {
                             $booking_id = $this->input->post('booking_id');
                             $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE;
                             $_POST['cancellation_reason_text'] = $sc_remarks;
                             $this->process_cancel_booking($booking_id);
-                            
+
                             $to = NITS_ANUJ_EMAIL_ID;
-                            $cc= "abhaya@247around.com";
+                            $cc = "abhaya@247around.com";
                             $bcc = "";
                             $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
-                            $message = "Auto Cancelled Booking ". $booking_id;
+                            $message = "Auto Cancelled Booking " . $booking_id;
                             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "");
-
                         } else {
                             $this->default_update(true, true);
                         }
-                        
-                        break;
+                    } else {
+                        $this->default_update(true, true);
+                    }
 
-                  case "Engineer on route":    
-                  case CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER: 
-                      log_message('info', __FUNCTION__." ".$reason." ". $this->session->userdata('service_center_id'));
-                      $this->default_update(true, true);
-                      break;
+                    break;
 
+                case "Engineer on route":
+                case CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER:
+                    log_message('info', __FUNCTION__ . " " . $reason . " " . $this->session->userdata('service_center_id'));
+                    $this->default_update(true, true);
+                    break;
             }
         } else {
             echo "Update Failed Please Retry Again";
         }
-        
-        log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
+
+        log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));
     }
-    
+
     function update_booking_internal_status($booking_id, $internal_status, $partner_id){
        
         $booking['internal_status'] = $internal_status;
