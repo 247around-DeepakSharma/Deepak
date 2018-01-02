@@ -4032,3 +4032,7 @@ ALTER TABLE `header_navigation`
 --
 ALTER TABLE `header_navigation`
   MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=106;COMMIT;
+
+--Chhavi 02nd Jan
+ALTER TABLE `sf_not_exist_booking_details` ADD `valid_pincode` INT(2) NOT NULL DEFAULT '1' AFTER `partner_id`;
+ALTER TABLE `sf_not_exist_booking_details` CHANGE `valid_pincode` `is_pincode_valid` INT(2) NOT NULL DEFAULT '1';

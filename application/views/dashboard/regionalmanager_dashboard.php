@@ -14,7 +14,12 @@
     
 
     <div class="row" ng-controller="rm_dashboardController">
-
+<?php
+if($this->session->userdata("wrong_pincode_msg")){
+     echo "<p style='color: green;text-align: center;font-size: 18px;'>".$this->session->userdata("wrong_pincode_msg")."</p>";
+    $this->session->unset_userdata('wrong_pincode_msg');
+}
+?>
         <div class="clearfix"></div>
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
