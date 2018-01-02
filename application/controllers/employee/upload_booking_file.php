@@ -55,7 +55,7 @@ class Upload_booking_file extends CI_Controller {
      */
     function upload_booking_files() {
         log_message('info', __FUNCTION__);
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view("employee/upload_booking_file");
     }
 

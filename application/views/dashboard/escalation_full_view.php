@@ -10,8 +10,8 @@
         white-space: normal;
     }
 </style>
-<div class="right_col" role="main" ng-app="rm_dashboard">
-    <div class="row" ng-controller="rm_dashboardController">
+<div class="right_col" role="main" ng-app="rm_escalation">
+    <div class="row" ng-controller="rm_escalationController">
 <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
@@ -22,7 +22,10 @@
                 <div class="x_content">
 
 <div class="table-responsive" id="escalation_data">
-    <input type="text" id="session_id_holder" style="display:none;" value="<?php if($this->session->userdata('user_group') == 'regionalmanager') {echo $this->session->userdata('id');} ?>">
+    <?php
+    $RmArray = explode("_",$rm);
+    ?>
+    <p id="rm_id_holder" style="display:none;"><?php echo $RmArray[1]; ?></p>
     <button type="button" class="btn btn-info" ng-click="mytoggle=!mytoggle" id="order_by_toggal" onclick="change_toggal_text()"style="float:right">Sort By Number Of Escalation</button>
  <form class="form-inline"style="float:left;background: #46b8da;color: #fff;padding: 3px;border-radius: 4px;">
         <div class="form-group">
@@ -40,7 +43,7 @@
       </tr>
     </thead>
     <tbody>
-     <tr ng-repeat="y in escalationData  |orderBy:!mytoggle?'-esclation_per':'-total_escalation'">
+     <tr ng-repeat="y in escalationData  |orderBy:!mytoggle?'-esclation_per':'-total_escalation' | limitTo:totalItems">
         <td>{{$index+1}}</td>
          <td><a type="button" id="vendor_{{y.vendor_id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/vendor/show_escalation_graph_by_sf/{{y.vendor_id}}/{{y.startDate}}/{{y.endDate}}">{{y.vendor_name}}</a></td>
         <td>{{y.total_booking}}</td>
@@ -49,6 +52,8 @@
       </tr>
     </tbody>
     </table>
+    <center><img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+    <button type="button" class="btn btn-success" id="full_view" ng-click="full_view_escalation()" style="float: right;">Show All SF</button>
 <!--                    <center><img id="loader_gif_unit_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>-->
                     </div>
                 </div>
@@ -74,8 +79,8 @@ display: block;
         }
     }
 $(function() {
-       var startDate = '<?php echo $this->input->post('s_date'); ?>';
-        var endDate = '<?php echo $this->input->post('e_date'); ?>';
+       var startDate = '<?php echo $startDate ?>';
+        var endDate = '<?php echo $endDate ?>';
     $('input[name="daterange"]').daterangepicker({
         timePicker: true,
         timePickerIncrement: 30,

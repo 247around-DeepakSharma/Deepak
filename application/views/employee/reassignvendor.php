@@ -177,5 +177,5 @@
 <?php if (isset($type)) { ?> $('#partner').select2();<?php } else { ?>$('#service_center').select2();
 <?php } ?>
 </script>
-<?php $this->session->unset_userdata('error'); ?>
-<?php $this->session->unset_userdata('success'); ?>
+<?php if ($this->session->userdata('error')) {$this->session->unset_userdata('error');} ?>
+<?php if ($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>

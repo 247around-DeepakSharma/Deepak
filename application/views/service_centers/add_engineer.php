@@ -253,9 +253,9 @@
         </form>
     </div>
 </div>
-<?php $this->session->unset_userdata('success'); ?>
-<?php $this->session->unset_userdata('error'); ?>
-<?php $this->session->unset_userdata('update_error'); ?>
+<?php if($this->session->userdata('success')) {$this->session->unset_userdata('success'); }?>
+<?php if($this->session->userdata('error')) {$this->session->unset_userdata('error');} ?>
+<?php if($this->session->userdata('update_error')) {$this->session->unset_userdata('update_error');} ?>
 <script type="text/javascript">
     $("#service_center_id").select2();
     

@@ -47,8 +47,7 @@ class bookingjobcard extends CI_Controller {
      */
     public function index() {
         //echo "Hello, World" . PHP_EOL;
-
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/jobcard');
     }
 

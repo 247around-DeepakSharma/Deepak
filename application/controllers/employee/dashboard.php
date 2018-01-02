@@ -724,7 +724,10 @@ class Dashboard extends CI_Controller {
                   break;
               }
           }
-                   $this->table->add_row($i,$pincode,$structuredData['state'],$structuredData['city'],"<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>","<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"); 
+                   $this->table->add_row($i,$pincode,$structuredData['state'],$structuredData['city'],
+                           "<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>",
+                           "<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"
+                           ."<a style='margin: 0px;padding: 6px;float:right;' class='btn btn-info ' href='".base_url()."employee/dashboard/wrong_pincode_handler/".$pincode."'>Wrong Pincode</a>"); 
                    $i++;
         }
         echo $this->table->generate();
@@ -861,9 +864,11 @@ function get_sf_escalation_by_rm($rm_id,$startDate,$endDate){
            if(array_key_exists("vendor_".$escalationData['vendor_id'], $sfIDNameArray)){
                $vendorName = $sfIDNameArray["vendor_".$escalationData['vendor_id']];
            }
+           if($vendorBooking !=0){
            $tempArray= array("esclation_per"=>round((($escalationData['total_escalation']*100)/$vendorBooking),2),"vendor_id"=>$escalationData['vendor_id'],
                "total_booking"=>$vendorBooking,"total_escalation"=>$escalationData['total_escalation'],"vendor_name"=>$vendorName,"startDate"=>$startDate,"endDate"=>$endDate);
            $esclationPercentage[]=$tempArray;
+           }
        }
     }
     }
@@ -1024,8 +1029,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     /*
      * This Function is used to get Full view Of escalation
      */
-    function escalation_full_view(){
-        $data['full_view_data'] = json_decode($this->input->post("sf_json_data"),true);
+    function escalation_full_view($RM,$startDate,$endDate){
+        $data['rm']=$RM;
+        $data['startDate']=$startDate;
+        $data['endDate']=$endDate;
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('dashboard/escalation_full_view',$data);
         $this->load->view('dashboard/dashboard_footer');
@@ -1067,4 +1074,70 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //        }
 //        echo json_encode($ServiceCenterBookingData);
 //    }
+    function get_escalation_by_all_rm($startDate,$endDate){
+    $rmIDNameArray = array();
+    $rmBookingArray = array();
+    $rmEscalationArray = array();
+    $esclationPercentage = array();
+    //create groupby array for booking(group by rm and then vendor)
+    $groupBy['booking'] = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
+    //create groupby array for escalation(group by rm and then vendor)
+    $groupBy['escalation'] = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
+    // get escalation data and booking data for all vendor related to rm
+    $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,NULL,$groupBy);
+    // get Service center name and id
+    $rmArray = $this->reusable_model->get_search_result_data("employee","id,full_name",NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+    // Create an associative array for service Center and ID
+    if($rmArray){
+        foreach($rmArray as $RMData){
+            $rmIDNameArray["RM_".$RMData['id']]= $RMData['full_name'];
+        }
+    }
+    //Create Associative array for Vendor booking(Pass Vendor ID get vendor Booking)
+    if($escalationBookingData['booking']){
+        foreach($escalationBookingData['booking'] as $bookingData){
+            if(array_key_exists("RM_".$bookingData['rm_id'], $rmBookingArray)){
+                $rmBookingArray["RM_".$bookingData['rm_id']] = $rmBookingArray["RM_".$bookingData['rm_id']] +$bookingData['total_booking'];
+            }
+            else{
+                $rmBookingArray["RM_".$bookingData['rm_id']] = $bookingData['total_booking'];
+            }
+        }
+    }
+    if($escalationBookingData['escalation']){
+        foreach($escalationBookingData['escalation'] as $escalationData){
+            if(array_key_exists("RM_".$escalationData['rm_id'], $rmEscalationArray)){
+                $rmEscalationArray["RM_".$escalationData['rm_id']] = $rmEscalationArray["RM_".$escalationData['rm_id']] +$escalationData['total_escalation'];
+            }
+            else{
+                $rmEscalationArray["RM_".$escalationData['rm_id']] = $escalationData['total_escalation'];
+            }
+        }
+    }
+    //Run Escalation Data through loop to calculate final matrix(total_escalation,total_booking,escalation% etc)For each and every vendor 
+    if(!empty($rmEscalationArray)){
+    foreach($rmEscalationArray as $RM=>$escalation){
+        if($escalation !=0 ){
+           $RMBooking = 0;
+           $RMName = "";
+           if(array_key_exists($RM, $rmBookingArray)){
+               $RMBooking = $rmBookingArray[$RM];
+           }
+           if(array_key_exists("RM_".$escalationData['rm_id'], $rmBookingArray)){
+               $RMName = $rmIDNameArray[$RM];
+           }
+           $tempArray= array("esclation_per"=>round((($escalation*100)/$RMBooking),2),"rm_id"=>$RM,
+               "total_booking"=>$RMBooking,"total_escalation"=>$escalation,"rm_name"=>$RMName,"startDate"=>$startDate,"endDate"=>$endDate);
+           $esclationPercentage[]=$tempArray;
+       }
+    }
+    }
+    //Echo final matrix array to use for Angular JS
+    echo json_encode($esclationPercentage);
+    }
+    function wrong_pincode_handler($pincode){
+        $this->reusable_model->update_table("sf_not_exist_booking_details",array("is_pincode_valid"=>0),array("pincode"=>$pincode));
+        $this->session->set_userdata(array("wrong_pincode_msg"=>"Pincode has been marked as Wrong Pincode Successfully"));
+        redirect(base_url().'employee/dashboard');
+    }
 }

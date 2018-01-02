@@ -60,7 +60,7 @@ class bookings_excel extends CI_Controller {
 
     public function index() {
         
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->miscelleneous->load_nav_header();
 	$this->load->view('employee/upload_bookings_excel');
     }
 
@@ -71,9 +71,8 @@ class bookings_excel extends CI_Controller {
      */
 
     public function upload_shipped_products_excel() {
-        
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
-	$this->load->view('employee/upload_shippings_excel');
+          $this->miscelleneous->load_nav_header();
+          $this->load->view('employee/upload_shippings_excel');
     }
 
     /*
@@ -84,7 +83,7 @@ class bookings_excel extends CI_Controller {
 
     public function upload_delivered_products_for_paytm_excel() {
        
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->miscelleneous->load_nav_header();
 	$this->load->view('employee/upload_delivered_excel');
     }
 
@@ -277,7 +276,7 @@ class bookings_excel extends CI_Controller {
 
     public function upload_satya_file() {
         
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->miscelleneous->load_nav_header();
 	$this->load->view('employee/upload_satya_file');
     }
     
@@ -455,9 +454,11 @@ class bookings_excel extends CI_Controller {
                         //Add this lead into the leads table
                         //Check whether this is a new Lead or Not
                         //Pass order id and partner source
-                        if(!empty($rowData[0]['order_item_id'])){
+                        if(isset($rowData[0]['order_item_id']) && !empty($rowData[0]['order_item_id'])){
                             $rowData[0]['order_id'] = $rowData[0]['order_id']."-".$rowData[0]['order_item_id'];
-                        } else {
+                        } else if(isset($rowData[0]['item_id']) && !empty($rowData[0]['item_id'])){
+                            $rowData[0]['order_id'] = $rowData[0]['order_id']."-".$rowData[0]['item_id'];
+                        }else{
                             $rowData[0]['order_id'] = $rowData[0]['order_id'];
                         }
                         
@@ -481,7 +482,12 @@ class bookings_excel extends CI_Controller {
                             $booking['state'] = $distict_details['state'];
                             $booking['district'] = $distict_details['district'];
                             $booking['taluk'] = $distict_details['taluk'];
-                            $unit_details['sub_order_id'] = $rowData[0]['order_item_id'];
+                            if(isset($rowData[0]['order_item_id'])){
+                                $unit_details['sub_order_id'] = $rowData[0]['order_item_id'];
+                            }else if(isset($rowData[0]['item_id'])){
+                                $unit_details['sub_order_id'] = $rowData[0]['item_id'];
+                            }
+                            
 
                             $booking['booking_primary_contact_no'] = $rowData[0]['contact_number'];
                             
@@ -626,7 +632,7 @@ class bookings_excel extends CI_Controller {
 
     public function upload_akai_file() {
         
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->miscelleneous->load_nav_header();
 	$this->load->view('employee/upload_akai_file');
     }
 

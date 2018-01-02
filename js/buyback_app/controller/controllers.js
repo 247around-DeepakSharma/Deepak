@@ -529,27 +529,19 @@ rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
      });
      // Missing Pincode End
     //Escalation Start
-     $scope.loadView = function(escalation_url){
-     $http.get(escalation_url).then(function (response) {
-          $scope.escalationData = response.data;
-          // Set Return JSON to full view input value
-            $("#sf_json_data").val(JSON.stringify(response.data));
-     });
- }
- // Get RM id 
- var rm_id = $('#session_id_holder').val();
- var intialDateRange = $('#daterange_id').val().split(" - ");
-  $("#s_date").val(intialDateRange[0]);
-   $("#e_date").val(intialDateRange[1]);
-  $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/"+rm_id+"/"+intialDateRange[0]+"/"+intialDateRange[1]);
-  // This function will call after date change to load the data
-  $scope.daterangeloadView = function(){
-     var dateRange = $('#daterange_id').val().split(" - ");
-     var rm_id = $('#session_id_holder').val();
-     $("#s_date").val(dateRange[0]);
-     $("#e_date").val(dateRange[1]);
-     $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/"+rm_id+"/"+dateRange[0]+"/"+dateRange[1]);
-}
+    $scope.loadAllRMView = function(escalation_url){
+         $http.get(escalation_url).then(function (response) {
+              $("#loader_gif_escalation").css("display", "none");
+              $scope.escalationAllRMData = response.data;
+         });
+     }
+     //Call loadAllRMView Function with dates
+    $scope.daterangeloadFullRMView = function(){
+         var dateRange = $('#daterange_id').val().split(" - ");
+         $("#s_date").val(dateRange[0]);
+         $("#e_date").val(dateRange[1]);
+         $scope.loadAllRMView(baseUrl + "/employee/dashboard/get_escalation_by_all_rm/"+dateRange[0]+"/"+dateRange[1]);
+    }
 //Escalation End
 //Pending Booking Start
 // var pending_booking_url = baseUrl + "/employee/dashboard/pending_booking_by_rm/"+rm_id;
@@ -596,4 +588,45 @@ buyback_dashboard.controller('bb_balance', function ($scope, $http) {
             }
             
     });
+});
+//This Function is used to create escalation view of RM(All SF related to a RM)
+rm_escalation.controller('rm_escalationController', function ($scope, $http) {
+     $scope.loadView = function(escalation_url){
+     $http.get(escalation_url).then(function (response) {
+         $("#loader_gif_escalation").css("display", "none");
+         $scope.totalItems = 5;
+          $scope.escalationData = response.data;
+          $("#sf_json_data").val(JSON.stringify(response.data));
+     });
+ }
+ //Call loadView Function With Date Range
+  $scope.daterangeloadView = function(){
+     var dateRange = $('#daterange_id').val().split(" - ");
+     var rm_id = $('#rm_id_holder').html();
+     $("#s_date").val(dateRange[0]);
+     $("#e_date").val(dateRange[1]);
+     $scope.loadView(baseUrl + "/employee/dashboard/get_sf_escalation_by_rm/"+rm_id+"/"+dateRange[0]+"/"+dateRange[1]);
+}
+  $scope.full_view_escalation = function(){
+      $scope.totalItems = $scope.escalationData.length;
+}
+});
+
+// This Function is usedto call admin view of escalation
+admin_dashboard.controller('admin_escalationController', function ($scope, $http) {
+       //Escalation Start
+    $scope.loadAllRMView = function(escalation_url){
+         $http.get(escalation_url).then(function (response) {
+             $("#loader_gif_escalation").css("display", "none");
+              $scope.escalationAllRMData = response.data;
+         });
+     }
+     //Call loadAllRMView Function with dates
+    $scope.daterangeloadFullRMView = function(){
+         var dateRange = $('#daterange_id').val().split(" - ");
+         $("#s_date").val(dateRange[0]);
+         $("#e_date").val(dateRange[1]);
+         $scope.loadAllRMView(baseUrl + "/employee/dashboard/get_escalation_by_all_rm/"+dateRange[0]+"/"+dateRange[1]);
+    }
+//Escalation End
 });
