@@ -1726,50 +1726,12 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__);
         $reschedule_booking_id = $this->input->post('reschedule');
         $reschedule_booking_date = $this->input->post('reschedule_booking_date');
-        //$reschedule_booking_timeslot = $this->input->post('reschedule_booking_timeslot');
         $reschedule_reason = $this->input->post('reschedule_reason');
-
-        foreach ($reschedule_booking_id as $booking_id) {
-            $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
-            //$booking['booking_timeslot'] = $reschedule_booking_timeslot[$booking_id];
-            $send['state'] = $booking['current_status'] = 'Rescheduled';
-            $booking['internal_status'] = 'Rescheduled';
-
-            $booking['update_date'] = date("Y-m-d H:i:s");
-            $booking['mail_to_vendor'] = 0;
-            $send['booking_id'] = $booking_id;
-            $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
-
-            //check partner status from partner_booking_status_mapping table  
-            $partner_id = $this->input->post('partner_id');
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
-            if (!empty($partner_status)) {
-                $booking['partner_current_status'] = $partner_status[0];
-                $booking['partner_internal_status'] = $partner_status[1];
-            }
-            log_message('info', __FUNCTION__ . " update booking: " . print_r($booking, true));
-            $this->booking_model->update_booking($booking_id, $booking);
-            $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
-            $data['internal_status'] = "Pending";
-            $data['current_status'] = "Pending";
-            log_message('info', __FUNCTION__ . " update service cenetr action table: " . print_r($data, true));
-            $this->vendor_model->update_service_center_action($booking_id, $data);
-
-            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-            $this->asynchronous_lib->do_background_process($url, $send);
-
-            //Log this state change as well for this booking
-            //param:-- booking id, new state, old state, employee id, employee name
-
-            $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, $booking['reschedule_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-            
-            log_message('info', __FUNCTION__ . " partner callback: " . print_r($booking_id, true));
-            $this->partner_cb->partner_callback($booking_id);
-
-            log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
-        }
-
-        redirect(base_url() . "employee/booking/review_bookings");
+        $partner_id = $this->input->post('partner_id');
+        $employeeID = $this->session->userdata('employee_id');
+        $id = $this->session->userdata('id');
+        $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID);
+         redirect(base_url() . "employee/booking/review_bookings");
     }
 
     /**
@@ -3725,5 +3687,15 @@ class Booking extends CI_Controller {
         $combined_excel = TMP_FOLDER.'serviceability_details.xlsx';
         $objWriter->save($combined_excel);
         return $combined_excel;
+    }
+    /*
+     * This function is used to Cancel Reschedule request  manually (IF anyone found reschedule is fake, not requested by customer)
+     */
+    function cancel_rescheduled_booking(){
+        $userPhone = $this->input->post('p_number');
+        $id = $this->input->post('id');
+        $employeeID = $this->input->post('employeeID');
+        $remarks = $this->input->post('remarks');
+        echo $this->miscelleneous->fake_reschedule_handling($userPhone,$id,$employeeID,$remarks);
     }
 }
