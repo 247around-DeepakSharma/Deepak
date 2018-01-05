@@ -22,6 +22,7 @@ class Miscelleneous {
         $this->My_CI->load->model('inventory_model');
         $this->My_CI->load->library('form_validation');
         $this->My_CI->load->model('service_centers_model');
+        $this->My_CI->load->model('penalty_model');
         $this->My_CI->load->driver('cache');
     }
 
@@ -106,7 +107,7 @@ class Miscelleneous {
     function assign_vendor_process($service_center_id, $booking_id,$agent_id, $agent_type) {
         log_message('info', __FUNCTION__ . " Entering...... booking_id " . $booking_id . " service center id " . $service_center_id);
         $b['assigned_vendor_id'] = $service_center_id;
-        // Set Default Engineer 
+        // Set Default Engineer
         if (IS_DEFAULT_ENGINEER == TRUE) {
             $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
         } else {
@@ -154,19 +155,19 @@ class Miscelleneous {
                         } else if ($match[0] > 32) {
                             $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
                         }
-                        
+
                         $data['receiver_entity_id'] = $service_center_id;
                         $data['receiver_entity_type'] = _247AROUND_SF_STRING;
                         $data['stock'] = -1 ;
                         $data['booking_id'] = $booking_id;
                         $data['agent_id'] = $agent_id;
                         $data['agent_type'] = $agent_type;
-                        
+
                         $this->process_inventory_stocks($data);
                     }
                 }
             }
-            
+
             log_message('info', __FUNCTION__ . " Exit...... booking_id " . $booking_id . " service center id " . $service_center_id);
             return true;
         } else {
@@ -276,7 +277,7 @@ class Miscelleneous {
                         $booking['upcountry_partner_approved'] = '0';
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['amount_due'] = $cus_net_payable;
-                        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL, 
+                        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, UPCOUNTRY_BOOKING_NEED_TO_APPROVAL,
                                 $query1[0]['partner_id'], $booking_id);
                         if (!empty($partner_status)) {
                             $booking['partner_current_status'] = $partner_status[0];
@@ -376,7 +377,7 @@ class Miscelleneous {
                 $return_status = TRUE;
                 break;
         }
-        
+
         return $return_status;
     }
 
@@ -440,7 +441,7 @@ class Miscelleneous {
 
     /**
      * @desc: This is used to insert unit in sc table when booking updated and unit not not exist
-     * If units do not exist in sc table then it insert into sc table. 
+     * If units do not exist in sc table then it insert into sc table.
      * And if Sc table has extra unit means unit deleted from uit details table then it will be delete from sc table.
      * And create a job card
      * @param String $booking_id
@@ -710,7 +711,7 @@ class Miscelleneous {
         if (!empty($partner_array)) {
 
             foreach ($partner_array as $value) {
-                //Now getting details for each Partner 
+                //Now getting details for each Partner
                 $filtered_partner_state = $this->My_CI->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
                 if ($filtered_partner_state) {
                     //Now assigning this case to Partner
@@ -729,7 +730,7 @@ class Miscelleneous {
     }
 
     /* @desc: This function is used to convert the excel file into pdf
-     * @param: $excel_file string  excel file with path which need to be converted into PDF  
+     * @param: $excel_file string  excel file with path which need to be converted into PDF
      * @param: $bitbuket_dir string S3 directory in which PDF need to be upload
      * @param: $id string booking_id/invoice_id/any_other_id for reference to file
      * @return: $result JSON
@@ -742,7 +743,7 @@ class Miscelleneous {
 
         if (function_exists('curl_file_create')) {
             $cFile = curl_file_create($output_file_excel);
-        } else { // 
+        } else { //
             $cFile = '@' . realpath($output_file_excel);
         }
         $post = array('bucket_dir' => BITBUCKET_DIRECTORY, 'id' => $id,
@@ -1004,7 +1005,7 @@ class Miscelleneous {
     /* @Desc: This function is used to _allot_source_partner_id_for_pincode
      * @params: String Pincode, brnad, default partner id(SS)
      * @return : Array
-     * 
+     *
      */
 
     function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner) {
@@ -1017,7 +1018,7 @@ class Miscelleneous {
         if (!empty($partner_array)) {
 
             foreach ($partner_array as $value) {
-                //Now getting details for each Partner 
+                //Now getting details for each Partner
                 $filtered_partner_state = $this->My_CI->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
                 if ($filtered_partner_state) {
                     //Now assigning this case to Partner
@@ -1057,24 +1058,24 @@ class Miscelleneous {
                     break;
             }
         }
-        
+
         $blocked_brand = $this->My_CI->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['partner_id'], "brand" => $brand), "*");
-       
+
         if(!empty($blocked_brand)){
            $data['partner_id'] = _247AROUND;
            $data['source'] = 'SB';
-        } 
-            
+        }
+
         return $data;
-        
+
     }
 
     /**
      * @Desc: This function is used to Add details in File Uploads table
      * @params: String, String
      * @return: Void
-     * 
-     * 
+     *
+     *
      */
     public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "") {
 
@@ -1110,7 +1111,7 @@ class Miscelleneous {
      */
     function get_partner_prepaid_amount($partner_id) {
         //Get Partner details
-       
+
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,"
                 . "grace_period_date,prepaid_notification_amount ", array('partners.id' => $partner_id));
         if (!empty($partner_details)) {
@@ -1156,7 +1157,7 @@ class Miscelleneous {
                     $d['is_notification'] = TRUE;
                     $d['prepaid_msg'] = PREPAID_DEACTIVATED_MSG_FOR_PARTNER;
                 }
-                
+
                 //$d['active'] = 1;
             }
 
@@ -1277,13 +1278,13 @@ class Miscelleneous {
           function update_pincode_not_found_sf_table($pincodeServiceArray){
               $pincodeStrring ="";
               foreach($pincodeServiceArray as $key=>$values){
-                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL; 
+                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL;
                         $pincodeStrring .= '(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')|||';
               }
             log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
             $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray,array('active_flag'=>0));
           }
- 
+
 
     /*
      * This Function convert excel data into array, 1st row of excel data will be keys of returning array
@@ -1363,10 +1364,10 @@ class Miscelleneous {
     /**
      * @Desc: This function is used to check if user name is empty or not
      * if user name is not empty then return username otherwise check if email is not
-     * empty.if email is empty then return mobile number as username otherwise return email as username 
+     * empty.if email is empty then return mobile number as username otherwise return email as username
      * @params: String
      * @return: void
-     * 
+     *
      */
     public function is_user_name_empty($userName, $userEmail, $userContactNo) {
         if (empty($userName)) {
@@ -1426,9 +1427,9 @@ class Miscelleneous {
 
     /**
      * @desc This function is used to verify air conditioner appliance data
-     * check if brand and category exist in the description 
+     * check if brand and category exist in the description
      * if exist then check for the right capacity and set verified flag to 1
-     * otherwise set verified flag to 0 
+     * otherwise set verified flag to 0
      * @param $appliances_details array()
      * @return $new_appliance_details array()
      */
@@ -1463,7 +1464,7 @@ class Miscelleneous {
 
         /* check if brand and category exist in the description
          * if exist then check for the right capacity and set verified flag to 1
-         * otherwise set verified flag to 0 
+         * otherwise set verified flag to 0
          */
         if ((stripos($appliances_details['description'], $category[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)) {
             $match = array();
@@ -1519,7 +1520,7 @@ class Miscelleneous {
 
         /* check if brand and category exist in the description
          * if exist then check for the right capacity and set verified flag to 1
-         * otherwise set verified flag to 0 
+         * otherwise set verified flag to 0
          */
         if ((stripos($appliances_details['description'], $category[0]) !== False) && (stripos($appliances_details['description'], $appliances_details['brand']) !== False)) {
             $match = array();
@@ -1557,7 +1558,7 @@ class Miscelleneous {
     }
 
     /*
-     * This Function is used to perform update or insert  action on the basis of input type over bank details table 
+     * This Function is used to perform update or insert  action on the basis of input type over bank details table
      */
 
     function update_insert_bank_account_details($bankDetailsArray, $actionType) {
@@ -1586,7 +1587,7 @@ class Miscelleneous {
                 $agentID = $bankDetailsArray['agent_id'];
                 unset($bankDetailsArray['entity_id']);
                 unset($bankDetailsArray['agent_id']);
-                // check is there any new updation for bank table or not     
+                // check is there any new updation for bank table or not
                 $affectedRows = $this->My_CI->reusable_model->update_table('account_holders_bank_details', $bankDetailsArray, $where);
                 if ($affectedRows == 1) {
                     //if yes then update table
@@ -1662,7 +1663,7 @@ class Miscelleneous {
     }
 
     /**
-     * @desc This function is used to extract the zip file 
+     * @desc This function is used to extract the zip file
      * @param string $file_path
      * @param string $path_to_extract
      * @return string $response
@@ -1741,7 +1742,7 @@ class Miscelleneous {
         }
         return $finalData;
     }
-    
+
  function send_completed_booking_email_to_customer($completedBookingsID){
       log_message('info', __FUNCTION__ . ' => Completed booking Email Send Function Entry');
         $completedBookingsData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,users.name,users.user_email,partners.public_name as partner,booking_details.booking_date as booking_date",NULL,array('partners'=>'partners.id=booking_details.partner_id','users'=>'booking_details.user_id=users.user_id'),NULL,NULL,array('booking_id'=>$completedBookingsID),NULL);
@@ -1759,7 +1760,7 @@ class Miscelleneous {
        log_message('info', __METHOD__ . "=> Email Template Data " . print_r($emailTemplateDataArray, true));
             }
     }
-    
+
     /**
      * @desc This function is used to update the inventory stock
      * @param array $data
@@ -1769,7 +1770,7 @@ class Miscelleneous {
         log_message("info", __FUNCTION__ . " process inventory update" . print_r($data, true));
         $flag = FALSE;
         $is_process = FALSE;
-        
+
         if ($data['receiver_entity_type'] === _247AROUND_SF_STRING) {
             //check if sf is working with brackets with 247around
             $is_brackets = $this->My_CI->vendor_model->getVendorDetails('brackets_flag', array('id' => $data['receiver_entity_id']))[0]['brackets_flag'];
@@ -1820,7 +1821,7 @@ class Miscelleneous {
                     }
                 }
 
-                //insert inventory details into the inventory ledger table 
+                //insert inventory details into the inventory ledger table
                 if ($flag) {
                     $insert_ledger_data = array('receiver_entity_id' => $data['receiver_entity_id'],
                         'receiver_entity_type' => $data['receiver_entity_type'],
@@ -1897,7 +1898,7 @@ class Miscelleneous {
              if($navData['parent_ids'] == ''){
                 $parentArray[] = $navData['id'];}
             else{
-                    $navFlowArray["id_".$navData['parent_ids']][] = $navData['id'];}    
+                    $navFlowArray["id_".$navData['parent_ids']][] = $navData['id'];}
         }
         return array("parents"=> $parentArray,"navData"=>$structuredData,"navFlow"=>$navFlowArray);
     }
@@ -1917,9 +1918,223 @@ class Miscelleneous {
         //Check is navigation there in cache?
         // If not then create navigation and loads into cache
         if(!$this->My_CI->cache->file->get('navigationHeader')){
-                $this->set_header_navigation_in_cache();               
+                $this->set_header_navigation_in_cache();
          }
          //Print navigation header from cache
         echo $this->My_CI->cache->file->get('navigationHeader');
     }
+    /*
+     * This Function is used to handle Fake Reschedule request By Miss Call Functionality
+     * 1st) reschedule request will get rejected 
+     * 2nd) booking will be escalated
+     */
+    function fake_reschedule_handling($userPhone,$id,$employeeID,$remarks){
+        log_message('info', __METHOD__.'Call Details Added');
+        //get Booking id
+        $bookingDetails = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,booking_details.booking_date,booking_details.assigned_vendor_id,booking_details.booking_timeslot",
+                array("users.phone_number"=>$userPhone,"service_center_booking_action.internal_status"=>"Reschedule"),
+                array("users"=>"users.user_id=booking_details.user_id","service_center_booking_action"=>"service_center_booking_action.booking_id=booking_details.booking_id"),
+                NULL,NULL,NULL,NULL,array("booking_details.booking_id"));
+        $numberOfBookings = count($bookingDetails);
+        if($numberOfBookings == 1){
+            $booking_id = $bookingDetails[0]['booking_id'];
+            $vendor_id = $bookingDetails[0]['assigned_vendor_id'];
+            $escalation_reason_id = 11;
+            $this->reject_reschedule_request($booking_id,$escalation_reason_id,$remarks,$id,$employeeID);
+            $isEscalationDone =  $this->process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,TRUE,$id,$employeeID);
+           return $isEscalationDone;
+        }
+    }
+    /*
+     * This function is used to reject reschedule request in case of fake reschedule
+     */
+    function reject_reschedule_request($booking_id,$escalation_reason_id,$remarks,$id,$employeeID){
+        log_message('info', __METHOD__.'Call Details Added');
+        //Change Booking Status Back to Pending
+       $affectedRows = $this->My_CI->reusable_model->update_table("service_center_booking_action",array("current_status"=>"Pending","internal_status"=>"Pending"),
+                array("booking_id"=>$booking_id));
+        if($affectedRows>0){
+            $lastStateArray = $this->My_CI->reusable_model->get_search_result_data("booking_state_change","new_state",array("booking_id"=>$booking_id),NULL,array("length"=>1,"start"=>0)
+                    ,array("id"=>"DESC"),NULL,NULL,array());
+            if(empty($lastStateArray[0])){
+                $newState = " ";
+            }
+            else{
+                $newState = $lastStateArray[0]["new_state"];
+            }
+            //State Change
+            $escalation_reason  = $this->My_CI->vendor_model->getEscalationReason(array('id'=>$escalation_reason_id));
+            if(!empty($remarks)){
+                $escalation_reason_final = $escalation_reason[0]['escalation_reason'].' - '.$remarks;
+             }
+             else{
+                $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
+              }
+            $this->My_CI->notify->insert_state_change($booking_id,"Fake_Reschedule",$newState,$escalation_reason_final,$id,$employeeID, _247AROUND);
+            return TRUE;
+        }
+        else{
+            return FALSE;
+        }
+    }
+    function process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,$checkValidation,$id,$employeeID){
+        log_message('info',__FUNCTION__);
+        $escalation['booking_id'] = $booking_id;
+        $escalation['vendor_id'] = $vendor_id;
+        //Get SF to RM relation if present
+        $cc = "";
+        $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id']);
+        if(!empty($rm)){
+            foreach($rm as $key=>$value){
+                if($key == 0){
+                    $cc .= "";
+                }else{
+                    $cc .= ",";
+                }
+                $cc .= $this->My_CI->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
+            }
+        }
+        if ($checkValidation) {
+            $escalation['escalation_reason'] = $escalation_reason_id;
+            $this->My_CI->booking_model->increase_escalation_reschedule($escalation['booking_id'], "count_escalation");
+            $booking_date_timeslot = $this->My_CI->vendor_model->getBookingDateFromBookingID($escalation['booking_id']);
+            $booking_date = strtotime($booking_date_timeslot[0]['booking_date']);
+            $escalation['booking_date'] = date('Y-m-d', $booking_date);
+            $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
+            //inserts vendor escalation details
+            $escalation_id = $this->My_CI->vendor_model->insertVendorEscalationDetails($escalation);
+            if ($escalation_id) {
+                $escalation_policy_details = $this->My_CI->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);                     
+                // Update escalation flag and return userDeatils
+                $userDetails = $this->My_CI->vendor_model->updateEscalationFlag($escalation_id, $escalation_policy_details, $escalation['booking_id']);
+                log_message('info', "User Details " . print_r($userDetails, TRUE));
+                log_message('info', "Vendor_ID " . $escalation['vendor_id']);
+                $vendorContact = $this->My_CI->vendor_model->getVendorContact($escalation['vendor_id']);
+                $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'];
+                //Getting template from Database
+                $template = $this->My_CI->booking_model->get_booking_email_template("escalation_on_booking");
+                if (!empty($template)) {  
+                    //From will be currently logged in user
+                    $from = $this->My_CI->employee_model->getemployeefromid($id)[0]['official_email'];
+                    //Sending Mail
+                    $email['booking_id'] = $escalation['booking_id'];
+                    $email['count_escalation'] = $booking_date_timeslot[0]['count_escalation'];
+                    $email['reason'] = $escalation_policy_details[0]['escalation_reason'];
+                    $emailBody = vsprintf($template[0], $email);
+                    $subject['booking_id'] = $escalation['booking_id'];
+                    $subjectBody = vsprintf($template[4], $subject);
+                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "");
+                    //Logging
+                    log_message('info', " Escalation Mail Send successfully" . $emailBody);
+                } else {
+                    //Logging Error Message
+                    log_message('info', " Error in Getting Email Template for Escalation Mail");
+                }
+                $this->sendSmsToVendor($escalation,$escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
+                $escalation_reason  = $this->My_CI->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
+                if(!empty($remarks)){
+                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'].' - '.$remarks;
+                }
+                else{
+                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
+                }
+                $lastStateArray = $this->My_CI->reusable_model->get_search_result_data("booking_state_change","new_state",array("booking_id"=>$booking_id),NULL,array("length"=>1,"start"=>0)
+                    ,array("id"=>"DESC"),NULL,NULL,array());
+                if(empty($lastStateArray[0])){
+                $newState = " ";
+            }
+            else{
+                $newState = $lastStateArray[0]["new_state"];
+            }
+                $this->My_CI->notify->insert_state_change($escalation['booking_id'],"Escalation",$newState,$escalation_reason_final,$id,$employeeID, _247AROUND);
+                //Processing Penalty on Escalations
+                $value['booking_id'] = $escalation['booking_id'];
+                $value['assigned_vendor_id'] = $escalation['vendor_id'];
+                $value['current_state'] = "Escalation";
+                $value['agent_id'] = $id;
+                $value['remarks'] = $escalation_reason_final;
+                $value['agent_type'] = 'admin';
+                $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
+                //Adding values in penalty on booking table
+                $this->My_CI->penalty_model->get_data_penalty_on_booking($value, $where);
+                log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
+                return TRUE;
+	    }
+            else{
+                return FALSE;
+            }
+        }
+    }
+     /**
+     * @desc: Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.
+     *
+     * @param : escalation policy details
+     * @param : vendor contact
+     * @param : booking id
+     * @param : user's details
+     * @return : void
+     */
+    function sendSmsToVendor($escalation,$escalation_policy, $contact, $booking_id, $userDetails) {
+        $id = $escalation['vendor_id'];
+        if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 1){
+            $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
+            $status = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
+            //For saving SMS to the database on sucess
+            $this->My_CI->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
+            $smsBody, $booking_id, "Escalation", $status['content']);
+            $status1 = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
+            //For saving SMS to the database on sucess
+            $this->My_CI->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
+            $smsBody, $booking_id,"Escalation", $status1['content']);
+          } 
+          else if ($escalation_policy[0]['sms_to_owner'] == 0 && $escalation_policy[0]['sms_to_poc'] == 1) {
+            $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
+            $status = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
+            //For saving SMS to the database on sucess
+            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],$smsBody, $booking_id, "Escalation", $status['content']);
+          } 
+          else if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 0) {
+            $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
+            $status = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
+            //For saving SMS to the database on sucess
+            $this->My_CI->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
+            $smsBody, $booking_id, "Escalation", $status['content']); 
+        }
+    }
+    /*
+     * This Function is used to approve rescheduled booking
+     */
+    function approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID){
+         log_message('info', __FUNCTION__);
+         foreach ($reschedule_booking_id as $booking_id) {
+            $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
+            $send['state'] = $booking['current_status'] = 'Rescheduled';
+            $booking['internal_status'] = 'Rescheduled';
+            $booking['update_date'] = date("Y-m-d H:i:s");
+            $booking['mail_to_vendor'] = 0;
+            $send['booking_id'] = $booking_id;
+            $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
+            //check partner status from partner_booking_status_mapping table  
+            $partner_status =$this->My_CI->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+            }
+            log_message('info', __FUNCTION__ . " update booking: " . print_r($booking, true));
+            $this->My_CI->booking_model->update_booking($booking_id, $booking);
+            $this->My_CI->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
+            $data['internal_status'] = "Pending";
+            $data['current_status'] = "Pending";
+            log_message('info', __FUNCTION__ . " update service cenetr action table: " . print_r($data, true));
+            $this->My_CI->vendor_model->update_service_center_action($booking_id, $data);
+            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+            $this->My_CI->asynchronous_lib->do_background_process($url, $send);
+            //Log this state change as well for this booking
+            //param:-- booking id, new state, old state, employee id, employee name
+            $this->My_CI->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, $booking['reschedule_reason'], $id,$employeeID, _247AROUND);          
+            log_message('info', __FUNCTION__ . " partner callback: " . print_r($booking_id, true));
+            $this->My_CI->partner_cb->partner_callback($booking_id);
+            log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $employeeID . " data " . print_r($data, true));
+        }
+    } 
 }

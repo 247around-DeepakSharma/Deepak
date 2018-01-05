@@ -1841,5 +1841,11 @@ class Apis extends CI_Model {
         $this->db->insert('rating_passthru_misscall_log', $callDetails);
         return $this->db->insert_id();
     }
-
+    /*
+     * This Function is used to save fake reschedule miss call data in reschedule miss call log table
+     */
+    function insertFakeReschedulePassthruCall($data){
+         $this->db->insert('fake_reschedule_missed_call_log', $data);
+        return $this->db->insert_id();
+    }
 }

@@ -563,8 +563,10 @@ class Service_centers extends CI_Controller {
             }
             $data['reschedule_reason'] = $data['reschedule_reason']. " - ". $sc_remarks;
             $data['update_date'] = date("Y-m-d H:i:s");
+            date_default_timezone_set('Asia/Calcutta'); 
+            $data['reschedule_request_date'] = date("Y-m-d H:i:s");
             $this->vendor_model->update_service_center_action($booking_id, $data);
-
+            $this->send_reschedule_confirmation_sms($booking_id);
             $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason']);
             $partner_id = $this->input->post("partner_id");
             $this->update_booking_internal_status($booking_id, $reason,  $partner_id);
@@ -697,7 +699,7 @@ class Service_centers extends CI_Controller {
 
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
-            
+           
 
             if (!empty($data['bookinghistory'][0])) {
                 $data['internal_status'] = array();
@@ -856,7 +858,6 @@ class Service_centers extends CI_Controller {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
         }
-        
         $this->booking_model->update_booking($booking_id, $booking);
     }
     /**
@@ -2877,5 +2878,22 @@ class Service_centers extends CI_Controller {
             redirect(base_url() . "service_center/pending_booking");
         }
     }
-
+    /*
+     * This Function send SMS to Customer When SF request For Booking Reschedule (To Know is Reschedule Fake)
+     */
+    function send_reschedule_confirmation_sms($booking_id){
+        $join["users"] = "users.user_id = booking_details.user_id";
+        $join["services"] = "services.id = booking_details.service_id";
+        $data = $this->reusable_model->get_search_result_data("booking_details","users.user_id,users.phone_number,services.services",array("booking_details.booking_id"=>$booking_id),
+                $join,NULL,NULL,NULL,NULL,array());
+        if(!empty($data[0])){
+            $sms['tag'] = BOOKING_RESCHEDULED_CONFIRMATION_SMS;
+            $sms['phone_no'] = $data[0]['phone_number'];
+            $sms['smsData'] = array("service"=>$data[0]['services']);
+            $sms['booking_id'] = $booking_id;
+            $sms['type'] = "User";
+            $sms['type_id'] = $data[0]['user_id'];
+            $this->notify->send_sms_msg91($sms);
+        }
+    }
 }

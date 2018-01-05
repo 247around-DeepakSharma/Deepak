@@ -3969,3 +3969,37 @@ ALTER TABLE `header_navigation`
 --
 ALTER TABLE `header_navigation`
   MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=106;COMMIT;
+
+--Chhavi 02nd Jan
+ALTER TABLE `sf_not_exist_booking_details` ADD `valid_pincode` INT(2) NOT NULL DEFAULT '1' AFTER `partner_id`;
+ALTER TABLE `sf_not_exist_booking_details` CHANGE `valid_pincode` `is_pincode_valid` INT(2) NOT NULL DEFAULT '1';
+ALTER TABLE `service_center_booking_action` ADD `reschedule_request_date` DATETIME NOT NULL AFTER `closed_date`;
+CREATE TABLE `fake_reschedule_missed_call_log` (
+  `id` int(10) NOT NULL,
+  `callSid` varchar(40) NOT NULL,
+  `from_number` varchar(20) NOT NULL,
+  `to_number` varchar(20) NOT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `fake_reschedule_missed_call_log`
+--
+ALTER TABLE `fake_reschedule_missed_call_log`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `fake_reschedule_missed_call_log`
+--
+ALTER TABLE `fake_reschedule_missed_call_log`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;

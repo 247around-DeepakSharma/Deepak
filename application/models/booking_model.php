@@ -1427,7 +1427,7 @@ class Booking_model extends CI_Model {
      * @return: Array of email template
      */
     function get_booking_email_template($email_tag) {
-        $this->db->select("template, to, from,cc, subject");
+        $this->db->select("*");
         $this->db->where('tag', $email_tag);
         $this->db->where('active', 1);
         $query = $this->db->get('email_template');
@@ -1445,7 +1445,10 @@ class Booking_model extends CI_Model {
      * @return: void
      */
     function review_reschedule_bookings_request($whereIN=array()){
-        $this->db->select('distinct(service_center_booking_action.booking_id),assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason');
+        $this->db->select('distinct(service_center_booking_action.booking_id),assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,'
+                . 'users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, '
+                . 'service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, '
+                . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
         $this->db->join('services','services.id = booking_details.service_id');

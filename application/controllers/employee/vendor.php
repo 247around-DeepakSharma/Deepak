@@ -1630,160 +1630,24 @@ class vendor extends CI_Controller {
     function process_vendor_escalation_form() {
         $this->checkUserSession();
         log_message('info',__FUNCTION__);
-        $escalation['booking_id'] = $this->input->post('booking_id');
-        $escalation['vendor_id'] = $this->input->post('vendor_id');
-        //Get SF to RM relation if present
-        $cc = "";
-        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id']);
-        if(!empty($rm)){
-            foreach($rm as $key=>$value){
-                if($key == 0){
-                    $cc .= "";
-                }else{
-                    $cc .= ",";
-                }
-                $cc .= $this->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
-            }
-        }
+       // return $this->input->post();
+        $booking_id= $this->input->post('booking_id');
+        $vendor_id = $this->input->post('vendor_id');
+        $escalation_reason_id = $this->input->post('escalation_reason_id');
+        $remarks = $this->input->post('remarks');
         $checkValidation = $this->checkValidationOnReason();
-        if ($checkValidation) {
-            $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
-            
-            $this->booking_model->increase_escalation_reschedule($escalation['booking_id'], "count_escalation");
-            
-            $booking_date_timeslot = $this->vendor_model->getBookingDateFromBookingID($escalation['booking_id']);
-
-            $booking_date = strtotime($booking_date_timeslot[0]['booking_date']);
-
-            $escalation['booking_date'] = date('Y-m-d', $booking_date);
-            $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
-            
-            //inserts vendor escalation details
-            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
-            
-            if ($escalation_id) {
-                $escalation_policy_details = $this->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);
-                // Update escalation flag and return userDeatils
-                $userDetails = $this->vendor_model->updateEscalationFlag($escalation_id, $escalation_policy_details, $escalation['booking_id']);
-
-                log_message('info', "User Details " . print_r($userDetails, TRUE));
-                log_message('info', "Vendor_ID " . $escalation['vendor_id']);
-
-                $vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
-
-                $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'];
-
-                //Getting template from Database
-                $template = $this->booking_model->get_booking_email_template("escalation_on_booking");
-                if (!empty($template)) {
-                    
-                    //From will be currently logged in user
-                    $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
-                    
-                    //Sending Mail
-                    $email['booking_id'] = $escalation['booking_id'];
-                    $email['count_escalation'] = $booking_date_timeslot[0]['count_escalation'];
-                    $email['reason'] = $escalation_policy_details[0]['escalation_reason'];
-                    $emailBody = vsprintf($template[0], $email);
-
-                    $subject['booking_id'] = $escalation['booking_id'];
-                    $subjectBody = vsprintf($template[4], $subject);
-                    $this->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "");
-
-                    //Logging
-                    log_message('info', " Escalation Mail Send successfully" . $emailBody);
-                } else {
-                    //Logging Error Message
-                    log_message('info', " Error in Getting Email Template for Escalation Mail");
-                }
-                
-                $this->sendSmsToVendor($escalation,$escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
-                $escalation_reason  = $this->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
-                $remarks = $this->input->post('remarks');
-                if(!empty($remarks)){
-                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'].' - '.$remarks;
-                }else{
-                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
-                }
-                
-                $this->notify->insert_state_change($escalation['booking_id'], 
-                    "Escalation" , "Pending" , $escalation_reason_final, 
-                    $this->session->userdata('id'), $this->session->userdata('employee_id'),
-                    _247AROUND);
-                
-                //Processing Penalty on Escalations
-                
-                $value['booking_id'] = $escalation['booking_id'];
-                $value['assigned_vendor_id'] = $escalation['vendor_id'];
-                $value['current_state'] = "Escalation";
-                $value['agent_id'] = $this->session->userdata('id');
-                $value['remarks'] = $escalation_reason_final;
-                $value['agent_type'] = 'admin';
-                $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
-                //Adding values in penalty on booking table
-                $this->penalty_model->get_data_penalty_on_booking($value, $where);
-
-                log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
-                
-
-                redirect(base_url() . DEFAULT_SEARCH_PAGE);
-	    }
-        } else {
-            $this->get_vendor_escalation_form($escalation['booking_id']);
+        $id = $this->session->userdata('id');
+        $employeeID = $this->session->userdata('employee_id');
+        $escalation = $this->miscelleneous->process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,$checkValidation,$id,$employeeID);
+        if($escalation){
+          redirect(base_url() . DEFAULT_SEARCH_PAGE);  
+        }
+        else{
+            $this->get_vendor_escalation_form($booking_id);
         }
     }
 
-    /**
-     * @desc: Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.
-     *
-     * @param : escalation policy details
-     * @param : vendor contact
-     * @param : booking id
-     * @param : user's details
-     * @return : void
-     */
-    function sendSmsToVendor($escalation,$escalation_policy, $contact, $booking_id, $userDetails) {
-        
-        $id = $escalation['vendor_id'];
-       
-        if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 1) {
-
-            $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
-
-            $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
-            //For saving SMS to the database on sucess
-
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
-                    $smsBody, $booking_id, "Escalation", $status['content']);
-            
-
-            $status1 = $this->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
-            //For saving SMS to the database on sucess
-
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
-                    $smsBody, $booking_id,"Escalation", $status1['content']);
-            
-        } else if ($escalation_policy[0]['sms_to_owner'] == 0 && $escalation_policy[0]['sms_to_poc'] == 1) {
-
-            $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
-
-            $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
-            //For saving SMS to the database on sucess
-            
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
-                    $smsBody, $booking_id, "Escalation", $status['content']);
-            
-        } else if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 0) {
-
-            $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
-
-            $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
-            //For saving SMS to the database on sucess
-            
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
-                    $smsBody, $booking_id, "Escalation", $status['content']); 
-        }
-    }
+   
 
     /**
      * @desc: Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.

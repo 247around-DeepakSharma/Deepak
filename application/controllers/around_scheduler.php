@@ -1219,6 +1219,32 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-
+    /*
+     * This function is used to Approve rescheduled requests Automatically
+     * If we did'nt get any miss call for fake reschedule within 4 hours of reschedule request then we will automatically approve that rescheduled request
+     */
+function auto_approval_for_booking_rescheduled_request(){
+    date_default_timezone_set('Asia/Calcutta');
+    //Get Current Rescheduled request Bookings
+    $reviewBookingsArray = $this->booking_model->review_reschedule_bookings_request();
+    $id = 1;
+    $employeeID = "247around";
+    $partner_id ="";
+    if(!empty($reviewBookingsArray)){
+        foreach($reviewBookingsArray as $bookingData){
+                $rescheduledTime = date_create($bookingData['reschedule_request_date']);
+                $currentTime = date_create();
+                $diff  = date_diff( $rescheduledTime, $currentTime);
+                $timeDiffInHours = $diff->h;
+                // IF request Time is greater then 4 hours then approvad the rescheduled
+                if($timeDiffInHours>4){
+                    $reschedule_booking_id[] = $bookingData['booking_id'];
+                    $reschedule_booking_date[$bookingData['booking_id']] = $bookingData['reschedule_date_request'];
+                    $reschedule_reason[$bookingData['booking_id']] = $bookingData['reschedule_reason'];
+                }
+        }
+        $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID);
+    }
+}
 }
 
