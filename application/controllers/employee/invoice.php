@@ -3115,7 +3115,7 @@ class Invoice extends CI_Controller {
                     . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
             $data = array();
             $data[0]['description'] = ucwords($sp_data[0]->parts_requested) . " (" . $sp_data[0]->booking_id . ") ";
-            $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * REPAIR_OOW_AROUND_PERCENTAGE;
+            $amount = $sp_data[0]->sell_price + $sp_data[0]->sell_price * REPAIR_OOW_AROUND_PERCENTAGE;
             $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, DEFAULT_TAX_RATE);
             $data[0]['taxable_value'] = ($amount - $tax_charge);
             $data[0]['product_or_services'] = "Product";
