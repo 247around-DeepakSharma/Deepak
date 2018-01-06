@@ -204,68 +204,27 @@ class bookings_excel extends CI_Controller {
 
     }
     
-    function check_column_exist($rowData){
-        
-        $error = false;
-        
-        if (!array_key_exists('order_id', $rowData)) {
-            $this->Columfailed .= " Order Id Column does not exist. Please use <b>order_id</b> as column name.<br/><br/>";
-            $error = true;
-        }
-
-        if (!array_key_exists('product_name', $rowData)) {
-            $this->Columfailed .= " Product Name Column does not exist. Please use <b>product_name</b> as column name.<br/><br/>";
-            $error = true;
-        }
-        
-        if (!array_key_exists('category', $rowData)) {
-      
-            $this->Columfailed .= " Category Column does not exist. Please use <b>category</b> as column name.<br/><br/>";
-            $error = true;
-        }
-         
-        if (!array_key_exists('brand', $rowData)) {
-       
-            $this->Columfailed .= " Brand Column does not exist. Please use <b>brand</b> as column name.<br/><br/>";
-            $error = true;
-        }
-        if (!array_key_exists('customer_firstname', $rowData)) {
-
-            $this->Columfailed .= " Customer First Name Column does not exist. Please use <b>customer_firstname</b> as column name.<br/><br/>";
-            $error = true;
+    /**
+     * @desc: This function is used to check the file upload header
+     * @param: $data array()
+     * @return: $return_response array()
+     */
+    function check_column_exist($data){
+        foreach($data['actual_header_data'] as $value){
+            //check all header in the file are as per our database
+            $is_all_header_present = array_diff(array_values($value),$data['header_data']);
+            if(empty($is_all_header_present)){
+                $return_response['status'] = TRUE;
+                $return_response['msg'] = '';
+                break;
+            }else{
+                $this->Columfailed = "<b>".implode($is_all_header_present, ',')." </b> column does not exist.Please correct these and upload again. <br><br><b> For reference,Please use previous successfully upload file from CRM</b>";
+                $return_response['status'] = FALSE;
+                $return_response['msg'] = $this->Columfailed;
+            }
         }
         
-        if (!array_key_exists('contact_number', $rowData)) {
-      
-            $this->Columfailed .= " Contact Number Column does not exist. Please use <b>contact_number</b> as column name.<br/><br/>";
-            $error = true;
-        }
-        if (!array_key_exists('address', $rowData)) {
-      
-            $this->Columfailed .= " Address Column does not exist. Please use <b>address</b> as column name.<br/><br/>";
-            $error = true;
-        }
-        if (!array_key_exists('pincode', $rowData)) {
-      
-            $this->Columfailed .= " Pincode Column does not exist. Please use <b>pincode</b> as column name.<br/><br/>";
-            $error = true;
-        }
-        if (!array_key_exists('customer_city', $rowData)) {
-      
-            $this->Columfailed .= " Customer City Column does not exist. Please use <b>customer_city</b> as column name.<br/><br/>";
-            $error = true;
-        }
-        if (!array_key_exists('shipped_date', $rowData)) {
-      
-            $this->Columfailed .= " Shipped Date Column does not exist. Please use <b>shipped_date</b> as column name.<br/><br/>";
-            $error = true;
-        }
-         
-        if ($error) {
-            return false;
-        } else {
-            return true;
-        }
+        return $return_response;
     }
     
     /*
@@ -341,10 +300,11 @@ class bookings_excel extends CI_Controller {
             $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
             $rowData[0] = array_combine($headings_new[0], $rowData[0]);
 
-            $this->Columfailed = "";
-            $status = $this->check_column_exist($rowData[0]);
-
-            if ($status) {
+            $check_header['header_data'] = array_keys($rowData[0]);
+            $select = 'sub_order_id,product_type,brand,customer_name,customer_address,pincode,phone,city,delivery_date';
+            $check_header['actual_header_data'] = $this->reusable_model->get_search_query('partner_file_upload_header_mapping',$select,array('partner_id'=>PAYTM),NULL,NULL,NULL,NULL,NULL)->result_array();
+            $response = $this->check_column_exist($check_header);
+            if (!empty($response['status'])) {
                 if (empty($rowData[0]['contact_number'])) {
                     $error = true;
                     $empty_contact = true;
@@ -384,7 +344,7 @@ class bookings_excel extends CI_Controller {
                         $user['user_email'] = $rowData[0]['customer_email'];
                         $user['home_address'] = $rowData[0]['address'];
                         $user['pincode'] = $rowData[0]['pincode'];
-                        $user['city'] = $rowData[0]['customer_city'];
+                        $user['city'] = !empty($rowData[0]['customer_city'])?$rowData[0]['customer_city']:$distict_details['district'];
                         $user['state'] = $distict_details['state'];
                         $user['is_verified'] = 1;
 
@@ -478,7 +438,7 @@ class bookings_excel extends CI_Controller {
 
                             $booking['booking_address'] = $rowData[0]['address'];
                             $booking['booking_pincode'] = $rowData[0]['pincode'];
-                            $booking['city'] = $rowData[0]['customer_city'];
+                            $booking['city'] = !empty($rowData[0]['customer_city'])?$rowData[0]['customer_city']:$distict_details['district'];
                             $booking['state'] = $distict_details['state'];
                             $booking['district'] = $distict_details['district'];
                             $booking['taluk'] = $distict_details['taluk'];
@@ -634,6 +594,166 @@ class bookings_excel extends CI_Controller {
         
 	$this->miscelleneous->load_nav_header();
 	$this->load->view('employee/upload_akai_file');
+    }
+    
+    /**
+     * @desc: This function is used for mapping between partner_id and upload file header
+     * @param: void
+     * @return: void
+     */
+
+    public function file_upload_header_mapping() {
+        
+	$this->miscelleneous->load_nav_header();
+	$this->load->view('employee/file_upload_header_mapping');
+    }
+    
+    /**
+     * @desc: This function is used show the data from partner_file_upload_header_mapping table
+     * @param: void
+     * @return: void
+     */
+    public function get_file_upload_header_mapping_data() {
+        $post = $this->get_post_data();
+        $select = "partner_file_upload_header_mapping.*,partners.public_name,employee.full_name";
+        $list = $this->partner_model->get_file_upload_header_mapping_data($post, $select);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row = $this->file_upload_header_mapping_data_table($order_list, $no);
+            $data[] = $row;
+        }
+        
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->partner_model->get_file_upload_header_mapping_data($post,'count(distinct(partner_file_upload_header_mapping.id)) as numrows')[0]->numrows,
+            "recordsFiltered" =>  $this->partner_model->get_file_upload_header_mapping_data($post,'count(distinct(partner_file_upload_header_mapping.id)) as numrows')[0]->numrows,
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+    }
+    
+    /**
+     * @desc: This function is used generate table from partner_file_upload_header_mapping table
+     * @param: $order_list array
+     * @param: $no string
+     * @return: void
+     */
+    private function file_upload_header_mapping_data_table($order_list, $no){
+        $row = array();
+        $json_data = json_encode($order_list);
+        $row[] = $no;
+        $row[] = $order_list->public_name;
+        $row[] = $order_list->referred_date_and_time;
+        $row[] = $order_list->sub_order_id;
+        $row[] = $order_list->brand;
+        $row[] = $order_list->model;
+        $row[] = $order_list->product;
+        $row[] = $order_list->product_type;
+        $row[] = $order_list->customer_name;
+        $row[] = $order_list->customer_address;
+        $row[] = $order_list->pincode;
+        $row[] = $order_list->city;
+        $row[] = $order_list->phone;
+        $row[] = $order_list->email_id;
+        $row[] = $order_list->delivery_date;
+        $row[] = $order_list->full_name;
+        $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_mapping_details' data-id='$json_data'>Edit</a>";
+        
+        return $row;
+    }
+
+    /**
+     *  @desc : This function is used to get the post data to show partner_file_upload_header_mapping details
+     *  @param : void()
+     *  @return : $post Array()
+     */
+    private function get_post_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+
+        return $post;
+    }
+    
+    /**
+     *  @desc : This function is used to perform add/edit action on the partner_file_upload_header_mapping table
+     *  @param : void()
+     *  @return : $response JSON
+     */
+    function process_file_upload_header_mapping() {
+        $submit_type = $this->input->post('submit_type');
+        $data = array('partner_id' => $this->input->post('partner_id'),
+                      'referred_date_and_time' => $this->input->post('r_d_a_t'),
+                      'sub_order_id' => $this->input->post('sub_order_id'),
+                      'brand' => $this->input->post('brand'),
+                      'model' => $this->input->post('model'),
+                      'product' => $this->input->post('product'),
+                      'product_type' => $this->input->post('product_type'),
+                      'customer_name' => $this->input->post('customer_name'),
+                      'customer_address' => $this->input->post('customer_address'),
+                      'pincode' => $this->input->post('pincode'),
+                      'city' => $this->input->post('city'),
+                      'phone' => $this->input->post('phone'),
+                      'email_id' => $this->input->post('email_id'),
+                      'delivery_date' => $this->input->post('delivery_date'),
+                      'agent_id' => $this->session->userdata('id'),
+            );
+        switch ($submit_type) {
+            case 'add':
+                $response = $this->add_file_upload_header_mapping($data);
+                break;
+            case 'edit':
+                $response = $this->edit_file_upload_header_mapping($data);
+                break;
+        }
+        
+        echo json_encode($response);
+    }
+    
+    /**
+     *  @desc : This function is used to perform insert action on the partner_file_upload_header_mapping table
+     *  @param : $data array()
+     *  @return : $res array()
+     */
+    function add_file_upload_header_mapping($data) {
+        $response = $this->partner_model->insert_partner_file_upload_header_mapping($data);
+        if (!empty($response)) {
+            $res['response'] = 'success';
+            $res['msg'] = 'partner file upload header mapping added successfully';
+            log_message("info", 'partner file upload header mapping added successfully');
+        } else {
+            $res['response'] = 'error';
+            $res['msg'] = 'error in inserting partner file upload header mapping details';
+            log_message("info", 'error in inserting partner file upload header mapping details');
+        }
+        
+        return $res;
+    }
+    
+    /**
+     *  @desc : This function is used to perform edit action on the partner_file_upload_header_mapping table
+     *  @param : $data array()
+     *  @return : $res array()
+     */
+    function edit_file_upload_header_mapping($data) {
+        $response = $this->partner_model->update_partner_file_upload_header_mapping(array('id' => $this->input->post('file_upload_header_mapping_id')), $data);
+        if (!empty($response)) {
+            $res['response'] = 'success';
+            $res['msg'] = 'Dedailts has been updated successfully';
+            log_message("info", 'partner file upload header mapping updated successfully');
+        } else {
+            $res['response'] = 'error';
+            $res['msg'] = 'error in updating mapping details';
+            log_message("info", 'error in updating partner file upload header mapping details');
+        }
+        
+        return $res;
     }
 
 }
