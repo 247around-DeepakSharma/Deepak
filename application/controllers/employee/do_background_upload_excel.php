@@ -297,7 +297,7 @@ class Do_background_upload_excel extends CI_Controller {
 	    $output = $this->user_model->search_user(trim($phone[0]));
 	    
             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['pincode']));
-
+            
 	    if (empty($output)) {
 		//User doesn't exist
                 $user = array();
@@ -309,7 +309,7 @@ class Do_background_upload_excel extends CI_Controller {
                 }
 		$user['home_address'] = $value['customer_address'];
 		$user['pincode'] = trim($value['pincode']);
-		$user['city'] = !empty($value['city'])?$value['city']:$distict_details['city'];
+		$user['city'] = !empty($value['city'])?$value['city']:$distict_details['district'];
 		$user['state'] = $distict_details['state'];
 
 		$user_id = $this->user_model->add_user($user);
@@ -480,7 +480,7 @@ class Do_background_upload_excel extends CI_Controller {
                     $booking['current_status'] = "FollowUp";
                     $booking['type'] = "Query";
                     $booking['booking_address'] = $value['customer_address'];
-                    $booking['city'] = !empty($value['city'])?$value['city']:$distict_details['city'];;
+                    $booking['city'] = !empty($value['city'])?$value['city']:$distict_details['district'];;
                     $booking['state'] = $distict_details['state'];
                     $booking['district'] = $distict_details['district'];
                     $booking['taluk'] = $distict_details['taluk'];
@@ -1203,7 +1203,7 @@ class Do_background_upload_excel extends CI_Controller {
                     }
                     $user['home_address'] = $value['customer_address'];
                     $user['pincode'] = trim(str_replace(" ", "", trim($value['pincode'])));
-                    $user['city'] = !empty($value['city'])?$value['city']:$distict_details['city'];;
+                    $user['city'] = !empty($value['city'])?$value['city']:$distict_details['district'];;
                     $user['state'] = $distict_details['state'];
 
                     $user_id = $this->user_model->add_user($user);
@@ -1271,20 +1271,20 @@ class Do_background_upload_excel extends CI_Controller {
                 } else {
                     
                     //save file and upload on s3
-                    $this->miscelleneous->update_file_uploads($header_data['file_name'], $file_status['file_tmp_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
-                    
-                    //get email details 
-                    if (!empty($this->email_send_to)) {
-                        $to = $this->email_send_to;
-                    } else if (!empty($this->session->userdata('official_email'))) {
-                        $to = $this->session->userdata('official_email');
-                    } else {
-                        $to = _247AROUND_VIJAYA_EMAIL;
-                    }
-                    $cc = DEVELOPER_EMAIL;
+//                    $this->miscelleneous->update_file_uploads($header_data['file_name'], $file_status['file_tmp_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
+//                    
+//                    //get email details 
+//                    if (!empty($this->email_send_to)) {
+//                        $to = $this->email_send_to;
+//                    } else if (!empty($this->session->userdata('official_email'))) {
+//                        $to = $this->session->userdata('official_email');
+//                    } else {
+//                        $to = _247AROUND_VIJAYA_EMAIL;
+//                    }
+//                    $cc = DEVELOPER_EMAIL;
                     $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
                     $subject = "Failed! $upload_file_type File uploaded by " . $agent_name;
-                    $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $response['msg'], "");
+                    $this->notify->sendEmail("noreply@247around.com", 'sachinj@247around.com', '', "", $subject, $response['msg'], "");
 
                     log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
                     $this->session->set_flashdata('file_error', $this->ColumnFailed);
@@ -1384,33 +1384,34 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function process_satya_file_upload($data) {
         log_message('info', __FUNCTION__ . "=> Satya File Upload: Beginning processing...");
-        $response = $this->check_column_exist_in_satya_file($data['header_data']);
-        
+        $select = 'sub_order_id,product_type,customer_name,customer_address,pincode,phone';
+        $data['actual_header_data'] = $this->reusable_model->get_search_query('partner_file_upload_header_mapping',$select,array('partner_id'=>$data['partner_id']),NULL,NULL,NULL,NULL,NULL)->result_array();
+        $response = $this->check_column_exist($data);
         if ($response['status']) {
-            $arr = array('docnum','phone','zipcode','itemname');
-            //if new format of header came then change it to old header format
-            if(count($arr) == count(array_intersect($data['header_data'], $arr))){
-                $flippedArr = array_flip($data['header_data']);
-                foreach($flippedArr as $k => $v){
-                    if($k  === 'docnum'){
-                        $newArrHeadings[$v] = 'docno';
-                    }else if($k  === 'phone'){
-                        $newArrHeadings[$v] = 'phno';
-                    }else if($k  === 'zipcode'){
-                        $newArrHeadings[$v] = 'zipcodeb';
-                    }else if($k  === 'itemname'){
-                        $newArrHeadings[$v] = 'item_name';
-                    }else {
-                        $newArrHeadings[$v] = $k;
-                    }
-                }
-            }else{
-                $newArrHeadings = $data['header_data'];
-            }
+//            $arr = array('docnum','phone','zipcode','itemname');
+//            //if new format of header came then change it to old header format
+//            if(count($arr) == count(array_intersect($data['header_data'], $arr))){
+//                $flippedArr = array_flip($data['header_data']);
+//                foreach($flippedArr as $k => $v){
+//                    if($k  === 'docnum'){
+//                        $newArrHeadings[$v] = 'docno';
+//                    }else if($k  === 'phone'){
+//                        $newArrHeadings[$v] = 'phno';
+//                    }else if($k  === 'zipcode'){
+//                        $newArrHeadings[$v] = 'zipcodeb';
+//                    }else if($k  === 'itemname'){
+//                        $newArrHeadings[$v] = 'item_name';
+//                    }else {
+//                        $newArrHeadings[$v] = $k;
+//                    }
+//                }
+//            }else{
+//                $newArrHeadings = $data['header_data'];
+//            }
             
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                $rowData = array_combine($newArrHeadings, $rowData_array[0]);
+                $rowData = array_combine($data['header_data'], $rowData_array[0]);
                 $subArray = $this->get_sub_array($rowData,array('itemcode','docno','customer','phno','address','zipcodeb','item_name','create_date'));
                 $this->get_final_satya_data($subArray);
             }
@@ -1438,78 +1439,6 @@ class Do_background_upload_excel extends CI_Controller {
     function get_sub_array(array $parentArray, array $subsetArrayToGet)
     {
         return array_intersect_key($parentArray, array_flip($subsetArrayToGet));
-    }
-    
-    /**
-     * @desc: This function is used to validate satya file header
-     * @param $rowData array
-     * @param $return_response array
-     */
-    private function check_column_exist_in_satya_file($rowData) {
-        $message = "";
-        $error = false;
-        if (!in_array('itemcode', $rowData)) {
-            $message .= " Itemcode Column does not exist.  Please use <b>itemcode</> as column name.<br/><br/>";
-            $this->ColumnFailed .= " Itemcode, ";
-            $error = TRUE;
-        }
-
-        if (!in_array('docno', $rowData)) {
-            if(!in_array('docnum', $rowData)){
-                $message .= " DocNo Column does not exist. Please use <b>docno</> as column name.<br/><br/>";
-                $this->ColumnFailed .= " DocNo, ";
-                $error = TRUE;
-            }
-        }
-
-        if (!in_array('customer', $rowData)) {
-
-            $message .= " Customer Column does not exist. Please use <b>customer</> as column name.<br/><br/>";
-            $this->ColumnFailed .= "Customer , ";
-            $error = TRUE;
-        }
-
-        if (!in_array('phno', $rowData)) {
-            if(!in_array('phone', $rowData)){
-                $message .= " PHNo Column does not exist. Please use <b>phno</> as column name.<br/><br/>";
-                $this->ColumnFailed .= " PHNo , ";
-                $error = TRUE;
-            }
-            
-        }
-        if (!in_array('address', $rowData)) {
-
-            $message .= " Address Column does not exist. Please use <b>address</> as column name.<br/><br/>";
-            $this->ColumnFailed .= " Address , ";
-            $error = TRUE;
-        }
-        if (!in_array('zipcodeb', $rowData)) {
-            if(!in_array('zipcode', $rowData)){
-                $message .= " ZipCodeB Column does not exist. Please use <b>zipcodeb</> as column name.<br/><br/>";
-                $this->ColumnFailed .= "ZipCodeB , ";
-                $error = TRUE;
-            }       
-        }
-        if (!in_array('item_name', $rowData)) {
-            if(!in_array('itemname', $rowData)){
-                $message .= " Item Name Column does not exist. Please use <b>item_name</> as column name.<br/><br/>";
-                $this->ColumnFailed .= "Item Name ";
-                $error = TRUE;
-            }
-            
-        }
-        
-        if ($error) {
-            $message .= " Please check and upload again.";
-            $this->ColumnFailed .= " column does not exist.";
-            $return_response['status'] = FALSE;
-            $return_response['msg'] = $message;
-        } else {
-            $return_response['status'] = TRUE;
-            $return_response['msg'] = '';
-        }
-
-        return $return_response;
     }
     
     /**
@@ -1544,7 +1473,9 @@ class Do_background_upload_excel extends CI_Controller {
      */
     private function process_akai_file_upload($data){
         log_message('info', __FUNCTION__ . "=> Akai File Upload: Beginning processing...");
-        $response = $this->check_column_exist_in_akai_file($data['header_data']);
+        $select = 'sub_order_id,product_type,customer_name,customer_address,pincode,phone';
+        $data['actual_header_data'] = $this->reusable_model->get_search_query('partner_file_upload_header_mapping',$select,array('partner_id'=>$data['partner_id']),NULL,NULL,NULL,NULL,NULL)->result_array();
+        $response = $this->check_column_exist($data);
         
         //if all column exist then retrive data from the file else send error mail
         if ($response['status']) {
@@ -1567,70 +1498,6 @@ class Do_background_upload_excel extends CI_Controller {
         }
         
         return $response;
-    }
-    
-    /**
-     * @desc: This function is used to validate Akai file header
-     * @param $rowData array
-     * @param $return_response array
-     */
-    private function check_column_exist_in_akai_file($rowData){
-        $message = "";
-        $error = false;
-        if (!in_array('bill_no', $rowData)) {
-            $message .= " bill_no Column does not exist.  Please use <b>bill_no</b> as column name.<br/><br/>";
-            $this->ColumnFailed .= " bill_no, ";
-            $error = TRUE;
-        }
-
-        if (!in_array('customer', $rowData)) {
-
-            $message .= " Customer Column does not exist. Please use <b>customer</b> as column name.<br/><br/>";
-            $this->ColumnFailed .= "Customer , ";
-            $error = TRUE;
-        }
-
-        if (!in_array('contact_no', $rowData)) {
-            if(!in_array('contact_no', $rowData)){
-                $message .= " contact_no Column does not exist. Please use <b>contact_no</b> as column name.<br/><br/>";
-                $this->ColumnFailed .= " PHNo , ";
-                $error = TRUE;
-            }
-            
-        }
-        if (!in_array('address', $rowData)) {
-
-            $message .= " Address Column does not exist. Please use <b>address</b> as column name.<br/><br/>";
-            $this->ColumnFailed .= " Address , ";
-            $error = TRUE;
-        }
-        
-        if (!in_array('pincode', $rowData)) {
-            $message .= " Pincode Column does not exist. Please use <b>pincode</b> as column name.<br/><br/>";
-            $this->ColumnFailed .= "ZipCodeB , ";
-            $error = TRUE;
-        }
-        
-        if (!in_array('item_name', $rowData)) {
-            if(!in_array('itemname', $rowData)){
-                $message .= " Item Name Column does not exist. Please use <b>item_name</b> as column name.<br/><br/>";
-                $this->ColumnFailed .= "Item Name ";
-                $error = TRUE;
-            }
-            
-        }
-        
-        if ($error) {
-            $message .= " Please check and upload again.";
-            $this->ColumnFailed .= " column does not exist.";
-            $return_response['status'] = FALSE;
-            $return_response['msg'] = $message;
-        } else {
-            $return_response['status'] = TRUE;
-            $return_response['msg'] = '';
-        }
-
-        return $return_response;
     }
     
     /**
@@ -1660,6 +1527,25 @@ class Do_background_upload_excel extends CI_Controller {
         $tmpArr['partner_source'] = "Akai-delivered-excel";
         
         array_push($this->finalArray, $tmpArr);
+    }
+    
+    /**
+     * @desc: This function is used to validate upload file header
+     * @param $data array
+     * @param $return_response array
+     */
+    function check_column_exist($data){
+        $is_all_header_present = array_diff(array_values($data['actual_header_data'][0]),$data['header_data']);
+        if(!empty($is_all_header_present)){
+            $this->ColumnFailed = "<b>".implode($is_all_header_present, ',')." </b> column does not exist.Please correct these and upload again. <br><br><b> For reference,Please use previous successfully upload file from CRM</b>";
+            $return_response['status'] = FALSE;
+            $return_response['msg'] = $this->ColumnFailed;
+        }else{
+            $return_response['status'] = TRUE;
+            $return_response['msg'] = '';
+        }
+        
+        return $return_response;
     }
 
 }
