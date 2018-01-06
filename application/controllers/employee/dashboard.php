@@ -682,7 +682,7 @@ class Dashboard extends CI_Controller {
                     else{
                         
                               $structuredArray[$data['pincode']]['totalCount'] = $data['pincodeCount'];
-                    }   
+                    }
                     $structuredArray[$data['pincode']]['pincode'] = $data['pincode'];
                     $structuredArray[$data['pincode']]['city'] = $data['city'];
                     $structuredArray[$data['pincode']]['state'] = $data['state'];
@@ -692,6 +692,10 @@ class Dashboard extends CI_Controller {
                     $temp['service_name'] = $data['services'];
                     $structuredArray[$data['pincode']]['service'][] = $temp;
           }
+        foreach ($structuredArray as $key => $row) {
+            $totalCount[]  = $row['totalCount'];
+        }
+        array_multisort($totalCount, SORT_DESC, $structuredArray);
             return $structuredArray;
     }
     /*

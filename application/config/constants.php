@@ -479,7 +479,7 @@ define('SPARE_OOW_EST_GIVEN','Spare Estimate Cost Given');
 define('SPARE_OOW_EST_MARGIN','0.25');
 define('REPAIR_OOW_PARTS_PRICE_TAGS','Spare Parts');
 define('REPAIR_OOW_VENDOR_PERCENTAGE','10');
-define('REPAIR_OOW_AROUND_PERCENTAGE','0.15');
+define('REPAIR_OOW_AROUND_PERCENTAGE','0.90');
 
 define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
 define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
@@ -562,5 +562,7 @@ define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
 define('ACCOUNTANT_EMAILID',"adityag@247around.com" );
 define('SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION',7 );
 
+//Booking Rescheduled Confirmation SMS Constant
+define('BOOKING_RESCHEDULED_CONFIRMATION_SMS','rescheduled_confirmation_sms');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
