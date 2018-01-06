@@ -1271,20 +1271,20 @@ class Do_background_upload_excel extends CI_Controller {
                 } else {
                     
                     //save file and upload on s3
-//                    $this->miscelleneous->update_file_uploads($header_data['file_name'], $file_status['file_tmp_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
-//                    
-//                    //get email details 
-//                    if (!empty($this->email_send_to)) {
-//                        $to = $this->email_send_to;
-//                    } else if (!empty($this->session->userdata('official_email'))) {
-//                        $to = $this->session->userdata('official_email');
-//                    } else {
-//                        $to = _247AROUND_VIJAYA_EMAIL;
-//                    }
-//                    $cc = DEVELOPER_EMAIL;
+                    $this->miscelleneous->update_file_uploads($header_data['file_name'], $file_status['file_tmp_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
+                    
+                    //get email details 
+                    if (!empty($this->email_send_to)) {
+                        $to = $this->email_send_to;
+                    } else if (!empty($this->session->userdata('official_email'))) {
+                        $to = $this->session->userdata('official_email');
+                    } else {
+                        $to = _247AROUND_VIJAYA_EMAIL;
+                    }
+                    $cc = DEVELOPER_EMAIL;
                     $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
                     $subject = "Failed! $upload_file_type File uploaded by " . $agent_name;
-                    $this->notify->sendEmail("noreply@247around.com", 'sachinj@247around.com', '', "", $subject, $response['msg'], "");
+                    $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $response['msg'], "");
 
                     log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
                     $this->session->set_flashdata('file_error', $this->ColumnFailed);
