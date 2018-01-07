@@ -4003,3 +4003,58 @@ ALTER TABLE `fake_reschedule_missed_call_log`
 --
 ALTER TABLE `fake_reschedule_missed_call_log`
   MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
+
+
+-- sachin 5 Jan 2018
+CREATE TABLE `partner_file_upload_header_mapping` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `referred_date_and_time` varchar(128) DEFAULT NULL,
+  `sub_order_id` varchar(256) NOT NULL,
+  `brand` varchar(128) NOT NULL,
+  `model` varchar(128) NOT NULL,
+  `product` varchar(256) NOT NULL,
+  `product_type` varchar(256) NOT NULL,
+  `customer_name` varchar(256) NOT NULL,
+  `customer_address` varchar(256) NOT NULL,
+  `pincode` varchar(32) NOT NULL,
+  `city` varchar(128) NOT NULL,
+  `phone` varchar(64) NOT NULL,
+  `email_id` varchar(128) DEFAULT NULL,
+  `delivery_date` varchar(128) DEFAULT NULL,
+  `agent_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `partner_file_upload_header_mapping`
+--
+
+INSERT INTO `partner_file_upload_header_mapping` (`id`, `partner_id`, `referred_date_and_time`, `sub_order_id`, `brand`, `model`, `product`, `product_type`, `customer_name`, `customer_address`, `pincode`, `city`, `phone`, `email_id`, `delivery_date`, `agent_id`, `create_date`, `update_date`) VALUES
+(1, 247034, '', 'bill_no', '', '', 'product', 'item_name', 'customer', 'address', 'pincode', '', 'contact_no', '', '', 27, '2018-01-05 11:31:28', '2018-01-05 11:35:32'),
+(2, 247010, '', 'docno', '', '', 'product', 'item_name', 'customer', 'address', 'zipcodeb', '', 'phno', '', '', 27, '2018-01-05 11:41:38', '2018-01-06 05:56:44'),
+(3, 3, '', 'item_id', 'brand', '', '', 'product_name', 'customer_firstname', 'address', 'pincode', 'customer_city', 'contact_number', '', 'shipped_date', 27, '2018-01-06 06:37:13', '0000-00-00 00:00:00'),
+(4, 3, '', 'order_item_id', 'brand', '', '', 'product_name', 'customer_firstname', 'address', 'pincode', 'customer_city', 'contact_number', '', 'shipped_date', 27, '2018-01-06 06:37:13', '0000-00-00 00:00:00');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `partner_file_upload_header_mapping`
+--
+ALTER TABLE `partner_file_upload_header_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `partner_file_upload_header_mapping`
+--
+ALTER TABLE `partner_file_upload_header_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Upload File Header Mapping', 'employee/bookings_excel/file_upload_header_mapping', '2', '24', 'admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);

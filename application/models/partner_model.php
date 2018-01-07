@@ -1211,6 +1211,7 @@ function get_data_for_partner_callback($booking_id) {
         }
         return FALSE;
     }
+    
     /**
      * @desc This is used to get partner blocked brand 
      * @param Array $where
@@ -1222,6 +1223,78 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->where($where);
         $query = $this->db->get("blacklist_brand");
         return $query->result_array();
+        
+    }
+    
+    /**
+     * @desc This is used to get details from partner_file_upload_header_mapping
+     * @param Array $post
+     * @param String $select
+     * @return Array
+     */
+    function get_file_upload_header_mapping_data($post,$select){
+        
+        $this->db->distinct();
+        $this->db->select($select);
+        $this->db->from('partner_file_upload_header_mapping');
+        $this->db->join('partners', 'partner_file_upload_header_mapping.partner_id  = partners.id');
+        $this->db->join('employee', 'partner_file_upload_header_mapping.agent_id  = employee.id');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('partner_id','DESC');
+        }
+        
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    /**
+     * @desc This is used to insert details into partner_file_upload_header_mapping
+     * @param Array $details
+     * @return string
+     */
+    function insert_partner_file_upload_header_mapping($details) {
+      $this->db->insert('partner_file_upload_header_mapping', $details);
+      return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc This is used to update details of partner_file_upload_header_mapping table
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function update_partner_file_upload_header_mapping($where, $data){
+        $this->db->where($where);
+        $this->db->update('partner_file_upload_header_mapping',$data);
+        if($this->db->affected_rows() > 0 ){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
         
     }
 }

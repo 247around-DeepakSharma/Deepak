@@ -3451,5 +3451,22 @@ class Partner extends CI_Controller {
         $this->load->view('partner/header');
         $this->load->view('partner/reset_partner_passsword');
     }
+    
+    /**
+     * @desc: This function is used to get partner details from Ajax call
+     * @params: void
+     * @return: string
+     */
+    function get_partner_list(){
+        $appliance_list = $this->partner_model->get_all_partner(array('is_active'=>1));
+        $option = '<option selected="" disabled="">Select Partner</option>';
+
+        foreach ($appliance_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            $option .= " > ";
+            $option .= $value['public_name'] . "</option>";
+        }
+        echo $option;
+    }
 
 }
