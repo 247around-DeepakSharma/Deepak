@@ -22,6 +22,7 @@ class Miscelleneous {
         $this->My_CI->load->library('form_validation');
         $this->My_CI->load->model('service_centers_model');
         $this->My_CI->load->model('penalty_model');
+        $this->My_CI->load->model('engineer_model');
         $this->My_CI->load->driver('cache');
     }
 
@@ -131,18 +132,37 @@ class Miscelleneous {
             $sc_data['internal_status'] = "Pending";
             $sc_data['service_center_id'] = $service_center_id;
             $sc_data['booking_id'] = $booking_id;
-
+            
+            $vendor_data = $this->My_CI->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$service_center_id, "isEngineerApp" => 1));
+            
             // Unit Details Data
             $where = array('booking_id' => $booking_id);
             $unit_details = $this->My_CI->booking_model->get_unit_details($where);
             foreach ($unit_details as $value) {
                 $sc_data['unit_details_id'] = $value['id'];
                 $sc_id = $this->My_CI->vendor_model->insert_service_center_action($sc_data);
-
+                
                 if (!$sc_id) {
                     log_message('info', __METHOD__ . "=> Data is not inserted into service center "
                             . "action table booking_id: " . $booking_id . ", data: " . print_r($sc_data, true));
+                    $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
+                            "BUG IN ASSIGN ". $booking_id, "SF Assigned but Action table not updated", "");
+                    
                 }
+                if(!empty($vendor_data)){
+                    $engineer_action['unit_details_id'] = $value['id'];
+                    $engineer_action['booking_id'] = $booking_id;
+                    $engineer_action['current_status'] = _247AROUND_PENDING;
+                    $engineer_action['internal_status'] = _247AROUND_PENDING;
+                    $engineer_action["create_date"] = date("Y-m-d H:i:s");
+                    
+                    $enID = $this->My_CI->engineer_model->insert_engineer_action($engineer_action);
+                    if(!$enID){
+                         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
+                            "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "");
+                    }
+                }
+                    
                 //process inventory stock for each unit if price tag is wall mount
                 if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
                     $match = array();
@@ -409,9 +429,12 @@ class Miscelleneous {
         $this->My_CI->vendor_model->update_service_center_action($booking_id, $data_vendor);
 
         $this->update_price_while_cancel_booking($booking_id);
-
-        //Update Spare parts details table
-        $this->My_CI->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => _247AROUND_CANCELLED));
+        
+        $spare = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
+        foreach($spare as $sp){
+            //Update Spare parts details table
+            $this->My_CI->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
+        }
 
         //Log this state change as well for this booking
         //param:-- booking id, new state, old state, employee id, employee name
