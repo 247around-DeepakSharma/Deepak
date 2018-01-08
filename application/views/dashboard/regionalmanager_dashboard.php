@@ -17,7 +17,7 @@
 <?php
 if($this->session->userdata("wrong_pincode_msg")){
      echo "<p style='color: green;text-align: center;font-size: 18px;'>".$this->session->userdata("wrong_pincode_msg")."</p>";
-    $this->session->unset_userdata('wrong_pincode_msg');
+    if($this->session->userdata('wrong_pincode_msg')){$this->session->unset_userdata('wrong_pincode_msg');}
 }
 ?>
         <div class="clearfix"></div>

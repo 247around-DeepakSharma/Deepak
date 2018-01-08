@@ -706,7 +706,7 @@ class Dashboard extends CI_Controller {
     function get_pincode_not_found_sf_details($limit=NULL){
         if($this->session->userdata('rm_id')){
             $agentID = $this->session->userdata('rm_id');
-            $this->session->unset_userdata('rm_id');
+            if($this->session->userdata('rm_id')){ $this->session->unset_userdata('rm_id'); }
         }
         else{
                 $agentID = $this->session->userdata('id');

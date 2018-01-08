@@ -885,4 +885,4 @@
     color: red;
     }
 </style>
-<?php $this->session->unset_userdata('error'); ?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

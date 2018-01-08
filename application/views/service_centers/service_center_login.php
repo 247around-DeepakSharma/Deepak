@@ -334,7 +334,7 @@
 
                     </div>
                 </div>
-            </div><?php $this->session->unset_userdata('error'); ?>
+            </div><?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 
             <!-- end container -->
         </div>
@@ -350,8 +350,8 @@
 
     </div>
     
-    <?php $this->session->unset_userdata('error'); ?>
-    <?php $this->session->unset_userdata('success'); ?>
+    <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
+    <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
     <script>
         $('#reset_link').click(function(){
             $('.login_form').hide();

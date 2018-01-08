@@ -279,7 +279,7 @@
 
                     </div>
                 </div>
-            </div><?php $this->session->unset_userdata('error'); ?>
+            </div><?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 
             <!-- end container -->
         </div>
