@@ -112,8 +112,8 @@
         </div>
     </div>
 </div>
-<?php $this->session->unset_userdata('success_msg'); ?>
-<?php $this->session->unset_userdata('error_msg'); ?>
+<?php if($this->session->userdata('success_msg')){$this->session->unset_userdata('success_msg');} ?>
+<?php if($this->session->userdata('error_msg')){$this->session->unset_userdata('error_msg');} ?>
 <script>
     $('#state').select2();
     $('#city').select2();

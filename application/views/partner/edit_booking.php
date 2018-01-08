@@ -542,7 +542,7 @@
             document.getElementById(error_id).innerHTML = message;
     }
 </script>
-<?php $this->session->unset_userdata('success'); ?>
+<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <script type="text/javascript">
     $("#booking_city").select2({
          tags: true

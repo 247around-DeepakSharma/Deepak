@@ -328,6 +328,6 @@
 
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <?php 
-$this->session->unset_userdata('success');
-$this->session->unset_userdata('error');
+if($this->session->userdata('success')){$this->session->unset_userdata('success');}
+if($this->session->userdata('error')){$this->session->unset_userdata('error');}
 ?>

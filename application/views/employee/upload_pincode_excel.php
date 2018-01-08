@@ -166,7 +166,7 @@
             });
         });
 </script>
-<?php $this->session->unset_userdata('file_error'); ?>
-<?php $this->session->unset_userdata('success_msg'); ?>
+<?php if($this->session->userdata('file_error')){$this->session->unset_userdata('file_error');} ?>
+<?php if($this->session->userdata('success_msg')){$this->session->unset_userdata('success_msg');} ?>
 
 
