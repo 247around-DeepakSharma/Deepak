@@ -411,7 +411,7 @@
                 </div>
                 <?php } ?>
                 <?php } else { ?> 
-                <div class="text-danger">No Data Found</div>
+                <div class="text-danger">Spare Part Not Requested</div>
                 <?php } ?>
             </div>
             <div class="tab-pane fade in" id="tab4">
