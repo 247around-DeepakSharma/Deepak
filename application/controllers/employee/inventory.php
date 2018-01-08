@@ -1077,7 +1077,10 @@ class Inventory extends CI_Controller {
      */
     function update_action_on_spare_parts($id, $booking_id, $requestType){
         log_message('info', __FUNCTION__. "Entering... id ". $id." Booking ID ". $booking_id);
-         $this->checkUserSession();
+        if(!$this->session->userdata('partner_id')){
+            $this->checkUserSession();
+        } 
+         
         if(!empty($id)){
             $remarks = $this->input->post("remarks");
             $flag = true;
@@ -1141,9 +1144,17 @@ class Inventory extends CI_Controller {
             if($flag){
                 $this->service_centers_model->update_spare_parts($where, $data);
             }
-            
+            if($this->session->userdata('employee_id')){
+                $agent_id = $this->session->userdata('id');
+                $agent_name = $this->session->userdata('employee_id');
+                $partner_id = _247AROUND;
+            } else {
+                $agent_id = $this->session->userdata('agent_id');
+                $agent_name = $this->session->userdata('partner_name');
+                $partner_id = $this->session->userdata('partner_id');;
+            }
             $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
-                      $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                      $agent_id, $agent_name, $partner_id);
            
             
             echo "Success";

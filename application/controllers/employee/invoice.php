@@ -109,16 +109,16 @@ class Invoice extends CI_Controller {
     function getInvoicingData() {
         $this->checkUserSession();
         $invoice_period = $this->input->post('invoice_period');
+        $data = array('vendor_partner' => $this->input->post('source'),
+                      'vendor_partner_id' => $this->input->post('vendor_partner_id'));
         if($invoice_period === 'all'){
-            $data = array('vendor_partner' => $this->input->post('source'),
+            $where = array('vendor_partner' => $this->input->post('source'),
                       'vendor_partner_id' => $this->input->post('vendor_partner_id'));
         }else if($invoice_period === 'cur_fin_year'){
-            $data = array('vendor_partner' => $this->input->post('source'),
-                      'vendor_partner_id' => $this->input->post('vendor_partner_id'),
-                      'MONTH(from_date) >= 4 AND YEAR(from_date) >=  YEAR(CURDATE()) ' => NULL);
+            $where = "vendor_partner = '".$this->input->post('source')."' AND vendor_partner_id = '".$this->input->post('vendor_partner_id')."' AND case WHEN month(CURDATE()) IN ('1','2','3') THEN from_date >= CONCAT(YEAR(CURDATE())-1,'-04-01') and from_date <= CONCAT(YEAR(CURDATE()),'-03-31') WHEN month(from_date) NOT IN ('1','2','3') THEN from_date >= CONCAT(YEAR(CURDATE()),'-04-01') and from_date <= CONCAT(YEAR(CURDATE())+1,'-03-31') END";
         }
         
-        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
+        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where);
         $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
             
         //TODO: Fix the reversed names here & everywhere else as well
@@ -3115,7 +3115,7 @@ class Invoice extends CI_Controller {
                     . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
             $data = array();
             $data[0]['description'] = ucwords($sp_data[0]->parts_requested) . " (" . $sp_data[0]->booking_id . ") ";
-            $amount = $sp_data[0]->sell_price * REPAIR_OOW_AROUND_PERCENTAGE;
+            $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * REPAIR_OOW_AROUND_PERCENTAGE;
             $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, DEFAULT_TAX_RATE);
             $data[0]['taxable_value'] = ($amount - $tax_charge);
             $data[0]['product_or_services'] = "Product";
