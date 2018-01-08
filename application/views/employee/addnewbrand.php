@@ -26,7 +26,8 @@
         			</select>
         		</td>
         		<td width="200px;">
-        			<input type="text" name="brand_name[]" value="<?php echo set_value('brand_name'); ?>">
+                            <input type="text" name="brand_name[]" id="<?php echo 'brands_'.$i ?>" value="<?php echo set_value('brand_name'); ?>" onblur="remove_hint()" onkeyup="show_hint(<?php echo $i ?>)">
+                            <div id="<?php echo 'show_hInt_'.$i ?>" style="width: 174px;position: absolute;border: 1px solid;background: #e3ffe1;padding: 3px; display: none;" class="show_hint"></div>
         		</td>
         	  </tr>
         	<?php }?>
@@ -39,3 +40,63 @@
     </div>
   </div>
 </div>
+<script>
+ function sendAjaxRequest(postData, url,type) {
+        return $.ajax({
+            data: postData,
+            url: url,
+            type: type
+        });
+    }
+    var allBrands;
+    var brand_value;
+    function getBrandHintArray(){
+        var arr = [];
+        for(var i=0;i<window.allBrands.length;i++){
+              var allBrandValue = window.allBrands[i].toLowerCase();
+              var currentBrandValue = window.brand_value.toLowerCase();
+              var index = allBrandValue.indexOf(currentBrandValue);
+            if(index == 0){
+                arr.push(window.allBrands[i]);         
+            }
+        }
+        return arr;
+    }
+    function createHintsList(hintArray,row_id){
+        var hintString = '';
+        for(var i=0;i<hintArray.length;i++){
+            var hintString = hintString+hintArray[i];
+            var hintString = hintString+"<br>";
+        }
+        if(hintString){
+            document.getElementById("show_hInt_"+row_id).style.display = 'block';
+            document.getElementById("show_hInt_"+row_id).innerHTML = hintString;
+        }
+        else{
+            document.getElementById("show_hInt_"+row_id).style.display = 'none';
+        }
+    }
+        function show_hint(row_id) {
+            window.brand_value = $("#brands_"+row_id).val();
+            if(window.brand_value.length === 1){
+                var data = {};
+                url =  '<?php echo base_url(); ?>employee/booking/get_all_brands';
+                post_request = "GET";
+                 sendAjaxRequest(data,url,post_request).done(function(response){
+                      window.allBrands = JSON.parse(response);
+                            var hintArray = getBrandHintArray();
+                            createHintsList(hintArray,row_id);
+                    });
+            }
+            else{
+                var hintArray = getBrandHintArray();
+                createHintsList(hintArray,row_id);
+            }
+        }
+        function remove_hint(){
+        var elements = document.getElementsByClassName('show_hint');
+        for(var t=0; t<elements.length; t++) { 
+          elements[t].style.display='none';
+        }
+        }
+    </script>
