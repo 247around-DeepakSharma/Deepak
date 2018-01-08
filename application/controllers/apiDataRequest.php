@@ -225,7 +225,7 @@ class ApiDataRequest extends CI_Controller {
                 //Update Unit Table
                 $unit = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
                 $unit[0]['price_tags'] = REPAIR_OOW_PARTS_PRICE_TAGS;
-                $unit[0]['vendor_basic_percentage'] = REPAIR_OOW_VENDOR_PERCENTAGE;
+                $unit[0]['vendor_basic_percentage'] = ($estimate_cost * REPAIR_OOW_VENDOR_PERCENTAGE)/$data['sell_price'];
                 $unit[0]['customer_total'] = $data['sell_price'];
                 $unit[0]['product_or_services'] = "Product";
                 $unit[0]['tax_rate'] = DEFAULT_TAX_RATE;

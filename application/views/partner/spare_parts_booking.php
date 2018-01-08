@@ -32,6 +32,7 @@
                             <th class="text-center">Serial Number</th>
                             <th class="text-center">Problem Description</th>
                             <th class="text-center">Update</th>
+                            <th class="text-center">Reject</th>
                             <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
                             <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>
                             
@@ -72,6 +73,9 @@
                                     
                                     <td>
                                         <a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
+                                    </td>
+                                    <td>
+                                        <a href="#" data-toggle="modal" id="<?php echo "spare_parts".$row['id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['id']."/".$row['booking_id'];?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id'];?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
                                     </td>
                                     <td>
                                         <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id'];?>" />
