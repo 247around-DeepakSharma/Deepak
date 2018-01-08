@@ -150,6 +150,9 @@
                         <tr>
                             <th>No #</th>
                             <th class="text-center">Vendor/Partner</th>
+                            <?php if(isset($invoicing_summary[0]['prepaid_data'])){ ?>
+                            <th class="text-center">Prepaid Amount</th>
+                            <?php } ?>
                             <th class="text-center">Amount to be Paid</th>
                             <th class="text-center">Amount to be Received</th>
                             <th class="text-center">Pay</th>
@@ -178,6 +181,7 @@
                                 }
                                 ?>">
                                 <td><?php echo $count; if($value['is_stand']> 0) { ?>   <i class="fa fa-star" aria-hidden="true"></i> <?php } ?></td>
+                                
                                 <td> <a style="<?php if (isset($value['on_off'])) {
                                     if ($value['active'] == 0) {
                                         echo 'background-color:#f44336;color:#333;';
@@ -186,6 +190,9 @@
                                     }
                                     }
                                     ?>" href="<?php echo base_url() ?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner'] ?>/<?php echo $value['id'] ?>" target='_blank'><?php echo $value['name'] ?></a></td>
+                                <?php if(isset($value['prepaid_data']['prepaid_amount'])) { ?>
+                                <td><span style="<?php if($value['prepaid_data']['prepaid_amount']> 0){ echo "color:green";} else { echo "color:red";}?>"><?php echo $value['prepaid_data']['prepaid_amount']; ?></span> </td>
+                                <?php } ?>
                                 <td><?php if ($value['final_amount'] < 0) {
                                     echo round($value['final_amount'], 0);
                                     $foc +=abs(round($value['final_amount'], 0));
@@ -221,6 +228,9 @@
                             <tr class="text-center">
                                 <td>Total</td>
                                 <td></td>
+                                <?php if(isset($invoicing_summary[0]['prepaid_data'])){ ?>
+                                <td></td>
+                                <?php } ?>
                                 <td><?php echo -$foc; ?></td>
                                 <td><?php echo $cash; ?></td>
                                 <td></td>
