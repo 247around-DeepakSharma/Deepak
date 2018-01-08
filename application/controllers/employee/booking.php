@@ -3708,8 +3708,8 @@ class Booking extends CI_Controller {
         $remarks = $this->input->post('remarks');
         echo $this->miscelleneous->fake_reschedule_handling($userPhone,$id,$employeeID,$remarks);
     }
-    function get_all_brands(){
-        $allBrands = $this->reusable_model->get_search_result_data("appliance_brands","DISTINCT(brand_name)",NULL,NULL,NULL,array("brand_name"=>"ASC"),NULL,NULL,array());
+    function get_all_brands($serviceID){
+        $allBrands = $this->reusable_model->get_search_result_data("appliance_brands","DISTINCT(brand_name)",array("service_id"=>$serviceID),NULL,NULL,array("brand_name"=>"ASC"),NULL,NULL,array());
         foreach($allBrands as $brand){
             $data[]=$brand['brand_name'];
         }
