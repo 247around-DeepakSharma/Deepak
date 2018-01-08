@@ -1074,7 +1074,7 @@ class Partner extends CI_Controller {
         $booking['update_date'] = $booking['closed_date'] = date("Y-m-d H:i:s");
         
         //check partner status from partner_booking_status_mapping table  
-        $partner_id=$request['id'];
+        $partner_id=$this->partner['id'];
              $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
                 if(!empty($partner_status)){
                     $booking['partner_current_status'] = $partner_status[0];
