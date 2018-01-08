@@ -31,6 +31,8 @@ class Api extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->model('user_model');
         $this->load->model('partner_model');
+        $this->load->model('engineer_model');
+        $this->load->model("dealer_model");
         $this->load->library('notify');
         $this->load->library("miscelleneous");
         $this->load->library('booking_utilities');
@@ -46,19 +48,22 @@ class Api extends CI_Controller {
      * @output: void
      */
     public function index() {
-        log_message('info', "Entering: " . __METHOD__);
-
+        log_message('info', "Entering: " . __METHOD__. json_encode($_POST, true));
+       // echo json_encode($_POST, true); exit();
+        
+      // $str = '{"request":"{\"deviceId\":\"ODY2NDYyMDM1NDQxMjI0LTE4OGViZmMwMjUyZjY5ZDItMDI6MDA6MDA6MDA6MDA6MDAtMDI6MDA6MDA6MDA6MDA6MDA\\u003d\",\"requestUrl\":\"cancelBookingByEngineer\",\"requestId\":\"20d9c6de-20b8-4964-ac88-d5255fc93d22\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1MTUxMzI3NzIsImlhdCI6MTUxNTEzMjU5MiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wiY2FuY2VsbGF0aW9uUmVhc29uXCI6XCJDdXN0b21lciBwcm9ibGVtIGlzIHNvbHZlZC5cIixcImFwcF92ZXJzaW9uXCI6XCI3LjBcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiZGV2aWNlSW5mb1wiOlwie1xcXCJwbGF0Zm9ybVZlcnNpb25cXFwiOlxcXCI3LjBcXFwiLFxcXCJtb2RlbFZlcnNpb25cXFwiOlxcXCJtaWRvXFxcIixcXFwiaXNSb290ZWRcXFwiOlxcXCJmYWxzZVxcXCIsXFxcImlzRW11bGF0b3JcXFwiOlxcXCJmYWxzZVxcXCIsXFxcIm9zXFxcIjpcXFwiMy4xOC4zMS1wZXJmLWc1ZDEzOTRiOFxcXCIsXFxcIm1vZGVsXFxcIjpcXFwiWGlhb21pXFxcIn1cIixcImFwaVBhdGhcIjpcImFwaVwiLFwiYm9va2luZ0lEXCI6XCJTUC0xNDgxODYxNzEwMjAxXCJ9In0\\u003d.MWZiZDI5ZTBkZWE5Yzk2MjdkNGI5ZmU3ZjIxYTlhMDMxNjcwMzIzY2Q5YTUzMDcyODBjMjY4ZjVjMTk2OWEwNg\\u003d\\u003d\"}"}';
+     //  $_POST = json_decode($str, true);
+//print_r($_POST); exit();
         $this->debug = true;
         $this->jsonResponseString = null;
         $this->user = "";
-        
 
         if ($_POST && array_key_exists("request", $_POST)) {
 
             $jsonRequestData = $_POST['request'];
 
             $requestData = json_decode($jsonRequestData, true);
-
+            
             $this->token = $requestData['token'];
 
             //username is user email address, not her name
@@ -119,14 +124,14 @@ class Api extends CI_Controller {
         $this->requestId = $this->input->get('requestId');
         $this->requestUrl = $this->input->get('requestUrl');
 
-        $authToken = $this->apis->getAuthToken($this->user);
+       // $authToken = $this->apis->getAuthToken($this->user);
 
         if (!empty($this->token)) {
 
             $this->tokenArray = explode('.', $this->token);
-            $header = $this->tokenArray[0];
-            $jsonData = $this->tokenArray[1];
-            $signature = $this->tokenArray[2];
+            //$header = $this->tokenArray[0];
+            //$jsonData = $this->tokenArray[1];
+            //$signature = $this->tokenArray[2];
             $type = 'post';
 
             $details = array(
@@ -253,7 +258,6 @@ class Api extends CI_Controller {
     function processRequest() {
         log_message('info', "Entering: " . __METHOD__ . ", Request type UPDATED: " . $this->requestUrl);
 
-        //print_r($this->requestUrl);
 
         switch ($this->requestUrl) {
             case 'signup':
@@ -429,7 +433,27 @@ class Api extends CI_Controller {
             case 'updateCompleteUserProfile':
                 $this->processUpdateCompleteUserProfile();
                 break;
-
+            case 'engineerLogin':
+                $this->processEngineerLogin();
+                break;
+            case 'searchBookingID':
+                $this->processSearchBookingID();
+                break;
+            case 'getBookingAppliance':
+                $this->processGetBookingApplianceDetails();
+                break;
+            case 'completeBookingByEngineer':
+                $this->processCompleteBookingByEngineer();
+                break;
+                
+            case 'getCancellationReason':
+                $this->getCancellationReason();
+                break;
+                
+            case 'cancelBookingByEngineer':
+                $this->processCancelBookingByEngineer();
+                break;
+                
             default:
                 break;
         }
@@ -552,7 +576,7 @@ class Api extends CI_Controller {
         $this->jsonResponseString['response'] = $resArray;
         $this->sendJsonResponse(array('0000', 'success'));
     }
-
+    
     public function processShareAddress() {
         //log_message ('info', "Entering: " . __METHOD__);
 
@@ -2901,6 +2925,190 @@ class Api extends CI_Controller {
 
         $this->jsonResponseString['response'] = "Done";
         $this->sendJsonResponse(array('0000', 'success'));
+    }
+    
+    function processEngineerLogin(){
+         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+         $data = $this->dealer_model->entity_login(array("entity" => "engineer", 
+            "active" =>1, "user_id" => $requestData["mobile"], "password" => md5($requestData["mobile"])));
+        if(!empty($data)){
+            $engineer  = $this->vendor_model->get_engineers_details(array("id" => $data[0]['entity_id']), "service_center_id, name");
+            if(!empty($engineer)){
+                $data[0]['service_center_id'] = $engineer[0]['service_center_id'];
+                $data[0]['agent_name'] = $engineer[0]['name'];
+                $device['deviceInfo'] = $requestData["deviceInfo"];
+                $device["device_id"] = $this->deviceId;
+                $device['app_version'] = $requestData["app_version"];
+                $this->partner_model->update_login_details($device, array("agent_id" => $data[0]['agent_id']));
+                $this->jsonResponseString['response'] = $data[0];
+                $this->sendJsonResponse(array('0000', 'success'));
+            } else {
+                $this->sendJsonResponse(array('0013', 'failure'));
+            }
+            
+        } else {
+            $this->sendJsonResponse(array('0012', 'failure'));
+        }
+    }
+    
+    
+    function processSearchBookingID() {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if (isset($requestData['service_center_id']) && !empty($requestData['search_text'])) {
+            $post['length'] = -1;
+            $post['search_value'] = trim($requestData['search_text']);
+            $post['where'] = array('assigned_vendor_id' => $requestData['service_center_id']);
+            $post['column_search'] = array('booking_details.booking_id', 'booking_details.booking_primary_contact_no',
+                'booking_alternate_contact_no', 'users.phone_number');
+            $select = "services.services, booking_address, booking_details.booking_id, booking_details.booking_primary_contact_no, "
+                    . "users.name as customername,booking_details.current_status, booking_details.amount_due";
+
+            $data = $this->booking_model->get_bookings_by_status($post, $select);
+            if (!empty($data) && isset($data[0]->booking_id)) {
+//                foreach ($data as $key => $value) {
+//                    $en = $this->engineer_model->getengineer_action_data("current_status", array("current_status" => $value->booking_id));
+//                    if(!empty($en)){
+//                        $data[$key]->current_status = $en[0]['current_status'];
+//                    } else {
+//                        $data[$key]->current_status = "InProcess";
+//                    }
+//                }
+                $this->jsonResponseString['bookingDetails'] = $data;
+                $this->sendJsonResponse(array('0000', 'success'));
+            } else {
+                $this->sendJsonResponse(array('0014', 'failure'));
+            }
+        } else {
+            $this->sendJsonResponse(array('0015', 'failure'));
+        }
+    }
+    
+    function processGetBookingApplianceDetails(){
+         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        
+         if(!empty($requestData["bookingID"])){
+            $booking_id = $requestData["bookingID"];
+            
+            $unit_details = $this->booking_model->getunit_details($booking_id, "");
+            if(!empty($unit_details)){
+                $this->jsonResponseString['unitDetails'] = $unit_details;
+                $this->sendJsonResponse(array('0000', 'success'));
+            } else {
+                 $this->sendJsonResponse(array('0017', 'failure'));
+            }
+         } else {
+            $this->sendJsonResponse(array('0016', 'failure'));
+         }
+    }
+    
+    function processCompleteBookingByEngineer(){
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $unitDetails = json_decode($requestData["UnitArray"], true);
+      
+        $booking_id = $requestData["bookingID"];
+        $validation = true;
+        foreach($unitDetails as $value){
+            $data = array();
+            $data["current_status"] = "InProcess";
+           
+            if($value['isDelivered'] == "false"){
+                $data["internal_status"] = _247AROUND_CANCELLED;
+            } else {
+                
+                $data["internal_status"] = _247AROUND_COMPLETED;
+            }
+            if($value["applianceBroken"] == "false"){
+                $data["is_broken"] = 0;
+            } else {
+                $data["is_broken"] = 1;
+            }
+           
+
+            if($value['pod'] == "1" || count($unitDetails) == 1){
+                if(isset($value["serialNo"])){
+                    $data['serial_number'] = $value["serialNo"];
+                    $sn_pic_url = $value['bookingID']."_" . $value["unitID"]."_serialNO".".png";
+                    
+                    $this->generate_image($value["serialNoImage"],$sn_pic_url );
+                    
+                    $data["serial_number_pic"] = $sn_pic_url;
+                    
+                } else {
+                    $validation = false;
+                    break;
+                }
+               
+            }
+            $data["closed_date"] = date("Y-m-d H:i:s");
+            $data["agent_id"] = $requestData['agent_id'];
+            $this->engineer_model->update_engineer_table($data, array("unit_details_id" => $value["unitID"], "booking_id" =>$value["bookingID"] ));
+        }
+        
+        if($validation){
+            $sign_pic_url = $booking_id."_sign".".png";
+                   
+            $this->generate_image($requestData["SignatureEncode"],$sign_pic_url );
+            
+            $en["amount_paid"] = $requestData["amountPaid"];
+            $en["signature"] = $sign_pic_url;
+            if(isset($requestData['pincode'])){
+                $en["pincode"] = $requestData['pincode'];
+                $en["city"] = $requestData['city'];
+                $en["address"] = $requestData['address'];
+                $en["service_center_id"] = $requestData['service_center_id'];
+                $en["engineer_id"] = $requestData['engineer_id'];
+            }
+                    
+            $this->engineer_model->insert_engineer_action_sign($en);
+            $this->notify->insert_state_change($booking_id, ENGINEER_COMPLETE_STATUS, _247AROUND_PENDING, "Booking Updated By Engineer From App", 
+               _247AROUND_DEFAULT_AGENT, "247Around", _247AROUND);
+            
+            $this->sendJsonResponse(array('0000', 'success'));
+        } else {
+            
+            $this->sendJsonResponse(array('0018', 'Please Add Serial Number'));
+        }  
+    }
+    
+    function getCancellationReason(){
+        $where = array('reason_of' => 'vendor', 'show_on_app'=> 1);
+        $reason = $this->booking_model->cancelreason($where);
+        $this->jsonResponseString['cancellationReason'] = $reason;
+        $this->sendJsonResponse(array('0000', 'success'));
+    }
+    
+    function processCancelBookingByEngineer(){
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if(!empty($requestData["bookingID"]) && !empty($requestData["cancellationReason"])){
+            
+            $data["booking_id"] = $requestData["bookingID"];
+            $data["cancellation_reason"] = $requestData["cancellationReason"];
+            $data['engineer_id'] = $requestData["engineer_id"];
+            $data["closed_date"] = date("Y-m-d H:i:s");
+            $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
+            $this->notify->insert_state_change($requestData["bookingID"], ENGINEER_CANCELLED_STATUS, _247AROUND_PENDING, $requestData["cancellationReason"], 
+               _247AROUND_DEFAULT_AGENT, "247Around", _247AROUND);
+            
+            $this->sendJsonResponse(array('0000', 'success'));
+             
+        } else {
+            $this->sendJsonResponse(array('0019', 'Failure'));
+        }
+        
+    }
+    
+    function generate_image($base64, $image_name){
+        $binary = base64_decode($base64);
+        $image_path = TMP_FOLDER . $image_name;
+        $file = fopen($image_path, 'wb');
+        fwrite($file, $binary);
+        fclose($file);
+        
+        $s3directory = "engineer-uploads/" . $image_name;
+
+        $this->s3->putObjectFile(TMP_FOLDER.$image_name, BITBUCKET_DIRECTORY, $s3directory, S3::ACL_PUBLIC_READ);
+        
+        unlink($image_path);
     }
 
     function adjust_zero_pricing($old_pricing) {

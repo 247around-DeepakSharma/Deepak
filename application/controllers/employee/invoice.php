@@ -193,7 +193,12 @@ class Invoice extends CI_Controller {
     function invoice_partner_view() {
         $this->checkUserSession();
         $data['partner'] = $this->partner_model->getpartner("", false);
-        $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
+        $invoicing_summary = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
+        foreach ($invoicing_summary as $key => $value) {
+            $invoicing_summary[$key]['prepaid_data'] = $this->miscelleneous->get_partner_prepaid_amount($value["id"]);
+        }
+        $data['invoicing_summary'] = $invoicing_summary;
+       
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/invoice_list', $data);
     }
