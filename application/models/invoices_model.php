@@ -186,7 +186,7 @@ class invoices_model extends CI_Model {
             }
             
         } else if ($vendor_partner == "partner") {
-            $p_where = "";
+            $p_where = array();
             if(isset($where['active'])){
                 $p_where = array('is_active' => $where['active']);
             }
