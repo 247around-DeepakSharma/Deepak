@@ -278,7 +278,7 @@ span.stars span {
     bottom:0px!important;
 }
 </style>
-<?php $this->session->unset_userdata('success'); ?>
+<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <script type="text/javascript">
     $(function() { $( "#datepicker" ).datepicker({  minDate: new Date });});
     $(document).ready(function() {
@@ -447,5 +447,5 @@ span.stars span {
 </script>
 <?php } ?>
 <!-- end alert message -->
-<?php $this->session->unset_userdata('success'); ?>
-<?php $this->session->unset_userdata('error'); ?>
+<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

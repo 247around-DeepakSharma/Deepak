@@ -329,5 +329,5 @@
     
     
 </script>
-<?php $this->session->unset_userdata('brackets_update_success');?>
-<?php $this->session->unset_userdata('brackets_cancelled_error');?>
+<?php if($this->session->userdata('brackets_update_success')){$this->session->unset_userdata('brackets_update_success');}?>
+<?php if($this->session->userdata('brackets_cancelled_error')){$this->session->unset_userdata('brackets_cancelled_error');}?>

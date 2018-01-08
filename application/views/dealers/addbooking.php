@@ -403,8 +403,8 @@
             document.getElementById(error_id).innerHTML = message;
     }
 </script>
-<?php $this->session->unset_userdata('success'); ?>
-<?php $this->session->unset_userdata('error'); ?>
+<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script type="text/javascript">
     
     $("#booking_city").select2({

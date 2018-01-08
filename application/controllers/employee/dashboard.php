@@ -706,7 +706,7 @@ class Dashboard extends CI_Controller {
     function get_pincode_not_found_sf_details($limit=NULL){
         if($this->session->userdata('rm_id')){
             $agentID = $this->session->userdata('rm_id');
-            $this->session->unset_userdata('rm_id');
+            if($this->session->userdata('rm_id')){ $this->session->unset_userdata('rm_id'); }
         }
         else{
                 $agentID = $this->session->userdata('id');
@@ -722,16 +722,16 @@ class Dashboard extends CI_Controller {
         $this->get_missing_pincode_detailed_view();
         $structuredPincodeArray = $this->get_missing_pincode_data_structured_format($pincodeResult);
         $i=1;
-        foreach($structuredPincodeArray as $pincode=>$structuredData){ 
+        foreach($structuredPincodeArray as $structuredData){ 
           if($limit){
               if($i>$limit){
                   break;
               }
           }
-                   $this->table->add_row($i,$pincode,$structuredData['state'],$structuredData['city'],
+                   $this->table->add_row($i,$structuredData['pincode'],$structuredData['state'],$structuredData['city'],
                            "<button onclick='missingPincodeDetailedView(".json_encode($structuredData).")' style='margin: 0px;padding: 0px 6px;' type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#missingPincodeDetails'>".$structuredData['totalCount']."</button>",
                            "<button style='margin: 0px;padding: 6px;' class='btn btn-info ' onclick='submitPincodeForm(".json_encode($structuredData).")'>Add Service Center</button>"
-                           ."<a style='margin: 0px;padding: 6px;float:right;' class='btn btn-info ' href='".base_url()."employee/dashboard/wrong_pincode_handler/".$pincode."'>Wrong Pincode</a>"); 
+                           ."<a style='margin: 0px;padding: 6px;float:right;' class='btn btn-info ' href='".base_url()."employee/dashboard/wrong_pincode_handler/".$structuredData['pincode']."'>Wrong Pincode</a>"); 
                    $i++;
         }
         echo $this->table->generate();

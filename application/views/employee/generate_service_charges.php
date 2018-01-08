@@ -414,7 +414,7 @@
             } else {
                 var vendor_total = Number(per) * Number(customer_total);
                  $("#"+tag+"_vendor_total").attr("readonly", true);
-                $("#"+tag+"_vendor_total").val(vendor_total);
+                $("#"+tag+"_vendor_total").val(vendor_total.toFixed(2));
             }
         } else {
            
