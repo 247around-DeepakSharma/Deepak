@@ -1926,8 +1926,12 @@ class Booking extends CI_Controller {
         log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
         // this function is used to update booking details table
         $this->booking_model->update_booking($booking_id, $booking);
-        //Update Spare parts details table
-        $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), array('status' => $internal_status));
+        $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
+        foreach($spare as $sp){
+            //Update Spare parts details table
+            $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
+        }
+        
         if ($status == 0) {
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
@@ -2057,6 +2061,12 @@ class Booking extends CI_Controller {
             log_message('info', __FUNCTION__ . " Convert Unit Details - data : " . print_r($unit_details, true));
 
             $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+            
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.old_status", array('booking_id' => $booking_id ), false);
+            foreach($spare as $sp){
+                //Update Spare parts details table
+                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('status' => $sp['old_status']));
+            }
 
             //Log this state change as well for this booking          
             $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);

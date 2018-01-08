@@ -250,8 +250,13 @@ class Do_background_process extends CI_Controller {
 
         $this->booking_model->update_booking($booking_id, $booking);
         //Update Spare parts details table
-        $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL), array('status' => $current_status));
-
+        $this->booking_model->update_booking($booking_id, $booking);
+        $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
+        foreach($spare as $sp){
+            //Update Spare parts details table
+            $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $current_status));
+        }
+       
         //Log this state change as well for this booking
         $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, _247AROUND);
 
