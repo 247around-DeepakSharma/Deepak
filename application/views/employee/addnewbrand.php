@@ -16,7 +16,7 @@
         	  <tr>
         		<td><?php echo $count++;?>.</td>
         		<td width="200px;">
-        			<select type="text" class="form-control"  id="new_brand" name="new_brand[]" 
+        			<select type="text" class="form-control"  id="<?php echo 'service_'.$i ?>" name="new_brand[]" 
         				value="<?php echo set_value('new_brand'); ?>" onchange="assign(this.value)">
                                     <option selected disabled>Select</option>
         				<?php foreach($services as $key => $values) {?>
@@ -77,20 +77,23 @@
         }
     }
         function show_hint(row_id) {
-            window.brand_value = $("#brands_"+row_id).val();
-            if(window.brand_value.length === 1){
-                var data = {};
-                url =  '<?php echo base_url(); ?>employee/booking/get_all_brands';
-                post_request = "GET";
-                 sendAjaxRequest(data,url,post_request).done(function(response){
-                      window.allBrands = JSON.parse(response);
-                            var hintArray = getBrandHintArray();
-                            createHintsList(hintArray,row_id);
-                    });
-            }
-            else{
-                var hintArray = getBrandHintArray();
-                createHintsList(hintArray,row_id);
+           serviceID = $("#service_"+row_id).val();
+            if(serviceID){
+                window.brand_value = $("#brands_"+row_id).val();
+                if(window.brand_value.length === 1){
+                    var data = {};
+                    url =  '<?php echo base_url(); ?>employee/booking/get_all_brands/'+serviceID;
+                    post_request = "GET";
+                     sendAjaxRequest(data,url,post_request).done(function(response){
+                          window.allBrands = JSON.parse(response);
+                                var hintArray = getBrandHintArray();
+                                createHintsList(hintArray,row_id);
+                        });
+                }
+                else{
+                    var hintArray = getBrandHintArray();
+                    createHintsList(hintArray,row_id);
+                }
             }
         }
         function remove_hint(){
