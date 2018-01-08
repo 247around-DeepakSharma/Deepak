@@ -195,6 +195,7 @@
         </div>
     </div>
 </div>
+<<<<<<< HEAD
 <div id="myModal2" class="modal fade" role="dialog">
       <div class="modal-dialog">
          <!-- Modal content-->
@@ -215,8 +216,10 @@
          </div>
       </div>
    </div>
-<?php $this->session->unset_userdata('success'); ?>
-<?php $this->session->unset_userdata('error'); ?>
+
+<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
+
 <script>
     var oow_spare;
     

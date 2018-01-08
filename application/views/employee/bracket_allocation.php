@@ -14,7 +14,7 @@
     <?php
     if($this->session->userdata('bracket_msg')){
         echo '<h3 align="center" style="color:green">'.$this->session->userdata('bracket_msg').'</h3>';
-        $this->session->unset_userdata('bracket_msg');
+       if($this->session->userdata('bracket_msg')){ $this->session->unset_userdata('bracket_msg');}
     }
      ?>
     <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" style="margin:0px 10px;" onclick="createAddForm()">Add New Records</button>

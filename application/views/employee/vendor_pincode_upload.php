@@ -10,7 +10,7 @@
                 <h3 style='text-align:center'>Upload Vendor Pincode Mapping Excel </h3>
                 <h3 style="color: #6b6220;text-align: center;"><?php if(($this->session->userdata('final_msg'))){
                              echo  $this->session->userdata('final_msg');
-                             $this->session->unset_userdata('final_msg');
+                             if($this->session->userdata('final_msg')){$this->session->unset_userdata('final_msg');}
                     } ?></h3>
             </div>
             <div class="panel-body">
@@ -100,7 +100,7 @@
             });
         });
 </script>
-<?php $this->session->unset_userdata('file_error'); ?>
-<?php $this->session->unset_userdata('success_msg'); ?>
+<?php if($this->session->userdata('file_error')){$this->session->unset_userdata('file_error');} ?>
+<?php if($this->session->userdata('success_msg')){$this->session->unset_userdata('success_msg');} ?>
 
 

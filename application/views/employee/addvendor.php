@@ -1271,7 +1271,7 @@
         </div>
     </div>
 </div>
-<?php $this->session->unset_userdata('checkbox')?>
+<?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
 <script type="text/javascript">
     function manageAccountNameField(value){
         document.getElementById("bank_account").disabled = false;

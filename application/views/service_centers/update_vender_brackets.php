@@ -169,7 +169,7 @@
 
 
 <?php 
-$this->session->unset_userdata('brackets_update_error');
+if($this->session->userdata('brackets_update_error')){$this->session->unset_userdata('brackets_update_error');}
 ?>
 <script type="text/javascript">
     
