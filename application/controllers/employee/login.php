@@ -184,7 +184,7 @@ class Login extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . ' Err in capturing LOG OUT details for employee ' . print_r($data, TRUE));
         }
-        $this->cache->delete('navigationHeader');
+        $this->cache->delete('navigationHeader_'.$this->session->userdata('id'));
         $this->session->sess_destroy();
         redirect(base_url() . "employee/login");
     }

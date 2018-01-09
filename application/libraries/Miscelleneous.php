@@ -133,7 +133,7 @@ class Miscelleneous {
             $sc_data['service_center_id'] = $service_center_id;
             $sc_data['booking_id'] = $booking_id;
             
-            $vendor_data = $this->My_CI->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$service_center_id, "isEngineerApp" => 1));
+            // $vendor_data = $this->My_CI->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$service_center_id, "isEngineerApp" => 1));
             
             // Unit Details Data
             $where = array('booking_id' => $booking_id);
@@ -149,19 +149,19 @@ class Miscelleneous {
                             "BUG IN ASSIGN ". $booking_id, "SF Assigned but Action table not updated", "");
                     
                 }
-                if(!empty($vendor_data)){
-                    $engineer_action['unit_details_id'] = $value['id'];
-                    $engineer_action['booking_id'] = $booking_id;
-                    $engineer_action['current_status'] = _247AROUND_PENDING;
-                    $engineer_action['internal_status'] = _247AROUND_PENDING;
-                    $engineer_action["create_date"] = date("Y-m-d H:i:s");
+                // if(!empty($vendor_data)){
+                //     $engineer_action['unit_details_id'] = $value['id'];
+                //     $engineer_action['booking_id'] = $booking_id;
+                //     $engineer_action['current_status'] = _247AROUND_PENDING;
+                //     $engineer_action['internal_status'] = _247AROUND_PENDING;
+                //     $engineer_action["create_date"] = date("Y-m-d H:i:s");
                     
-                    $enID = $this->My_CI->engineer_model->insert_engineer_action($engineer_action);
-                    if(!$enID){
-                         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
-                            "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "");
-                    }
-                }
+                //     $enID = $this->My_CI->engineer_model->insert_engineer_action($engineer_action);
+                //     if(!$enID){
+                //          $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
+                //             "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "");
+                //     }
+                // }
                     
                 //process inventory stock for each unit if price tag is wall mount
                 if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
@@ -1928,7 +1928,7 @@ class Miscelleneous {
         $data['main_nav'] = $this->get_main_nav_data("main_nav");
         $data['right_nav'] = $this->get_main_nav_data("right_nav");
         $msg = $this->My_CI->load->view('employee/header/header_navigation',$data,TRUE);
-        $this->My_CI->cache->file->save('navigationHeader', $msg, 36000);
+        $this->My_CI->cache->file->save('navigationHeader_'.$this->My_CI->session->userdata('id'), $msg, 36000);
     }
     /*
      * This Function used to load navigation header from cache
@@ -1936,11 +1936,11 @@ class Miscelleneous {
     function load_nav_header(){
         //Check is navigation there in cache?
         // If not then create navigation and loads into cache
-        if(!$this->My_CI->cache->file->get('navigationHeader')){
+        if(!$this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'))){
                 $this->set_header_navigation_in_cache();
          }
          //Print navigation header from cache
-        echo $this->My_CI->cache->file->get('navigationHeader');
+        echo $this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'));
     }
     /*
      * This Function is used to handle Fake Reschedule request By Miss Call Functionality
@@ -2109,6 +2109,20 @@ class Miscelleneous {
             $this->My_CI->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
             $smsBody, $booking_id, "Escalation", $status['content']); 
         }
+    }
+    /**
+     * @desc: Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.
+     *
+     * @param : sms template
+     * @param : booking id
+     * @param : user's details
+     * @return : sms body
+     */
+    function replaceSms_body($template, $booking_id, $userDetails) {
+
+        $smsBody = sprintf($template, $userDetails[0]['name'], $userDetails[0]['phone_number'], $booking_id);
+
+        return $smsBody;
     }
     /*
      * This Function is used to approve rescheduled booking
