@@ -697,21 +697,12 @@ class Partner extends CI_Controller {
         $data = [];
         $query = $this->partner_model->get_partner_details_with_soucre_code($partner_id);
 
-        foreach ($query as $value) {
+        foreach ($query as $key => $value) {
             //Getting Appliances and Brands details for partner
             $service_brands[] = $this->partner_model->get_service_brands_for_partner($value['id']);
-            $login = $this->dealer_model->entity_login(array('entity' => "partner", 'entity_id' => $value['id']));
-            if (!empty($login)) {
-                $value['user_name'] = $login[0]['user_id'];
-                $value['clear_text'] = $login[0]['clear_password'];
-            } else {
-                $value['user_name'] = '';
-                $value['clear_text'] = '';
-            }
-            $data[] = $value;
         }
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewpartner', array('query' => $data, 'service_brands' => $service_brands));
+        $this->load->view('employee/viewpartner', array('query' => $query, 'service_brands' => $service_brands));
     }
 
     /**
@@ -3458,10 +3449,10 @@ class Partner extends CI_Controller {
      * @return: string
      */
     function get_partner_list(){
-        $appliance_list = $this->partner_model->get_all_partner(array('is_active'=>1));
+        $partner_list = $this->partner_model->get_all_partner(array('is_active'=>1));
         $option = '<option selected="" disabled="">Select Partner</option>';
 
-        foreach ($appliance_list as $value) {
+        foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
             $option .= " > ";
             $option .= $value['public_name'] . "</option>";
