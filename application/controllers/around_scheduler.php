@@ -210,7 +210,7 @@ class Around_scheduler extends CI_Controller {
                 'internal_status' => 'Cancelled', 'cancellation_reason' => "Customer not reachable / Customer not picked phone"));
             $this->booking_model->update_booking_unit_details($value['booking_id'], array('booking_status' => 'Cancelled'));
 
-            $this->notify->insert_state_change($value['booking_id'], "Cancelled", "FollowUp", "Customer not reachable / Customer not picked phone", "1", "247Around", _247AROUND);
+            $this->notify->insert_state_change($value['booking_id'], "Cancelled", "FollowUp", "Customer not reachable / Customer not picked phone", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
         }
         log_message('info', __METHOD__ . '=> Exit...');
     }
@@ -1227,9 +1227,9 @@ function auto_approval_for_booking_rescheduled_request(){
     date_default_timezone_set('Asia/Calcutta');
     //Get Current Rescheduled request Bookings
     $reviewBookingsArray = $this->booking_model->review_reschedule_bookings_request();
-    $id = 1;
-    $employeeID = "247around";
-    $partner_id ="";
+    $id = _247AROUND_DEFAULT_AGENT;
+    $employeeID = _247AROUND_DEFAULT_AGENT_NAME;
+    $partner_id =_247AROUND;
     if(!empty($reviewBookingsArray)){
         foreach($reviewBookingsArray as $bookingData){
                 $rescheduledTime = date_create($bookingData['reschedule_request_date']);
