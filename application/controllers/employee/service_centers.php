@@ -2893,7 +2893,7 @@ class Service_centers extends CI_Controller {
             $sms['phone_no'] = $data[0]['phone_number'];
             $sms['smsData'] = array("service"=>$data[0]['services']);
             $sms['booking_id'] = $booking_id;
-            $sms['type'] = "User";
+            $sms['type'] = "user";
             $sms['type_id'] = $data[0]['user_id'];
             $this->notify->send_sms_msg91($sms);
         }

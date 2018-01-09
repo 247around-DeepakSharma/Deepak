@@ -4414,7 +4414,7 @@ class Api extends CI_Controller {
         if($insert_id){
             log_message('info', __METHOD__.'Call Details Added');
             //Process Fake Reshedule handling
-             $this->miscelleneous->fake_reschedule_handling($dataArray['from_number'],"1","247around","Fake Rescheduled Miss Call");
+             $this->miscelleneous->fake_reschedule_handling($dataArray['from_number'],_247AROUND_DEFAULT_AGENT,_247AROUND_DEFAULT_AGENT_NAMEs,"Fake Rescheduled Miss Call");
         }else{
             log_message('info', __METHOD__.'Error In Adding Call Details');
         }
