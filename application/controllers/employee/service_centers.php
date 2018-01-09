@@ -43,7 +43,7 @@ class Service_centers extends CI_Controller {
         $this->load->library('buyback');
         $this->load->library("partner_cb");
         $this->load->library("miscelleneous");
-        
+        $this->load->library("push_notification_lib");
     }
 
     /**
@@ -222,6 +222,8 @@ class Service_centers extends CI_Controller {
                 $this->vendor_model->update_service_center_action($booking_id, $data);
 
             }
+            //Send Push Notification to clouser group
+            $this->push_notification_lib->send_booking_completion_notification_to_closure($booking_id);
             // Insert data into booking state change
             $this->insert_details_in_state_change($booking_id, 'InProcess_Completed', $closing_remarks);
             $partner_id = $this->input->post("partner_id");
