@@ -4121,3 +4121,6 @@ ALTER TABLE `push_notification_logs`
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES
 (36, 'rescheduled_confirmation_sms', 'We have received reschedule request for your %s service. If you have NOT asked for reschedule, give missed call @ 01139586111 or call 9555000247.', 'Send When SF rescheduled a booking, to confirm is reschedule fake?', '1', '2018-01-02 12:23:49');
 COMMIT;
+
+--sachin 09-jan-2018
+INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Show Inventory Ledger', 'employee/inventory/show_inventory_ledger_list', '2', '89', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
