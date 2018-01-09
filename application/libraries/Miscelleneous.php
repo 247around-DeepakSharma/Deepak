@@ -133,7 +133,7 @@ class Miscelleneous {
             $sc_data['service_center_id'] = $service_center_id;
             $sc_data['booking_id'] = $booking_id;
             
-            $vendor_data = $this->My_CI->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$service_center_id, "isEngineerApp" => 1));
+            // $vendor_data = $this->My_CI->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$service_center_id, "isEngineerApp" => 1));
             
             // Unit Details Data
             $where = array('booking_id' => $booking_id);
