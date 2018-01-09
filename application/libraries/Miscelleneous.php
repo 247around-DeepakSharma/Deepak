@@ -1928,7 +1928,7 @@ class Miscelleneous {
         $data['main_nav'] = $this->get_main_nav_data("main_nav");
         $data['right_nav'] = $this->get_main_nav_data("right_nav");
         $msg = $this->My_CI->load->view('employee/header/header_navigation',$data,TRUE);
-        $this->My_CI->cache->file->save('navigationHeader', $msg, 36000);
+        $this->My_CI->cache->file->save('navigationHeader_'.$this->My_CI->session->userdata('id'), $msg, 36000);
     }
     /*
      * This Function used to load navigation header from cache
@@ -1936,23 +1936,29 @@ class Miscelleneous {
     function load_nav_header(){
         //Check is navigation there in cache?
         // If not then create navigation and loads into cache
-        if(!$this->My_CI->cache->file->get('navigationHeader')){
+        if(!$this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'))){
                 $this->set_header_navigation_in_cache();
          }
          //Print navigation header from cache
-        echo $this->My_CI->cache->file->get('navigationHeader');
+        echo $this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'));
     }
     /*
      * This Function is used to handle Fake Reschedule request By Miss Call Functionality
      * 1st) reschedule request will get rejected 
      * 2nd) booking will be escalated
      */
-    function fake_reschedule_handling($userPhone,$id,$employeeID,$remarks){
+    function fake_reschedule_handling($userPhone,$id,$employeeID,$remarks,$bookingID=NULL){
         log_message('info', __METHOD__.'Call Details Added');
+        $whereArray["service_center_booking_action.internal_status"] = "Reschedule"; 
+        if($bookingID){
+            $whereArray["booking_details.booking_id"] = $bookingID; 
+        }
+        else{
+            $whereArray["users.phone_number"] = $userPhone; 
+        }
         //get Booking id
         $bookingDetails = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,booking_details.booking_date,booking_details.assigned_vendor_id,booking_details.booking_timeslot",
-                array("users.phone_number"=>$userPhone,"service_center_booking_action.internal_status"=>"Reschedule"),
-                array("users"=>"users.user_id=booking_details.user_id","service_center_booking_action"=>"service_center_booking_action.booking_id=booking_details.booking_id"),
+                $whereArray,array("users"=>"users.user_id=booking_details.user_id","service_center_booking_action"=>"service_center_booking_action.booking_id=booking_details.booking_id"),
                 NULL,NULL,NULL,NULL,array("booking_details.booking_id"));
         $numberOfBookings = count($bookingDetails);
         if($numberOfBookings == 1){
@@ -1973,14 +1979,6 @@ class Miscelleneous {
        $affectedRows = $this->My_CI->reusable_model->update_table("service_center_booking_action",array("current_status"=>"Pending","internal_status"=>"Pending"),
                 array("booking_id"=>$booking_id));
         if($affectedRows>0){
-            $lastStateArray = $this->My_CI->reusable_model->get_search_result_data("booking_state_change","new_state",array("booking_id"=>$booking_id),NULL,array("length"=>1,"start"=>0)
-                    ,array("id"=>"DESC"),NULL,NULL,array());
-            if(empty($lastStateArray[0])){
-                $newState = " ";
-            }
-            else{
-                $newState = $lastStateArray[0]["new_state"];
-            }
             //State Change
             $escalation_reason  = $this->My_CI->vendor_model->getEscalationReason(array('id'=>$escalation_reason_id));
             if(!empty($remarks)){
@@ -1989,7 +1987,7 @@ class Miscelleneous {
              else{
                 $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
               }
-            $this->My_CI->notify->insert_state_change($booking_id,"Fake_Reschedule",$newState,$escalation_reason_final,$id,$employeeID, _247AROUND);
+            $this->My_CI->notify->insert_state_change($booking_id,"Fake_Reschedule","Pending",$escalation_reason_final,$id,$employeeID, _247AROUND);
             return TRUE;
         }
         else{
@@ -2057,15 +2055,7 @@ class Miscelleneous {
                 else{
                     $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
                 }
-                $lastStateArray = $this->My_CI->reusable_model->get_search_result_data("booking_state_change","new_state",array("booking_id"=>$booking_id),NULL,array("length"=>1,"start"=>0)
-                    ,array("id"=>"DESC"),NULL,NULL,array());
-                if(empty($lastStateArray[0])){
-                $newState = " ";
-            }
-            else{
-                $newState = $lastStateArray[0]["new_state"];
-            }
-                $this->My_CI->notify->insert_state_change($escalation['booking_id'],"Escalation",$newState,$escalation_reason_final,$id,$employeeID, _247AROUND);
+                $this->My_CI->notify->insert_state_change($escalation['booking_id'],"Escalation","Pending",$escalation_reason_final,$id,$employeeID, _247AROUND);
                 //Processing Penalty on Escalations
                 $value['booking_id'] = $escalation['booking_id'];
                 $value['assigned_vendor_id'] = $escalation['vendor_id'];

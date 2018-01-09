@@ -706,6 +706,7 @@ class bookings_excel extends CI_Controller {
             );
         switch ($submit_type) {
             case 'add':
+                $data['create_date'] = date('Y-m-d H:i:s');
                 $response = $this->add_file_upload_header_mapping($data);
                 break;
             case 'edit':

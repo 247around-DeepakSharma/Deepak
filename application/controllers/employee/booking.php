@@ -2859,7 +2859,16 @@ class Booking extends CI_Controller {
             $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
         }
         
-        $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+        if($this->session->userdata('user_group') === _247AROUND_CALLCENTER){
+            if($booking_status === _247AROUND_CANCELLED && strtotime($order_list->closed_date) <= strtotime("-1 Months")){
+                $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank' disabled><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+            }else{
+                $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+            }
+        }else{
+            $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+        }
+        
         $row[] = "<a id='view' class='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title='view' target='_blank'><i class='fa fa-eye' aria-hidden='true'></i></a>";
         
         if($booking_status === _247AROUND_COMPLETED){
@@ -3303,7 +3312,12 @@ class Booking extends CI_Controller {
         }
         
         if($query_status == _247AROUND_CANCELLED){
-            $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/open_cancelled_query/$order_list->booking_id' title = 'Open' target ='_blank'><i class = 'fa fa-calendar' aria-hidden = 'true'></i></a>";
+            if($this->session->userdata('user_group') === _247AROUND_CALLCENTER && strtotime($order_list->closed_date) <= strtotime("-1 Months")){
+                $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/open_cancelled_query/$order_list->booking_id' title = 'Open' target ='_blank' disabled><i class = 'fa fa-calendar' aria-hidden = 'true'></i></a>";
+            }else{
+                $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/open_cancelled_query/$order_list->booking_id' title = 'Open' target ='_blank'><i class = 'fa fa-calendar' aria-hidden = 'true'></i></a>";
+            }
+            
         }else{
             $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_cancel_form/$order_list->booking_id/FollowUp' title = 'Cancel' target ='_blank'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
         }
@@ -3706,7 +3720,8 @@ class Booking extends CI_Controller {
         $id = $this->input->post('id');
         $employeeID = $this->input->post('employeeID');
         $remarks = $this->input->post('remarks');
-        echo $this->miscelleneous->fake_reschedule_handling($userPhone,$id,$employeeID,$remarks);
+        $booking_id = $this->input->post('booking_id');
+        echo $this->miscelleneous->fake_reschedule_handling($userPhone,$id,$employeeID,$remarks,$booking_id);
     }
     function get_all_brands($serviceID){
         $allBrands = $this->reusable_model->get_search_result_data("appliance_brands","DISTINCT(brand_name)",array("service_id"=>$serviceID),NULL,NULL,array("brand_name"=>"ASC"),NULL,NULL,array());

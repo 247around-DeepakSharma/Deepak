@@ -566,5 +566,7 @@ define('SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION',7 );
 
 //Booking Rescheduled Confirmation SMS Constant
 define('BOOKING_RESCHEDULED_CONFIRMATION_SMS','rescheduled_confirmation_sms');
+define('PUSH_NOTIFICATION_API_KEY','3d15cad629128ac894c9a73a0ff5852b');
+define('PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL','https://pushcrew.com/api/v1/send/list');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

@@ -711,7 +711,18 @@ function user_role_management(){
             echo "Something Went Wrong";
         }
     }
+    function save_push_notification_subscribers(){
+        $data['subscriber_id'] = $this->input->post('subscriberID');
+        $data['entity_id'] = $this->session->userdata('id');
+        $data['entity_type'] = $this->session->all_userdata()['userType'];
+        $data['browser'] = $this->agent->browser();
+        $data['device'] = "Desktop";
+        $is_mobile = $this->agent->is_mobile();
+        if($is_mobile){
+            $data['device'] = "Mobile";
+        }
+       $this->reusable_model->insert_into_table("push_notification_subscribers",$data);
+    }
 }
-
 /* End of file welcome.php */
 /* Location: ./application/controllers/welcome.php */
