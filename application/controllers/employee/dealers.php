@@ -393,7 +393,7 @@ class Dealers extends CI_Controller {
     function add_dealers_form(){
          log_message("info", __METHOD__);
         $this->checkAdminSession();
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('dealers/add_dealer_form');
     }
     
@@ -512,7 +512,7 @@ class Dealers extends CI_Controller {
      */
     function show_dealer_list($dealer_id = ""){
         $data['dealer_id'] = $dealer_id;
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('dealers/show_dealers_list',$data);
     }
     
@@ -610,7 +610,7 @@ class Dealers extends CI_Controller {
             $data['state'] = $this->vendor_model->getall_state();
             $data['dealer_partner_mapping'] = $this->dealer_model->get_dealer_brand_mapping_details($dealer_id);
             $data['dealer_partner_mapping_id']= array_unique(array_column($data['dealer_partner_mapping'], 'id'));
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('dealers/edit_dealer_details',$data);
         }else{
             echo "No Dealer found";

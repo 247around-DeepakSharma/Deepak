@@ -111,5 +111,5 @@
  
 
 </script>
-<?php $this->session->unset_userdata('login_error'); ?>
-<?php $this->session->unset_userdata('login_success'); ?>
+<?php if($this->session->userdata('login_error')){$this->session->unset_userdata('login_error');} ?>
+<?php if($this->session->userdata('login_success')){$this->session->unset_userdata('login_success');} ?>

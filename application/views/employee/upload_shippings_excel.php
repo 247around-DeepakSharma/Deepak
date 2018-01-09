@@ -129,4 +129,4 @@ var table;
             });
         });
 </script>
-<?php $this->session->unset_userdata('file_error'); ?>
+<?php if ($this->session->userdata('file_error')) {$this->session->unset_userdata('file_error');} ?>

@@ -29,6 +29,7 @@ class InvoiceDashboard extends CI_Controller {
         $this->load->model("booking_model");
         $this->load->model("penalty_model");
         $this->load->library('table');
+        $this->load->library("miscelleneous");
 
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -43,7 +44,7 @@ class InvoiceDashboard extends CI_Controller {
      */
     function index(){
        //$data['partners'] = $this->partner_model->get_all_partner_source("0");
-       $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+       $this->miscelleneous->load_nav_header();
        $this->load->view('employee/invoice_dashboard');
     }
     /**
@@ -103,7 +104,7 @@ class InvoiceDashboard extends CI_Controller {
      * @desc load Service Center invoice check page 
      */
     function service_center_invoice(){
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/sf_invoice_check');
 
     }
@@ -252,12 +253,12 @@ class InvoiceDashboard extends CI_Controller {
      * @desc This is uesd to load Invoice Summary form 
      */
     function get_invoice_summary_for_sf(){
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/sf_invoice_summary', array("date_range"=>1));
     }
     
     function get_invoice_summary_for_partner(){
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/partner_invoice_summary', array("date_range"=>1));
     }
     

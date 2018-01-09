@@ -28,6 +28,7 @@
                     <input type="hidden" class="form-control"  name="partner_id" value = "<?php if (isset($bookinghistory[0]['partner_id'])) {echo $bookinghistory[0]['partner_id']; }?>">
                     <input type="hidden" class="form-control"  name="price_tags" value = "<?php if (isset($price_tags)) {echo $price_tags; }?>">
                     <input type="hidden" class="form-control" id="partner_flag" name="partner_flag" value="0" />
+                    <input type="hidden" name="spare_shipped" value="<?php echo $spare_shipped; ?>"
                     <div class="form-group ">
                         <label for="reason" class="col-md-2" style="margin-top:39px;">Reason</label>
                         <div class="col-md-6" style="margin-top:39px;">

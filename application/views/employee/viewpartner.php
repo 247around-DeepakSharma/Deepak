@@ -64,6 +64,7 @@
             <td>
                 <a href="javascript:void(0)" class="btn btn-sm btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)'  title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>">Login</a>  
             </td>
+           
                 <td>
                     <?php
                     if (!empty($service_brands[$key])) {

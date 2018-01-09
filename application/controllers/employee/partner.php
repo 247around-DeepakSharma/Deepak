@@ -451,7 +451,7 @@ class Partner extends CI_Controller {
         $results['partner_code'] = $code;
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addpartner', array('results' => $results, 'employee_list' => $employee_list));
     }
 
@@ -697,23 +697,12 @@ class Partner extends CI_Controller {
         $data = [];
         $query = $this->partner_model->get_partner_details_with_soucre_code($partner_id);
 
-        foreach ($query as $value) {
+        foreach ($query as $key => $value) {
             //Getting Appliances and Brands details for partner
             $service_brands[] = $this->partner_model->get_service_brands_for_partner($value['id']);
-            $login = $this->dealer_model->entity_login(array('entity' => "partner", 'entity_id' => $value['id']));
-            if (!empty($login)) {
-                $value['user_name'] = $login[0]['user_id'];
-                $value['clear_text'] = $login[0]['clear_password'];
-            } else {
-                $value['user_name'] = '';
-                $value['clear_text'] = '';
-            }
-            $data[] = $value;
         }
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-
-        $this->load->view('employee/viewpartner', array('query' => $data, 'service_brands' => $service_brands));
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/viewpartner', array('query' => $query, 'service_brands' => $service_brands));
     }
 
     /**
@@ -809,8 +798,7 @@ class Partner extends CI_Controller {
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.document_description,collateral.file,collateral.start_date,collateral.end_date,collateral_type.collateral_type', array("entity_id" => $id, "entity_type" => "partner"), array("collateral_type" => "collateral_type.id=collateral.collateral_id"), NULL, NULL, NULL, NULL);
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
-        
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update'));
     }
 
@@ -2220,8 +2208,7 @@ class Partner extends CI_Controller {
             $login['edit'] = TRUE;
         }
         $login['partner_id'] = $partner_id;
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/partner_login_details_form', array('login' => $login));
     }
 
@@ -2692,7 +2679,7 @@ class Partner extends CI_Controller {
     function upload_partner_brand_logo($id = "", $name = "") {
         $data['partner'] = array('partner_id' => $id,
             'public_name' => urldecode($name));
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_partner_brand_logo', $data);
     }
 
@@ -3131,7 +3118,7 @@ class Partner extends CI_Controller {
      */
 
     function bracket_allocation() {
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/bracket_allocation');
     }
 
@@ -3454,6 +3441,23 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $this->load->view('partner/header');
         $this->load->view('partner/reset_partner_passsword');
+    }
+    
+    /**
+     * @desc: This function is used to get partner details from Ajax call
+     * @params: void
+     * @return: string
+     */
+    function get_partner_list(){
+        $partner_list = $this->partner_model->get_all_partner(array('is_active'=>1));
+        $option = '<option selected="" disabled="">Select Partner</option>';
+
+        foreach ($partner_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            $option .= " > ";
+            $option .= $value['public_name'] . "</option>";
+        }
+        echo $option;
     }
 
 }

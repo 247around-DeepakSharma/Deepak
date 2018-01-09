@@ -25,6 +25,7 @@ class Accounting extends CI_Controller {
         $this->load->model("accounting_model");
         $this->load->model("vendor_model");
         $this->load->model("partner_model");
+        $this->load->library('miscelleneous');
         $this->load->library("notify");
         $this->load->library('PHPReport');
         $this->load->library('form_validation');
@@ -45,7 +46,7 @@ class Accounting extends CI_Controller {
      * @return : void
      */
     function get_challan_upload_form() {
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_challan_details');
     }
 
@@ -56,7 +57,7 @@ class Accounting extends CI_Controller {
      */
     function get_challan_edit_form($challan_id = "") {
         $data['challan_data'] = $this->accounting_model->fetch_challan_details('', $challan_id);
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_challan_details', $data);
     }
 
@@ -183,8 +184,7 @@ class Accounting extends CI_Controller {
      * @return : string
      */
     function get_challan_details() {
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/challan_details');
     }
 
@@ -309,7 +309,7 @@ class Accounting extends CI_Controller {
      * @return : void
      */
     function accounting_report() {
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/payment_history_report_view');
     }
 
@@ -347,7 +347,7 @@ class Accounting extends CI_Controller {
      * @return : void
      */
     function show_search_invoice_id_view() {
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/search_invoice_id');
     }
 
@@ -440,7 +440,7 @@ class Accounting extends CI_Controller {
      * @return : void
      */
     function show_search_challan_id_view() {
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/search_challan_id');
     }
 
@@ -469,7 +469,7 @@ class Accounting extends CI_Controller {
     function get_tagged_incoice_challan_data($challan_id) {
         $data['tagged_invoice_data'] = $this->accounting_model->get_tagged_invoice_challan_data($challan_id);
         if (!empty($data['tagged_invoice_data'])) {
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_tagged_invoices_challan_data', $data);
         } else {
             "No Invoices tagged with this data";
@@ -483,7 +483,7 @@ class Accounting extends CI_Controller {
      * @return : void()
      */
     function search_bank_transaction() {
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/search_bank_transaction');
     }
 

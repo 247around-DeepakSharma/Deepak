@@ -3888,3 +3888,299 @@ ALTER TABLE `booking_unit_details` ADD `inventory_id` INT(11) NULL DEFAULT NULL 
 
 --Abhay 28 Dec
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'prepaid_low_balance', 'Dear partner, your current balance is running low. Please recharge your account urgently for uninterrupted service. 247around Team', '', '1', CURRENT_TIMESTAMP);
+
+--Chhavi 29th Dec
+CREATE TABLE `header_navigation` (
+  `id` int(30) NOT NULL,
+  `title` varchar(80) NOT NULL,
+  `link` text,
+  `level` int(10) NOT NULL,
+  `parent_ids` varchar(30) DEFAULT NULL,
+  `groups` varchar(200) NOT NULL,
+  `nav_type` varchar(20) NOT NULL DEFAULT 'main_nav',
+  `is_active` int(10) NOT NULL DEFAULT '1',
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `header_navigation`
+--
+
+INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+(1, 'Find User', 'employee/user', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:48:40'),
+(2, 'Queries', NULL, 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:48:40'),
+(3, 'Pending Queries (Pincode Available)', 'employee/booking/view_queries/FollowUp/p_av', 2, '2', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:48:40'),
+(4, 'Missed Calls', 'employee/booking/get_missed_calls_view', 2, '2', 'admin,callcenter,closure,developer', 'main_nav', 1, '2017-12-28 18:48:40'),
+(5, 'Pending Queries (Pincode Not Available)', 'employee/booking/view_queries/FollowUp/p_nav', 2, '2', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:48:40'),
+(6, 'Cancelled Queries', 'employee/booking/view_queries/Cancelled/p_all', 2, '2', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:49:39'),
+(7, 'Bookings', NULL, 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:50:26'),
+(8, 'Pending Bookings', 'employee/booking/view_bookings_by_status/Pending', 2, '7', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:51:18'),
+(9, 'Spare Parts Bookings', 'employee/inventory/get_spare_parts', 2, '7', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:52:14'),
+(10, 'OOW Bookings', 'employee/booking/get_oow_booking', 2, '7', 'admin,callcenter,closure,developer', 'main_nav', 1, '2017-12-28 18:52:54'),
+(11, 'Completed Bookings', 'employee/booking/view_bookings_by_status/Completed', 2, '7', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:53:49'),
+(12, 'Cancelled Bookings', 'employee/booking/view_bookings_by_status/Cancelled', 2, '7', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:54:30'),
+(13, 'Repair Bookings', 'employee/booking/get_pending_booking_by_partner_id', 2, '7', 'admin,callcenter,closure,developer', 'main_nav', 1, '2017-12-28 18:55:07'),
+(14, 'Assign Vendor', 'employee/vendor/get_assign_booking_form', 2, '7', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:55:47'),
+(15, 'Review Bookings', 'employee/booking/review_bookings', 2, '7', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:56:19'),
+(16, 'Wall Mount Fiven', 'employee/booking/update_not_pay_to_sf_booking', 2, '7', 'admin,callcenter,closure,developer', 'main_nav', 1, '2017-12-28 18:56:56'),
+(17, 'Auto Assign Bookings', 'employee/booking/auto_assigned_booking', 2, '7', 'admin,callcenter,closure,developer', 'main_nav', 1, '2017-12-28 18:57:37'),
+(18, 'Waiting to Approve Upcountry Bookings', 'employee/upcountry/get_waiting_for_approval_upcountry_charges', 2, '7', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 18:58:36'),
+(19, 'Upcountry Failed Bookings', 'employee/upcountry/get_upcountry_failed_details', 2, '7', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 19:00:21'),
+(20, 'Reassign Partner', 'employee/vendor/get_reassign_partner_form', 2, '7', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 19:01:04'),
+(21, 'Missed Call Rating', 'employee/booking/show_missed_call_rating_data', 2, '7', 'admin,closure,developer', 'main_nav', 1, '2017-12-28 19:01:41'),
+(22, 'Advance Search', 'employee/booking/booking_advance_search', 2, '7', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 19:02:25'),
+(23, 'Bulk Search', 'employee/booking/booking_bulk_search', 2, '7', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 19:03:05'),
+(24, 'Partners', NULL, 1, NULL, 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 19:03:35'),
+(25, 'View Partners List', 'employee/partner/viewpartner', 2, '24', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-28 19:04:21'),
+(26, 'Send Mail From Template', 'employee/vendor/get_mail_to_vendors_form', 2, '24', 'admin,developer', 'main_nav', 1, '2017-12-28 19:05:36'),
+(27, 'Upload Snapdeal Products - Delivered', 'employee/bookings_excel', 2, '24', 'admin,closure,developer', 'main_nav', 1, '2017-12-28 19:07:08'),
+(28, 'Upload Snapdeal Products - Shipped', 'employee/bookings_excel/upload_shipped_products_excel', 2, '24', 'admin,closure,developer', 'main_nav', 1, '2017-12-28 19:07:53'),
+(29, 'Upload paytm Bookings', 'employee/bookings_excel/upload_delivered_products_for_paytm_excel', 2, '24', 'admin,closure,developer', 'main_nav', 1, '2017-12-28 19:08:34'),
+(30, 'Upload Jeeves Bookings', 'employee/upload_booking_file/upload_booking_files', 2, '24', 'admin,closure,developer', 'main_nav', 1, '2017-12-28 19:09:14'),
+(31, 'Upload Satya File', 'employee/bookings_excel/upload_satya_file', 2, '24', 'admin,closure,developer', 'main_nav', 1, '2017-12-28 19:09:42'),
+(32, 'Upload Akai File', 'employee/bookings_excel/upload_akai_file', 2, '24', 'admin,closure,developer', 'main_nav', 1, '2017-12-28 19:10:10'),
+(33, 'Partner Price List', 'employee/service_centre_charges/show_partner_service_price', 2, '24', 'admin,developer', 'main_nav', 1, '2017-12-28 19:10:39'),
+(34, 'View Dealer List', 'employee/dealers/show_dealer_list', 2, '24', 'admin,developer,regionalmanager', 'main_nav', 1, '2017-12-28 19:11:23'),
+(35, 'Add Brackets Data', 'employee/partner/bracket_allocation', 2, '24', 'admin,developer', 'main_nav', 1, '2017-12-28 19:12:04'),
+(36, 'Service Centers', NULL, 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 10:58:17'),
+(37, 'View Service Centers', 'employee/vendor/viewvendor', 2, '36', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 10:59:01'),
+(38, 'Search Service Centers', 'employee/vendor/vendor_availability_form', 2, '36', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 10:59:37'),
+(39, 'Edit Template', NULL, 2, '36', 'admin,developer', 'main_nav', 1, '2017-12-29 11:00:25'),
+(40, 'SMS Template Grid', 'employee/vendor/get_sms_template_editable_grid', 3, '39', 'admin,developer', 'main_nav', 1, '2017-12-29 11:01:25'),
+(41, 'TAX RATES Templates Grid', 'employee/vendor/get_tax_rates_template_editable_grid', 3, '39', 'admin,developer', 'main_nav', 1, '2017-12-29 11:02:20'),
+(42, 'Vendor Escalation Policy Template Grid', 'employee/vendor/get_tax_rates_template_editable_grid', 3, '39', 'admin,developer', 'main_nav', 1, '2017-12-29 11:03:15'),
+(43, 'Appliance Description Template Grid ', 'employee/booking/get_appliance_description_editable_grid', 3, '39', 'admin,developer', 'main_nav', 1, '2017-12-29 11:04:13'),
+(44, 'Send Broadcast Email', 'employee/vendor/get_broadcast_mail_to_vendors_form', 2, '36', 'admin,developer', 'main_nav', 1, '2017-12-29 11:05:17'),
+(45, 'Send Mail from Template', 'employee/vendor/get_mail_to_vendors_form', 2, '36', 'admin,developer', 'main_nav', 1, '2017-12-29 11:06:19'),
+(46, 'Download SF List', 'employee/vendor/download_sf_list_excel', 2, '36', 'admin,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:07:10'),
+(47, 'Engineers', NULL, 2, '36', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:08:01'),
+(48, 'Add Engineer', 'employee/vendor/add_engineer', 3, '47', 'admin,callcenter,closure,regionalmanager', 'main_nav', 1, '2017-12-29 11:08:50'),
+(49, 'View Engineers', 'employee/vendor/get_engineers', 3, '47', 'admin,callcenter,closure,regionalmanager', 'main_nav', 1, '2017-12-29 11:09:36'),
+(50, 'Update Pincode Distance', 'employee/upcountry/get_distance_between_pincodes_form', 2, '36', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:10:18'),
+(51, 'Bank Details', 'employee/vendor/show_bank_details', 2, '36', 'admin,developer', 'main_nav', 1, '2017-12-29 11:10:48'),
+(52, 'Appliances', NULL, 1, NULL, 'admin,callcenter,closure,developer', 'main_nav', 1, '2017-12-29 11:11:17'),
+(53, 'Add New Brands', 'employee/booking/get_add_new_brand_form', 2, '52', 'admin,callcenter,closure,developer', 'main_nav', 1, '2017-12-29 11:11:55'),
+(54, 'Upload Service Charges / Taxes Excel', 'employee/service_centre_charges/upload_excel_form', 2, '52', 'admin,developer', 'main_nav', 1, '2017-12-29 11:12:41'),
+(55, 'Update Zooper Price', 'employee/inventory/update_part_price_details', 2, '52', 'admin,closure,developer', 'main_nav', 1, '2017-12-29 11:13:27'),
+(56, 'Invoices', NULL, 1, NULL, 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:13:59'),
+(57, 'Generate Invoices ', 'employee/invoice/get_invoices_form', 2, '56', 'admin,developer', 'main_nav', 1, '2017-12-29 11:14:47'),
+(58, 'Add New Transaction', 'employee/invoice/get_add_new_transaction', 2, '56', 'admin,developer', 'main_nav', 1, '2017-12-29 11:15:22'),
+(59, 'Add Advance Bank Transaction', 'employee/invoice/get_advance_bank_transaction', 2, '56', 'admin,closure,developer', 'main_nav', 1, '2017-12-29 11:15:57'),
+(60, 'Search Invoice ID', 'employee/accounting/show_search_invoice_id_view', 2, '56', 'admin,developer', 'main_nav', 1, '2017-12-29 11:16:31'),
+(61, 'Create Brackets Credit Notes', 'employee/invoice/show_purchase_brackets_credit_note_form', 2, '56', 'admin,closure,developer', 'main_nav', 1, '2017-12-29 11:17:14'),
+(62, 'Search Bank Transaction', 'employee/accounting/search_bank_transaction', 2, '56', 'admin,developer', 'main_nav', 1, '2017-12-29 11:17:49'),
+(63, 'Partner', NULL, 2, '56', 'admin,developer', 'main_nav', 1, '2017-12-29 11:18:25'),
+(64, 'Create Partner Invoice', 'employee/invoice/insert_update_invoice/partner', 3, '63', 'admin,developer', 'main_nav', 1, '2017-12-29 11:19:02'),
+(65, 'Partner Invoices', 'employee/invoice/invoice_partner_view', 3, '63', 'admin,developer', 'main_nav', 1, '2017-12-29 11:19:33'),
+(66, 'Partner Transactions', 'employee/invoice/show_all_transactions/partner', 3, '63', 'admin,developer', 'main_nav', 1, '2017-12-29 11:20:08'),
+(67, 'Partner Invoice Check', 'employee/invoiceDashboard', 3, '63', 'admin,closure,developer', 'main_nav', 1, '2017-12-29 11:20:41'),
+(68, 'Partner Invoice Summary', 'employee/invoiceDashboard/get_invoice_summary_for_partner', 3, '63', 'admin', 'main_nav', 1, '2017-12-29 11:21:15'),
+(69, 'Service Center', NULL, 2, '56', 'admin,developer', 'main_nav', 1, '2017-12-29 11:23:58'),
+(70, 'Create SF Invoice', 'employee/invoice/insert_update_invoice/vendor', 3, '69', 'admin', 'main_nav', 1, '2017-12-29 11:25:25'),
+(71, 'Service Centers Invoices', 'employee/invoice', 3, '69', 'admin', 'main_nav', 1, '2017-12-29 11:27:20'),
+(72, 'Service Centers Transactions', 'employee/invoice/show_all_transactions/vendor', 3, '69', 'admin,closure', 'main_nav', 1, '2017-12-29 11:28:14'),
+(73, 'SF Invoice Check', 'employee/invoiceDashboard/service_center_invoice', 3, '69', 'admin,closure', 'main_nav', 1, '2017-12-29 11:28:49'),
+(74, 'SF Invoice Summary', 'employee/invoiceDashboard/get_invoice_summary_for_sf', 3, '69', 'admin', 'main_nav', 1, '2017-12-29 11:29:28'),
+(75, 'Accounts', NULL, 2, '56', 'admin,developer', 'main_nav', 1, '2017-12-29 11:29:55'),
+(76, 'Upload Challan', 'employee/accounting/get_challan_upload_form', 3, '75', 'admin', 'main_nav', 1, '2017-12-29 11:30:27'),
+(77, 'Challan History', 'employee/accounting/get_challan_details', 3, '75', 'admin', 'main_nav', 1, '2017-12-29 11:31:19'),
+(78, 'Invoice Summary Report', 'employee/accounting/accounting_report', 3, '75', 'admin', 'main_nav', 1, '2017-12-29 11:32:11'),
+(79, 'Search Challan ID', 'employee/accounting/show_search_challan_id_view', 3, '75', 'admin', 'main_nav', 1, '2017-12-29 11:32:45'),
+(80, 'Reports', NULL, 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:33:14'),
+(81, 'SF Bookings Snapshot', 'employee/vendor/show_service_center_report', 2, '80', 'admin,closure,developer', 'main_nav', 1, '2017-12-29 11:33:49'),
+(82, 'Newly Added SF (2 Months)', 'employee/vendor/new_service_center_report', 2, '80', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:34:33'),
+(83, 'Download SF Pending Summary', 'BookingSummary/get_pending_bookings/0', 2, '80', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:35:11'),
+(84, 'SF Missed Target Reports', 'BookingSummary/get_sc_crimes/0', 2, '80', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:35:51'),
+(85, 'RM Crimes Report', 'BookingSummary/get_rm_crimes/0', 2, '80', 'admin,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:36:20'),
+(86, 'RM Performance Stats', 'BookingSummary/show_reports_chart', 2, '80', 'admin,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:36:52'),
+(87, 'New Dashboard', 'employee/dashboard', 2, '80', 'admin,developer', 'main_nav', 1, '2017-12-29 11:37:34'),
+(88, 'Download serviceability Report', 'employee/vendor/get_sms_template_editable_grid', 2, '80', 'admin,closure,developer,regionalmanager', 'main_nav', 0, '2017-12-29 11:38:11'),
+(89, 'Inventory', NULL, 1, NULL, 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:38:44'),
+(90, 'Add Brackets', 'employee/inventory/get_bracket_add_form', 2, '89', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:39:13'),
+(91, 'Show Bracket List', 'employee/inventory/show_brackets_list', 2, '89', 'admin,closure,developer,regionalmanager', 'main_nav', 1, '2017-12-29 11:39:42'),
+(92, 'Vendor Inventory Details', 'employee/inventory/get_vendor_inventory_list_form', 2, '89', 'admin,closure,developer', 'main_nav', 1, '2017-12-29 11:40:17'),
+(93, 'Add Employee', 'employee/user/add_employee', 1, NULL, 'admin', 'right_nav', 1, '2017-12-29 12:02:05'),
+(94, 'Employee List', 'employee/user/show_employee_list', 1, NULL, 'admin', 'right_nav', 1, '2017-12-29 12:02:37'),
+(95, 'Holiday List ', 'employee/user/show_holiday_list', 1, NULL, 'admin', 'right_nav', 1, '2017-12-29 12:03:10'),
+(96, 'Edit Profile', 'employee/user/update_employee', 1, NULL, 'admin', 'right_nav', 1, '2017-12-29 15:32:02'),
+(97, 'SF Document List', 'employee/vendor/show_vendor_documents_view', 2, '36', 'regionalmanager', 'main_nav', 1, '2017-12-29 16:03:32'),
+(98, 'Service Centers Invoices', 'employee/invoice', 2, '56', 'closure,regionalmanager', 'main_nav', 1, '2017-12-29 16:07:02'),
+(99, 'Service Centers Reports', 'employee/vendor/show_service_center_report', 2, '80', 'regionalmanager', 'main_nav', 1, '2017-12-29 16:08:28'),
+(100, 'Dashboard', 'employee/vendor/show_around_dashboard', 2, '80', 'callcenter,closure,regionalmanager', 'main_nav', 1, '2017-12-29 16:10:25'),
+(101, 'Bookings', 'employee/user/get_user_count_view', 2, '80', 'regionalmanager', 'main_nav', 1, '2017-12-29 16:11:41'),
+(102, 'Users', 'employee/user/user_count', 2, '80', 'regionalmanager', 'main_nav', 1, '2017-12-29 16:12:21'),
+(103, 'Buyback Dashboard', 'employee/dashboard/buyback_dashboard', 2, '80', 'regionalmanager', 'main_nav', 1, '2017-12-29 16:12:59'),
+(104, 'Partner Leads', 'employee/booking/get_missed_calls_view', 2, '7', 'closure', 'main_nav', 1, '2017-12-29 16:33:16'),
+(105, 'No Installation, Only Stand Given', 'employee/booking/update_not_pay_to_sf_booking', 2, '7', 'closure', 'main_nav', 1, '2017-12-29 16:34:28');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `header_navigation`
+--
+ALTER TABLE `header_navigation`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `header_navigation`
+--
+ALTER TABLE `header_navigation`
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=106;COMMIT;
+
+--Chhavi 02nd Jan
+ALTER TABLE `sf_not_exist_booking_details` ADD `valid_pincode` INT(2) NOT NULL DEFAULT '1' AFTER `partner_id`;
+ALTER TABLE `sf_not_exist_booking_details` CHANGE `valid_pincode` `is_pincode_valid` INT(2) NOT NULL DEFAULT '1';
+ALTER TABLE `service_center_booking_action` ADD `reschedule_request_date` DATETIME NOT NULL AFTER `closed_date`;
+CREATE TABLE `fake_reschedule_missed_call_log` (
+  `id` int(10) NOT NULL,
+  `callSid` varchar(40) NOT NULL,
+  `from_number` varchar(20) NOT NULL,
+  `to_number` varchar(20) NOT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `fake_reschedule_missed_call_log`
+--
+ALTER TABLE `fake_reschedule_missed_call_log`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `fake_reschedule_missed_call_log`
+--
+ALTER TABLE `fake_reschedule_missed_call_log`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
+
+
+-- sachin 5 Jan 2018
+CREATE TABLE `partner_file_upload_header_mapping` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `referred_date_and_time` varchar(128) DEFAULT NULL,
+  `sub_order_id` varchar(256) NOT NULL,
+  `brand` varchar(128) NOT NULL,
+  `model` varchar(128) NOT NULL,
+  `product` varchar(256) NOT NULL,
+  `product_type` varchar(256) NOT NULL,
+  `customer_name` varchar(256) NOT NULL,
+  `customer_address` varchar(256) NOT NULL,
+  `pincode` varchar(32) NOT NULL,
+  `city` varchar(128) NOT NULL,
+  `phone` varchar(64) NOT NULL,
+  `email_id` varchar(128) DEFAULT NULL,
+  `delivery_date` varchar(128) DEFAULT NULL,
+  `agent_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `partner_file_upload_header_mapping`
+--
+
+INSERT INTO `partner_file_upload_header_mapping` (`id`, `partner_id`, `referred_date_and_time`, `sub_order_id`, `brand`, `model`, `product`, `product_type`, `customer_name`, `customer_address`, `pincode`, `city`, `phone`, `email_id`, `delivery_date`, `agent_id`, `create_date`, `update_date`) VALUES
+(1, 247034, '', 'bill_no', '', '', 'product', 'item_name', 'customer', 'address', 'pincode', '', 'contact_no', '', '', 27, '2018-01-05 11:31:28', '2018-01-05 11:35:32'),
+(2, 247010, '', 'docno', '', '', 'product', 'item_name', 'customer', 'address', 'zipcodeb', '', 'phno', '', '', 27, '2018-01-05 11:41:38', '2018-01-06 05:56:44'),
+(3, 3, '', 'item_id', 'brand', '', '', 'product_name', 'customer_firstname', 'address', 'pincode', 'customer_city', 'contact_number', '', 'shipped_date', 27, '2018-01-06 06:37:13', '0000-00-00 00:00:00'),
+(4, 3, '', 'order_item_id', 'brand', '', '', 'product_name', 'customer_firstname', 'address', 'pincode', 'customer_city', 'contact_number', '', 'shipped_date', 27, '2018-01-06 06:37:13', '0000-00-00 00:00:00');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `partner_file_upload_header_mapping`
+--
+ALTER TABLE `partner_file_upload_header_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `partner_file_upload_header_mapping`
+--
+ALTER TABLE `partner_file_upload_header_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Upload File Header Mapping', 'employee/bookings_excel/file_upload_header_mapping', '2', '24', 'admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+-- Chhavi
+CREATE TABLE `push_notification_subscribers` (
+  `id` int(10) NOT NULL,
+  `entity_type` varchar(10) NOT NULL,
+  `entity_id` varchar(20) NOT NULL,
+  `subscriber_id` varchar(40) NOT NULL,
+  `device` varchar(10) NOT NULL,
+  `browser` varchar(10) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `push_notification_subscribers`
+--
+ALTER TABLE `push_notification_subscribers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `push_notification_subscribers`
+--
+ALTER TABLE `push_notification_subscribers`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
+
+CREATE TABLE `push_notification_logs` (
+  `id` int(11) NOT NULL,
+  `request_id` varchar(11) NOT NULL,
+  `title` varchar(50) NOT NULL,
+  `msg` text NOT NULL,
+  `url` text NOT NULL,
+  `subscriber_ids` varchar(30) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `push_notification_logs`
+--
+ALTER TABLE `push_notification_logs`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `push_notification_logs`
+--
+ALTER TABLE `push_notification_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES
+(36, 'rescheduled_confirmation_sms', 'We have received reschedule request for your %s service. If you have NOT asked for reschedule, give missed call @ 01139586111 or call 9555000247.', 'Send When SF rescheduled a booking, to confirm is reschedule fake?', '1', '2018-01-02 12:23:49');
+COMMIT;

@@ -59,7 +59,7 @@ class Inventory extends CI_Controller {
                 //Getting all values
                 $data['vendor'] = $this->vendor_model->getVendorDetails($select);
             }
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view("employee/add_brackets", $data);
     }
 
@@ -235,7 +235,7 @@ class Inventory extends CI_Controller {
             
             $data['order_given_to'][$key] = $this->vendor_model->getVendorContact($value['order_given_to'])[0]['name'];
         }
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view("employee/show_brackets_list", $data);
     }
     
@@ -250,7 +250,7 @@ class Inventory extends CI_Controller {
         $data['order_id'] = $order_id;
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view("employee/update_brackets", $data);
     }
     
@@ -373,7 +373,7 @@ class Inventory extends CI_Controller {
         $data['order_id'] = $order_id;
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view("employee/update_brackets", $data);
     }
     
@@ -569,8 +569,7 @@ class Inventory extends CI_Controller {
         foreach($data['vendor_inventory'] as $key=>$value){
             $data['final_array'][] = end($value);
         }
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view("employee/show_vendor_inventory_list", $data);
     }
     /**
@@ -585,8 +584,7 @@ class Inventory extends CI_Controller {
         $data['brackets'] = $this->inventory_model->get_brackets_by_id($order_id);
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view("employee/show_brackets_order_history", $data);
     }
     
@@ -601,7 +599,7 @@ class Inventory extends CI_Controller {
         $data['order_id'] = $order_id;
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view("employee/update_brackets", $data);
     }
     
@@ -833,7 +831,7 @@ class Inventory extends CI_Controller {
 //	$data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['per_page'], $offset);
 //        echo "<pre>";
 //        print_r($data);exit();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_spare_parts');
     }
     /**
@@ -848,8 +846,7 @@ class Inventory extends CI_Controller {
         $data['bookinghistory'] = $this->partner_model->get_spare_parts_booking($where);
         
         if(!empty($data['bookinghistory'][0])){
-            
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_spare_parts', $data);
         } else{
             echo "Booking Not Found. Please Retry Again";
@@ -1080,7 +1077,10 @@ class Inventory extends CI_Controller {
      */
     function update_action_on_spare_parts($id, $booking_id, $requestType){
         log_message('info', __FUNCTION__. "Entering... id ". $id." Booking ID ". $booking_id);
-         $this->checkUserSession();
+        if(!$this->session->userdata('partner_id')){
+            $this->checkUserSession();
+        } 
+         
         if(!empty($id)){
             $remarks = $this->input->post("remarks");
             $flag = true;
@@ -1144,9 +1144,17 @@ class Inventory extends CI_Controller {
             if($flag){
                 $this->service_centers_model->update_spare_parts($where, $data);
             }
-            
+            if($this->session->userdata('employee_id')){
+                $agent_id = $this->session->userdata('id');
+                $agent_name = $this->session->userdata('employee_id');
+                $partner_id = _247AROUND;
+            } else {
+                $agent_id = $this->session->userdata('agent_id');
+                $agent_name = $this->session->userdata('partner_name');
+                $partner_id = $this->session->userdata('partner_id');;
+            }
             $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
-                      $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                      $agent_id, $agent_name, $partner_id);
            
             
             echo "Success";
@@ -1279,11 +1287,10 @@ class Inventory extends CI_Controller {
         if(!empty($booking_id)){
             $data['zopper'] = $this->inventory_model->select_zopper_estimate(array("booking_id" => $booking_id));
             $data['data'] = $this->booking_model->getbooking_history($booking_id);
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view("employee/update_price_details_form", $data);
         } else {
-            
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view("employee/update_price_details_form");
         }
     }

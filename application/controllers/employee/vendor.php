@@ -967,7 +967,7 @@ class vendor extends CI_Controller {
         $results['bank_name'] = $this->vendor_model->get_bank_details();
    
         $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addvendor', array('results' => $results, 'days' => $days));
     }
 
@@ -1001,8 +1001,7 @@ class vendor extends CI_Controller {
         $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $non_working_days = $query[0]['non_working_days'];
         $selected_non_working_days = explode(",", $non_working_days);
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
             => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
             'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm));
@@ -1038,7 +1037,7 @@ class vendor extends CI_Controller {
         //Getting State for SC charges
         $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data));
     }
 
@@ -1133,8 +1132,7 @@ class vendor extends CI_Controller {
         foreach ($bookings as $booking) {
             array_push($results, $this->booking_model->find_sc_by_pincode_and_appliance($booking['service_id'], $booking['booking_pincode']));
         }
-
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/assignbooking', array('data' => $bookings, 'results' => $results));
     }
 
@@ -1223,8 +1221,7 @@ class vendor extends CI_Controller {
     function get_reassign_vendor_form($booking_id) {
         if(!empty($booking_id)){
             $service_centers = $this->vendor_model->viewvendor("", 1, NULL);
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers));
         }
     }
@@ -1363,7 +1360,7 @@ class vendor extends CI_Controller {
      */
     function get_broadcast_mail_to_vendors_form() {
         //$service_centers = $this->booking_model->select_service_center();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/broadcastemailtovendor');
     }
 
@@ -1485,8 +1482,7 @@ class vendor extends CI_Controller {
         if ($error != "") {
             $mapping_file['error'] = $error;
         }
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_pincode_excel', $mapping_file);
     }
 
@@ -1500,7 +1496,7 @@ class vendor extends CI_Controller {
      */
     function get_master_pincode_excel_upload_form() {
         $this->checkUserSession();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_master_pincode_excel');
     }
 
@@ -1619,8 +1615,7 @@ class vendor extends CI_Controller {
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'247around','active'=> '1','process_type'=>'escalation'));
         $data['vendor_details'] = $this->vendor_model->getVendor($booking_id);
         $data['booking_id'] = $booking_id;
-
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/vendor_escalation_form', $data);
     }
 
@@ -1635,160 +1630,24 @@ class vendor extends CI_Controller {
     function process_vendor_escalation_form() {
         $this->checkUserSession();
         log_message('info',__FUNCTION__);
-        $escalation['booking_id'] = $this->input->post('booking_id');
-        $escalation['vendor_id'] = $this->input->post('vendor_id');
-        //Get SF to RM relation if present
-        $cc = "";
-        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id']);
-        if(!empty($rm)){
-            foreach($rm as $key=>$value){
-                if($key == 0){
-                    $cc .= "";
-                }else{
-                    $cc .= ",";
-                }
-                $cc .= $this->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
-            }
-        }
+       // return $this->input->post();
+        $booking_id= $this->input->post('booking_id');
+        $vendor_id = $this->input->post('vendor_id');
+        $escalation_reason_id = $this->input->post('escalation_reason_id');
+        $remarks = $this->input->post('remarks');
         $checkValidation = $this->checkValidationOnReason();
-        if ($checkValidation) {
-            $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
-            
-            $this->booking_model->increase_escalation_reschedule($escalation['booking_id'], "count_escalation");
-            
-            $booking_date_timeslot = $this->vendor_model->getBookingDateFromBookingID($escalation['booking_id']);
-
-            $booking_date = strtotime($booking_date_timeslot[0]['booking_date']);
-
-            $escalation['booking_date'] = date('Y-m-d', $booking_date);
-            $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
-            
-            //inserts vendor escalation details
-            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
-            
-            if ($escalation_id) {
-                $escalation_policy_details = $this->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);
-                // Update escalation flag and return userDeatils
-                $userDetails = $this->vendor_model->updateEscalationFlag($escalation_id, $escalation_policy_details, $escalation['booking_id']);
-
-                log_message('info', "User Details " . print_r($userDetails, TRUE));
-                log_message('info', "Vendor_ID " . $escalation['vendor_id']);
-
-                $vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
-
-                $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'];
-
-                //Getting template from Database
-                $template = $this->booking_model->get_booking_email_template("escalation_on_booking");
-                if (!empty($template)) {
-                    
-                    //From will be currently logged in user
-                    $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
-                    
-                    //Sending Mail
-                    $email['booking_id'] = $escalation['booking_id'];
-                    $email['count_escalation'] = $booking_date_timeslot[0]['count_escalation'];
-                    $email['reason'] = $escalation_policy_details[0]['escalation_reason'];
-                    $emailBody = vsprintf($template[0], $email);
-
-                    $subject['booking_id'] = $escalation['booking_id'];
-                    $subjectBody = vsprintf($template[4], $subject);
-                    $this->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "");
-
-                    //Logging
-                    log_message('info', " Escalation Mail Send successfully" . $emailBody);
-                } else {
-                    //Logging Error Message
-                    log_message('info', " Error in Getting Email Template for Escalation Mail");
-                }
-                
-                $this->sendSmsToVendor($escalation,$escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
-                $escalation_reason  = $this->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
-                $remarks = $this->input->post('remarks');
-                if(!empty($remarks)){
-                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'].' - '.$remarks;
-                }else{
-                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
-                }
-                
-                $this->notify->insert_state_change($escalation['booking_id'], 
-                    "Escalation" , "Pending" , $escalation_reason_final, 
-                    $this->session->userdata('id'), $this->session->userdata('employee_id'),
-                    _247AROUND);
-                
-                //Processing Penalty on Escalations
-                
-                $value['booking_id'] = $escalation['booking_id'];
-                $value['assigned_vendor_id'] = $escalation['vendor_id'];
-                $value['current_state'] = "Escalation";
-                $value['agent_id'] = $this->session->userdata('id');
-                $value['remarks'] = $escalation_reason_final;
-                $value['agent_type'] = 'admin';
-                $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
-                //Adding values in penalty on booking table
-                $this->penalty_model->get_data_penalty_on_booking($value, $where);
-
-                log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
-                
-
-                redirect(base_url() . DEFAULT_SEARCH_PAGE);
-	    }
-        } else {
-            $this->get_vendor_escalation_form($escalation['booking_id']);
+        $id = $this->session->userdata('id');
+        $employeeID = $this->session->userdata('employee_id');
+        $escalation = $this->miscelleneous->process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,$checkValidation,$id,$employeeID);
+        if($escalation){
+          redirect(base_url() . DEFAULT_SEARCH_PAGE);  
+        }
+        else{
+            $this->get_vendor_escalation_form($booking_id);
         }
     }
 
-    /**
-     * @desc: Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.
-     *
-     * @param : escalation policy details
-     * @param : vendor contact
-     * @param : booking id
-     * @param : user's details
-     * @return : void
-     */
-    function sendSmsToVendor($escalation,$escalation_policy, $contact, $booking_id, $userDetails) {
-        
-        $id = $escalation['vendor_id'];
-       
-        if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 1) {
-
-            $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
-
-            $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
-            //For saving SMS to the database on sucess
-
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
-                    $smsBody, $booking_id, "Escalation", $status['content']);
-            
-
-            $status1 = $this->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
-            //For saving SMS to the database on sucess
-
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
-                    $smsBody, $booking_id,"Escalation", $status1['content']);
-            
-        } else if ($escalation_policy[0]['sms_to_owner'] == 0 && $escalation_policy[0]['sms_to_poc'] == 1) {
-
-            $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
-
-            $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
-            //For saving SMS to the database on sucess
-            
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
-                    $smsBody, $booking_id, "Escalation", $status['content']);
-            
-        } else if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 0) {
-
-            $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
-
-            $status = $this->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
-            //For saving SMS to the database on sucess
-            
-            $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
-                    $smsBody, $booking_id, "Escalation", $status['content']); 
-        }
-    }
+   
 
     /**
      * @desc: Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.
@@ -1890,7 +1749,7 @@ class vendor extends CI_Controller {
     function vendor_availability_form() {
         $this->checkUserSession();
         $data = $this->vendor_model->get_services_category_city_pincode();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/searchvendor', $data);
     }
 
@@ -1940,7 +1799,7 @@ class vendor extends CI_Controller {
     function vendor_performance_view() {
         $this->checkUserSession();
         $data = $this->vendor_model->get_vendor_city_appliance();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/vendorperformance', $data);
     }
 
@@ -1980,7 +1839,7 @@ class vendor extends CI_Controller {
     function review_bookings() {
         $this->checkUserSession();
         $charges['charges'] = $this->vendor_model->getbooking_charges();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/review_booking_complete_cancel', $charges);
     }
 
@@ -1992,7 +1851,7 @@ class vendor extends CI_Controller {
     function getcancellation_reason($vendor_id) {
         $this->checkUserSession();
         $reason['reason'] = $this->vendor_model->getcancellation_reason($vendor_id);
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/vendor_cancellation_reason', $reason);
     }
 
@@ -2003,9 +1862,7 @@ class vendor extends CI_Controller {
      */
     function get_mail_vendor($vendor_id = "") {
         $vendor_info = $this->vendor_model->viewvendor($vendor_id);
-
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/mail_vendor', array('vendor_info' => $vendor_info));
     }
 
@@ -2025,15 +1882,12 @@ class vendor extends CI_Controller {
         $cc = NITS_ANUJ_EMAIL_ID;
         $subject = $this->input->post('subject');
         $raw_message = $this->input->post('mail_body');
-
         //to replace new lines in line breaks for html
         $message = nl2br($raw_message);
         $bcc = "";
         $attachment = "";
-
         $this->notify->sendEmail("sales@247around.com", $to, $cc, $bcc, $subject, $message, $attachment);
-
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewvendor', array('query' => $vendor_info));
     }
 
@@ -2050,7 +1904,7 @@ class vendor extends CI_Controller {
             $this->load->view('service_centers/add_engineer', $data);
 
         } else {
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/add_engineer', $data);
         }
     }
@@ -2072,7 +1926,7 @@ class vendor extends CI_Controller {
             $this->load->view('service_centers/add_engineer', $data);
 
         } else {
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/add_engineer', $data);
         }
     }
@@ -2256,7 +2110,7 @@ class vendor extends CI_Controller {
             $this->load->view('service_centers/view_engineers', $data);
 
        } else {
-            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/view_engineers', $data);
        }
 
@@ -2404,7 +2258,7 @@ class vendor extends CI_Controller {
                      }
                 }
                 else{
-                    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                    $this->miscelleneous->load_nav_header();
                 }
                 if($booking_id != NULL){
                             $booking_data  = $this->booking_model->getbooking_history($booking_id);
@@ -2467,7 +2321,7 @@ class vendor extends CI_Controller {
             $this->form_validation->set_rules('pincode', 'Pincode', 'trim|required|numeric|min_length[6]|max_length[6]');
             $this->form_validation->set_rules('vendor_id', 'Vendor_ID', 'required');
             if ($this->form_validation->run() == FALSE) {
-                      $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                      $this->miscelleneous->load_nav_header();
                       $this->load->view('employee/add_vendor_to_pincode');
             }
             else{
@@ -2579,7 +2433,7 @@ class vendor extends CI_Controller {
 		$data['no_input'] = '';
 	    }
 	}
-	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->miscelleneous->load_nav_header();
 	$this->load->view('employee/list_vendor_pincode', $data);
     }
     
@@ -2681,9 +2535,7 @@ class vendor extends CI_Controller {
         );
         $partner_email['select'] = 'id,template,subject';
         $data['partner_email_template'] = $this->vendor_model->get_247around_email_template($partner_email);
-        
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/sendemailtovendor', $data);
     }
 
@@ -2887,8 +2739,7 @@ class vendor extends CI_Controller {
         //Initializing array data for where and select clause
         $data_report['query'] = $this->vendor_model->get_around_dashboard_queries(array('active' => 1,'type'=> 'service'));
         $data_report['data'] = $this->vendor_model->execute_dashboard_query($data_report['query']);
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/247around_dashboard', $data_report);
     }
     
@@ -2899,9 +2750,8 @@ class vendor extends CI_Controller {
      * 
      */
     function get_sms_template_editable_grid(){
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/sms_template_editable_grid');
-        
     }
 
     /**
@@ -3066,8 +2916,7 @@ class vendor extends CI_Controller {
             $sf_list = $sf_list[0]['service_centres_id'];
         }
         $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list,'');
-        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_service_center_report',$data);
     }
     
@@ -3124,7 +2973,7 @@ class vendor extends CI_Controller {
             $sf_list = $sf_list[0]['service_centres_id'];
     }
         $data['html'] = $this->booking_utilities->booking_report_for_new_service_center($sf_list);
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/new_service_center_report', $data);
     }
     
@@ -3388,7 +3237,7 @@ class vendor extends CI_Controller {
             $serviceCenters = $sf_list[0]['service_centres_id'];
         }
         $query = $this->vendor_model->viewvendor("", $active, $serviceCenters);
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm,'selected'=>$selectedData));
     }
     
@@ -3511,9 +3360,8 @@ class vendor extends CI_Controller {
      * 
      */
     function get_tax_rates_template_editable_grid(){
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-        $this->load->view('employee/tax_rates_template_editable_grid');
-        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/tax_rates_template_editable_grid');      
     }
     
     /**
@@ -3679,7 +3527,7 @@ class vendor extends CI_Controller {
      * 
      */
     function get_vandor_escalation_policy_editable_grid(){
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/vandor_escalation_policy_template_editable_grid');
         
     }
@@ -3868,9 +3716,8 @@ class vendor extends CI_Controller {
     
     function get_sc_upcountry_details($service_center_id){
         $data['data'] = $this->upcountry_model->get_sub_service_center_details(array('service_center_id' =>$service_center_id));
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-        $this->load->view('employee/sc_upcountry_details',$data);
-        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/sc_upcountry_details',$data);      
     }
 
     /**
@@ -3908,7 +3755,7 @@ class vendor extends CI_Controller {
             $data['penalty_active'] = $penalty_active;
         }
         //print("<pre>".  print_r($data,true)."</pre>");exit();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_escalate_booking_form', $data);
     }
     
@@ -4248,9 +4095,7 @@ class vendor extends CI_Controller {
      */
     function get_reassign_partner_form() {
         $partners = $this->partner_model->get_all_partner();
-
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/reassignvendor', array('partners' => $partners,'type'=>'partner'));
     }
 
@@ -4477,7 +4322,7 @@ class vendor extends CI_Controller {
           */
          function upload_pin_code_vendor($vendorID){
                     $serviceArray = $this->reusable_model->get_search_result_data("services","services",array("isBookingActive"=>1),NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
-                    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                    $this->miscelleneous->load_nav_header();
                     $this->load->view('employee/vendor_pincode_upload',array('vendorID'=>$vendorID,"services"=>$serviceArray));
           }
           /*
@@ -4758,7 +4603,7 @@ class vendor extends CI_Controller {
                             }
                             $data['all_appliance'] = $this->booking_model->selectservice();
                             $data['vendors'] = $this->booking_model->get_advance_search_result_data('service_centres','id as Vendor_ID,name as Vendor_Name',array('active'=>1));
-                            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                            $this->miscelleneous->load_nav_header();
                             $this->load->view('employee/add_vendor_to_pincode',$data);
                     }
           }
@@ -4773,7 +4618,7 @@ class vendor extends CI_Controller {
                   if(empty($state['state'])){
                      $states  =   $this->vendor_model->getall_state();
                      $city  =   $this->vendor_model->getDistrict_from_india_pincode();
-                     $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                     $this->miscelleneous->load_nav_header();
                      $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states,'city'=>$city));
                      return false;
                   }
@@ -4895,7 +4740,7 @@ class vendor extends CI_Controller {
         $where = array('entity_type' => 'SF','service_centres.active' => 1);
         $join = array('service_centres' => 'account_holders_bank_details.entity_id = service_centres.id');
         $data['bank_details'] = $this->reusable_model->get_search_query('account_holders_bank_details','account_holders_bank_details.*,service_centres.name',$where,$join,NULL,NULL,NULL,NULL)->result_array();
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_bank_details', $data);
     }
     
@@ -4943,7 +4788,7 @@ class vendor extends CI_Controller {
    echo $table .= '</tbody></table>';
     }
     function show_escalation_graph_by_sf($sfID,$startDate,$endDate){
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/sf_escalation_view', array('data' => array("vendor_id"=>$sfID,"startDate"=>$startDate,"endDate"=>$endDate)));
     }
     function getServicesForVendor($vendorID){

@@ -23,6 +23,8 @@ class Login extends CI_Controller {
         $this->load->library("session");
         $this->load->library('user_agent');
         $this->load->library('notify');
+        $this->load->library("miscelleneous");
+        $this->load->driver('cache');
     }
 
     /**
@@ -57,7 +59,7 @@ class Login extends CI_Controller {
             if ($login) {
                 $this->session->sess_create();
                 $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name']);
-                
+                $this->miscelleneous->set_header_navigation_in_cache();
                 //Saving Login Details in Database
                 $data['browser'] = $this->agent->browser();
                 $data['agent_string'] = $this->agent->agent_string();
@@ -182,7 +184,7 @@ class Login extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . ' Err in capturing LOG OUT details for employee ' . print_r($data, TRUE));
         }
-
+        $this->cache->delete('navigationHeader');
         $this->session->sess_destroy();
         redirect(base_url() . "employee/login");
     }
@@ -624,8 +626,103 @@ class Login extends CI_Controller {
         }
 
     }
-
+    /*
+     * This Function is used to Create Navigation Data View, Where you can add new Navigation Heading And Can Update User Group for any Navigation Heading
+     */
+function user_role_management(){
+        // Get Navigation Data Order BY Level
+        $queryData= $this->reusable_model->get_search_result_data("header_navigation","*",NULL,NULL,NULL,array("level"=>"ASC"),NULL,NULL,array('header_navigation.id'));
+        // Create Associative Array From Navigation Data
+        foreach($queryData as $index=>$navData){
+            $structuredData["id_".$navData['id']]['id'] = $navData['id'];
+            $structuredData["id_".$navData['id']]['title'] = $navData['title'];
+            $structuredData["id_".$navData['id']]['link'] = $navData['link'];
+            $structuredData["id_".$navData['id']]['level'] = $navData['level'];
+            $structuredData["id_".$navData['id']]['parent_ids'] = $navData['parent_ids'];
+            $structuredData["id_".$navData['id']]['groups'] = $navData['groups'];
+            $structuredData["id_".$navData['id']]['is_active'] = $navData['is_active'];
+        }
+        $data['header_navigation'] = $structuredData;
+        // Get All roles group 
+        $data['roles_group'] = $this->reusable_model->get_search_result_data("employee","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
+        //Get Header 
+        echo $this->cache->file->get('navigationHeader');
+        $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group']));
+    }
+/*
+ * This Function Called From Ajax use to update Groups For Navigation 
+ */
+    function update_role_group_for_header_navigation(){
+        $headerID = $this->input->post('headerID');
+        $groupsArray = $this->input->post('rolesGroup');
+        $groupsString = implode(",",$groupsArray);
+        $affactedRows = $this->reusable_model->update_table("header_navigation",array("groups"=>$groupsString),array("id"=>$headerID));
+        if($affactedRows>0){
+            echo "Successfully Done";
+        }
+        else{
+            echo "Something Went Wrong";
+        }
+    }
+    /*
+     * This Function Is Used to Activate or Deactive Navigation Heading (Use through Ajax)
+     */
+    function activate_deactivate_header_navigation(){
+        $headerID = $this->input->post('headerID');
+        $is_active = $this->input->post('is_active');
+        $affactedRows = $this->reusable_model->update_table("header_navigation",array("is_active"=>$is_active),array("id"=>$headerID));
+        if($affactedRows>0){
+            echo "Successfully Done";
+        }
+        else{
+            echo "Something Went Wrong";
+        }
+    }
+    /*
+     * This Function is used to Add New Heading In Navigation
+     */
+    function add_new_nav_heading(){
+        if($this->input->post('title')){
+            $data['title'] = $this->input->post('title');
+        }
+        if($this->input->post('link')){
+            $data['link'] = $this->input->post('link');
+        }
+        if($this->input->post('nav_type')){
+            $data['nav_type'] = $this->input->post('nav_type');
+        }
+        if($this->input->post('roleGroups')){
+            $data['groups'] = implode(",",$this->input->post('roleGroups'));
+        }
+        if($this->input->post('nav_type')){
+            $data['nav_type'] = $this->input->post('nav_type');
+        }
+         if($this->input->post('level')){
+            $data['level'] = $this->input->post('level');
+        }
+         if($this->input->post('add_parents')){
+            $data['parent_ids'] = $this->input->post('add_parents');
+        }
+        $affectedRows= $this->reusable_model->insert_into_table("header_navigation",$data);
+        if($affectedRows>0){
+            redirect(base_url() . "employee/login/user_role_management");
+        }
+        else{
+            echo "Something Went Wrong";
+        }
+    }
+    function save_push_notification_subscribers(){
+        $data['subscriber_id'] = $this->input->post('subscriberID');
+        $data['entity_id'] = $this->session->userdata('id');
+        $data['entity_type'] = $this->session->all_userdata()['userType'];
+        $data['browser'] = $this->agent->browser();
+        $data['device'] = "Desktop";
+        $is_mobile = $this->agent->is_mobile();
+        if($is_mobile){
+            $data['device'] = "Mobile";
+        }
+       $this->reusable_model->insert_into_table("push_notification_subscribers",$data);
+    }
 }
-
 /* End of file welcome.php */
 /* Location: ./application/controllers/welcome.php */

@@ -47,8 +47,6 @@ class Booking extends CI_Controller {
         $this->load->library('partner_sd_cb');
         $this->load->library('asynchronous_lib');
         $this->load->library("initialized_variable");
-
-
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
@@ -691,7 +689,7 @@ class Booking extends CI_Controller {
         $data['phone_number'] = $phone_number;
         $where_internal_status = array("page" => "FollowUp", "active" => '1');
         $data['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addbooking', $data);
     }
 
@@ -732,8 +730,7 @@ class Booking extends CI_Controller {
         if (isset($_SESSION['result'])) {
             unset($_SESSION['result']);
         }
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/booking', $data);
     }
 
@@ -807,8 +804,7 @@ class Booking extends CI_Controller {
         }
 
         $data['upcountry_charges'] = $upcountry_price;
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
     }
 
@@ -850,8 +846,7 @@ class Booking extends CI_Controller {
             $where_internal_status = array("page" => "Cancel", "active" => '1');
             $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         }
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/cancelbooking', $data);
     }
 
@@ -929,8 +924,7 @@ class Booking extends CI_Controller {
         $getbooking = $this->booking_model->getbooking_history($booking_id);
 
         if ($getbooking) {
-
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/reschedulebooking', array('data' => $getbooking));
         } else {
             echo "This Id doesn't Exists";
@@ -1235,10 +1229,8 @@ class Booking extends CI_Controller {
     function get_rating_form($booking_id, $status) {
         $getbooking = $this->booking_model->getbooking_history($booking_id);
         if ($getbooking) {
-
             $this->session->userdata('employee_id');
-
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status));
         } else {
             echo "Id doesn't exist";
@@ -1290,7 +1282,7 @@ class Booking extends CI_Controller {
         if ($query) {
             $data['Bookings'] = $query;
         }
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/booking', $data);
     }
 
@@ -1315,8 +1307,7 @@ class Booking extends CI_Controller {
         }else{
             $data['booking_history'] = "";
         }
-        
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewdetails', $data);
     }
 
@@ -1341,8 +1332,7 @@ class Booking extends CI_Controller {
      */
     function get_add_new_brand_form() {
         $services = $this->booking_model->selectservice();
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addnewbrand', array('services' => $services));
     }
 
@@ -1530,8 +1520,7 @@ class Booking extends CI_Controller {
                 array_push($booking['capacity'], $capacity);
                 array_push($booking['prices'], $prices);
             }
-
-            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
         } else {
             echo "Booking Id Not Exist";
@@ -1723,7 +1712,7 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$whereIN);
         $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN);
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/review_booking', $data);
     }
 
@@ -1737,50 +1726,12 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__);
         $reschedule_booking_id = $this->input->post('reschedule');
         $reschedule_booking_date = $this->input->post('reschedule_booking_date');
-        //$reschedule_booking_timeslot = $this->input->post('reschedule_booking_timeslot');
         $reschedule_reason = $this->input->post('reschedule_reason');
-
-        foreach ($reschedule_booking_id as $booking_id) {
-            $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
-            //$booking['booking_timeslot'] = $reschedule_booking_timeslot[$booking_id];
-            $send['state'] = $booking['current_status'] = 'Rescheduled';
-            $booking['internal_status'] = 'Rescheduled';
-
-            $booking['update_date'] = date("Y-m-d H:i:s");
-            $booking['mail_to_vendor'] = 0;
-            $send['booking_id'] = $booking_id;
-            $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
-
-            //check partner status from partner_booking_status_mapping table  
-            $partner_id = $this->input->post('partner_id');
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
-            if (!empty($partner_status)) {
-                $booking['partner_current_status'] = $partner_status[0];
-                $booking['partner_internal_status'] = $partner_status[1];
-            }
-            log_message('info', __FUNCTION__ . " update booking: " . print_r($booking, true));
-            $this->booking_model->update_booking($booking_id, $booking);
-            $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
-            $data['internal_status'] = "Pending";
-            $data['current_status'] = "Pending";
-            log_message('info', __FUNCTION__ . " update service cenetr action table: " . print_r($data, true));
-            $this->vendor_model->update_service_center_action($booking_id, $data);
-
-            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-            $this->asynchronous_lib->do_background_process($url, $send);
-
-            //Log this state change as well for this booking
-            //param:-- booking id, new state, old state, employee id, employee name
-
-            $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, $booking['reschedule_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-            
-            log_message('info', __FUNCTION__ . " partner callback: " . print_r($booking_id, true));
-            $this->partner_cb->partner_callback($booking_id);
-
-            log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
-        }
-
-        redirect(base_url() . "employee/booking/review_bookings");
+        $partner_id = $this->input->post('partner_id');
+        $employeeID = $this->session->userdata('employee_id');
+        $id = $this->session->userdata('id');
+        $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id,$id,$employeeID);
+         redirect(base_url() . "employee/booking/review_bookings");
     }
 
     /**
@@ -1975,8 +1926,12 @@ class Booking extends CI_Controller {
         log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
         // this function is used to update booking details table
         $this->booking_model->update_booking($booking_id, $booking);
-        //Update Spare parts details table
-        $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), array('status' => $internal_status));
+        $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
+        foreach($spare as $sp){
+            //Update Spare parts details table
+            $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
+        }
+        
         if ($status == 0) {
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
@@ -2005,7 +1960,7 @@ class Booking extends CI_Controller {
     function get_convert_booking_to_pending_form($booking_id, $status) {
         $bookings = $this->booking_model->getbooking_history($booking_id);
         $bookings[0]['status'] = $status;
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/complete_to_pending', $bookings[0]);
     }
 
@@ -2106,6 +2061,12 @@ class Booking extends CI_Controller {
             log_message('info', __FUNCTION__ . " Convert Unit Details - data : " . print_r($unit_details, true));
 
             $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+            
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.old_status", array('booking_id' => $booking_id ), false);
+            foreach($spare as $sp){
+                //Update Spare parts details table
+                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('status' => $sp['old_status']));
+            }
 
             //Log this state change as well for this booking          
             $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
@@ -2142,8 +2103,7 @@ class Booking extends CI_Controller {
     function get_convert_cancelled_booking_to_pending_form($booking_id) {
         $bookings = $this->booking_model->booking_history_by_booking_id($booking_id);
         $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, _247AROUND_CANCELLED, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/cancelled_to_pending', $bookings[0]);
     }
 
@@ -2339,8 +2299,7 @@ class Booking extends CI_Controller {
         $data['data'] = $this->partner_model->get_missed_calls_details();
         $data['cancellation_reason'] = $this->partner_model->get_missed_calls_cancellation_reason();
         $data['updation_reason'] = $this->partner_model->get_missed_calls_updation_reason();
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_missed_calls_view', $data);
     }
 
@@ -2476,8 +2435,7 @@ class Booking extends CI_Controller {
      */
     function update_not_pay_to_sf_booking() {
         log_message('info', __FUNCTION__);
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_pay_to_sf_booking');
     }
 
@@ -2510,7 +2468,7 @@ class Booking extends CI_Controller {
 
     function auto_assigned_booking() {
         $data['data'] = $this->vendor_model->auto_assigned_booking();
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/auto_assigned_booking', $data);
     }
 
@@ -2553,8 +2511,7 @@ class Booking extends CI_Controller {
         if (isset($_SESSION['result'])) {
             unset($_SESSION['result']);
         }
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/booking', $data);
     }
 
@@ -2654,7 +2611,7 @@ class Booking extends CI_Controller {
      */
     public function show_missed_call_rating_data(){
         $data['missed_call_rating_data'] = $this->booking_model->get_missed_call_rating_not_taken_booking_data();
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_missed_call_rating_data', $data);
     }
     
@@ -2672,8 +2629,7 @@ class Booking extends CI_Controller {
         $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        
+        $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
             $this->load->view('employee/view_pending_bookings', $data);
         }else{
@@ -2903,7 +2859,16 @@ class Booking extends CI_Controller {
             $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
         }
         
-        $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+        if($this->session->userdata('user_group') === _247AROUND_CALLCENTER){
+            if($booking_status === _247AROUND_CANCELLED && strtotime($order_list->closed_date) <= strtotime("-1 Months")){
+                $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank' disabled><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+            }else{
+                $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+            }
+        }else{
+            $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+        }
+        
         $row[] = "<a id='view' class='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title='view' target='_blank'><i class='fa fa-eye' aria-hidden='true'></i></a>";
         
         if($booking_status === _247AROUND_COMPLETED){
@@ -2919,7 +2884,7 @@ class Booking extends CI_Controller {
      * This function use to fetch view for booking advance search
      */
     function booking_advance_search(){
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/advanced_search');
     }
     
@@ -3261,7 +3226,7 @@ class Booking extends CI_Controller {
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',array('is_active'=> '1'));
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/view_pending_queries', $data);
     }
     
@@ -3347,7 +3312,12 @@ class Booking extends CI_Controller {
         }
         
         if($query_status == _247AROUND_CANCELLED){
-            $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/open_cancelled_query/$order_list->booking_id' title = 'Open' target ='_blank'><i class = 'fa fa-calendar' aria-hidden = 'true'></i></a>";
+            if($this->session->userdata('user_group') === _247AROUND_CALLCENTER && strtotime($order_list->closed_date) <= strtotime("-1 Months")){
+                $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/open_cancelled_query/$order_list->booking_id' title = 'Open' target ='_blank' disabled><i class = 'fa fa-calendar' aria-hidden = 'true'></i></a>";
+            }else{
+                $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/open_cancelled_query/$order_list->booking_id' title = 'Open' target ='_blank'><i class = 'fa fa-calendar' aria-hidden = 'true'></i></a>";
+            }
+            
         }else{
             $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_cancel_form/$order_list->booking_id/FollowUp' title = 'Cancel' target ='_blank'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
         }
@@ -3364,7 +3334,7 @@ class Booking extends CI_Controller {
      * 
      */
     function get_appliance_description_editable_grid(){
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/appliance_description_editable_grid');
         
     }
@@ -3503,12 +3473,12 @@ class Booking extends CI_Controller {
      * @desc This is used to get Repair- OOW Booking
      */
     function get_oow_booking(){
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_oow_booking');
     }
   
     function booking_bulk_search(){
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/bulk_booking_search');
     }
     function get_input_for_bulk_search($receieved_Data){
@@ -3741,5 +3711,23 @@ class Booking extends CI_Controller {
         $combined_excel = TMP_FOLDER.'serviceability_details.xlsx';
         $objWriter->save($combined_excel);
         return $combined_excel;
+    }
+    /*
+     * This function is used to Cancel Reschedule request  manually (IF anyone found reschedule is fake, not requested by customer)
+     */
+    function cancel_rescheduled_booking(){
+        $userPhone = $this->input->post('p_number');
+        $id = $this->input->post('id');
+        $employeeID = $this->input->post('employeeID');
+        $remarks = $this->input->post('remarks');
+        $booking_id = $this->input->post('booking_id');
+        echo $this->miscelleneous->fake_reschedule_handling($userPhone,$id,$employeeID,$remarks,$booking_id);
+    }
+    function get_all_brands($serviceID){
+        $allBrands = $this->reusable_model->get_search_result_data("appliance_brands","DISTINCT(brand_name)",array("service_id"=>$serviceID),NULL,NULL,array("brand_name"=>"ASC"),NULL,NULL,array());
+        foreach($allBrands as $brand){
+            $data[]=$brand['brand_name'];
+        }
+        echo json_encode($data);
     }
 }

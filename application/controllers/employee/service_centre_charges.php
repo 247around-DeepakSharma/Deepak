@@ -1072,7 +1072,12 @@ class service_centre_charges extends CI_Controller {
                     $data['vendor_basic_charges'] = $form_data['free_vendor_total'];
                     $data['vendor_total'] = $vendor_total;
                     $data['vendor_tax_basic_charges'] =$vendor_tax;
-                    $data['vendor_basic_percentage'] = ($vendor_total/$data['customer_total'])*100;
+                    if($data['customer_total'] != 0){
+                        $data['vendor_basic_percentage'] = ($vendor_total/$data['customer_total'])*100;
+                    } else {
+                         $data['vendor_basic_percentage'] = 0;
+                     }
+                    
                 } else if($free_paid == "paid"){
                     $str = "paid";
                     if($data['product_or_services'] == "Service"){
@@ -1087,7 +1092,12 @@ class service_centre_charges extends CI_Controller {
                     $data['vendor_total'] =  $form_data['paid_vendor_total'];
                     $data['vendor_tax_basic_charges'] = $this->booking_model->get_calculated_tax_charge($form_data['paid_vendor_total'], DEFAULT_TAX_RATE );
                     $data['vendor_basic_charges'] = $data['vendor_total'] - $data["vendor_tax_basic_charges"];
-                    $data['vendor_basic_percentage'] = ($data['vendor_total']/$data['customer_total'])*100;
+                    if($data['customer_total'] != 0){
+                        $data['vendor_basic_percentage'] = ($data['vendor_total']/$data['customer_total'])*100;
+                    } else {
+                      $data['vendor_basic_percentage'] = 0;  
+                    }
+                    
                 }
 
                 $data['active'] = 1;

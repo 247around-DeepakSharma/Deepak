@@ -117,4 +117,4 @@
         
     }
 </script>
-<?php $this->session->unset_userdata('msg'); ?>
+<?php if ($this->session->userdata('msg')) {$this->session->unset_userdata('msg');} ?>
