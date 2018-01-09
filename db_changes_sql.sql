@@ -4121,3 +4121,66 @@ ALTER TABLE `partner_file_upload_header_mapping`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Upload File Header Mapping', 'employee/bookings_excel/file_upload_header_mapping', '2', '24', 'admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+-- Chhavi
+CREATE TABLE `push_notification_subscribers` (
+  `id` int(10) NOT NULL,
+  `entity_type` varchar(10) NOT NULL,
+  `entity_id` varchar(20) NOT NULL,
+  `subscriber_id` varchar(40) NOT NULL,
+  `device` varchar(10) NOT NULL,
+  `browser` varchar(10) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `push_notification_subscribers`
+--
+ALTER TABLE `push_notification_subscribers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `push_notification_subscribers`
+--
+ALTER TABLE `push_notification_subscribers`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;COMMIT;
+
+CREATE TABLE `push_notification_logs` (
+  `id` int(11) NOT NULL,
+  `request_id` varchar(11) NOT NULL,
+  `title` varchar(50) NOT NULL,
+  `msg` text NOT NULL,
+  `url` text NOT NULL,
+  `subscriber_ids` varchar(30) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `push_notification_logs`
+--
+ALTER TABLE `push_notification_logs`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `push_notification_logs`
+--
+ALTER TABLE `push_notification_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES
+(36, 'rescheduled_confirmation_sms', 'We have received reschedule request for your %s service. If you have NOT asked for reschedule, give missed call @ 01139586111 or call 9555000247.', 'Send When SF rescheduled a booking, to confirm is reschedule fake?', '1', '2018-01-02 12:23:49');
+COMMIT;

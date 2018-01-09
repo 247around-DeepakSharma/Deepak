@@ -54,6 +54,7 @@ class Dashboard extends CI_Controller {
         }
         
         $this->load->view('dashboard/dashboard_footer');
+        $this->load->view('employee/header/push_notification');
     }
     
     function execute_title_query(){
