@@ -1665,5 +1665,53 @@ class Inventory extends CI_Controller {
         
         echo json_encode($response);
     }
+    
+    /**
+     * @Desc: This function is used to show data from the inventory ledger table
+     * @params: $page string
+     * @params: $offset string
+     * @return: void
+     * 
+     */
+    function show_inventory_ledger_list($page = 0, $offset = 0){
+        if ($page == 0) {
+	    $page = 25;
+	}
+   
+	$config['base_url'] = base_url() . 'employee/inventory/show_inventory_ledger_list/'.$page;
+	$config['total_rows'] = $this->inventory_model->get_inventory_ledger_data($page, $offset,true);
+	
+	if($offset !== "All"){
+		$config['per_page'] = $page;
+	} else {
+		$config['per_page'] = $config['total_rows'];
+	}	
+	
+	$config['uri_segment'] = 5;
+	$config['first_link'] = 'First';
+	$config['last_link'] = 'Last';
+
+	$this->pagination->initialize($config);
+	$data['links'] = $this->pagination->create_links();
+        $data['Count'] = $config['total_rows'];        
+        $data['brackets'] = $this->inventory_model->get_inventory_ledger_data($config['per_page'], $offset);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/show_inventory_ledger_list", $data);
+    }
+    
+    /**
+     * @Desc: This function is used to show current stock of the entity(vendor/employee)
+     * @params: void
+     * @return: void
+     * 
+     */
+    function get_inventory_stock(){
+        $entity_id = $this->input->post('entity_id');
+        $entity_type = $this->input->post('entity_type');
+        $select = 'stock,part_number,part_name';
+        $where = array('inventory_stocks.entity_id'=>$entity_id,'inventory_stocks.entity_type' => $entity_type);
+        $data['stock_details'] = $this->inventory_model->get_inventory_stocks($select,$where);
+        echo $this->load->view('employee/inventory_stock_details',$data);
+    }
 
 }
