@@ -1928,7 +1928,7 @@ class Miscelleneous {
         $data['main_nav'] = $this->get_main_nav_data("main_nav");
         $data['right_nav'] = $this->get_main_nav_data("right_nav");
         $msg = $this->My_CI->load->view('employee/header/header_navigation',$data,TRUE);
-        $this->My_CI->cache->file->save('navigationHeader', $msg, 36000);
+        $this->My_CI->cache->file->save('navigationHeader_'.$this->My_CI->session->userdata('id'), $msg, 36000);
     }
     /*
      * This Function used to load navigation header from cache
@@ -1936,11 +1936,11 @@ class Miscelleneous {
     function load_nav_header(){
         //Check is navigation there in cache?
         // If not then create navigation and loads into cache
-        if(!$this->My_CI->cache->file->get('navigationHeader')){
+        if(!$this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'))){
                 $this->set_header_navigation_in_cache();
          }
          //Print navigation header from cache
-        echo $this->My_CI->cache->file->get('navigationHeader');
+        echo $this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'));
     }
     /*
      * This Function is used to handle Fake Reschedule request By Miss Call Functionality
