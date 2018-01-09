@@ -2124,6 +2124,22 @@ class Miscelleneous {
             $smsBody, $booking_id, "Escalation", $status['content']); 
         }
     }
+    
+    /**
+     * @desc: Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.
+     *
+     * @param : sms template
+     * @param : booking id
+     * @param : user's details
+     * @return : sms body
+     */
+    function replaceSms_body($template, $booking_id, $userDetails) {
+
+        $smsBody = sprintf($template, $userDetails[0]['name'], $userDetails[0]['phone_number'], $booking_id);
+
+        return $smsBody;
+    }
+    
     /*
      * This Function is used to approve rescheduled booking
      */
