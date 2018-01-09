@@ -62,7 +62,7 @@
                         </td>
                         <td><?php echo $value['reschedule_reason'];  ?></td>
                         <td><input id="reschedule_checkbox" type="checkbox"  class="checkbox_reschedule" name="reschedule[]" value="<?php echo $value['booking_id']; ?>"></input>
-                            <a href="#"><span style="float: right;" class="glyphicon glyphicon-remove" data-toggle="modal" data-target="#review_reject_form" onclick="create_reject_form(<?php echo $value['booking_primary_contact_no'];  ?>)"></span> </a>
+                            <a href="#"><span style="float: right;" class="glyphicon glyphicon-remove" data-toggle="modal" data-target="#review_reject_form" onclick="create_reject_form(<?php echo "'".$value['booking_primary_contact_no']."'";  ?>,<?php echo "'".$value['booking_id']."'";  ?>)"></span> </a>
                         </td>
                         
                         <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($data['charges'][0]['booking'][0]['partner_id'])) {echo $data['charges'][0]['booking'][0]['partner_id']; } ?>" >
@@ -257,6 +257,7 @@
           <form>
  <div class="form-group">
      <input type="hidden" value="" name="p_number" id="p_number">
+     <input type="hidden" value="" name="b_id" id="b_id">
      <input type="hidden" value="<?php echo $this->session->userdata('employee_id'); ?>" name="employee_id" id="employee_id">
      <input type="hidden" value="<?php echo $this->session->userdata('id'); ?>"  name="id" id="id">
   <label for="comment">Remarks:</label>
@@ -397,11 +398,13 @@
 }
 </style>
 <script>
-    function create_reject_form(p_number){
+    function create_reject_form(p_number,booking_id){
         $("#p_number").val(p_number);
+        $("#b_id").val(booking_id);
     }
     function cancel_reschedule_request(){
         var p_number  = $("#p_number").val();
+        var booking_id  = $("#b_id").val();
         var remarks  = $("#remarks").val();
         var employeeID = $("#employee_id").val();
         var id = $("#id").val();
@@ -409,7 +412,7 @@
          $.ajax({
             type: 'POST',
             url: url,
-            data: {p_number: p_number, remarks: remarks, employeeID: employeeID, id: id},
+            data: {p_number: p_number, remarks: remarks, employeeID: employeeID, id: id,booking_id:booking_id},
             success: function (response) {
                 console.log(response);
                 if(response == true){
@@ -418,6 +421,7 @@
                 else{
                     alert("Something Went Wrong Please Try Again");
                 }
+                location.reload();
             }
         });
         return false;

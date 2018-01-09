@@ -3720,7 +3720,8 @@ class Booking extends CI_Controller {
         $id = $this->input->post('id');
         $employeeID = $this->input->post('employeeID');
         $remarks = $this->input->post('remarks');
-        echo $this->miscelleneous->fake_reschedule_handling($userPhone,$id,$employeeID,$remarks);
+        $booking_id = $this->input->post('booking_id');
+        echo $this->miscelleneous->fake_reschedule_handling($userPhone,$id,$employeeID,$remarks,$booking_id);
     }
     function get_all_brands($serviceID){
         $allBrands = $this->reusable_model->get_search_result_data("appliance_brands","DISTINCT(brand_name)",array("service_id"=>$serviceID),NULL,NULL,array("brand_name"=>"ASC"),NULL,NULL,array());
