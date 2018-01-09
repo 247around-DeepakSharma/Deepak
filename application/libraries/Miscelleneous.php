@@ -150,19 +150,19 @@ class Miscelleneous {
                             "BUG IN ASSIGN ". $booking_id, "SF Assigned but Action table not updated", "");
                     
                 }
-                if(!empty($vendor_data)){
-                    $engineer_action['unit_details_id'] = $value['id'];
-                    $engineer_action['booking_id'] = $booking_id;
-                    $engineer_action['current_status'] = _247AROUND_PENDING;
-                    $engineer_action['internal_status'] = _247AROUND_PENDING;
-                    $engineer_action["create_date"] = date("Y-m-d H:i:s");
+                // if(!empty($vendor_data)){
+                //     $engineer_action['unit_details_id'] = $value['id'];
+                //     $engineer_action['booking_id'] = $booking_id;
+                //     $engineer_action['current_status'] = _247AROUND_PENDING;
+                //     $engineer_action['internal_status'] = _247AROUND_PENDING;
+                //     $engineer_action["create_date"] = date("Y-m-d H:i:s");
                     
-                    $enID = $this->My_CI->engineer_model->insert_engineer_action($engineer_action);
-                    if(!$enID){
-                         $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
-                            "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "");
-                    }
-                }
+                //     $enID = $this->My_CI->engineer_model->insert_engineer_action($engineer_action);
+                //     if(!$enID){
+                //          $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
+                //             "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "");
+                //     }
+                // }
                     
                 //process inventory stock for each unit if price tag is wall mount
                 if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
