@@ -8,10 +8,9 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">
                 <h3 style='text-align:center'>Upload Vendor Pincode Mapping Excel </h3>
-                <h3 style="color: #6b6220;text-align: center;"><?php if(($this->session->userdata('final_msg'))){
-                             echo  $this->session->userdata('final_msg');
-                             if($this->session->userdata('final_msg')){$this->session->unset_userdata('final_msg');}
-                    } ?></h3>
+                <h3 style="color: #6b6220;text-align: center;"><?php 
+                            echo $this->session->userdata('final_msg');
+                    ?></h3>
             </div>
             <div class="panel-body">
                     <div class="col-lg-12">
@@ -102,5 +101,6 @@
 </script>
 <?php if($this->session->userdata('file_error')){$this->session->unset_userdata('file_error');} ?>
 <?php if($this->session->userdata('success_msg')){$this->session->unset_userdata('success_msg');} ?>
+<?php if($this->session->userdata('final_msg')){$this->session->unset_userdata('final_msg');} ?>
 
 
