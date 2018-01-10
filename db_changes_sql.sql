@@ -4124,3 +4124,4 @@ COMMIT;
 
 --sachin 09-jan-2018
 INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Show Inventory Ledger', 'employee/inventory/show_inventory_ledger_list', '2', '89', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
+ALTER TABLE `partner_file_upload_header_mapping` ADD `alternate_phone` VARCHAR(64) NOT NULL AFTER `phone`;

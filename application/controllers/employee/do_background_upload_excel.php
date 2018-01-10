@@ -1387,33 +1387,14 @@ class Do_background_upload_excel extends CI_Controller {
         $select = 'sub_order_id,product_type,customer_name,customer_address,pincode,phone';
         $data['actual_header_data'] = $this->reusable_model->get_search_query('partner_file_upload_header_mapping',$select,array('partner_id'=>$data['partner_id']),NULL,NULL,NULL,NULL,NULL)->result_array();
         $response = $this->check_column_exist($data);
-        if ($response['status']) {
-//            $arr = array('docnum','phone','zipcode','itemname');
-//            //if new format of header came then change it to old header format
-//            if(count($arr) == count(array_intersect($data['header_data'], $arr))){
-//                $flippedArr = array_flip($data['header_data']);
-//                foreach($flippedArr as $k => $v){
-//                    if($k  === 'docnum'){
-//                        $newArrHeadings[$v] = 'docno';
-//                    }else if($k  === 'phone'){
-//                        $newArrHeadings[$v] = 'phno';
-//                    }else if($k  === 'zipcode'){
-//                        $newArrHeadings[$v] = 'zipcodeb';
-//                    }else if($k  === 'itemname'){
-//                        $newArrHeadings[$v] = 'item_name';
-//                    }else {
-//                        $newArrHeadings[$v] = $k;
-//                    }
-//                }
-//            }else{
-//                $newArrHeadings = $data['header_data'];
-//            }
-            
+        if ($response['status']) {          
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                $subArray = $this->get_sub_array($rowData,array('itemcode','docno','customer','phno','address','zipcodeb','item_name','create_date'));
-                $this->get_final_satya_data($subArray);
+                $subArray = $this->get_sub_array($rowData,$data['actual_header_data'][0]);
+                $subArray['partner_source'] = "Satya-delivered-excel";
+                $subArray['partner_id'] = WYBOR_ID;
+                $this->get_final_file_data($subArray,$data['actual_header_data'][0]);
             }
             
             if(!empty($this->finalArray)){
@@ -1446,22 +1427,54 @@ class Do_background_upload_excel extends CI_Controller {
      * @param $data array
      * @param void 
      */
-    function get_final_satya_data($data){
+    function get_final_file_data($data,$header_data){
         $tmpArr['unique_id'] = 'Around';
         $tmpArr['referred_date_and_time'] = '';
-        $tmpArr['sub_order_id'] = $data['docno'];
-        $tmpArr['brand'] = 'Wybor';
-        $tmpArr['model'] = '';
-        $tmpArr['product'] = 'Televisions';
-        $tmpArr['product_type'] = $data['item_name'];
-        $tmpArr['customer_name'] = $data['customer'];
-        $tmpArr['customer_address'] = $data['address'];
-        $tmpArr['pincode'] = $data['zipcodeb'];
-        $tmpArr['city'] = '';
-        $tmpArr['phone'] = $data['phno'];
-        $tmpArr['email_id'] = '';
+        $tmpArr['sub_order_id'] = $data[$header_data['sub_order_id']];
+        
+        if($data['partner_id'] === WYBOR_ID){
+            $tmpArr['brand'] = 'Wybor';
+        }else if($data['partner_id'] === AKAI_ID){
+            $tmpArr['brand'] = 'Akai';
+        }
+        
+        if(isset($header_data['model']) && !empty($header_data['model'])){
+            $tmpArr['model'] = $data[$header_data['model']];
+        }else{
+            $tmpArr['model'] = '';
+        }
+        
+        if(isset($header_data['product']) && !empty($header_data['product'])){
+            $tmpArr['product'] = $data[$header_data['product']];
+        }else if(isset($data['partner_id']) && !empty($data['partner_id'])){
+            $tmpArr['product'] = 'Television';
+        }else{
+            $tmpArr['product'] = '';
+        }
+        
+        $tmpArr['product_type'] = $data[$header_data['product_type']];
+        $tmpArr['customer_name'] = $data[$header_data['customer_name']];
+        $tmpArr['customer_address'] = $data[$header_data['customer_address']];
+        $tmpArr['pincode'] = $data[$header_data['pincode']];
+        if(isset($header_data['city']) && !empty($header_data['city'])){
+            $tmpArr['city'] = $data[$header_data['city']];
+        }else{
+            $tmpArr['city'] = '';
+        }
+        $tmpArr['phone'] = $data[$header_data['phone']];
+        if(isset($header_data['alternate_phone']) && !empty($header_data['alternate_phone'])){
+            $tmpArr['phone'] = $data[$header_data['phone']]."/".$data[$header_data['alternate_phone']];
+        }else{
+            $tmpArr['phone'] = $data[$header_data['phone']];
+        }
+        if(isset($header_data['email_id']) && !empty($header_data['email_id'])){
+            $tmpArr['email_id'] = $data[$header_data['email_id']];
+        }else{
+            $tmpArr['email_id'] = '';
+        }
+        
         $tmpArr['call_type_installation_table_top_installationdemo_service'] = '';
-        $tmpArr['partner_source'] = "Satya-delivered-excel";
+        $tmpArr['partner_source'] = $data['partner_source'];
         
         array_push($this->finalArray, $tmpArr);
     }
@@ -1473,7 +1486,7 @@ class Do_background_upload_excel extends CI_Controller {
      */
     private function process_akai_file_upload($data){
         log_message('info', __FUNCTION__ . "=> Akai File Upload: Beginning processing...");
-        $select = 'sub_order_id,product_type,customer_name,customer_address,pincode,phone';
+        $select = 'sub_order_id,product_type,customer_name,customer_address,pincode,phone,alternate_phone';
         $data['actual_header_data'] = $this->reusable_model->get_search_query('partner_file_upload_header_mapping',$select,array('partner_id'=>$data['partner_id']),NULL,NULL,NULL,NULL,NULL)->result_array();
         $response = $this->check_column_exist($data);
         
@@ -1482,8 +1495,10 @@ class Do_background_upload_excel extends CI_Controller {
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                $subArray = $this->get_sub_array($rowData,array('bill_no','customer','contact_no','address','pincode','item_name','ssdate','alternate_contact','product'));
-                $this->get_final_akai_data($subArray);
+                $subArray = $this->get_sub_array($rowData,$data['actual_header_data'][0]);
+                $subArray['partner_source'] = "Akai-delivered-excel";
+                $subArray['partner_id'] = AKAI_ID;
+                $this->get_final_file_data($subArray,$data['actual_header_data'][0]);
             }
             
             if(!empty($this->finalArray)){
@@ -1498,35 +1513,6 @@ class Do_background_upload_excel extends CI_Controller {
         }
         
         return $response;
-    }
-    
-    /**
-     * @desc: This function is used to make data for akai file
-     * @param $data array
-     * @param void 
-     */
-    private function get_final_akai_data($data){
-        $tmpArr['unique_id'] = 'Around';
-        $tmpArr['referred_date_and_time'] = '';
-        $tmpArr['sub_order_id'] = $data['bill_no'];
-        $tmpArr['brand'] = 'Akai';
-        $tmpArr['model'] = '';
-        $tmpArr['product'] = $data['product'];
-        $tmpArr['product_type'] = $data['item_name'];
-        $tmpArr['customer_name'] = $data['customer'];
-        $tmpArr['customer_address'] = $data['address'];
-        $tmpArr['pincode'] = $data['pincode'];
-        $tmpArr['city'] = '';
-        if(isset($data['alternate_contact']) && !empty($data['alternate_contact'])){
-            $tmpArr['phone'] = $data['contact_no']."/".$data['alternate_contact'];
-        }else{
-            $tmpArr['phone'] = $data['contact_no'];
-        }
-        $tmpArr['email_id'] = '';
-        $tmpArr['call_type_installation_table_top_installationdemo_service'] = '';
-        $tmpArr['partner_source'] = "Akai-delivered-excel";
-        
-        array_push($this->finalArray, $tmpArr);
     }
     
     /**
