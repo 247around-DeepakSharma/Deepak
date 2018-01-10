@@ -2834,6 +2834,7 @@ class Service_centers extends CI_Controller {
     }
     
     public function get_contact_us_page(){
+        $this->checkUserSession();
         $data['rm_details'] = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('service_center_id'));
         $this->load->view('service_centers/contact_us',$data);
     }
