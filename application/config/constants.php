@@ -318,7 +318,7 @@ define('ERR_INVALID_INSTALLATION_TIMESLOT_CODE', -1014);
 define('ERR_INVALID_PARTNER_NAME_CODE', -1015);
 define('ERR_INVALID_JSON_INPUT_CODE', -1016);
 define('ERR_INVALID_PRODUCT_TYPE_CODE', -1017);
-define('ERR_INVALID_BRAND_CODE', -1021);
+define('ERR_INVALID_SERVICE_AREA_CODE', -1021);
 
 define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking Insertion Failed');
 define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
@@ -339,7 +339,7 @@ define('ERR_INVALID_INSTALLATION_TIMESLOT_MSG', 'Invalid Installation Timeslot')
 define('ERR_INVALID_PARTNER_NAME_MSG', 'Invalid Partner Name');
 define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
-define('ERR_INVALID_BRAND_TYPE_MSG', 'Invalid Brand');
+define('ERR_INVALID_SERVICE_AREA_MSG', 'INVALID SERVICE AREA');
 
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
@@ -566,7 +566,11 @@ define('SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION',7 );
 
 //Booking Rescheduled Confirmation SMS Constant
 define('BOOKING_RESCHEDULED_CONFIRMATION_SMS','rescheduled_confirmation_sms');
+
 define('PUSH_NOTIFICATION_API_KEY','3d15cad629128ac894c9a73a0ff5852b');
 define('PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL','https://pushcrew.com/api/v1/send/list');
+
+define('PINCODE_FILE_PASSSWORD',"247around" );
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

@@ -1753,7 +1753,7 @@ class Miscelleneous {
         if(count($triggeredTableData)>1){
             foreach ($triggeredTableData as $index => $data) {
                 if($index < count($triggeredTableData)-1){
-                    $finalData['data'][] = array_keys(array_diff($data,$triggeredTableData[$index+1]));
+                    $finalData['data'][] = array_keys(array_diff_assoc($data,$triggeredTableData[$index+1]));
                     $finalData['update_date'][] = $triggeredTableData[$index+1]['update_date'];
                     $finalData['updated_by'][] = $triggeredTableData[$index+1]['full_name'];
                 }

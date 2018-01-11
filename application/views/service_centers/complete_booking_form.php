@@ -398,10 +398,11 @@ function onsubmit_form(upcountry_flag, number_of_div) {
                 }
                 
                 if(price_tags === '<?php echo REPAIR_OOW_PARTS_PRICE_TAGS;?>'){
-                    if(Number(basic_charge) < Number(amount_due))
-                       alert("Please fill amount collected from customer, Amount Due: Rs." + amount_due);
+                    if(Number(basic_charge) < Number(amount_due)){
+                        alert("Please fill amount collected from customer, Amount Due: Rs." + amount_due);
                        flag = 1;
-                       
+                    }
+ 
                 }
             }
         } else if(div_no[0] === "cancelled"){
