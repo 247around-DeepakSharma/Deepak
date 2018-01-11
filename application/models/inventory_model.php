@@ -435,5 +435,85 @@ class Inventory_model extends CI_Model {
         
         return $response;
     }
+    
+    /**
+     * @Desc: This function is used to get data from the inventory_master_list table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_master_list_data($select,$where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('inventory_master_list');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get data from the inventory_stocks table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_stocks($select,$where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id');
+        $this->db->group_by('inventory_stocks.inventory_id');
+        $query = $this->db->get('inventory_stocks');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get data from the inventory ledger table
+     * @params: $limit string
+     * @params: $start string
+     * @params: $is_count boolean
+     * @return: $query array
+     * 
+     */
+    function get_inventory_ledger_data($limit, $start,$is_count=false) {
+        $add_limit = "";
+
+        if ($start !== "All" && !$is_count) {
+            $add_limit = " limit $start, $limit ";
+        }
+        $sql = "SELECT CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
+                WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
+                WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
+                CASE WHEN(sc.name IS NOT NULL) THEN (sc1.name) 
+                WHEN(p.public_name IS NOT NULL) THEN (p1.public_name) 
+                WHEN (e.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*
+                FROM `inventory_ledger` as i LEFT JOIN service_centres as sc on (sc.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'vendor') Left JOIN partners as p on (p.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'partner') LEFT JOIN employee as e ON (e.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'employee')  
+                LEFT JOIN service_centres as sc1 on (sc1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'vendor') Left JOIN partners as p1 on (p1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'partner') LEFT JOIN employee as e1 ON (e1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'employee') $add_limit";
+        
+        if($is_count){
+            $query = count($this->db->query($sql)->result_array());
+        }else{
+            $query = $this->db->query($sql)->result_array();
+        
+            foreach ($query as $key => $value){
+                //get part name from inventory_master_list 
+                $query[$key]['part_name'] = $this->get_inventory_master_list_data('part_name',array('inventory_id' => $value['inventory_id']))[0]['part_name'];
+                //get agent name
+                if($value['agent_type'] === _247AROUND_EMPLOYEE_STRING){
+                    $employe_details = $this->employee_model->getemployeefromid($value['agent_id']);
+                    $query[$key]['agent_name'] = $employe_details[0]['full_name'];
+                }else if($value['agent_type'] === _247AROUND_PARTNER_STRING){
+                    $partner_details = $this->partner_model->getpartner_details('public_name',array('id'=>$value['agent_id']));
+                    $query[$key]['agent_name'] = $partner_details[0]['public_name'];
+                }else if($value['agent_type'] === _247AROUND_SF_STRING){
+                    $vendor_details = $this->partner_model->getVendorDetails('name',array('id'=>$value['agent_id']));
+                    $query[$key]['agent_name'] = $vendor_details[0]['public_name'];
+                }
+
+            }
+        }
+        
+        
+        return $query;
+    }
 
 }

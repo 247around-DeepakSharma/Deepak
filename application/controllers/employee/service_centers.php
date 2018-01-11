@@ -43,7 +43,7 @@ class Service_centers extends CI_Controller {
         $this->load->library('buyback');
         $this->load->library("partner_cb");
         $this->load->library("miscelleneous");
-        
+        $this->load->library("push_notification_lib");
     }
 
     /**
@@ -222,6 +222,8 @@ class Service_centers extends CI_Controller {
                 $this->vendor_model->update_service_center_action($booking_id, $data);
 
             }
+            //Send Push Notification to clouser group
+            $this->push_notification_lib->send_booking_completion_notification_to_closure($booking_id);
             // Insert data into booking state change
             $this->insert_details_in_state_change($booking_id, 'InProcess_Completed', $closing_remarks);
             $partner_id = $this->input->post("partner_id");
@@ -2832,6 +2834,7 @@ class Service_centers extends CI_Controller {
     }
     
     public function get_contact_us_page(){
+        $this->checkUserSession();
         $data['rm_details'] = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('service_center_id'));
         $this->load->view('service_centers/contact_us',$data);
     }
@@ -2891,7 +2894,7 @@ class Service_centers extends CI_Controller {
             $sms['phone_no'] = $data[0]['phone_number'];
             $sms['smsData'] = array("service"=>$data[0]['services']);
             $sms['booking_id'] = $booking_id;
-            $sms['type'] = "User";
+            $sms['type'] = "user";
             $sms['type_id'] = $data[0]['user_id'];
             $this->notify->send_sms_msg91($sms);
         }
