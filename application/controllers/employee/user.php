@@ -52,13 +52,13 @@ class User extends CI_Controller {
      */
     
     function finduser(){
-        $booking_id = trim($this->input->get('booking_id'));
-        $order_id = trim($this->input->get('order_id'));
-        $userName = trim($this->input->get('userName'));
+        $booking_id = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('booking_id')));
+        $order_id = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('order_id')));
+        $userName = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('userName')));
         $partner_id = $this->input->get('partner');
-        $search = trim($this->input->get('search_value'));
+        $search = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('search_value')));
         $post['length'] = -1;
-        $phone_number = $this->input->get('phone_number');
+        $phone_number = preg_replace('/[^A-Za-z0-9\-]/', '',$this->input->get('phone_number'));
         if (!empty($search)) {
             if (preg_match("/^[7-9]{1}[0-9]{9}$/", $search)) {
                 $phone_number = $search;
