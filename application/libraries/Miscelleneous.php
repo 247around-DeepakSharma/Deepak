@@ -1753,7 +1753,7 @@ class Miscelleneous {
         if(count($triggeredTableData)>1){
             foreach ($triggeredTableData as $index => $data) {
                 if($index < count($triggeredTableData)-1){
-                    $finalData['data'][] = array_keys(array_diff($data,$triggeredTableData[$index+1]));
+                    $finalData['data'][] = array_keys(array_diff_assoc($data,$triggeredTableData[$index+1]));
                     $finalData['update_date'][] = $triggeredTableData[$index+1]['update_date'];
                     $finalData['updated_by'][] = $triggeredTableData[$index+1]['full_name'];
                 }
@@ -2063,7 +2063,7 @@ class Miscelleneous {
                 $value['agent_id'] = $id;
                 $value['remarks'] = $escalation_reason_final;
                 $value['agent_type'] = 'admin';
-                $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
+                $where = array('escalation_id' => $escalation_reason_id, 'active' => '1');
                 //Adding values in penalty on booking table
                 $this->My_CI->penalty_model->get_data_penalty_on_booking($value, $where);
                 log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);

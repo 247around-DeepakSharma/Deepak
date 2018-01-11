@@ -19,7 +19,7 @@ class Booking extends CI_Controller {
      */
     function __Construct() {
         parent::__Construct();
-
+        ob_start();
         $this->load->model('employee_model');
         $this->load->model('booking_model');
         $this->load->model('user_model');
@@ -2898,6 +2898,7 @@ class Booking extends CI_Controller {
         $data['internal_status'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(internal_status) as status",NULL,NULL,NULL,array('internal_status'=>'ASC'));
         $data['current_status'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(current_status)as current_status",NULL,NULL,NULL,array('current_status'=>'ASC'));
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
+        $data['states'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(state)",NULL,NULL,NULL,array('state'=>'ASC'));
         $data['service'] = $this->booking_model->get_advance_search_result_data("services","services,id",array('isBookingActive'=>1),NULL,NULL,array('services'=>'ASC'));
         $data['brands'] = $this->booking_model->get_advance_search_result_data("appliance_brands","brand_name",NULL,NULL,NULL,array('brand_name'=>'ASC'));
         $data['category'] = $this->booking_model->get_advance_search_result_data("service_centre_charges","DISTINCT(category)",NULL,NULL,NULL,array('category'=>'ASC'));
@@ -2970,13 +2971,20 @@ class Booking extends CI_Controller {
     function get_advance_search_result_data($receieved_Data){
         $finalArray = array();
         //array of filter options name and affected database field by them
-        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y")', 'close_date'=>'date(booking_details.closed_date)', 'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status','internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry','rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity','brand'=>'booking_unit_details.appliance_brand','paid_by'=>'booking_unit_details.customer_net_payable','request_type'=>'booking_unit_details.price_tags');
+        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y")', 'close_date'=>'date(booking_details.closed_date)',
+            'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status',
+            'internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry',
+            'rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity',
+            'brand'=>'booking_unit_details.appliance_brand','paid_by'=>'booking_unit_details.customer_net_payable','request_type'=>'booking_unit_details.price_tags','state'=>'booking_details.state');
         // array of filtered options and there selected values (which can be handled by direct where condition)
         $whereOptionArray = elements(array('partner','city','sf','internal_status','product_or_service','upcountry','rating','categories','capacity','brand','request_type'), $receieved_Data);
         //join condition array table name and join condition
-        $joinDataArray = array("bookings_sources"=>"bookings_sources.partner_id=booking_details.partner_id","service_centres"=>"service_centres.id=booking_details.assigned_vendor_id","services"=>"services.id=booking_details.service_id","booking_unit_details"=>"booking_unit_details.booking_id=booking_details.booking_id");
+        $joinDataArray = array("bookings_sources"=>"bookings_sources.partner_id=booking_details.partner_id","service_centres"=>"service_centres.id=booking_details.assigned_vendor_id",
+            "services"=>"services.id=booking_details.service_id","booking_unit_details"=>"booking_unit_details.booking_id=booking_details.booking_id");
         // select field to display
-        $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details.current_status";
+        $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
+                . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details."
+                . "current_status";
         // limit array for pagination
         $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
        // all where condition array
@@ -2984,6 +2992,7 @@ class Booking extends CI_Controller {
         //where in array
         $currentStatusArray = explode(",",$receieved_Data['current_status']);
         $serviceArray = explode(",",$receieved_Data['service']);
+        $stateArray = explode(",",$receieved_Data['state']);
         $whereInArray = NULL;
         if($receieved_Data['current_status']){
             $whereInArray['booking_details.current_status'] = $currentStatusArray;
@@ -2991,9 +3000,13 @@ class Booking extends CI_Controller {
         if($receieved_Data['service']){
             $whereInArray['booking_details.service_id'] = $serviceArray;
         }
+        if($receieved_Data['state']){
+            $whereInArray['booking_details.state'] = $stateArray;
+        }
         $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left');
        //process query and get result from database
-        $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),$whereInArray,$JoinTypeTableArray);
+        $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),
+                $whereInArray,$JoinTypeTableArray);
         //convert database result into a required formate needed for datatales
         for($i=0;$i<count($result);$i++){
             $index = $receieved_Data['start']+($i+1);
@@ -3034,6 +3047,12 @@ class Booking extends CI_Controller {
        }
        else{
            $receieved_Data['service'] = '';
+       }
+        if(isset($receieved_Data['state'])){
+            $receieved_Data['state'] = implode(',',$receieved_Data['state']);
+       }
+       else{
+           $receieved_Data['state'] = '';
        }
        $is_not_empty = FALSE;
        foreach($receieved_Data as $values){
