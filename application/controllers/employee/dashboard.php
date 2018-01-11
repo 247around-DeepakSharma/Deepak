@@ -1141,7 +1141,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     echo json_encode($esclationPercentage);
     }
     function wrong_pincode_handler($pincode){
-        $this->reusable_model->update_table("sf_not_exist_booking_details",array("is_pincode_valid"=>0),array("pincode"=>$pincode));
+        $this->reusable_model->update_table("sf_not_exist_booking_details",array("is_pincode_valid"=>0,"invalid_pincode_marked_by"=>$this->session->userdata('id')),array("pincode"=>$pincode));
         $this->session->set_userdata(array("wrong_pincode_msg"=>"Pincode has been marked as Wrong Pincode Successfully"));
         redirect(base_url().'employee/dashboard');
     }
