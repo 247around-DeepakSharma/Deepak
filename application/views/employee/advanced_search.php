@@ -70,6 +70,12 @@
                                                 <option ng-repeat="y in product_or_service_list" value="{{y.option}}">{{y.option}}</option>
                                             </select>
                                         </td>
+                                        <td>
+                                            <select multiple style="width:100%" name="state[]" ui-select2 id="state"  class="form-control data_change" data-placeholder="States">
+                                                <option value="" ng-show="false"></option>
+                                                <option ng-repeat="y in state_list" value="{{y.state}}">{{y.state}}</option>
+                                            </select>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
