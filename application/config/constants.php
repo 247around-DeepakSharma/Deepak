@@ -561,5 +561,6 @@ define('SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION',7 );
 
 //Booking Rescheduled Confirmation SMS Constant
 define('BOOKING_RESCHEDULED_CONFIRMATION_SMS','rescheduled_confirmation_sms');
+define('PINCODE_FILE_PASSSWORD',"247around" );
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
