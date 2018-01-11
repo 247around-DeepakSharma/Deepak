@@ -310,11 +310,11 @@ class Partner extends CI_Controller {
 
                             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $p_login_details[0]['agent_id'], $requestData['partnerName'], $this->partner['id']);
 
-                            if (empty($booking['state'])) {
+                           // if (empty($booking['state'])) {
                                 //$to = NITS_ANUJ_EMAIL_ID;
                                 //$message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
                                 //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
-                            }
+                           // }
 
                             //Send response
                             $this->jsonResponseString['response'] = array(
@@ -324,7 +324,7 @@ class Partner extends CI_Controller {
                             $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
                         } else {
                             $this->jsonResponseString['response'] = NULL;
-                            $this->sendJsonResponse(array(ERR_INVALID_BRAND_CODE, ERR_INVALID_BRAND_TYPE_MSG));
+                            $this->sendJsonResponse(array(ERR_INVALID_SERVICE_AREA_CODE, ERR_INVALID_SERVICE_AREA_MSG));
                         }
                     } else {
                         log_message('info', __METHOD__ . ":: Request validation fails for product type. " . print_r($requestData['productType'], true));
