@@ -339,7 +339,7 @@ define('ERR_INVALID_INSTALLATION_TIMESLOT_MSG', 'Invalid Installation Timeslot')
 define('ERR_INVALID_PARTNER_NAME_MSG', 'Invalid Partner Name');
 define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
 define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
-define('ERR_INVALID_SERVICE_AREA_MSG', 'INVALID SERVICE AREA');
+define('ERR_INVALID_SERVICE_AREA_MSG', 'Non Serviceable Area');
 
 //ICICI Bank name constant
 define('ICICI_BANK_NAME', 'ICICI Bank Ltd');
@@ -373,6 +373,7 @@ define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_2','booking_not_exist_promotional_sms_2
 
 //invoice email tag
 define('PARTNER_INVOICE_DETAILED_EMAIL_TAG','partner_invoice_detailed');
+define('PARTNER_RECEIPT_VOUCHER_EMAIL_TAG','partner_receipt_voucher');
 define('CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG','cash_details_invoices_for_vendors');
 define("BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG", "buyback_details_invoices_for_vendors");
 define('FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG','foc_details_invoices_for_vendors');
