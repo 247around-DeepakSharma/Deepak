@@ -1298,28 +1298,42 @@ class Miscelleneous {
      * When we upload any new pincode and that pincode with same service_id exist in sf not found table, then this will update its active flag
      */
 
-          function update_pincode_not_found_sf_table($pincodeServiceArray){
-              $pincodeStrring ="";
-              foreach($pincodeServiceArray as $key=>$values){
-                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL;
-                        $pincodeStrring .= '(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')|||';
-              }
-            log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
-            $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray,array('active_flag'=>0));
-          }
+    function update_pincode_not_found_sf_table($pincodeServiceArray) {
+        $pincodeStrring = "";
+        foreach ($pincodeServiceArray as $key => $values) {
+            $pincodeArray['(pincode=' . $values['Pincode'] . ' AND service_id=' . $values['Appliance_ID'] . ')'] = NULL;
+            $pincodeStrring .= '(pincode=' . $values['Pincode'] . ' AND service_id=' . $values['Appliance_ID'] . ')|||';
+        }
+        log_message('info', __FUNCTION__ . 'Deactivate following Combination From sf not found table. ' . print_r($pincodeArray, TRUE));
+        $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray, array('active_flag' => 0));
+    }
+    
+    /*
+     * Pass the file name to function and it will return file reader version for excel file
+     */
 
+    function get_excel_reader_version($fileName) {
+        $pathinfo = pathinfo($fileName);
+        if ($pathinfo['extension'] == 'xlsx') {
+            $readerVersion = 'Excel2007';
+        } else {
+            $readerVersion = 'Excel5';
+        }
+        return $readerVersion;
+    }
 
     /*
      * This Function convert excel data into array, 1st row of excel data will be keys of returning array
      * @input - filePath and reader Version and index of sheet in case of multiple sheet excel
      */
 
-    function excel_to_Array_converter($file, $readerVersion, $sheetIndex = NULL) {
+    function excel_to_Array_converter($file, $readerVersion = NULL, $sheetIndex = NULL) {
         if (!$sheetIndex) {
             $sheetIndex = 0;
         }
+        $readerVersion1 = $this->get_excel_reader_version($file['file']['name']);
         $finalExcelDataArray = array();
-        $objReader = PHPExcel_IOFactory::createReader($readerVersion);
+        $objReader = PHPExcel_IOFactory::createReader($readerVersion1);
         $objPHPExcel = $objReader->load($file['file']['tmp_name']);
         $sheet = $objPHPExcel->getSheet($sheetIndex);
         $highestRow = $sheet->getHighestDataRow();
