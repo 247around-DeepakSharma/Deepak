@@ -1766,23 +1766,23 @@ class Miscelleneous {
         return $finalData;
     }
 
- function send_completed_booking_email_to_customer($completedBookingsID){
-      log_message('info', __FUNCTION__ . ' => Completed booking Email Send Function Entry');
-        $completedBookingsData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,users.name,users.user_email,partners.public_name as partner,booking_details.booking_date as booking_date",NULL,array('partners'=>'partners.id=booking_details.partner_id','users'=>'booking_details.user_id=users.user_id'),NULL,NULL,array('booking_id'=>$completedBookingsID),NULL);
-        foreach($completedBookingsData as $data){
-        $emailBasicDataArray['to'] = $data['user_email'];
-        $emailBasicDataArray['subject'] = "Completed Booking ".$data['booking_id'];
-        $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
-        $emailBasicDataArray['fromName'] = "247around Team";
-        $emailTemplateDataArray['templateId'] = COMPLETED_BOOKING_CUSTOMER_TEMPLATE;
-        unset($data['user_email']);
-        $emailTemplateDataArray['dynamicParams'] = $data;
-        $this->My_CI->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray);
-        log_message('info', __FUNCTION__ . ' => Email Sent');
-        log_message('info', __METHOD__ . "=> Email Basic Data" . print_r($emailBasicDataArray, true));
-       log_message('info', __METHOD__ . "=> Email Template Data " . print_r($emailTemplateDataArray, true));
-            }
-    }
+// function send_completed_booking_email_to_customer($completedBookingsID){
+//      log_message('info', __FUNCTION__ . ' => Completed booking Email Send Function Entry');
+//        $completedBookingsData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,users.name,users.user_email,partners.public_name as partner,booking_details.booking_date as booking_date",NULL,array('partners'=>'partners.id=booking_details.partner_id','users'=>'booking_details.user_id=users.user_id'),NULL,NULL,array('booking_id'=>$completedBookingsID),NULL);
+//        foreach($completedBookingsData as $data){
+//        $emailBasicDataArray['to'] = $data['user_email'];
+//        $emailBasicDataArray['subject'] = "Completed Booking ".$data['booking_id'];
+//        $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
+//        $emailBasicDataArray['fromName'] = "247around Team";
+//        $emailTemplateDataArray['templateId'] = COMPLETED_BOOKING_CUSTOMER_TEMPLATE;
+//        unset($data['user_email']);
+//        $emailTemplateDataArray['dynamicParams'] = $data;
+//        $this->My_CI->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray);
+//        log_message('info', __FUNCTION__ . ' => Email Sent');
+//        log_message('info', __METHOD__ . "=> Email Basic Data" . print_r($emailBasicDataArray, true));
+//       log_message('info', __METHOD__ . "=> Email Template Data " . print_r($emailTemplateDataArray, true));
+//            }
+//    }
 
     /**
      * @desc This function is used to update the inventory stock
