@@ -1899,7 +1899,6 @@ class Partner extends CI_Controller {
                         if (move_uploaded_file($_FILES['file']['tmp_name'], TMP_FOLDER . $_FILES["file"]["name"])) { //check if it the file move successfully.
                             $send_data['email_id'] = $this->input->post("email_id");
                             $_FILES['file']['tmp_name'] = TMP_FOLDER . $_FILES["file"]["name"];
-                            ;
                             $send_data['file'] = $_FILES;
                             $url = base_url() . "partner/process_file_upload";
                             $this->asynchronous_lib->do_background_process($url, $send_data);
@@ -2008,19 +2007,19 @@ class Partner extends CI_Controller {
                 system(" chmod 777 " . $output_file_excel, $res1);
                 $message = "Please Find Attachment";
                 $subject = "Requested Pincode Distance";
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $email_id, "", ANUJ_EMAIL_ID, $subject, $message, $output_file_excel);
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $email_id, "", ANUJ_EMAIL_ID.", abhaya@247around.com", $subject, $message, $output_file_excel);
                 log_message("info",__METHOD__." Mail Sent.. to ".$email_id);
             } else {
                 $message = "Please Try Again, File Genaeration failed!";
                 $subject = "Requested Pincode Distance";
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $email_id, "", ANUJ_EMAIL_ID, $subject, $message, "");
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $email_id, "", ANUJ_EMAIL_ID.", abhaya@247around.com", $subject, $message, "");
                 log_message("info",__METHOD__." Mail Not Sent.. to ");
             }
         } else {
             log_message("info".__METHOD__."Invalid File Format");
             $message = "Invalid File Format";
             $subject = "Requested Pincode Distance";
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $email_id, "", ANUJ_EMAIL_ID, $subject, $message, "");
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $email_id, "", ANUJ_EMAIL_ID.", abhaya@247around.com", $subject, $message, "");
         }
     }
 
