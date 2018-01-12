@@ -2114,6 +2114,7 @@ class Miscelleneous {
             $smsBody, $booking_id, "Escalation", $status['content']); 
         }
     }
+
     /**
      * @desc: Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.
      *
@@ -2128,6 +2129,7 @@ class Miscelleneous {
 
         return $smsBody;
     }
+
     /*
      * This Function is used to approve rescheduled booking
      */
