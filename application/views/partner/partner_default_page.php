@@ -221,7 +221,6 @@
    </div>
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
->>>>>>> 7c573f4... partner can reject spare parts and auto re-open spare when boking re-open #CRM-59
 <script>
     var oow_spare;
     
