@@ -42,6 +42,7 @@ class Partner extends CI_Controller {
         $this->load->library('initialized_variable');
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
+        $this->load->library('PHPReport');
     }
 
     public function index() {
@@ -2005,21 +2006,35 @@ class Partner extends CI_Controller {
 
             if (file_exists($output_file_excel)) {
                 system(" chmod 777 " . $output_file_excel, $res1);
-                $message = "Please Find Attachment";
-                $subject = "Requested Pincode Distance";
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $email_id, "", ANUJ_EMAIL_ID.", abhaya@247around.com", $subject, $message, $output_file_excel);
+                $email_template = $this->booking_model->get_booking_email_template("distance_pincode_api");
+                $subject = $email_template[4];
+                $email_from = $email_template[2];
+                $message = $email_template[0];
+                $bcc = $email_template[5];
+          
+                $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, $output_file_excel);
+                
                 log_message("info",__METHOD__." Mail Sent.. to ".$email_id);
             } else {
                 $message = "Please Try Again, File Genaeration failed!";
-                $subject = "Requested Pincode Distance";
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $email_id, "", ANUJ_EMAIL_ID.", abhaya@247around.com", $subject, $message, "");
+                $email_template = $this->booking_model->get_booking_email_template("distance_pincode_api");
+                $subject = $email_template[4];
+                $email_from = $email_template[2];
+                $bcc = $email_template[5];
+          
+                $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, "");
                 log_message("info",__METHOD__." Mail Not Sent.. to ");
             }
         } else {
             log_message("info".__METHOD__."Invalid File Format");
+            $email_template = $this->booking_model->get_booking_email_template("distance_pincode_api");
+            $subject = $email_template[4];
+//            $message = $email_template[0];
+            $email_from = $email_template[2];
+            $bcc = $email_template[5];
+           
             $message = "Invalid File Format";
-            $subject = "Requested Pincode Distance";
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $email_id, "", ANUJ_EMAIL_ID.", abhaya@247around.com", $subject, $message, "");
+            $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, "");
         }
     }
 
