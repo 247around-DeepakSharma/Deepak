@@ -19,7 +19,6 @@ class vendor extends CI_Controller {
    var $existServices=array();
     function __Construct() {
         parent::__Construct();
-        ob_start();
         $this->load->model('employee_model');
         $this->load->model('booking_model');
         $this->load->library('PHPReport');
