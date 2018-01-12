@@ -7,7 +7,7 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <meta name="format-detection" content="telephone=no">
-        <title>247around</title>
+        <title>247around</title>    
         <!-- Bootstrap Core CSS -->
         <link href="<?php echo base_url()?>css/bootstrap.min.css" rel="stylesheet">
         <!-- Custom CSS -->
@@ -168,6 +168,12 @@
                     </ul>
                 </li>
                 <li><a href="<?php echo base_url()?>employee/login/logout"><i class="fa fa-fw fa-power-off"></i></a></li>
+                                <div class="dropdown" style="float:right;margin: 15px 14px 0px 0px;">
+                                    <a class=" dropdown-toggle fa fa-bell" id="notification_holder"  data-toggle="dropdown" onclick="get_notifications(<?php echo $this->session->userdata('id'); ?>,'employee')"></a>
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="padding-top: 0px;margin-top: 18px;border: 1px solid #2c9d9c;"> 
+                                    <center><img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                                    </ul>
+  </div>
             </ul>
         </nav>
         
@@ -294,6 +300,7 @@
             <label class="search_fab " for="search_in"> <i class="fa fa-search" aria-hidden="true" ></i> </label>
 
         </div>
+<<<<<<< HEAD
         <div class="export_modal">
             <div class="modal fade right" id="sidebar-right" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
@@ -326,3 +333,41 @@
             </div>
         </div>
         
+        
+        <style>
+            .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
+    background-color: #2c9d9c;
+}
+    .navigation_li{
+    font: normal 16px/16px Century Gothic;
+    color: #fff;
+    list-style: none;
+    padding: 15px 0px 6px 42px;
+    }
+    .navigation_li a:hover {
+    background: none;
+}
+.normal{
+    background: url(<?php echo base_url() ?>/images/logo_small.png) 7px 3px no-repeat;
+}    
+.important{
+    background: url(<?php echo base_url() ?>/images/i.png) 7px 3px no-repeat;
+}
+.no_new_notification{
+    color: #000;
+        text-align: center;
+    padding: 3px;
+}
+            </style>
+            <script>
+                function get_notifications(entity_id,entity_type){
+                    $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>push_notification/get_notifications',
+                    data: {entity_id: entity_id,entity_type: entity_type},
+                    success: function (response) {
+                        $("#notification_container").html(response);
+                    }
+                    });
+                }
+                </script>
