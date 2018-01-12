@@ -19,7 +19,6 @@ class Booking extends CI_Controller {
      */
     function __Construct() {
         parent::__Construct();
-        ob_start();
         $this->load->model('employee_model');
         $this->load->model('booking_model');
         $this->load->model('user_model');
