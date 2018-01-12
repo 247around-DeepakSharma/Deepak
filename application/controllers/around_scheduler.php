@@ -1204,7 +1204,7 @@ class Around_scheduler extends CI_Controller {
 
                 $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
                 $to =  $value['sf_email'];
-                $bcc = "abhaya@247around.com";
+                $bcc = "";
 
                 $template = $this->booking_model->get_booking_email_template("notification_to_send_defective_parts");
                 $body = vsprintf($template[0], $html_table);
