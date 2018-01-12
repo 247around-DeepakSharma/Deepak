@@ -326,6 +326,8 @@ class Notify {
 		    $email['tag'] = "complete_booking";
 		    $email['subject'] = "Booking Completion-247AROUND";
 
+
+                                               // $this->My_CI->miscelleneous->send_completed_booking_email_to_customer(array($email['booking_id']));
 		    //Send internal mails now
 		    $this->send_email($email);
 
