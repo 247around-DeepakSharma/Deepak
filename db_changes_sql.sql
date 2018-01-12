@@ -4188,3 +4188,47 @@ COMMIT;
 --sachin 09-jan-2018
 INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Show Inventory Ledger', 'employee/inventory/show_inventory_ledger_list', '2', '89', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
 ALTER TABLE `partner_file_upload_header_mapping` ADD `alternate_phone` VARCHAR(64) NOT NULL AFTER `phone`;
+ALTER TABLE `partner_file_upload_header_mapping` ADD `alternate_phone` VARCHAR(64) NOT NULL AFTER `phone`;
+-- Chhavi 11th Jan
+ALTER TABLE  `sf_not_exist_booking_details` ADD  `invalid_pincode_marked_by` INT( 10 ) NOT NULL AFTER  `is_pincode_valid` ;
+
+--Chhavi 12th Jan 
+CREATE TABLE `push_notification_templates` (
+  `id` int(11) NOT NULL,
+  `title` text NOT NULL,
+  `url` text NOT NULL,
+  `msg` text NOT NULL,
+  `notification_type` varchar(30) NOT NULL,
+  `entity_type` varchar(20) NOT NULL,
+  `notification_tag` varchar(30) NOT NULL,
+  `comments` varchar(60) NOT NULL,
+  `active` int(1) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `push_notification_templates`
+--
+
+INSERT INTO `push_notification_templates` (`id`, `title`, `url`, `msg`, `notification_type`, `entity_type`, `notification_tag`, `comments`, `active`, `create_date`) VALUES
+(1, '%s Updates %s', 'employee/booking/review_bookings', 'Booking %s Has been Updated BY %s, Review the booking', 'Normal', 'employee', 'sf_updates_the_booking', '', 1, '2018-01-10 09:16:19');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `push_notification_templates`
+--
+ALTER TABLE `push_notification_templates`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `push_notification_templates`
+--
+ALTER TABLE `push_notification_templates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;COMMIT;

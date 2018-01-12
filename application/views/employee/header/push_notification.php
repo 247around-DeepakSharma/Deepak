@@ -17,7 +17,7 @@
         _pcq.push(['subscriptionSuccessCallback',callbackFunctionOnSuccessfulSubscription]);
    //Call back function after Subscription
  function callbackFunctionOnSuccessfulSubscription(subscriberId, values) {
-     if(values.status === 'SUBSCRIBED'){
+     if(values.status !== 'ALREADYSUBSCRIBED'){    
         saveSubscriberID(subscriberId);
       }
 }
@@ -28,7 +28,6 @@
             url: '<?php echo base_url(); ?>employee/login/save_push_notification_subscribers',
             data: {subscriberID: subscriberID},
             success: function (response) {
-                //console.log(response);
             }
         });
   }
