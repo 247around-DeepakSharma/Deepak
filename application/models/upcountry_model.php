@@ -786,6 +786,14 @@ class Upcountry_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    function get_data_from_municipal_limit($where,$select){
+        $this->db->distinct();
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("municipal_limit");
+        return $query->result_array();
+    }
     /**
      * @desc This is used to replace city to area for snapdeal upcountry booking
      * @param int $partner_id

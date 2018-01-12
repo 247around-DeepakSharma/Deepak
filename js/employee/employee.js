@@ -94,6 +94,7 @@ var ad_table;
                     d.brand =  $("#brand option:selected").val();
                     d.paid_by =  $("#paid_by option:selected").val();
                     d.request_type =  $("#request_type option:selected").val();
+                    d.state =  getMultipleSelectedValues("state");
                  }
             },
             "drawCallback": function( settings ) {

@@ -646,7 +646,7 @@ function user_role_management(){
         // Get All roles group 
         $data['roles_group'] = $this->reusable_model->get_search_result_data("employee","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
         //Get Header 
-        echo $this->cache->file->get('navigationHeader');
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group']));
     }
 /*

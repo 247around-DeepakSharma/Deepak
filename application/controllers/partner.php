@@ -41,6 +41,8 @@ class Partner extends CI_Controller {
         $this->load->library('booking_utilities');
         $this->load->library('initialized_variable');
         $this->load->helper(array('form', 'url'));
+        $this->load->library('form_validation');
+        $this->load->library('PHPReport');
     }
 
     public function index() {
@@ -310,11 +312,11 @@ class Partner extends CI_Controller {
 
                             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $p_login_details[0]['agent_id'], $requestData['partnerName'], $this->partner['id']);
 
-                            if (empty($booking['state'])) {
+                           // if (empty($booking['state'])) {
                                 //$to = NITS_ANUJ_EMAIL_ID;
                                 //$message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
                                 //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
-                            }
+                           // }
 
                             //Send response
                             $this->jsonResponseString['response'] = array(
@@ -324,7 +326,7 @@ class Partner extends CI_Controller {
                             $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
                         } else {
                             $this->jsonResponseString['response'] = NULL;
-                            $this->sendJsonResponse(array(ERR_INVALID_BRAND_CODE, ERR_INVALID_BRAND_TYPE_MSG));
+                            $this->sendJsonResponse(array(ERR_INVALID_SERVICE_AREA_CODE, ERR_INVALID_SERVICE_AREA_MSG));
                         }
                     } else {
                         log_message('info', __METHOD__ . ":: Request validation fails for product type. " . print_r($requestData['productType'], true));
@@ -1879,6 +1881,160 @@ class Partner extends CI_Controller {
         } else {
             $distance['status'] = "REQUEST_DENIED";
             print_r(json_encode($distance, true));
+        }
+    }
+    
+    function uploadpincodefile(){
+        $this->load->view("upload_pincode");
+    }
+    
+    function processUploadPincode() {
+        log_message("info", __METHOD__ . " Enterring.. Email " . $this->input->post("email_id"));
+        $this->form_validation->set_rules('email_id', 'Email', 'trim|required|valid_email|xss_clean');
+        if ($this->form_validation->run()) {
+            $password = $this->input->post("password");
+            if ($password == PINCODE_FILE_PASSSWORD) {
+                if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
+                    $pathinfo = pathinfo($_FILES["file"]["name"]);
+                    if ($pathinfo['extension'] == "xlsx" || $pathinfo['extension'] == "xls") {
+                        if (move_uploaded_file($_FILES['file']['tmp_name'], TMP_FOLDER . $_FILES["file"]["name"])) { //check if it the file move successfully.
+                            $send_data['email_id'] = $this->input->post("email_id");
+                            $_FILES['file']['tmp_name'] = TMP_FOLDER . $_FILES["file"]["name"];
+                            $send_data['file'] = $_FILES;
+                            $url = base_url() . "partner/process_file_upload";
+                            $this->asynchronous_lib->do_background_process($url, $send_data);
+                            echo "File uploaded successfully!!";
+                        } else {
+                            log_message("info", __METHOD__ . " Enterring.. File Upload Failed " . $this->input->post("email_id"));
+                            echo "failed";
+                        }
+                    } else {
+                        log_message("info", __METHOD__ . " Enterring.. Invalid File Format " . $this->input->post("email_id"));
+                        echo "Invalid file format..";
+                    }
+                } else {
+                    log_message("info", __METHOD__ . " Enterring.. File not Select" . $this->input->post("email_id"));
+                    echo "Please select a file..!";
+                }
+            } else {
+                log_message("info", __METHOD__ . " Enterring.. Password Not match" . $this->input->post("email_id"));
+                    echo "Invalid Password";
+            }
+        } else {
+            log_message("info", __METHOD__ . " Enterring.. Invalid Email ID" . $this->input->post("email_id"));
+            echo "Invalid email format..";
+        }
+    }
+
+    function process_file_upload(){
+        log_message("info",__METHOD__. " Enterring.. ".$this->input->post("email_id"));
+        $_FILES =  $this->input->post("file");
+        $email_id = $this->input->post("email_id");
+        log_message("info",__METHOD__." Pincode Data ".print_r($_FILES, true));
+        $data = $this->miscelleneous->excel_to_Array_converter($_FILES);
+        if (isset($data[0]['ServiceCentrePincode']) && isset($data[0]['CustomerPincode'])) {
+            $excelData = array();
+            
+            foreach ($data as $value) {
+                $excelPincodeData = array();
+                $excelPincodeData['ServiceCentrePincode'] = $value['ServiceCentrePincode'];
+                $excelPincodeData['CustomerPincode'] = $value['CustomerPincode'];
+
+                if (strlen($value['ServiceCentrePincode']) == 6 && strlen($value['CustomerPincode']) == 6 && is_numeric($value['ServiceCentrePincode']) && is_numeric($value['CustomerPincode'])) {
+
+                    $is_distance = $this->upcountry_model->get_distance_between_pincodes($value['ServiceCentrePincode'], $value['CustomerPincode']);
+                    $distance = "";
+                    if (!empty($is_distance)) {
+                        $distance = $is_distance[0]['distance'];
+                    } else {
+                        $is_distance1 = $this->upcountry_model->calculate_distance_between_pincode($value['ServiceCentrePincode'], "", $value['CustomerPincode'], "");
+                        $distance = (round($is_distance1['distance']['value'] / 1000, 2));
+                    }
+
+                    if (!empty($distance)) {
+                        $excelPincodeData['distance'] = $distance;
+                        $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['CustomerPincode']));
+                        $municipal = $this->upcountry_model->get_data_from_municipal_limit(array("district" => $distict_details["district"]), "*");
+                        if (!empty($municipal)) {
+                            $excelPincodeData["municipal_limit"] = $municipal[0]["municipal_limit"];
+                        } else {
+                            $excelPincodeData["municipal_limit"] = "";
+                        }
+                    } else {
+                        $excelPincodeData['status'] = "REQUEST_DENIED";
+                        $excelPincodeData["municipal_limit"] = "";
+                        $excelPincodeData['distance'] = "";
+                    }
+                } else {
+                    $excelPincodeData['status'] = "REQUEST_DENIED";
+                    $excelPincodeData["municipal_limit"] = "";
+                    $excelPincodeData['distance'] = "";
+                }
+
+                array_push($excelData, $excelPincodeData);
+            }
+
+            $templateDir = __DIR__ . "/excel-templates/";
+            $template = "municipal_limit_pincode.xlsx";
+            $config = array(
+                'template' => $template,
+                'templateDir' => $templateDir
+            );
+
+            //load template
+            $R = new PHPReport($config);
+            $R->load(array(
+                array(
+                    'id' => 'data',
+                    'repeat' => true,
+                    'data' => $excelData,
+                )
+                    )
+            );
+
+            $res1 = 0;
+            $output_file_excel = TMP_FOLDER . "distance_".date("YmdHis").".xlsx";
+            if (file_exists($output_file_excel)) {
+
+                system(" chmod 777 " . $output_file_excel, $res1);
+                unlink($output_file_excel);
+            }
+
+            $R->render('excel', $output_file_excel);
+
+            log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
+
+            if (file_exists($output_file_excel)) {
+                system(" chmod 777 " . $output_file_excel, $res1);
+                $email_template = $this->booking_model->get_booking_email_template("distance_pincode_api");
+                $subject = $email_template[4];
+                $email_from = $email_template[2];
+                $message = $email_template[0];
+                $bcc = $email_template[5];
+          
+                $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, $output_file_excel);
+                
+                log_message("info",__METHOD__." Mail Sent.. to ".$email_id);
+            } else {
+                $message = "Please Try Again, File Genaeration failed!";
+                $email_template = $this->booking_model->get_booking_email_template("distance_pincode_api");
+                $subject = $email_template[4];
+                $email_from = $email_template[2];
+                $bcc = $email_template[5];
+          
+                $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, "");
+                log_message("info",__METHOD__." Mail Not Sent.. to ");
+            }
+        } else {
+            log_message("info".__METHOD__."Invalid File Format");
+            $email_template = $this->booking_model->get_booking_email_template("distance_pincode_api");
+            $subject = $email_template[4];
+//            $message = $email_template[0];
+            $email_from = $email_template[2];
+            $bcc = $email_template[5];
+           
+            $message = "Invalid File Format";
+            $this->notify->sendEmail($email_from, $email_id, "", $bcc, $subject, $message, "");
         }
     }
 

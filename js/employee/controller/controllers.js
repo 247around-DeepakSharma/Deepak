@@ -10,6 +10,7 @@ booking_advanced_search.controller("bookingAdvancedSearchController", function (
             $scope.current_status_list = response.data.current_status;
             $scope.product_or_service_list = response.data.product_or_service;
             $scope.city_list = response.data.cities;
+            $scope.state_list = response.data.states;
             $scope.rating_list = response.data.ratings;
             $scope.service_list = response.data.service;
             $scope.brand_list = response.data.brands;
