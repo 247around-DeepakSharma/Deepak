@@ -7,6 +7,7 @@ class push_notification_lib {
         $this->Pu_N->load->model('push_notification_model');
         $this->Pu_N->load->library('miscelleneous');
         $this->Pu_N->load->library('asynchronous_lib');
+        $this->Pu_N->load->helper('cookie');
     }
     /*
      * This Function is used to send Push Notifications 
@@ -15,7 +16,7 @@ class push_notification_lib {
      * @output 2) After Success it will save notification in notification log table
      * Note - We are Using pushcrew 3rd party to send these notifications
      */
-    function send_push_notification($title,$msg,$url,$notification_type,$subscriberArray){
+    function send_push_notification($title,$msg,$url,$notification_type,$subscriberArray,$autohide_notification=0){
         log_message('info', __FUNCTION__ . " Function Start");
         if($title && $msg && $url && $notification_type && $subscriberArray){
             $subscriberListArray = Array();
@@ -23,7 +24,7 @@ class push_notification_lib {
             $subscriberListJsonString = json_encode($subscriberListArray);
             $apiToken = PUSH_NOTIFICATION_API_KEY;
             $curlUrl = PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL;
-            $fields = array('title' => $title,'message' => $msg,'url' => $url,'subscriber_list' => $subscriberListJsonString);
+            $fields = array('title' => $title,'message' => $msg,'url' => $url,'subscriber_list' => $subscriberListJsonString,'autohide_notification'=>$autohide_notification);
             $httpHeadersArray = Array();
             $httpHeadersArray[] = 'Authorization: key='.$apiToken;
             $ch = curl_init();
@@ -34,6 +35,8 @@ class push_notification_lib {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $httpHeadersArray);
             $result = curl_exec($ch);
             $resultArray = json_decode($result, true);
+            log_message('info', __FUNCTION__ . " Notification Status".print_r($resultArray,true));
+            log_message('info', __FUNCTION__ . " Notification Fields".print_r($fields,true));
             if($resultArray['status'] == 'success'){
                     $data['title'] = $title;
                     $data['msg'] = $msg;
@@ -49,6 +52,7 @@ class push_notification_lib {
                   log_message('info', __FUNCTION__ . " Function End Notification has Not been send, status is failure");
               }
         }
+        log_message('info', __FUNCTION__ . " Function End");
     }
     /*
      * This function is use to create and send push notification 
@@ -58,7 +62,8 @@ class push_notification_lib {
      * Note - If receiver array will empty then it will send notification to groups which are mention in template table with current template ID 
      * After creating the msg it will send the msg to subscribers by using send_push_notification Function 
      */
-        function create_and_send_push_notiifcation($templateTag,$receiverArray=array(),$notificationTextArray=array()){
+        function create_and_send_push_notiifcation($templateTag,$receiverArray=array(),$notificationTextArray=array(),$auto_hide=0){
+            log_message('info', __FUNCTION__ . " Function Start");
             // Get Template Data
             $templateData = $this->Pu_N->push_notification_model->get_push_notification_template($templateTag);
             if(!empty($templateData)){
@@ -81,6 +86,7 @@ class push_notification_lib {
                     $data['title'] = $templateData[0]['title'];
                     $data['msg'] = $templateData[0]['msg'];
                     $data['url'] =    base_url().$templateData[0]['url'];
+                    $data['auto_hide'] =   $auto_hide;
                     if(array_key_exists('title', $notificationTextArray)){
                         $data['title'] = vsprintf($templateData[0]['title'], $notificationTextArray['title']);
                     }
@@ -92,8 +98,6 @@ class push_notification_lib {
                      } 
                      $sendUrl = base_url().'employee/do_background_process/send_asyn_push_notification';
                      $this->Pu_N->asynchronous_lib->do_background_process($sendUrl, $data);
-                    // $this->send_push_notification($data['title'],$data['msg'],$data['url'],$data['notification_type'],$data['subscriberArray']);
-                     //$this->send_push_notification($data['title'],$data['msg'],$data['url'],$data['notification_type'],$subscriberArray);
                 }
                 else{
                     log_message('info', __FUNCTION__ . "Push Notification Reciever Is not available");
@@ -102,5 +106,43 @@ class push_notification_lib {
             else{
                 log_message('info', __FUNCTION__ . "Push Notification Template Not Found ".$templateTag);
             }
+            log_message('info', __FUNCTION__ . " Function End");
+    }
+    /*
+     * This Function is used to send notification to partner, when we completed the booking
+     * It send the Count of completed booking to Partner
+     */
+    function send_booking_completion_notification_to_partner($bookingIDArray){
+        log_message('info', __FUNCTION__ . " Function Start");
+        $partnerArray = array();
+        // get internal status and partner for bookings 
+        $getBookingData = $this->Pu_N->push_notification_model->get_booking_data($bookingIDArray);
+        // get partner Booking's Associative Array 
+        foreach($getBookingData as $data){
+            if($data['internal_status'] ==  'Completed'){
+                $partnerArray[$data['partner_id']]['bookings'][] = $data['booking_id'];
+            }
+        log_message('info', __FUNCTION__ . " Function End");
+        }
+        foreach($partnerArray as $partnerID=>$bookingArray){
+            $receiverArray['partner'] = array($partnerID);
+            $notificationTextArray['title'] = array(count($bookingArray));
+            $notificationTextArray['msg'] = array(count($bookingArray));
+            $this->create_and_send_push_notiifcation(BOOKING_COMPLETED_FOR_PARTNER,$receiverArray,$notificationTextArray);
+        }
+    }
+    /*
+     * This Function is used to get unsubscribers of push notification by cookies
+     * get subscription status and subscription_id
+     * if subscription status is not subscribed then update unscbscription flag against that subscription ID
+     */
+    function get_unsubscribers_by_cookies(){
+        $status = get_cookie('wingify_push_subscription_status');
+        $subscriber_id = get_cookie('wingify_push_subscriber_id');
+        if($status && $subscriber_id){
+            if($status != "subscribed"){
+                $this->Pu_N->push_notification_model->update_push_notification_unsubscription($subscriber_id,array('subscriber_id'=>$subscriber_id));
+            }
+        }
     }
 }
