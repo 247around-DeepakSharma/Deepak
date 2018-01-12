@@ -1939,8 +1939,8 @@ class Miscelleneous {
         if(!$this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'))){
                 $this->set_header_navigation_in_cache();
          }
-         //Print navigation header from cache
-        echo $this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'));
+        $data['header_navigation_html'] = $this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'));
+        $this->My_CI->load->view('employee/header/load_header_navigation', $data);
     }
     /*
      * This Function is used to handle Fake Reschedule request By Miss Call Functionality
