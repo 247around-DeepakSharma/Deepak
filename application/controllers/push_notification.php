@@ -13,38 +13,72 @@ class Push_Notification extends CI_Controller {
     }
      function send_pushcrew_notification(){
         log_message('info', __FUNCTION__ . " Function Start");
-        $title = $this->input->post('title');
-        $msg = $this->input->post('msg');
-        $url = $this->input->post('url');
-        $subscriberArray = $this->input->post('subscriberArray');
-        $subscriberListArray = Array();
-        $subscriberListArray['subscriber_list'] = $subscriberArray;
-        $subscriberListJsonString = json_encode($subscriberListArray);
-        $apiToken = PUSH_NOTIFICATION_API_KEY;
-        $curlUrl = PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL;
-        $fields = array('title' => $title,'message' => $msg,'url' => $url,'subscriber_list' => $subscriberListJsonString);
-        $httpHeadersArray = Array();
-        $httpHeadersArray[] = 'Authorization: key='.$apiToken;
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $curlUrl);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $httpHeadersArray);
-        $result = curl_exec($ch);
-        $resultArray = json_decode($result, true);
-        if($resultArray['status'] == 'success'){
-                $data['title'] = $title;
-                $data['msg'] = $msg;
-                $data['url'] = $url;
-                $data['subscriber_ids'] = implode(",",$subscriberArray);
-                $data['request_id'] =$resultArray['request_id'];
-                $this->reusable_model->insert_into_table("push_notification_logs",$data);
-                log_message('info', __FUNCTION__ . " Function End Notification has been send Successfully");
-          }
-          else{
-              log_message('info', __FUNCTION__ . " Function End Notification has Not been send, status is failure");
-          }
+        $title = $msg = $url = $notification_type = $subscriberArray = NULL;
+        if($this->input->post('title')){
+            $title = $this->input->post('title');
+        }
+        if($this->input->post('msg')){
+            $msg = $this->input->post('msg');
+        }
+        if($this->input->post('url')){
+            $url= $this->input->post('url');
+        }
+        if($this->input->post('notification_type')){
+            $notification_type = $this->input->post('notification_type');
+        }
+        if($this->input->post('subscriberArray')){
+            $subscriberArray = $this->input->post('subscriberArray');
+        }
+        if($title && $msg && $url && $notification_type && $subscriberArray){
+            $subscriberListArray = Array();
+            $subscriberListArray['subscriber_list'] = $subscriberArray;
+            $subscriberListJsonString = json_encode($subscriberListArray);
+            $apiToken = PUSH_NOTIFICATION_API_KEY;
+            $curlUrl = PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL;
+            $fields = array('title' => $title,'message' => $msg,'url' => $url,'subscriber_list' => $subscriberListJsonString);
+            $httpHeadersArray = Array();
+            $httpHeadersArray[] = 'Authorization: key='.$apiToken;
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $curlUrl);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $httpHeadersArray);
+            $result = curl_exec($ch);
+            $resultArray = json_decode($result, true);
+            if($resultArray['status'] == 'success'){
+                    $data['title'] = $title;
+                    $data['msg'] = $msg;
+                    $data['url'] = $url;
+                    $data['subscriber_ids'] = implode(",",$subscriberArray);
+                    $data['request_id'] =$resultArray['request_id'];
+                    $data['notification_type'] =$notification_type;
+                    $this->reusable_model->insert_into_table("push_notification_logs",$data);
+                    log_message('info', __FUNCTION__ . " Function End Notification has been send Successfully");
+              }
+
+              else{
+                  log_message('info', __FUNCTION__ . " Function End Notification has Not been send, status is failure");
+              }
+        }
     }
+     function get_notifications(){
+         $entity_id = $this->input->post('entity_id');
+         $entity_type = $this->input->post('entity_type');
+         $notificationString = '<li style="text-align:center;font:bold 20px Century Gothic;background: #2c9d9c; padding: 7px;color: #fff;margin-bottom: 10px;">Notifications</li>';
+         $data = $this->reusable_model->get_search_result_data("push_notification_subscribers p","push_notification_logs.*",array("p.entity_type"=>$entity_type,"p.entity_id"=>$entity_id),
+                 array("push_notification_logs"=>"FIND_IN_SET(p.subscriber_id,push_notification_logs.subscriber_ids)"),NULL,NULL,NULL,NULL,array("push_notification_logs.id"));
+         if($data){
+            foreach($data as $notificationArray){
+                $notificationString = $notificationString.'<li class="navigation_li '.$notificationArray['notification_type'].'"><a href='.$notificationArray['url'].'><strong>'.$notificationArray['title'].'</strong></a></li>';
+                $notificationString = $notificationString.'<div class="clear"></div>';
+                $notificationString = $notificationString.'<li class="divider"></li>';
+            }
+         }
+         else{
+             $notificationString = $notificationString.'<li class="no_new_notification">No new Notification </li>';
+         }
+         echo $notificationString;
+   }
 }
 
