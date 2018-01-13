@@ -17,7 +17,7 @@
                            <th>Booking Pincode</th>
                            <th>District Pincode</th>
                            <th>Distance</th>
-                           <th>Action</th>
+<!--                           <th>Action</th>-->
   
                          </tr>
                      </thead>
@@ -31,9 +31,9 @@
                                <td><?php echo $value['upcountry_pincode']; ?></td>
                              
                                <td contenteditable="true" id="<?php echo "distance_".$sn_no; ?>">0</td>
-                               <td><button class="btn btn-primary" 
-                                           onclick="submit_button('<?php echo $value["booking_id"];?>',
-                                           '<?php echo $sn_no; ?>')">Submit</button></td>
+<!--                               <td><button class="btn btn-primary" 
+                                           onclick="submit_button('<?php //echo $value["booking_id"];?>',
+                                           '<?php //echo $sn_no; ?>')">Submit</button></td>-->
                                </tr>
                              
                         <?php $sn_no++; }?>
