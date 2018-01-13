@@ -476,7 +476,12 @@ function get_data_for_partner_callback($booking_id) {
             }
         }
         
-	return $result;
+        //convert int to string
+        $data = array();
+        foreach ($result as $key=>$value){
+            $data[$key] = (string)$value;
+        }
+	return $data;
     }
     /**
      * @desc: This function is to add a new partner
