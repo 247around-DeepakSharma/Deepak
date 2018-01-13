@@ -1,6 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 include('email_template_constant.php');
-
+include('push_notifications_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
