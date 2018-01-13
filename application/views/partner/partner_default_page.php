@@ -195,7 +195,7 @@
         </div>
     </div>
 </div>
-<<<<<<< HEAD
+
 <div id="myModal2" class="modal fade" role="dialog">
       <div class="modal-dialog">
          <!-- Modal content-->

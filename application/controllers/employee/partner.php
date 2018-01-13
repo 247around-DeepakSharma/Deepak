@@ -1831,7 +1831,7 @@ class Partner extends CI_Controller {
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
             "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('Delivered', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
         );
 
         $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
