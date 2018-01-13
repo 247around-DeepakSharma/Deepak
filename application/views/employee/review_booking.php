@@ -96,7 +96,7 @@
                            <tr>
                               <th class="jumbotron" >S.N.</th>
                               <th class="jumbotron" >Booking Id</th>
-                              <th class="jumbotron" >Service Center </th>
+<!--                              <th class="jumbotron" >Service Center </th>-->
                               <th class="jumbotron" style="text-align: center;">Price Details</th>
                               <th class="jumbotron" >Amount Due</th>
                               <th class="jumbotron" >Amount Paid</th>
@@ -113,8 +113,8 @@
                               <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $count; ?></td>
                               <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']; ?><input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
                               </td>
-                              <td style="text-align: left;white-space: inherit;"> <?php echo $value['service_centres'][0]['name']; ?></td>
-                              </td>
+<!--                              <td style="text-align: left;white-space: inherit;"> <?php //echo $value['service_centres'][0]['name']; ?></td>
+                              </td>-->
                               <td style="text-align: left;white-space: inherit;">
                                  <table  class="table table-condensed">
                                     <thead>
@@ -126,6 +126,7 @@
                                        <th class="jumbotron" >Additional Service Charge</th>
                                        <th class="jumbotron" >Parts Cost</th>
                                        <th class="jumbotron" >Upcountry Charges</th>
+                                       <th class="jumbotron" >IS Broken</th>
                                        <th class="jumbotron" >Vendor Status</th>
                                     </thead>
                                     <tbody>
@@ -146,7 +147,12 @@
                                             <td><span class="<?php echo "brand".$count; ?>"><?php echo $value1['appliance_brand']; ?></span></td>
                                            <td><span class="<?php echo "category".$count; ?>"><?php echo $value1['appliance_category']."/". $value1['appliance_capacity']; ?></span></td>
                                           <td>
-                                             <span class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span>
+                                              <?php if(!empty($value1['serial_number_pic'])) {?>
+                                              <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $value1['serial_number_pic'];?>"> 
+                                                  <span class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span></a>
+                                              <?php } else {?>
+                                               <span class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span>
+                                              <?php } ?>
                                           </td>
                                           <td><span class="<?php echo "price_tags".$count; ?>"><?php echo $value1['price_tags']; ?></span></td>
                                           <td>
@@ -160,6 +166,9 @@
                                           </td>
                                           <td>
                                              <span id="<?php echo "upcountry".$count;?>"><?php if($key1 ==0){ echo $value1['upcountry_charges'];} ?></span>
+                                          </td>
+                                          <td>
+                                             <span id="<?php echo "broken".$count;?>"><?php if($value1['is_broken'] == 1){ echo "Yes";} else{ echo "No";} ?></span>
                                           </td>
                                           <td>
                                              <span id="<?php echo "internal_status".$count; ?>"><?php echo $value1['internal_status']; ?></span>

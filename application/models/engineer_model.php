@@ -2,7 +2,7 @@
 
 class Engineer_model extends CI_Model {
     
-    var $order = array('engineer_booking_action.update_date' => 'desc'); // default order 
+    var $order = array('booking_unit_details.product_or_services' => 'desc'); // default order 
 
     /**
      * @desc load both db
@@ -48,6 +48,13 @@ class Engineer_model extends CI_Model {
         return $query->result_array();
     }
     
+    function getengineer_sign_table_data($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("engineer_table_sign");
+        return $query->result_array();
+    }
+    
     function update_engineer_table($data, $where){
         $this->db->where($where);
         $this->db->update("engineer_booking_action", $data);
@@ -87,6 +94,8 @@ class Engineer_model extends CI_Model {
         
         $this->db->join('engineer_table_sign', 'booking_details.booking_id = engineer_booking_action.booking_id '
                 . ' AND booking_details.assigned_vendor_id = engineer_table_sign.service_center_id ', 'left');
+        
+        $this->db->join('users', 'users.user_id = booking_details.user_id', 'left');
 
         $this->db->join('services', 'services.id = booking_details.service_id');
         if (!empty($post['where'])) {

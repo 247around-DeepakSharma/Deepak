@@ -215,6 +215,8 @@ class Do_background_process extends CI_Controller {
             $unit_details['customer_paid_basic_charges'] = $value['service_charge'];
             $unit_details['customer_paid_extra_charges'] = $value['additional_service_charge'];
             $unit_details['customer_paid_parts'] = $value['parts_cost'];
+            $unit_details['is_broken'] = $value['is_broken'];
+            $unit_details['serial_number_pic'] = $value['serial_number_pic'];
 
             log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
             // update price in the booking unit details page

@@ -3973,7 +3973,7 @@ ALTER TABLE `header_navigation`
 --Chhavi 02nd Jan
 ALTER TABLE `sf_not_exist_booking_details` ADD `valid_pincode` INT(2) NOT NULL DEFAULT '1' AFTER `partner_id`;
 ALTER TABLE `sf_not_exist_booking_details` CHANGE `valid_pincode` `is_pincode_valid` INT(2) NOT NULL DEFAULT '1';
-ALTER TABLE `service_center_booking_action` ADD `reschedule_request_date` DATETIME NOT NULL AFTER `closed_date`;
+ALTER TABLE `service_center_booking_action` ADD `reschedule_request_date` DATETIME NULL AFTER `closed_date`;
 CREATE TABLE `fake_reschedule_missed_call_log` (
   `id` int(10) NOT NULL,
   `callSid` varchar(40) NOT NULL,
@@ -4058,6 +4058,7 @@ ALTER TABLE `partner_file_upload_header_mapping`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Upload File Header Mapping', 'employee/bookings_excel/file_upload_header_mapping', '2', '24', 'admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
 -- Chhavi
 CREATE TABLE `push_notification_subscribers` (
   `id` int(10) NOT NULL,
@@ -4168,4 +4169,23 @@ ALTER TABLE `push_notification_templates`
 --
 ALTER TABLE `push_notification_templates`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;COMMIT;
+
+
+
+---Abhay 4 Jan
+ALTER TABLE `service_centres` ADD `isEngineerApp` INT(1) NOT NULL DEFAULT '0' AFTER `agent_id`;
+ALTER TABLE trigger_service_centres ADD `isEngineerApp` INT(1) NOT NULL DEFAULT '0' AFTER `agent_id`;
+
+--Abhay 8 jan
+ALTER TABLE `spare_parts_details` ADD `old_status` VARCHAR(64) NULL DEFAULT NULL AFTER `status`;
+
+
+--Abhay Anand
+ALTER TABLE `service_center_booking_action` ADD `serial_number_pic` VARCHAR(256) NULL DEFAULT NULL AFTER `reschedule_request_date`, ADD `is_broken` INT(1) NULL DEFAULT NULL AFTER `serial_number_pic`;
+ALTER TABLE `booking_unit_details` ADD `serial_number_pic` VARCHAR(256) NULL DEFAULT NULL AFTER `serial_number`, ADD `is_broken` INT(1) NOT NULL DEFAULT '0' AFTER `serial_number_pic`;
+
+
+--Abhay
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'distance_pincode_api', 'Requested Municipal Limit', 'Please Find Attachment', 'noreply@247around.com', '', '', 'anuj@247around.com, abhaya@247around.com', '1', '2018-01-12 13:05:00');
+
 
