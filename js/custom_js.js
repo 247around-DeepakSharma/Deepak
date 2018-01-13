@@ -8,31 +8,33 @@ var pricesForCategoryCapacityUrl = baseUrl + '/employee/booking/getPricesForCate
 var get_booking_upcountry_details = baseUrl + '/employee/booking/get_booking_upcountry_details/';
 var count_number = 0;
 var DEFAULT_UPCOUNTRY_RATE = 3;
+var LOW_CREDIT_MSG = "Your Credit is low. Add credit";
 
 
 function getAppliance(service_id) {
 
     var postData = {};
-    postData['source_code'] = $("#source_code").val();
+    postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
 
     var service = $("#service_id option:selected").text();
     $("#services").val(service);
-
+    
     sendAjaxRequest(postData, applianceUrl + service_id).done(function (data) {
         var data1 = jQuery.parseJSON(data);
-
-        if(data1.code === 247){
-            $("#partner_type").val(data1.partner_type);
-
-            $("#service_id").html(data1.services).change();
-
-            getBrandForService();
-        } else if(data1.code === -247){
-            $("#service_id").html('<option selected disabled></option>').change();
-            alert(data1.prepaid_msg);
-            return false;
-        }
-       
+        $("#partner_type").val(data1.partner_type);
+        $("#partner_id").val(data1.partner_id);
+        $("#service_id").html(data1.services).change();
+        $("#is_active").val(data1.active);
+        var booking_type = $("#booking_type").val();
+        if(booking_type ==="" || booking_type === "Query"){
+            if(Number(data1.active) === 0){
+                
+                LOW_CREDIT_MSG = data1.prepaid_msg;
+                alert(LOW_CREDIT_MSG);
+               
+             } 
+        } 
+       getBrandForService();
     });
 }
 
@@ -41,7 +43,7 @@ function getBrandForService() {
     var postData = {};
     postData['service_id'] = $("#service_id").val();
     postData['source_code'] = $("#source_code").val();
-   
+    
     var service = $("#service_id option:selected").text();
     $("#services").val(service);
     if( postData['source_code'] !== null){
@@ -194,6 +196,26 @@ $(document).on('keyup', '.partner_discount', function (e) {
 });
 
 
+function check_prepaid_balance(type) {
+   
+    if (type === "Booking") {
+           
+        var booking_type = $("#booking_type").val();
+        var is_active = $("#is_active").val();
+        if (booking_type === "" || booking_type === "Query") {
+            
+            if (Number(is_active) === 0) {
+
+                alert(LOW_CREDIT_MSG);
+               
+                document.getElementById("booking").checked = false;
+                return false;
+            }
+        }
+    }
+
+}
+
 function addBookingDialog() {
 
     count_number++;
@@ -212,7 +234,9 @@ function addBookingDialog() {
     var source_code = $("#source_code option:selected").val();
     var dealer_phone_number = $('#dealer_phone_number').val();
     var dealer_name = $('#dealer_name').val();
-
+    var booking_type = $("#booking_type").val();
+    var is_active = $("#is_active").val();
+    
     if (pincode.length !== 6) {
 
         alert("Please Select 6 Digit Valid Pincode Number");
@@ -225,7 +249,7 @@ function addBookingDialog() {
         alert("Please Select Booking Source");
 
         return false;
-    }
+    } 
 
     if (service === null || service === "" || service === "Select Service") {
 
@@ -259,6 +283,16 @@ function addBookingDialog() {
                     return false;
                 }
             }
+            
+            if(booking_type ==="" || booking_type === "Query"){
+                if(Number(is_active) === 0){
+
+                    alert(LOW_CREDIT_MSG);
+                    return false;
+                 }  
+            } 
+    
+    
         } else {
             if ($('input[name=internal_status]:checked').length > 0) {
                 // something when checked

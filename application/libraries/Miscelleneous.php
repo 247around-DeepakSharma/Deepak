@@ -1131,12 +1131,12 @@ class Miscelleneous {
      * @param int $partner_id
      * @return int
      */
-    function get_partner_prepaid_amount($partner_id) {
+    function get_partner_prepaid_amount($partner_id, $getAll = FALSE) {
         //Get Partner details
 
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_active, is_prepaid,prepaid_amount_limit,"
-                . "grace_period_date,prepaid_notification_amount ", array('partners.id' => $partner_id));
-        if (!empty($partner_details)) {
+                . "grace_period_date,prepaid_notification_amount, partner_type ", array('partners.id' => $partner_id));
+        if(!empty($partner_details) && ($partner_details[0]['is_prepaid'] == 1 || !empty($getAll))){
             //Get Partner invoice amout
             $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id,
                 'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) '
@@ -1144,6 +1144,7 @@ class Miscelleneous {
             $where = array(
                 'partner_id' => $partner_id,
                 'partner_invoice_id is null' => NULL,
+                'create_date >= "2017-01-01" ' => NULL,
                 'booking_status IN ("' . _247AROUND_PENDING . '", "'  . _247AROUND_COMPLETED . '")' => NULL
             );
             // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
@@ -1152,7 +1153,7 @@ class Miscelleneous {
             $final_amount = -($invoice_amount[0]['amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)));
 
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
-            $d['prepaid_amount'] = $final_amount;
+            $d['prepaid_amount'] = round($final_amount,0);
             // If final amount is greater than notification amount then we will display notification in the Partner CRM
             if (($partner_details[0]['is_prepaid'] == 1) & $final_amount < $partner_details[0]['prepaid_notification_amount']) {
 
@@ -1182,10 +1183,17 @@ class Miscelleneous {
 
                 //$d['active'] = 1;
             }
-
+            $d['partner_type'] = $partner_details[0]['partner_type'];
             return $d;
         } else {
-            return false;
+            $d['is_notification'] = false;
+            $d['active'] = 1;
+            $d['prepaid_msg'] = "";
+            if(!empty($partner_details)){
+                 $d['partner_type'] = $partner_details[0]['partner_type'];
+            }
+           
+            return $d;
         }
     }
 
