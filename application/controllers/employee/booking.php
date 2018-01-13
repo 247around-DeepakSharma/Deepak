@@ -556,8 +556,7 @@ class Booking extends CI_Controller {
         $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
         $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
         $booking['update_date'] = date("Y-m-d H:i:s");
-        $partner_details = $this->partner_model->getpartner_details('bookings_sources.partner_id', array('bookings_sources.code' => $booking['source']));
-        $booking['partner_id'] = $partner_details[0]['partner_id'];
+        $booking['partner_id'] = $this->input->post('partner_id');
         
         if(empty($user_id)){
             $user['phone_number'] = $booking['booking_primary_contact_no'];
@@ -1033,39 +1032,36 @@ class Booking extends CI_Controller {
      * @desc: This is used to get appliabce list its called by Ajax
      */
     function get_appliances($selected_service_id) {
-        $source_code = $this->input->post('source_code');
+        $partner_id = $this->input->post('partner_id');
 
-        $booking_source = $this->booking_model->get_booking_source($source_code);
-        $prepaid['active'] = 1;
-        if($selected_service_id == "undefined"){
-            $prepaid = $this->miscelleneous->get_partner_prepaid_amount($booking_source[0]['partner_id']);
-        }
-        
-        if ($prepaid['active'] == 1) {
-            if ($booking_source[0]['partner_type'] == OEM) {
-                $services = $this->partner_model->get_partner_specific_services($booking_source[0]['partner_id']);
-            } else {
-                $services = $this->booking_model->selectservice();
-            }
-            $data['partner_type'] = $booking_source[0]['partner_type'];
-            $data['services'] = "<option selected disabled>Select Service</option>";
-            foreach ($services as $appliance) {
-                $data['services'] .= "<option ";
-                if ($selected_service_id == $appliance->id) {
-                    $data['services'] .= " selected ";
-                } else if (count($services) == 1) {
-                    $data['services'] .= " selected ";
-                }
-                $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
-            }
-            $data['code'] = 247;
-            print_r(json_encode($data, true));
+        $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+
+        if ($prepaid['partner_type'] == OEM) {
+            $services = $this->partner_model->get_partner_specific_services($partner_id);
         } else {
-            $data['code'] = -247;
+            $services = $this->booking_model->selectservice();
+        }
+        $data['partner_type'] = $prepaid['partner_type'];
+        $data['partner_id'] = $partner_id;
+        $data['active'] = $prepaid['active'];
+        if($prepaid['is_notification']){
             $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
             
-            echo json_encode($data,true);
+        } else {
+            $data['prepaid_msg'] = "";
         }
+        $data['services'] = "<option selected disabled>Select Service</option>";
+        foreach ($services as $appliance) {
+            $data['services'] .= "<option ";
+            if ($selected_service_id == $appliance->id) {
+                $data['services'] .= " selected ";
+            } else if (count($services) == 1) {
+                $data['services'] .= " selected ";
+            }
+            $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
+        }
+        print_r(json_encode($data, true));
+        
     }
 
     /**
@@ -1396,44 +1392,6 @@ class Booking extends CI_Controller {
     }
 
     /**
-     *  @desc : This function is to view pending queries according to pagination
-     *  @param : offset and per page number
-     *  @return : list of pending queries according to pagination
-     */
-//    function view_queries1($status, $p_av, $page = 0, $offset = '0', $booking_id = "") {
-//        if ($page == 0) {
-//            $page = 50;
-//        }
-//
-//        //$offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
-//        $config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status . "/" . $p_av . "/" . $page;
-//
-//        //Get count of all pending queries
-//        $total_queries = $this->booking_model->get_queries(0, "All", $status, $p_av, $booking_id);
-//
-//        $config['total_rows'] = $total_queries[0]->count;
-//        if ($offset == "All") {
-//            $config['per_page'] = $config['total_rows'];
-//        } else {
-//            $config['per_page'] = $page;
-//        }
-//
-//        $config['uri_segment'] = 7;
-//        $config['first_link'] = 'First';
-//        $config['last_link'] = 'Last';
-//
-//        $this->pagination->initialize($config);
-//        $data['links'] = $this->pagination->create_links();
-//
-//        //Get actual data for all pending queries now
-//        $data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
-//
-//        $data['p_av'] = $p_av;
-//        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-//        $this->load->view('employee/viewpendingqueries', $data);
-//    }
-
-    /**
      * @desc: load update booking form to update booking
      * @param: booking id
      * @return : void
@@ -1463,13 +1421,10 @@ class Booking extends CI_Controller {
                  }
             }
             
-            $booking['partner_type'] = "";
-
-            foreach ($booking['sources'] as $value) {
-                if ($value['partner_id'] == $booking_history[0]['partner_id']) {
-                    $booking['partner_type'] = $value['partner_type'];
-                }
-            }
+            $prepaid = $this->miscelleneous->get_partner_prepaid_amount($booking_history[0]['partner_id']);
+            $booking['active'] = $prepaid['active'];
+            
+            $booking['partner_type'] = $prepaid["partner_type"];
             if ($booking['partner_type'] == OEM) {
                 $booking['services'] = $this->partner_model->get_partner_specific_services($booking_history[0]['partner_id']);
             } else {
