@@ -64,7 +64,8 @@
     <body>
         <div class="container">
             <div class="row">
-                <h3>Upload Pincode File To Get Distance<img style='float: right;width:268px;' src="<?php echo base_url();?>images/powered-by-google.png"></h3>
+                <h3>Upload Pincode File To Get Distance</h3>
+                <img style='float: right;width:268px;' src="<?php echo base_url();?>images/powered-by-google.png">
                 <form id="myform" method="post">
 
                     <div class="form-group">

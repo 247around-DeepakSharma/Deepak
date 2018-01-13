@@ -998,7 +998,7 @@ class vendor_model extends CI_Model {
             }
         }
     }
-
+    
     /**
      *  @desc: get cancellation reason for specific vendor
      *
@@ -1037,6 +1037,7 @@ class vendor_model extends CI_Model {
      * @param String $service_center_id
      * @return Array
      */
+    //TO DO - Remove this method
     function get_engineers($service_center_id){
         if($service_center_id != ""){
             $this->db->where('service_center_id', $service_center_id);
@@ -1045,11 +1046,20 @@ class vendor_model extends CI_Model {
         $query = $this->db->get('engineer_details');
         return $query->result_array();
     }
+    
+    function get_engineers_details($where, $select){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("engineer_details");
+        return $query->result_array();
+        
+    }
     /**
      * @desc: This is used to get Engineer details based on Engineer ID
      * @param INT engineer ID
      * @param Array Engineer Details
      */
+    //TO DO - Remove this method
     function get_engg_by_id($id){
         $this->db->where('id', $id);
         $this->db->where('delete', 0);

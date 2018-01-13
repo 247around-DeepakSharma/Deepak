@@ -1398,7 +1398,7 @@ class Booking_model extends CI_Model {
     function get_booking_for_review($booking_id,$whereIN=array()) {
         $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$whereIN);
         foreach ($charges as $key => $value) {
-            $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
+           // $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id']);
         }
         return $charges;
