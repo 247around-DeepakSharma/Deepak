@@ -26,6 +26,7 @@ class vendor extends CI_Controller {
         $this->load->model('upcountry_model');
         $this->load->model('vendor_model');
         $this->load->model('service_centre_charges_model');
+        $this->load->model('engineer_model');
         $this->load->helper(array('form', 'url','array'));
         $this->load->library('form_validation');
         $this->load->model('partner_model');
@@ -1274,6 +1275,10 @@ class vendor extends CI_Controller {
             $this->vendor_model->delete_previous_service_center_action($booking_id);
             $unit_details = $this->booking_model->getunit_details($booking_id);
             
+            $this->engineer_model->delete_booking_from_engineer_table($booking_id);
+            
+            $vendor_data = $this->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$service_center_id, "isEngineerApp" => 1));
+            
             foreach ($unit_details[0]['quantity'] as $value) {
                 
                 $data['current_status'] = "Pending";
@@ -1284,6 +1289,21 @@ class vendor extends CI_Controller {
                 $data['update_date'] = date('Y-m-d H:i:s');
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
+                
+                if(!empty($vendor_data)){
+                    $engineer_action['unit_details_id'] = $value['unit_id'];
+                    $engineer_action['service_center_id'] = $service_center_id;
+                    $engineer_action['booking_id'] = $booking_id;
+                    $engineer_action['current_status'] = _247AROUND_PENDING;
+                    $engineer_action['internal_status'] = _247AROUND_PENDING;
+                    $engineer_action["create_date"] = date("Y-m-d H:i:s");
+                    
+                    $enID = $this->engineer_model->insert_engineer_action($engineer_action);
+                    if(!$enID){
+                         $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
+                            "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "");
+                    }
+                }
                 
                 /* update inventory stock for reassign sf
                  * First increase stock for the previous sf and after that decrease stock 
@@ -1645,23 +1665,6 @@ class vendor extends CI_Controller {
         else{
             $this->get_vendor_escalation_form($booking_id);
         }
-    }
-
-   
-
-    /**
-     * @desc: Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.
-     *
-     * @param : sms template
-     * @param : booking id
-     * @param : user's details
-     * @return : sms body
-     */
-    function replaceSms_body($template, $booking_id, $userDetails) {
-
-        $smsBody = sprintf($template, $userDetails[0]['name'], $userDetails[0]['phone_number'], $booking_id);
-
-        return $smsBody;
     }
 
 

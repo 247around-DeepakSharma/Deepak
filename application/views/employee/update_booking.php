@@ -773,7 +773,8 @@
 <script>
     check_pincode();
     $(".booking_source").select2();
-    //$("#service_id").select2();
+   // $("#service_id").select2();
+
     $('#service_id').css('pointer-events','none'); 
     $("#booking_city").select2({
          tags: true

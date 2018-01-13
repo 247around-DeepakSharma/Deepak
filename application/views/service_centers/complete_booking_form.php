@@ -93,6 +93,7 @@
                                         </select>
                                     </div>
                                 </div>
+                                
                                 <!-- end col-md-6 -->
                             </div>
                         </div>
@@ -117,12 +118,23 @@
                     <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
                     <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
                     <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
-                   
+                    <input type="hidden" name="approval" value='0' />
                     <?php $count = 0; foreach ($bookng_unit_details as $key => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <label> Is Appliance Broken</label>
+                                            <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$count?>" name="broken[]" onchange="check_broken('<?php echo $count;?>')" required>
+                                                <option selected disabled>Is Broken</option>
+                                                <option  value="1">Yes</option>
+                                                <option value="0">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="<?php echo "count_line_item_".$count;?>" value="<?php echo count($unit_details['quantity']);?>"/>
                                     <div class="form-group ">
                                         <div class="col-md-12 ">
                                             <select type="text" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
@@ -145,6 +157,7 @@
                                             </select>
                                         </div>
                                     </div>
+                                    
                                     <?php } ?>
                                 </div>
                                 <div class="col-md-9">
@@ -167,10 +180,13 @@
                                                     ?>
                                             <tr>
                                                 <td>
-                                                    <?php if ($price['pod'] == "1") { ?>
+                                                    <?php if ($price['pod'] == "1" || !empty($price['en_serial_number'])) { ?>
                                                     <div class="form-group">
                                                         <div class="col-md-12">
-                                                            <input type="text" id="<?php echo "serial_number" . $count ?>" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['serial_number']; ?>" placeholder="Enter Serial No" required  />
+                                                            <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
+                                                                   value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} else {$price["serial_number_pic"];}  ?>" placeholder=""   />
+                                                            <input type="text" id="<?php echo "serial_number" . $count ?>" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>" 
+                                                                   value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];} else {$price["serial_number"];}  ?>" placeholder="Enter Serial No" required  />
                                                             <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                         </div>
                                                     </div>
@@ -206,13 +222,15 @@
                                                             class="form-control cost" 
                                                             name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "0" >
                                                 </td>
+                                                <input type="hidden" name="<?php echo "appliance_broken[" . $price['unit_id'] . "]" ?>" 
+                                                       class="<?php echo "is_broken_".$count;?>" value=""/>
                                                 <td>
                                                     <div class="row">
                                                         <div class="col-md-12">
                                                             <div class="form-group ">
                                                                 <div class="col-md-10">
                                                                     <div class="radio">
-                                                                        <label><input type="radio"  name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
+                                                                        <label><input class="<?php echo "completed_".$count."_".$key;?>" type="radio"  name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
                                                                             if ($price['booking_status'] == "Completed") {
                                                                             echo "checked";
                                                                             }
@@ -223,7 +241,7 @@
                                                                             echo " Completed";
                                                                             }
                                                                             ?><br/>
-                                                                        <input type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
+                                                                        <input class="<?php echo "cancelled_".$count."_".$key;?>" type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
                                                                             if ($price['booking_status'] == "Cancelled") {
                                                                             echo "checked";
                                                                             }
@@ -288,7 +306,7 @@
                             <div class="form-group col-md-6" style=" margin-left:-29px;">
                                 <label for="remark" class="col-md-12">Booking Remarks</label>
                                 <div class="col-md-12" >
-                                    <textarea class="form-control"  rows="5" name="booking_remarks" readonly><?php
+                                    <textarea class="form-control"  rows="2" name="booking_remarks" readonly><?php
                                         if (isset($booking_history[0]['booking_remarks'])) {
                                             echo str_replace("<br/>", "&#13;&#10;", $booking_history[0]['booking_remarks']);
                                         }
@@ -298,7 +316,7 @@
                             <div class="form-group col-md-6">
                                 <label for="remark" class="col-md-12">Closing Remarks</label>
                                 <div class="col-md-12" >
-                                    <textarea class="form-control"  rows="5" name="closing_remarks" id="closing_remarks" required></textarea>
+                                    <textarea class="form-control"  rows="2" name="closing_remarks" id="closing_remarks" required></textarea>
                                 </div>
                             </div>
                         </div>
@@ -317,7 +335,7 @@
 </div>
 </div>
 <script>
-    $("#service_id").select2();
+$("#service_id").select2();
 $("#booking_city").select2();
 
 
@@ -368,11 +386,13 @@ function onsubmit_form(upcountry_flag, number_of_div) {
 
                     document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
                     flag = 1;
+                    
                 }
 
                 if (serial_number === "0") {
                     document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
                     flag = 1;
+                    
                 }
 
                 var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
@@ -380,39 +400,51 @@ function onsubmit_form(upcountry_flag, number_of_div) {
                     if (serial_number > 0) {
                         flag = 0;
                     } else {
+                        
                         document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
                         flag = 1;
+                        
                     }
                 }
             }
+           
             var amount_due = $("#amount_due" + div_no[2]).text();
             var price_tags = $("#price_tags" + div_no[2]).text();
             var basic_charge = $("#basic_charge" + div_no[2]).val();
             var additional_charge = $("#extra_charge" + div_no[2]).val();
             var parts_cost = $("#parts_cost" + div_no[2]).val();
             if (Number(amount_due) > 0) {
+               
                 var total_sf = Number(basic_charge) + Number(additional_charge) + Number(parts_cost);
                 if (Number(total_sf) === 0) {
+                   
                     alert("Please fill amount collected from customer, Amount Due: Rs." + amount_due);
                     flag = 1;
+                    
                 }
                 
                 if(price_tags === '<?php echo REPAIR_OOW_PARTS_PRICE_TAGS;?>'){
-                    if(Number(basic_charge) < Number(amount_due))
+                   
+                    if(Number(basic_charge) < Number(amount_due)){
                        alert("Please fill amount collected from customer, Amount Due: Rs." + amount_due);
                        flag = 1;
-                       
+                       }
+                         
                 }
+                 
             }
+              
         } else if(div_no[0] === "cancelled"){
             var price_tags = $("#price_tags" + div_no[2]).text();
             var amount_due = $("#amount_due" + div_no[2]).text();
             if(price_tags === '<?php echo REPAIR_OOW_PARTS_PRICE_TAGS;?>'){
                 alert("You can not mark as a not delivered of Spare Parts. fill amount collected from customer, Amount Due: Rs." + amount_due);
                 flag = 1;
+                return false;
             }
         }
     });
+  
     if (Number(number_of_div) !== Number(div_count)) {
         alert('Please Select All Services Delivered Or Not Delivered.');
         flag = 1;
@@ -421,6 +453,7 @@ function onsubmit_form(upcountry_flag, number_of_div) {
     if ($.inArray('completed', is_completed_checkbox) !== -1) {
 
     } else {
+     
         alert('Please Select atleast one Completed or Delivered checkbox.');
         flag = 1;
         return false;
@@ -438,8 +471,9 @@ function onsubmit_form(upcountry_flag, number_of_div) {
     });
 
     var is_sp_required = $("#spare_parts_required").val();
-
+    
     if (Number(is_sp_required) === 1) {
+       
         alert("Ship Defective Spare Parts");
     }
 
@@ -527,6 +561,22 @@ function onsubmit_form(upcountry_flag, number_of_div) {
     
     })(jQuery, window, document);
     
-    
+    function check_broken(div){
+        var broken = $("#broken_"+ div).val();
+        $(".is_broken_"+div).val(broken);
+        
+        var div_item_count = $("#count_line_item_"+div).val();
+        if(Number(broken) === 1){
+            for(i = 0; i < Number(div_item_count); i++ ){
+                if(i === 0){
+                    document.getElementById("completed_"+div+"_"+i).checked = true;
+                   // $("#completed_"+count+"_"+i).
+                } else {
+                     document.getElementById("cancelled_"+div+"_"+i).checked = true;
+                }
+            }
+        }
+        
+    }
     
 </script>
