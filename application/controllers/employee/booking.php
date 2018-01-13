@@ -2628,7 +2628,7 @@ class Booking extends CI_Controller {
         $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
-        $this->miscelleneous->load_nav_header();
+       $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
             $this->load->view('employee/view_pending_bookings', $data);
         }else{
@@ -3742,9 +3742,12 @@ class Booking extends CI_Controller {
         echo $this->miscelleneous->fake_reschedule_handling($userPhone,$id,$employeeID,$remarks,$booking_id);
     }
     function get_all_brands($serviceID){
+        $data = array();
         $allBrands = $this->reusable_model->get_search_result_data("appliance_brands","DISTINCT(brand_name)",array("service_id"=>$serviceID),NULL,NULL,array("brand_name"=>"ASC"),NULL,NULL,array());
-        foreach($allBrands as $brand){
-            $data[]=$brand['brand_name'];
+        if($allBrands){
+            foreach($allBrands as $brand){
+                $data[]=$brand['brand_name'];
+            }
         }
         echo json_encode($data);
     }

@@ -1298,28 +1298,42 @@ class Miscelleneous {
      * When we upload any new pincode and that pincode with same service_id exist in sf not found table, then this will update its active flag
      */
 
-          function update_pincode_not_found_sf_table($pincodeServiceArray){
-              $pincodeStrring ="";
-              foreach($pincodeServiceArray as $key=>$values){
-                        $pincodeArray['(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')'] = NULL;
-                        $pincodeStrring .= '(pincode='.$values['Pincode'].' AND service_id='.$values['Appliance_ID'].')|||';
-              }
-            log_message('info',__FUNCTION__.'Deactivate following Combination From sf not found table. '.print_r($pincodeArray,TRUE));
-            $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray,array('active_flag'=>0));
-          }
+    function update_pincode_not_found_sf_table($pincodeServiceArray) {
+        $pincodeStrring = "";
+        foreach ($pincodeServiceArray as $key => $values) {
+            $pincodeArray['(pincode=' . $values['Pincode'] . ' AND service_id=' . $values['Appliance_ID'] . ')'] = NULL;
+            $pincodeStrring .= '(pincode=' . $values['Pincode'] . ' AND service_id=' . $values['Appliance_ID'] . ')|||';
+        }
+        log_message('info', __FUNCTION__ . 'Deactivate following Combination From sf not found table. ' . print_r($pincodeArray, TRUE));
+        $this->My_CI->vendor_model->update_not_found_sf_table($pincodeArray, array('active_flag' => 0));
+    }
+    
+    /*
+     * Pass the file name to function and it will return file reader version for excel file
+     */
 
+    function get_excel_reader_version($fileName) {
+        $pathinfo = pathinfo($fileName);
+        if ($pathinfo['extension'] == 'xlsx') {
+            $readerVersion = 'Excel2007';
+        } else {
+            $readerVersion = 'Excel5';
+        }
+        return $readerVersion;
+    }
 
     /*
      * This Function convert excel data into array, 1st row of excel data will be keys of returning array
      * @input - filePath and reader Version and index of sheet in case of multiple sheet excel
      */
 
-    function excel_to_Array_converter($file, $readerVersion, $sheetIndex = NULL) {
+    function excel_to_Array_converter($file, $readerVersion = NULL, $sheetIndex = NULL) {
         if (!$sheetIndex) {
             $sheetIndex = 0;
         }
+        $readerVersion1 = $this->get_excel_reader_version($file['file']['name']);
         $finalExcelDataArray = array();
-        $objReader = PHPExcel_IOFactory::createReader($readerVersion);
+        $objReader = PHPExcel_IOFactory::createReader($readerVersion1);
         $objPHPExcel = $objReader->load($file['file']['tmp_name']);
         $sheet = $objPHPExcel->getSheet($sheetIndex);
         $highestRow = $sheet->getHighestDataRow();
@@ -1766,23 +1780,23 @@ class Miscelleneous {
         return $finalData;
     }
 
- function send_completed_booking_email_to_customer($completedBookingsID){
-      log_message('info', __FUNCTION__ . ' => Completed booking Email Send Function Entry');
-        $completedBookingsData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,users.name,users.user_email,partners.public_name as partner,booking_details.booking_date as booking_date",NULL,array('partners'=>'partners.id=booking_details.partner_id','users'=>'booking_details.user_id=users.user_id'),NULL,NULL,array('booking_id'=>$completedBookingsID),NULL);
-        foreach($completedBookingsData as $data){
-        $emailBasicDataArray['to'] = $data['user_email'];
-        $emailBasicDataArray['subject'] = "Completed Booking ".$data['booking_id'];
-        $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
-        $emailBasicDataArray['fromName'] = "247around Team";
-        $emailTemplateDataArray['templateId'] = COMPLETED_BOOKING_CUSTOMER_TEMPLATE;
-        unset($data['user_email']);
-        $emailTemplateDataArray['dynamicParams'] = $data;
-        $this->My_CI->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray);
-        log_message('info', __FUNCTION__ . ' => Email Sent');
-        log_message('info', __METHOD__ . "=> Email Basic Data" . print_r($emailBasicDataArray, true));
-       log_message('info', __METHOD__ . "=> Email Template Data " . print_r($emailTemplateDataArray, true));
-            }
-    }
+// function send_completed_booking_email_to_customer($completedBookingsID){
+//      log_message('info', __FUNCTION__ . ' => Completed booking Email Send Function Entry');
+//        $completedBookingsData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,users.name,users.user_email,partners.public_name as partner,booking_details.booking_date as booking_date",NULL,array('partners'=>'partners.id=booking_details.partner_id','users'=>'booking_details.user_id=users.user_id'),NULL,NULL,array('booking_id'=>$completedBookingsID),NULL);
+//        foreach($completedBookingsData as $data){
+//        $emailBasicDataArray['to'] = $data['user_email'];
+//        $emailBasicDataArray['subject'] = "Completed Booking ".$data['booking_id'];
+//        $emailBasicDataArray['from'] = NOREPLY_EMAIL_ID;
+//        $emailBasicDataArray['fromName'] = "247around Team";
+//        $emailTemplateDataArray['templateId'] = COMPLETED_BOOKING_CUSTOMER_TEMPLATE;
+//        unset($data['user_email']);
+//        $emailTemplateDataArray['dynamicParams'] = $data;
+//        $this->My_CI->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray);
+//        log_message('info', __FUNCTION__ . ' => Email Sent');
+//        log_message('info', __METHOD__ . "=> Email Basic Data" . print_r($emailBasicDataArray, true));
+//       log_message('info', __METHOD__ . "=> Email Template Data " . print_r($emailTemplateDataArray, true));
+//            }
+//    }
 
     /**
      * @desc This function is used to update the inventory stock
@@ -1943,8 +1957,8 @@ class Miscelleneous {
         if(!$this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'))){
                 $this->set_header_navigation_in_cache();
          }
-         //Print navigation header from cache
-        echo $this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'));
+        $data['header_navigation_html'] = $this->My_CI->cache->file->get('navigationHeader_'.$this->My_CI->session->userdata('id'));
+        $this->My_CI->load->view('employee/header/load_header_navigation', $data);
     }
     /*
      * This Function is used to handle Fake Reschedule request By Miss Call Functionality
