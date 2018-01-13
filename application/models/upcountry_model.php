@@ -227,6 +227,10 @@ class Upcountry_model extends CI_Model {
                 'is_upcountry' => 1);
 
             $up_data['message'] = UPCOUNTRY_BOOKING;
+            if(isset($partner_data[0]['account_manager_id'])){
+                $up_data['partner_am_id'] = $partner_data[0]['account_manager_id'];
+            }
+            
             log_message('info', __FUNCTION__ ." Upcountry Booking ". print_r($up_data, true) );
            
         } else if($upcountry_distance > $max_threshold_distance) {
@@ -241,6 +245,9 @@ class Upcountry_model extends CI_Model {
                 'upcountry_approval_email' => $partner_data[0]['upcountry_approval_email'],
                 'is_upcountry' => 1);
            $up_data['message'] = UPCOUNTRY_LIMIT_EXCEED; 
+           if(isset($partner_data[0]['account_manager_id'])){
+                $up_data['partner_am_id'] = $partner_data[0]['account_manager_id'];
+            }
            log_message('info', __FUNCTION__ ." Upcountry Limit Exceed ". print_r($up_data, true) );
             
         }
