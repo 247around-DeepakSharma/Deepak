@@ -2157,6 +2157,7 @@ class Service_centers extends CI_Controller {
             $is_gst = $this->input->post('is_gst');
             $is_gst_number = NULL;
             $gst_file_name = NULL;
+            $gst_number = NULL;
             
             if ($is_gst == 1) {
                 $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|trim|min_length[15]|max_length[15]|regex_match[/^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[a-zA-Z0-9]{1}/]');
@@ -2169,6 +2170,7 @@ class Service_centers extends CI_Controller {
                 } else {
                     $is_gst_number = $this->input->post('gst_number');
                     $gst_file_name = $this->input->post('gst_cer_file');
+                    $gst_number = $this->input->post('gst_number');
                 }
             }
             
@@ -2180,7 +2182,7 @@ class Service_centers extends CI_Controller {
                 $gst_details['company_address'] = $this->input->post('company_address');
                 $gst_details['company_pan_number'] = $this->input->post('pan_number');
                 $gst_details['is_gst'] = $this->input->post('is_gst');
-                $gst_details['company_gst_number'] = $this->input->post('gst_number');
+                $gst_details['company_gst_number'] = $gst_number;
                 $gst_details['gst_certificate_file'] = $gst_file_name;
                 $gst_details['create_date'] = date('Y-m-d H:i:s');
                 $gst_details['signature_file'] = $this->input->post('signature_file_name');
