@@ -72,6 +72,7 @@
                             <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
                             <input type="hidden" name="user_id" id="user_id" value="" />
                             <input type="hidden" name="partner_id" id="partner_id" value="" />
+                            <input type="hidden" name="booking_type" id="booking_type" value="" />
                            
                             <input type="hidden" name="appliance_name" id="appliance_name" value=""/>
                             <div class="col-md-4" >

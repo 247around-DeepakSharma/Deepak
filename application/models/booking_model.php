@@ -1673,21 +1673,6 @@ class Booking_model extends CI_Model {
         $st_vat_charge = sprintf ("%.2f", ($total_charges / ((100 + $tax_rate)/100)) * (($tax_rate)/100));
         return $st_vat_charge;
     }
-
-    /**
-     * @desc: this method is used to get city, services, sources and user details
-     * @param : user phone no.
-     * @return : array()
-     */
-    function get_city_booking_source_services($phone_number){
-        $query1['services'] = $this->selectservice();
-        $query2['city'] = $this->vendor_model->getDistrict_from_india_pincode();
-        $query3['sources'] = $this->partner_model->get_all_partner_source("0");
-        $query4['user'] = $this->user_model->search_user($phone_number);
-
-        return $query = array_merge($query1, $query2, $query3, $query4);
-
-    }
     
     /**
      * @desc: this method is used to get city, services, sources details
@@ -1696,7 +1681,7 @@ class Booking_model extends CI_Model {
      */
     function get_city_source(){
         $query1['city'] = $this->vendor_model->getDistrict_from_india_pincode();
-        $query2['sources'] = $this->partner_model->get_all_partner_source("0");
+        $query2['sources'] = $this->partner_model->getpartner_details("bookings_sources.partner_id,source,code, partner_type", array("is_active" => 1));
        
         return $query = array_merge($query1, $query2);
 
