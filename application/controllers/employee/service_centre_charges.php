@@ -59,7 +59,7 @@ class service_centre_charges extends CI_Controller {
      *  @return : void
      */
     public function index() {
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_service_centre_charges_excel');
     }
 
@@ -125,7 +125,7 @@ class service_centre_charges extends CI_Controller {
 
         $data['booking'] = $to_display;
 
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/service_centre_charges_summary', $data);
     }
 
@@ -136,8 +136,7 @@ class service_centre_charges extends CI_Controller {
      */
     public function display_service_centre_charges() {
         $services = $this->booking_model->selectservice();
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/service_centre_price_list', array('services' => $services));
     }
 
@@ -169,7 +168,7 @@ class service_centre_charges extends CI_Controller {
      */
     function upload_excel_form($data = "") {
         $view['data'] = $data;
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_service_price', $view);
     }
 
@@ -390,8 +389,7 @@ class service_centre_charges extends CI_Controller {
      */
     function show_pricing_tables() {
         $data = $this->service_centre_charges_model->get_service_city_source_all_appliances_details();
-
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/pricingtable', $data);
     }
 
@@ -427,7 +425,7 @@ class service_centre_charges extends CI_Controller {
     function show_partner_service_price() {
 
         $data['partners'] = $this->partner_model->get_all_partner_source();
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_partner_services_price', $data);
     }
 
@@ -915,7 +913,7 @@ class service_centre_charges extends CI_Controller {
         } else {
             $data['appliances'] = $services = $this->booking_model->selectservice();
         }
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/generate_service_charges', $data);
     }
     /**
@@ -1146,7 +1144,7 @@ class service_centre_charges extends CI_Controller {
         } else {
             $data['appliances'] = $services = $this->booking_model->selectservice();
         }
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_service_price_details', $data);
     }
     
