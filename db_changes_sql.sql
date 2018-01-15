@@ -4188,4 +4188,10 @@ ALTER TABLE `booking_unit_details` ADD `serial_number_pic` VARCHAR(256) NULL DEF
 --Abhay
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'distance_pincode_api', 'Requested Municipal Limit', 'Please Find Attachment', 'noreply@247around.com', '', '', 'anuj@247around.com, abhaya@247around.com', '1', '2018-01-12 13:05:00');
 
+-- Chhavi
+ALTER TABLE  `push_notification_subscribers` CHANGE  `e_id`  `entity_id` INT( 10 ) NOT NULL ;
+ALTER TABLE `push_notification_templates` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;COMMIT;
+ALTER TABLE  `push_notification_subscribers` ADD  `device` VARCHAR( 20 ) NOT NULL AFTER  `entity_type` ;
+ALTER TABLE  `push_notification_subscribers` ADD  `browser` VARCHAR( 20 ) NOT NULL AFTER  `device` ;
+UPDATE  `push_notification_logs` SET  `notification_type` =  'normal'
 
