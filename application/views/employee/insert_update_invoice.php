@@ -210,6 +210,9 @@
                                         <option value="<?php echo BUYBACK_VOUCHER;?>" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == BUYBACK_VOUCHER){ echo "selected";}
                                             } ?>><?php echo BUYBACK_VOUCHER; ?></option>
+                                         <option value="<?php echo PARTNER_VOUCHER;?>" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == PARTNER_VOUCHER){ echo "selected";}
+                                            } ?>><?php echo PARTNER_VOUCHER; ?></option>
                                         <option value="Stand" <?php if (isset($invoice_details[0]['type'])) {
                                             if($invoice_details[0]['type'] == "Stand"){ echo "selected";}
                                             } ?>>Stand</option>
