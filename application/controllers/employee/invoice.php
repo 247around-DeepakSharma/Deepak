@@ -2372,11 +2372,6 @@ class Invoice extends CI_Controller {
             $tds = ($total_sc_details) * .20;
             $tds_tax_rate = 20;
             $tds_per_rate = "20%";
-        } else if (empty($sc_details['contract_file'])) {
-
-            $tds = ($total_sc_details) * .05;
-            $tds_tax_rate = 5;
-            $tds_per_rate = "5%";
         } else {
             switch ($sc_details['company_type']) {
                 case 'Proprietorship Firm':
@@ -2400,6 +2395,12 @@ class Invoice extends CI_Controller {
 
                 case "Partnership Firm":
                 case "Company (Pvt Ltd)":
+                case "Private Ltd Company":
+                    $tds = ($total_sc_details) * .02;
+                    $tds_tax_rate = 2;
+                    $tds_per_rate = "2%";
+                    break;
+                default :
                     $tds = ($total_sc_details) * .02;
                     $tds_tax_rate = 2;
                     $tds_per_rate = "2%";
