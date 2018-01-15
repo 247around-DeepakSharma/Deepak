@@ -1924,12 +1924,7 @@ class Partner extends CI_Controller {
 
         $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => DEFECTIVE_PARTS_REJECTED,
             'remarks_defective_part_by_partner' => $rejection_reason,
-            'approved_defective_parts_by_partner' => '0',
-            'defective_part_shipped' => NULL,
-            'defective_part_shipped_date' => NULL,
-            'awb_by_sf' => NULL,
-            'courier_name_by_sf' => NULL,
-            'remarks_defective_part_by_sf' => NULL));
+            'approved_defective_parts_by_partner' => '0'));
         if ($response) {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
