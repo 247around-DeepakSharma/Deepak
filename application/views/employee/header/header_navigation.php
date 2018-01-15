@@ -300,7 +300,6 @@
             <label class="search_fab " for="search_in"> <i class="fa fa-search" aria-hidden="true" ></i> </label>
 
         </div>
-<<<<<<< HEAD
         <div class="export_modal">
             <div class="modal fade right" id="sidebar-right" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
