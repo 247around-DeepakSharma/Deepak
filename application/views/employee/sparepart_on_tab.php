@@ -245,7 +245,7 @@
                                 </thead>
                                 <tbody>
                                    <?php $sn_no='1';  foreach ($spare_parts as $value) { 
-                                        if($value['status'] == 'Defective Part Pending'){
+                                        if($value['status'] == 'Defective Part Pending' || $value['status'] == "Defective Part Rejected By Partner"){
                                     ?>
                                     <tr>
                                         <td class="text-center"><?php echo $sn_no; ?></td>
