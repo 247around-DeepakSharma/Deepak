@@ -67,7 +67,7 @@
                                 <div class="form-group <?php if (form_error('awb_by_sf')) { echo 'has-error';} ?>">
                                     <label for="awb" class="col-md-4">AWB</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="awb_by_sf" name="awb_by_sf" value = "<?php echo set_value("awb_by_sf");?>" placeholder="Please Enter AWB"  required>
+                                        <input type="text" class="form-control" id="awb_by_sf" name="awb_by_sf" value = "<?php if((set_value("awb_by_sf"))){ echo set_value("awb_by_sf");} else{ echo $spare_parts[0]['awb_by_sf'];}?>" placeholder="Please Enter AWB"  required>
                                     </div>
                                     <?php echo form_error('awb_by_sf'); ?>
 
@@ -75,7 +75,7 @@
                                 <div class="form-group <?php if (form_error('courier_charges_by_sf')) { echo 'has-error';} ?>">
                                     <label for="courier_charges_by_sf" class="col-md-4">Courier Charges</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value = "<?php echo set_value("courier_charges_by_sf");?>" placeholder="Please Enter Courier Charges"  required>
+                                        <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value = "<?php if((set_value("courier_charges_by_sf"))){ echo set_value("courier_charges_by_sf");} else{ echo $spare_parts[0]['courier_charges_by_sf'];}?>" placeholder="Please Enter Courier Charges"  required>
                                     </div>
                                     <?php echo form_error('courier_charges_by_sf'); ?>
                                 </div>
@@ -83,6 +83,7 @@
                                     <label for="AWS Receipt" class="col-md-4">Courier Invoice</label>
                                     <div class="col-md-6">
                                         <input id="aws_receipt" class="form-control"  name="defective_courier_receipt" type="file" required  style="background-color:#fff;pointer-events:cursor">
+                                        <?php if(!empty($value['defective_courier_receipt'])) {?><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $value['defective_courier_receipt']; ?> " target="_blank">Click Here to download previous invoice</a><?php } ?>
                                     </div>
                                      <?php echo form_error('defective_courier_receipt'); ?>
                                 </div>
@@ -91,7 +92,7 @@
                                 <div class="form-group <?php if (form_error('courier_name_by_sf')) { echo 'has-error';} ?>">
                                     <label for="courier" class="col-md-4">Courier Name</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" value = "<?php echo set_value("courier_name_by_sf");?>" placeholder="Please Enter Courier Name"  required>
+                                        <input type="text" class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" value = "<?php if((set_value("courier_name_by_sf"))){ echo set_value("courier_name_by_sf");} else{ echo $spare_parts[0]['courier_name_by_sf'];}?>" placeholder="Please Enter Courier Name"  required>
                                     </div>
                                      <?php echo form_error('courier_name_by_sf'); ?>
                                 </div>
@@ -99,7 +100,7 @@
                                     <label for="shipment_date" class="col-md-4">Shipment Date</label>
                                     <div class="col-md-6">
                                         <div class="input-group input-append date">
-                                            <input id="defective_part_shipped_date" class="form-control"  name="defective_part_shipped_date" type="date" value = "<?php echo  date("Y-m-d", strtotime("+0 day")); ?>" required readonly='true' style="background-color:#fff;pointer-events:cursor">
+                                            <input id="defective_part_shipped_date" class="form-control"  name="defective_part_shipped_date" type="date" value = "<?php if(!empty($spare_parts[0]['defective_part_shipped_date'])){ echo $spare_parts[0]['defective_part_shipped_date']; } else { echo  date("Y-m-d", strtotime("+0 day"));} ?>" required readonly='true' style="background-color:#fff;pointer-events:cursor">
                                             <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                         </div>
                                     </div>
@@ -108,7 +109,7 @@
                                 <div class="form-group <?php if (form_error('remarks_defective_part')) { echo 'has-error';} ?>">
                                <label for="remarks_defective_part" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
-                                    <textarea type="text" class="form-control" id="remarks" name="remarks_defective_part" placeholder="Please Enter Remarks"  required><?php echo set_value("remarks_defective_part");?></textarea>
+                                    <textarea type="text" class="form-control" id="remarks" name="remarks_defective_part" placeholder="Please Enter Remarks"  required><?php if((set_value("remarks_defective_part"))){ echo set_value("remarks_defective_part");} else{ echo $spare_parts[0]['remarks_defective_part_by_sf'];}?></textarea>
                                 </div>  
                                 <?php echo form_error('remarks_defective_part'); ?>
                             </div>
