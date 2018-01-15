@@ -20,6 +20,17 @@
     <option value="order_id">OrderID</option>
   </select>
 </div>
+                    <div class="form-group" id="partner_holder">
+  <label for="sel1">Select Partner:</label>
+  <select class="form-control" name="partner" id="partner">
+      <option value="option_holder">Select Partner</option>
+    <?php
+    foreach($partnerArray as $partnerID=>$partnerName){
+        echo ' <option value="'.$partnerID.'">'.$partnerName.'</option>';
+    }
+    ?>
+  </select>
+</div>
                <div class="form-group">
   <label for="comment">Bulk Values</label>
   <textarea class="form-control" rows="5" id="bulk_input" name="bulk_input"></textarea>
@@ -47,6 +58,7 @@
                                         <th>Request Type</th>
                                         <th>Product/Service</th>
                                         <th>Current Status</th>
+                                        <th>Internal Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -59,6 +71,7 @@
             </div>
         </div>
 <script>
+    $("#partner").select2();
     function loadData(){
         select_type = document.getElementById("select_type").value;
         bulk_input = document.getElementById("bulk_input").value;
@@ -84,6 +97,7 @@ var ad_table;
                 "data": function(d){
                     d.select_type = $("#select_type option:selected").val();
                     d.bulk_input = $('textarea#bulk_input').val();
+                    d.partner_id = $("#partner option:selected").val();
                  }
             }
         });
