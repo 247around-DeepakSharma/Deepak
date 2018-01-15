@@ -142,18 +142,22 @@ class Service_centers extends CI_Controller {
         $bookng_unit_details = $this->booking_model->getunit_details($booking_id);
         foreach($bookng_unit_details as $key1 => $b){
            $broken = 0;
-            foreach ($b['quantity'] as $key2 => $u) {
-                
-                $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
-                    "engineer_booking_action.unit_details_id" => $u['unit_id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
-                $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
-                $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number'] = $en[0]['serial_number'];
-                $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
-                $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
-                $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
-                if($en[0]['is_broken'] == 1){
-                    $broken = 1;
+           if($this->session->userdata('is_engineer_app') == 1){
+                foreach ($b['quantity'] as $key2 => $u) {
+
+                    $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
+                        "engineer_booking_action.unit_details_id" => $u['unit_id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
+                    $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
+                    $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number'] = $en[0]['serial_number'];
+                    $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
+                    $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
+                    $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
+                    if($en[0]['is_broken'] == 1){
+                        $broken = 1;
+                    }
                 }
+            } else {
+                 $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number'] = "";
             }
             $bookng_unit_details[$key1]['is_broken'] = $broken;
 
@@ -225,14 +229,18 @@ class Service_centers extends CI_Controller {
                  $data['additional_service_charge'] = $additional_charge[$unit_id];
                  $data['parts_cost'] = $parts_cost[$unit_id];
                  if($booking_status[$unit_id] == _247AROUND_COMPLETED && $spare_parts_required == 1){
-                     $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
-                     $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" =>_247AROUND_COMPLETED), $unitWhere1);
+                     if($this->session->userdata('is_engineer_app') == 1){
+                        $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
+                        $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" =>_247AROUND_COMPLETED), $unitWhere1);
+                     }
                      $data['internal_status'] = DEFECTIVE_PARTS_PENDING;
                      $is_update_spare_parts = TRUE;
                  } else {
                      $data['internal_status'] = $booking_status[$unit_id];
-                     $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
-                     $this->engineer_model->update_engineer_table(array("current_status" => $booking_status[$unit_id], "internal_status" => $booking_status[$unit_id]), $unitWhere1);
+                     if($this->session->userdata('is_engineer_app') == 1){
+                        $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
+                        $this->engineer_model->update_engineer_table(array("current_status" => $booking_status[$unit_id], "internal_status" => $booking_status[$unit_id]), $unitWhere1);
+                     }
                  }
                  $data['current_status'] = "InProcess";
                  

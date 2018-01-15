@@ -416,7 +416,7 @@ class Login extends CI_Controller {
             //Setting logging vendor session details
             $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], 
                     $agent[0]['id'], $sc_details[0]['is_update'], 
-                    $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'],TRUE);
+                    $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'], $sc_details[0]['isEngineerApp'],TRUE);
            
             if ($this->session->userdata('is_sf') === '1') {
                 echo "service_center/pending_booking";
@@ -434,7 +434,7 @@ class Login extends CI_Controller {
      * @param: is update
      * @return: void
      */
-    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$is_gst_doc,$is_login_by_247=1) {
+    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$is_gst_doc,$engineer, $is_login_by_247=1) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
@@ -442,6 +442,7 @@ class Login extends CI_Controller {
             'service_center_agent_id' => $sc_agent_id,
             'is_upcountry' => $is_upcountry,
             'is_update' => $update,
+            'is_engineer_app' => $engineer,
 	    'sess_expiration' => 30000,
 	    'loggedIn' => TRUE,
 	    'userType' => 'service_center',
@@ -495,7 +496,7 @@ class Login extends CI_Controller {
                         $agent['id'], $sc_details[0]['is_update'], 
                         $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], 
                         $sc_details[0]['is_cp'],
-                        $is_gst_exist,0);
+                        $is_gst_exist,$sc_details[0]['isEngineerApp'], 0);
                 
                 if($this->session->userdata('is_sf') === '1'){
                     redirect(base_url() . "service_center/pending_booking");
