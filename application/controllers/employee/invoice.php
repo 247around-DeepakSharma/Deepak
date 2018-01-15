@@ -195,7 +195,7 @@ class Invoice extends CI_Controller {
         $data['partner'] = $this->partner_model->getpartner("", false);
         $invoicing_summary = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
         foreach ($invoicing_summary as $key => $value) {
-            $invoicing_summary[$key]['prepaid_data'] = $this->miscelleneous->get_partner_prepaid_amount($value["id"]);
+            $invoicing_summary[$key]['prepaid_data'] = $this->miscelleneous->get_partner_prepaid_amount($value["id"], TRUE);
         }
         $data['invoicing_summary'] = $invoicing_summary;
        
@@ -755,7 +755,7 @@ class Invoice extends CI_Controller {
      * @param Array $details
      * @return type
      */
-    function generate_cash_details_invoices_for_vendors($vendor_id, $data, $meta,$invoice_type, $agent_id) {
+    function generate_cash_details_invoices_for_vendors($vendor_id, $data, $meta,$invoice_type, $agent_id, $from_date, $to_date) {
         log_message('info', __FUNCTION__ . '=> Entering... for invoices:'. $meta['invoice_id']);
         $files = array();
         // it stores all unique booking id which is completed by particular vendor id
@@ -825,8 +825,8 @@ class Invoice extends CI_Controller {
                 'invoice_file_excel' => $meta['invoice_id'] . '.xlsx',
                 'invoice_detailed_excel' => $meta['invoice_id'] . '-detailed.xlsx',
                 'invoice_date' => date("Y-m-d"),
-                'from_date' => date("Y-m-d", strtotime($meta['sd'])),
-                'to_date' => date("Y-m-d", strtotime($meta['ed'])),
+                'from_date' => date("Y-m-d", strtotime($from_date)),
+                'to_date' => date("Y-m-d", strtotime($to_date)),
                 'num_bookings' =>  $meta['booking_count'],
                 "parts_count" => $meta['parts_count'],
                 'total_service_charge' => $t_s_charge,
@@ -957,7 +957,7 @@ class Invoice extends CI_Controller {
      * @param: Array()
      * @return: Array (booking id)
      */
-    function generate_foc_details_invoices_for_vendors($invoice_details, $invoice_data, $vendor_id, $invoice_type, $agent_id) {
+    function generate_foc_details_invoices_for_vendors($invoice_details, $invoice_data, $vendor_id, $invoice_type, $agent_id,$from_date,$to_date ) {
         log_message('info', __FUNCTION__ . '=> Entering...');
         
         $is_upcountry = FALSE;
@@ -1082,8 +1082,8 @@ class Invoice extends CI_Controller {
                     'invoice_file_excel' => "copy_".$invoice_data['meta']['invoice_id'] . '.xlsx',
                     'invoice_detailed_excel' => $invoice_data['meta']['invoice_id'] . '-detailed.xlsx',
                     'invoice_date' => date("Y-m-d"),
-                    'from_date' => date("Y-m-d", strtotime($invoice_data['meta']['sd'])),
-                    'to_date' => date("Y-m-d", strtotime($invoice_data['meta']['ed'])),
+                    'from_date' => date("Y-m-d", strtotime($from_date)),
+                    'to_date' => date("Y-m-d", strtotime($to_date)),
                     'num_bookings' => $invoice_data['meta']['count'],
                     'total_service_charge' => $total_inst_charge,
                     'total_additional_service_charge' => 0,
@@ -1112,7 +1112,7 @@ class Invoice extends CI_Controller {
                     'courier_charges' => $invoice_data['meta']['total_courier_charges'],
                     'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
-                    'due_date' => date("Y-m-d", strtotime($invoice_data['meta']['ed'] . "+1 month")),
+                    'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
                     //add agent id
                     'agent_id' => $agent_id,
                     "cgst_tax_rate" => $invoice_data['meta']['cgst_tax_rate'],
@@ -1861,7 +1861,7 @@ class Invoice extends CI_Controller {
                 $invoices['meta']['parts_count'] = $parts_count;
                 $invoices['meta']['total_amount_paid'] = round($total_amount_paid, 0);
                 $invoices['meta']['t_rating'] = round($rating / $i, 0);
-                $this->generate_cash_details_invoices_for_vendors($vendor_id, $invoices_details_data, $invoices['meta'], $invoice_type, $agent_id);
+                $this->generate_cash_details_invoices_for_vendors($vendor_id, $invoices_details_data, $invoices['meta'], $invoice_type, $agent_id, $from_date, $to_date);
                 unset($invoices_details_data);
                 unset($invoices['meta']);
                 return true;
@@ -1887,7 +1887,7 @@ class Invoice extends CI_Controller {
         $to_date = $custom_date[1];
         $invoice_type = $details['invoice_type'];
         $invoices = $this->invoices_model->get_buyback_invoice_data($vendor_id, $from_date, $to_date, $is_regenerate);
-        
+       
         if($invoices){
             if (isset($details['invoice_id'])) {
                 log_message('info', __FUNCTION__ . " Re-Generate Cash Invoice ID: " . $details['invoice_id']);
@@ -1905,7 +1905,7 @@ class Invoice extends CI_Controller {
             if ($status) {
 
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
-                $this->generate_buyback_detailed_invoices($vendor_id, $invoices['annexure_data'], $invoices['meta'], $invoice_type, $details['agent_id']);
+                $this->generate_buyback_detailed_invoices($vendor_id, $invoices['annexure_data'], $invoices['meta'], $invoice_type, $details['agent_id'], $from_date, $to_date);
                 return true;
             } else {
                 
@@ -1922,7 +1922,7 @@ class Invoice extends CI_Controller {
         }
     }
     
-    function generate_buyback_detailed_invoices($vendor_id, $data, $meta, $invoice_type, $agent_id){
+    function generate_buyback_detailed_invoices($vendor_id, $data, $meta, $invoice_type, $agent_id,$from_date, $to_date){
         log_message('info', __FUNCTION__ . " Entering...." );
         $files = array();
 
@@ -1973,8 +1973,8 @@ class Invoice extends CI_Controller {
                 'invoice_file_excel' => $meta['invoice_id'] . '.xlsx',
                 'invoice_detailed_excel' => $meta['invoice_id'] . '-detailed.xlsx',
                 'invoice_date' => date("Y-m-d"),
-                'from_date' => date("Y-m-d", strtotime($meta['sd'])),
-                'to_date' => date("Y-m-d", strtotime($meta['ed'])),
+                'from_date' => date("Y-m-d", strtotime($from_date)),
+                'to_date' => date("Y-m-d", strtotime($to_date)),
                 'parts_count' =>  $meta['total_qty'],
                 'parts_cost' => $meta['sub_total_amount'],
                 'total_amount_collected' => $meta['sub_total_amount'],
@@ -1987,7 +1987,7 @@ class Invoice extends CI_Controller {
                 //SMS has been sent or not
                 'sms_sent' => 1,
                 //Add 1 month to end date to calculate due date
-                'due_date' => date("Y-m-d", strtotime($meta['ed'])),
+                'due_date' => date("Y-m-d", strtotime($to_date)),
                 //add agent_id
                 'agent_id' => $agent_id,
                 "invoice_file_pdf" => $convert['copy_file']
@@ -2099,7 +2099,7 @@ class Invoice extends CI_Controller {
 
 
                     $in_detailed = $this->invoices_model->generate_vendor_foc_detailed_invoices($vendor_id, $from_date, $to_date, $is_regenerate);
-                    return $this->generate_foc_details_invoices_for_vendors($in_detailed, $invoices, $vendor_id, $invoice_type, $details['agent_id']);
+                    return $this->generate_foc_details_invoices_for_vendors($in_detailed, $invoices, $vendor_id, $invoice_type, $details['agent_id'], $from_date,$to_date );
                 } else {
                     log_message('info', __FUNCTION__ . ' Invoice File did not create. invoice id' . $invoices['meta']['invoice_id']);
                     return FALSE;
@@ -2372,11 +2372,6 @@ class Invoice extends CI_Controller {
             $tds = ($total_sc_details) * .20;
             $tds_tax_rate = 20;
             $tds_per_rate = "20%";
-        } else if (empty($sc_details['contract_file'])) {
-
-            $tds = ($total_sc_details) * .05;
-            $tds_tax_rate = 5;
-            $tds_per_rate = "5%";
         } else {
             switch ($sc_details['company_type']) {
                 case 'Proprietorship Firm':
@@ -2400,6 +2395,12 @@ class Invoice extends CI_Controller {
 
                 case "Partnership Firm":
                 case "Company (Pvt Ltd)":
+                case "Private Ltd Company":
+                    $tds = ($total_sc_details) * .02;
+                    $tds_tax_rate = 2;
+                    $tds_per_rate = "2%";
+                    break;
+                default :
                     $tds = ($total_sc_details) * .02;
                     $tds_tax_rate = 2;
                     $tds_per_rate = "2%";
@@ -3207,7 +3208,8 @@ class Invoice extends CI_Controller {
                 $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array("sell_invoice_id" => $response['meta']['invoice_id']));
                 log_message('info', __METHOD__ . ": Invoice Updated in Spare Parts " . $response['meta']['invoice_id']);
 
-                $this->booking_model->update_booking_unit_details_by_any(array("booking_id" => $sp_data[0]->booking_id, "price_tags" => "Spare Parts"), array("pay_from_sf" => 0));
+                $this->booking_model->update_booking_unit_details_by_any(array("booking_id" => $sp_data[0]->booking_id, "price_tags" => "Spare Parts"), 
+                        array("pay_from_sf" => 0, "vendor_cash_invoice_id" => $response['meta']['invoice_id']));
                 log_message('info', __METHOD__ . ": ...Exit" . $response['meta']['invoice_id']);
             }
         }

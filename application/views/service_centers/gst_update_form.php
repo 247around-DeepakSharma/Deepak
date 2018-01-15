@@ -49,7 +49,7 @@
                                  <div  class="form-group <?php if( form_error('gst_number') ) { echo 'has-error';} ?>">
                                     <label  for="gst_no" class="col-md-4">Company GST No</label>
                                     <div class="col-md-8">
-                                        <input  type="text" class="form-control" style="text-transform:uppercase"  id="gst_no" name="gst_number" value = "<?php echo set_value("gst_number");?>" placeholder="Company GST Number" >
+                                        <input  type="text" class="form-control" style="text-transform:uppercase"  id="gst_no" name="gst_number" value = "<?php echo set_value("gst_number");?>" placeholder="Company GST Number" required>
                                         <?php echo form_error('gst_number'); ?>
                                     </div>
                                     
@@ -114,13 +114,14 @@
     
     function is_gst_number(ele){
         if(Number(ele.value) === 0){
-            $("#gst_no").val("");
-            $("#gst_certificate_file").val("");
-            document.getElementById("gst_no").readOnly = true;
-            document.getElementById("gst_certificate_file").readOnly = true;
+            $("#gst_no").prop('disabled', true);
+            $("#gst_certificate_file").prop('disabled', true);
+            $("#signature_file").prop('required',true);
         } else if(Number(ele.value) === 1){
-            document.getElementById("gst_no").readOnly = false;
-            document.getElementById("gst_certificate_file").readOnly = false;
+            $("#gst_no").prop('disabled', false);
+            $("#gst_certificate_file").prop('disabled', false);
+            $("#gst_no").prop('required', true);
+            $("#gst_certificate_file").prop('required', true);
         }
             
     }
@@ -142,7 +143,6 @@
                          maxlength:10
                      },
                      gst_number: {
-                         required: true,
                          gstregex:true,
                          minlength:15,
                          maxlength:15
@@ -157,7 +157,6 @@
                          maxlength:"Please Enter Valid Company Pan Number"
                      },
                      gst_number:{
-                         required: "Please Enter Company GST Number",
                          gstregex:"Please Enter Valid Company GST Number",
                          minlength:"Please Enter Valid Company GST Number",
                          maxlength:"Please Enter Valid Company GST Number"

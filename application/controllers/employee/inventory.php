@@ -1064,7 +1064,7 @@ class Inventory extends CI_Controller {
         $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id"));
         $vendor_id = array();
         if(!empty($sf)){
-            $vendor_id = explode(",", $sf[0]["service_centres_id"]);;
+            $vendor_id = explode(",", $sf[0]["service_centres_id"]);
         }
 
         $data['spare_parts'] = $this->booking_model->get_spare_parts_booking(-1, $offset, $vendor_id);
@@ -1092,6 +1092,17 @@ class Inventory extends CI_Controller {
                     $old_state = "Spare Parts Requested";
                     $sc_data['current_status'] = "Pending";
                     $sc_data['internal_status'] = "Pending";
+                    $sc_data['update_date'] = date("Y-m-d H:i:s");
+          
+                    $this->vendor_model->update_service_center_action($booking_id,$sc_data);
+                    break;
+                case 'CANCEL_COMPLETED_BOOKING_PARTS':
+                    $where = array('id' => $id );
+                    $data = array('status' => "Cancelled");
+                    $new_state = "Spare Parts Cancelled";
+                    $old_state = "Spare Parts Requested";
+                    $sc_data['current_status'] = "InProcess";
+                    $sc_data['internal_status'] = "Completed";
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
           
                     $this->vendor_model->update_service_center_action($booking_id,$sc_data);
@@ -1134,6 +1145,18 @@ class Inventory extends CI_Controller {
                     $old_state = "Spare Parts Requested";
                     break;
                 
+                CASE 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING':
+                    $data['defective_part_required'] = 0;
+                    $where = array('id' => $id );
+                    $new_state = "Spare Parts Not Required To Partner";
+                    $old_state = "Spare Parts Requested";
+                    $sc_data['current_status'] = "InProcess";
+                    $sc_data['internal_status'] = "Completed";
+                    $sc_data['update_date'] = date("Y-m-d H:i:s");
+          
+                    $this->vendor_model->update_service_center_action($booking_id,$sc_data);
+                    break;
+                
                 CASE 'REQUIRED_PARTS':
                     $data['defective_part_required'] = 1;
                     $where = array('id' => $id );
@@ -1151,7 +1174,7 @@ class Inventory extends CI_Controller {
             } else {
                 $agent_id = $this->session->userdata('agent_id');
                 $agent_name = $this->session->userdata('partner_name');
-                $partner_id = $this->session->userdata('partner_id');;
+                $partner_id = $this->session->userdata('partner_id');
             }
             $this->notify->insert_state_change($booking_id, $new_state,$old_state, $remarks, 
                       $agent_id, $agent_name, $partner_id);

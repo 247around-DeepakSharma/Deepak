@@ -1,6 +1,6 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 
-<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<!--<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>-->
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <script>
     $(function() {
@@ -285,8 +285,9 @@
     </div>
 </div>
 <script>
-    function check_amount(flag){
     
+    function check_amount(flag){
+  
     if(flag === 1){
         var partner_amount = Number($("#partner_amount").val())+Number($('#selected_tds_amount').val());
         var amount = Number($("#amount").val()) +  Number($("#tds_amount").val());
@@ -296,10 +297,12 @@
             console.log(partner_amount);
             alert("Do not Allow Advance Transaction");
             return false;
+        } else {
+            $("#form_submit").button('loading');
         }
         
     }
-
+    
 }
 
 $(document).on('keyup', '.cal_amount', function (e) {
