@@ -149,14 +149,13 @@ class bookings_excel extends CI_Controller {
                 //Getting template from Database
                 $template = $this->booking_model->get_booking_email_template("missing_pincode_mail");
                 $subject = vsprintf($template[4], $_FILES["file"]["name"]);
-                $to = MISSING_PINCODE_EMAIL_TO;
                 $attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.date('d-M-Y-H-i-s')."-".$_FILES["file"]["name"];
                 $email_html = "";
                 foreach ($response['data'][0]['incorrct_pincode'] as $value){
                     $email_html .= $value['order_id']."<br>";
                 }
                 $emailBody = vsprintf($template[0], array($_FILES["file"]["name"],$email_html));
-                $this->notify->sendEmail($template[2], $to ,$template[3], '', $subject , $emailBody, $attachement);
+                $this->notify->sendEmail($template[2], $template[1] ,$template[3], '', $subject , $emailBody, $attachement);
             }
         } else {
             echo $msg;
