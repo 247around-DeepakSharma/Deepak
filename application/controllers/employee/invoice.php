@@ -1961,6 +1961,7 @@ class Invoice extends CI_Controller {
 
            //Upload Excel files to AWS
             $this->upload_invoice_to_S3($meta['invoice_id']);
+            $gst_amount = (array_sum(array_column($data, 'gst_amount')));
 
             //Save this invoice info in table
             $invoice_details = array(
@@ -1979,6 +1980,7 @@ class Invoice extends CI_Controller {
                 'parts_cost' => $meta['sub_total_amount'],
                 'total_amount_collected' => $meta['sub_total_amount'],
                 'around_royalty' => $meta['sub_total_amount'],
+                'buyback_tax_amount' => $gst_amount,
                 'invoice_date' => date('Y-m-d'),
                 //Amount needs to be collected from Vendor
                 'amount_collected_paid' =>$meta['sub_total_amount'],

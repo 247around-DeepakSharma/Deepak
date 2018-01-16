@@ -156,8 +156,6 @@ class Service_centers extends CI_Controller {
                         $broken = 1;
                     }
                 }
-            } else {
-                 $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number'] = "";
             }
             $bookng_unit_details[$key1]['is_broken'] = $broken;
 
@@ -1805,6 +1803,9 @@ class Service_centers extends CI_Controller {
 
             foreach ($brands as $value) {
                 $option .= "<option value='" . $value['brand'] . "'";
+                if(count($brands) == 1){
+                    $option .= " selected "; 
+                }
                 $option .= " > ";
                 $option .= $value['brand'] . "</option>";
             }
@@ -1839,6 +1840,9 @@ class Service_centers extends CI_Controller {
 
             foreach ($physical_condition as $value) {
                 $option .= "<option value='" . $value['physical_condition'] . "'";
+                if(count($physical_condition) == 1){
+                    $option .= " selected "; 
+                }
                 $option .= " > ";
                 $option .= $value['physical_condition'] . "</option>";
             }
@@ -1874,6 +1878,9 @@ class Service_centers extends CI_Controller {
 
             foreach ($working_condition as $value) {
                 $option .= "<option value='" . $value['working_condition'] . "'";
+                if(count($working_condition) == 1){
+                    $option .= " selected "; 
+                }
                 $option .= " > ";
                 $option .= $value['working_condition'] . "</option>";
             }
@@ -1896,7 +1903,7 @@ class Service_centers extends CI_Controller {
         $working_condition = $this->input->post('working_condition');
         $brand = $this->input->post('brand');
         $city = $this->input->post('city');
-        $order_id = $this->input->post('order_id');
+       // $order_id = $this->input->post('order_id');
         $cp_id = $this->input->post('cp_id');
         $where = array('cp_id' => $cp_id, 
                         'service_id' => $service_id, 
@@ -1910,6 +1917,8 @@ class Service_centers extends CI_Controller {
         if(!empty($order)){
             $array = array("order_key" => $order[0]['order_key'], "cp_charge" => $order[0]['cp_charge']);
             echo json_encode($array, true);
+        } else {
+            echo "Not Found";
         }
     }
     
@@ -2064,7 +2073,7 @@ class Service_centers extends CI_Controller {
         $data['cp_id'] = rawurldecode($cp_id);
         
         $response = $this->buyback->process_update_received_bb_order_details($data);
-        
+
         if ($response['status'] === 'success') {
             $this->session->set_userdata('success', $response['msg']);
             redirect(base_url() . 'service_center/buyback/bb_order_details');
@@ -2072,10 +2081,8 @@ class Service_centers extends CI_Controller {
             $this->session->set_userdata('error', $response['msg']);
             redirect(base_url() . 'service_center/buyback/buyback/bb_order_details');
         }
-        
     }
-    
-    
+
     /**
      * @desc Used to update not received bb order
      * @param $order_id string

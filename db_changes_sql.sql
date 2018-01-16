@@ -4193,5 +4193,9 @@ ALTER TABLE  `push_notification_subscribers` CHANGE  `e_id`  `entity_id` INT( 10
 ALTER TABLE `push_notification_templates` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;COMMIT;
 ALTER TABLE  `push_notification_subscribers` ADD  `device` VARCHAR( 20 ) NOT NULL AFTER  `entity_type` ;
 ALTER TABLE  `push_notification_subscribers` ADD  `browser` VARCHAR( 20 ) NOT NULL AFTER  `device` ;
-UPDATE  `push_notification_logs` SET  `notification_type` =  'normal'
+UPDATE  `push_notification_logs` SET  `notification_type` =  'normal';
 
+
+--Abhay 16 Jan
+ALTER TABLE `bb_unit_details` ADD `gst_amount` INT NOT NULL DEFAULT '0' AFTER `cp_tax_charge`;
+ALTER TABLE `vendor_partner_invoices` ADD `buyback_tax_amount` INT NOT NULL DEFAULT '0' AFTER `igst_tax_rate`;

@@ -776,10 +776,13 @@ class Buyback_process extends CI_Controller {
             $type = $this->input->post('type');
             $cp_claimed_price = explode(',', $this->input->post('cp_claimed_price'));
             $remarks = $this->input->post('remarks');
-            $order_details_data = array();
-            $update_bb_unit_data = array();
+            
+            
             if ($type === 'approved') {
                 foreach ($order_ids as $key => $value) {
+                    $order_details_data = array();
+                    $update_bb_unit_data = array();
+                    $bb_cp_order_details_data = array();
                     switch ($status[$key]) {
                         case _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS:
 
@@ -811,11 +814,13 @@ class Buyback_process extends CI_Controller {
                             $bb_cp_order_details_data['admin_remarks'] = $remarks;
                             $bb_cp_order_details_data['closed_date'] = date('Y-m-d H:i:s');
 
+                            $gst_amount = $this->buyback->gst_amount_on_profit($value, $cp_claimed_price[$key]);
                             //insert cp_claimed_price in bb_unit_details
                             $update_bb_unit_data['cp_claimed_price'] = $cp_claimed_price[$key];
                             $update_bb_unit_data['order_status'] = _247AROUND_BB_DELIVERED;
+                            $update_bb_unit_data['gst_amount'] = $gst_amount;
                             
-
+                            
                             break;
                     }
 
@@ -871,10 +876,6 @@ class Buyback_process extends CI_Controller {
         return $flag;
     }
 
-    function get_credit_amount(){
-        log_message("info",__METHOD__);
-        echo "20000";
-    }
     
     
     /**
@@ -1292,7 +1293,7 @@ class Buyback_process extends CI_Controller {
                     } else {
                         $physical_condition = '';
                     }
-
+                    
                     $data = array(
                         'category' => $category,
                         'physical_condition' => $physical_condition,
@@ -1324,7 +1325,11 @@ class Buyback_process extends CI_Controller {
                         $order_details_update_id = $this->bb_model->update_bb_order_details($order_details_where, $order_details_data);
                         if (!empty($order_details_update_id)) {
                             log_message("info", __METHOD__ . "Order Details table updated for order id: " . $order_id);
-                            $this->bb_model->update_bb_unit_details(array('partner_order_id' => $order_id), array('cp_claimed_price' => $cp_claimed_price, 'order_status' => _247AROUND_BB_DELIVERED));
+                            $gst_amount = $this->buyback->gst_amount_on_profit($order_id, $cp_claimed_price);
+                            $this->bb_model->update_bb_unit_details(array('partner_order_id' => $order_id), 
+                                    array('cp_claimed_price' => $cp_claimed_price,
+                                        'gst_amount' =>$gst_amount,
+                                        'order_status' => _247AROUND_BB_DELIVERED));
 
                             $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_TO_BE_CLAIMED, $remarks, $this->session->userdata('id'), _247AROUND, Null);
 

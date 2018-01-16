@@ -1335,7 +1335,7 @@ class invoices_model extends CI_Model {
                 sc.owner_email, sc.primary_contact_email, sc.owner_phone_1";
         $group_by = " GROUP BY bb_unit_details.service_id ";
         if($is_unit){
-            $select = " bb_unit_details.id AS unit_id, CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
+            $select = " bb_unit_details.id AS unit_id,bb_unit_details.gst_amount, CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
                 ELSE (bb_unit_details.cp_basic_charge) END AS cp_charge,partner_tracking_id, city,order_key,
                 CASE WHEN(acknowledge_date IS NOT NULL) 
