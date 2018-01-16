@@ -223,7 +223,15 @@ class Service_centers extends CI_Controller {
 
             }
             //Send Push Notification to clouser group
-            $this->push_notification_lib->send_booking_completion_notification_to_closure($booking_id);
+            $clouserAccountArray = array();
+            $getClouserAccountHolderID =  $this->reusable_model->get_search_result_data("employee","id",array("groups"=>"closure"),NULL,NULL,NULL,NULL,NULL,array());
+            foreach($getClouserAccountHolderID as $employeeID){
+                $clouserAccountArray['employee'][] = $employeeID['id'];
+            }
+            $textArray['msg']= array($booking_id,$this->session->userdata('service_center_name'));
+            $textArray['title']= array($this->session->userdata('service_center_name'),$booking_id);
+            $this->push_notification_lib->create_and_send_push_notiifcation(CUSTOMER_UPDATE_BOOKING_PUSH_NOTIFICATION_EMPLOYEE_TAG,$clouserAccountArray,$textArray);
+            //End Push Notification
             // Insert data into booking state change
             $this->insert_details_in_state_change($booking_id, 'InProcess_Completed', $closing_remarks);
             $partner_id = $this->input->post("partner_id");
