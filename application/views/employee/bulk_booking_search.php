@@ -75,6 +75,11 @@
     function loadData(){
         select_type = document.getElementById("select_type").value;
         bulk_input = document.getElementById("bulk_input").value;
+        bulkInputArray = bulk_input.replace( /\n/g, " " ).split( " " );
+        if(bulkInputArray.length>100){
+            alert("Search Input Should be less then 100");
+        }
+        else{
         if(select_type && bulk_input){
             ad_table.ajax.reload( function ( json ) {} );
         }
@@ -83,12 +88,13 @@
            return false;
         }
     }
+    }
 var ad_table;
         ad_table = $('#bulk_search_table').DataTable({
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
-            "pageLength": 50,
+            "pageLength": 200,
             "deferLoading": 0,
             // Load data for the table's content from an Ajax source
             "ajax": {
