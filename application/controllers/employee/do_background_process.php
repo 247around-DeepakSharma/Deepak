@@ -36,6 +36,7 @@ class Do_background_process extends CI_Controller {
         $this->load->library('notify');
         $this->load->library('s3');
         $this->load->library('email');
+        $this->load->library('push_notification_lib');
     }
 
     /**
@@ -282,6 +283,28 @@ class Do_background_process extends CI_Controller {
 
         $this->notify->send_sms_email_for_booking($booking_id, $state);
         log_message('info', ":  Send sms and email request for booking_id" . print_r($booking_id, TRUE) . " and state " . print_r($state, TRUE));
+    }
+    /*
+     * this function is used to send push notifiction asynchronously 
+     */
+    function send_asyn_push_notification(){
+        $title = $msg = $url = $notification_type = $subscriberArray = NULL;
+         if($this->input->post('title')){
+            $title = $this->input->post('title');
+        }
+        if($this->input->post('msg')){
+            $msg = $this->input->post('msg');
+        }
+        if($this->input->post('url')){
+            $url= $this->input->post('url');
+        }
+        if($this->input->post('notification_type')){
+            $notification_type = $this->input->post('notification_type');
+        }
+        if($this->input->post('subscriberArray')){
+            $subscriberArray = $this->input->post('subscriberArray');
+        }
+        $this->push_notification_lib->send_push_notification($title,$msg,$url,$notification_type,$subscriberArray);
     }
 
     /* end controller */

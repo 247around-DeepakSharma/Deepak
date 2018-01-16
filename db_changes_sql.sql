@@ -4193,7 +4193,10 @@ ALTER TABLE  `push_notification_subscribers` CHANGE  `e_id`  `entity_id` INT( 10
 ALTER TABLE `push_notification_templates` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;COMMIT;
 ALTER TABLE  `push_notification_subscribers` ADD  `device` VARCHAR( 20 ) NOT NULL AFTER  `entity_type` ;
 ALTER TABLE  `push_notification_subscribers` ADD  `browser` VARCHAR( 20 ) NOT NULL AFTER  `device` ;
-UPDATE  `push_notification_logs` SET  `notification_type` =  'normal';
+
+UPDATE  `push_notification_logs` SET  `notification_type` =  'normal'
+ALTER TABLE `push_notification_templates` CHANGE `entity_type` `entity_type` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
 
 
 --Abhay 16 Jan
