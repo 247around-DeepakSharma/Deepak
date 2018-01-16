@@ -180,7 +180,8 @@
                                                     ?>
                                             <tr>
                                                 <td>
-                                                    <?php if ($price['pod'] == "1" || !empty($price['en_serial_number'])) { ?>
+                                                    <?php $sr =FALSE; if(isset($price['en_serial_number'])){ if(!empty($price['en_serial_number'])){ $sr = TRUE; }} ?>
+                                                    <?php if ($price['pod'] == "1" || !empty($sr)) { ?>
                                                     <div class="form-group">
                                                         <div class="col-md-12">
                                                             <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 

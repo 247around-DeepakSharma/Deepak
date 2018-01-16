@@ -1953,22 +1953,22 @@ class Partner extends CI_Controller {
 
                     if (!empty($distance)) {
                         $excelPincodeData['distance'] = $distance;
-                        $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['CustomerPincode']));
-                        $municipal = $this->upcountry_model->get_data_from_municipal_limit(array("district" => $distict_details["district"]), "*");
-                        if (!empty($municipal)) {
-                            $excelPincodeData["municipal_limit"] = $municipal[0]["municipal_limit"];
-                        } else {
-                            $excelPincodeData["municipal_limit"] = "";
-                        }
+                       // $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['CustomerPincode']));
+                      //  $municipal = $this->upcountry_model->get_data_from_municipal_limit(array("district" => $distict_details["district"]), "*");
+//                        if (!empty($municipal)) {
+//                            $excelPincodeData["municipal_limit"] = $municipal[0]["municipal_limit"];
+//                        } else {
+//                            $excelPincodeData["municipal_limit"] = "";
+//                        }
                     } else {
-                        $excelPincodeData['status'] = "REQUEST_DENIED";
-                        $excelPincodeData["municipal_limit"] = "";
-                        $excelPincodeData['distance'] = "";
+                      //  $excelPincodeData['status'] = "REQUEST_DENIED";
+                      //  $excelPincodeData["municipal_limit"] = "";
+                        $excelPincodeData['distance'] = "REQUEST_DENIED";
                     }
                 } else {
-                    $excelPincodeData['status'] = "REQUEST_DENIED";
-                    $excelPincodeData["municipal_limit"] = "";
-                    $excelPincodeData['distance'] = "";
+                  //  $excelPincodeData['status'] = "REQUEST_DENIED";
+                 //   $excelPincodeData["municipal_limit"] = "";
+                    $excelPincodeData['distance'] = "REQUEST_DENIED";
                 }
 
                 array_push($excelData, $excelPincodeData);
