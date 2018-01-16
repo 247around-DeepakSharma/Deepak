@@ -1,6 +1,7 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 include('email_template_constant.php');
-
+include('spare_parts_constant.php');
+//include('push_notifications_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
@@ -103,12 +104,6 @@ define('ENGG_NOT_ASSIGN', 'Engineer not assigned');
 define('ENGG_LATE_ASSIGN', 'Engineer Late assigned');
 // Booking not updated by SF
 define('BOOKING_NOT_UPDATED_BY_SERVICE_CENTER', 'Booking is not updated by service center');
-//Spare Parts Received By SF
-define('SPARE_PARTS_DELIVERED', 'Spare Parts Delivered to SF');
-//Spare Parts Shipped By SF
-define('SPARE_PARTS_SHIPPED', 'Spare Parts Shipped by Partner');
-// Spare Reschedule 
-define('SPARE_RESCHEDULED', 'Spare_Rescheduled');
 
 //constant to define Login 
 define('_247AROUND_LOGIN',1);
@@ -157,9 +152,6 @@ define('_247AROUND_RM','regionalmanager');
 define('_247AROUND_DEVELOPER','developer');
 define('_247AROUND_ACCOUNTANT','accountant');
 
-define('SPARE_PARTS_REQUIRED', 'Spare Parts Required');
-
-define('SPARE_PARTS_REQUESTED', 'Spare Parts Requested');
 //
 define('Max_TIME_TO_BE_ASSIGNED_ENGINEER', 12);
 
@@ -172,14 +164,6 @@ define('CUSTOMER_ASK_TO_RESCHEDULE','Customer asked to reschedule');
 define('CUSTOMER_NOT_REACHABLE','Customer not reachable / Customer not picked phone');
 //constant to define default brackets order id
 define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
-// Defective Parts pending
-define('DEFECTIVE_PARTS_PENDING','Defective Part Pending');
-// Defective Parts Shipped by SF
-define('DEFECTIVE_PARTS_SHIPPED','Defective Part Shipped By SF');
-// Defective Parts Received by SF
-define('DEFECTIVE_PARTS_RECEIVED','Defective Part Received By Partner');
-// Defective Parts Received by SF
-define('DEFECTIVE_PARTS_REJECTED','Defective Part Rejected By Partner');
 //Snapdeal ID
 define('SNAPDEAL_ID',1);
 //Jeeves ID
@@ -475,6 +459,7 @@ define("TAT_BREACH_DAYS", "-45 days");
 define('TV_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000071' Notification");
 define('LA_BALANCE_EMAIL_SUBJECT', "Amazon_Ext_buyback SVC Balance '7014851010000029' Notification");
 
+<<<<<<< HEAD
 
 define('SPARE_OOW_EST_REQUESTED','Request Quote for Spare Part');
 
@@ -484,16 +469,16 @@ define('REPAIR_OOW_PARTS_PRICE_TAGS','Spare Parts');
 define('REPAIR_OOW_VENDOR_PERCENTAGE','10');
 define('REPAIR_OOW_AROUND_PERCENTAGE','0.90');
 
+=======
+>>>>>>> 7fbff03... separate Spare Parts Constant File
 define('FILE_UPLOAD_SUCCESS_STATUS', 'Success');
 define('FILE_UPLOAD_FAILED_STATUS', 'Failed');
-define("REPAIR_OOW_TAG", "Repair - Out Of Warranty");
-define("REPAIR_IN_WARRANTY_TAG", "Repair - In Warranty");
 define("NOT_UPCOUNTRY_PRICE_TAG", "-1");
 define("PARTNER_PROVIDE_UPCOUNTRY_PRICE_TAG", "1");
 
 define("REPEAT_BOOKING_TAG", "Repeat Booking");
+define("_247AROUND_PRODUCT_TAG", "Product"); 
 
-define("_247AROUND_PRODUCT_TAG", "Product");
 
 
 //tv service id
@@ -526,11 +511,6 @@ define("MISSING_PINCODE_EMAIL_TO", "ayush.bafna@paytmmall.com, sales@247around.c
 //sales email_id
 define('_247AROUND_SALES_EMAIL','sales@247around.com');
 
-//Zopper booking- Part Arrange By Same Vendor
-define("PART_ARRANGE_BY_SAME_VENDOR", 2);
-//Zopper booking- Part Arrange By Different Vendor
-define("PART_ARRANGE_BY_DIFF_VENDOR", 1);
-
 //vijaya email_id
 define('_247AROUND_VIJAYA_EMAIL','vijaya@247around.com');
 
@@ -557,10 +537,8 @@ define("QC_HSN_CODE", 998397);
 define("HSN_CODE", "998715");
 define("STAND_HSN_CODE", "8302");
 define("COMMISION_CHARGE_HSN_CODE", "996111");
-define("SPARE_HSN_CODE", "85299090");
-define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
 define('ACCOUNTANT_EMAILID',"adityag@247around.com" );
-define('SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION',7 );
+
 
 //Booking Rescheduled Confirmation SMS Constant
 define('BOOKING_RESCHEDULED_CONFIRMATION_SMS','rescheduled_confirmation_sms');
