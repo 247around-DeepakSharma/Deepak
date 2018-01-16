@@ -174,6 +174,16 @@ class Buyback {
      */
     function insert_bb_unit_details($bb_charges, $service_id) {
         log_message("info", __METHOD__."Order ID =>".$this->POST_DATA['partner_order_id']." BB Charge ". print_r($bb_charges, TRUE), " service_id ". $service_id);
+        $gst_amount = 0;
+        if(!empty($bb_charges)){
+            $partner_amount =  $this->POST_DATA['partner_basic_charge'] + $this->POST_DATA['partner_sweetner_charges'];
+            $profit = ($bb_charges[0]['cp_basic'] + $bb_charges[0]['cp_tax']) - $partner_amount;
+            if ($profit > 0) {
+                $gst_amount = $this->My_CI->booking_model->get_calculated_tax_charge($profit, DEFAULT_PARTS_TAX_RATE);
+               
+            } 
+        }
+        
         $bb_unit_details = array(
             'partner_id' => $this->POST_DATA['partner_id'],
             'partner_order_id' => $this->POST_DATA['partner_order_id'],
@@ -188,6 +198,7 @@ class Buyback {
             'around_commision_basic_charge' => (!empty($bb_charges) ? $bb_charges[0]['around_basic'] : 0),
             'around_commision_tax' => (!empty($bb_charges) ? $bb_charges[0]['around_tax'] : 0),
             'partner_sweetner_charges' => $this->POST_DATA['partner_sweetner_charges'],
+            'gst_amount' => $gst_amount,
             'create_date' => date('Y-m-d'),
             'order_key' => $this->POST_DATA['order_key'],
             'service_id' => (!empty($bb_charges) ? $bb_charges[0]['service_id'] : $service_id),
@@ -352,8 +363,10 @@ class Buyback {
             $data = array('current_status' => _247AROUND_COMPLETED, 'internal_status' => _247AROUND_COMPLETED,'acknowledge_date' => date('Y-m-d H:i:s'),'is_delivered' => '1');
             $order_details_update_id = $this->My_CI->bb_model->update_bb_order_details($where, $data);
             if ($order_details_update_id) {
+                $gst_amount = $this->gst_amount_on_profit($order_id, 0);
                 
-                $this->My_CI->bb_model->update_bb_unit_details(array('partner_order_id' => $order_id),array('order_status' => _247AROUND_BB_DELIVERED));
+                $this->My_CI->bb_model->update_bb_unit_details(array('partner_order_id' => $order_id),array('order_status' => _247AROUND_BB_DELIVERED, 
+                    "gst_amount" => $gst_amount));
                 // Insert state change
                 if (!empty($this->My_CI->session->userdata('service_center_id'))) {
                     $this->insert_bb_state_change($order_id, _247AROUND_COMPLETED, _247AROUND_BB_DELIVERED, $this->POST_DATA['cp_id'], Null, $this->POST_DATA['cp_id']);
@@ -370,6 +383,29 @@ class Buyback {
         }
         
         return $response;
+    }
+    
+    function gst_amount_on_profit($order_id, $claimed_price) {
+        log_message("info", __METHOD__. " Order ID ". $order_id. " Claimed Price ".$claimed_price);
+        $gst_amount = 0;
+        $con['where'] = array("bb_order_details.partner_order_id" => $order_id);
+        $con['length'] = -1;
+
+        $bb_unit = $this->My_CI->bb_model->get_bb_order_list($con, "bb_unit_details.partner_basic_charge, bb_unit_details.partner_sweetner_charges, cp_basic_charge, cp_tax_charge");
+        if (!empty($bb_unit)) {
+            $partner_amount = $bb_unit[0]->partner_basic_charge + $bb_unit[0]->partner_sweetner_charges;
+            if($claimed_price > 0){
+                $cp_amount = $claimed_price;
+            } else {
+                $cp_amount = $bb_unit[0]->cp_basic_charge + $bb_unit[0]->cp_tax_charge;
+            }
+            
+            $profit = $cp_amount - $partner_amount;
+            if ($profit > 0) {
+                $gst_amount = $this->My_CI->booking_model->get_calculated_tax_charge($profit, DEFAULT_PARTS_TAX_RATE);
+            }
+        }
+        return $gst_amount;
     }
 
     /**
@@ -487,12 +523,15 @@ class Buyback {
         $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges($where_bb_charges, '*');
         
         if (!empty($bb_charges)) {
+            $cp_amount = $bb_charges[0]['cp_basic'] + $bb_charges[0]['cp_tax'];
+            $gst_amount = $this->gst_amount_on_profit($order_id, $cp_amount);
             $unit_data = array('category' => $bb_charges[0]['category'],
                 'brand' => $bb_charges[0]['brand'],
                 'physical_condition' => $bb_charges[0]['physical_condition'],
                 'working_condition' => $bb_charges[0]['working_condition'],
                 'cp_basic_charge' => $bb_charges[0]['cp_basic'],
                 'cp_tax_charge' => $bb_charges[0]['cp_tax'],
+                'gst_amount' => $gst_amount,
                 'around_commision_basic_charge' => $bb_charges[0]['around_basic'],
                 'around_commision_tax' => $bb_charges[0]['around_tax']
             );
