@@ -43,7 +43,7 @@ class vendor extends CI_Controller {
         $this->load->library('user_agent');
         $this->load->dbutil();
         $this->load->helper('file');
-        
+        $this->load->model('push_notification_model');
 
     }
 
@@ -1037,8 +1037,9 @@ class vendor extends CI_Controller {
         //Getting State for SC charges
         $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
+        $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data));
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data,'push_notification'=>$pushNotification));
     }
 
     /**
