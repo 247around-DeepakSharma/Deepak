@@ -505,7 +505,7 @@ define('GREATER_THAN_32_BRACKETS_PART_NUMBER','B-24733');
 //wall mount price tag
 define('_247AROUND_WALL_MOUNT__PRICE_TAG','Wall Mount Stand');
 //247around employee string
-define('_247AROUND_EMPLOYEE_STRING','employee');
+define('_247AROUND_EMPLOYEE_STRING','247around');
 //247around partner string
 define('_247AROUND_PARTNER_STRING','partner');
 //247around sf string
