@@ -1644,9 +1644,6 @@ class Booking extends CI_Controller {
     function checked_complete_review_booking() {
         log_message('info', __FUNCTION__);
         $approved_booking = $this->input->post('approved_booking');
-        echo "<pre>";
-        print_r($approved_booking);
-        exit();
         $url = base_url() . "employee/do_background_process/complete_booking";
         $agent_id = $this->session->userdata('id');
         $agent_name = $this->session->userdata('employee_id');
