@@ -66,9 +66,10 @@
         </div>
     </div>
     <script>
-        $('#sf_id').select2();
+    $('#sf_id').select2();
         
-        $("#inventory_stocks_form_submit_btn").click(function(){
+    $("#inventory_stocks_form_submit_btn").click(function(){
+        $('#inventory_stocks_form_submit_btn').val('Processing...');
         event.preventDefault();
 
         var form_data = $("#inventory_stocks_form").serializeArray();
@@ -84,9 +85,12 @@
                     if(data.response === 'success'){
                         $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(500);});   
                         $('#success_msg').html(data.msg);
+                        $('#inventory_stocks_form_submit_btn').val('Submit');
+                        $("#inventory_stocks_form")[0].reset();
                     }else if(data.response === 'error'){
                         $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(500);});
                         $('#error_msg').html(data.msg);
+                        $('#inventory_stocks_form_submit_btn').val('Submit');
                     }
                 }
             });
