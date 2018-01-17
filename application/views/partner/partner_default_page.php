@@ -220,8 +220,8 @@
          </div>
       </div>
    </div>
-
 <script>
+    
     var oow_spare;
     
     $(document).on("click", ".open-AddBookDialog", function () {

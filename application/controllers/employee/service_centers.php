@@ -139,7 +139,10 @@ class Service_centers extends CI_Controller {
         $booking_id = base64_decode(urldecode($code));
         $data['booking_id'] = $booking_id;
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+
         $data['bookng_unit_details'] = $this->booking_model->getunit_details($booking_id);
+
+
         
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -223,7 +226,15 @@ class Service_centers extends CI_Controller {
 
             }
             //Send Push Notification to clouser group
-            $this->push_notification_lib->send_booking_completion_notification_to_closure($booking_id);
+            $clouserAccountArray = array();
+            $getClouserAccountHolderID =  $this->reusable_model->get_search_result_data("employee","id",array("groups"=>"closure"),NULL,NULL,NULL,NULL,NULL,array());
+            foreach($getClouserAccountHolderID as $employeeID){
+                $clouserAccountArray['employee'][] = $employeeID['id'];
+            }
+            $textArray['msg']= array($booking_id,$this->session->userdata('service_center_name'));
+            $textArray['title']= array($this->session->userdata('service_center_name'),$booking_id);
+            $this->push_notification_lib->create_and_send_push_notiifcation(CUSTOMER_UPDATE_BOOKING_PUSH_NOTIFICATION_EMPLOYEE_TAG,$clouserAccountArray,$textArray);
+            //End Push Notification
             // Insert data into booking state change
             $this->insert_details_in_state_change($booking_id, 'InProcess_Completed', $closing_remarks);
             $partner_id = $this->input->post("partner_id");
@@ -1769,6 +1780,9 @@ class Service_centers extends CI_Controller {
 
             foreach ($brands as $value) {
                 $option .= "<option value='" . $value['brand'] . "'";
+                if(count($brands) == 1){
+                    $option .= " selected "; 
+                }
                 $option .= " > ";
                 $option .= $value['brand'] . "</option>";
             }
@@ -1803,6 +1817,9 @@ class Service_centers extends CI_Controller {
 
             foreach ($physical_condition as $value) {
                 $option .= "<option value='" . $value['physical_condition'] . "'";
+                if(count($physical_condition) == 1){
+                    $option .= " selected "; 
+                }
                 $option .= " > ";
                 $option .= $value['physical_condition'] . "</option>";
             }
@@ -1838,6 +1855,9 @@ class Service_centers extends CI_Controller {
 
             foreach ($working_condition as $value) {
                 $option .= "<option value='" . $value['working_condition'] . "'";
+                if(count($working_condition) == 1){
+                    $option .= " selected "; 
+                }
                 $option .= " > ";
                 $option .= $value['working_condition'] . "</option>";
             }
@@ -1860,7 +1880,7 @@ class Service_centers extends CI_Controller {
         $working_condition = $this->input->post('working_condition');
         $brand = $this->input->post('brand');
         $city = $this->input->post('city');
-        $order_id = $this->input->post('order_id');
+       // $order_id = $this->input->post('order_id');
         $cp_id = $this->input->post('cp_id');
         $where = array('cp_id' => $cp_id, 
                         'service_id' => $service_id, 
@@ -1874,6 +1894,8 @@ class Service_centers extends CI_Controller {
         if(!empty($order)){
             $array = array("order_key" => $order[0]['order_key'], "cp_charge" => $order[0]['cp_charge']);
             echo json_encode($array, true);
+        } else {
+            echo "Not Found";
         }
     }
     
@@ -2028,7 +2050,7 @@ class Service_centers extends CI_Controller {
         $data['cp_id'] = rawurldecode($cp_id);
         
         $response = $this->buyback->process_update_received_bb_order_details($data);
-        
+
         if ($response['status'] === 'success') {
             $this->session->set_userdata('success', $response['msg']);
             redirect(base_url() . 'service_center/buyback/bb_order_details');
@@ -2036,10 +2058,8 @@ class Service_centers extends CI_Controller {
             $this->session->set_userdata('error', $response['msg']);
             redirect(base_url() . 'service_center/buyback/buyback/bb_order_details');
         }
-        
     }
-    
-    
+
     /**
      * @desc Used to update not received bb order
      * @param $order_id string
@@ -2129,6 +2149,7 @@ class Service_centers extends CI_Controller {
             $is_gst = $this->input->post('is_gst');
             $is_gst_number = NULL;
             $gst_file_name = NULL;
+            $gst_number = NULL;
             
             if ($is_gst == 1) {
                 $this->form_validation->set_rules('gst_number', 'Company GST Number', 'required|trim|min_length[15]|max_length[15]|regex_match[/^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[a-zA-Z0-9]{1}/]');
@@ -2141,6 +2162,7 @@ class Service_centers extends CI_Controller {
                 } else {
                     $is_gst_number = $this->input->post('gst_number');
                     $gst_file_name = $this->input->post('gst_cer_file');
+                    $gst_number = $this->input->post('gst_number');
                 }
             }
             
@@ -2152,7 +2174,7 @@ class Service_centers extends CI_Controller {
                 $gst_details['company_address'] = $this->input->post('company_address');
                 $gst_details['company_pan_number'] = $this->input->post('pan_number');
                 $gst_details['is_gst'] = $this->input->post('is_gst');
-                $gst_details['company_gst_number'] = $this->input->post('gst_number');
+                $gst_details['company_gst_number'] = $gst_number;
                 $gst_details['gst_certificate_file'] = $gst_file_name;
                 $gst_details['create_date'] = date('Y-m-d H:i:s');
                 $gst_details['signature_file'] = $this->input->post('signature_file_name');

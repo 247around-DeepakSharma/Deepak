@@ -679,101 +679,101 @@
                             <!--                            <div class="col-md-12">
                                 <div class="col-md-6">
                                     <div class="form-group <?php
-                                    if (form_error('vat_no')) {
-                                        echo 'has-error';
-                                    }
+//                                    if (form_error('vat_no')) {
+//                                        echo 'has-error';
+//                                    }
                                     ?>">
                                         <label  for="vat_no" class="col-md-3">VAT No.:</label>
                                         <div class="col-md-8">
                                             <input type="text" class="form-control"  name="vat_no" value = "<?php
-                                    if (isset($query[0]['vat_no'])) {
-                                        echo $query[0]['vat_no'];
-                                    }
+//                                    if (isset($query[0]['vat_no'])) {
+//                                        echo $query[0]['vat_no'];
+//                                    }
                                     ?>">
-                                                   <?php echo form_error('vat_no'); ?>
+                                                   <?php //echo form_error('vat_no'); ?>
                                 </div>
                                 </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group <?php
-                                    if (form_error('vat_file')) {
-                                        echo 'has-error';
-                                    }
+//                                    if (form_error('vat_file')) {
+//                                        echo 'has-error';
+//                                    }
                                     ?>">
                                         <label  for="vat_file" class="col-md-3">VAT File:</label>
                                         <div class="col-md-8">
                                             <input type="file" class="form-control"  name="vat_file" value = "<?php
-                                    if (isset($query[0]['vat_file'])) {
-                                        echo $query[0]['vat_file'];
-                                    }
+//                                    if (isset($query[0]['vat_file'])) {
+//                                        echo $query[0]['vat_file'];
+//                                    }
                                     ?>">
-                                                   <?php echo form_error('vat_file'); ?>
+                                                   <?php //echo form_error('vat_file'); ?>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
-                                    $src = base_url() . 'images/no_image.png';
-                                    if (isset($query[0]['vat_file']) && !empty($query[0]['vat_file'])) {
-                                        //Path to be changed
-                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['vat_file'];
-                                    }
+//                                    $src = base_url() . 'images/no_image.png';
+//                                    if (isset($query[0]['vat_file']) && !empty($query[0]['vat_file'])) {
+//                                        //Path to be changed
+//                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['vat_file'];
+//                                    }
                                     ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php if(isset($query[0]['vat_file']) && !empty($query[0]['vat_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('vat_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['vat_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php }?>
+                                            <a href="<?php //echo $src?>" target="_blank"><img src="<?php //echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php //if(isset($query[0]['vat_file']) && !empty($query[0]['vat_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('vat_file',<?php //echo $query[0]['id']?>,'<?php //echo $query[0]['vat_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php //}?>
                                         </div>
                                     </div>
                                 
                                 </div>
                                 
                                 </div>-->
-                            <div class="col-md-12">
+<!--                            <div class="col-md-12">
                                 <div class="col-md-4">
                                     <div class="form-group <?php
-                                        if (form_error('cst_no')) {
-                                            echo 'has-error';
-                                        }
+//                                        if (form_error('cst_no')) {
+//                                            echo 'has-error';
+//                                        }
                                         ?>">
                                         <label  for="cst_no" class="col-md-4">CST No.</label>
                                         <div class="col-md-7">
                                             <input type="text" class="form-control blockspacialchar"  name="cst_no" id="cst_no" value = "<?php
-                                                if (isset($query[0]['cst_no'])) {
-                                                    echo $query[0]['cst_no'];
-                                                }
+//                                                if (isset($query[0]['cst_no'])) {
+//                                                    echo $query[0]['cst_no'];
+//                                                }
                                                 ?>">
-                                            <span class="err1"><?php echo form_error('cst_no'); ?></span>
+                                            <span class="err1"><?php //echo form_error('cst_no'); ?></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group <?php
-                                        if (form_error('cst_file')) {
-                                            echo 'has-error';
-                                        }
+//                                        if (form_error('cst_file')) {
+//                                            echo 'has-error';
+//                                        }
                                         ?>">
                                         <label  for="cst_file" class="col-md-4">CST File</label>
                                         <div class="col-md-7">
                                             <input type="file" class="form-control"  name="cst_file" value = "<?php
-                                                if (isset($query[0]['cst_file'])) {
-                                                    echo $query[0]['cst_file'];
-                                                }
+//                                                if (isset($query[0]['cst_file'])) {
+//                                                    echo $query[0]['cst_file'];
+//                                                }
                                                 ?>">
-                                            <?php echo form_error('cst_file'); ?>
+                                            <?php //echo form_error('cst_file'); ?>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
-                                                $src = base_url() . 'images/no_image.png';
-                                                $image_src = $src;
-                                                if (isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])) {
-                                                    //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['cst_file'];
-                                                    $image_src = base_url().'images/view_image.png';
-                                                }
+//                                                $src = base_url() . 'images/no_image.png';
+//                                                $image_src = $src;
+//                                                if (isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])) {
+//                                                    //Path to be changed
+//                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['cst_file'];
+//                                                    $image_src = base_url().'images/view_image.png';
+//                                                }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php if(isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('cst_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['cst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php }?>
+                                            <a href="<?php //echo $src?>" target="_blank"><img src="<?php //echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php //if(isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('cst_file',<?php //echo $query[0]['id']?>,'<?php //echo $query[0]['cst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php //}?>
                                         </div>
                                     </div>
                                 </div>
@@ -782,57 +782,57 @@
                                         <label>
                                         <b style="font-size: 18px;">Not Available</b> 
                                         </label>
-                                        <input type="checkbox"  value="0" id="is_cst_doc" name ="is_cst_doc" <?php if(isset($query[0]['is_cst_doc'])){ if($query[0]['is_cst_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;zoom:1.5;"> 
+                                        <input type="checkbox"  value="0" id="is_cst_doc" name ="is_cst_doc" <?php //if(isset($query[0]['is_cst_doc'])){ if($query[0]['is_cst_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;zoom:1.5;"> 
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-12">
+                            </div>-->
+<!--                            <div class="col-md-12">
                                 <div class="col-md-4">
                                     <div class="form-group <?php
-                                        if (form_error('tin_no')) {
-                                            echo 'has-error';
-                                        }
+//                                        if (form_error('tin_no')) {
+//                                            echo 'has-error';
+//                                        }
                                         ?>">
                                         <label  for="tin_no" class="col-md-4">TIN/VAT No.</label>
                                         <div class="col-md-7">
                                             <input type="text" class="form-control blockspacialchar"  id="tin_no" name="tin_no" value = "<?php
-                                                if (isset($query[0]['tin_no'])) {
-                                                    echo $query[0]['tin_no'];
-                                                }
+//                                                if (isset($query[0]['tin_no'])) {
+//                                                    echo $query[0]['tin_no'];
+//                                                }
                                                 ?>">
-                                            <span class="err1"><?php echo form_error('tin_no'); ?></span>
+                                            <span class="err1"><?php //echo form_error('tin_no'); ?></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group <?php
-                                        if (form_error('tin_file')) {
-                                            echo 'has-error';
-                                        }
+//                                        if (form_error('tin_file')) {
+//                                            echo 'has-error';
+//                                        }
                                         ?>">
                                         <label  for="tin_file" class="col-md-4">TIN/VAT File</label>
                                         <div class="col-md-7">
                                             <input type="file" class="form-control"  name="tin_file" value = "<?php
-                                                if (isset($query[0]['tin_file'])) {
-                                                    echo $query[0]['tin_file'];
-                                                }
+//                                                if (isset($query[0]['tin_file'])) {
+//                                                    echo $query[0]['tin_file'];
+//                                                }
                                                 ?>">
-                                            <?php echo form_error('tin_file'); ?>
+                                            <?php //echo form_error('tin_file'); ?>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
-                                                $src = base_url() . 'images/no_image.png';
-                                                $image_src = $src;
-                                                if (isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])) {
-                                                    //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['tin_file'];
-                                                    $image_src = base_url().'images/view_image.png';
-                                                }
+//                                                $src = base_url() . 'images/no_image.png';
+//                                                $image_src = $src;
+//                                                if (isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])) {
+//                                                    //Path to be changed
+//                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['tin_file'];
+//                                                    $image_src = base_url().'images/view_image.png';
+//                                                }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php if(isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('tin_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['tin_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php }?>
+                                            <a href="<?php //echo $src?>" target="_blank"><img src="<?php //echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php //if(isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('tin_file',<?php //echo $query[0]['id']?>,'<?php //echo $query[0]['tin_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php //}?>
                                         </div>
                                     </div>
                                 </div>
@@ -841,57 +841,57 @@
                                         <label>
                                         <b style="font-size: 18px;">Not Available</b>  
                                         </label>
-                                        <input type="checkbox"  value="0" id ="is_tin_doc" name ="is_tin_doc" <?php if(isset($query[0]['is_tin_doc'])){ if($query[0]['is_tin_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;zoom:1.5;"> 
+                                        <input type="checkbox"  value="0" id ="is_tin_doc" name ="is_tin_doc" <?php //if(isset($query[0]['is_tin_doc'])){ if($query[0]['is_tin_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;zoom:1.5;"> 
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-12">
+                            </div>-->
+<!--                            <div class="col-md-12">
                                 <div class="col-md-4">
                                     <div class="form-group <?php
-                                        if (form_error('service_tax_no')) {
-                                            echo 'has-error';
-                                        }
+//                                        if (form_error('service_tax_no')) {
+//                                            echo 'has-error';
+//                                        }
                                         ?>">
                                         <label  for="service_tax_no" class="col-md-4">Service Tax No.</label>
                                         <div class="col-md-7">
                                             <input type="text" class="form-control blockspacialchar"  id ="service_tax_no" name="service_tax_no" value = "<?php
-                                                if (isset($query[0]['service_tax_no'])) {
-                                                    echo $query[0]['service_tax_no'];
-                                                }
+//                                                if (isset($query[0]['service_tax_no'])) {
+//                                                    echo $query[0]['service_tax_no'];
+//                                                }
                                                 ?>">
-                                            <span class="err1"> <?php echo form_error('service_tax_no'); ?></span>
+                                            <span class="err1"> <?php //echo form_error('service_tax_no'); ?></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group <?php
-                                        if (form_error('service_tax_file')) {
-                                            echo 'has-error';
-                                        }
+//                                        if (form_error('service_tax_file')) {
+//                                            echo 'has-error';
+//                                        }
                                         ?>">
                                         <label for="service_tax_no" class="col-md-4">Tax File</label>
                                         <div class="col-md-7">
                                             <input type="file" class="form-control"  name="service_tax_file" value = "<?php
-                                                if (isset($query[0]['service_tax_file'])) {
-                                                    echo $query[0]['service_tax_file'];
-                                                }
+//                                                if (isset($query[0]['service_tax_file'])) {
+//                                                    echo $query[0]['service_tax_file'];
+//                                                }
                                                 ?>">
-                                            <?php echo form_error('service_tax_file'); ?>
+                                            <?php //echo form_error('service_tax_file'); ?>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
-                                                $src = base_url() . 'images/no_image.png';
-                                                $image_src = $src;
-                                                if (isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])) {
-                                                    //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['service_tax_file'];
-                                                    $image_src = base_url().'images/view_image.png';
-                                                }
+//                                                $src = base_url() . 'images/no_image.png';
+//                                                $image_src = $src;
+//                                                if (isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])) {
+//                                                    //Path to be changed
+//                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['service_tax_file'];
+//                                                    $image_src = base_url().'images/view_image.png';
+//                                                }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php if(isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('service_tax_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['service_tax_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php }?>
+                                            <a href="<?php //echo $src?>" target="_blank"><img src="<?php //echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php //if(isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('service_tax_file',<?php //echo $query[0]['id']?>,'<?php //echo $query[0]['service_tax_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php //}?>
                                         </div>
                                     </div>
                                 </div>
@@ -900,10 +900,10 @@
                                         <label>
                                         <b style="font-size: 18px;">Not Available</b>   
                                         </label>
-                                        <input type="checkbox"  value="0" id="is_st_doc" name ="is_st_doc" <?php if(isset($query[0]['is_st_doc'])){ if($query[0]['is_st_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 24px;margin-top: 5px;zoom:1.5;">
+                                        <input type="checkbox"  value="0" id="is_st_doc" name ="is_st_doc" <?php //if(isset($query[0]['is_st_doc'])){ if($query[0]['is_st_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 24px;margin-top: 5px;zoom:1.5;">
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                                     
                             <div class="col-md-12">
                                 <div class="col-md-4">
@@ -929,9 +929,9 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="gst_file" class="col-md-4">Tax File</label>
+                                        <label for="gst_file" class="col-md-4">GST File</label>
                                         <div class="col-md-7">
-                                            <input type="file" class="form-control"  name="gst_file" value = "<?php
+                                            <input type="file" class="form-control"  id="gst_file" name="gst_file" value = "<?php
                                                 if (isset($query[0]['gst_file'])) {
                                                     echo $query[0]['gst_file'];
                                                 }
@@ -1403,55 +1403,55 @@
                } <?php }?>
             }
             //Check for CST
-            if($('#is_cst_doc').is(":checked")){
-               if($('#cst_no').val() != ''){
-                   alert('Please Enter CST Number or Tick "Not Available" checkbox');
-                   return false;
-               }
-            }else{
-                if($('#cst_no').val() == ''){
-                   alert('Please Enter CST Number or Tick "Not Available" checkbox');
-                   return false;
-               }
-               else if($('#cst_no').val().length < '6'){
-                   alert('Please Enter Valid CST Number');
-                   return false;
-               }
-            }
+//            if($('#is_cst_doc').is(":checked")){
+//               if($('#cst_no').val() != ''){
+//                   alert('Please Enter CST Number or Tick "Not Available" checkbox');
+//                   return false;
+//               }
+//            }else{
+//                if($('#cst_no').val() == ''){
+//                   alert('Please Enter CST Number or Tick "Not Available" checkbox');
+//                   return false;
+//               }
+//               else if($('#cst_no').val().length < '6'){
+//                   alert('Please Enter Valid CST Number');
+//                   return false;
+//               }
+//            }
             
             //Check for TIN
-            if($('#is_tin_doc').is(":checked")){
-               if($('#tin_no').val() != ''){
-                   alert('Please Enter TIN Number or Tick "Not Available" checkbox');
-                   return false;
-               }
-            }else{
-                if($('#tin_no').val() == ''){
-                   alert('Please Enter TIN Number or Tick "Not Available" checkbox');
-                   return false;
-               }
-               else if($('#tin_no').val().length < '6'){
-                   alert('Please Enter Valid TIN Number');
-                   return false;
-               }
-            }
+//            if($('#is_tin_doc').is(":checked")){
+//               if($('#tin_no').val() != ''){
+//                   alert('Please Enter TIN Number or Tick "Not Available" checkbox');
+//                   return false;
+//               }
+//            }else{
+//                if($('#tin_no').val() == ''){
+//                   alert('Please Enter TIN Number or Tick "Not Available" checkbox');
+//                   return false;
+//               }
+//               else if($('#tin_no').val().length < '6'){
+//                   alert('Please Enter Valid TIN Number');
+//                   return false;
+//               }
+//            }
             
             //Check for Service Tax no.
-            if($('#is_st_doc').is(":checked")){
-               if($('#service_tax_no').val() != ''){
-                   alert('Please Enter Service Tax Number or Tick "Not Available" checkbox');
-                   return false;
-               }
-            }else{
-                if($('#service_tax_no').val() == ''){
-                   alert('Please Enter Service Tax Number or Tick "Not Available" checkbox');
-                   return false;
-               }
-               else if($('#service_tax_no').val().length < '6'){
-                   alert('Please Enter Valid Service Tax Number');
-                   return false;
-               }
-            }
+//            if($('#is_st_doc').is(":checked")){
+//               if($('#service_tax_no').val() != ''){
+//                   alert('Please Enter Service Tax Number or Tick "Not Available" checkbox');
+//                   return false;
+//               }
+//            }else{
+//                if($('#service_tax_no').val() == ''){
+//                   alert('Please Enter Service Tax Number or Tick "Not Available" checkbox');
+//                   return false;
+//               }
+//               else if($('#service_tax_no').val().length < '6'){
+//                   alert('Please Enter Valid Service Tax Number');
+//                   return false;
+//               }
+//            }
              
             //Check for GST  no.
             if($('#is_gst_doc').is(":checked")){
@@ -1460,12 +1460,16 @@
                    return false;
                }
             }else{
+                var is_gst_file = <?php if(isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])){ echo '1';}else{echo '0';}?>;
                 if($('#gst_no').val() == ''){
                    alert('Please Enter GST Number or Tick "Not Available" checkbox');
                    return false;
                }
                else if($('#gst_no').val().length === '15'){
                    alert('Please Enter Valid GST Number');
+                   return false;
+               }else if($('#gst_no').val() != '' && $('#gst_file').get(0).files.length === 0 && is_gst_file === 0){
+                   alert("Please Upload GST File");
                    return false;
                }
             }
@@ -1497,9 +1501,10 @@
     }
 </style>
 <script type="text/javascript">
-    $.validator.addMethod("regx", function (value, element, regexpr) {
-        return regexpr.test(value);
-    }, "Please enter a valid Phone Number.");
+    var gstRegExp = /^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[a-zA-Z0-9]{1}/;
+    $.validator.addMethod('gstregex', function (value, element, param) {
+                return this.optional(element) || gstRegExp.test( value);
+            }, 'Please enter Valid GST Number'); 
     (function ($, W, D)
     {
     var JQUERY4U = {};
@@ -1556,6 +1561,11 @@
         },
         bank_account:{
             number: true
+        },
+        gst_no:{
+            gstregex:true,
+            minlength:15,
+            maxlength:15
         }
     },
     messages: {

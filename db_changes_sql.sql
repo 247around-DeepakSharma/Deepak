@@ -4188,3 +4188,82 @@ COMMIT;
 --sachin 09-jan-2018
 INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Show Inventory Ledger', 'employee/inventory/show_inventory_ledger_list', '2', '89', 'admin,callcenter,closure,developer,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
 ALTER TABLE `partner_file_upload_header_mapping` ADD `alternate_phone` VARCHAR(64) NOT NULL AFTER `phone`;
+ALTER TABLE `partner_file_upload_header_mapping` ADD `alternate_phone` VARCHAR(64) NOT NULL AFTER `phone`;
+-- Chhavi 11th Jan
+ALTER TABLE  `sf_not_exist_booking_details` ADD  `invalid_pincode_marked_by` INT( 10 ) NOT NULL AFTER  `is_pincode_valid` ;
+
+--Chhavi 12th Jan 
+CREATE TABLE `push_notification_templates` (
+  `id` int(11) NOT NULL,
+  `title` text NOT NULL,
+  `url` text NOT NULL,
+  `msg` text NOT NULL,
+  `notification_type` varchar(30) NOT NULL,
+  `entity_type` varchar(20) NOT NULL,
+  `notification_tag` varchar(30) NOT NULL,
+  `comments` varchar(60) NOT NULL,
+  `active` int(1) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `push_notification_templates`
+--
+
+INSERT INTO `push_notification_templates` (`id`, `title`, `url`, `msg`, `notification_type`, `entity_type`, `notification_tag`, `comments`, `active`, `create_date`) VALUES
+(1, '%s Updates %s', 'employee/booking/review_bookings', 'Booking %s Has been Updated BY %s, Review the booking', 'Normal', 'employee', 'sf_updates_the_booking', '', 1, '2018-01-10 09:16:19');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `push_notification_templates`
+--
+ALTER TABLE `push_notification_templates`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `push_notification_templates`
+--
+ALTER TABLE `push_notification_templates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;COMMIT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;COMMIT;
+
+
+
+---Abhay 4 Jan
+ALTER TABLE `service_centres` ADD `isEngineerApp` INT(1) NOT NULL DEFAULT '0' AFTER `agent_id`;
+ALTER TABLE trigger_service_centres ADD `isEngineerApp` INT(1) NOT NULL DEFAULT '0' AFTER `agent_id`;
+
+--Abhay 8 jan
+ALTER TABLE `spare_parts_details` ADD `old_status` VARCHAR(64) NULL DEFAULT NULL AFTER `status`;
+
+
+--Abhay Anand
+ALTER TABLE `service_center_booking_action` ADD `serial_number_pic` VARCHAR(256) NULL DEFAULT NULL AFTER `reschedule_request_date`, ADD `is_broken` INT(1) NULL DEFAULT NULL AFTER `serial_number_pic`;
+ALTER TABLE `booking_unit_details` ADD `serial_number_pic` VARCHAR(256) NULL DEFAULT NULL AFTER `serial_number`, ADD `is_broken` INT(1) NOT NULL DEFAULT '0' AFTER `serial_number_pic`;
+
+
+--Abhay
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'distance_pincode_api', 'Requested Municipal Limit', 'Please Find Attachment', 'noreply@247around.com', '', '', 'anuj@247around.com, abhaya@247around.com', '1', '2018-01-12 13:05:00');
+
+-- Chhavi
+ALTER TABLE  `push_notification_subscribers` CHANGE  `e_id`  `entity_id` INT( 10 ) NOT NULL ;
+ALTER TABLE `push_notification_templates` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;COMMIT;
+ALTER TABLE  `push_notification_subscribers` ADD  `device` VARCHAR( 20 ) NOT NULL AFTER  `entity_type` ;
+ALTER TABLE  `push_notification_subscribers` ADD  `browser` VARCHAR( 20 ) NOT NULL AFTER  `device` ;
+
+UPDATE  `push_notification_logs` SET  `notification_type` =  'normal'
+ALTER TABLE `push_notification_templates` CHANGE `entity_type` `entity_type` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+
+
+--Abhay 16 Jan
+ALTER TABLE `bb_unit_details` ADD `gst_amount` INT NOT NULL DEFAULT '0' AFTER `cp_tax_charge`;
+ALTER TABLE `vendor_partner_invoices` ADD `buyback_tax_amount` INT NOT NULL DEFAULT '0' AFTER `igst_tax_rate`;
+

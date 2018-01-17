@@ -50,6 +50,7 @@
                 <th class='jumbotron' style="text-align: center">Modify Price</th>
                 <th class='jumbotron' style="text-align: center">Send Summary Email</th>
                 <th class='jumbotron' style="text-align: center">View History</th>
+                 <th class='jumbotron' style="text-align: center">Notifications</th>
           </tr>
 
           
@@ -102,6 +103,28 @@
                 <a href="<?php echo base_url();?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id'];?>" class="btn btn-md btn-color">Send Mail</a>  
             </td>
             <td>  <button type="button" class="btn btn-info btn-lg fa fa-eye" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" style="padding: 11px 6px;margin: 0px 10px;"></button></td>
+          <td align="center">
+              <?php 
+              if(array_key_exists($row['id'],$push_notification)){
+                     $tooltipText ='';
+                      if(array_key_exists("subscription_count", $push_notification[$row['id']])){
+                        $tooltipText =$tooltipText."Subscriptions: ".$push_notification[$row['id']]['subscription_count'];
+                      }
+                       if(array_key_exists("blocked_count", $push_notification[$row['id']])){
+                        $tooltipText = $tooltipText.", Blocked: ".$push_notification[$row['id']]['blocked_count'];
+                      }
+                  if(isset($push_notification[$row['id']]['blocked_count']) && !isset($push_notification[$row['id']]['subscription_count'])){
+                      echo '<button type="button" class="btn btn-info btn-lg glyphicon glyphicon-ban-circle" data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"></button>';
+                  }
+                  else{
+                      echo '<button type="button" class="btn btn-info btn-lg " data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"><i class="fa fa-bell" aria-hidden="true"></i></button>';
+                  }
+              }
+              else{
+                  echo '<button type="button" class="btn btn-info btn-lg " style="padding: 11px 6px;margin: 0px 10px;"><i class="fa fa-spinner" aria-hidden="true"></i></button>';
+              }
+              ?>
+          </td>
           </tr>
           <?php } ?>
         </table>

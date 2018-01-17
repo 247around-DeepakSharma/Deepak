@@ -285,19 +285,22 @@
                     url:"<?php echo base_url(); ?>employee/service_centers/check_bb_order_key",
                     data:{'category':category,'physical_condition':physical_condition,'working_condition':working_condition,'brand':brand,'city':city,'order_id':order_id,'services': services, 'cp_id':cp_id},
                     success:function(response){
-                       var response=jQuery.parseJSON(response);
-                       if(typeof response ==='object') {
-                           $('#partner_order_key').val(response.order_key);
-                           $("#claimed_price").val(response.cp_charge);
-                          
+                        if(response !== "Not Found"){
+                            var response=jQuery.parseJSON(response);
+                            if(typeof response ==='object') {
+                                $('#partner_order_key').val(response.order_key);
+                                $("#claimed_price").val(response.cp_charge);
+
+                             }
+                             else{
+                               if(response ===false){
+                                  // the response was a string "false", parseJSON will convert it to boolean false
+                               }else{
+                                 // the response was something else
+                               }
+                             }
                         }
-                        else{
-                          if(response ===false){
-                             // the response was a string "false", parseJSON will convert it to boolean false
-                          }else{
-                            // the response was something else
-                          }
-                        }
+                       
                         //$('#partner_order_key').val(response);
                     }
                            

@@ -43,7 +43,7 @@ class vendor extends CI_Controller {
         $this->load->library('user_agent');
         $this->load->dbutil();
         $this->load->helper('file');
-        
+        $this->load->model('push_notification_model');
 
     }
 
@@ -123,113 +123,113 @@ class vendor extends CI_Controller {
             }
            
             //Start Processing CST File Upload
-            if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
-                //Adding file validation
-                $checkfilevalidation = $this->file_input_validation('cst_file');
-                if ($checkfilevalidation) {
-                    //Cross-check if Non Availiable is checked along with file upload
-                    if (isset($data['is_cst_doc'])) {
-                        unset($_POST['is_cst_doc']);
-                    }
-                    //Making process for file upload
-                    $tmpFile = $_FILES['cst_file']['tmp_name'];
-                    $cst_file = implode("", explode(" ", $this->input->post('name'))) . '_cstfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['cst_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$cst_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $cst_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['cst_file'] = $cst_file;
-                    
-                    $attachment_cst = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cst_file;
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' CST FILE is being uploaded sucessfully.');
-                } else {
-                    //Redirect back to Form
-                    $data = $this->input->post();
-                    //Checking if form is for add or edit
-                    if (!empty($_POST['id'])) {
-                        //Redirect to edit form for particular id
-                        $this->editvendor($data['id']);
-                    } else {
-                        //Redirect to add vendor form
-                        $this->add_vendor();
-                    }
-                    return FALSE;
-                }
-            }
+//            if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
+//                //Adding file validation
+//                $checkfilevalidation = $this->file_input_validation('cst_file');
+//                if ($checkfilevalidation) {
+//                    //Cross-check if Non Availiable is checked along with file upload
+//                    if (isset($data['is_cst_doc'])) {
+//                        unset($_POST['is_cst_doc']);
+//                    }
+//                    //Making process for file upload
+//                    $tmpFile = $_FILES['cst_file']['tmp_name'];
+//                    $cst_file = implode("", explode(" ", $this->input->post('name'))) . '_cstfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['cst_file']['name'])[1];
+//                    move_uploaded_file($tmpFile, TMP_FOLDER.$cst_file);
+//
+//                    //Upload files to AWS
+//                    $bucket = BITBUCKET_DIRECTORY;
+//                    $directory_xls = "vendor-partner-docs/" . $cst_file;
+//                    $this->s3->putObjectFile(TMP_FOLDER.$cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+//                    $_POST['cst_file'] = $cst_file;
+//                    
+//                    $attachment_cst = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cst_file;
+//                    
+//                    //Logging success for file uppload
+//                    log_message('info',__CLASS__.' CST FILE is being uploaded sucessfully.');
+//                } else {
+//                    //Redirect back to Form
+//                    $data = $this->input->post();
+//                    //Checking if form is for add or edit
+//                    if (!empty($_POST['id'])) {
+//                        //Redirect to edit form for particular id
+//                        $this->editvendor($data['id']);
+//                    } else {
+//                        //Redirect to add vendor form
+//                        $this->add_vendor();
+//                    }
+//                    return FALSE;
+//                }
+//            }
             
             //Start Processing TIN File Upload
-            if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
-                //Adding file validation
-                $checkfilevalidation = $this->file_input_validation('tin_file');
-                if ($checkfilevalidation) {
-                    //Cross-check if Non Availiable is checked along with file upload
-                    if (isset($data['is_tin_doc'])) {
-                        unset($_POST['is_tin_doc']);
-                    }
-                    $tmpFile = $_FILES['tin_file']['tmp_name'];
-                    $tin_file = implode("", explode(" ", $this->input->post('name'))) . '_tinfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['tin_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$tin_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $tin_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['tin_file'] = $tin_file;
-                    
-                    $attachment_tin = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$tin_file;
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' TIN FILE is being uploaded sucessfully.');
-                } else {
-                    //Redirect back to Form
-                    $data = $this->input->post();
-                    if (!empty($_POST['id'])) {
-                        $this->editvendor($data['id']);
-                    } else {
-                        $this->add_vendor();
-                    }
-                    return FALSE;
-                }
-            }
+//            if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
+//                //Adding file validation
+//                $checkfilevalidation = $this->file_input_validation('tin_file');
+//                if ($checkfilevalidation) {
+//                    //Cross-check if Non Availiable is checked along with file upload
+//                    if (isset($data['is_tin_doc'])) {
+//                        unset($_POST['is_tin_doc']);
+//                    }
+//                    $tmpFile = $_FILES['tin_file']['tmp_name'];
+//                    $tin_file = implode("", explode(" ", $this->input->post('name'))) . '_tinfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['tin_file']['name'])[1];
+//                    move_uploaded_file($tmpFile, TMP_FOLDER.$tin_file);
+//
+//                    //Upload files to AWS
+//                    $bucket = BITBUCKET_DIRECTORY;
+//                    $directory_xls = "vendor-partner-docs/" . $tin_file;
+//                    $this->s3->putObjectFile(TMP_FOLDER.$tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+//                    $_POST['tin_file'] = $tin_file;
+//                    
+//                    $attachment_tin = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$tin_file;
+//                    
+//                    //Logging success for file uppload
+//                    log_message('info',__CLASS__.' TIN FILE is being uploaded sucessfully.');
+//                } else {
+//                    //Redirect back to Form
+//                    $data = $this->input->post();
+//                    if (!empty($_POST['id'])) {
+//                        $this->editvendor($data['id']);
+//                    } else {
+//                        $this->add_vendor();
+//                    }
+//                    return FALSE;
+//                }
+//            }
 
             //Start Processing Service Tax File Upload
-            if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
-                //Adding file validation
-                $checkfilevalidation = $this->file_input_validation('service_tax_file');
-                if ($checkfilevalidation) {
-                    //Cross-check if Non Availiable is checked along with file upload
-                    if (isset($data['is_st_doc'])) {
-                        unset($_POST['is_st_doc']);
-                    }
-                    $tmpFile = $_FILES['service_tax_file']['tmp_name'];
-                    $service_tax_file = implode("", explode(" ", $this->input->post('name'))) . '_servicetaxfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$service_tax_file);
-
-                    //Upload files to AWS
-                    $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "vendor-partner-docs/" . $service_tax_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['service_tax_file'] = $service_tax_file;
-                    
-                    $attachment_service_tax = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$service_tax_file;
-                    
-                    //Logging success for file uppload
-                    log_message('info',__CLASS__.' Serivce Tax FILE is being uploaded sucessfully.');
-                } else {
-                    //Redirect back to Form
-                    $data = $this->input->post();
-                    if (!empty($_POST['id'])) {
-                        $this->editvendor($data['id']);
-                    } else {
-                        $this->add_vendor();
-                    }
-                    return FALSE;
-                }
-            }
+//            if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
+//                //Adding file validation
+//                $checkfilevalidation = $this->file_input_validation('service_tax_file');
+//                if ($checkfilevalidation) {
+//                    //Cross-check if Non Availiable is checked along with file upload
+//                    if (isset($data['is_st_doc'])) {
+//                        unset($_POST['is_st_doc']);
+//                    }
+//                    $tmpFile = $_FILES['service_tax_file']['tmp_name'];
+//                    $service_tax_file = implode("", explode(" ", $this->input->post('name'))) . '_servicetaxfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
+//                    move_uploaded_file($tmpFile, TMP_FOLDER.$service_tax_file);
+//
+//                    //Upload files to AWS
+//                    $bucket = BITBUCKET_DIRECTORY;
+//                    $directory_xls = "vendor-partner-docs/" . $service_tax_file;
+//                    $this->s3->putObjectFile(TMP_FOLDER.$service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+//                    $_POST['service_tax_file'] = $service_tax_file;
+//                    
+//                    $attachment_service_tax = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$service_tax_file;
+//                    
+//                    //Logging success for file uppload
+//                    log_message('info',__CLASS__.' Serivce Tax FILE is being uploaded sucessfully.');
+//                } else {
+//                    //Redirect back to Form
+//                    $data = $this->input->post();
+//                    if (!empty($_POST['id'])) {
+//                        $this->editvendor($data['id']);
+//                    } else {
+//                        $this->add_vendor();
+//                    }
+//                    return FALSE;
+//                }
+//            }
             
             //Processing Address Proof File Upload
                 if(($_FILES['address_proof_file']['error'] != 4) && !empty($_FILES['address_proof_file']['tmp_name'])){
@@ -338,18 +338,18 @@ class vendor extends CI_Controller {
             if (!empty($brands)) {
                 $_POST['brands'] = implode(",", $brands);
             }
-            if(!isset($_POST['is_st_doc'])){
-                $_POST['is_st_doc'] = 1;
-            }
-            if(!isset($_POST['is_tin_doc'])){
-                $_POST['is_tin_doc'] = 1;
-            }
+//            if(!isset($_POST['is_st_doc'])){
+//                $_POST['is_st_doc'] = 1;
+//            }
+//            if(!isset($_POST['is_tin_doc'])){
+//                $_POST['is_tin_doc'] = 1;
+//            }
             if(!isset($_POST['is_pan_doc'])){
                 $_POST['is_pan_doc'] = 1;
             }
-            if(!isset($_POST['is_cst_doc'])){
-                $_POST['is_cst_doc'] = 1;
-            }
+//            if(!isset($_POST['is_cst_doc'])){
+//                $_POST['is_cst_doc'] = 1;
+//            }
             if(!isset($_POST['is_gst_doc'])){
                 $_POST['is_gst_doc'] = 1;
             }
@@ -535,7 +535,7 @@ class vendor extends CI_Controller {
     }
     
     function upload_gst_file($data) {
-        //Start  Processing PAN File Upload
+        //Start  Processing GST File Upload
         if (($_FILES['gst_file']['error'] != 4) && !empty($_FILES['gst_file']['tmp_name'])) {
             //Adding file validation
             $checkfilevalidation = $this->file_input_validation('gst_file');
@@ -602,9 +602,9 @@ class vendor extends CI_Controller {
                 $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
                 
                 $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
-                $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
-                $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
-                $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
+//                $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
+//                $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
+//                $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
                 $vendor_data['is_gst_doc'] = $this->input->post('is_gst_doc');
                 $vendor_data['is_sf'] = $this->input->post('is_sf');
                 $vendor_data['is_cp'] = $this->input->post('is_cp');
@@ -624,21 +624,21 @@ class vendor extends CI_Controller {
                     $vendor_data['pan_no'] = "";
                     $vendor_data['name_on_pan']= "";
                 }
-                if(!empty($vendor_data['is_cst_doc']) && !empty($this->input->post('cst_no'))){
-                    $vendor_data['cst_no'] = $this->input->post('cst_no');
-                }else{
-                     $vendor_data['cst_no'] = "";
-                }
-                if(!empty($vendor_data['is_tin_doc']) &&  !empty($this->input->post('tin_no'))){
-                    $vendor_data['tin_no'] = $this->input->post('tin_no');
-                }else{
-                    $vendor_data['tin_no'] = "";
-                }
-                if(!empty($vendor_data['is_st_doc']) && !empty($this->input->post('service_tax_no'))){
-                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
-                }else{
-                    $vendor_data['service_tax_no'] = "";
-                }
+//                if(!empty($vendor_data['is_cst_doc']) && !empty($this->input->post('cst_no'))){
+//                    $vendor_data['cst_no'] = $this->input->post('cst_no');
+//                }else{
+//                     $vendor_data['cst_no'] = "";
+//                }
+//                if(!empty($vendor_data['is_tin_doc']) &&  !empty($this->input->post('tin_no'))){
+//                    $vendor_data['tin_no'] = $this->input->post('tin_no');
+//                }else{
+//                    $vendor_data['tin_no'] = "";
+//                }
+//                if(!empty($vendor_data['is_st_doc']) && !empty($this->input->post('service_tax_no'))){
+//                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
+//                }else{
+//                    $vendor_data['service_tax_no'] = "";
+//                }
                 if(!empty($vendor_data['is_gst_doc']) && !empty($this->input->post('gst_no'))){
                     $vendor_data['gst_no'] = $this->input->post('gst_no');
                 }else{
@@ -666,15 +666,15 @@ class vendor extends CI_Controller {
                 if(!empty($this->input->post('address_proof_file'))){
                     $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
                 } 
-                if(!empty($this->input->post('service_tax_file'))){
-                    $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
-                } 
-                if(!empty($this->input->post('tin_file'))){
-                    $vendor_data['tin_file'] = $this->input->post('tin_file');
-                }
-                if(!empty($this->input->post('cst_file'))){
-                    $vendor_data['cst_file'] = $this->input->post('cst_file');
-                }
+//                if(!empty($this->input->post('service_tax_file'))){
+//                    $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
+//                } 
+//                if(!empty($this->input->post('tin_file'))){
+//                    $vendor_data['tin_file'] = $this->input->post('tin_file');
+//                }
+//                if(!empty($this->input->post('cst_file'))){
+//                    $vendor_data['cst_file'] = $this->input->post('cst_file');
+//                }
                 if(!empty($this->input->post('pan_file'))){
                     $vendor_data['pan_file'] = $this->input->post('pan_file');
                 }  
@@ -754,21 +754,21 @@ class vendor extends CI_Controller {
         $html .= " " . $updated_vendor_details[0]['pan_file'] . '</li>';
         $html .= "<li><b>" . 'is_pan_doc' . '</b> =>';
         $html .= " " . $updated_vendor_details[0]['is_pan_doc'] . '</li>';
-        $html .= "<li><b>" . 'CST Number' . '</b> =>';
-        $html .= " " . $updated_vendor_details[0]['cst_no'] . '</li>';
-        $html .= "<li><b>" . 'CST File' . '</b> =>';
-        $html .= " " . $updated_vendor_details[0]['cst_file'] . '</li>';
-        $html .= "<li><b>" . 'is_cst_doc' . '</b> =>';
-        $html .= " " . $updated_vendor_details[0]['is_cst_doc'] . '</li>';
-        $html .= "<li><b>" . 'Tin Number' . '</b> =>';
-        $html .= " " . $updated_vendor_details[0]['tin_no'] . '</li>';
-        $html .= "<li><b>" . 'Tin File' . '</b> =>';
-        $html .= " " . $updated_vendor_details[0]['tin_file'] . '</li>';
-        $html .= "<li><b>" . 'Service Tax Number' . '</b> =>';
-        $html .= " " . $updated_vendor_details[0]['service_tax_no'] . '</li>';
-        $html .= "<li><b>" . 'Service Tax File' . '</b> =>';
-        $html .= " " . $updated_vendor_details[0]['service_tax_file'] . '</li>';
-        $html .= "<li><b>" . 'is_st_doc' . '</b> =>';
+//        $html .= "<li><b>" . 'CST Number' . '</b> =>';
+//        $html .= " " . $updated_vendor_details[0]['cst_no'] . '</li>';
+//        $html .= "<li><b>" . 'CST File' . '</b> =>';
+//        $html .= " " . $updated_vendor_details[0]['cst_file'] . '</li>';
+//        $html .= "<li><b>" . 'is_cst_doc' . '</b> =>';
+//        $html .= " " . $updated_vendor_details[0]['is_cst_doc'] . '</li>';
+//        $html .= "<li><b>" . 'Tin Number' . '</b> =>';
+//        $html .= " " . $updated_vendor_details[0]['tin_no'] . '</li>';
+//        $html .= "<li><b>" . 'Tin File' . '</b> =>';
+//        $html .= " " . $updated_vendor_details[0]['tin_file'] . '</li>';
+//        $html .= "<li><b>" . 'Service Tax Number' . '</b> =>';
+//        $html .= " " . $updated_vendor_details[0]['service_tax_no'] . '</li>';
+//        $html .= "<li><b>" . 'Service Tax File' . '</b> =>';
+//        $html .= " " . $updated_vendor_details[0]['service_tax_file'] . '</li>';
+//        $html .= "<li><b>" . 'is_st_doc' . '</b> =>';
         $html .= " " . $updated_vendor_details[0]['is_st_doc'] . '</li>';
         $html .= "<li><b>" . 'Account Type' . '</b> =>';
         $html .= " " . $updated_vendor_details[0]['account_type'] . '</li>';
@@ -851,12 +851,12 @@ class vendor extends CI_Controller {
         if (!empty($updated_vendor_details[0]['pan_file'])) {
             $this->email->attach($s3_url . $updated_vendor_details[0]['pan_file'], 'attachment');
         }
-        if (!empty($updated_vendor_details[0]['cst_file'])) {
-            $this->email->attach($s3_url . $updated_vendor_details[0]['cst_file'], 'attachment');
-        }
-        if (!empty($updated_vendor_details[0]['tin_file'])) {
-            $this->email->attach($s3_url . $updated_vendor_details[0]['tin_file'], 'attachment');
-        }
+//        if (!empty($updated_vendor_details[0]['cst_file'])) {
+//            $this->email->attach($s3_url . $updated_vendor_details[0]['cst_file'], 'attachment');
+//        }
+//        if (!empty($updated_vendor_details[0]['tin_file'])) {
+//            $this->email->attach($s3_url . $updated_vendor_details[0]['tin_file'], 'attachment');
+//        }
         if (!empty($updated_vendor_details[0]['id_proof_1_file'])) {
             $this->email->attach($s3_url . $updated_vendor_details[0]['id_proof_1_file'], 'attachment');
         }
@@ -1037,8 +1037,9 @@ class vendor extends CI_Controller {
         //Getting State for SC charges
         $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
+        $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data));
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data,'push_notification'=>$pushNotification));
     }
 
     /**
