@@ -38,9 +38,9 @@ class push_notification_model extends CI_Model {
     /*
      * This function is used to get notification template by template ID
      */
-    function get_push_notification_template($templateID){
+    function get_push_notification_template($templateTag){
         $this->db->select('*');
-        $this->db->where(array("notification_tag"=>$templateID));
+        $this->db->where(array("notification_tag"=>$templateTag,"active"=>1));
         $query = $this->db->get("push_notification_templates");
         return $query->result_array();
     }
@@ -53,7 +53,7 @@ class push_notification_model extends CI_Model {
         foreach($entityIDTypeArray as $entity_type=>$entity_ID_array){
             $tempArray[] = "(entity_type='".$entity_type."' AND entity_id IN (".implode(",",$entity_ID_array)."))";
         }
-       $sql = "SELECT DISTINCT(subscriber_id) FROM push_notification_subscribers WHERE ".implode(" OR ",$tempArray)." AND subscriber_id !=-1";
+      $sql = "SELECT DISTINCT(subscriber_id) FROM push_notification_subscribers WHERE ".implode(" OR ",$tempArray)." AND subscriber_id !=-1";
        $query = $this->db->query($sql);
        return $query->result_array();
     }
