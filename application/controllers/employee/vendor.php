@@ -40,11 +40,12 @@ class vendor extends CI_Controller {
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->library('email');
+        $this->load->library('push_notification_lib');
         $this->load->helper('download');
         $this->load->library('user_agent');
         $this->load->dbutil();
         $this->load->helper('file');
-        
+        $this->load->model('push_notification_model');
 
     }
 
@@ -1038,8 +1039,9 @@ class vendor extends CI_Controller {
         //Getting State for SC charges
         $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
+        $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data));
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data,'push_notification'=>$pushNotification));
     }
 
     /**
@@ -1169,6 +1171,12 @@ class vendor extends CI_Controller {
                         //Insert log into booking state change
                        $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, _247AROUND);
 
+                       //Send Push Notification
+                       $receiverArray['vendor'] = array($service_center_id); 
+                       $notificationTextArray['url'] = array($booking_id);
+                       $notificationTextArray['msg'] = array($booking_id);
+                       $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
+                       //End Push Notification
                         $count++;
                                
                         if($sf_status[$booking_id] == "SF_NOT_EXIST"){

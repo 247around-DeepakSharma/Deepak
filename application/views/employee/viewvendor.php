@@ -115,6 +115,7 @@
                 <th class="jumbotron">Add Pin Code</th>
                 <th class="jumbotron">Resend Login Details</th>
                 <th class="jumbotron">View History</th>
+                <th class="jumbotron">Notifications</th>
           </tr>
 
           
@@ -171,7 +172,29 @@
             <td><button type="button" class="btn btn-small btn-success" id="<?php echo $row['id']; ?>" data-toggle="modal" data-target="#pin_code" onclick="createPinCodeForm(this.id,<?php echo "'".$row['name']."'"  ?>)">Pin Code</button></td>
             <td><a class="btn btn-warning" href="<?php echo base_url();?>employee/vendor/resend_login_details/vendor/<?php echo $row['id']?>">Resend Login Details</a></td>
             <td>  <button type="button" class="btn btn-info btn-lg fa fa-eye" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" style="padding: 11px 6px;margin: 0px 10px;"></button></td>
-          </tr>
+          <td align="center">
+              <?php 
+              if(array_key_exists($row['id'],$push_notification)){
+                     $tooltipText ='';
+                      if(array_key_exists("subscription_count", $push_notification[$row['id']])){
+                        $tooltipText =$tooltipText."Subscriptions: ".$push_notification[$row['id']]['subscription_count'];
+                      }
+                       if(array_key_exists("blocked_count", $push_notification[$row['id']])){
+                        $tooltipText = $tooltipText.", Blocked: ".$push_notification[$row['id']]['blocked_count'];
+                      }
+                  if(isset($push_notification[$row['id']]['blocked_count']) && !isset($push_notification[$row['id']]['subscription_count'])){
+                      echo '<button type="button" class="btn btn-info btn-lg glyphicon glyphicon-ban-circle" data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"></button>';
+                  }
+                  else{
+                      echo '<button type="button" class="btn btn-info btn-lg " data-toggle="tooltip" data-placement="left" title="'.$tooltipText.'" style="padding: 11px 6px;margin: 0px 10px;"><i class="fa fa-bell" aria-hidden="true"></i></button>';
+                  }
+              }
+              else{
+                  echo '<button type="button" class="btn btn-info btn-lg " style="padding: 11px 6px;margin: 0px 10px;"><i class="fa fa-spinner" aria-hidden="true"></i></button>';
+              }
+              ?>
+          </td>
+          </tr>	
           <?php } ?>
         </table>
 
