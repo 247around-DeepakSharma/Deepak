@@ -882,6 +882,11 @@ class Booking extends CI_Controller {
             //get the unit details data and update the inventory stock
             $booking_details = $this->reusable_model->get_search_query('booking_details', 'booking_details.assigned_vendor_id,booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL,'booking_details.assigned_vendor_id IS NOT null'=>NULL), array('booking_unit_details'=>'booking_details.booking_id = booking_unit_details.booking_id'), NULL, NULL, NULL, NULL)->result_array();
             if (!empty($booking_details)) { 
+            //Send Push Notification
+            $receiverArray['vendor'] = array($booking_details[0]['assigned_vendor_id']);
+            $notificationTextArray['msg'] = array($booking_id,"Cancel");
+            $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
+            //End Push Notification
                 //process each unit if price tag is wall mount
                 foreach($booking_details as $value){
                     $match = array();
@@ -967,6 +972,12 @@ class Booking extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
             $this->booking_model->update_booking($booking_id, $data);
+            //Send Push Notification
+            $vendorData = $this->vendor_model->getVendor($booking_id);
+            $receiverArray['vendor']= array($vendorData[0]['id']);
+            $notificationTextArray['msg'] = array($booking_id,"Rescheduled");
+            $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
+            //End Sending Push Notification
             $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
 
             //Log this state change as well for this booking
@@ -1648,8 +1659,8 @@ class Booking extends CI_Controller {
         // get Assigned Vendor
         $vendorData = $this->vendor_model->getVendor($booking_id);
         $receiverArray['vendor']= array($vendorData[0]['id']);
-        $notificationTextArray['msg'] = array($booking_id);
-        $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_REJECTED_BY_247AROUND,$receiverArray,$notificationTextArray);
+        $notificationTextArray['msg'] = array($booking_id,"Rejected");
+        $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
         //End Push Notification
         $this->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
     }
