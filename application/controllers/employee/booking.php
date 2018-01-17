@@ -46,6 +46,7 @@ class Booking extends CI_Controller {
         $this->load->library('partner_sd_cb');
         $this->load->library('asynchronous_lib');
         $this->load->library("initialized_variable");
+        $this->load->library("push_notification_lib");
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
@@ -1612,7 +1613,13 @@ class Booking extends CI_Controller {
         $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
         log_message('info', __FUNCTION__ . " Booking_id " . $booking_id . " Update service center action table: " . print_r($data, true));
         $this->vendor_model->update_service_center_action($booking_id, $data);
-
+        //Send Push Notification
+        // get Assigned Vendor
+        $vendorData = $this->vendor_model->getVendor($booking_id);
+        $receiverArray['vendor']= array($vendorData[0]['id']);
+        $notificationTextArray['msg'] = array($booking_id);
+        $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_REJECTED_BY_247AROUND,$receiverArray,$notificationTextArray);
+        //End Push Notification
         $this->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
     }
 
@@ -1626,6 +1633,9 @@ class Booking extends CI_Controller {
     function checked_complete_review_booking() {
         log_message('info', __FUNCTION__);
         $approved_booking = $this->input->post('approved_booking');
+        echo "<pre>";
+        print_r($approved_booking);
+        exit();
         $url = base_url() . "employee/do_background_process/complete_booking";
         $agent_id = $this->session->userdata('id');
         $agent_name = $this->session->userdata('employee_id');
