@@ -40,7 +40,7 @@ class push_notification_model extends CI_Model {
      */
     function get_push_notification_template($templateTag){
         $this->db->select('*');
-        $this->db->where(array("notification_tag"=>$templateTag));
+        $this->db->where(array("notification_tag"=>$templateTag,"active"=>1));
         $query = $this->db->get("push_notification_templates");
         return $query->result_array();
     }

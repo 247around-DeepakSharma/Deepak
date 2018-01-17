@@ -61,41 +61,46 @@ class push_notification_lib {
         function create_and_send_push_notiifcation($templateTag,$receiverArray=array(),$notificationTextArray=array()){
             // Get Template Data
             $templateData = $this->Pu_N->push_notification_model->get_push_notification_template($templateTag);
-            if(empty($receiverArray)){
-                // If receiver Array is empty then get subscriber id for group which is mentioned in template table
-                $recieiverGroupTypeArray = explode(",",$templateData[0]['entity_type']);
-                $subscriberArrayTemp  = $this->Pu_N->push_notification_model->get_subscriber_by_entity_types($recieiverGroupTypeArray);
-            }
-            else{
-                // Get Subscriber ID array on combination entity_type and entity_id if receiver array is not blank
-                $subscriberArrayTemp = $this->Pu_N->push_notification_model->get_subscriberID_by_entity_type_and_entity_id($receiverArray);
-            }
-            $subscriberArray = array();
-            foreach($subscriberArrayTemp as $dataArray){
-                $subscriberArray[] = $dataArray['subscriber_id'];
-            }
-            if(!empty($subscriberArray)){
-                $data['subscriberArray'] = $subscriberArray;
-                $data['notification_type'] = $templateData[0]['notification_type'];
-                $data['title'] = $templateData[0]['title'];
-                $data['msg'] = $templateData[0]['msg'];
-                $data['url'] =    base_url().$templateData[0]['url'];
-                if(array_key_exists('title', $notificationTextArray)){
-                    $data['title'] = vsprintf($templateData[0]['title'], $notificationTextArray['title']);
+            if(!empty($templateData)){
+                if(empty($receiverArray)){
+                    // If receiver Array is empty then get subscriber id for group which is mentioned in template table
+                    $recieiverGroupTypeArray = explode(",",$templateData[0]['entity_type']);
+                    $subscriberArrayTemp  = $this->Pu_N->push_notification_model->get_subscriber_by_entity_types($recieiverGroupTypeArray);
                 }
-                if(array_key_exists('msg', $notificationTextArray)){
-                    $data['msg'] = vsprintf($templateData[0]['msg'], $notificationTextArray['msg']);
-                }  
-                if(array_key_exists('url', $notificationTextArray)){
-                    $data['url'] = vsprintf(base_url().$templateData[0]['url'], $notificationTextArray['url']);
-                 } 
-                 $sendUrl = base_url().'employee/do_background_process/send_asyn_push_notification';
-                 $this->Pu_N->asynchronous_lib->do_background_process($sendUrl, $data);
-                 $this->send_push_notification($data['title'],$data['msg'],$data['url'],$data['notification_type'],$data['subscriberArray']);
-                 //$this->send_push_notification($data['title'],$data['msg'],$data['url'],$data['notification_type'],$subscriberArray);
+                else{
+                    // Get Subscriber ID array on combination entity_type and entity_id if receiver array is not blank
+                    $subscriberArrayTemp = $this->Pu_N->push_notification_model->get_subscriberID_by_entity_type_and_entity_id($receiverArray);
+                }
+                $subscriberArray = array();
+                foreach($subscriberArrayTemp as $dataArray){
+                    $subscriberArray[] = $dataArray['subscriber_id'];
+                }
+                if(!empty($subscriberArray)){
+                    $data['subscriberArray'] = $subscriberArray;
+                    $data['notification_type'] = $templateData[0]['notification_type'];
+                    $data['title'] = $templateData[0]['title'];
+                    $data['msg'] = $templateData[0]['msg'];
+                    $data['url'] =    base_url().$templateData[0]['url'];
+                    if(array_key_exists('title', $notificationTextArray)){
+                        $data['title'] = vsprintf($templateData[0]['title'], $notificationTextArray['title']);
+                    }
+                    if(array_key_exists('msg', $notificationTextArray)){
+                        $data['msg'] = vsprintf($templateData[0]['msg'], $notificationTextArray['msg']);
+                    }  
+                    if(array_key_exists('url', $notificationTextArray)){
+                        $data['url'] = vsprintf(base_url().$templateData[0]['url'], $notificationTextArray['url']);
+                     } 
+                     $sendUrl = base_url().'employee/do_background_process/send_asyn_push_notification';
+                     $this->Pu_N->asynchronous_lib->do_background_process($sendUrl, $data);
+                     $this->send_push_notification($data['title'],$data['msg'],$data['url'],$data['notification_type'],$data['subscriberArray']);
+                     //$this->send_push_notification($data['title'],$data['msg'],$data['url'],$data['notification_type'],$subscriberArray);
+                }
+                else{
+                    log_message('info', __FUNCTION__ . "Push Notification Reciever Is not available");
+                }
             }
             else{
-                log_message('info', __FUNCTION__ . " Reciever Is not available");
+                log_message('info', __FUNCTION__ . "Push Notification Template Not Found ".$templateTag);
             }
     }
 }
