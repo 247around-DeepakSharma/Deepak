@@ -1736,5 +1736,65 @@ class Inventory extends CI_Controller {
         $data['stock_details'] = $this->inventory_model->get_inventory_stocks($select,$where);
         echo $this->load->view('employee/inventory_stock_details',$data);
     }
+    
+    /**
+     * @Desc: This function is used to show form add inventory stocks for service center
+     * @params: void
+     * @return: void
+     * 
+     */
+    function update_inventory_stock(){
+        $data['sf'] = $this->vendor_model->getVendorDetails('id,name',array('active' => '1'));
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/add_inventory_stock", $data);
+    }
+    
+    /**
+     * @Desc: This function is used to add inventory stocks for service center
+     * @params: void
+     * @return: void
+     * 
+     */
+    function process_update_inventory_stock(){
+        $sf_id = $this->input->post('sf_id');
+        if(!empty($sf_id)){
+            //update vendor brackets flag
+            $this->vendor_model->edit_vendor(array('brackets_flag' => 1,'agent_id'=> $this->session->userdata('id')),$sf_id);
+            $inventory_stocks_data = array('receiver_entity_id' => $sf_id,
+                'receiver_entity_type' => _247AROUND_SF_STRING,
+                'agent_id' => $this->session->userdata('id'),
+                'agent_type' => _247AROUND_EMPLOYEE_STRING
+            );
+            //update inventory stocks for less than 32"
+            if($this->input->post('l_32') !== ""){
+                
+                $inventory_stocks_data['stock'] = $this->input->post('l_32');
+                $inventory_stocks_data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                $return_response = $this->miscelleneous->process_inventory_stocks($inventory_stocks_data);
+            }
+            //update inventory stocks for greater than 32"
+            if($this->input->post('g_32') !== ""){
+                $inventory_stocks_data['stock'] = $this->input->post('g_32');
+                $inventory_stocks_data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                $return_response = $this->miscelleneous->process_inventory_stocks($inventory_stocks_data);
+            }
+            
+            if($return_response){
+                $res['response'] = 'success';
+                $res['msg'] = 'Stocks details Updated Successfully';
+                echo json_encode($res);
+            }else{
+                $res['response'] = 'error';
+                $res['msg'] = 'Error In updating stocks. Please Try Again';
+                echo json_encode($res);
+            }
+        }else{
+            $res['response'] = 'error';
+            $res['msg'] = 'Please Select Service Center';
+            echo json_encode($res);
+        }
+        
+        
+    }
 
 }
