@@ -1178,7 +1178,7 @@ class vendor_model extends CI_Model {
      */
     function check_vendor_availability($pincode, $service_id) {
         $this->db->distinct();
-        $this->db->select('Vendor_ID, Vendor_Name,service_centres.pincode, service_centres.district, is_upcountry');
+        $this->db->select('Vendor_ID, service_centres.name as Vendor_Name,service_centres.pincode, service_centres.district, is_upcountry');
         $this->db->where('vendor_pincode_mapping.Appliance_ID', $service_id);
         $this->db->where('vendor_pincode_mapping.Pincode', $pincode);
         $this->db->from('vendor_pincode_mapping');
