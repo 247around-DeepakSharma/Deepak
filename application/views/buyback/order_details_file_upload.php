@@ -88,12 +88,16 @@
                             <div id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
                                 <div ng-controller="uploadOrderDetailsFile">
                                     <div class="form-group" >
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-md-4 col-sm-12 col-xs-12">
                                             <input type="file" file-model="myFile" id="order_details_file" required="required" class="form-control col-md-7 col-xs-12" enctype="multipart/form-data">
                                         </div>
                                         
-                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="col-md-4 col-sm-12 col-xs-12">
                                             <input type="text" placeholder="File Date" ng-model="file_date.received_date" class="form-control" id="file_date" name="file_date"/>
+                                        </div>
+                                        
+                                        <div class="col-md-4 col-sm-12 col-xs-12">
+                                            <input type="text" placeholder="SVC Number" ng-model="file_date.qc_svc" class="form-control" id="qc_svc" name="qc_svc"/>
                                         </div>
                                     </div>
                                     <div class="ln_solid"></div>

@@ -424,6 +424,7 @@ class Bb_model extends CI_Model {
      * @return string
      */
     function insert_bb_sheet_data($data) {
+        log_message("info", print_r($data,true));
         $this->db->insert_batch('bb_delivery_order_status_report', $data);
         return $this->db->insert_id();
     }

@@ -4267,3 +4267,9 @@ ALTER TABLE `push_notification_templates` CHANGE `entity_type` `entity_type` VAR
 ALTER TABLE `bb_unit_details` ADD `gst_amount` INT NOT NULL DEFAULT '0' AFTER `cp_tax_charge`;
 ALTER TABLE `vendor_partner_invoices` ADD `buyback_tax_amount` INT NOT NULL DEFAULT '0' AFTER `igst_tax_rate`;
 
+--Chhavi 
+INSERT INTO `push_notification_templates` (`id`, `title`, `url`, `msg`, `notification_type`, `entity_type`, `notification_tag`, `comments`, `active`, `create_date`) VALUES (NULL, 'New Booking From 247Around', 'service_center/booking_details/%s', 'New Booking %s Has been Assign to you, Please Proceed Further ', 'normal', 'vendor', 'booking_assign_to_sf', '', '1', '2018-01-17 14:46:19');
+--sachin 17 jan
+ALTER TABLE `email_attachment_parser` ADD `qc_svc` VARCHAR(32) NULL DEFAULT NULL AFTER `email_send_to`;
+ALTER TABLE `bb_unit_details` ADD `qc_svc` VARCHAR(32) NULL DEFAULT NULL AFTER `partner_order_id`;
+ALTER TABLE `bb_delivery_order_status_report` ADD `qc_svc` VARCHAR(32) NULL DEFAULT NULL AFTER `file_received_date`;
