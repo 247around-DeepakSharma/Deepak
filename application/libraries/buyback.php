@@ -203,6 +203,10 @@ class Buyback {
             'order_key' => $this->POST_DATA['order_key'],
             'service_id' => (!empty($bb_charges) ? $bb_charges[0]['service_id'] : $service_id),
         );
+        
+        if($this->My_CI->input->post('qc_svc')){
+            $bb_unit_details['qc_svc'] = $this->My_CI->input->post('qc_svc');
+        }
 
 
         return $this->My_CI->bb_model->insert_bb_unit_details($bb_unit_details);
