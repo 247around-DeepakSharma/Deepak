@@ -93,8 +93,8 @@
 
                     <input type="button" id="btn" class="btn-success" value="Upload" />
                 </form>
-                <p class="txtcenter">Upload Pincode file with your email, we will send this distance file to this email</p>
-                <p class="txtcenter copy">by <a href="http://247around.com">@247around</a><br /></p>
+                <p class="txtcenter">File having distance between pincodes will be sent to the provided email id.</p>
+                <p class="txtcenter copy">Created by <a href="http://247around.com">@247around</a><br /></p>
             </div>
         </div>
     </body>
