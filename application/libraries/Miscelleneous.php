@@ -237,9 +237,9 @@ class Miscelleneous {
             $cus_net_payable += $value['customer_net_payable'];
         }
         $partner_am_email = "";
-        if (isset($data['partner_am_id']) && !empty($data['partner_am_id'])) {
-            $partner_am_email = $this->employee_model->getemployeefromid($data['partner_am_id'])[0]['official_email'];
-        }
+//        if (isset($data['partner_am_id']) && !empty($data['partner_am_id'])) {
+//            $partner_am_email = $this->employee_model->getemployeefromid($data['partner_am_id'])[0]['official_email'];
+//        }
         $return_status = TRUE;
         switch ($data['message']) {
             case UPCOUNTRY_BOOKING:
