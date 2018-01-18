@@ -358,7 +358,7 @@ class Invoice extends CI_Controller {
                         } else {
                             $vp_details['settle_amount'] = 0;
                         }
-                        $vp_details['amount_paid'] = $credit_debit_amount[$key];
+                        $vp_details['amount_paid'] = $data[0]['amount_paid'] + $credit_debit_amount[$key];
                     } else {
 
                         $vp_details['settle_amount'] = 0;
