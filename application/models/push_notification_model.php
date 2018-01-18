@@ -64,4 +64,10 @@ class push_notification_model extends CI_Model {
         $query = $this->db->get("booking_details");
         return $query->result_array();
     }
+    function update_push_notification_unsubscription($subscriber_id,$where){
+            $this->db->set('unsubscription_flag', '1');
+            $this->db->set('unsubscription_date', date('Y-m-d h:i:s'));
+            $this->db->where($where);
+            $this->db->update('push_notification_subscribers');
+    }
 }

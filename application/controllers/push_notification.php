@@ -30,5 +30,21 @@ class Push_Notification extends CI_Controller {
          }
          echo $notificationString;
    }
+       function save_push_notification_subscribers(){
+        $data['subscriber_id'] = $this->input->post('subscriberID');
+        $data['entity_id'] = $this->session->userdata('id');
+        $data['entity_type'] = $this->session->all_userdata()['userType'];
+        $data['browser'] = $this->agent->browser();
+        $data['device'] = "Desktop";
+        if($data['subscriber_id'] == -1){
+            $data['unsubscription_flag'] = 1;
+            $data['unsubscription_date'] = date('Y-m-d h:i:s');
+        }
+        $is_mobile = $this->agent->is_mobile();
+        if($is_mobile){
+            $data['device'] = "Mobile";
+        }
+       $this->reusable_model->insert_into_table("push_notification_subscribers",$data);
+    }
 }
 
