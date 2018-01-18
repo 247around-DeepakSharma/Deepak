@@ -145,4 +145,19 @@ class push_notification_lib {
             }
         }
     }
+    function send_booking_completion_notification_to_partner($bookingIDArray){
+        $partnerArray = array();
+        $getBookingData = $this->Pu_N->push_notification_model->get_booking_data($bookingIDArray);
+        foreach($getBookingData as $data){
+            if($data['internal_status'] ==  'Completed'){
+                $partnerArray[$data['partner_id']]['bookings'][] = $data['booking_id'];
+            }
+        }
+        foreach($partnerArray as $partnerID=>$bookingArray){
+            $receiverArray['partner'] = array($partnerID);
+            $notificationTextArray['title'] = array(count($bookingArray));
+            $notificationTextArray['msg'] = array(count($bookingArray));
+            $this->create_and_send_push_notiifcation(BOOKING_COMPLETED_FOR_PARTNER,$receiverArray,$notificationTextArray);
+        }
+    }
 }

@@ -1689,6 +1689,7 @@ class Booking extends CI_Controller {
                 log_message('info', __FUNCTION__ . " Approved Booking: " . print_r($data, true));
                 $this->asynchronous_lib->do_background_process($url, $data);
             }
+            $this->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
         } else {
             //Logging
             log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
