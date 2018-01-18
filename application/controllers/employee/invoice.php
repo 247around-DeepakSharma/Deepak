@@ -353,7 +353,7 @@ class Invoice extends CI_Controller {
                         $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
                         $vp_details['around_royalty'] = $vp_details['amount_collected_paid'] = $amount_collected;
 
-                        if (round($amount_collected, 0) == round($credit_debit_amount[$key], 0)) {
+                        if (round($amount_collected, 0) == round(($data[0]['amount_paid'] + $credit_debit_amount[$key]), 0)) {
                             $vp_details['settle_amount'] = 1;
                         } else {
                             $vp_details['settle_amount'] = 0;
