@@ -481,7 +481,7 @@ EOD;
 
     function send_leads_summary_mail_to_partners($partner_id = "") {
         
-        $newCSVFileName = "Booking_summary_" . date('j-M-Y H:i:s') . ".csv";
+        $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         
         if(!empty($partner_id))
@@ -521,6 +521,11 @@ EOD;
                 {
                     unlink($csv);
                 }
+                if($this->session->userdata('employee_id')){
+                    redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
+                }else{
+                    redirect(base_url().'partner/home','refresh');
+                }
             }else{
                 if($this->session->userdata('employee_id')){
                     redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
@@ -549,7 +554,7 @@ EOD;
                 
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "summary-excels/" . $csv;
-                $this->s3->putObjectFile(realpath($csv), $bucket, $directory_xls, S3::ACL_PRIVATE);
+                $this->s3->putObjectFile($csv, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
                 //Delete this file
                 $out = '';

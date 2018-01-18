@@ -195,7 +195,7 @@ class Invoice extends CI_Controller {
         $data['partner'] = $this->partner_model->getpartner("", false);
         $invoicing_summary = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
         foreach ($invoicing_summary as $key => $value) {
-            $invoicing_summary[$key]['prepaid_data'] = $this->miscelleneous->get_partner_prepaid_amount($value["id"], TRUE);
+            $invoicing_summary[$key]['prepaid_data'] = $this->miscelleneous->get_partner_prepaid_amount($value["id"], FALSE);
         }
         $data['invoicing_summary'] = $invoicing_summary;
        

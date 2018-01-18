@@ -493,10 +493,10 @@ function get_data_for_partner_callback($booking_id) {
                     break;
                 case _247AROUND_PENDING:
                 case _247AROUND_RESCHEDULED:
-                    $result['today_booking_pending']++;
+                    $result['yesterday_booking_pending']++;
                     break;
                 case _247AROUND_FOLLOWUP:
-                    $result['yesterday_booking_pending']++;
+                    $result['yesterday_booking_followup']++;
                     break;    
             }
         }
