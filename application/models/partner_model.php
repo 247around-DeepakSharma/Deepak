@@ -413,6 +413,13 @@ function get_data_for_partner_callback($booking_id) {
         $post['where'] = array('booking_details.partner_id' => $partner_id,'MONTH(booking_details.create_date) = MONTH(CURDATE())'=> NULL,'YEAR(booking_details.create_date) = YEAR(CURDATE())'=>NULL);
         $post['length'] = -1;
         $current_month_booking = $this->booking_model->get_bookings_by_status($post,'DISTINCT current_status,booking_details.create_date,booking_details.closed_date');
+        
+        $post['where'] = array('booking_details.partner_id' => $partner_id,'DATE(booking_details.create_date) = CURDATE()'=>NULL);
+        $today_booking = $this->booking_model->get_bookings_by_status($post,'DISTINCT current_status,booking_details.create_date,booking_details.closed_date');
+        
+        $post['where'] = array('booking_details.partner_id' => $partner_id,'DATE(booking_details.create_date) = CURDATE()-1'=>NULL);
+        $yesterday_booking = $this->booking_model->get_bookings_by_status($post,'DISTINCT current_status,booking_details.create_date,booking_details.closed_date');
+        
         $result['current_month_booking_requested'] = 0;
         $result['current_month_booking_completed'] = 0;
         $result['current_month_booking_cancelled'] = 0;
@@ -429,49 +436,67 @@ function get_data_for_partner_callback($booking_id) {
         $result['yesterday_booking_completed'] = 0;
         $result['yesterday_booking_cancelled'] = 0;
         $result['yesterday_booking_followup'] = 0;
+        $result['yesterday_booking_pending'] = 0;
+        
         foreach ($current_month_booking as $value){
             $result['current_month_booking_requested']++;
-            if (date_diff(date_create(date('Y-m-d', time())), date_create(date('Y-m-d', strtotime($value->create_date))))->format("%R%a") == "+0") {
-                $result['today_booking_requested']++;
-            } else if (date_diff(date_create(date('Y-m-d', time())), date_create(date('Y-m-d', strtotime($value->create_date))))->format("%R%a") == "-1") {
-                $result['yesterday_booking_requested']++;
-            }
             switch ($value->current_status){
                 case _247AROUND_COMPLETED:
                     $result['current_month_booking_completed']++;
-                    if(date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->closed_date))))->format("%R%a") == "+0"){
-                        $result['today_booking_completed']++;
-                    }else if(date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->closed_date))))->format("%R%a") == "-1"){
-                        $result['yesterday_booking_completed']++;
-                    }
                     break;
                 case _247AROUND_CANCELLED:
                     $result['current_month_booking_cancelled']++;
-                    if(date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->closed_date))))->format("%R%a") == "+0"){
-                        $result['today_booking_cancelled']++;
-                    }else if(date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->closed_date))))->format("%R%a") == "-1"){
-                        $result['yesterday_booking_cancelled']++;
-                    }
                     break;
                 case _247AROUND_PENDING:
                 case _247AROUND_RESCHEDULED:
-                    if(date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->create_date))))->format("%R%a") == "+0"){
-                        $result['today_booking_pending']++;
-                    }else if(date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->create_date))))->format("%R%a") <= "+0" && date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->create_date))))->format("%R%a") >= "-2"){
+                    if(date('Y-m-d',strtotime($value->create_date)) <= date('Y-m-d') && (date('Y-m-d',strtotime($value->create_date)) >= date("Y-m-d",strtotime("-2 days")))){
                         $result['zero_to_two_days_booking_pending']++;
-                    }else if(date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->create_date))))->format("%R%a") <= "-3" && date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->create_date))))->format("%R%a") >= "-5"){
+                    }else if((date("Y-m-d",strtotime($value->create_date)) < date("Y-m-d",strtotime("-2 days"))) && (date("Y-m-d",strtotime($value->create_date)) >= date("Y-m-d",strtotime("-5 days")))){
                         $result['three_to_five_days_booking_pending']++;
-                    }else if(date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->create_date))))->format("%R%a") <= "-5"){
+                    }else if(date('Y-m-d',strtotime($value->create_date)) < date('Y-m-d',strtotime("-5 days"))){
                         $result['greater_than_5_days_booking_pending']++;
                     }
                     break;
                 case _247AROUND_FOLLOWUP:
                     $result['current_month_booking_followup']++;
-                    if(date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->create_date))))->format("%R%a") == "+0"){
-                        $result['today_booking_followup']++;
-                    }else if(date_diff(date_create(date('Y-m-d',time())),date_create(date('Y-m-d',strtotime($value->create_date))))->format("%R%a") == "-1"){
-                        $result['yesterday_booking_followup']++;
-                    }
+                    break;    
+            }
+        }
+        
+        foreach ($today_booking as $value){
+            $result['today_booking_requested']++;
+            switch ($value->current_status){
+                case _247AROUND_COMPLETED:
+                    $result['today_booking_completed']++;
+                    break;
+                case _247AROUND_CANCELLED:
+                    $result['today_booking_cancelled']++;
+                    break;
+                case _247AROUND_PENDING:
+                case _247AROUND_RESCHEDULED:
+                    $result['today_booking_pending']++;
+                    break;
+                case _247AROUND_FOLLOWUP:
+                    $result['today_booking_followup']++;
+                    break;    
+            }
+        }
+        
+        foreach ($yesterday_booking as $value){
+            $result['yesterday_booking_requested']++;
+            switch ($value->current_status){
+                case _247AROUND_COMPLETED:
+                    $result['yesterday_booking_completed']++;
+                    break;
+                case _247AROUND_CANCELLED:
+                    $result['yesterday_booking_cancelled']++;
+                    break;
+                case _247AROUND_PENDING:
+                case _247AROUND_RESCHEDULED:
+                    $result['yesterday_booking_pending']++;
+                    break;
+                case _247AROUND_FOLLOWUP:
+                    $result['yesterday_booking_followup']++;
                     break;    
             }
         }
