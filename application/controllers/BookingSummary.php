@@ -538,7 +538,7 @@ EOD;
         {
             log_message('info', __FUNCTION__ . ' => Partner Summary send to partners by Cron');
 
-            $where_get_partner = array('partners.is_active' => '1');
+            $where_get_partner = array('partners.is_active' => '1','partners.is_reporting_mail'=>'1');
             $select = "partners.id, partners.summary_email_to, partners.summary_email_cc, "
                     . " partners.summary_email_bcc, partners.public_name";
             //Get all Active partners who has "is_reporting_mail" column 1
@@ -1528,18 +1528,25 @@ EOD;
         $emailBasicDataArray['fromName'] = "247around Team";
         $emailTemplateDataArray['templateId'] = PARTNER_SUMMARY_EMAIL_TEMPLATE;
         $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($partner_data['id']);
-        $emailAttachmentDataArray['type'] = "csv";
-        $emailAttachmentDataArray['fileName'] = "247around-Services-Consolidated-Data - " . date('d-M-Y');
-        $emailAttachmentDataArray['filePath'] = $csv_file;
-        $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
+        if(!empty($emailTemplateDataArray['dynamicParams'])){
+            $emailAttachmentDataArray['type'] = "csv";
+            $emailAttachmentDataArray['fileName'] = "247around-Services-Consolidated-Data - " . date('d-M-Y');
+            $emailAttachmentDataArray['filePath'] = $csv_file;
+            $emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
 
-        if ($emailStatus == 'success') {
-            log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $partner_data['public_name']);
+            if ($emailStatus == 'success') {
+                log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $partner_data['public_name']);
+                $response = true;
+            } else {
+                log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $partner_data['public_name']);
+                $response = false;
+            }
+        }else{
+            log_message('info', __METHOD__ . ": No data found for : " . $partner_data['public_name']);
             $response = true;
-        } else {
-            log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $partner_data['public_name']);
-            $response = false;
         }
+        
+        
         
         return $response;
     }
