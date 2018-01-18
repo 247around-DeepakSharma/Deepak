@@ -4297,3 +4297,4 @@ INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `
 
 --Abhay
 ALTER TABLE `booking_details` ADD `upcountry_remarks` VARCHAR(128) NULL DEFAULT NULL AFTER `upcountry_price`;
+ALTER TABLE `push_notification_subscribers` CHANGE `create_date` `create_date` DATETIME NOT NULL;
