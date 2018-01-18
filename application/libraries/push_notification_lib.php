@@ -7,6 +7,7 @@ class push_notification_lib {
         $this->Pu_N->load->model('push_notification_model');
         $this->Pu_N->load->library('miscelleneous');
         $this->Pu_N->load->library('asynchronous_lib');
+        $this->Pu_N->load->helper('cookie');
     }
     /*
      * This Function is used to send Push Notifications 
@@ -102,5 +103,40 @@ class push_notification_lib {
             else{
                 log_message('info', __FUNCTION__ . "Push Notification Template Not Found ".$templateTag);
             }
+    }
+    /*
+     * This Function is used to send notification to partner, when we completed the booking
+     * It send the Count of completed booking to Partner
+     */
+    function send_booking_completion_notification_to_partner($bookingIDArray){
+        $partnerArray = array();
+        // get internal status and partner for bookings 
+        $getBookingData = $this->Pu_N->push_notification_model->get_booking_data($bookingIDArray);
+        // get partner Booking's Associative Array 
+        foreach($getBookingData as $data){
+            if($data['internal_status'] ==  'Completed'){
+                $partnerArray[$data['partner_id']]['bookings'][] = $data['booking_id'];
+            }
+        }
+        foreach($partnerArray as $partnerID=>$bookingArray){
+            $receiverArray['partner'] = array($partnerID);
+            $notificationTextArray['title'] = array(count($bookingArray));
+            $notificationTextArray['msg'] = array(count($bookingArray));
+            $this->create_and_send_push_notiifcation(BOOKING_COMPLETED_FOR_PARTNER,$receiverArray,$notificationTextArray);
+        }
+    }
+    /*
+     * This Function is used to get unsubscribers of push notification by cookies
+     * get subscription status and subscription_id
+     * if subscription status is not subscribed then update unscbscription flag against that subscription ID
+     */
+    function get_unsubscribers_by_cookies(){
+        $status = get_cookie('wingify_push_subscription_status');
+        $subscriber_id = get_cookie('wingify_push_subscriber_id');
+        if($status && $subscriber_id){
+            if($status != "subscribed"){
+                $this->Pu_N->push_notification_model->update_push_notification_unsubscription($subscriber_id,array('subscriber_id'=>$subscriber_id));
+            }
+        }
     }
 }

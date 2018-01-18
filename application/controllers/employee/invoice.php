@@ -195,7 +195,7 @@ class Invoice extends CI_Controller {
         $data['partner'] = $this->partner_model->getpartner("", false);
         $invoicing_summary = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'));
         foreach ($invoicing_summary as $key => $value) {
-            $invoicing_summary[$key]['prepaid_data'] = $this->miscelleneous->get_partner_prepaid_amount($value["id"], TRUE);
+            $invoicing_summary[$key]['prepaid_data'] = $this->miscelleneous->get_partner_prepaid_amount($value["id"], FALSE);
         }
         $data['invoicing_summary'] = $invoicing_summary;
        
@@ -353,12 +353,12 @@ class Invoice extends CI_Controller {
                         $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
                         $vp_details['around_royalty'] = $vp_details['amount_collected_paid'] = $amount_collected;
 
-                        if (round($amount_collected, 0) == round($credit_debit_amount[$key], 0)) {
+                        if (round($amount_collected, 0) == round(($data[0]['amount_paid'] + $credit_debit_amount[$key]), 0)) {
                             $vp_details['settle_amount'] = 1;
                         } else {
                             $vp_details['settle_amount'] = 0;
                         }
-                        $vp_details['amount_paid'] = $credit_debit_amount[$key];
+                        $vp_details['amount_paid'] = $data[0]['amount_paid'] + $credit_debit_amount[$key];
                     } else {
 
                         $vp_details['settle_amount'] = 0;

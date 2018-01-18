@@ -1150,6 +1150,7 @@ class Miscelleneous {
                 'partner_id' => $partner_id,
                 'partner_invoice_id is null' => NULL,
                 'create_date >= "2017-01-01" ' => NULL,
+                'partner_net_payable > 0 '=> NULL,
                 'booking_status IN ("' . _247AROUND_PENDING . '", "'  . _247AROUND_COMPLETED . '")' => NULL
             );
             // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
@@ -1194,6 +1195,7 @@ class Miscelleneous {
             $d['is_notification'] = false;
             $d['active'] = 1;
             $d['prepaid_msg'] = "";
+            $d["prepaid_amount"] = "";
             if(!empty($partner_details)){
                  $d['partner_type'] = $partner_details[0]['partner_type'];
             }

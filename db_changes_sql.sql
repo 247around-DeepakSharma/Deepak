@@ -4209,3 +4209,8 @@ INSERT INTO `push_notification_templates` (`id`, `title`, `url`, `msg`, `notific
 ALTER TABLE `email_attachment_parser` ADD `qc_svc` VARCHAR(32) NULL DEFAULT NULL AFTER `email_send_to`;
 ALTER TABLE `bb_unit_details` ADD `qc_svc` VARCHAR(32) NULL DEFAULT NULL AFTER `partner_order_id`;
 ALTER TABLE `bb_delivery_order_status_report` ADD `qc_svc` VARCHAR(32) NULL DEFAULT NULL AFTER `file_received_date`;
+
+--Chhavi
+ALTER TABLE `push_notification_subscribers` ADD `unsubscription_flag` INT(10) NOT NULL DEFAULT '0' AFTER `subscriber_id`;
+ALTER TABLE `push_notification_subscribers` ADD `unsubscription_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `unsubscription_flag`;
+ALTER TABLE `push_notification_subscribers` CHANGE `create_date` `create_date` DATETIME NOT NULL;
