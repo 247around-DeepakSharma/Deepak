@@ -1138,6 +1138,20 @@ class Inventory extends CI_Controller {
                     $flag = FALSE;
                     break;
                     
+                    case 'DEFECTIVE_PARTS_SHIPPED_BY_SF':
+                        $where = array('id' => $id );
+                        $data = array('status' => "Defective Part Shipped By SF");
+                        $sc_data['current_status'] = "InProcess";
+                        $sc_data['internal_status'] = "Defective Part Shipped By SF";
+                        $sc_data['update_date'] = date("Y-m-d H:i:s");
+                        
+                        $this->vendor_model->update_service_center_action($booking_id,$sc_data);
+                        
+                        $new_state = "Defective Part Rejected By Partner";
+                        $old_state = "Defective Part Shipped By SF";
+                    
+                        break;
+                    
                 CASE 'NOT_REQUIRED_PARTS':
                     $data['defective_part_required'] = 0;
                     $where = array('id' => $id );

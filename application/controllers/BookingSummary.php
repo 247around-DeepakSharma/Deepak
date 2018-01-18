@@ -521,6 +521,11 @@ EOD;
                 {
                     unlink($csv);
                 }
+                if($this->session->userdata('employee_id')){
+                    redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
+                }else{
+                    redirect(base_url().'partner/home','refresh');
+                }
             }else{
                 if($this->session->userdata('employee_id')){
                     redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
