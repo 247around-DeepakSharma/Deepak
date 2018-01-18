@@ -16,9 +16,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
-                                       
-                                        <th class="text-center" data-orderable="false">Booking Status</th>
-                                        <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                       <th class="text-center" data-orderable="true">Age Of Requested</th>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <th class="text-center" data-orderable="false">Cancel Part</th>
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
@@ -42,7 +40,6 @@
                                         <td class="text-center"><?php echo $value['source'];?></td>
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         
-                                        <td class="text-center"><?php echo $value['current_status'];?></td> 
                                         <td class="text-center"><?php $age_requested = date_diff(date_create($value['date_of_request']), date_create('today')); echo $age_requested->days. " Days";?></td> 
                                         <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
                                         
@@ -105,7 +102,7 @@
                                         
 					<th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
-                                        <th class="text-center" data-orderable="false">Booking Status</th>
+                                        
                                         <th class="text-center" data-orderable="false">Cancel Part</th>
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                     </tr>
@@ -127,7 +124,7 @@
                                        
 				        <td class="text-center"><?php echo $value['defective_part_shipped'];?></td>
                                         <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
-                                        <td class="text-center"><?php echo $value['current_status'];?></td> 
+                                       
                                         <td class="text-center"><button type="button" data-booking_id="<?php echo $value['booking_id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>/CANCEL_COMPLETED_BOOKING_PARTS" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button></td>
                                         
                                         <td class="text-center"><button type="button" data-booking_id="<?php echo $value['booking_id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>/<?php if($value['defective_part_required'] == '0'){ echo 'REQUIRED_PARTS';} else{ echo 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'; }?>" class="btn btn-sm <?php if($value['defective_part_required'] == '0'){ echo 'btn-primary';} else{ echo 'btn-danger'; }?> open-adminremarks" data-toggle="modal" data-target="#myModal2"><?php if($value['defective_part_required'] == '0'){ echo "Required";} else{ echo "Not Required"; }?></button></td>
@@ -167,7 +164,7 @@
                                         
 					<th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Age Of shipped</th>
-                                        <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
+                                        <th class="text-center" data-orderable="false">SF Remarks</th>
                                         <th class="text-center" data-orderable="false">Courier Invoice</th>
                                         <th class="text-center" data-orderable="false">Cancel Part</th>
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
@@ -192,7 +189,7 @@
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
 					<td class="text-center"><?php echo $value['defective_part_shipped'];?></td>
                                         <td class="text-center"><?php $age_requested = date_diff(date_create($value['defective_part_shipped_date']), date_create('today')); echo $age_requested->days. " Days";?></td> 
-                                        <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
+                                        <td class="text-center"><?php echo $value['remarks_defective_part_by_sf'];?></td> 
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $value['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                        
                                         <td class="text-center"><button type="button" data-booking_id="<?php echo $value['booking_id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>/CANCEL_COMPLETED_BOOKING_PARTS" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button></td>
@@ -236,8 +233,7 @@
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Age</th>
-                                        <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
-                                        <th class="text-center" data-orderable="false">Booking Status</th>
+
                                         <th class="text-center" data-orderable="false">Cancel Part</th>
 
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
@@ -259,9 +255,77 @@
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
                                          <td class="text-center"><?php $age_requested = date_diff(date_create($value['update_date']), date_create('today')); echo $age_requested->days. " Days";?></td> 
-                                        <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
-                                        <td class="text-center"><?php echo $value['current_status'];?></td> 
+                                      
                                         <td class="text-center"><button type="button" data-booking_id="<?php echo $value['booking_id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>/CANCEL_COMPLETED_BOOKING_PARTS" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button></td>
+                                       
+                                        <td class="text-center"><button type="button" data-booking_id="<?php echo $value['booking_id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>/<?php if($value['defective_part_required'] == '0'){ echo 'REQUIRED_PARTS';} else{ echo 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'; }?>" class="btn btn-sm <?php if($value['defective_part_required'] == '0'){ echo 'btn-primary';} else{ echo 'btn-danger'; }?> open-adminremarks" data-toggle="modal" data-target="#myModal2"><?php if($value['defective_part_required'] == '0'){ echo "Required";} else{ echo "Not Required"; }?></button></td>
+                                       
+                                   </tr>
+                             
+                                    <?php $sn_no++; }}?>
+                                </tbody>
+                               
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div role="tabpanel" class="tab-pane" id="defective_part_rejected_by_partner">
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                            <table id="defective_part_rejected_by_partner_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                                
+                                <thead >
+                                    <tr>
+                                        <th class="text-center" >No</th>
+                                        <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">User</th>
+                                        <th class="text-center" data-orderable="false">Mobile</th>
+                                        <th class="text-center" data-orderable="false">Service Center</th>
+                                        <th class="text-center" data-orderable="false">Partner</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Age Of shipped</th>
+                                        <th class="text-center" data-orderable="false">SF Remarks</th>
+                                        <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
+                                        <th class="text-center" data-orderable="false">Courier Invoice</th>
+                                        
+                                        <th class="text-center" data-orderable="false">Cancel Part</th>
+                                        <th class="text-center" data-orderable="false">Parts Shipped</th>
+                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                   <?php $sn_no='1';  foreach ($spare_parts as $value) { 
+                                        if($value['status'] == "Defective Part Rejected By Partner"){
+                                    ?>
+                                    <tr>
+                                        <td class="text-center"><?php echo $sn_no; ?></td>
+                                        <td class="text-center"><a 
+                                          href="<?php echo base_url(); ?>employee/booking/viewdetails/<?php echo $value['booking_id']; ?>" target='_blank' title='view'><?php echo $value['booking_id'];?></a>
+                                        </td>
+                                        <td class="text-center"><?php echo $value['name'];?></td>
+                                        <td class="text-center"><?php echo $value['booking_primary_contact_no'];?></td>
+                                        <td class="text-center"><?php echo $value['sc_name'];?></td>
+                                        <td class="text-center"><?php echo $value['source'];?></td>
+                                        <td class="text-center"><?php echo $value['parts_shipped'];?></td>
+                                        <td class="text-center"><?php echo $value['defective_part_shipped'];?></td>
+                                        <td class="text-center"><?php $age_requested = date_diff(date_create($value['defective_part_shipped_date']), date_create('today')); echo $age_requested->days. " Days";?></td> 
+                                          <td class="text-center"><?php echo $value['remarks_defective_part_by_sf'];?></td> 
+                                        <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
+                                        <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $value['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
+                                       
+                                       
+                                       
+                                        <td class="text-center"><button type="button" data-booking_id="<?php echo $value['booking_id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>/CANCEL_COMPLETED_BOOKING_PARTS" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button></td>
+                                        <td class="text-center"><button type="button" data-booking_id="<?php echo $value['booking_id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>/DEFECTIVE_PARTS_SHIPPED_BY_SF" class="btn btn-warning btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Parts Shipped</button></td>
                                        
                                         <td class="text-center"><button type="button" data-booking_id="<?php echo $value['booking_id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>/<?php if($value['defective_part_required'] == '0'){ echo 'REQUIRED_PARTS';} else{ echo 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'; }?>" class="btn btn-sm <?php if($value['defective_part_required'] == '0'){ echo 'btn-primary';} else{ echo 'btn-danger'; }?> open-adminremarks" data-toggle="modal" data-target="#myModal2"><?php if($value['defective_part_required'] == '0'){ echo "Required";} else{ echo "Not Required"; }?></button></td>
                                        
@@ -297,7 +361,7 @@
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Booking Status</th>
+                                    
                                         <th class="text-center" data-orderable="false">Age Of Shipped</th>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <th class="text-center" data-orderable="false">Cancel Part</th>
@@ -320,7 +384,7 @@
                                         <td class="text-center"><?php echo $value['source'];?></td>
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>  
-                                        <td class="text-center"><?php echo $value['current_status'];?></td> 
+                                    
                                         <td class="text-center"><?php $age_shipped = date_diff(date_create($value['shipped_date']), date_create('today')); echo $age_shipped->days. " Days";?></td> 
 
                                         <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
@@ -360,7 +424,7 @@
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Booking Status</th>
+           
                                         <th class="text-center" data-orderable="false">Age Of Delivered</th>
                                         <th class="text-center" data-orderable="false">Cancel Part</th>
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
@@ -382,7 +446,7 @@
                                         <td class="text-center"><?php echo $value['source'];?></td>
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
-                                        <td class="text-center"><?php echo $value['current_status'];?></td> 
+
                                         <td class="text-center"><?php $age_shipped = date_diff(date_create($value['acknowledge_date']), date_create('today')); echo $age_shipped->days. " Days";?></td> 
                                         <td class="text-center"><button type="button" data-booking_id="<?php echo $value['booking_id'];?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $value['id']."/".$value['booking_id'];?>/CANCEL_PARTS" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button></td>
                                        
@@ -447,6 +511,20 @@
         });
        
         $('#defective_part_pending_table').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
+                    },
+                    title: 'defective_part_pending'
+                }
+            ]
+        });
+        
+         $('#defective_part_rejected_by_partner_table').DataTable({
             dom: 'Bfrtip',
             buttons: [
                 {

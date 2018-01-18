@@ -545,20 +545,20 @@ class Dashboard extends CI_Controller {
                  $total_balance += $amount_cr_deb['total_balance'];
                  $login_button = '<a href="javascript:void(0)" style="background: #4b5056;border:1px solid #4b5056" '
                          . 'class="btn btn-md btn-success" onclick="return login_to_vendor('.$value['id'].')" ">Login</a>';
-                 $this->table->add_row($name .$star,abs($amount_cr_deb['advance']),-$amount_cr_deb['unbilled'], 
-                         -$amount_cr_deb['cp_delivered'],-$amount_cr_deb['cp_transit'], 
+                 $this->table->add_row($name .$star,round(abs($amount_cr_deb['advance']),0),-round($amount_cr_deb['unbilled'],0), 
+                         -round($amount_cr_deb['cp_delivered'],0),-round($amount_cr_deb['cp_transit'],0), 
                          "<a target='_blank' href='".  base_url()."employee/invoice/invoice_summary/vendor/".$value['id']."'>".
-                         $amount_cr_deb['total_balance'].$class. "</a>", $login_button);
+                        round($amount_cr_deb['total_balance'],0).$class. "</a>", $login_button);
 
              }
         }
         
         $this->table->add_row("<b>Total</b>",
-                "<b>".$total_advance_paid."</b>",
-                "<b>".$total_un_settle."</b>",
-                "<b>".$total_un_billed_delivered."</b>",
-                "<b>".$total_un_billed_in_transit,
-                "<b>".$total_balance."</b>", "");
+                "<b>".round($total_advance_paid,0)."</b>",
+                "<b>".round($total_un_settle,0)."</b>",
+                "<b>".round($total_un_billed_delivered,0)."</b>",
+                "<b>".round($total_un_billed_in_transit,0),
+                "<b>".round($total_balance,0)."</b>", "");
         echo $this->table->generate();
     }
     
