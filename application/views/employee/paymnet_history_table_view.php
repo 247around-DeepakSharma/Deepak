@@ -1,5 +1,5 @@
-<?php $flag =0; if ($payment_type != 'tds') { 
-    
+<?php  if ($payment_type !== 'tds' && $payment_type !== BUYBACK) { 
+    $flag =0;
     if($payment_type == "B"){
         $flag = 1;
         
@@ -32,6 +32,8 @@
 <!--                    <th>Debit Penalty</th>
                     <th>Credit Penalty</th>-->
                     <th>Discount Paid</th>
+                    <th>TDS Amount</th>
+                    <th>TDS Rate</th>
                     <th>CGST Tax Amount</th>
                     <th>SGST Tax Amount</th>
                     <th>IGST Tax Amount</th>
@@ -46,7 +48,7 @@
                     <?php
                     $sn = 1; $total_sc = $total_pc = $total_asc = $total_st = 
                             $total_vat = $total_up_cc = $total_courier_charges = 
-                            $grand_total_amount_collected = $num_bookings = $debit_penalty = $credit_penalty = $cgst = $sgst = $igst = $discount_amt = 0;
+                            $grand_total_amount_collected = $num_bookings = $debit_penalty = $credit_penalty = $cgst = $sgst = $igst = $discount_amt = $tds_amount = 0;
                     foreach ($invoice_data as $key => $value) {
                         ?>
                         <tr>
@@ -67,6 +69,8 @@
 <!--                            <td><?php //echo round($value['penalty_amount'],0); $debit_penalty += $value['penalty_amount'];?></td>
                             <td><?php //echo round($value['credit_penalty_amount'],0); $credit_penalty += $value['credit_penalty_amount'];?></td>-->
                             <td><?php echo round(($value['credit_penalty_amount'] - $value['penalty_amount']),0) ; $discount_amt += ($value['credit_penalty_amount'] - $value['penalty_amount']);?></td>
+                            <td><?php echo round($value['tds_amount']); $tds_amount += $value['tds_amount'];?></td>
+                            <td><?php echo round($value['tds_rate']);?></td>
                             <td><?php echo round($value['cgst_tax_amount'],0); $cgst += $value['cgst_tax_amount']; ?></td>
                             <td><?php echo round($value['sgst_tax_amount'],0); $sgst += $value['sgst_tax_amount']; ?></td>
                             <td><?php echo round($value['igst_tax_amount'],0); $igst += $value['igst_tax_amount']; ?></td>
@@ -94,7 +98,9 @@
 <!--                            <td><b><?php //echo $num_bookings; ?></b></td>-->
 <!--                            <td><b><?php //echo $debit_penalty; ?></b></td>
                             <td><b><?php //echo $credit_penalty; ?></b></td>-->
-                            <td><?php echo round($discount_amt,0);?></td>
+                            <td><b><?php echo round($discount_amt,0);?></b></td>
+                            <td><b><?php echo round($tds_amount);?></b></td>
+                            <td></td>
                             <td><b><?php echo round($cgst,0); ?></b></td>
                             <td><b><?php echo round($sgst,0); ?></b></td>
                             <td><b><?php echo round($igst,0); ?></b></td>
@@ -289,4 +295,71 @@
             </table>
         <?php }
     } ?>
+<?php }else if ($payment_type == 'buyback') {?>
+<table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
+    <thead>
+        <th>S.No.</th>
+        <th>Invoice No</th>
+        <th>Company Name</th>
+        <th>State</th>
+        <th>Invoice Date</th>
+        <th>Parts Qty (Pcs)</th>
+        <th>Parts Amount</th>
+        <th>Service Charge Income</th>
+        <th>Total Additional Service Charge</th>
+        <th>Conveyance Charge Income</th>
+        <th>Courier Charges Income</th>
+        <th>Discount Paid</th>
+        <th>GST amount</th>
+        <th>Total</th>
+        <th>GST Number</th>
+    </thead>
+    <tbody>
+            <?php if (isset($invoice_data)) { ?> 
+                    <?php
+                    $sn = 1; $total_sc = $total_pc = $total_asc = $total_st = 
+                            $total_vat = $total_up_cc = $total_courier_charges = 
+                            $grand_total_amount_collected = $num_bookings = $debit_penalty = $credit_penalty = $tax= $discount_amt = 0;
+                    foreach ($invoice_data as $key => $value) {
+                        ?>
+                        <tr>
+                            <td><?php echo $sn; ?></td>
+                            <td><?php echo $value['invoice_id']; ?></td>
+                            <td><?php echo $value['company_name']; ?></td>
+                            <td><?php echo $value['state']; ?></td>
+                            <td><?php echo $value['invoice_date']; ?></td>
+                            <td><?php echo $value['parts_count']; ?></td>
+                            <td><?php echo round($value['parts_cost'],0); $total_pc += $value['parts_cost'];?></td>
+                            <td><?php echo round($value['total_service_charge'],0); $total_sc +=$value['total_service_charge']; ?></td>
+                            <td><?php echo round($value['total_additional_service_charge'],0); $total_asc += $value['total_additional_service_charge']; ?></td>
+                            <td><?php echo round($value['upcountry_price'],0); $total_up_cc += $value['upcountry_price'];?></td>
+                            <td><?php echo round($value['courier_charges'],0); $total_courier_charges += $value['courier_charges']; ?></td>
+                            <td><?php echo round(($value['credit_penalty_amount'] - $value['penalty_amount']),0) ; $discount_amt += ($value['credit_penalty_amount'] - $value['penalty_amount']);?></td>
+                            <td><?php echo round($value['tax']); $tax += ($value['tax'])?></td>
+                            <td><?php echo round($value['total_amount_collected'] - $value['tds_amount'],0); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
+                            <td><?php echo $value['gst_number']; ?></td>
+                        </tr>
+                        <?php $sn++;
+                    }
+                    ?>
+                        <tr>
+                            <td><b>Total</b></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><b><?php echo round($total_pc,0); ?></b></td>
+                            <td><b><?php echo round($total_sc,0); ?></b></td>
+                            <td><b><?php echo round($total_asc,0); ?></b></td>
+                            <td><b><?php echo round($total_up_cc,0); ?></b></td>
+                            <td><b><?php echo round($total_courier_charges,0); ?></b></td>
+                            <td><?php echo round($discount_amt,0);?></td>
+                            <td><?php echo round($tax,0);?></td>
+                            <td><b><?php echo round($grand_total_amount_collected,0); ?></b></td>
+                            <td></td>
+                        </tr>
+        <?php } ?>
+        </tbody>
+</table>
 <?php } ?>

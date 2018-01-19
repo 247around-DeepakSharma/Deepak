@@ -77,7 +77,11 @@ class accounting_model extends CI_Model {
 
             case 'tds' :
                
-                $return_data = $this->get_tds_accounting_report($from_date, $to_date,$report_type);
+                $return_data = $this->get_tds_accounting_report($from_date, $to_date,$report_type,$invoice_data_by);
+                break;
+            case 'buyback' :
+               
+                $return_data = $this->get_buyback_accounting_report($from_date, $to_date, $partner_vendor,$is_challan_data,$invoice_data_by, $payment_type);
                 break;
         }
 
@@ -120,7 +124,7 @@ class accounting_model extends CI_Model {
                 . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
                 . " AND sc.id = vpi.vendor_partner_id LEFT JOIN partners ON vendor_partner = 'partner' "
                 . " AND partners.id = vpi.vendor_partner_id WHERE "
-                . " type_code = '$payment_type' AND vpi.type NOT IN ('".BUYBACK_VOUCHER."', '".PARTNER_VOUCHER."') AND  vendor_partner = '$partner_vendor' $where";
+                . " type_code = '$payment_type' AND vpi.type NOT IN ('".BUYBACK_VOUCHER."', '".PARTNER_VOUCHER."','".BUYBACK."') AND  vendor_partner = '$partner_vendor' $where";
         
         $query = $this->db->query($sql);
         $data = $query->result_array();
@@ -135,23 +139,28 @@ class accounting_model extends CI_Model {
      * @param: $partner_vendor string
      * @return : array
      */
-    function get_tds_accounting_report($from_date, $to_date, $report_type) {
+    function get_tds_accounting_report($from_date, $to_date, $report_type,$invoice_data_by) {
         $group_by = "";
         if($report_type == "draft"){
-            $select = "company_name, company_type, ph.invoice_id, invoice_date,name_on_pan,
+            $select = "company_name, company_type, vpi.invoice_id, vpi.invoice_date,name_on_pan,
                     pan_no, owner_name, vpi.total_service_charge, 
                     vpi.total_additional_service_charge, vpi.service_tax,
-                    vpi.total_amount_collected,(total_amount_collected - ph.tds_amount) as net_amount,
-                    ph.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no ";
+                    vpi.total_amount_collected,(total_amount_collected - vpi.tds_amount) as net_amount,
+                    vpi.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no ";
         } else {
             $select = "company_name,company_type,name_on_pan,pan_no,SUM(ph.tds_amount) as tds_amount,
                     tds_rate";
             $group_by = " GROUP BY sc.id";
         }
+        $where = "";
+        if ($invoice_data_by === 'invoice_date') {
+            $where .= " AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date` <'$to_date'";
+        } else if ($invoice_data_by === 'period') {
+            $where .= " AND vpi.`from_date`>='$from_date'  AND vpi.`to_date` <'$to_date'";
+        }
         $sql ="SELECT $select
-                    FROM payment_history as ph, vendor_partner_invoices as vpi, service_centres as sc 
-                    WHERE ph.create_date >= '$from_date' AND ph.create_date < '$to_date'
-                    AND ph.tds_amount > 0 AND type_code = 'B' AND sc.id = vendor_partner_id AND ph.invoice_id = vpi.invoice_id AND vendor_partner ='vendor' $group_by";
+                    FROM vendor_partner_invoices as vpi, service_centres as sc 
+                    WHERE vpi.tds_amount > 0 AND type_code = 'B' AND sc.id = vpi.vendor_partner_id  AND vendor_partner ='vendor' $where $group_by";
 
         $query1 = $this->db->query($sql);
       
@@ -207,6 +216,46 @@ class accounting_model extends CI_Model {
         $this->db->where('invoice_challan_id_mapping.challan_id',$challan_id);
         $query = $this->db->get();
         return $query->result_array();
+    }
+    
+    function get_buyback_accounting_report($from_date, $to_date, $partner_vendor, $is_challan_data, $invoice_data_by, $payment_type){
+        if ($is_challan_data === '1') {
+            $where = " AND vpi.invoice_id NOT IN (SELECT invoice_id FROM invoice_challan_id_mapping)";
+        } else if ($is_challan_data === '2') {
+            $where = "";
+        }
+
+        if ($invoice_data_by === 'invoice_date') {
+            $where .= " AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date` <'$to_date'";
+        } else if ($invoice_data_by === 'period') {
+            $where .= " AND vpi.`from_date`>='$from_date'  AND vpi.`to_date` <'$to_date'";
+        }
+
+        $sql = "SELECT invoice_id, vendor_partner, IFNULL(sc.name,partners.company_name ) as company_name, "
+                . " IFNULL(sc.state,partners.state ) as state, "
+                . " IFNULL(sc.gst_no,partners.gst_number ) as gst_number, "
+                . " invoice_date, from_date,"
+                . " IFNULL(sc.service_tax_no, partners.service_tax) as service_tax_no, "
+                . " IFNULL(sc.tin_no, partners.tin) as tin_no, "
+                . " to_date,total_service_charge,"
+                . " `total_additional_service_charge`,vpi.`service_tax`,"
+                . " `parts_cost`,`parts_count`,`vat`,`total_amount_collected`,"
+                . " `around_royalty`,`amount_collected_paid`,"
+                . " `hsn_code`,"
+                . " case when((`cgst_tax_amount`+`igst_tax_amount`+`sgst_tax_amount`) = 0) Then buyback_tax_amount ELSE (`cgst_tax_amount`+`igst_tax_amount`+`sgst_tax_amount`) END as tax,"
+                . "`cgst_tax_rate`,`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`,"
+                . "`tds_amount`,`upcountry_price`,`penalty_amount`,"
+                . "`credit_penalty_amount`,`courier_charges`,`num_bookings` "
+                . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
+                . " AND sc.id = vpi.vendor_partner_id LEFT JOIN partners ON vendor_partner = 'partner' "
+                . " AND partners.id = vpi.vendor_partner_id WHERE "
+                . " vpi.type IN ('".$payment_type."') AND  vendor_partner = '$partner_vendor' $where";
+        
+        $query = $this->db->query($sql);
+        log_message("info", $this->db->last_query());
+        $data = $query->result_array();
+
+        return $data;
     }
 
 }
