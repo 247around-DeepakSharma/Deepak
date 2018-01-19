@@ -46,6 +46,7 @@
                                             <option value="A">Sales</option>
                                             <option value="B">Purchase</option>
                                             <option value="tds">TDS</option>
+                                            <option value="buyback">Buyback</option>
                                         </select>
                                     </div>
                                     
