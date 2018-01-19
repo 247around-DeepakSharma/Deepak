@@ -2627,7 +2627,7 @@ class Booking extends CI_Controller {
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
-            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day";
+            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status";
         //RM Specific Bookings
          $sfIDArray =array();
         if($this->session->userdata('user_group') == 'regionalmanager'){
@@ -3176,7 +3176,7 @@ class Booking extends CI_Controller {
         }else{
             $esc = "";
         }
-
+        
 
 
         $row[] = $no.$sn;
@@ -3184,7 +3184,8 @@ class Booking extends CI_Controller {
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = $order_list->services;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
-        $row[] = $escalation." ".$order_list->current_status;
+        $row[] = date_diff(date_create(date('Y-m-d',strtotime($order_list->create_date))),date_create(date('Y-m-d')))->format("%R%a days");
+        $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
         $row[] = $call_btn;
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
