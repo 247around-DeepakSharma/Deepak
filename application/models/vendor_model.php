@@ -1592,11 +1592,17 @@ class vendor_model extends CI_Model {
      * 
      */
     function get_rm_sf_relation_by_sf_id($sf_id){
-        $sql = "Select employee_relation.*, employee.* from employee_relation,employee "
+        if(!empty($sf_id)){
+            $sql = "Select employee_relation.*, employee.* from employee_relation,employee "
                 . "where FIND_IN_SET($sf_id,employee_relation.service_centres_id) "
                 . "AND employee.groups != '"._247AROUND_ADMIN."' "
                 . "AND employee_relation.agent_id = employee.id";
-        return $this->db->query($sql)->result_array();
+            $response = $this->db->query($sql)->result_array();
+        }else{
+            $response = false;
+        }
+        
+        return $response;
     }
     
     /**
