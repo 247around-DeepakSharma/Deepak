@@ -162,21 +162,12 @@
                                 <li><a href="<?php echo base_url(); ?>partner/get_approved_defective_parts_booking">Received Spares by <?php echo $partner_name ?></a></li>
                             </ul>
                         </li>
-
-                        <li>
-                            <a href="<?php echo base_url(); ?>partner/invoices_details">Invoice</a>
-                        </li>
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Add Booking</a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Invoice <span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li>
-                                    <form method="POST" class="navbar-form navbar-left" action ="<?php echo base_url(); ?>partner/search" role="add booking">
-                                        <div class="form-group">
-                                            <input type="text" id="phone_number" class="form-control" name="searched_text" placeholder="Phone Number">
-                                        </div>
-                                        <input type="submit" value="Add Booking" onclick="return submit_button()" class="btn btn-default btn-block submitBtn" />
-                                    </form>
-                                </li>
+                                <li><a href="<?php echo base_url(); ?>partner/invoices_details">Invoice</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="<?php echo base_url(); ?>partner/banktransaction">Bank Transaction</a></li>
                             </ul>
                         </li>
 

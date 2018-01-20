@@ -904,11 +904,30 @@ class Partner extends CI_Controller {
         $data['vendor_partner_id'] = $partner_id;
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
 
-        $data2['partner_vendor'] = "partner";
-        $data2['partner_vendor_id'] = $partner_id;
-        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*', $data2);
+        $where = array(
+                'partner_id' => $partner_id,
+                'partner_invoice_id is null' => NULL,
+                'create_date >= "2017-01-01" ' => NULL,
+                'partner_net_payable > 0 '=> NULL,
+                'booking_status IN ("' . _247AROUND_PENDING . '", "'  . _247AROUND_COMPLETED . '")' => NULL
+        );
+        // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
+        $service_amount = $this->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
+        $invoice['unbilled_amount'] = $service_amount;
+        $invoice['invoice_amount'] = $this->invoices_model->getsummary_of_invoice("partner",array('id' => $partner_id))[0];
+      
         $this->load->view('partner/header');
         $this->load->view('partner/invoice_summary', $invoice);
+    }
+    
+    function get_bank_transaction(){
+         $this->checkUserSession();
+         $partner_id = $this->session->userdata('partner_id');
+         $data2['partner_vendor'] = "partner";
+         $data2['partner_vendor_id'] = $partner_id;
+         $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*', $data2);
+         $this->load->view('partner/header');
+         $this->load->view('partner/bank_transaction', $invoice);
     }
 
     /**
