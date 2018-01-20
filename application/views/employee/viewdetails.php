@@ -511,8 +511,10 @@
                                  <th>Service Center Name </th>
                                  <th>PoC Name </th>
                                  <th>PoC Number </th>
+                                 <th>Upcountry Distance </th>
                                  <th>Upcountry District </th>
                                  <th>Upcountry Pincode </th>
+                                 <th>Municipal Limit </th>
                             </tr>
                             </thead
                             <tbody>
@@ -523,8 +525,10 @@
                                     <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['primary_contact_phone_1'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
                                            <?php }?>
                                 </td>
+                                <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
                                 <td> <?php if(!is_null($booking_history[0]['sub_vendor_id'])){ ?><?php if(isset($dhq[0]['district'])){echo $dhq[0]['district'];}?><?php } ?></td>
                                 <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
+                                <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["municipal_limit"];}  ?></td>
                             </tr>
                             </tbody>
 
