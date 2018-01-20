@@ -410,104 +410,192 @@ function get_data_for_partner_callback($booking_id) {
 
     //Get partner summary parameters for daily report
     function get_partner_summary_params($partner_id) {
-        $post['where'] = array('booking_details.partner_id' => $partner_id,'MONTH(booking_details.create_date) = MONTH(CURDATE())'=> NULL,'YEAR(booking_details.create_date) = YEAR(CURDATE())'=>NULL);
+        $post['where'] = array('booking_details.partner_id' => $partner_id, 'MONTH(booking_details.create_date) = MONTH(CURDATE())' => NULL, 'YEAR(booking_details.create_date) = YEAR(CURDATE())' => NULL);
         $post['length'] = -1;
-        $current_month_booking = $this->booking_model->get_bookings_by_status($post,'DISTINCT current_status,booking_details.create_date,booking_details.closed_date');
-        
-        $post['where'] = array('booking_details.partner_id' => $partner_id,'DATE(booking_details.create_date) = CURDATE()'=>NULL);
-        $today_booking = $this->booking_model->get_bookings_by_status($post,'DISTINCT current_status,booking_details.create_date,booking_details.closed_date');
-        
-        $post['where'] = array('booking_details.partner_id' => $partner_id,'DATE(booking_details.create_date) = CURDATE()-1'=>NULL);
-        $yesterday_booking = $this->booking_model->get_bookings_by_status($post,'DISTINCT current_status,booking_details.create_date,booking_details.closed_date');
-        
-        $result['current_month_booking_requested'] = 0;
-        $result['current_month_booking_completed'] = 0;
-        $result['current_month_booking_cancelled'] = 0;
-        $result['current_month_booking_followup'] = 0;
-        $result['zero_to_two_days_booking_pending'] = 0;
-        $result['three_to_five_days_booking_pending'] = 0;
-        $result['greater_than_5_days_booking_pending'] = 0;
-        $result['today_booking_requested'] = 0;
-        $result['today_booking_completed'] = 0;
-        $result['today_booking_cancelled'] = 0;
-        $result['today_booking_pending'] = 0;
-        $result['today_booking_followup'] = 0;
-        $result['yesterday_booking_requested'] = 0;
-        $result['yesterday_booking_completed'] = 0;
-        $result['yesterday_booking_cancelled'] = 0;
-        $result['yesterday_booking_followup'] = 0;
-        $result['yesterday_booking_pending'] = 0;
-        
-        foreach ($current_month_booking as $value){
-            $result['current_month_booking_requested']++;
-            switch ($value->current_status){
-                case _247AROUND_COMPLETED:
-                    $result['current_month_booking_completed']++;
-                    break;
-                case _247AROUND_CANCELLED:
-                    $result['current_month_booking_cancelled']++;
-                    break;
-                case _247AROUND_PENDING:
-                case _247AROUND_RESCHEDULED:
-                    if(date('Y-m-d',strtotime($value->create_date)) <= date('Y-m-d') && (date('Y-m-d',strtotime($value->create_date)) >= date("Y-m-d",strtotime("-2 days")))){
-                        $result['zero_to_two_days_booking_pending']++;
-                    }else if((date("Y-m-d",strtotime($value->create_date)) < date("Y-m-d",strtotime("-2 days"))) && (date("Y-m-d",strtotime($value->create_date)) >= date("Y-m-d",strtotime("-5 days")))){
-                        $result['three_to_five_days_booking_pending']++;
-                    }else if(date('Y-m-d',strtotime($value->create_date)) < date('Y-m-d',strtotime("-5 days"))){
-                        $result['greater_than_5_days_booking_pending']++;
+        $current_month_booking = $this->booking_model->get_bookings_by_status($post, 'DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type');
+
+        $post['where'] = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
+        $today_booking = $this->booking_model->get_bookings_by_status($post, 'DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type');
+
+        $post['where'] = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = CURDATE()-1' => NULL);
+        $yesterday_booking = $this->booking_model->get_bookings_by_status($post, 'DISTINCT current_status,booking_details.create_date,booking_details.closed_date,booking_details.request_type');
+
+        if (count($today_booking) !== 0 || count($yesterday_booking) !== 0) {
+            $result['current_month_installation_booking_requested'] = 0;
+            $result['current_month_installation_booking_completed'] = 0;
+            $result['current_month_installation_booking_cancelled'] = 0;
+            $result['current_month_installation_booking_followup'] = 0;
+            $result['zero_to_two_days_installation_booking_pending'] = 0;
+            $result['three_to_five_days_installation_booking_pending'] = 0;
+            $result['greater_than_5_days_installation_booking_pending'] = 0;
+            $result['today_installation_booking_requested'] = 0;
+            $result['today_installation_booking_completed'] = 0;
+            $result['today_installation_booking_cancelled'] = 0;
+            $result['today_installation_booking_pending'] = 0;
+            $result['today_installation_booking_followup'] = 0;
+            $result['yesterday_installation_booking_requested'] = 0;
+            $result['yesterday_installation_booking_completed'] = 0;
+            $result['yesterday_installation_booking_cancelled'] = 0;
+            $result['yesterday_installation_booking_followup'] = 0;
+            $result['yesterday_installation_booking_pending'] = 0;
+
+            $result['current_month_repair_booking_requested'] = 0;
+            $result['current_month_repair_booking_completed'] = 0;
+            $result['current_month_repair_booking_cancelled'] = 0;
+            $result['current_month_repair_booking_followup'] = 0;
+            $result['zero_to_two_days_repair_booking_pending'] = 0;
+            $result['three_to_five_days_repair_booking_pending'] = 0;
+            $result['greater_than_5_days_repair_booking_pending'] = 0;
+            $result['today_repair_booking_requested'] = 0;
+            $result['today_repair_booking_completed'] = 0;
+            $result['today_repair_booking_cancelled'] = 0;
+            $result['today_repair_booking_pending'] = 0;
+            $result['today_repair_booking_followup'] = 0;
+            $result['yesterday_repair_booking_requested'] = 0;
+            $result['yesterday_repair_booking_completed'] = 0;
+            $result['yesterday_repair_booking_cancelled'] = 0;
+            $result['yesterday_repair_booking_followup'] = 0;
+            $result['yesterday_repair_booking_pending'] = 0;
+
+            foreach ($current_month_booking as $value) {
+
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                    $result['current_month_repair_booking_requested'] ++;
+                    switch ($value->current_status) {
+                        case _247AROUND_COMPLETED:
+                            $result['current_month_repair_booking_completed'] ++;
+                            break;
+                        case _247AROUND_CANCELLED:
+                            $result['current_month_repair_booking_cancelled'] ++;
+                            break;
+                        case _247AROUND_PENDING:
+                        case _247AROUND_RESCHEDULED:
+                            if (date('Y-m-d', strtotime($value->create_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->create_date)) >= date("Y-m-d", strtotime("-2 days")))) {
+                                $result['zero_to_two_days_repair_booking_pending'] ++;
+                            } else if ((date("Y-m-d", strtotime($value->create_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->create_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                                $result['three_to_five_days_repair_booking_pending'] ++;
+                            } else if (date('Y-m-d', strtotime($value->create_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                                $result['greater_than_5_days_repair_booking_pending'] ++;
+                            }
+                            break;
+                        case _247AROUND_FOLLOWUP:
+                            $result['current_month_repair_booking_followup'] ++;
+                            break;
                     }
-                    break;
-                case _247AROUND_FOLLOWUP:
-                    $result['current_month_booking_followup']++;
-                    break;    
+                } else {
+                    $result['current_month_installation_booking_requested'] ++;
+                    switch ($value->current_status) {
+                        case _247AROUND_COMPLETED:
+                            $result['current_month_installation_booking_completed'] ++;
+                            break;
+                        case _247AROUND_CANCELLED:
+                            $result['current_month_installation_booking_cancelled'] ++;
+                            break;
+                        case _247AROUND_PENDING:
+                        case _247AROUND_RESCHEDULED:
+                            if (date('Y-m-d', strtotime($value->create_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->create_date)) >= date("Y-m-d", strtotime("-2 days")))) {
+                                $result['zero_to_two_days_installation_booking_pending'] ++;
+                            } else if ((date("Y-m-d", strtotime($value->create_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->create_date)) >= date("Y-m-d", strtotime("-5 days")))) {
+                                $result['three_to_five_days_installation_booking_pending'] ++;
+                            } else if (date('Y-m-d', strtotime($value->create_date)) < date('Y-m-d', strtotime("-5 days"))) {
+                                $result['greater_than_5_days_installation_booking_pending'] ++;
+                            }
+                            break;
+                        case _247AROUND_FOLLOWUP:
+                            $result['current_month_installation_booking_followup'] ++;
+                            break;
+                    }
+                }
             }
-        }
-        
-        foreach ($today_booking as $value){
-            $result['today_booking_requested']++;
-            switch ($value->current_status){
-                case _247AROUND_COMPLETED:
-                    $result['today_booking_completed']++;
-                    break;
-                case _247AROUND_CANCELLED:
-                    $result['today_booking_cancelled']++;
-                    break;
-                case _247AROUND_PENDING:
-                case _247AROUND_RESCHEDULED:
-                    $result['today_booking_pending']++;
-                    break;
-                case _247AROUND_FOLLOWUP:
-                    $result['today_booking_followup']++;
-                    break;    
+
+            foreach ($today_booking as $value) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                    $result['today_repair_booking_requested'] ++;
+                    switch ($value->current_status) {
+                        case _247AROUND_COMPLETED:
+                            $result['today_repair_booking_completed'] ++;
+                            break;
+                        case _247AROUND_CANCELLED:
+                            $result['today_repair_booking_cancelled'] ++;
+                            break;
+                        case _247AROUND_PENDING:
+                        case _247AROUND_RESCHEDULED:
+                            $result['today_repair_booking_pending'] ++;
+                            break;
+                        case _247AROUND_FOLLOWUP:
+                            $result['today_repair_booking_followup'] ++;
+                            break;
+                    }
+                } else {
+                    $result['today_installation_booking_requested'] ++;
+                    switch ($value->current_status) {
+                        case _247AROUND_COMPLETED:
+                            $result['today_installation_booking_completed'] ++;
+                            break;
+                        case _247AROUND_CANCELLED:
+                            $result['today_installation_booking_cancelled'] ++;
+                            break;
+                        case _247AROUND_PENDING:
+                        case _247AROUND_RESCHEDULED:
+                            $result['today_installation_booking_pending'] ++;
+                            break;
+                        case _247AROUND_FOLLOWUP:
+                            $result['today_installation_booking_followup'] ++;
+                            break;
+                    }
+                }
             }
-        }
-        
-        foreach ($yesterday_booking as $value){
-            $result['yesterday_booking_requested']++;
-            switch ($value->current_status){
-                case _247AROUND_COMPLETED:
-                    $result['yesterday_booking_completed']++;
-                    break;
-                case _247AROUND_CANCELLED:
-                    $result['yesterday_booking_cancelled']++;
-                    break;
-                case _247AROUND_PENDING:
-                case _247AROUND_RESCHEDULED:
-                    $result['yesterday_booking_pending']++;
-                    break;
-                case _247AROUND_FOLLOWUP:
-                    $result['yesterday_booking_followup']++;
-                    break;    
+
+            foreach ($yesterday_booking as $value) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                    $result['yesterday_repair_booking_requested'] ++;
+                    switch ($value->current_status) {
+                        case _247AROUND_COMPLETED:
+                            $result['yesterday_repair_booking_completed'] ++;
+                            break;
+                        case _247AROUND_CANCELLED:
+                            $result['yesterday_repair_booking_cancelled'] ++;
+                            break;
+                        case _247AROUND_PENDING:
+                        case _247AROUND_RESCHEDULED:
+                            $result['yesterday_repair_booking_pending'] ++;
+                            break;
+                        case _247AROUND_FOLLOWUP:
+                            $result['yesterday_repair_booking_followup'] ++;
+                            break;
+                    }
+                } else {
+                    $result['yesterday_installation_booking_requested'] ++;
+                    switch ($value->current_status) {
+                        case _247AROUND_COMPLETED:
+                            $result['yesterday_installation_booking_completed'] ++;
+                            break;
+                        case _247AROUND_CANCELLED:
+                            $result['yesterday_installation_booking_cancelled'] ++;
+                            break;
+                        case _247AROUND_PENDING:
+                        case _247AROUND_RESCHEDULED:
+                            $result['yesterday_installation_booking_pending'] ++;
+                            break;
+                        case _247AROUND_FOLLOWUP:
+                            $result['yesterday_installation_booking_followup'] ++;
+                            break;
+                    }
+                }
             }
+
+            //convert int to string
+            $data = array();
+            foreach ($result as $key => $value) {
+                $data[$key] = (string) $value;
+            }
+        } else {
+            $data = array();
         }
-        
-        //convert int to string
-        $data = array();
-        foreach ($result as $key=>$value){
-            $data[$key] = (string)$value;
-        }
-	return $data;
+
+        return $data;
     }
+
     /**
      * @desc: This function is to add a new partner
      *

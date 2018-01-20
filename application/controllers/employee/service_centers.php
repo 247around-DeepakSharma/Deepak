@@ -1766,7 +1766,7 @@ class Service_centers extends CI_Controller {
      * @param void
      * @return json $output 
      */
-    public function view_delivered_bb_order_details(){
+    public function view_delivered_bb_order_details(){    
         $this->check_BB_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/bb_order_details');
@@ -2887,7 +2887,7 @@ class Service_centers extends CI_Controller {
     }
     
     public function get_contact_us_page(){
-        $this->checkUserSession();
+        //$this->checkUserSession();
         $data['rm_details'] = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('service_center_id'));
         $this->load->view('service_centers/contact_us',$data);
     }
