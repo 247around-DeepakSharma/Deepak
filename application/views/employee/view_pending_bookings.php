@@ -207,6 +207,7 @@
                         <th>User Name / Phone Number</th>
                         <th>Service Name</th>
                         <th>Booking Date</th>
+                        <th>Booking Age</th>
                         <th>Status</th>
                         <th>Service Centre</th>
                         <th>Call</th>
