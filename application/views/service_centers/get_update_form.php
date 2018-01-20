@@ -28,14 +28,12 @@
                     <input type="hidden" class="form-control"  name="partner_id" value = "<?php if (isset($bookinghistory[0]['partner_id'])) {echo $bookinghistory[0]['partner_id']; }?>">
                     <input type="hidden" class="form-control"  name="price_tags" value = "<?php if (isset($price_tags)) {echo $price_tags; }?>">
                     <input type="hidden" class="form-control" id="partner_flag" name="partner_flag" value="0" />
-                    <input type="hidden" name="spare_shipped" value="<?php echo $spare_shipped; ?>"
+                    <input type="hidden" name="spare_shipped" value="<?php echo $spare_shipped; ?>" />
                     <div class="form-group ">
                         <label for="reason" class="col-md-2" style="margin-top:39px;">Reason</label>
                         <div class="col-md-6" style="margin-top:39px;">
                             <?php  ?>
-                            
                             <?php foreach ($internal_status as $key => $data1) { ?>
-                            
                             <div class="radio ">
                                 <label>
                                 <input type="radio"  name="reason" id= "<?php echo "reason_id" . $key; ?>" onclick="internal_status_check(this.id)" class="internal_status" value="<?php echo $data1['status']; ?>" >
@@ -49,7 +47,6 @@
                                 <?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>
                                 </label>
                             </div>
-                           
                             <div class="radio ">
                                 <label>
                                 <input type="radio" id="product_not_delivered" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>" >
@@ -93,7 +90,7 @@
                                                 <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image">
                                             </div>
                                         </div>
-                                         <div class="form-group">
+                                        <div class="form-group">
                                             <label for="Invoice picture" class="col-md-4">Defective Part Picture *</label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control spare_parts" id="defective_parts_pic" name="defective_parts_pic" required="required">
@@ -122,17 +119,16 @@
                                                 <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" required="required">
                                             </div>
                                         </div>
-                                         <div class="form-group">
-                                                <label for="reason" class="col-md-4">Problem Description* </label>
-                                               <div class="col-md-6">
-                                                    <textarea class="form-control spare_parts"  id="prob_desc" name="reason_text" value = "" rows="5" placeholder="Problem Description" ></textarea>
-                                                </div>
-                                           </div>
+                                        <div class="form-group">
+                                            <label for="reason" class="col-md-4">Problem Description* </label>
+                                            <div class="col-md-6">
+                                                <textarea class="form-control spare_parts"  id="prob_desc" name="reason_text" value = "" rows="5" placeholder="Problem Description" ></textarea>
+                                            </div>
+                                        </div>
                                     </div>
-                                   
                                 </div>
                                 <?php  //} if($around_flag) { ?>
-<!--                                 <div class="col-md-12">
+                                <!--                                 <div class="col-md-12">
                                     <div class="col-md-6">
                                          <div class="form-group">
                                             <label for="Model Number" class="col-md-4">Parts Name *</label>
@@ -173,37 +169,33 @@
                                                     <textarea class="form-control spare_parts"  id="247reason_text" name="reason_text" value = "" rows="3" placeholder="Problem Description" ></textarea>
                                                 </div>
                                            </div>
-                                 </div>-->
+                                    </div>-->
                                 <?php //}?>
                             </div>
                         </div>
                     </div>
                     <div  id="hide_rescheduled" >
-                    <div class="form-group">
-                        <label for="reschdeduled" class="col-md-2"> New Booking Date</label>
-                        <div class="col-md-4" style="width:24%">
-                            <div class="input-group input-append date">
-                                <input id="booking_date" class="form-control rescheduled_form" placeholder="Select Date" name="booking_date" type="text" required readonly='true' style="background-color:#fff;">
-                                <span class="input-group-addon add-on" onclick="booking_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
+                        <div class="form-group">
+                            <label for="reschdeduled" class="col-md-2"> New Booking Date</label>
+                            <div class="col-md-4" style="width:24%">
+                                <div class="input-group input-append date">
+                                    <input id="booking_date" class="form-control rescheduled_form" placeholder="Select Date" name="booking_date" type="text" required readonly='true' style="background-color:#fff;">
+                                    <span class="input-group-addon add-on" onclick="booking_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
+                                </div>
                             </div>
                         </div>
-                        
                     </div>
-                       
-                  
-            </div>
                     <div class="form-group" id="hide_remarks">
                         <label for="remarks" class="col-md-2">Remarks </label>
                         <div class="col-md-4" style="width:24%">
                             <textarea class="form-control remarks"  id="sc_remarks" name="sc_remarks" value = "" required placeholder="Enter Remarks" rows="5" ></textarea>
                         </div>
-                        
-                    </div> 
-                   
+                    </div>
                     <div class="col-md-6 col-md-offset-2">
                         <input type="submit"  value="Update Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; "  class="btn btn-danger btn-large">
                     </div>
                 </form>
+            </div>
             </div>
         </div>
     </div>
