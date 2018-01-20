@@ -199,6 +199,8 @@
             filename = 'vendor_tds_final_report_' + time;
         } else if (type === 'tds' && partner_vendor === 'stand') {
             filename = 'stand_tds_report_' + time;
+        }else if (type === 'buyback') {
+            filename = 'buyback_' + time;
         }
 
         e.preventDefault();
