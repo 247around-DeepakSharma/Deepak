@@ -50,6 +50,7 @@ class push_notification_lib {
                   log_message('info', __FUNCTION__ . " Function End Notification has Not been send, status is failure");
               }
         }
+        log_message('info', __FUNCTION__ . " Function End");
     }
     /*
      * This function is use to create and send push notification 
@@ -60,6 +61,7 @@ class push_notification_lib {
      * After creating the msg it will send the msg to subscribers by using send_push_notification Function 
      */
         function create_and_send_push_notiifcation($templateTag,$receiverArray=array(),$notificationTextArray=array()){
+            log_message('info', __FUNCTION__ . " Function Start");
             // Get Template Data
             $templateData = $this->Pu_N->push_notification_model->get_push_notification_template($templateTag);
             if(!empty($templateData)){
@@ -93,8 +95,6 @@ class push_notification_lib {
                      } 
                      $sendUrl = base_url().'employee/do_background_process/send_asyn_push_notification';
                      $this->Pu_N->asynchronous_lib->do_background_process($sendUrl, $data);
-                     $this->send_push_notification($data['title'],$data['msg'],$data['url'],$data['notification_type'],$data['subscriberArray']);
-                     //$this->send_push_notification($data['title'],$data['msg'],$data['url'],$data['notification_type'],$subscriberArray);
                 }
                 else{
                     log_message('info', __FUNCTION__ . "Push Notification Reciever Is not available");
@@ -103,12 +103,14 @@ class push_notification_lib {
             else{
                 log_message('info', __FUNCTION__ . "Push Notification Template Not Found ".$templateTag);
             }
+            log_message('info', __FUNCTION__ . " Function End");
     }
     /*
      * This Function is used to send notification to partner, when we completed the booking
      * It send the Count of completed booking to Partner
      */
     function send_booking_completion_notification_to_partner($bookingIDArray){
+        log_message('info', __FUNCTION__ . " Function Start");
         $partnerArray = array();
         // get internal status and partner for bookings 
         $getBookingData = $this->Pu_N->push_notification_model->get_booking_data($bookingIDArray);
@@ -117,6 +119,7 @@ class push_notification_lib {
             if($data['internal_status'] ==  'Completed'){
                 $partnerArray[$data['partner_id']]['bookings'][] = $data['booking_id'];
             }
+        log_message('info', __FUNCTION__ . " Function End");
         }
         foreach($partnerArray as $partnerID=>$bookingArray){
             $receiverArray['partner'] = array($partnerID);

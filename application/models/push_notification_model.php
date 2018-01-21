@@ -6,9 +6,10 @@ class push_notification_model extends CI_Model {
     }
     function get_push_notification_subscribers_by_entity($entityType,$entityID=NULL){
         $finalArray = array();
-        $this->db->select('COUNT(subscriber_id) as subscription_count, (CASE WHEN subscriber_id = -1 THEN "Blocked" ELSE "Subscription" END) as subscription_type,entity_id');
+        $this->db->select('COUNT(subscriber_id) as subscription_count, (CASE WHEN subscriber_id = -1 THEN "Blocked" ELSE "Subscription" END) as subscription_type,entity_id,'
+                . '(CASE WHEN subscriber_id = -1 THEN "0" ELSE unsubscription_flag END) as unsubscription_flag');
         $this->db->where(array("entity_type"=>$entityType));
-        $this->db->group_by("entity_id,subscription_type");
+        $this->db->group_by("entity_id,subscription_type,unsubscription_flag");
          if(!empty($entityID)){
             $this->db->where(array("entity_id"=>$entityID));
         }
@@ -18,8 +19,13 @@ class push_notification_model extends CI_Model {
             if($subscriberData['subscription_type'] == 'Blocked'){
                 $finalArray[$subscriberData['entity_id']]['blocked_count'] = $subscriberData['subscription_count'];
             }
-            if($subscriberData['subscription_type'] == 'Subscription'){
-                $finalArray[$subscriberData['entity_id']]['subscription_count'] = $subscriberData['subscription_count'];
+            else{
+                if($subscriberData['subscription_type'] == 'Subscription' && $subscriberData['unsubscription_flag'] == 0){
+                    $finalArray[$subscriberData['entity_id']]['subscription_count'] = $subscriberData['subscription_count'];
+                }
+                else{
+                    $finalArray[$subscriberData['entity_id']]['unsubscription_count'] = $subscriberData['subscription_count'];
+                } 
             }
         }
         return $finalArray;
@@ -31,6 +37,7 @@ class push_notification_model extends CI_Model {
         $this->db->select('DISTINCT(subscriber_id)');
         $this->db->where_in("entity_type",$entityTypesArray);
         $this->db->where_not_in('subscriber_id', -1);
+        $this->db->where('unsubscription_flag', 0);
         $query = $this->db->get("push_notification_subscribers");
         $data = $query->result_array();
         return $data;
@@ -53,7 +60,7 @@ class push_notification_model extends CI_Model {
         foreach($entityIDTypeArray as $entity_type=>$entity_ID_array){
             $tempArray[] = "(entity_type='".$entity_type."' AND entity_id IN (".implode(",",$entity_ID_array)."))";
         }
-      $sql = "SELECT DISTINCT(subscriber_id) FROM push_notification_subscribers WHERE ".implode(" OR ",$tempArray)." AND subscriber_id !=-1";
+      $sql = "SELECT DISTINCT(subscriber_id) FROM push_notification_subscribers WHERE ".implode(" OR ",$tempArray)." AND subscriber_id !=-1 AND unsubscription_flag =0";
        $query = $this->db->query($sql);
        return $query->result_array();
     }
