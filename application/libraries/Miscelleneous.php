@@ -1673,7 +1673,7 @@ class Miscelleneous {
      * @param array $data
      * @return string $output_file_excel
      */
-    function generate_excel_data($template, $download_file_name, $data) {
+    function generate_excel_data($template, $download_file_name, $data,$repeat = true,$cell = false, $imagePath = false) {
 
 
         // directory
@@ -1689,7 +1689,7 @@ class Miscelleneous {
         $R->load(array(
             array(
                 'id' => 'excel_data',
-                'repeat' => true,
+                'repeat' => $repeat,
                 'data' => $data,
             )
                 )
@@ -1704,7 +1704,7 @@ class Miscelleneous {
             unlink($output_file_excel);
         }
 
-        $R->render('excel', $output_file_excel);
+        $R->render('excel', $output_file_excel,$cell,$imagePath);
 
         return $output_file_excel;
     }
