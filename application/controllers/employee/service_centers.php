@@ -77,7 +77,9 @@ class Service_centers extends CI_Controller {
         }
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/pending_booking', $data);
-        
+        if(!$this->session->userdata("login_by")){
+            $this->load->view('employee/header/push_notification');
+        }
     }
     
     function get_header_summary(){
