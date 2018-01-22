@@ -414,11 +414,15 @@ class Login extends CI_Controller {
         if (!empty($agent)) {
             //get sc details now
             $sc_details = $this->vendor_model->getVendorContact($vendor_id);
-            
+            if(is_null($sc_details[0]['is_gst_doc'])){
+               $is_gst_exist = FALSE;
+            }else{
+               $is_gst_exist = TRUE;
+            }
             //Setting logging vendor session details
             $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], 
                     $agent[0]['id'], $sc_details[0]['is_update'], 
-                    $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'], $sc_details[0]['isEngineerApp'],TRUE);
+                    $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'], $is_gst_exist, $sc_details[0]['isEngineerApp'],TRUE);
            
             if ($this->session->userdata('is_sf') === '1') {
                 echo "service_center/pending_booking";

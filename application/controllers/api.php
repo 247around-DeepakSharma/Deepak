@@ -2932,7 +2932,7 @@ class Api extends CI_Controller {
          $data = $this->dealer_model->entity_login(array("entity" => "engineer", 
             "active" =>1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
         if(!empty($data)){
-            $engineer  = $this->vendor_model->get_engineers_details(array("id" => $data[0]['entity_id']), "service_center_id, name");
+            $engineer  = $this->engineer_model->get_engineers_details(array("id" => $data[0]['entity_id']), "service_center_id, name");
             if(!empty($engineer)){
                 $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($engineer[0]['service_center_id']);
                 $data[0]['service_center_id'] = $engineer[0]['service_center_id'];
@@ -3035,6 +3035,7 @@ class Api extends CI_Controller {
                
             }
             $data["closed_date"] = date("Y-m-d H:i:s");
+            $data["engineer_id"] = $requestData['engineer_id'];
            // $data["agent_id"] = $requestData['agent_id'];
             $this->engineer_model->update_engineer_table($data, array("unit_details_id" => $value["unitID"], "booking_id" =>$value["bookingID"] ));
         }
