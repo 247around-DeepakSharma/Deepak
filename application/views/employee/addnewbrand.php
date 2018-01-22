@@ -26,7 +26,7 @@
         			</select>
         		</td>
         		<td width="200px;">
-                            <input type="text" name="brand_name[]" id="<?php echo 'brands_'.$i ?>" value="<?php echo set_value('brand_name'); ?>" onblur="remove_hint()" onkeyup="show_hint(<?php echo $i ?>)">
+                            <input type="text" disabled="" name="brand_name[]" id="<?php echo 'brands_'.$i ?>" value="<?php echo set_value('brand_name'); ?>" onblur="remove_hint()" onkeyup="show_hint(<?php echo $i ?>)">
                             <div id="<?php echo 'show_hInt_'.$i ?>" style="width: 174px;position: absolute;border: 1px solid;background: #e3ffe1;padding: 3px; display: none;" class="show_hint"></div>
         		</td>
         	  </tr>
@@ -76,7 +76,9 @@
         }
     }
     function get_hint(row_id){
+            document.getElementById("brands_"+row_id).disabled = false;
             serviceID = $("#service_"+row_id).val();
+            document.getElementById("brands_"+row_id).value = "";
             var data = {};
                     url =  '<?php echo base_url(); ?>employee/booking/get_all_brands/'+serviceID;
                     post_request = "GET";
