@@ -905,12 +905,12 @@ class Around_scheduler extends CI_Controller {
                 log_message("info", "Partner Id ".$value['id'] );
                 //Get Email Template
                 $email_template = $this->booking_model->get_booking_email_template("low_prepaid_amount");
-                $message = $email_template[0];
+                $message = vsprintf($email_template[0], array("Rs. ".$final_amount["prepaid_amount"]));
                 $to = $value['invoice_email_to'];
                 $cc = $value['invoice_email_cc']. ", ".$email_template[3];
                 $subject = $email_template[4];
                     
-                $sms['smsData'] = array();
+                $sms['smsData']['prepaid_amount'] = "Rs. ".$final_amount["prepaid_amount"];
 
                 $sms['booking_id'] = "";
                 $sms['type'] = "partner";
