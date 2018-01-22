@@ -4214,3 +4214,6 @@ ALTER TABLE `bb_delivery_order_status_report` ADD `qc_svc` VARCHAR(32) NULL DEFA
 ALTER TABLE `push_notification_subscribers` ADD `unsubscription_flag` INT(10) NOT NULL DEFAULT '0' AFTER `subscriber_id`;
 ALTER TABLE `push_notification_subscribers` ADD `unsubscription_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `unsubscription_flag`;
 ALTER TABLE `push_notification_subscribers` CHANGE `create_date` `create_date` DATETIME NOT NULL;
+
+--Sachin 20 Jan
+ALTER TABLE `spare_parts_details` ADD `partner_challan_number` VARCHAR(128) NULL AFTER `edd`, ADD `sf_challan_number` VARCHAR(128) NULL AFTER `partner_challan_number`, ADD `partner_challan_file` VARCHAR(128) NULL AFTER `sf_challan_number`, ADD `sf_challan_file` VARCHAR(128) NULL AFTER `partner_challan_file`, ADD `challan_approx_value` VARCHAR(64) NULL AFTER `sf_challan_file`;
