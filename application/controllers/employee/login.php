@@ -306,6 +306,7 @@ class Login extends CI_Controller {
     function allow_log_in_to_partner($partner_id){
         //Getting partner details
         $this->session->sess_create();
+        $this->session->set_userdata(array("login_by"=>_247AROUND_EMPLOYEE_STRING));
        // $partner_id = $this->input->post('partner_id');
         $data['entity'] = "partner";
         $data['entity_id'] = $partner_id;
@@ -409,7 +410,7 @@ class Login extends CI_Controller {
     function allow_log_in_to_vendor($vendor_id) {
         //Getting vendor details
         $this->session->sess_create();
-       
+        $this->session->set_userdata(array("login_by"=>_247AROUND_EMPLOYEE_STRING));
         $agent = $this->service_centers_model->get_sc_login_details_by_id($vendor_id);
         if (!empty($agent)) {
             //get sc details now

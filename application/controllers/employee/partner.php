@@ -912,8 +912,16 @@ class Partner extends CI_Controller {
                 'booking_status IN ("' . _247AROUND_PENDING . '", "'  . _247AROUND_COMPLETED . '")' => NULL
         );
         // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
-        $service_amount = $this->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
-        $invoice['unbilled_amount'] = $service_amount;
+        
+        $unbilled_data  = $this->booking_model->get_unit_details($where, false, 'booking_id, partner_net_payable');
+        
+        $unbilled_amount = 0;
+        if(!empty($unbilled_data)){
+            $unbilled_amount = (array_sum(array_column($unbilled_data, 'partner_net_payable')));
+        }
+       
+        $invoice['unbilled_amount'] = $unbilled_amount;
+        $invoice['unbilled_data'] = $unbilled_data;
         $invoice['invoice_amount'] = $this->invoices_model->getsummary_of_invoice("partner",array('id' => $partner_id))[0];
       
         $this->load->view('partner/header');
@@ -2366,12 +2374,14 @@ class Partner extends CI_Controller {
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
-
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
 
         $data['spare_parts'] = $total_rows[0]['total_rows'];
         $this->load->view('partner/header');
         $this->load->view('partner/partner_default_page', $data);
+        if(!$this->session->userdata("login_by")){
+            $this->load->view('employee/header/push_notification');
+        }
     }
 
     /**

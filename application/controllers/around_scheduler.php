@@ -910,7 +910,7 @@ class Around_scheduler extends CI_Controller {
                 $cc = $value['invoice_email_cc']. ", ".$email_template[3];
                 $subject = $email_template[4];
                     
-                $sms['smsData'] = array();
+                $sms['smsData']['prepaid_amount'] = "Rs. ".$final_amount["prepaid_amount"];
 
                 $sms['booking_id'] = "";
                 $sms['type'] = "partner";

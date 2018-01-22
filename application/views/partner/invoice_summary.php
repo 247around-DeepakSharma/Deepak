@@ -2,7 +2,7 @@
     <div class="col-md-12 page-header">
         <div class="col-md-4"><span style="font-size: 16px;"><b>Invoice</b></span></div>
     <div class="col-md-4"><span style="font-size: 16px;"><b>Un-Billed Amount</span></b>
-        <br/><span style="color:red; font-size: 16px;"><b>Rs. <?php echo round($unbilled_amount[0]["amount"],0);?></b></span></div>
+        <br/><span data-toggle="modal" data-target="#myModal2" style="color:red; font-size: 16px; cursor: pointer;" onclick="unbilledBooking();"><b>Rs. <?php echo round($unbilled_amount,0);?> <i class="fa fa-info-circle" aria-hidden="true"></i></b></span></div>
     <div class="col-md-4">
         <span style="font-size: 16px;"><b><?php if($invoice_amount['final_amount'] > 0){ echo "Un-Settle Amount";} else { echo "Balanced Amount";}?></b>
         </span><br/><span style="<?php if($invoice_amount['final_amount'] > 0){ echo "color:red;";} else { echo "color:green;";}?> 
@@ -53,6 +53,38 @@
         </table>
     </div>
 </div>
+ <div id="myModal2" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal">&times;</button>
+               <h4 class="modal-title" id="modal-title">Unbilled Booking</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-hover table-striped data" id="unbilled_table">
+                    <thead>
+                    <th>Booking ID</th>
+                    <th>Charges</th>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($unbilled_data as $key => $value) { ?>              
+                        <tr>
+                            <td><?php echo $value['booking_id']; ?></td>
+                            <td><?php echo $value['partner_net_payable']; ?></td>
+                        </tr>
+                        <?php }?>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+         
+               <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
+            </div>
+         </div>
+      </div>
+   </div>
 <script>
     $(document).ready(function () {
         $('#invoice_table').DataTable({

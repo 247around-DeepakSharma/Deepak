@@ -1975,13 +1975,10 @@ class Miscelleneous {
         $this->My_CI->load->view('employee/header/load_header_navigation', $data);
     }
     /*
-     * This Function is used to handle Fake Reschedule request By Miss Call Functionality
-     * 1st) reschedule request will get rejected 
-     * 2nd) booking will be escalated
+     * This is a helper function for fake_reschedule_handling , This function is used to get fake reschedule booking data
      */
-    function fake_reschedule_handling($userPhone,$id,$employeeID,$remarks,$bookingID=NULL){
-        log_message('info', __METHOD__.'Call Details Added');
-        $whereArray["service_center_booking_action.internal_status"] = "Reschedule"; 
+    function get_fake_reschedule_booking_details($userPhone,$bookingID,$whereArray){
+         log_message('info', __METHOD__.'Function Start');
         if($bookingID){
             $whereArray["booking_details.booking_id"] = $bookingID; 
         }
@@ -1992,21 +1989,41 @@ class Miscelleneous {
         $bookingDetails = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,booking_details.booking_date,booking_details.assigned_vendor_id,booking_details.booking_timeslot",
                 $whereArray,array("users"=>"users.user_id=booking_details.user_id","service_center_booking_action"=>"service_center_booking_action.booking_id=booking_details.booking_id"),
                 NULL,NULL,NULL,NULL,array("booking_details.booking_id"));
+        return $bookingDetails;
+         log_message('info', __METHOD__.'Function End');
+    }
+    /*
+     * This Function is used to handle Fake Reschedule request By Miss Call Functionality
+     * 1st) reschedule request will get rejected 
+     * 2nd) booking will be escalated
+     */
+    function fake_reschedule_handling($userPhone,$id,$employeeID,$remarks,$bookingID=NULL){
+        log_message('info', __METHOD__.' Function Start');
+        $already_rescheduled =0;
+        $whereArray["service_center_booking_action.internal_status"] = "Reschedule"; 
+        $bookingDetails = $this->get_fake_reschedule_booking_details($userPhone,$bookingID,$whereArray);
+        if(empty($bookingDetails)){
+            $bookingDetails = $this->get_fake_reschedule_booking_details($userPhone,$bookingID,array());
+            $already_rescheduled  = 1;
+        }
         $numberOfBookings = count($bookingDetails);
         if($numberOfBookings == 1){
             $booking_id = $bookingDetails[0]['booking_id'];
             $vendor_id = $bookingDetails[0]['assigned_vendor_id'];
-            $escalation_reason_id = 11;
-            $this->reject_reschedule_request($booking_id,$escalation_reason_id,$remarks,$id,$employeeID);
+            $escalation_reason_id = PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT;
+            if($already_rescheduled !=1){
+                $this->reject_reschedule_request($booking_id,$escalation_reason_id,$remarks,$id,$employeeID);
+            }
             $isEscalationDone =  $this->process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,TRUE,$id,$employeeID);
            return $isEscalationDone;
         }
+         log_message('info', __METHOD__.' Function End');
     }
     /*
      * This function is used to reject reschedule request in case of fake reschedule
      */
     function reject_reschedule_request($booking_id,$escalation_reason_id,$remarks,$id,$employeeID){
-        log_message('info', __METHOD__.'Call Details Added');
+        log_message('info', __METHOD__.' Function Start');
         //Change Booking Status Back to Pending
        $affectedRows = $this->My_CI->reusable_model->update_table("service_center_booking_action",array("current_status"=>"Pending","internal_status"=>"Pending"),
                 array("booking_id"=>$booking_id));
@@ -2025,6 +2042,7 @@ class Miscelleneous {
         else{
             return FALSE;
         }
+        log_message('info', __METHOD__.' Function End');
     }
     function process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,$checkValidation,$id,$employeeID){
         log_message('info',__FUNCTION__);
