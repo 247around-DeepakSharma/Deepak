@@ -1458,6 +1458,7 @@ class Service_centers extends CI_Controller {
                     " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
             $this->update_defective_parts($booking_id);
         } else {
+            
             $defective_courier_receipt = $this->input->post("sp_parts");
            
             if (!empty($defective_courier_receipt)) {
@@ -1468,6 +1469,8 @@ class Service_centers extends CI_Controller {
                 $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
                 $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                 $k =0;
+                $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc',array('id'=>$service_center_id));
+                $partner_details = $this->partner_model->getpartner_details('company_name,address,gst_number',array('partners.id'=>$this->input->post('partner_id')));
                 foreach ($defective_part_shipped as $id => $value) {
                     if($k ==0){
                         $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
@@ -1479,7 +1482,9 @@ class Service_centers extends CI_Controller {
                     $data['awb_by_sf'] = $this->input->post('awb_by_sf');
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $value;
-                   
+                    
+                    $data['sf_challan_number'] = $this->create_sf_challan_id($sf_details[0]['sc_code']);
+                    $data['sf_challan_file'] = $this->create_sf_challan_file($sf_details,$partner_details,$data['sf_challan_number'],$id);
                     $where = array('id' => $id);
                     $this->service_centers_model->update_spare_parts($where, $data);
                     $k++;
@@ -2952,4 +2957,92 @@ class Service_centers extends CI_Controller {
             $this->notify->send_sms_msg91($sms);
         }
     }
+    
+    /**
+     * @desc this function is used to create the challan number 
+     * @param String $name
+     * @return String challan number
+     */
+    function create_sf_challan_id($name){
+        $challan_id_tmp = $name."-DC-";
+        $where['length'] = -1;
+        $where['where'] = array("( sf_challan_number LIKE '%".$challan_id_tmp."%' )" => NULL);
+        $where['select'] = "sf_challan_number";
+        $challan_no_temp = $this->inventory_model->get_spare_parts_query($where);
+        $challan_no = 1;
+        $int_challan_no = array();
+        if (!empty($challan_no_temp)) {
+            foreach ($challan_no_temp as  $value) {
+                 $explode = explode($challan_id_tmp, $value->sf_challan_number);
+                 array_push($int_challan_no, $explode[1] + 1);
+            }
+            rsort($int_challan_no);
+            $challan_no = $int_challan_no[0];
+        }
+        
+        return trim($challan_id_tmp . sprintf("%'.04d\n", $challan_no));
+    }
+    
+    
+    /**
+     * @desc this function is used to generate the challan PDF file
+     * @param array $sf_details
+     * @param array $partner_details
+     * @param String $sf_challan_number
+     * @param String $spare_id
+     * @return String $output_pdf_file_name
+     */
+    function create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_id) {
+        $excel_data['sf_name'] = $sf_details[0]['name'];
+        $excel_data['sf_address'] = $sf_details[0]['address'];
+        $excel_data['partner_name'] = $partner_details[0]['company_name'];
+        $excel_data['partner_address'] = $partner_details[0]['address'];
+        $excel_data['partner_gst'] = $partner_details[0]['gst_number'];
+        $excel_data['partner_challan_no'] = $this->input->post('partner_challan_number')[$spare_id];
+        $excel_data['sf_challan_no'] = $sf_challan_number;
+        $excel_data['date'] = date('Y-m-d');
+        $excel_data['value'] = $this->input->post('challan_approx_value')[$spare_id];
+        $excel_data['booking_id'] = $this->input->post('booking_id');
+        $excel_data['spare_desc'] = $this->input->post('parts_requested')[$spare_id];
+        $excel_data['qty'] = 1;
+        $excel_data['total_qty'] = 1;
+        $excel_data['total_value'] = $excel_data['value'];
+        if ($sf_details[0]['is_gst_doc'] == 1) {
+            $excel_data['sf_gst'] = $sf_details[0]['gst_no'];
+            $template = 'delivery_challan_with_gst.xlsx';
+            $cell = FALSE;
+            $signature_file = FALSE;
+        } else if ($sf_details[0]['is_gst_doc'] == 0 && $sf_details[0]['is_signature_doc'] == 1) {
+            $excel_data['sf_gst'] = '';
+            $excel_data['sf_owner_name'] = $sf_details[0]['owner_name'];
+            $template = "delivery_challan_without_gst.xlsx";
+            $s3_bucket = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$sf_details[0]['signature_file'];
+            //get signature file from s3 and save it to server
+            copy($s3_bucket,TMP_FOLDER.$sf_details[0]['signature_file']);
+            system(" chmod 777 " . TMP_FOLDER.$sf_details[0]['signature_file']);
+            $cell = 'B46';
+            $signature_file = TMP_FOLDER.$sf_details[0]['signature_file'];
+        }
+        
+        //generate pdf file 
+        $output_file = "delivery_challan_" .$excel_data['booking_id']."_".$spare_id."_". date('d_M_Y_H_i_s');
+        $excel_file = $this->miscelleneous->generate_excel_data($template, $output_file, $excel_data, false,$cell,$signature_file);
+        $output_pdf_file_name = $excel_file;
+        if (file_exists($excel_file)) {
+            $json_result = $this->miscelleneous->convert_excel_to_pdf($excel_file, $excel_data['booking_id'], 'vendor-partner-docs');
+            log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result, TRUE));
+            $pdf_response = json_decode($json_result, TRUE);
+
+            if ($pdf_response['response'] === 'Success') {
+                $output_pdf_file_name = $pdf_response['output_pdf_file'];
+                log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $output_pdf_file_name);
+            } else if ($pdf_response['response'] === 'Error') {
+
+                log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
+            }
+        }
+        
+        return $output_pdf_file_name;
+    }
+
 }
