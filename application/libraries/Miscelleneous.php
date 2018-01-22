@@ -1996,7 +1996,7 @@ class Miscelleneous {
         if($numberOfBookings == 1){
             $booking_id = $bookingDetails[0]['booking_id'];
             $vendor_id = $bookingDetails[0]['assigned_vendor_id'];
-            $escalation_reason_id = 11;
+            $escalation_reason_id = PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT;
             $this->reject_reschedule_request($booking_id,$escalation_reason_id,$remarks,$id,$employeeID);
             $isEscalationDone =  $this->process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,TRUE,$id,$employeeID);
            return $isEscalationDone;
