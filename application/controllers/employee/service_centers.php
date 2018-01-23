@@ -142,9 +142,9 @@ class Service_centers extends CI_Controller {
         $data['booking_id'] = $booking_id;
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $bookng_unit_details = $this->booking_model->getunit_details($booking_id);
+        if($this->session->userdata('is_engineer_app') == 1){
         foreach($bookng_unit_details as $key1 => $b){
            $broken = 0;
-           if($this->session->userdata('is_engineer_app') == 1){
                 foreach ($b['quantity'] as $key2 => $u) {
 
                     $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
@@ -158,9 +158,16 @@ class Service_centers extends CI_Controller {
                         $broken = 1;
                     }
                 }
+               $bookng_unit_details[$key1]['is_broken'] = $broken; 
+                 
             }
-            $bookng_unit_details[$key1]['is_broken'] = $broken;
-
+            $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id, 
+                "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
+            if(!empty($sig_table)){
+                $data['signature'] = $sig_table[0]['signature'];
+                $data['amount_paid'] = $sig_table[0]['amount_paid'];
+            }
+            
         }
         
          $data['bookng_unit_details'] = $bookng_unit_details;

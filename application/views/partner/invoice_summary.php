@@ -2,11 +2,12 @@
     <div class="col-md-12 page-header">
         <div class="col-md-4"><span style="font-size: 16px;"><b>Invoice</b></span></div>
     <div class="col-md-4"><span style="font-size: 16px;"><b>Un-Billed Amount</span></b>
-        <br/><span data-toggle="modal" data-target="#myModal2" style="color:red; font-size: 16px; cursor: pointer;" onclick="unbilledBooking();"><b>Rs. <?php echo round($unbilled_amount,0);?> <i class="fa fa-info-circle" aria-hidden="true"></i></b></span></div>
+        <br/><span data-toggle="modal" data-target="#myModal2" style="color:red; font-size: 16px; cursor: pointer;" onclick="unbilledBooking();"><b>Rs. <?php echo round(($unbilled_amount *(1 + SERVICE_TAX_RATE)),0);?> <i class="fa fa-info-circle" aria-hidden="true"></i></b></span></div>
     <div class="col-md-4">
+       
         <span style="font-size: 16px;"><b><?php if($invoice_amount['final_amount'] > 0){ echo "Un-Settle Amount";} else { echo "Balanced Amount";}?></b>
         </span><br/><span style="<?php if($invoice_amount['final_amount'] > 0){ echo "color:red;";} else { echo "color:green;";}?> 
-                                        font-size: 16px;"><b>Rs.<?php echo round($invoice_amount['final_amount'],0);?></b></span></div>
+                                        font-size: 16px;"><b>Rs.<?php echo abs(round($invoice_amount['final_amount'],0));?></b></span></div>
        
         
     </div>
@@ -71,7 +72,7 @@
                         <?php foreach ($unbilled_data as $key => $value) { ?>              
                         <tr>
                             <td><?php echo $value['booking_id']; ?></td>
-                            <td><?php echo $value['partner_net_payable']; ?></td>
+                            <td><?php echo $value['partner_net_payable'] *(1 + SERVICE_TAX_RATE); ?></td>
                         </tr>
                         <?php }?>
                     </tbody>

@@ -25,9 +25,10 @@
                            <tr>
                             <th class="text-center">No</th>
                             <th class="text-center">Booking ID</th>
-                            <th class="text-center">Appliance Item</th>
+                            <th class="text-center">Engineer Name</th>
                             <th class="text-center">Amount Due</th>
                             <th class="text-center" >Amount Paid  </th>
+                            <th class="text-center" >Status</th>
                             <th class="text-center" >Submit</th>
                            </tr>
                        </thead>
@@ -36,48 +37,31 @@
                            <tbody>
                                 <?php  foreach($data as $key =>$row){?>
                                <tr>
-                                    <td>
+                                    <td class="text-center">
                                         <?php echo $key +1; ?>
                                     </td>
-                                     <td>
+                                     <td class="text-center">
                                         <?php echo $row->booking_id; ?>
                                     </td>
+                                    <td class="text-center">
+                                        <?php if(!empty($row->engineer_name)){ print_r($row->engineer_name[0]['name']);} ?>
+                                    </td>
                                    
-
-                                    <td>
-                                         <table class="table table-bordered table-hover table-striped">
-                                    <thead>
-                                        <th>Brand</th>
-                                       <th>Category/Capacity</th>
-                                       <th>Tags</th>
-                                       <th>Serial No Image</th>
-                                       <th>Appliance Broken</th>
-                                       <th>Status</th>
-                                       
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                      <?php foreach($row->lineItem as $item){ ?>
-                                        <td><?php echo $item->appliance_brand;?></td>
-                                        
-                                       
-                                        <td><?php echo $item->appliance_category."/<br/>".$item->appliance_capacity;?></td>
-                                        <td><?php echo $item->price_tags;?></td>
-                                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $item->serial_number_pic;?>" ><?php echo $item->serial_number;?></a></td>
-                                       
-                                        <td><?php if($item->is_broken == 1){ echo "Yes";} else { echo "No";}?></td>
-                                        <td><?php echo $item->internal_status;?></td>
-                                          
-                                       <?php }?>
-                                         </table>
+                                     <td class="text-center">
+                                          <i class="fa fa-inr" aria-hidden="true"></i> <?php echo $row->amount_due; ?>
                                     </td>
-                                     <td>
-                                          <?php echo $row->amount_due; ?>
+                                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $row->amount_paid?></td>
+                                     <td class="text-center"><?php echo $row->status?></td>
+                                    <td class="text-center">
+                                        <?php if($row->status == _247AROUND_COMPLETED) {?>
+                                        <button onclick="openmodel('<?php echo $row->booking_id;?>')" class='btn btn-sm btn-success'><i class='fa fa-check' aria-hidden='true'></i>
+                                        </button>
+                                        <?php } else { ?>
+                                        <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" 
+                                           class='btn btn-sm btn-success'><i class='fa fa-check' aria-hidden='true'></i></a>
+                                       <?php  }?>
                                     </td>
-                                    <td><?php echo $row->amount_paid?></td>
-                                    <td><button onclick="openmodel('<?php echo $row->booking_id;?>')" class='btn btn-sm btn-success'><i class='fa fa-check' aria-hidden='true'></i></button></td>
-                                    <td><button class='btn btn-sm btn-danger reject-booking'><i class='fa fa-times' aria-hidden='true'></i></button></td>
-
+                                    
                                 </tr>
                                 <?php $sn_no++; } ?>
                             </tbody>
@@ -270,6 +254,7 @@ function onsubmit_form(upcountry_flag, number_of_div) {
         return false;
     }
     if (flag === 0) {
+       
         return true;
 
     } else if (flag === 1) {
