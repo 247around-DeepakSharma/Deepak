@@ -284,13 +284,13 @@
                                         <div class="col-md-6" style="padding-left:0px; margin-top: 10px; padding-left: 15px;">
                                             <?php if(!empty($serial_number_pic)){ ?>
                                             <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $serial_number_pic;?>">   
-                                            <img style="height:150px;" src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $serial_number_pic;?>" />
+                                            <img style="height:150px; width:150px; " src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $serial_number_pic;?>" />
                                             </a>
                                             <?php } ?>
                                         </div>
-                                        <div class="col-md-6" style="padding-left:0px; margin-top: 10px; padding-left: 15px; <?php if(!empty($signature)){ ?>border: 1px solid;<?php } ?>">
+                                        <div class="col-md-6" style="padding-left:0px; margin-top: 10px; padding-left: 15px;">
                                             <?php if(!empty($signature)){ ?><a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature;?>">   
-                                            <img style="height:150px;" src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature;?>" /></a>
+                                            <img style="height:150px;width:150px;  <?php if(!empty($signature)){ ?>border: 1px solid;<?php } ?>" src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature;?>" /></a>
                                             <?php } ?>
                                         </div>
                                     </div>

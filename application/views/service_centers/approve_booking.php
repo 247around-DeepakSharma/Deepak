@@ -200,13 +200,13 @@
                                         <div class="col-md-6" style="padding-left:0px; margin-top: 10px; padding-left: 15px;">
                                             <?php if(!empty($serial_number_pic)){ ?>
                                             <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $serial_number_pic;?>">   
-                                            <img style="height:150px;" src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $serial_number_pic;?>" />
+                                            <img style="height:150px; width:150px;" src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $serial_number_pic;?>" />
                                             </a>
                                             <?php } ?>
                                         </div>
-                                        <div class="col-md-6" style="padding-left:0px; margin-top: 10px; padding-left: 15px; <?php if(!empty($signature)){ ?>border: 1px solid;<?php } ?>">
-                                            <?php if(!empty($signature)){ ?><a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature;?>">   
-                                            <img style="height:150px;" src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature;?>" /></a>
+                                        <div class="col-md-6" style="padding-left:0px; margin-top: 10px; padding-left: 15px; ">
+                                            <?php if(!empty($signature)){ ?><a  target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature;?>">   
+                                            <img style="height:150px; width: 150px; <?php if(!empty($signature)){ ?>border: 1px solid;<?php } ?>" src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature;?>" /></a>
                                             <?php } ?>
                                         </div>
                                     </div>
@@ -277,8 +277,7 @@
     </div>
 </div>
 </form>
-<input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>')" class="btn btn-md" style="background-color: #2C9D9A;
-                    border-color: #2C9D9A; color:#fff;" value="Complete Booking">
+
 
 <script>
 $('.appliance_broken').css('pointer-events','none'); 
