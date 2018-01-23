@@ -1065,24 +1065,9 @@ class Miscelleneous {
         }
 
         if ($flag) {
-            switch ($default_partner) {
-                case SNAPDEAL_ID:
-                    $data['partner_id'] = SNAPDEAL_ID;
-                    $data['source'] = 'SS';
-                    break;
-                case WYBOR_ID:
-                    $data['partner_id'] = WYBOR_ID;
-                    $data['source'] = 'SY';
-                    break;
-                case PAYTM:
-                    $data['partner_id'] = PAYTM;
-                    $data['source'] = 'SP';
-                    break;
-                case AKAI_ID:
-                    $data['partner_id'] = AKAI_ID;
-                    $data['source'] = 'PA';
-                    break;
-            }
+            $get_partner_source = $this->My_CI->partner_model->getpartner_details('bookings_sources.code', array('partners.id' => $default_partner));
+            $data['partner_id'] = $default_partner;
+            $data['source'] = $get_partner_source[0]['code'];
         }
 
         $blocked_brand = $this->My_CI->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['partner_id'], "brand" => $brand), "*");

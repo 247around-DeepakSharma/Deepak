@@ -4284,3 +4284,10 @@ ALTER TABLE `push_notification_subscribers` CHANGE `create_date` `create_date` D
 
 --Sachin 20 Jan
 ALTER TABLE `spare_parts_details` ADD `partner_challan_number` VARCHAR(128) NULL AFTER `edd`, ADD `sf_challan_number` VARCHAR(128) NULL AFTER `partner_challan_number`, ADD `partner_challan_file` VARCHAR(128) NULL AFTER `sf_challan_number`, ADD `sf_challan_file` VARCHAR(128) NULL AFTER `partner_challan_file`, ADD `challan_approx_value` VARCHAR(64) NULL AFTER `sf_challan_file`;
+
+--sachin 22 jan
+ALTER TABLE `email_attachment_parser` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `id`;
+
+INSERT INTO `email_attachment_parser` (`id`, `partner_id`, `email_received_from`, `email_subject_text`, `email_function_name`, `file_type`, `email_remarks`, `email_send_to`, `qc_svc`, `active`, `create_date`) VALUES (NULL, '247038', 'sachinj@247around.com', 'Bulk Sheet', 'employee/do_background_upload_excel/process_upload_file', 'Aquagrand-Plus-Delivered', 'Aquagrand-Plus', 'sachinj@247around.com', NULL, '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `header_navigation` (`id`, `title`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Upload Aguagrand Plus File', 'employee/bookings_excel/upload_aquagrand_plus_file', '2', '24', 'admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
