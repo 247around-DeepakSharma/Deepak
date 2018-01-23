@@ -476,7 +476,7 @@ class Miscelleneous {
     function check_unit_in_sc($booking_id) {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         if (!empty($booking_id)) {
-            $data = $this->My_CI->booking_model->getbooking_history($booking_id);
+            $data = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
             if (!empty($data)) {
                 log_message('info', __FUNCTION__ . " Booking Id DATA Found " . print_r($booking_id, true));
                 if (!is_null($data[0]['assigned_vendor_id'])) {
