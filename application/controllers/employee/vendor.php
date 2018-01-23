@@ -1375,63 +1375,79 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function process_broadcast_mail_to_vendors_form() {
-        $bcc_poc = $this->input->post('bcc_poc');
-        $bcc_owner = $this->input->post('bcc_owner');
-        $bcc_partner_poc = $this->input->post('bcc_partner_poc');
-        $bcc_partner_owner = $this->input->post('bcc_partner_owner');
-        $bcc_employee = $this->input->post('bcc_employee');
-        $mail_to = $this->input->post('mail_to');
-        
-        $to = NITS_ANUJ_EMAIL_ID.', sales@247around.com,' . $mail_to;
-	$cc = $this->input->post('mail_cc');
-	$subject = $this->input->post('subject');
-	
-        //Replace new lines with line breaks for proper html formatting
-	$message = nl2br($this->input->post('mail_body'));
-        
-        if(!empty($_FILES['fileToUpload']['tmp_name'])){
-            $tmpFile = $_FILES['fileToUpload']['tmp_name'];
-            $fileName = $_FILES['fileToUpload']['name'];
-            move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
-        }else{
-            $fileName = "";
-        }
-	
-        $bcc = "";
-        //gets primary contact's email and owner's email of service centers
-        if(!empty($bcc_owner) || !empty($bcc_poc)){
-            $service_centers = $this->vendor_model->select_active_service_center_email();
-            $sf_bcc = $this->getBccToSendMail($service_centers, $bcc_poc, $bcc_owner);
-            $bcc .= $sf_bcc;
-        }
-        
-        //gets primary contact's email and owner's email of partners
-        if(!empty($bcc_partner_poc) || !empty($bcc_partner_owner)){
-            $partners = $this->partner_model->getpartner_details('primary_contact_email,owner_email');
-            $partner_bcc = $this->getBccToSendMail($partners, $bcc_partner_poc, $bcc_partner_owner);
-            $bcc .= $partner_bcc;
-        }
-        
-        if(!empty($bcc_employee)){
-            $employee = $this->employee_model->get_employee();
-            $employee_bcc = implode(',', array_column($employee, 'official_email'));
-            $bcc .= $employee_bcc;
-        }
-        
-        $attachment = "";
-        if (!empty($fileName)) {
-            $attachment = TMP_FOLDER.$fileName;
-        }
 
-        log_message('info', "broadcast mail to: " . $to);
-        log_message('info', "broadcast mail cc: " . $cc);
-        log_message('info', "broadcast mail bcc: " . $bcc);
-        log_message('info', "broadcast mail subject: " . $subject);
-        log_message('info', "broadcast mail message: " . $message);
+        $this->form_validation->set_rules('mail_from', 'Email From', 'trim|required|valid_email|xss_clean');
+        $this->form_validation->set_rules('subject', 'Subject', 'trim|required|xss_clean');
+        $this->form_validation->set_rules('mail_body', 'Message', 'trim|required|xss_clean');
+        $this->form_validation->set_rules('mail_to', 'Email To', 'trim|valid_email|xss_clean');
+        $this->form_validation->set_rules('mail_cc', 'Email CC', 'trim|valid_email|xss_clean');
+        if($this->form_validation->run() === FALSE) {
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/broadcastemailtovendor');
+        } else {
+            $bcc_poc = $this->input->post('bcc_poc');
+            $bcc_owner = $this->input->post('bcc_owner');
+            $bcc_partner_poc = $this->input->post('bcc_partner_poc');
+            $bcc_partner_owner = $this->input->post('bcc_partner_owner');
+            $bcc_employee = $this->input->post('bcc_employee');
+            $mail_to = $this->input->post('mail_to');
+            $from = $this->input->post('mail_from');
 
-        $this->notify->sendEmail("sales@247around.com", $to, $cc, $bcc, $subject, $message, $attachment);
+            if (empty($from)) {
+                $from = _247AROUND_SALES_EMAIL;
+            }
 
-        redirect(base_url() . DEFAULT_SEARCH_PAGE);
+            $to = NITS_ANUJ_EMAIL_ID . ', sales@247around.com,' . $mail_to;
+            $cc = $this->input->post('mail_cc');
+            $subject = $this->input->post('subject');
+
+            //Replace new lines with line breaks for proper html formatting
+            $message = nl2br($this->input->post('mail_body'));
+
+            if (!empty($_FILES['fileToUpload']['tmp_name'])) {
+                $tmpFile = $_FILES['fileToUpload']['tmp_name'];
+                $fileName = $_FILES['fileToUpload']['name'];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $fileName);
+            } else {
+                $fileName = "";
+            }
+
+            $bcc = "";
+            //gets primary contact's email and owner's email of service centers
+            if (!empty($bcc_owner) || !empty($bcc_poc)) {
+                $service_centers = $this->vendor_model->select_active_service_center_email();
+                $sf_bcc = $this->getBccToSendMail($service_centers, $bcc_poc, $bcc_owner);
+                $bcc .= $sf_bcc;
+            }
+
+            //gets primary contact's email and owner's email of partners
+            if (!empty($bcc_partner_poc) || !empty($bcc_partner_owner)) {
+                $partners = $this->partner_model->getpartner_details('primary_contact_email,owner_email');
+                $partner_bcc = $this->getBccToSendMail($partners, $bcc_partner_poc, $bcc_partner_owner);
+                $bcc .= $partner_bcc;
+            }
+
+            if (!empty($bcc_employee)) {
+                $employee = $this->employee_model->get_employee();
+                $employee_bcc = implode(',', array_column($employee, 'official_email'));
+                $bcc .= $employee_bcc;
+            }
+
+            $attachment = "";
+            if (!empty($fileName)) {
+                $attachment = TMP_FOLDER . $fileName;
+            }
+            log_message('info', "broadcast mail from: " . $from);
+            log_message('info', "broadcast mail to: " . $to);
+            log_message('info', "broadcast mail cc: " . $cc);
+            log_message('info', "broadcast mail bcc: " . $bcc);
+            log_message('info', "broadcast mail subject: " . $subject);
+            log_message('info', "broadcast mail message: " . $message);
+
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+
+            redirect(base_url() . DEFAULT_SEARCH_PAGE);
+        }
     }
 
     /**
