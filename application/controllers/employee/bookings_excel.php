@@ -585,7 +585,7 @@ class bookings_excel extends CI_Controller {
     }
     
     /*
-     * @desc: This function is to upload the Satya File
+     * @desc: This function is to upload the Akai File
      * @param: void
      * @return: void
      */
@@ -755,6 +755,18 @@ class bookings_excel extends CI_Controller {
         }
         
         return $res;
+    }
+    
+    /**
+     * @desc: This function is to upload the Aquagrand Plus File
+     * @param: void
+     * @return: void
+     */
+
+    public function upload_aquagrand_plus_file() {
+        
+	$this->miscelleneous->load_nav_header();
+	$this->load->view('employee/upload_aquagrand_plus_file');
     }
 
 }
