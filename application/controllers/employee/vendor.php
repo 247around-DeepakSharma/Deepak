@@ -26,6 +26,7 @@ class vendor extends CI_Controller {
         $this->load->model('upcountry_model');
         $this->load->model('vendor_model');
         $this->load->model('service_centre_charges_model');
+        $this->load->model('dealer_model');
         $this->load->model('engineer_model');
         $this->load->helper(array('form', 'url','array'));
         $this->load->library('form_validation');
@@ -1940,70 +1941,87 @@ class vendor extends CI_Controller {
      *  This  function is used by vendor panel and admin panel to load add engineer details.
      */
     function process_add_engineer() {
-	$engineer_form_validation = $this->engineer_form_validation();
+        $engineer_form_validation = $this->engineer_form_validation();
 
-	if ($engineer_form_validation) {
-	    $data['name'] = $this->input->post('name');
-	    $data['phone'] = $this->input->post('phone');
-	    $data['alternate_phone'] = $this->input->post('alternate_phone');
-	    $data['phone_type'] = $this->input->post('phone_type');
-	    //$data['address'] = $this->input->post('address');
-	    $data['identity_proof'] = $this->input->post('identity_proof');
-	    $data['identity_proof_number'] = $this->input->post('identity_id_number');
-	    $data['bank_name'] = $this->input->post('bank_name');
-	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
-	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
-	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
-	    $data['identity_proof_pic'] = $this->input->post('file');
-	    $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
-	    //
+        if ($engineer_form_validation) {
+            $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "name, phone");
+            if (empty($is_phone)) {
+                $data['name'] = $this->input->post('name');
+                $data['phone'] = $this->input->post('phone');
+                $data['alternate_phone'] = $this->input->post('alternate_phone');
+                $data['phone_type'] = $this->input->post('phone_type');
+                //$data['address'] = $this->input->post('address');
+                $data['identity_proof'] = $this->input->post('identity_proof');
+                $data['identity_proof_number'] = $this->input->post('identity_id_number');
+                $data['identity_proof_pic'] = $this->input->post('file');
+//	    $data['bank_name'] = $this->input->post('bank_name');
+//	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
+//	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
+//	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
+//	    $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
+                //
 	    //Get vendor ID from session if form sent thru vendor CRM
-	    //Else from POST variable.
-	    if ($this->session->userdata('userType') == 'service_center') {
-		$data['service_center_id'] = $this->session->userdata('service_center_id');
-	    } else {
-		$data['service_center_id'] = $this->input->post('service_center_id');
-	    }
+                //Else from POST variable.
+                if ($this->session->userdata('userType') == 'service_center') {
+                    $data['service_center_id'] = $this->session->userdata('service_center_id');
+                } else {
+                    $data['service_center_id'] = $this->input->post('service_center_id');
+                }
 
-	    //applicable services for an engineer come as array in service_id field.
-	    $service_id = $this->input->post('service_id');
-	    $services = array();
-	    foreach ($service_id as $id) {
-		array_push($services, array('service_id' => $id));
-	    }
+                //applicable services for an engineer come as array in service_id field.
+                $service_id = $this->input->post('service_id');
+                $services = array();
+                foreach ($service_id as $id) {
+                    array_push($services, array('service_id' => $id));
+                }
 
-	    $data['appliance_id'] = json_encode($services);
-	    $data['active'] = "1";
-	    $data['create_date'] = date("Y-m-d H:i:s");
+                $data['appliance_id'] = json_encode($services);
+                $data['active'] = "1";
+                $data['create_date'] = date("Y-m-d H:i:s");
 
-	    $engineer_id = $this->vendor_model->insert_engineer($data);
+                $engineer_id = $this->vendor_model->insert_engineer($data);
 
-	    if ($engineer_id) {
-		log_message('info', __METHOD__ . "=> Engineer Details Added.");
+                if ($engineer_id) {
+                    log_message('info', __METHOD__ . "=> Engineer Details Added. " . $engineer_id);
+                    $login["entity"] = "engineer";
+                    $login["entity_name"] = $data['name'];
+                    $login["entity_id"] = $engineer_id;
+                    $login["user_id"] = $data['phone'];
+                    $login["password"] = md5($data['phone']);
+                    $login["active"] = 1;
+                    $login["clear_password"] = $data['phone'];
 
-		$output = "Engineer Details Added.";
-		$userSession = array('success' => $output);
-	    } else {
-		log_message('info', __METHOD__ . "=> Engineer Details Not Added. Engineer data  " . print_r($data, true));
+                    $this->dealer_model->insert_entity_login($login);
 
-		$output = "Engineer Details Not Added.";
-		$userSession = array('error' => $output);
-	    }
+                    $output = "Engineer Details Added.";
+                    $userSession = array('success' => $output);
+                } else {
+                    log_message('info', __METHOD__ . "=> Engineer Details Not Added. Engineer data  " . print_r($data, true));
 
-	    $this->session->set_userdata($userSession);
+                    $output = "Engineer Details Not Added.";
+                    $userSession = array('error' => $output);
+                }
 
-	    if ($this->session->userdata('userType') == 'service_center') {
-		log_message('info', __FUNCTION__ . " Engineer addition initiated By Service Center");
+                $this->session->set_userdata($userSession);
 
-		redirect(base_url() . "service_center/add_engineer");
-	    } else {
-		log_message('info', __FUNCTION__ . " Engineer addition initiated By 247around");
+                if ($this->session->userdata('userType') == 'service_center') {
+                    log_message('info', __FUNCTION__ . " Engineer addition initiated By Service Center");
 
-		redirect(base_url() . "employee/vendor/add_engineer");
-	    }
-	} else { //form validation failed
-	    $this->add_engineer();
-	}
+                    redirect(base_url() . "service_center/add_engineer");
+                } else {
+                    log_message('info', __FUNCTION__ . " Engineer addition initiated By 247around");
+
+                    redirect(base_url() . "employee/vendor/add_engineer");
+                }
+            } else {
+                $output = "Engineer Phone Number Already Exist.";
+                $userSession = array('error' => $output);
+                $this->session->set_userdata($userSession);
+                $this->add_engineer();
+            }
+        } else { //form validation failed
+            $this->add_engineer();
+        }
     }
 
     /**
@@ -2011,71 +2029,79 @@ class vendor extends CI_Controller {
      * params: Post data array
      * 
      */
-    function process_edit_engineer(){
+    function process_edit_engineer() {
         $engineer_form_validation = $this->engineer_form_validation();
         $engineer_id = $this->input->post('id');
         if ($engineer_form_validation) {
-	    $data['name'] = $this->input->post('name');
-	    $data['phone'] = $this->input->post('phone');
-	    $data['alternate_phone'] = $this->input->post('alternate_phone');
-	    $data['phone_type'] = $this->input->post('phone_type');
-	    $data['identity_proof'] = $this->input->post('identity_proof');
-	    $data['identity_proof_number'] = $this->input->post('identity_id_number');
-	    $data['bank_name'] = $this->input->post('bank_name');
-	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
-	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
-	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
-            if($this->input->post('file')){
-	    $data['identity_proof_pic'] = $this->input->post('file');
-            }
-            if($this->input->post('bank_proof_pic')){
-	    $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
-            }
-            
-	    //Get vendor ID from session if form sent thru vendor CRM
-	    //Else from POST variable.
-	    if ($this->session->userdata('userType') == 'service_center') {
-		$data['service_center_id'] = $this->session->userdata('service_center_id');
-	    } else {
-		$data['service_center_id'] = $this->input->post('service_center_id');
-	    }
+            $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "id, name, phone");
+            if (empty($is_phone) || $is_phone[0]['id'] == $engineer_id) {
+                $data['name'] = $this->input->post('name');
+                $data['phone'] = $this->input->post('phone');
+                $data['alternate_phone'] = $this->input->post('alternate_phone');
+                $data['phone_type'] = $this->input->post('phone_type');
+                $data['identity_proof'] = $this->input->post('identity_proof');
+                $data['identity_proof_number'] = $this->input->post('identity_id_number');
+//	    $data['bank_name'] = $this->input->post('bank_name');
+//	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
+//	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
+//	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
+                if ($this->input->post('file')) {
+                    $data['identity_proof_pic'] = $this->input->post('file');
+                }
+//            if($this->input->post('bank_proof_pic')){
+//	    $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
+//            }
+                //Get vendor ID from session if form sent thru vendor CRM
+                //Else from POST variable.
+                if ($this->session->userdata('userType') == 'service_center') {
+                    $data['service_center_id'] = $this->session->userdata('service_center_id');
+                } else {
+                    $data['service_center_id'] = $this->input->post('service_center_id');
+                }
 
-	    //applicable services for an engineer come as array in service_id field.
-	    $service_id = $this->input->post('service_id');
-	    $services = array();
-	    foreach ($service_id as $id) {
-		array_push($services, array('service_id' => $id));
-	    }
+                //applicable services for an engineer come as array in service_id field.
+                $service_id = $this->input->post('service_id');
+                $services = array();
+                foreach ($service_id as $id) {
+                    array_push($services, array('service_id' => $id));
+                }
 
-	    $data['appliance_id'] = json_encode($services);
-	    $data['update_date'] = date("Y-m-d H:i:s");
-            
-            $where = array('id' => $engineer_id );
-	    $engineer_id = $this->vendor_model->update_engineer($where,$data);
+                $data['appliance_id'] = json_encode($services);
+                $data['update_date'] = date("Y-m-d H:i:s");
+
+                $where = array('id' => $engineer_id);
+                $engineer_id = $this->vendor_model->update_engineer($where, $data);
 
                 log_message('info', __METHOD__ . "=> Engineer Details Added.");
 
-		$output = "Engineer Details Updated.";
-		$userSession = array('update_success' => $output);
+                $output = "Engineer Details Updated.";
+                $userSession = array('update_success' => $output);
 
-	    $this->session->set_userdata($userSession);
+                $this->session->set_userdata($userSession);
 
-	    if ($this->session->userdata('userType') == 'service_center') {
-		log_message('info', __FUNCTION__ . " Engineer updation initiated By Service Center ID ". $engineer_id);
+                if ($this->session->userdata('userType') == 'service_center') {
+                    log_message('info', __FUNCTION__ . " Engineer updation initiated By Service Center ID " . $engineer_id);
 
-		redirect(base_url() . "employee/vendor/get_engineers");
-	    } else {
-		log_message('info', __FUNCTION__ . " Engineer updation initiated By 247around ID ". $engineer_id);
+                    redirect(base_url() . "employee/vendor/get_engineers");
+                } else {
+                    log_message('info', __FUNCTION__ . " Engineer updation initiated By 247around ID " . $engineer_id);
 
-		redirect(base_url() . "employee/vendor/get_engineers");
-	    }
-	} else { //form validation failed
+                    redirect(base_url() . "employee/vendor/get_engineers");
+                }
+            } else {
+                $output = "This Phone has aloted to another Engineer.";
+                $userSession = array('update_error' => $output);
+                $this->session->set_userdata($userSession);
+
+                $this->get_edit_engineer_form($engineer_id);
+            }
+        } else { //form validation failed
             $output = "Engineer Updation Error.";
             $userSession = array('update_error' => $output);
             $this->session->set_userdata($userSession);
-            
-	    $this->get_edit_engineer_form($engineer_id);
-	}
+
+            $this->get_edit_engineer_form($engineer_id);
+        }
     }
 
     /**
@@ -2170,11 +2196,12 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'xss_clean');
         $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric|xss_clean');
 	$this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
-        $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim|xss_clean');
-        $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'trim|xss_clean');
-        $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim|xss_clean');
         $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
-	    $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
+//        $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim|xss_clean');
+//        $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'trim|xss_clean');
+//        $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim|xss_clean');
+        
+//	$this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
 
 	if ($this->form_validation->run() == FALSE) {
             return FALSE;

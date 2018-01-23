@@ -1,9 +1,10 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <div id="page-wrapper" >
-   <h1>
+    <div class="container" >
+    <h1 class="page-header">
        <?php echo (isset($data)?'Edit Engineer':'Add Engineer')?>
    </h1>
-    <div class="container" >
+    
        <?php if($this->session->userdata('success')) {
                     echo '<div class="alert alert-success alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -169,47 +170,47 @@
                     </div>
                 </div>
             </div>
-             <div class="panel panel-info" style="margin-top:20px;">
+<!--             <div class="panel panel-info" style="margin-top:20px;">
                 <div class="panel-heading">Bank Account Details</div>
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
                                
-                                <div class="form-group <?php if( form_error('bank_holder_name') ) { echo 'has-error';} ?>">
+                                <div class="form-group <?php //if( form_error('bank_holder_name') ) { echo 'has-error';} ?>">
                                     <label for="bank_holder_name" class="col-md-4">Account Holder *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="bank_holder_name" name="bank_holder_name" value = "<?php echo isset($data[0]['bank_holder_name'])?$data[0]['bank_holder_name']:set_value('bank_holder_name');  ?>" placeholder="Enter Account Holder Name" >
+                                        <input type="text" class="form-control"  id="bank_holder_name" name="bank_holder_name" value = "<?php //echo isset($data[0]['bank_holder_name'])?$data[0]['bank_holder_name']:set_value('bank_holder_name');  ?>" placeholder="Enter Account Holder Name" >
                                     </div>
-                                    <?php echo form_error('bank_holder_name'); ?>
+                                    <?php //echo form_error('bank_holder_name'); ?>
                                 </div>
                                 
-                                <div class="form-group <?php if( form_error('bank_account_no') ) { echo 'has-error';} ?>">
+                                <div class="form-group <?php //if( form_error('bank_account_no') ) { echo 'has-error';} ?>">
                                     <label for="bank_account_no" class="col-md-4">Account No *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="bank_account_no" name="bank_account_no" value = "<?php echo isset($data[0]['bank_ac_no'])?$data[0]['bank_ac_no']:set_value('bank_ac_no');  ?>" placeholder="Enter Account Number" >
+                                        <input type="text" class="form-control"  id="bank_account_no" name="bank_account_no" value = "<?php // isset($data[0]['bank_ac_no'])?$data[0]['bank_ac_no']:set_value('bank_ac_no');  ?>" placeholder="Enter Account Number" >
                                     </div>
-                                     <?php echo form_error('bank_account_no'); ?>
+                                     <?php //echo form_error('bank_account_no'); ?>
                                      <span id="bank_account_no1" style="color: red; "></span>
                                 </div>
 
-                                <div class="form-group <?php if( form_error('bank_proof_pic') ) { echo 'has-error';} ?>">
+                                <div class="form-group <?php //if( form_error('bank_proof_pic') ) { echo 'has-error';} ?>">
                                     <label for="Identity Picture" class="col-md-4">Bank Passbook/Cheque Photo</label>
                                     <div class="col-md-6" >
                                        <input type="file" class="form-control" name="bank_proof_pic" >
                                     </div>
                                     <div class='col-md-2'>
                                         <?php
-                                                $src = base_url() . 'images/no_image.png';
-                                                if (isset($data[0]['bank_proof_pic']) && !empty($data[0]['bank_proof_pic'])) {
+                                             //   $src = base_url() . 'images/no_image.png';
+                                           //     if (isset($data[0]['bank_proof_pic']) && !empty($data[0]['bank_proof_pic'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/engineer-bank-proofs/" . $data[0]['bank_proof_pic'];
-                                                }
+                                            //        $src = "https://s3.amazonaws.com/bookings-collateral/engineer-bank-proofs/" . $data[0]['bank_proof_pic'];
+//                                         //       }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
-                                            <?php if(isset($data[0]['bank_proof_pic']) && !empty($data[0]['bank_proof_pic'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('bank_proof_pic',<?php echo $data[0]['id']?>)" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 40px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php }?>
+                                            <a href="<?php //echo $src?>" target="_blank"><img src="<?php //echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <?php //if(isset($data[0]['bank_proof_pic']) && !empty($data[0]['bank_proof_pic'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('bank_proof_pic',<?php //echo $data[0]['id']?>)" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 40px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php //}?>
                                     </div>
                                     
                                     <?php echo form_error('bank_proof_pic'); ?>
@@ -217,25 +218,25 @@
 
                                 
                             </div>
-                            <!-- end div -->
+                             end div 
                             <div class="col-md-6">
-                                <div class="form-group <?php if( form_error('bank_name') ) { echo 'has-error';} ?>">
+                                <div class="form-group <?php //( form_error('bank_name') ) { echo 'has-error';} ?>">
                                     <label for="bank_name" class="col-md-4">Bank Name *</label>
                                     <div class="col-md-6">
                                   
-                                    <input type="text" class="form-control"  id="bank_name" name="bank_name" value = "<?php echo isset($data[0]['bank_name'])?$data[0]['bank_name']:set_value('bank_name');  ?>" placeholder="Enter Bank Name" >
+                                    <input type="text" class="form-control"  id="bank_name" name="bank_name" value = "<?php //echo isset($data[0]['bank_name'])?$data[0]['bank_name']:set_value('bank_name');  ?>" placeholder="Enter Bank Name" >
 
                                     </div>
                                     <span id="errmsg1"></span>
-                                    <?php echo form_error('bank_name'); ?>
+                                    <?php //echo form_error('bank_name'); ?>
                                 </div>
                                 
-                                <div class="form-group <?php if( form_error('bank_ifsc_code') ) { echo 'has-error';} ?>">
+                                <div class="form-group <?php //if( form_error('bank_ifsc_code') ) { echo 'has-error';} ?>">
                                     <label for="bank_ifsc_code" class="col-md-4">IFSC Code *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="bank_ifsc_code" name="bank_ifsc_code" value = "<?php echo isset($data[0]['bank_ifsc_code'])?$data[0]['bank_ifsc_code']:set_value('bank_ifsc_code');  ?>" placeholder="Enter Bank IFSC code" >
+                                        <input type="text" class="form-control"  id="bank_ifsc_code" name="bank_ifsc_code" value = "<?php //echo isset($data[0]['bank_ifsc_code'])?$data[0]['bank_ifsc_code']:set_value('bank_ifsc_code');  ?>" placeholder="Enter Bank IFSC code" >
                                     </div>
-                                    <?php echo form_error('bank_ifsc_code'); ?>
+                                    <?php //echo form_error('bank_ifsc_code'); ?>
                                 </div>
                                 
                                 
@@ -243,11 +244,11 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>-->
             <div class="col-md-4 col-md-offset-4" style="margin-bottom: 50px;">
                 <center>
             <input type="submit" class="btn btn-primary"  onclick="return validate_bank_ac()" value="<?php echo isset($data)?'Update Engineer':'Save Engineer'?>" />
-            <a href='<?php echo base_url()?>service_center/get_engineers' class='btn btn-primary' >Cancel</a></center>
+           
             </div>
             
         </form>
@@ -310,39 +311,39 @@
                     regx: /^[7-9]{1}[0-9]{9}$/
                     },
                 
-                bank_ifsc_code: {
-                       // required: true,
-                        rangelength: [11, 11]
-                    },
-                bank_name:{
-                       // required: true,
-                        minlength: 3
-                    },
-                bank_holder_name:{
-                       // required: true,
-                        minlength: 3
-                    },
+//                bank_ifsc_code: {
+//                       // required: true,
+//                        rangelength: [11, 11]
+//                    },
+//                bank_name:{
+//                       // required: true,
+//                        minlength: 3
+//                    },
+//                bank_holder_name:{
+//                       // required: true,
+//                        minlength: 3
+//                    },
                 service_id: "required",
-                bank_account_no: {
-                    digits: true,
-                   // required:true,
-                    minlength:5
-                        
-                    }
+//                bank_account_no: {
+//                    digits: true,
+//                   // required:true,
+//                    minlength:5
+//                        
+//                    }
                 },
                 messages: {
                 name: "Please Enter Name",
                 phone: "Please Enter Valid Mobile Number",
                 
-                bank_name: "Please Bank Name",
-                bank_ifsc_code:"Please Enter IFSC CODE",
-                bank_holder_name: "Please Enter Account Holder Name",
-                bank_account_no: "Please Enter Bank Account Number",
+//                bank_name: "Please Bank Name",
+//                bank_ifsc_code:"Please Enter IFSC CODE",
+//                bank_holder_name: "Please Enter Account Holder Name",
+//                bank_account_no: "Please Enter Bank Account Number",
                 service_id:"Please Select Appliances"
 
                 },
                 submitHandler: function (form) {
-                alert('success');
+                 form.submit();
                 }
             });
             }
