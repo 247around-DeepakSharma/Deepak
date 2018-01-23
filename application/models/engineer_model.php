@@ -35,6 +35,14 @@ class Engineer_model extends CI_Model {
             }
         }
     }
+    
+    function delete_engineer_table($where){
+        if(!empty($where)){
+            $this->db->where($where);
+            $this->db->delete('engineer_booking_action');
+        }
+        log_message('info', __FUNCTION__ . '=> Delete sc unit details: ' .$this->db->last_query());
+    }
     /**
      * @desc This is used to select engineer action data 
      * @param String $select
