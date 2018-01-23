@@ -1706,17 +1706,27 @@ class Inventory extends CI_Controller {
     /**
      * @Desc: This function is used to show data from the inventory ledger table
      * @params: $page string
+     * @params: $entity_type string
+     * @params: $entity_id string
+     * @params: $inventory_id string
      * @params: $offset string
      * @return: void
      * 
      */
-    function show_inventory_ledger_list($page = 0, $offset = 0){
+    function show_inventory_ledger_list($page = 0,$entity_type = "",$entity_id = "",$inventory_id = "",$offset = 0){
         if ($page == 0) {
-	    $page = 25;
+	    $page = 50;
 	}
-   
-	$config['base_url'] = base_url() . 'employee/inventory/show_inventory_ledger_list/'.$page;
-	$config['total_rows'] = $this->inventory_model->get_inventory_ledger_data($page, $offset,true);
+        $where = "";
+        if(!empty($entity_id) && !empty($entity_type)){
+            $where .= " where i.receiver_entity_id = $entity_id AND i.receiver_entity_type = '".$entity_type."'";
+        }
+        
+        if(!empty($inventory_id)){
+            $where .= " and i.inventory_id = $inventory_id";
+        }
+	$config['base_url'] = base_url() . 'employee/inventory/show_inventory_ledger_list/'.$page."/".$entity_type."/".$entity_id."/".$inventory_id;
+	$config['total_rows'] = $this->inventory_model->get_inventory_ledger_data($page, $offset,$where,true);
 	
 	if($offset !== "All"){
 		$config['per_page'] = $page;
@@ -1724,14 +1734,17 @@ class Inventory extends CI_Controller {
 		$config['per_page'] = $config['total_rows'];
 	}	
 	
-	$config['uri_segment'] = 5;
+	$config['uri_segment'] = 8;
 	$config['first_link'] = 'First';
 	$config['last_link'] = 'Last';
 
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
         $data['Count'] = $config['total_rows'];        
-        $data['brackets'] = $this->inventory_model->get_inventory_ledger_data($config['per_page'], $offset);
+        $data['brackets'] = $this->inventory_model->get_inventory_ledger_data($config['per_page'], $offset,$where);
+        $data['entity_id'] = $entity_id;
+        $data['entity_type'] = $entity_type;
+        $data['inventory_id'] = $inventory_id;
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/show_inventory_ledger_list", $data);
     }
@@ -1743,11 +1756,14 @@ class Inventory extends CI_Controller {
      * 
      */
     function get_inventory_stock(){
-        $entity_id = $this->input->post('entity_id');
-        $entity_type = $this->input->post('entity_type');
-        $select = 'stock,part_number,part_name';
-        $where = array('inventory_stocks.entity_id'=>$entity_id,'inventory_stocks.entity_type' => $entity_type);
-        $data['stock_details'] = $this->inventory_model->get_inventory_stocks($select,$where);
+        
+        $select = 'stock,part_number,part_name,description,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
+        $post['length'] = -1;
+        $post['where'] = array('inventory_stocks.entity_id'=>trim($this->input->post('entity_id')),'inventory_stocks.entity_type' => trim($this->input->post('entity_type')));
+        $post['search_value'] = array();
+        $post['order'] = "";
+        
+        $data['stock_details'] = $this->inventory_model->get_inventory_stock_list($post,$select);
         echo $this->load->view('employee/inventory_stock_details',$data);
     }
     
@@ -1809,6 +1825,109 @@ class Inventory extends CI_Controller {
         }
         
         
+    }
+    
+    /**
+     *  @desc : This function is used to show inventory stocks data
+     *  @param : void
+     *  @return : void
+     */
+    function show_inventory_stock_list(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_inventory_stock_list');
+    }
+    
+    /**
+     *  @desc : This function is used to show inventory stocks data
+     *  @param : void
+     *  @return : $output JSON
+     */
+    function get_inventory_stock_list(){
+        $data = $this->get_stock();
+        
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_all_inventory_stocks($post),
+            "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_stocks($post),
+            "data" => $data['data'],
+        );
+        
+        echo json_encode($output);
+    }
+    
+    /**
+     *  @desc : This function is used to get inventory stocks data
+     *  @param : void
+     *  @return : Array()
+     */
+    function get_stock(){
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('name');
+        
+        $select = "inventory_stocks.entity_id,inventory_stocks.entity_type, (SELECT SUM(stock) FROM inventory_stocks as s WHERE inventory_stocks.entity_id = s.entity_id ) as total_stocks,service_centres.name";
+        
+        //RM Specific stocks
+        $sfIDArray =array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        
+        $list = $this->inventory_model->get_inventory_stock_list($post,$select,$sfIDArray);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $stock_list) {
+            $no++;
+            $row = $this->get_inventory_stocks_table($stock_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+            'data' => $data,
+            'post' => $post
+            
+        );
+    }
+    
+    /**
+     *  @desc : This function is used to get the post data for booking by status
+     *  @param : void()
+     *  @return : $post Array()
+     */
+    private function get_post_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+
+        return $post;
+    }
+    
+    /**
+     *  @desc : This function is used to generate table for inventory stocks
+     *  @param : $stock_list array
+     *  @param : $no string
+     *  @return : $row Array()
+     */
+    function get_inventory_stocks_table($stock_list, $no){
+        $row = array();
+        
+        $sf = "<a href='javascript:void(0);' onclick='";
+        $sf .= "get_vendor_stocks(".'"'.$stock_list->entity_id.'"';
+        $sf .= ', "'.$stock_list->entity_type.'"';
+        $sf .= ")'>".$stock_list->name."</a>";
+        
+        $row[] = $no;
+        $row[] = $sf;
+        $row[] = $stock_list->total_stocks;
+        
+        return $row;
     }
 
 }
