@@ -207,7 +207,8 @@
                 enabled: true,
                 format: '{point.name}: {point.y}',
                 style: {
-                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black',
+                     fontSize: 14
                 }
             }
         }
@@ -235,7 +236,10 @@ Highcharts.chart(htmlID, {
         series: {
             dataLabels: {
                 enabled: true,
-                format: '{point.name}: {point.y}'
+                format: '{point.name}: {point.y}',
+                style:{
+                            fontSize: 14
+                        }
             }
         }
     },
@@ -268,13 +272,23 @@ Highcharts.chart(htmlID, {
     },
     xAxis: {
         categories: categoriesData,
-        crosshair: true
+        crosshair: true,
+        labels: {
+                style: {
+                    fontSize:'14px'
+                }
+            }
     },
     yAxis: {
         min: 0,
         title: {
             text: yAxisTax
-        }
+        },
+        labels: {
+                style: {
+                    fontSize:'14px'
+                }
+            }
     },
     tooltip: {
         headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
@@ -284,12 +298,31 @@ Highcharts.chart(htmlID, {
         shared: true,
         useHTML: true
     },
+            legend: {
+              itemStyle: {
+                 font: '14pt Trebuchet MS, Verdana, sans-serif',
+                 color: '#000'
+              },
+              itemHoverStyle: {
+                 color: 'green'
+              },
+              itemHiddenStyle: {
+                 color: 'blue'
+              }
+
+        },
     plotOptions: {
-        column: {
-            pointPadding: 0.2,
-            borderWidth: 0
-        }
-    },
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none',
+                        style:{
+                            fontSize: 13
+                        }
+                    }
+                }
+            },
     series: seriesData
 });
   }
