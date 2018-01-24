@@ -124,6 +124,12 @@
                                             <div id="dealer_phone_suggesstion_box"></div>
                                       </div>
                                  </div>
+                                <div class="form-group ">
+                                     <label for="order_item_id" class="col-md-4">Order Item Id </label>
+                                      <div class="col-md-6">
+                                          <input class="form-control" name= "order_item_id" value="<?php if(isset($unit_details[0]['sub_order_id'])){ echo $unit_details[0]['sub_order_id']; } ?>" placeholder="Enter Order Item Id" id="order_item_id"/>
+                                      </div>
+                                 </div>
                                 <!--  end col-md-6  -->
                             </div>
                             <!--  start col-md-6  -->

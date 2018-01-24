@@ -204,9 +204,10 @@ class Inventory_model extends CI_Model {
                 . 'brackets.received_date,brackets.19_24_requested,brackets.26_32_requested,brackets.36_42_requested,brackets.43_requested,'
                 . 'brackets.total_requested,brackets.19_24_shipped,brackets.26_32_shipped,brackets.36_42_shipped,brackets.43_shipped,brackets.total_shipped,'
                 . 'brackets.19_24_received,brackets.26_32_received,brackets.36_42_received,brackets.43_received,brackets.total_received,brackets.is_shipped,brackets.is_received,'
-                . 'b.old_state,b.new_state,b.partner_id,b.service_center_id,b.agent_id');
+                . 'b.old_state,b.new_state,b.partner_id,b.service_center_id,b.agent_id,vpi.invoice_file_pdf,vpi.invoice_file_excel');
         $this->db->where('order_id',$order_id);
         $this->db->join('booking_state_change b','b.booking_id = brackets.order_id');
+        $this->db->join('vendor_partner_invoices vpi','brackets.invoice_id = vpi.invoice_id','left');
         $this->db->group_by('b.new_state');
         $this->db->order_by('brackets.create_date','asc');
         $query = $this->db->get('brackets');
