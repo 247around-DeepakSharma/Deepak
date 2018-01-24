@@ -635,3 +635,67 @@ admin_dashboard.controller('admin_escalationController', function ($scope, $http
     }
 //Escalation End
 });
+ //This Function is used to call admin view of Pending Booking Count
+admin_dashboard.controller('pendngBooking_Controller', function ($scope, $http) {
+    var url = baseUrl + "/employee/dashboard/pending_booking_count_by_rm";
+    $http.get(url).then(function (response) {
+            $("#loader_gif_pending").css("display", "none");
+            $scope.pendingBookingByRM = response.data;
+     });
+});
+
+
+rm_Bookings.controller('rm_PendingBookingControllerInstallation', function ($scope, $http) {
+    var rm_id = $("#rm_id_holder").val();
+     var url = baseUrl + "/employee/dashboard/pending_booking_by_rm_view/"+rm_id;
+    $http.get(url).then(function (response) {
+        $scope.totalBookings = 5;
+        $scope.totalBookingsRepair = 5;
+        $("#loader_gif_pending").css("display", "none");
+        $scope.pendingBookingByRMFullView = response.data;
+     });
+    $scope.full_view_bookings_installation = function(){
+      var current_button_text = $('#full_view_installation').text();
+      if(current_button_text === 'Show All Vendors Installation'){
+        $scope.totalBookings = $scope.pendingBookingByRMFullView.length;
+        $('#full_view_installation').text("Show top 5 Installation");
+      }
+      else{
+          $scope.totalBookings = 5;
+          $('#full_view_installation').text("Show All Vendors Installation");
+      }
+}
+$scope.full_view_bookings_repair = function(){
+      var current_button_text = $('#full_view_repair').text();
+      if(current_button_text === 'Show All Vendors Repair'){
+        $scope.totalBookingsRepair = $scope.pendingBookingByRMFullView.length;
+        $('#full_view_repair').text("Show top 5 Repair");
+      }
+      else{
+          $scope.totalBookingsRepair = 5;
+          $('#full_view_repair').text("Show All Vendors Repair");
+      }
+}
+$scope.createBookingIDView = function(bookingIDList){
+    $("#booking_id_holder").html("<p style='font-size: 17px;text-align:center;'>No Booking Found</p>");
+    if(bookingIDList !== ''){
+            bookingArray = bookingIDList.split(",");
+            var bookingString = '';
+            for(var i=0;i<bookingArray.length;i++){
+                bookingString +="<a style='font-size: 17px;line-height: 24px;padding: 10px 0px;' target='_blank' href='"+baseUrl+"/employee/booking/viewdetails/"+bookingArray[i]+"'>"+(i+1)+") "+bookingArray[i]+"</a>";
+                bookingString +="</br>";
+            }
+            console.log(bookingString);
+            $("#booking_id_holder").html(bookingString);
+        }
+        }
+});
+
+//This Function is used to call RM view of Pending Booking Count
+rm_dashboard.controller('pendngBooking_Controller', function ($scope, $http) {
+    var url = baseUrl + "/employee/dashboard/pending_booking_count_by_rm";
+    $http.get(url).then(function (response) {
+            $("#loader_gif_pending").css("display", "none");
+            $scope.pendingBookingByRM = response.data;
+     });
+});
