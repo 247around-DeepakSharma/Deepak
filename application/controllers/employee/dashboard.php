@@ -1142,9 +1142,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $serviceCentersIDList = $serviceCentersIDArray[0]['service_centres_id'];
             $where = 'AND service_centres.active=1 AND service_centres.on_off=1 AND service_centres.id  IN (' . $serviceCentersIDList . ')';
             // All Booking Where request_type is not like repair Should be considered as Installation Bookings
-            $where_installation = $where." AND (request_type NOT LIKE '%Repair%')";
+            $where_installation = $where." AND (request_type NOT LIKE '%Repair%' OR request_type NOT LIKE '%Repeat%')";
             // All Booking Where request_type is like repair Should be considered as Repair Bookings
-            $where_repair = $where." AND (request_type LIKE '%Repair%')";
+            $where_repair = $where." AND (request_type LIKE '%Repair%' OR request_type LIKE '%Repeat%')";
             $groupBY = "GROUP BY service_centres.name";
             //get Installation Booking Data
             $installationData = $this->reporting_utils->get_pending_booking_by_service_center_query_data($where_installation,$groupBY);
