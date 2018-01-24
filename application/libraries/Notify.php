@@ -18,6 +18,7 @@ class Notify {
 
 	$this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->library('email');
+    $this->My_CI->load->library('miscelleneous');
 	$this->My_CI->load->model('vendor_model');
 	$this->My_CI->load->model('booking_model');
     }
@@ -256,26 +257,27 @@ class Notify {
      * 
      * @return: void 
      */
-    function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, $partner_id) {
+    function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, $partner_id = NULL, $service_center_id = NULL) {
 	//Log this state change as well for this booking
 	$state_change['booking_id'] = $booking_id;
-	$state_change['old_state'] = $old_state;
+	//$state_change['old_state'] = $old_state;
 	$state_change['new_state'] = $new_state;
         $state_change['remarks'] = $remarks;
 	$state_change['agent_id'] = $agent_id;
 	$state_change['partner_id'] = $partner_id;
+        $state_change['service_center_id'] = $service_center_id;
             
         /*
          * Send correct old_state from the calling function instead, do not change
          * the old state here
          * */
-//        $booking_state_change = $this->My_CI->booking_model->get_booking_state_change($state_change['booking_id']);
-//        
-//        if ($booking_state_change > 0) {
-//            $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-//        } else { //count($booking_state_change)
-//            $state_change['old_state'] = $old_state;
-//        }
+        $booking_state_change = $this->My_CI->booking_model->get_booking_state_change($state_change['booking_id']);
+        
+        if ($booking_state_change > 0) {
+            $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+        } else { //count($booking_state_change)
+            $state_change['old_state'] = $old_state;
+        }
         
 	$insert_id = $this->My_CI->booking_model->insert_booking_state_change($state_change);
         
@@ -325,7 +327,6 @@ class Notify {
 
 		    $email['tag'] = "complete_booking";
 		    $email['subject'] = "Booking Completion-247AROUND";
-
 
                                                // $this->My_CI->miscelleneous->send_completed_booking_email_to_customer(array($email['booking_id']));
 		    //Send internal mails now

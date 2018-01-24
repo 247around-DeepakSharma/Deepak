@@ -139,10 +139,36 @@ class Service_centers extends CI_Controller {
         $booking_id = base64_decode(urldecode($code));
         $data['booking_id'] = $booking_id;
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        $bookng_unit_details = $this->booking_model->getunit_details($booking_id);
+        if($this->session->userdata('is_engineer_app') == 1){
+        foreach($bookng_unit_details as $key1 => $b){
+           $broken = 0;
+                foreach ($b['quantity'] as $key2 => $u) {
 
-        $data['bookng_unit_details'] = $this->booking_model->getunit_details($booking_id);
-
-
+                    $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
+                        "engineer_booking_action.unit_details_id" => $u['unit_id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
+                    $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
+                    $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number'] = $en[0]['serial_number'];
+                    $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
+                    $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
+                    $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
+                    if($en[0]['is_broken'] == 1){
+                        $broken = 1;
+                    }
+                }
+               $bookng_unit_details[$key1]['is_broken'] = $broken; 
+                 
+            }
+            $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id, 
+                "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
+            if(!empty($sig_table)){
+                $data['signature'] = $sig_table[0]['signature'];
+                $data['amount_paid'] = $sig_table[0]['amount_paid'];
+            }
+            
+        }
+        
+         $data['bookng_unit_details'] = $bookng_unit_details;
         
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -179,29 +205,49 @@ class Service_centers extends CI_Controller {
             $serial_number = $this->input->post('serial_number');
             $spare_parts_required = $this->input->post('spare_parts_required');
             $upcountry_charges = $this->input->post("upcountry_charges");
+            $serial_number_pic  = $this->input->post("serial_number_pic");
+            $broken = $this->input->post("appliance_broken");
             $is_update_spare_parts = FALSE;
             $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
 
             //$internal_status = "Cancelled";
             $getremarks = $this->booking_model->getbooking_charges($booking_id);
+            $approval = $this->input->post("approval");
             $i = 0;
            
             foreach ($customer_basic_charge as $unit_id => $value) {
                  // variable $unit_id  is existing id in booking unit details table of given booking id 
                  $data = array();
                  $data['unit_details_id'] = $unit_id;
+                 $data['closed_date'] = date('Y-m-d H:i:s');
+                 $data['is_broken'] = $broken[$unit_id];
                  
+//                 if(!empty($approval)){
+//                    $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
+//                    $en = $this->engineer_model->get_engineer_action_table_list($unitWhere, "engineer_booking_action.*");
+//                   
+//                    $data['is_broken'] = $en[0]->is_broken;
+//                    //$data['closed_date'] = $en[0]->closed_date;
+//                    
+//                 }
                  $data['service_charge'] = $value;
                  $data['additional_service_charge'] = $additional_charge[$unit_id];
                  $data['parts_cost'] = $parts_cost[$unit_id];
                  if($booking_status[$unit_id] == _247AROUND_COMPLETED && $spare_parts_required == 1){
+                     if($this->session->userdata('is_engineer_app') == 1){
+                        $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
+                        $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" =>_247AROUND_COMPLETED), $unitWhere1);
+                     }
                      $data['internal_status'] = DEFECTIVE_PARTS_PENDING;
                      $is_update_spare_parts = TRUE;
                  } else {
                      $data['internal_status'] = $booking_status[$unit_id];
+                     if($this->session->userdata('is_engineer_app') == 1){
+                        $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
+                        $this->engineer_model->update_engineer_table(array("current_status" => $booking_status[$unit_id], "internal_status" => $booking_status[$unit_id]), $unitWhere1);
+                     }
                  }
                  $data['current_status'] = "InProcess";
-                 $data['closed_date'] = date('Y-m-d H:i:s');
                  $data['booking_id'] =  $booking_id;
                  $data['amount_paid'] = $total_amount_paid;
                  $data['update_date'] = date("Y-m-d H:i:s");
@@ -210,6 +256,7 @@ class Service_centers extends CI_Controller {
                  }
                  if(isset($serial_number[$unit_id])){
                     $data['serial_number'] = trim($serial_number[$unit_id]);
+                    $data['serial_number_pic'] = trim($serial_number_pic[$unit_id]);
                  }
                  
                  if (!empty($getremarks[0]['service_center_remarks'])) {
@@ -223,7 +270,6 @@ class Service_centers extends CI_Controller {
                  }
                  $i++;
                 $this->vendor_model->update_service_center_action($booking_id, $data);
-
             }
             //Send Push Notification to clouser group
             $clouserAccountArray = array();
@@ -249,6 +295,9 @@ class Service_centers extends CI_Controller {
                 
                 redirect(base_url()."service_center/get_defective_parts_booking");
                 
+            } else if(!empty($approval)){
+                $this->update_booking_internal_status($booking_id, "InProcess_Completed",  $partner_id);
+                redirect(base_url() . "service_center/review");
             } else {
                 $this->update_booking_internal_status($booking_id, "InProcess_Completed",  $partner_id);
                 redirect(base_url() . "service_center/pending_booking");
@@ -599,26 +648,13 @@ class Service_centers extends CI_Controller {
     function insert_details_in_state_change($booking_id, $new_state, $remarks){
         log_message('info', __FUNCTION__ ." SF ID: ".  $this->session->userdata('service_center_id'). " Booking ID: ". $booking_id. ' new_state: '.$new_state.' remarks: '.$remarks);
            //Save state change
-            $state_change['booking_id'] = $booking_id;
-            $state_change['new_state'] =  $new_state;
-           
-            $booking_state_change = $this->booking_model->get_booking_state_change($state_change['booking_id']);
             
-            if (count($booking_state_change) > 0) {
-                $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-            } else { //count($booking_state_change)
-                $state_change['old_state'] = "Pending";
-            }
-          
-            $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
-            $state_change['service_center_id'] = $this->session->userdata('service_center_id');
-            $state_change['remarks'] = $remarks;
-
-            // Insert data into booking state change
-            $state_change_id = $this->booking_model->insert_booking_state_change($state_change);
-            if($state_change_id){} else {
-                log_message('info', __FUNCTION__ . '=> Booking details is not inserted into state change '. print_r($state_change_id, true));
-            }
+            $agent_id = $this->session->userdata('service_center_agent_id');
+            $agent_name = $this->session->userdata('service_center_agent_id');
+            $service_center_id =$this->session->userdata('service_center_name');
+            
+            $this->notify->insert_state_change($booking_id, $new_state, "", $remarks, $agent_id, $agent_name, NULL, $service_center_id);
+            
     }
     /**
      * @desc: get invoice details and bank transacton details to display in view
