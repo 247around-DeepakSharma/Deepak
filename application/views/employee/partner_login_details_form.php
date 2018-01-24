@@ -48,7 +48,7 @@
                                 <input type='text' name='username[]' id="username_<?php echo $i?>" disabled="" class = "form-control" value="<?php echo isset($login[$i]['user_id'])?$login[$i]['user_id']:''?>" />
                             </td>
                            <td>
-                               <input type='email' required="required" name='email[]' id="email_<?php echo $i?>" disabled="" class = "form-control" value="<?php echo isset($login[$i]['email'])?$login[$i]['email']:''?>" />
+                               <input type='text' required="required" name='email[]' id="email_<?php echo $i?>" disabled="" class = "form-control" value="<?php echo isset($login[$i]['email'])?$login[$i]['email']:''?>" />
                             </td>
                             <td>
                                 <input type='password' name='password[]' id="password_<?php echo $i?>" class = "form-control" disabled="" value="<?php echo isset($login[$i]['clear_password'])?$login[$i]['clear_password']:''?>" />
