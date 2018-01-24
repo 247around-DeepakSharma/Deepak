@@ -143,6 +143,7 @@ $route['partner/serviceability_list'] = 'employee/partner/get_serviceability_by_
 $route['partner/banktransaction'] = 'employee/partner/get_bank_transaction';
 
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
+$route['pass-through-fake-reschedule-call'] = 'api/pass_through_fake_reschedule_call';
 $route['partner/invoice'] = 'employee/partner/inactive_partner_default_page';
 
 $route['dealers'] = 'employee/login/dealer_login_form';

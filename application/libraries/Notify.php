@@ -18,7 +18,7 @@ class Notify {
 
 	$this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->library('email');
-                    $this->My_CI->load->library('miscelleneous');
+    $this->My_CI->load->library('miscelleneous');
 	$this->My_CI->load->model('vendor_model');
 	$this->My_CI->load->model('booking_model');
     }

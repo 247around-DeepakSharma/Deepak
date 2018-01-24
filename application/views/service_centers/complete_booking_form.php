@@ -84,10 +84,10 @@
                                     }
                                 }
                             }
-                        
+         
                         }
                         
-                        }?>
+                    }?>
                     <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
                     <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
                     <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />

@@ -259,15 +259,18 @@ class ApiDataRequest extends CI_Controller {
                 //Update New item In SF Action Table 
                 $this->vendor_model->insert_service_center_action($sc_data);
                 
-                $en['current_status'] = "Pending";
-                $en['create_date'] = date('Y-m-d H:i:s');
-                $en['internal_status'] = "Pending";
-                $en['service_center_id'] = $vendor_id;
-                $en['booking_id'] = $booking_id;
-                $en['unit_details_id'] = $result['unit_id'];
+                $isEn = $this->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$vendor_id));
+                if($isEn[0]['isEngineerApp'] == 1){
+                    $en['current_status'] = "Pending";
+                    $en['create_date'] = date('Y-m-d H:i:s');
+                    $en['internal_status'] = "Pending";
+                    $en['service_center_id'] = $vendor_id;
+                    $en['booking_id'] = $booking_id;
+                    $en['unit_details_id'] = $result['unit_id'];
 
-                $this->engineer_model->insert_engineer_action($en);
-                
+                    $this->engineer_model->insert_engineer_action($en);
+                }
+
                 //Update SF Action Table
                 $this->vendor_model->update_service_center_action($booking_id, array("current_status" => 'Pending', 
                     'internal_status' =>SPARE_OOW_EST_GIVEN));
