@@ -50,14 +50,14 @@
                                     </div>
                                     <div class="form-group col-md-4" style="width:29%;">
                                         <div class="col-md-12 ">
-                                            <select type="text" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
+                                            <select type="text" disabled="" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
                                                 <option selected disabled><?php echo $unit_details['brand']; ?></option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="form-group col-md-4" style="width:29%;">
                                         <div class="col-md-12 ">
-                                            <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
+                                            <select type="text" disabled="" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
                                                 <option selected disabled><?php echo $unit_details['category']; ?></option>
                                             </select>
                                         </div>
@@ -66,7 +66,7 @@
                                     <div class="form-group col-md-4" style=" padding-right: 0px;width:26%;">
                                         <div class="col-md-12">
                                             <?php if (!empty($unit_details['capacity'])) { ?>
-                                            <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
+                                            <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
                                                 <option selected disabled><?php echo $unit_details['capacity']; ?></option>
                                             </select>
                                              <?php } ?>
