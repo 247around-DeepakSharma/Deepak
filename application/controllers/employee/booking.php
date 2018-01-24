@@ -3526,8 +3526,10 @@ class Booking extends CI_Controller {
             $onlyName = "booking_id";
         }
         $where = array();
-        if($receieved_Data['partner_id'] != 'option_holder'){
-            $where['booking_details.partner_id'] = $receieved_Data['partner_id'];
+        if(array_key_exists('partner_id', $receieved_Data)){
+            if($receieved_Data['partner_id'] != 'option_holder'){
+                $where['booking_details.partner_id'] = $receieved_Data['partner_id'];
+            }
         }
         return array("inputBulkData"=>$inputBulkData,"fieldName"=>$fieldName,"onlyName"=>$onlyName,"where"=>$where);
     }
