@@ -39,50 +39,68 @@ class Engineer extends CI_Controller {
       
         $where['where'] = array("engineer_booking_action.current_status" => "InProcess");
         $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid");
+       
         foreach ($data as $key => $value) {
             $unitWhere = array("engineer_booking_action.booking_id" => $value->booking_id);
-            $data[$key]->lineItem = $this->engineer_model->get_engineer_action_table_list($unitWhere, "engineer_booking_action.*,"
-                    . " booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity, price_tags");
-            
+            $ac_data = $this->engineer_model->getengineer_action_data("engineer_booking_action.engineer_id, internal_status,", $unitWhere);
+            $status = _247AROUND_CANCELLED;
+            foreach ($ac_data as $ac_table) {
+                if($ac_table['internal_status'] == _247AROUND_COMPLETED){
+                    $status = _247AROUND_COMPLETED;
+                }
+            }
+           
+            $data[$key]->status = $status;
+            if(!empty($ac_data[0]['engineer_id'])){
+                $data[$key]->engineer_name = $this->engineer_model->get_engineers_details(array("id" => $ac_data[0]['engineer_id']), "name");
+                
+            } else {
+                $data[$key]->engineer_name = "";
+            }
         }
         $this->load->view('service_centers/header');
         $this->load->view("service_centers/review_engineer_action", array("data" => $data));
       
     }
     
-    function get_approve_booking_form($booking_id){
-       
+    function get_approve_booking_form($booking_id) {
+
         $data['booking_id'] = $booking_id;
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-        
+
         $bookng_unit_details = $this->booking_model->getunit_details($booking_id);
-        $data['engineer'] = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id, "service_center_id" =>  
+        $data['engineer'] = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id, "service_center_id" =>
             $data['booking_history'][0]['assigned_vendor_id']));
-        
+
         foreach($bookng_unit_details as $key1 => $b){
-           $broken = 0;
+            $broken = 0;
             foreach ($b['quantity'] as $key2 => $u) {
-                
+
                 $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
                     "engineer_booking_action.unit_details_id" => $u['unit_id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
                 $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
-                if(!empty($en)){
-                    $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number'] = $en[0]['serial_number'];
-                    $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
-                    $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
-                    $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
-                    if($en[0]['is_broken'] == 1){
-                        $broken = 1;
-                    }
+                $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number'] = $en[0]['serial_number'];
+                $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
+                $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
+                $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
+                if($en[0]['is_broken'] == 1){
+                    $broken = 1;
                 }
             }
-            $bookng_unit_details[$key1]['is_broken'] = $broken;
-
+           $bookng_unit_details[$key1]['is_broken'] = $broken; 
+                 
         }
-        
+        $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
+            "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
+        if (!empty($sig_table)) {
+            $data['signature'] = $sig_table[0]['signature'];
+            $data['amount_paid'] = $sig_table[0]['amount_paid'];
+        }
+
         $data['bookng_unit_details'] = $bookng_unit_details;
-       
+
         //$this->load->view('service_centers/header');
         $this->load->view("service_centers/approve_booking", $data);
-    } 
+    }
+
 }

@@ -1611,58 +1611,75 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
+        $this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
+        $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required');
 
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner ' . $this->session->userdata('partner_id') .
                     " Spare id " . $id . " Data" . print_r($this->input->post(), true));
             $this->update_spare_parts_form($id);
-        } else { // if ($this->form_validation->run() == FALSE) {
-            $partner_id = $this->session->userdata('partner_id');
-            $data['parts_shipped'] = $this->input->post('shipped_parts_name');
-            $data['courier_name_by_partner'] = $this->input->post('courier_name');
-            $data['awb_by_partner'] = $this->input->post('awb');
-            $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
-            $data['shipped_date'] = $this->input->post('shipment_date');
-            $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
-            if (!empty($incoming_invoice_pdf)) {
-                $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
-            }
-            $data['status'] = "Shipped";
-            $where = array('id' => $id, 'partner_id' => $partner_id);
-            $response = $this->service_centers_model->update_spare_parts($where, $data);
-            if ($response) {
-
-                $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts");
-
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                
-                $booking['internal_status'] = SPARE_PARTS_SHIPPED;
-        
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
-                if (!empty($partner_status)) {
-                    $booking['partner_current_status'] = $partner_status[0];
-                    $booking['partner_internal_status'] = $partner_status[1];
+        } else {
+            //check upload challan file
+            $MB = 1048576;
+            if ($_FILES['challan_file']['size'] >= 2 * $MB) {
+                log_message('info', __FUNCTION__ . '=> Uploaded File is greater than 2 Mb ' . $this->session->userdata('partner_id') .
+                        " Spare id " . $id . " Data" . print_r($this->input->post(), true));
+                $this->form_validation->set_message('challan_file', "Uploaded File Must be Less Than 2Mb in size");
+                $this->update_spare_parts_form($id);
+            } else {
+                $challan_file = $this->upload_challan_file($id);
+                if($challan_file){
+                    $data['partner_challan_file'] = $challan_file;
                 }
-        
-                $this->booking_model->update_booking($booking_id, $booking);
+                $partner_id = $this->session->userdata('partner_id');
+                $data['parts_shipped'] = $this->input->post('shipped_parts_name');
+                $data['courier_name_by_partner'] = $this->input->post('courier_name');
+                $data['awb_by_partner'] = $this->input->post('awb');
+                $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
+                $data['shipped_date'] = $this->input->post('shipment_date');
+                $data['partner_challan_number'] = $this->input->post('partner_challan_number');
+                $data['challan_approx_value'] = $this->input->post('approx_value');
+                $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
                 if (!empty($incoming_invoice_pdf)) {
-                    // Send OOW invoice to aditya
-                    $url = base_url() . "employee/invoice/generate_oow_parts_invoice/".$id;
-                    $async_data['booking_id'] = $booking_id;
-                    $this->asynchronous_lib->do_background_process($url, $async_data);
+                    $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
                 }
-                
-                $userSession = array('success' => 'Parts Updated');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "partner/get_spare_parts_booking");
-            } else { //if($response){
-                log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by Partner ' . $this->session->userdata('partner_id') .
-                        " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
-                $userSession = array('success' => 'Parts Not Updated');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
+                $data['status'] = "Shipped";
+                $where = array('id' => $id, 'partner_id' => $partner_id);
+                $response = $this->service_centers_model->update_spare_parts($where, $data);
+                if ($response) {
+
+                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts");
+
+                    $sc_data['current_status'] = "InProcess";
+                    $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
+                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+
+                    $booking['internal_status'] = SPARE_PARTS_SHIPPED;
+
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                    }
+
+                    $this->booking_model->update_booking($booking_id, $booking);
+                    if (!empty($incoming_invoice_pdf)) {
+                        // Send OOW invoice to aditya
+                        $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $id;
+                        $async_data['booking_id'] = $booking_id;
+                        $this->asynchronous_lib->do_background_process($url, $async_data);
+                    }
+
+                    $userSession = array('success' => 'Parts Updated');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "partner/get_spare_parts_booking");
+                } else { //if($response){
+                    log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by Partner ' . $this->session->userdata('partner_id') .
+                            " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
+                    $userSession = array('success' => 'Parts Not Updated');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
+                }
             }
         }
     }
@@ -3482,6 +3499,27 @@ class Partner extends CI_Controller {
             $option .= $value['public_name'] . "</option>";
         }
         echo $option;
+    }
+    
+     /**
+     * @desc: This function is used to upload the challan file when partner shipped spare parts
+     * @params: void
+     * @return: $res
+     */
+    function upload_challan_file($id) {
+        if (empty($_FILES['challan_file']['error'])) {
+            $challan_file = "partner_challan_file_" . $this->input->post('booking_id'). "_".$id."_" . str_replace(" ", "_", $_FILES['challan_file']['name']);
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $challan_file;
+            $this->s3->putObjectFile($_FILES['challan_file']['tmp_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            
+            $res = $challan_file;
+        } else {
+            $res = FALSE;
+        }
+        
+        return $res;
     }
 
 }

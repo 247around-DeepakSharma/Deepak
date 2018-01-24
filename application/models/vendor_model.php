@@ -1047,13 +1047,6 @@ class vendor_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_engineers_details($where, $select){
-        $this->db->select($select);
-        $this->db->where($where);
-        $query = $this->db->get("engineer_details");
-        return $query->result_array();
-        
-    }
     /**
      * @desc: This is used to get Engineer details based on Engineer ID
      * @param INT engineer ID

@@ -174,6 +174,8 @@ define("WYBOR_ID", 247010);
 define("ZOPPER_ID", 247012);
 //AKAI ID
 define("AKAI_ID", 247034);
+//AKAI ID
+define("AQUAGRAND_PLUS_ID", 247038);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
 //Define Email ID to send system health emails
@@ -197,6 +199,8 @@ define('_247AROUND_PAYTM_DELIVERED','Paytm-Delivered');
 define('_247AROUND_SATYA_DELIVERED','Satya-Delivered');
 //Define Constant for Akai File 
 define('_247AROUND_AKAI_DELIVERED','Akai-Delivered');
+//Define Constant for Aquagrand File 
+define('_247AROUND_AQUAGRAND_PLUS_DELIVERED','Aquagrand-Plus-Delivered');
 //Define Constant for Vendor Pincode Excel File Type
 define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 //Define Constant for Vendor Pincode Excel File Type

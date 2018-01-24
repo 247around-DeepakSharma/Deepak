@@ -63,6 +63,9 @@
         var fd = new FormData(document.getElementById("fileinfo"));
         fd.append("label", "WEBUPLOAD");
         fd.append('file_type','<?php echo _247AROUND_AKAI_DELIVERED; ?>');
+        fd.append('partner_id','<?php echo AKAI_ID; ?>');
+        fd.append('partner_source','Akai-delivered-excel');
+        fd.append('redirect_to','upload_akai_file');
         $.ajax({
             url: "<?php echo base_url() ?>employee/do_background_upload_excel/process_upload_file",
             type: "POST",

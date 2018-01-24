@@ -55,6 +55,9 @@
           
                 <?php  foreach ($spare_parts as $value) { ?>
                 <input type="hidden" class="form-control" id="defective_part_shipped" name="defective_part_shipped[<?php echo $value['id'];?>]" value="<?php echo $value['parts_requested']; ?>">
+                <input type="hidden" class="form-control" id="defective_part_shipped" name="partner_challan_number[<?php echo $value['id'];?>]" value="<?php echo $value['partner_challan_number']; ?>">
+                <input type="hidden" class="form-control" id="defective_part_shipped" name="challan_approx_value[<?php echo $value['id'];?>]" value="<?php echo $value['challan_approx_value']; ?>">
+                <input type="hidden" class="form-control" id="defective_part_shipped" name="parts_requested[<?php echo $value['id'];?>]" value="<?php echo $value['parts_requested']; ?>">
                 <?php 
                  } ?>
                 <div class="panel panel-default">
@@ -118,6 +121,8 @@
                     </div>
                 </div>
                 <div class="col-md-12 text-center" style="margin-bottom:30px;">
+                    <input type="hidden" name="sf_id" value="<?php echo $spare_parts[0]['service_center_id']?>">
+                    <input type="hidden" name="partner_id" value="<?php echo $spare_parts[0]['partner_id']?>">
                     <input type="submit" value="Update Booking" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" class="btn btn-md btn-default" />
                 </div>
             </form>
