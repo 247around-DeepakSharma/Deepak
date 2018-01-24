@@ -201,3 +201,8 @@ $(function() {
 });
     </script>
 
+<style>
+    .text_warning{
+        color:red;
+    }
+    </style>
