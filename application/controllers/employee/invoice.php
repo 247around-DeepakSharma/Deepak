@@ -1257,7 +1257,7 @@ class Invoice extends CI_Controller {
      * This methd is used to get data from Form.
      */
     function process_invoices_form() {
-         $this->checkUserSession();
+        $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Entering......");
         $details['vendor_partner'] = $this->input->post('partner_vendor');
         $details['invoice_type'] = $this->input->post('invoice_version');
@@ -1265,8 +1265,26 @@ class Invoice extends CI_Controller {
         $details['date_range'] = $this->input->post('daterange');
         $details['vendor_invoice_type'] = $this->input->post('vendor_invoice_type');
         $details['agent_id'] = $this->session->userdata('id');
-
-        $status = $this->generate_vendor_partner_invoices($details);
+        
+        if(count($details['vendor_partner_id']) == 1 && in_array('All', $details['vendor_partner_id'])){
+            $details['vendor_partner_id'] = "All";
+            $status = $this->generate_vendor_partner_invoices($details);
+        }else if(count($details['vendor_partner_id']) > 1 && in_array('All', $details['vendor_partner_id'])){
+            unset($details['vendor_partner_id'][array_search( 'All', $details['vendor_partner_id'] )] );
+            foreach($details['vendor_partner_id'] as $value){
+                $details['vendor_partner_id'] = $value;
+                $status = $this->generate_vendor_partner_invoices($details);
+            }
+        }else if(count($details['vendor_partner_id']) > 1 && !in_array('All', $details['vendor_partner_id'])){
+            foreach($details['vendor_partner_id'] as $value){
+                $details['vendor_partner_id'] = $value;
+                $status = $this->generate_vendor_partner_invoices($details);
+            }
+        }else{
+            $details['vendor_partner_id'] = $details['vendor_partner_id'][0];
+            $status = $this->generate_vendor_partner_invoices($details);
+        }
+        
         if ($status) {
             $output = "Invoice Generated...";
             $userSession = array('success' => $output);
@@ -1308,8 +1326,8 @@ class Invoice extends CI_Controller {
      */
     function generate_vendor_partner_invoices($details) {
         log_message('info', __FUNCTION__ . " Entering...... And Invoice_Details: ". print_r($details,true));
-
-
+        
+        
         if ($details['vendor_partner'] === "vendor") {
             echo "Invoice Generating..";
             log_message('info', "Invoice generate - vendor id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
