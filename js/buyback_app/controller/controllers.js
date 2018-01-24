@@ -614,6 +614,15 @@ rm_escalation.controller('rm_escalationController', function ($scope, $http) {
 }
   $scope.full_view_escalation = function(){
       $scope.totalItems = $scope.escalationData.length;
+      var current_button_text = $('#full_view_escalation').text();
+      if(current_button_text === 'Show All SF'){
+        $scope.totalItems = $scope.escalationData.length;
+        $('#full_view_escalation').text("Show top 5 SF");
+      }
+      else{
+          $scope.totalItems = 5;
+          $('#full_view_escalation').text("Show All SF");
+      }
 }
 });
 
