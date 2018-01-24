@@ -554,7 +554,7 @@ EOD;
                 
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "summary-excels/" . $csv;
-                $this->s3->putObjectFile($csv, $bucket, $directory_xls, S3::ACL_PRIVATE);
+                $this->s3->putObjectFile($csv, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
                 //Delete this file
                 $out = '';
