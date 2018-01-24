@@ -1042,43 +1042,122 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $this->load->view('dashboard/escalation_full_view',$data);
         $this->load->view('dashboard/dashboard_footer');
     }
-//        function pending_booking_by_rm($rmID){
-//        $serviceCentersIDArray= $this->vendor_model->get_employee_relation($rmID);
-//        if(!empty($serviceCentersIDArray)){
-//            $serviceCentersIDList = $serviceCentersIDArray[0]['service_centres_id'];
-//            $sfArray = $this->reusable_model->get_search_result_data("service_centres","id,name",NULL,NULL,NULL,NULL,array("id"=>explode(",",$serviceCentersIDList)),NULL,NULL);
-//            foreach($sfArray as $sfData){
-//                $sfIDNameArray["vendor_".$sfData['id']]= $sfData['name'];
-//            }
-//        }
-//        $data = $this->reporting_utils->get_booking_by_service_center($serviceCentersIDList); 
-//        foreach($data['data'] as $sfID=>$sfData){
-//            $final_data['monthly_completed'] = 0;
-//            $final_data['month_cancelled'] =0;
-//            $final_data['last_2_day'] =0;
-//            $final_data['last_3_day'] =0;
-//            $final_data['greater_than_5_days'] =0;
-//            $final_data['id'] =$sfID;
-//            $final_data['name'] =$sfIDNameArray["vendor_".$sfID];
-//            if(array_key_exists('month_completed', $sfData)){
-//                $final_data['monthly_completed'] = $sfData['month_completed']['completed'];
-//            }
-//            if(array_key_exists('month_cancelled', $sfData)){
-//                $final_data['month_cancelled'] = $sfData['month_cancelled']['cancelled'];
-//            }
-//            if(array_key_exists('last_2_day', $sfData)){
-//                $final_data['last_2_day'] = $sfData['last_2_day']['booked'];
-//            }
-//            if(array_key_exists('last_3_day', $sfData)){
-//                $final_data['last_3_day'] = $sfData['last_3_day']['booked'];
-//            }
-//             if(array_key_exists('greater_than_5_days', $sfData)){
-//                $final_data['greater_than_5_days'] = $sfData['greater_than_5_days']['booked'];
-//             }
-//             $ServiceCenterBookingData[]= $final_data;
-//        }
-//        echo json_encode($ServiceCenterBookingData);
-//    }
+    /* 
+     * This is a helper function for pending_booking_by_rm function 
+     * This is used to get repair booking and installation booking in 1 Array 
+     */
+    private function create_structure_array_for_sf_pending_bookings($installationData,$repairData){
+        $installationIDArray = $repairIDArray = $repairDataAssociativeArray = $tempArray = $finalArray = array();
+        foreach($installationData as $installationDataID){
+            $installationIDArray[] = $installationDataID['service_center_id'];
+        }
+        foreach($repairData as $repairDataID){
+            $repairIDArray[] = $repairDataID['service_center_id'];
+            $repairDataAssociativeArray[$repairDataID['service_center_id']] = $repairDataID;
+        }
+        $extraIDInRepairArray = array_diff($repairIDArray,$installationIDArray);
+        foreach($installationData as $iData){
+            $tempArray['repair_pending'] = 0;
+            $tempArray['repair_booking_id_list'] = '';
+            $tempArray['id'] = $iData['service_center_id'];
+            $tempArray['installation_pending'] = $iData['booked'];
+            $tempArray['name'] = $iData['service_center_name'];
+            $tempArray['installation_booking_id_list'] = $iData['booking_id_list'];
+            if(array_key_exists($iData['service_center_id'], $repairDataAssociativeArray)){
+                $tempArray['repair_pending'] = $repairDataAssociativeArray[$iData['service_center_id']]['booked'];
+                $tempArray['repair_booking_id_list'] = $repairDataAssociativeArray[$iData['service_center_id']]['booking_id_list'];
+            }
+            $finalArray[$iData['service_center_id']] = $tempArray;
+        }
+        foreach($extraIDInRepairArray as $id){
+            $tempArray['installation_pending'] = 0;
+            $tempArray['installation_booking_id_list'] = '';
+            $tempArray['repair_pending'] = $repairDataAssociativeArray[$id]['booked'];
+            $tempArray['repair_booking_id_list'] = $repairDataAssociativeArray[$id]['booking_id_list'];
+            $tempArray['id'] = $id;
+            $tempArray['name'] = $repairDataAssociativeArray[$id]['service_center_name'];
+            $finalArray[$id] = $tempArray;
+        }
+        return $finalArray;
+    }
+    /*
+     * This is a helper function for pending_booking_by_rm
+     * This function club all 2_days,3_to_5_days,more_than_5 days data into a single array and return that data
+     */
+    private function club_all_pending_booking_sf_vise($finalArray,$serviceCentersIDArray){
+        $outputArray = array();
+        $allServiceCenters = explode(",",$serviceCentersIDArray);
+        foreach($allServiceCenters as $id){
+            $tempArray['last_2_days_repair_pending'] = $tempArray['last_2_days_installation_pending'] = $tempArray['last_3_to_5_days_repair_pending'] = 
+            $tempArray['last_3_to_5_days_installation_pending'] = $tempArray['more_then_5_days_repair_pending'] = $tempArray['more_then_5_days_installation_pending'] = 0;
+            $tempArray['last_2_days_installation_booking_list'] = $tempArray['last_2_days_repair_booking_list'] = $tempArray['last_3_to_5_days_installation_booking_list'] =
+            $tempArray['last_3_to_5_days_repair_booking_list'] =  $tempArray['more_then_5_days_installation_booking_list'] = $tempArray['more_then_5_days_repair_booking_list'] ='';
+            $tempVariable = 0;
+            if(!empty($finalArray['last2DaysArray'])){
+                if(array_key_exists($id, $finalArray['last2DaysArray'])){
+                    $tempArray['last_2_days_repair_pending'] = $finalArray['last2DaysArray'][$id]['repair_pending'];
+                    $tempArray['last_2_days_installation_pending'] = $finalArray['last2DaysArray'][$id]['installation_pending'];
+                    $tempArray['last_2_days_installation_booking_list'] = $finalArray['last2DaysArray'][$id]['installation_booking_id_list'];
+                    $tempArray['last_2_days_repair_booking_list'] = $finalArray['last2DaysArray'][$id]['repair_booking_id_list'];
+                    $tempArray['id'] = $id;
+                    $tempArray['name'] = $finalArray['last2DaysArray'][$id]['name'];
+                    $tempVariable++;
+                }
+            }
+             if(array_key_exists($id, $finalArray['last3To5DaysArray'])){
+                $tempArray['last_3_to_5_days_repair_pending'] = $finalArray['last3To5DaysArray'][$id]['repair_pending'];
+                $tempArray['last_3_to_5_days_installation_pending'] = $finalArray['last3To5DaysArray'][$id]['installation_pending'];
+                $tempArray['last_3_to_5_days_installation_booking_list'] = $finalArray['last3To5DaysArray'][$id]['installation_booking_id_list'];
+                $tempArray['last_3_to_5_days_repair_booking_list'] = $finalArray['last3To5DaysArray'][$id]['repair_booking_id_list'];
+                $tempArray['id'] = $id;
+                $tempArray['name'] = $finalArray['last3To5DaysArray'][$id]['name'];
+                $tempVariable++;
+            }
+            if(array_key_exists($id, $finalArray['moreThen5DaysArray'])){
+                $tempArray['more_then_5_days_repair_pending'] = $finalArray['moreThen5DaysArray'][$id]['repair_pending'];
+                $tempArray['more_then_5_days_installation_pending'] = $finalArray['moreThen5DaysArray'][$id]['installation_pending'];
+                $tempArray['more_then_5_days_installation_booking_list'] = $finalArray['moreThen5DaysArray'][$id]['installation_booking_id_list'];
+                $tempArray['more_then_5_days_repair_booking_list'] = $finalArray['moreThen5DaysArray'][$id]['repair_booking_id_list'];
+                $tempArray['id'] = $id;
+                $tempArray['name'] = $finalArray['moreThen5DaysArray'][$id]['name'];
+                $tempVariable++;
+            }
+            if($tempVariable !=0){
+                $tempArray['total_pending_repair'] = $tempArray['more_then_5_days_repair_pending']+$tempArray['last_3_to_5_days_repair_pending']+$tempArray['last_2_days_repair_pending'];
+                $tempArray['total_pending_installation'] = $tempArray['more_then_5_days_installation_pending']+$tempArray['last_3_to_5_days_installation_pending']+
+                        $tempArray['last_2_days_installation_pending'];
+                $outputArray[$id] = $tempArray;
+            }
+        }
+        return $outputArray;
+    }
+    /*
+     * This Function is used to get SF(Related to Particular RM) pending Booking Data(Installation,Repair)(last_2_days,3_to_5_days,more_than_5_days) 
+     */
+    function pending_booking_by_rm($rmID){
+        $finalArray =$serviceCentersData = array();
+        //Get Service Centers Associated to RM
+        $serviceCentersIDArray= $this->vendor_model->get_employee_relation($rmID);
+        if(!empty($serviceCentersIDArray)){
+            $serviceCentersIDList = $serviceCentersIDArray[0]['service_centres_id'];
+            $where = 'AND service_centres.active=1 AND service_centres.on_off=1 AND service_centres.id  IN (' . $serviceCentersIDList . ')';
+            // All Booking Where request_type is not like repair Should be considered as Installation Bookings
+            $where_installation = $where." AND (request_type NOT LIKE '%Repair%')";
+            // All Booking Where request_type is like repair Should be considered as Repair Bookings
+            $where_repair = $where." AND (request_type LIKE '%Repair%')";
+            $groupBY = "GROUP BY service_centres.name";
+            //get Installation Booking Data
+            $installationData = $this->reporting_utils->get_pending_booking_by_service_center_query_data($where_installation,$groupBY);
+            //get Repair Booking Data
+            $repairData = $this->reporting_utils->get_pending_booking_by_service_center_query_data($where_repair,$groupBY);
+            //Club Repair and Installation in 1 array by SF
+            $finalArray['last2DaysArray'] = $this->create_structure_array_for_sf_pending_bookings($installationData['data_last_2_day'],$repairData['data_last_2_day']);
+            $finalArray['last3To5DaysArray'] = $this->create_structure_array_for_sf_pending_bookings($installationData['data_last_3_day'],$repairData['data_last_3_day']);
+            $finalArray['moreThen5DaysArray'] = $this->create_structure_array_for_sf_pending_bookings($installationData['data_greater_than_5_days'],$repairData['data_greater_than_5_days']);
+            $serviceCentersData = $this->club_all_pending_booking_sf_vise($finalArray,$serviceCentersIDArray[0]['service_centres_id']);
+        }
+        return $serviceCentersData;
+    }
     function get_escalation_by_all_rm($startDate,$endDate){
     $rmIDNameArray = array();
     $rmBookingArray = array();
@@ -1144,5 +1223,52 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $this->reusable_model->update_table("sf_not_exist_booking_details",array("is_pincode_valid"=>0,"invalid_pincode_marked_by"=>$this->session->userdata('id')),array("pincode"=>$pincode));
         $this->session->set_userdata(array("wrong_pincode_msg"=>"Pincode has been marked as Wrong Pincode Successfully"));
         redirect(base_url().'employee/dashboard');
+    }
+    /*
+     * This Function is used to get Pending Booking Data BY all RM
+     */
+    function pending_booking_count_by_rm(){
+        $finalArray = array();
+        // Get all RM
+        $allRMArray = $this->reusable_model->get_search_result_data("employee","id,full_name",array('groups'=>'regionalmanager'),NULL,NULL,NULL,NULL,NULL,array());
+        //Loop Through RM ID
+        foreach($allRMArray as $rmIdArray){
+            $tempRMArray['last_2_day_installation_booking_count'] = $tempRMArray['last_2_day_repair_booking_count'] = $tempRMArray['last_3_to_5_days_repair_count'] = 
+            $tempRMArray['last_3_to_5_days_installation_count']  = $tempRMArray['more_then_5_days_repair_count'] = $tempRMArray['more_then_5_days_installation_count'] =  0;
+            // Get Pending Booking BY SF (Specific to particular RM)
+            $tempArray =  $this->pending_booking_by_rm($rmIdArray['id']);
+            // Loop through Vendor Data
+            foreach($tempArray as $vendorBookingArray){
+                $tempRMArray['last_2_day_installation_booking_count'] = $tempRMArray['last_2_day_installation_booking_count']+$vendorBookingArray['last_2_days_installation_pending'];
+                $tempRMArray['last_2_day_repair_booking_count'] = $tempRMArray['last_2_day_repair_booking_count']+$vendorBookingArray['last_2_days_repair_pending'];
+                $tempRMArray['last_3_to_5_days_repair_count'] = $tempRMArray['last_3_to_5_days_repair_count']+$vendorBookingArray['last_3_to_5_days_repair_pending'];
+                $tempRMArray['last_3_to_5_days_installation_count'] = $tempRMArray['last_3_to_5_days_installation_count']+$vendorBookingArray['last_3_to_5_days_installation_pending'];
+                $tempRMArray['more_then_5_days_repair_count'] = $tempRMArray['more_then_5_days_repair_count']+$vendorBookingArray['more_then_5_days_repair_pending'];
+                $tempRMArray['more_then_5_days_installation_count'] = $tempRMArray['more_then_5_days_installation_count']+$vendorBookingArray['more_then_5_days_installation_pending'];
+            }
+            $tempRMArray['total_pending'] = $tempRMArray['last_2_day_installation_booking_count']+$tempRMArray['last_2_day_repair_booking_count']+
+                    $tempRMArray['last_3_to_5_days_repair_count']+$tempRMArray['last_3_to_5_days_installation_count']+$tempRMArray['more_then_5_days_repair_count']+
+                    $tempRMArray['more_then_5_days_installation_count'];
+            $tempRMArray['rm'] = $rmIdArray['full_name'];
+            $tempRMArray['rmID'] = $rmIdArray['id'];
+            $finalArray[] = $tempRMArray;
+        }
+        echo json_encode($finalArray);
+    }
+    /*
+     * This function is used to call view of Pending booking  by sf 
+     */
+    function pending_full_view_by_sf($rm_id){
+        $data['rm']=$rm_id;
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $this->load->view('dashboard/pending_booking_full_view_by_sf',$data);
+        $this->load->view('dashboard/dashboard_footer');
+    }
+    /*
+     * This function is use to send data for SF Pending Booking View Page (By Installation,BY Repair) 
+     */
+    function pending_booking_by_rm_view($rm_id){
+        $data =  $this->pending_booking_by_rm($rm_id);
+        echo json_encode(array_values($data));
     }
 }
