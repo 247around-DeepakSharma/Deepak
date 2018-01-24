@@ -925,18 +925,19 @@ function get_escalation_chart_data_by_one_matrix($data,$key){
  * This is a helper function For get_escalations_chart_data() to get data breack down for pi chart on the basis of 2 keys
  */
 function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
+    
     $resultArray= array();
     foreach ($data as $escalationData){
         if(array_key_exists($escalationData[$baseKey], $resultArray)){
             if(array_key_exists($escalationData[$otherKey], $resultArray[$escalationData[$baseKey]])){
-                $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]]+$escalationData['total_booking'];
+                $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]]+$escalationData['total_escalation'];
             }
             else{
-                $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $escalationData['total_booking'];
+                $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $escalationData['total_escalation'];
             }
         }
         else{
-            $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $escalationData['total_booking'];
+            $resultArray[$escalationData[$baseKey]][$escalationData[$otherKey]] = $escalationData['total_escalation'];
         }
     }
     return $resultArray;
@@ -955,6 +956,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $data = $this->get_escalation_data($sfID,$startDate,$endDate);
         // get escalation by upcountry
         $upcountryData= $this->get_escalation_chart_data_by_one_matrix($data,"is_upcountry");
+        $finalData['upcountry']['upcountry'] = $finalData['upcountry']['non_upcountry'] =0;
         if(array_key_exists("1", $upcountryData)){
             $finalData['upcountry']['upcountry'] = $upcountryData[1];
         }
@@ -982,11 +984,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         // Convert Upcountry O key as  non-upcountry and key 1 as upcountry
         foreach($applianceUpcountryArray as $key=>$value){
             if(array_key_exists("1", $value)){
-            $finalData['service_upcountry'][$key][] = array("Upcountry",$value[1]);
-        }
-         if(array_key_exists("0", $value)){
-            $finalData['service_upcountry'][$key][] = array("Non_Upcountry",$value[0]);
-         }
+                $finalData['service_upcountry'][$key][] = array("Upcountry",$value[1]);
+            }  
+            else{
+                 $finalData['service_upcountry'][$key][] = array("Upcountry",0);
+            }
+            if(array_key_exists("0", $value)){
+               $finalData['service_upcountry'][$key][] = array("Non_Upcountry",$value[0]);
+            }
+             else{
+                 $finalData['service_upcountry'][$key][] = array("Non_Upcountry",0);
+            }
         }
         echo json_encode($finalData);
     }
@@ -1027,7 +1035,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $monthlyData['bookings'][] = $bookingData['total_booking'];
         $monthlyData['escalation'][] = $escalation; 
         $monthlyData['escalationPercentage'][] = round((($escalation*100)/$bookingData['total_booking']),2);
-        $monthlyData['months'][] = $bookingData['booking_month'];
+        $monthlyData['months'][] = date('M', mktime(0, 0, 0, $bookingData['booking_month'], 10))." (".$bookingData['booking_year'].")";
     }
     echo json_encode($monthlyData);
     }
