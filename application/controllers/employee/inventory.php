@@ -1930,4 +1930,20 @@ class Inventory extends CI_Controller {
         return $row;
     }
 
+    function spare_invoice_list(){
+        log_message("info", __METHOD__);
+        $w['length'] =-1;
+        $w['where'] = array("booking_details.request_type" => REPAIR_OOW_TAG, 
+            "status != 'Cancelled'" => NULL, 
+            "spare_parts_details.create_date >= '2017-12-01'" => NULL, 
+            "(`purchase_invoice_id` IS NULL ||  `sell_invoice_id` IS NULL)" => NULL,
+            "spare_parts_details.partner_id != '"._247AROUND."'" => NULL);
+        $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name,"
+                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price";
+        $data['spare'] = $this->inventory_model->get_spare_parts_query($w);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/spare_invoice_list", $data);
+
+    }
+
 }
