@@ -27,6 +27,7 @@ class Utilities extends CI_Controller {
         $this->load->model('reporting_utils');
         $this->load->model('pc_distance_model');
         $this->load->model('upcountry_model');
+        $this->load->library('form_validation');
         
     }
 
@@ -110,6 +111,41 @@ class Utilities extends CI_Controller {
                 unset($service_id_list[$key3]);
             }
             unset($data[$key1]);
+        }
+    }
+    
+    function update_appliance_view(){
+        $booking_id = $this->input->get("booking_id");
+        if(!empty($booking_id)){
+            
+            $data['data'] = $this->booking_model->get_unit_details(array("booking_id" =>$booking_id), false, "*");
+            $data['sources'] = $this->partner_model->get_all_partner_source("0");
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view("employee/change_appliance_form", $data);
+        } else {
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view("employee/change_appliance_form");
+        }
+    }
+    
+    function process_update_appliance(){
+        
+        $this->form_validation->set_rules('service_id', 'Appliance', 'required|xss_clean');
+        $this->form_validation->set_rules('appliance_brand', 'Brand', 'required|xss_clean');
+        $this->form_validation->set_rules('appliance_category', 'Category', 'required|xss_clean');
+        if($this->form_validation->run()){
+            $data = $this->input->post();
+            $booking_unit_details = $this->booking_model->get_unit_details(array("booking_id" => $data['booking_id']));
+           //  $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand);
+            if ($partner_type == OEM) {
+                $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand);
+            } else {
+                $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, "");
+            }
+            echo "<pre/>"; print_r($data);
+        } else {
+            echo '<script>alert("Price Update Failed");</script>';
+            $this->db->update_appliance_view();
         }
     }
     

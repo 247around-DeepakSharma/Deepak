@@ -168,7 +168,7 @@ define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
 define('SNAPDEAL_ID',1);
 //Jeeves ID
 define("JEEEVES_ID", 247030);
-//WYBOR_ID
+//Wybor ID
 define("WYBOR_ID", 247010);
 //ZOPPER ID
 define("ZOPPER_ID", 247012);
@@ -446,9 +446,9 @@ define('SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS','-1 day');
 define('SMS_DEACTIVATION_EMAIL_SUBJECT','has requested for opt-out!');
 define('SMS_DEACTIVATION_NO_NEW_REQUEST_MSG','There is not any new request');
 define('PREPAID_DEACTIVATED_MSG_FOR_PARTNER','Your Account is De-Activated');
-define('PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER','Your Credit is low. Add credit');
-define('PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN','Your Credit is low. Add credit');
-define('PREPAID_LOW_AMOUNT_MSG_FOR_DEALER','Your Credit is low. Add credit');
+define('PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER','Low Balance, Please Recharge Your Account Immediately');
+define('PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN','Low Balance, Please Inform Brand To Recharge Account Immediately');
+define('PREPAID_LOW_AMOUNT_MSG_FOR_DEALER','Low Balance, Please Ask Brand To Recharge Account Immediately');
 
 define("PARTNER_ADVANCE_DESCRIPTION", "Advance Payment");
 define("PARTNER_INVOICE_BUTTON", "CRM Setup Invoice");

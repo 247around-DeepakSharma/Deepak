@@ -998,7 +998,7 @@ class vendor_model extends CI_Model {
             }
         }
     }
-    
+
     /**
      *  @desc: get cancellation reason for specific vendor
      *

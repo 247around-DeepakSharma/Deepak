@@ -35,36 +35,12 @@
                                             ?>" readonly="readonly">
                                     </div>
                                 </div>
-                                <div class="form-group ">
-                                    <label for="booking_city" class="col-md-4">City *</label>
-                                    <div class="col-md-6">
-                                        <select type="text" class="form-control"  id="booking_city" name="city" >
-                                            <option value="<?php
-                                                if (isset($booking_history[0]['city'])) {
-                                                echo $booking_history[0]['city'];
-                                                }
-                                                ?>" selected="selected" disabled="disabled"><?php
-                                                if (isset($booking_history[0]['city'])) {
-                                                    echo $booking_history[0]['city'];
-                                                }
-                                                ?></option>
-                                        </select>
-                                    </div>
-                                </div>
+                                
                                 <!--  end col-md-6  -->
                             </div>
                             <!--  start col-md-6  -->
                             <div class="col-md-6">
-                                <div class="form-group ">
-                                    <label for="booking_primary_contact_no" class="col-md-4">Order ID </label>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="order_id" name="order_id" value = "<?php
-                                            if (isset($booking_history[0]['order_id'])) {
-                                                echo $booking_history[0]['order_id'];
-                                            }
-                                            ?>" readonly="readonly">
-                                    </div>
-                                </div>
+                                
                                 <div class="form-group ">
                                     <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
@@ -79,7 +55,7 @@
                                     <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="service" id="services"/>
-                                        <select type="text" class="form-control"  id="service_id" name="service_id" >
+                                        <select type="text" disabled class="form-control"  id="service_id" name="service_id" >
                                             <option value="<?php
                                                 if (isset($booking_history[0]['service_id'])) {
                                                 echo $booking_history[0]['service_id'];
@@ -108,15 +84,15 @@
                                     }
                                 }
                             }
-                        
+         
                         }
                         
-                        }?>
+                    }?>
                     <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
                     <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
                     <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
                     <input type="hidden" name="approval" value='0' />
-                    <?php $count = 0; foreach ($bookng_unit_details as $key => $unit_details) { ?>
+                    <?php $count = 0; foreach ($bookng_unit_details as $key1 => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <div class="panel-body">
                             <div class="row">
@@ -126,32 +102,32 @@
                                             <?php } else {?> width:26.32%;<?php }?>">
                                             <div class="col-md-12" style="padding-left:0px;">
                                                 <!--                                            <label> Is Appliance Broken</label>-->
-                                                <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$count?>" name="broken[]" onchange="check_broken('<?php echo $count;?>')" required>
+                                                <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$key1?>" name="broken[]" onchange="check_broken('<?php echo $key1;?>')" required>
                                                     <option selected disabled>Is Broken</option>
                                                     <option  value="1">Yes</option>
                                                     <option value="0">No</option>
                                                 </select>
                                             </div>
                                         </div>
-                                        <input type="hidden" id="<?php echo "count_line_item_".$count;?>" value="<?php echo count($unit_details['quantity']);?>"/>
+                                        <input type="hidden" id="<?php echo "count_line_item_".$key1;?>" value="<?php echo count($unit_details['quantity']);?>"/>
                                         <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:29.32%;
                                             <?php } else {?> width:26.32%;<?php }?>">
                                             <div class="col-md-12 ">
-                                                <select type="text" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
+                                                <select type="text" disabled="" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
                                                     <option selected disabled><?php echo $unit_details['brand']; ?></option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group col-md-4" style="width:29.3%">
                                             <div class="col-md-12 ">
-                                                <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
+                                                <select type="text" disabled="" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
                                                     <option selected disabled><?php echo $unit_details['category']; ?></option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group col-md-4"style="width:29.2%" style=" padding-right: 0px;">
                                             <div class="col-md-12">
-                                                <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
+                                                <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
                                                     <?php if (!empty($unit_details['capacity'])) { ?>
                                                     <option selected disabled><?php echo $unit_details['capacity']; ?></option>
                                                 </select>
@@ -228,7 +204,7 @@
                                                                     <div class="form-group ">
                                                                         <div class="col-md-12">
                                                                             <div class="radio">
-                                                                                <label><input class="<?php echo "completed_".$count."_".$key;?>" type="radio"  name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
+                                                                                <label><input onclick="check_broken('<?php echo $key1;?>')" class="<?php echo "completed_".$key."_".$key1;?>" type="radio"  name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
                                                                                     if ($price['booking_status'] == "Completed") {
                                                                                     echo "checked";
                                                                                     }
@@ -239,7 +215,7 @@
                                                                                     echo " Completed";
                                                                                     }
                                                                                     ?><br/>
-                                                                                <input class="<?php echo "cancelled_".$count."_".$key;?>" type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
+                                                                                <input onclick="check_broken('<?php echo $key1;?>')" class="<?php echo "cancelled_".$key."_".$key1;?>" type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
                                                                                     if ($price['booking_status'] == "Cancelled") {
                                                                                     echo "checked";
                                                                                     }
@@ -351,7 +327,7 @@
                     </div>
                     <div class="form-group  col-md-12" >
                         <center style="margin-top:60px;">
-                            <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>')" class="btn btn-lg" style="background-color: #2C9D9A;
+                            <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>', '<?php echo $key1?>')" class="btn btn-lg" style="background-color: #2C9D9A;
                                 border-color: #2C9D9A; color:#fff;" value="Complete Booking">
                     </div>
                     </center>
@@ -393,12 +369,21 @@
     });
     
     
-    function onsubmit_form(upcountry_flag, number_of_div) {
+    function onsubmit_form(upcountry_flag, number_of_div, appliance_count) {
     
         var flag = 0;
         var div_count = 0;
         var is_completed_checkbox = [];
         var serial_number_tmp = [];
+        for(m= 0; m< Number(appliance_count); m++){
+            var isbroken = $("#broken_"+ m).val();
+            if(isbroken === null){
+                alert("Please Select Is Broken DropDown");
+                document.getElementById("broken_"+ m).style.borderColor = "red";
+                flag = 1;
+                return false;
+            }
+        }
         $(':radio:checked').each(function(i) {
             div_count = div_count + 1;
     
@@ -590,17 +575,24 @@
     })(jQuery, window, document);
     
     function check_broken(div){
+        
         var broken = $("#broken_"+ div).val();
         $(".is_broken_"+div).val(broken);
         
         var div_item_count = $("#count_line_item_"+div).val();
+       
         if(Number(broken) === 1){
+          
             for(i = 0; i < Number(div_item_count); i++ ){
-                if(i === 0){
-                    document.getElementById("completed_"+div+"_"+i).checked = true;
-                   // $("#completed_"+count+"_"+i).
-                } else {
-                     document.getElementById("cancelled_"+div+"_"+i).checked = true;
+                var int = Number(Number(i) + Number(div) + 1);
+                var amount_due = Number($("#amount_due" + int).text());
+                var price_tags = $("#price_tags" +int ).text();
+                if(amount_due === 0 && price_tags.indexOf("Wall Mount Stand") > -1){
+                   
+                    //$(".completed_"+i+"_"+div).prop('checked', true);
+                    $(".cancelled_"+i+"_"+div).prop('checked', true);
+                   // $(".completed_"+i+"_"+div).attr('readonly',true); 
+                
                 }
             }
         }
