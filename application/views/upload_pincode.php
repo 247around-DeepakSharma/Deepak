@@ -22,15 +22,15 @@
                     $('.msg').text('');
                     var email_id = $('#email_id').val();
                     var file = $('#file').val();
-                    var password = $('#password').val();
-                    if (email_id == '' || file == '' || password == '') {
-                        alert('Please enter email, password and select file');
+                    
+                    if (email_id == '' || file == '') {
+                        alert('Please enter email and select file');
                         return;
                     }
                     var formData = new FormData();
                     formData.append('file', $('#file')[0].files[0]);
                     formData.append('email_id', email_id);
-                    formData.append('password', password);
+                   
                     $('#btn').attr('disabled', 'disabled');
                      $('.msg').text('Uploading in progress...');
                     $.ajax({
@@ -69,12 +69,12 @@
 
                     <div class="form-group">
                         <label>Enter Email </label>
-                        <input class="form-control" type="text" id="email_id" /> 
+                        <input class="form-control" type="text" id="email_id"  /> 
                     </div>
-                    <div class="form-group">
+<!--                    <div class="form-group">
                         <label>Enter Password </label>
                         <input class="form-control" type="password" id="password" /> 
-                    </div>
+                    </div>-->
                     <div class="form-group">
                          <p class="file">
                             <input type="file" name="file" id="file" />
