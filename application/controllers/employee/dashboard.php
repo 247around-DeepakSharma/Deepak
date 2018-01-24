@@ -1142,9 +1142,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $serviceCentersIDList = $serviceCentersIDArray[0]['service_centres_id'];
             $where = 'AND service_centres.active=1 AND service_centres.on_off=1 AND service_centres.id  IN (' . $serviceCentersIDList . ')';
             // All Booking Where request_type is not like repair Should be considered as Installation Bookings
-            $where_installation = $where." AND (request_type NOT LIKE '%Repair%')";
+            $where_installation = $where." AND (request_type NOT LIKE '%Repair%' OR request_type NOT LIKE '%Repeat%')";
             // All Booking Where request_type is like repair Should be considered as Repair Bookings
-            $where_repair = $where." AND (request_type LIKE '%Repair%')";
+            $where_repair = $where." AND (request_type LIKE '%Repair%' OR request_type LIKE '%Repeat%')";
             $groupBY = "GROUP BY service_centres.name";
             //get Installation Booking Data
             $installationData = $this->reporting_utils->get_pending_booking_by_service_center_query_data($where_installation,$groupBY);
@@ -1237,21 +1237,23 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tempRMArray['last_3_to_5_days_installation_count']  = $tempRMArray['more_then_5_days_repair_count'] = $tempRMArray['more_then_5_days_installation_count'] =  0;
             // Get Pending Booking BY SF (Specific to particular RM)
             $tempArray =  $this->pending_booking_by_rm($rmIdArray['id']);
-            // Loop through Vendor Data
-            foreach($tempArray as $vendorBookingArray){
-                $tempRMArray['last_2_day_installation_booking_count'] = $tempRMArray['last_2_day_installation_booking_count']+$vendorBookingArray['last_2_days_installation_pending'];
-                $tempRMArray['last_2_day_repair_booking_count'] = $tempRMArray['last_2_day_repair_booking_count']+$vendorBookingArray['last_2_days_repair_pending'];
-                $tempRMArray['last_3_to_5_days_repair_count'] = $tempRMArray['last_3_to_5_days_repair_count']+$vendorBookingArray['last_3_to_5_days_repair_pending'];
-                $tempRMArray['last_3_to_5_days_installation_count'] = $tempRMArray['last_3_to_5_days_installation_count']+$vendorBookingArray['last_3_to_5_days_installation_pending'];
-                $tempRMArray['more_then_5_days_repair_count'] = $tempRMArray['more_then_5_days_repair_count']+$vendorBookingArray['more_then_5_days_repair_pending'];
-                $tempRMArray['more_then_5_days_installation_count'] = $tempRMArray['more_then_5_days_installation_count']+$vendorBookingArray['more_then_5_days_installation_pending'];
+            if(!empty($tempArray)){
+                // Loop through Vendor Data
+                foreach($tempArray as $vendorBookingArray){
+                    $tempRMArray['last_2_day_installation_booking_count'] = $tempRMArray['last_2_day_installation_booking_count']+$vendorBookingArray['last_2_days_installation_pending'];
+                    $tempRMArray['last_2_day_repair_booking_count'] = $tempRMArray['last_2_day_repair_booking_count']+$vendorBookingArray['last_2_days_repair_pending'];
+                    $tempRMArray['last_3_to_5_days_repair_count'] = $tempRMArray['last_3_to_5_days_repair_count']+$vendorBookingArray['last_3_to_5_days_repair_pending'];
+                    $tempRMArray['last_3_to_5_days_installation_count'] = $tempRMArray['last_3_to_5_days_installation_count']+$vendorBookingArray['last_3_to_5_days_installation_pending'];
+                    $tempRMArray['more_then_5_days_repair_count'] = $tempRMArray['more_then_5_days_repair_count']+$vendorBookingArray['more_then_5_days_repair_pending'];
+                    $tempRMArray['more_then_5_days_installation_count'] = $tempRMArray['more_then_5_days_installation_count']+$vendorBookingArray['more_then_5_days_installation_pending'];
+                }
+                $tempRMArray['total_pending'] = $tempRMArray['last_2_day_installation_booking_count']+$tempRMArray['last_2_day_repair_booking_count']+
+                        $tempRMArray['last_3_to_5_days_repair_count']+$tempRMArray['last_3_to_5_days_installation_count']+$tempRMArray['more_then_5_days_repair_count']+
+                        $tempRMArray['more_then_5_days_installation_count'];
+                $tempRMArray['rm'] = $rmIdArray['full_name'];
+                $tempRMArray['rmID'] = $rmIdArray['id'];
+                $finalArray[] = $tempRMArray;
             }
-            $tempRMArray['total_pending'] = $tempRMArray['last_2_day_installation_booking_count']+$tempRMArray['last_2_day_repair_booking_count']+
-                    $tempRMArray['last_3_to_5_days_repair_count']+$tempRMArray['last_3_to_5_days_installation_count']+$tempRMArray['more_then_5_days_repair_count']+
-                    $tempRMArray['more_then_5_days_installation_count'];
-            $tempRMArray['rm'] = $rmIdArray['full_name'];
-            $tempRMArray['rmID'] = $rmIdArray['id'];
-            $finalArray[] = $tempRMArray;
         }
         echo json_encode($finalArray);
     }
