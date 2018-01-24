@@ -193,6 +193,10 @@ class Booking extends CI_Controller {
                 $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
 
                 $services_details['partner_id'] = $booking['partner_id'];
+                if($this->input->post('order_item_id')){
+                    $services_details['sub_order_id'] = trim($this->input->post('order_item_id'));
+                }
+                
 
                 log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
                 /* if appliance id exist the initialize appliance id in array and update appliance 
