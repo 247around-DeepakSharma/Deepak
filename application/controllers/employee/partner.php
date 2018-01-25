@@ -239,7 +239,7 @@ class Partner extends CI_Controller {
         if (!empty($phone_number)) {
             $_POST['phone_number'] = $phone_number;
         }
-        $this->form_validation->set_rules('phone_number', 'Phone Number', 'trim|required|regex_match[/^[7-9]{1}[0-9]{9}$/]');
+        $this->form_validation->set_rules('phone_number', 'Phone Number', 'trim|required|regex_match[/^[6-9]{1}[0-9]{9}$/]');
 
         if ($this->form_validation->run() == FALSE) {
             $output = "Please Enter Valid Mobile Number";
@@ -2399,7 +2399,7 @@ class Partner extends CI_Controller {
             $output = "Booking Not Found";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
-            if (preg_match("/^[7-9]{1}[0-9]{9}$/", $searched_text)) {
+            if (preg_match("/^[6-9]{1}[0-9]{9}$/", $searched_text)) {
                 redirect(base_url() . 'partner/booking_form/' . $searched_text);
             } else {
                 redirect(base_url() . 'partner/home');

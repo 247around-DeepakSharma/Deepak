@@ -216,7 +216,7 @@ class Around_scheduler_model extends CI_Model {
                 FROM booking_details JOIN partners 
                 ON booking_details.partner_id = partners.id
                 JOIN users ON users.user_id = booking_details.user_id
-                WHERE users.ndnc=0 AND booking_primary_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
+                WHERE users.ndnc=0 AND booking_primary_contact_no REGEXP '^[6-9]{1}[0-9]{9}$' 
                 AND partners.is_sms_allowed = '1'
                 AND $where AND DAY(closed_date) = DAY(CURDATE()) 
                 UNION 
@@ -224,7 +224,7 @@ class Around_scheduler_model extends CI_Model {
                 FROM booking_details JOIN partners 
                 ON booking_details.partner_id = partners.id
                 JOIN users ON users.user_id = booking_details.user_id
-                WHERE booking_alternate_contact_no REGEXP '^[7-9]{1}[0-9]{9}$'
+                WHERE booking_alternate_contact_no REGEXP '^[6-9]{1}[0-9]{9}$'
                 AND partners.is_sms_allowed = '1'
                 AND $where AND DAY(closed_date) = DAY(CURDATE())";
         
@@ -243,7 +243,7 @@ class Around_scheduler_model extends CI_Model {
                 FROM booking_details JOIN partners 
                 ON booking_details.partner_id = partners.id
                 JOIN users ON users.user_id = booking_details.user_id
-                WHERE users.ndnc=0 AND booking_primary_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
+                WHERE users.ndnc=0 AND booking_primary_contact_no REGEXP '^[6-9]{1}[0-9]{9}$' 
                 AND partners.is_sms_allowed = '1'
                 AND booking_details.type = 'Query' AND booking_details.current_status = '"._247AROUND_CANCELLED."' AND DAY(closed_date) = DAY(CURDATE())
                 UNION 
@@ -251,7 +251,7 @@ class Around_scheduler_model extends CI_Model {
                 FROM booking_details JOIN partners 
                 ON booking_details.partner_id = partners.id
                 JOIN users ON users.user_id = booking_details.user_id
-                WHERE users.ndnc=0 AND booking_alternate_contact_no REGEXP '^[7-9]{1}[0-9]{9}$'
+                WHERE users.ndnc=0 AND booking_alternate_contact_no REGEXP '^[6-9]{1}[0-9]{9}$'
                 AND partners.is_sms_allowed = '1'
                 AND booking_details.type = 'Query' AND booking_details.current_status = '"._247AROUND_CANCELLED."' AND DAY(closed_date) = DAY(CURDATE())";
         
@@ -269,11 +269,11 @@ class Around_scheduler_model extends CI_Model {
     function get_user_booking_not_exist_phn_number(){
         $sql = "SELECT users.user_id, users.phone_number as phn_number,'no_status' as 'current_status'
                 FROM users LEFT JOIN booking_details ON users.user_id = booking_details.user_id
-                WHERE users.ndnc=0 AND booking_details.user_id IS NULL AND users.phone_number REGEXP '^[7-9]{1}[0-9]{9}$'
+                WHERE users.ndnc=0 AND booking_details.user_id IS NULL AND users.phone_number REGEXP '^[6-9]{1}[0-9]{9}$'
                 UNION
                 SELECT users.user_id, users.alternate_phone_number as phn_number,'no_status' as 'current_status'
                 FROM users LEFT JOIN booking_details ON users.user_id = booking_details.user_id 
-                WHERE users.ndnc=0 AND booking_details.user_id IS NULL AND users.alternate_phone_number REGEXP '^[7-9]{1}[0-9]{9}$'";
+                WHERE users.ndnc=0 AND booking_details.user_id IS NULL AND users.alternate_phone_number REGEXP '^[6-9]{1}[0-9]{9}$'";
         
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -396,12 +396,12 @@ class Around_scheduler_model extends CI_Model {
         }
         $sql = "SELECT DISTINCT booking_primary_contact_no as phn_number,user_id,booking_id
                 FROM booking_details 
-                WHERE booking_primary_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
+                WHERE booking_primary_contact_no REGEXP '^[6-9]{1}[0-9]{9}$' 
                 AND rating_stars IS NULL AND current_status= '"._247AROUND_COMPLETED."' $where
                 UNION
                 SELECT DISTINCT booking_alternate_contact_no as phn_number,user_id,booking_id
                 FROM booking_details 
-                WHERE booking_alternate_contact_no REGEXP '^[7-9]{1}[0-9]{9}$' 
+                WHERE booking_alternate_contact_no REGEXP '^[6-9]{1}[0-9]{9}$' 
                 AND rating_stars IS NULL AND current_status= '"._247AROUND_COMPLETED."' $where";
         $query = $this->db->query($sql);
         return $query->result_array();

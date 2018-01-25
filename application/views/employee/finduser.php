@@ -8,7 +8,7 @@
             var user_name = document.forms["myForm"]["userName"].value;
             var order_id = document.forms["myForm"]["order_id"].value;
 
-            var exp1 = /^[7-9]{1}[0-9]{9}$/;
+            var exp1 = /^[6-9]{1}[0-9]{9}$/;
             var exp2 = /^[A-Za-z _]+$/;
 
             if (ph_no == "" && booking_id == "" && user_name =="" && order_id == "" ) {

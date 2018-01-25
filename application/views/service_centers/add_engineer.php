@@ -302,13 +302,13 @@
                         required: true,
                         minlength: 10,
                         number: true,
-                        regx: /^[7-9]{1}[0-9]{9}$/
+                        regx: /^[6-9]{1}[0-9]{9}$/
                     },
                 alternate_phone:{
                     
                     minlength: 10,
                     number: true,
-                    regx: /^[7-9]{1}[0-9]{9}$/
+                    regx: /^[6-9]{1}[0-9]{9}$/
                     },
                 
 //                bank_ifsc_code: {

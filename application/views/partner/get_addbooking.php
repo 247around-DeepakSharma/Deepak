@@ -401,7 +401,8 @@
                 <div class="form-group  col-md-12" >
                     <center>
                         <input type="submit" class="btn btn-primary " disabled value="Submit Booking">
-                        <p id="error_not_visible" style="color: red"><?php echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER; ?></p>
+                        <p id="error_not_visible" style="color: red"></p>
+                        <p style="color: red"><?php echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER; ?></p>
                     </center>
                 </div>
             </div>
@@ -411,7 +412,7 @@
 </div>
 <script type="text/javascript">
     function check_validation(){
-        var exp1 = /^[7-9]{1}[0-9]{9}$/;
+        var exp1 = /^[6-9]{1}[0-9]{9}$/;
         var order_id =  $('#order_id').val();
         var booking_address = $('#booking_address').val();
         var mobile_number = $('#booking_primary_contact_no').val();
