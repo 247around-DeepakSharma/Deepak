@@ -296,6 +296,7 @@ class Do_background_process extends CI_Controller {
      */
     function send_asyn_push_notification(){
         $title = $msg = $url = $notification_type = $subscriberArray = NULL;
+         $auto_hide =0;
          if($this->input->post('title')){
             $title = $this->input->post('title');
         }
@@ -311,7 +312,10 @@ class Do_background_process extends CI_Controller {
         if($this->input->post('subscriberArray')){
             $subscriberArray = $this->input->post('subscriberArray');
         }
-        $this->push_notification_lib->send_push_notification($title,$msg,$url,$notification_type,$subscriberArray);
+        if($this->input->post('auto_hide')){
+            $auto_hide = $this->input->post('auto_hide');
+        }
+        $this->push_notification_lib->send_push_notification($title,$msg,$url,$notification_type,$subscriberArray,$auto_hide);
     }
 
     /* end controller */
