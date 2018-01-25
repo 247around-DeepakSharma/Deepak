@@ -92,7 +92,7 @@ class push_notification_lib {
                      } 
                      $sendUrl = base_url().'employee/do_background_process/send_asyn_push_notification';
                      $this->Pu_N->asynchronous_lib->do_background_process($sendUrl, $data);
-                     $this->send_push_notification($data['title'],$data['msg'],$data['url'],$data['notification_type'],$data['subscriberArray']);
+                    // $this->send_push_notification($data['title'],$data['msg'],$data['url'],$data['notification_type'],$data['subscriberArray']);
                      //$this->send_push_notification($data['title'],$data['msg'],$data['url'],$data['notification_type'],$subscriberArray);
                 }
                 else{
