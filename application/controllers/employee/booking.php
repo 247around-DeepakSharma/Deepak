@@ -2159,8 +2159,8 @@ class Booking extends CI_Controller {
         $this->form_validation->set_rules('appliance_category', 'Appliance Category', 'required');
 
         $this->form_validation->set_rules('partner_paid_basic_charges', 'Please Select Partner Charged', 'required');
-        $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
-        $this->form_validation->set_rules('dealer_phone_number', 'Dealer Mobile Number', 'trim|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
+        $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|xss_clean|regex_match[/^[6-9]{1}[0-9]{9}$/]');
+        $this->form_validation->set_rules('dealer_phone_number', 'Dealer Mobile Number', 'trim|xss_clean|regex_match[/^[6-9]{1}[0-9]{9}$/]');
         $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|xss_clean');
         $this->form_validation->set_rules('support_file', 'Suppoart File', 'callback_validate_upload_orderId_support_file');
 

@@ -219,7 +219,7 @@ function check_prepaid_balance(type) {
 function addBookingDialog() {
 
     count_number++;
-    var exp1 = /^[7-9]{1}[0-9]{9}$/;
+    var exp1 = /^[6-9]{1}[0-9]{9}$/;
 
 
     var p_contact_no = $('#booking_primary_contact_no').val();
