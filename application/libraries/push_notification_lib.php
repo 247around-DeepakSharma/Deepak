@@ -16,7 +16,7 @@ class push_notification_lib {
      * @output 2) After Success it will save notification in notification log table
      * Note - We are Using pushcrew 3rd party to send these notifications
      */
-    function send_push_notification($title,$msg,$url,$notification_type,$subscriberArray){
+    function send_push_notification($title,$msg,$url,$notification_type,$subscriberArray,$autohide_notification=0){
         log_message('info', __FUNCTION__ . " Function Start");
         if($title && $msg && $url && $notification_type && $subscriberArray){
             $subscriberListArray = Array();
@@ -24,7 +24,7 @@ class push_notification_lib {
             $subscriberListJsonString = json_encode($subscriberListArray);
             $apiToken = PUSH_NOTIFICATION_API_KEY;
             $curlUrl = PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL;
-            $fields = array('title' => $title,'message' => $msg,'url' => $url,'subscriber_list' => $subscriberListJsonString);
+            $fields = array('title' => $title,'message' => $msg,'url' => $url,'subscriber_list' => $subscriberListJsonString,'autohide_notification'=>$autohide_notification);
             $httpHeadersArray = Array();
             $httpHeadersArray[] = 'Authorization: key='.$apiToken;
             $ch = curl_init();
@@ -35,6 +35,8 @@ class push_notification_lib {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $httpHeadersArray);
             $result = curl_exec($ch);
             $resultArray = json_decode($result, true);
+            log_message('info', __FUNCTION__ . " Notification Status".print_r($resultArray,true));
+            log_message('info', __FUNCTION__ . " Notification Fields".print_r($fields,true));
             if($resultArray['status'] == 'success'){
                     $data['title'] = $title;
                     $data['msg'] = $msg;
@@ -60,7 +62,7 @@ class push_notification_lib {
      * Note - If receiver array will empty then it will send notification to groups which are mention in template table with current template ID 
      * After creating the msg it will send the msg to subscribers by using send_push_notification Function 
      */
-        function create_and_send_push_notiifcation($templateTag,$receiverArray=array(),$notificationTextArray=array()){
+        function create_and_send_push_notiifcation($templateTag,$receiverArray=array(),$notificationTextArray=array(),$auto_hide=0){
             log_message('info', __FUNCTION__ . " Function Start");
             // Get Template Data
             $templateData = $this->Pu_N->push_notification_model->get_push_notification_template($templateTag);
@@ -84,6 +86,7 @@ class push_notification_lib {
                     $data['title'] = $templateData[0]['title'];
                     $data['msg'] = $templateData[0]['msg'];
                     $data['url'] =    base_url().$templateData[0]['url'];
+                    $data['auto_hide'] =   $auto_hide;
                     if(array_key_exists('title', $notificationTextArray)){
                         $data['title'] = vsprintf($templateData[0]['title'], $notificationTextArray['title']);
                     }
