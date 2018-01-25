@@ -423,6 +423,8 @@
                                     <th >Shipped date </th>
                                     <th >EDD </th>
                                     <th >Remarks By Partner </th>
+                                    <th >Challan Number </th>
+                                    <th >Challan approx Value </th>
                                     <th >Challan file </th>
                                 </tr>
                             </thead>
@@ -435,6 +437,8 @@
                                     <td><?php echo $sp['shipped_date']; ?></td>
                                     <td><?php echo $sp['edd']; ?></td>
                                     <td><?php echo $sp['remarks_by_partner']; ?></td>
+                                    <td><?php echo $sp['partner_challan_number']; ?></td>
+                                    <td><?php echo $sp['challan_approx_value']; ?></td>
                                     <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank">Click Here to view</a></td>
                                 </tr>
                                 <?php } }  ?>
@@ -458,6 +462,7 @@
                                     <th >Remarks By SF </th>
                                     <th >Remarks By Partner</th>
                                     <th>Courier Invoice</th>
+                                    <th>Challan Number</th>
                                     <th>Challan File</th>
                                 </tr>
                             </thead>
@@ -472,6 +477,7 @@
                                     <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                     <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                     <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
+                                    <td><?php echo $sp['sf_challan_number']; ?></td>
                                     <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['sf_challan_file']; ?>" target="_blank">Click Here to view</a></td>
                                 </tr>
                                 <?php  } ?>
