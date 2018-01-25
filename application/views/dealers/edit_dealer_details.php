@@ -53,7 +53,7 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12">
                                 <label for="owner_phone_number_1">Owner Mobile No </label>
-                                <input type="text" placeholder="Eneter Owner Mobile Number" class="form-control" pattern="/^[7-9]{1}[0-9]{9}$/" id="owner_phone_number_1" name="owner_phone_number_1" value = "<?php if(isset($dealer_details[0]['owner_phone_number_1'])){ echo $dealer_details[0]['owner_phone_number_1']; }  ?>" >
+                                <input type="text" placeholder="Eneter Owner Mobile Number" class="form-control" pattern="/^[6-9]{1}[0-9]{9}$/" id="owner_phone_number_1" name="owner_phone_number_1" value = "<?php if(isset($dealer_details[0]['owner_phone_number_1'])){ echo $dealer_details[0]['owner_phone_number_1']; }  ?>" >
                             </div>
                         </div>
                         <div class="col-md-4 ">
