@@ -1899,15 +1899,15 @@ class Partner extends CI_Controller {
         log_message("info", __METHOD__ . " Enterring.. Email " . $this->input->post("email_id"));
         $this->form_validation->set_rules('email_id', 'Email', 'trim|required|valid_email|xss_clean');
         if ($this->form_validation->run()) {
-            $password = $this->input->post("password");
-            if ($password == PINCODE_FILE_PASSSWORD) {
+            
                 if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
                     $pathinfo = pathinfo($_FILES["file"]["name"]);
                     if ($pathinfo['extension'] == "xlsx" || $pathinfo['extension'] == "xls") {
                         if (move_uploaded_file($_FILES['file']['tmp_name'], TMP_FOLDER . $_FILES["file"]["name"])) { //check if it the file move successfully.
                             $send_data['email_id'] = $this->input->post("email_id");
-                            $_FILES['file']['tmp_name'] = TMP_FOLDER . $_FILES["file"]["name"];
-                            $send_data['file'] = $_FILES;
+                           // $_FILES['file']['tmp_name'] = TMP_FOLDER . $_FILES["file"]["name"];
+                            $send_data['file_name'] = $_FILES["file"]["name"];
+                           // $send_data['file'] = $_FILES;
                             $url = base_url() . "partner/process_file_upload";
                             $this->asynchronous_lib->do_background_process($url, $send_data);
                             echo "File uploaded successfully!!";
@@ -1923,10 +1923,7 @@ class Partner extends CI_Controller {
                     log_message("info", __METHOD__ . " Enterring.. File not Select" . $this->input->post("email_id"));
                     echo "Please select a file..!";
                 }
-            } else {
-                log_message("info", __METHOD__ . " Enterring.. Password Not match" . $this->input->post("email_id"));
-                    echo "Invalid Password";
-            }
+            
         } else {
             log_message("info", __METHOD__ . " Enterring.. Invalid Email ID" . $this->input->post("email_id"));
             echo "Invalid email format..";
@@ -1935,13 +1932,22 @@ class Partner extends CI_Controller {
 
     function process_file_upload(){
         log_message("info",__METHOD__. " Enterring.. ".$this->input->post("email_id"));
-        $_FILES =  $this->input->post("file");
+        //$_FILES =  $this->input->post("file");
         $email_id = $this->input->post("email_id");
-        log_message("info",__METHOD__." Pincode Data ".print_r($_FILES, true));
-        $data = $this->miscelleneous->excel_to_Array_converter($_FILES);
+        //log_message("info",__METHOD__." Pincode Data ".print_r($_FILES, true));
+        $array = array();
+        $file_name = "sample pin codes.xlsx";
+        $array['file']['tmp_name'] = TMP_FOLDER.$file_name;
+        $array['file']['name'] = $file_name;
+        $data = $this->miscelleneous->excel_to_Array_converter($array);
+        
         if (isset($data[0]['ServiceCentrePincode']) && isset($data[0]['CustomerPincode'])) {
             $excelData = array();
-            
+            $excelPincodeData['ServiceCentrePincode'] = "Service Centre Pincode";
+            $excelPincodeData['CustomerPincode'] = "Customer Pincode";
+            $excelPincodeData['distance'] = "Distance";
+            array_push($excelData, $excelPincodeData);
+            log_message("info",__METHOD__." Enterring in Loop");
             foreach ($data as $value) {
                 $excelPincodeData = array();
                 $excelPincodeData['ServiceCentrePincode'] = $value['ServiceCentrePincode'];
@@ -1960,6 +1966,7 @@ class Partner extends CI_Controller {
 
                     if (!empty($distance)) {
                         $excelPincodeData['distance'] = $distance;
+                        //log_message("info",__METHOD__." Pincode Data ".print_r($distance, true));
                        // $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['CustomerPincode']));
                       //  $municipal = $this->upcountry_model->get_data_from_municipal_limit(array("district" => $distict_details["district"]), "*");
 //                        if (!empty($municipal)) {
@@ -1971,44 +1978,30 @@ class Partner extends CI_Controller {
                       //  $excelPincodeData['status'] = "REQUEST_DENIED";
                       //  $excelPincodeData["municipal_limit"] = "";
                         $excelPincodeData['distance'] = "REQUEST_DENIED";
+                        log_message("info",__METHOD__." Pincode Data REQUEST_DENIED");
                     }
                 } else {
                   //  $excelPincodeData['status'] = "REQUEST_DENIED";
                  //   $excelPincodeData["municipal_limit"] = "";
                     $excelPincodeData['distance'] = "REQUEST_DENIED";
+                    log_message("info",__METHOD__." Pincode Data REQUEST_DENIED");
                 }
 
                 array_push($excelData, $excelPincodeData);
             }
-
-            $templateDir = __DIR__ . "/excel-templates/";
-            $template = "municipal_limit_pincode.xlsx";
-            $config = array(
-                'template' => $template,
-                'templateDir' => $templateDir
-            );
-
-            //load template
-            $R = new PHPReport($config);
-            $R->load(array(
-                array(
-                    'id' => 'data',
-                    'repeat' => true,
-                    'data' => $excelData,
-                )
-                    )
-            );
-
-            $res1 = 0;
-            $output_file_excel = TMP_FOLDER . "distance_".date("YmdHis").".xlsx";
-            if (file_exists($output_file_excel)) {
-
-                system(" chmod 777 " . $output_file_excel, $res1);
-                unlink($output_file_excel);
+            log_message("info",__METHOD__." Exit from Loop");
+            
+            $output_file_excel = TMP_FOLDER . "distance_".date("YmdHis").".csv";
+            $output = fopen($output_file_excel, "a+") or die("Unable to open file!");
+           
+            // create a file pointer connected to the output stream
+            
+            foreach ($excelData as $line) {
+               // log_message('info', __FUNCTION__ . ' File line ' . print_r($line, true));
+                fputcsv($output, $line);
             }
-
-            $R->render('excel', $output_file_excel);
-
+            fclose($output);
+            $res1 = 0;
             log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
 
             if (file_exists($output_file_excel)) {
