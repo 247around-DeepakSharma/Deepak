@@ -575,13 +575,13 @@
                                 } ?>
                         </td>
                         <td>
-                        <?php if (substr($row->booking_id, 0, 2) == 'Q-') { if($this->session->userdata('user_group') === _247AROUND_CALLCENTER && strtotime($row->closed_date) <= strtotime("-1 Months")){
+                        <?php if (substr($row->booking_id, 0, 2) == 'Q-') { if(($this->session->userdata('user_group') !== _247AROUND_ADMIN || $this->session->userdata('user_group') !== _247AROUND_DEVELOPER) && strtotime($row->closed_date) <= strtotime("-1 Months")){
                             echo "<a class='btn btn-sm btn-color' "
                         . "href=" . base_url() . "employee/booking/open_cancelled_query/$row->booking_id  title='open' disabled><i class='fa fa-calendar' aria-hidden='true'></i></a>";
                         }else{
                             echo "<a class='btn btn-sm btn-color' "
                         . "href=" . base_url() . "employee/booking/open_cancelled_query/$row->booking_id  title='open'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
-                        }} else { if($this->session->userdata('user_group') === _247AROUND_CALLCENTER && strtotime($row->closed_date) <= strtotime("-1 Months")){
+                        }} else { if(($this->session->userdata('user_group') !== _247AROUND_ADMIN || $this->session->userdata('user_group') !== _247AROUND_DEVELOPER) && strtotime($row->closed_date) <= strtotime("-1 Months")){
                             echo "<a id='edit' class='btn btn-sm btn-color' "
                                 . "href=" . base_url() . "employee/booking/get_convert_booking_to_pending_form/$row->booking_id/$row->current_status title='Open' target='_blank' disabled> <i class='fa fa-calendar' aria-hidden='true'></i></a>";
                         }else{

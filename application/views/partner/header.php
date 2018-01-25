@@ -233,7 +233,7 @@
             return false;
 
         }
-        intRegex = /^[7-9]{1}[0-9]{9}$/;
+        intRegex = /^[6-9]{1}[0-9]{9}$/;
         if (intRegex.test(phone))
         {
             return true;

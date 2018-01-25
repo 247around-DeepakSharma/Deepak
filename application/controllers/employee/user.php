@@ -60,7 +60,7 @@ class User extends CI_Controller {
         $post['length'] = -1;
         $phone_number = preg_replace('/[^A-Za-z0-9\-]/', '',$this->input->get('phone_number'));
         if (!empty($search)) {
-            if (preg_match("/^[7-9]{1}[0-9]{9}$/", $search)) {
+            if (preg_match("/^[6-9]{1}[0-9]{9}$/", $search)) {
                 $phone_number = $search;
             } else {
                 $booking_id = $search;

@@ -410,7 +410,7 @@
 </div>
 <script type="text/javascript">
     function check_validation(){
-         var exp1 = /^[7-9]{1}[0-9]{9}$/;
+         var exp1 = /^[6-9]{1}[0-9]{9}$/;
         var order_id =  $('#order_id').val();
         var booking_address = $('#booking_address').val();
         var mobile_number = $('#booking_primary_contact_no').val();

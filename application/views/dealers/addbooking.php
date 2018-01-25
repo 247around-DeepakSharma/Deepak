@@ -305,7 +305,7 @@
         var brand = $("#appliance_brand_1").val();
         var not_visible = $("#not_visible").val();
         
-         if(mobile_number === "" || mobile_number.match(/^[7-9]{1}[0-9]{9}$/) === null){
+         if(mobile_number === "" || mobile_number.match(/^[6-9]{1}[0-9]{9}$/) === null){
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Mobile");
              return false;
         } else {

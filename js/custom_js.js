@@ -26,7 +26,8 @@ function getAppliance(service_id) {
         $("#service_id").html(data1.services).change();
         $("#is_active").val(data1.active);
         var booking_type = $("#booking_type").val();
-        if(booking_type ==="" || booking_type === "Query"){
+        
+        if(booking_type ==="" || booking_type === "Query" || booking_type === undefined){
             if(Number(data1.active) === 0){
                 
                 LOW_CREDIT_MSG = data1.prepaid_msg;
@@ -202,7 +203,7 @@ function check_prepaid_balance(type) {
            
         var booking_type = $("#booking_type").val();
         var is_active = $("#is_active").val();
-        if (booking_type === "" || booking_type === "Query") {
+        if (booking_type === "" || booking_type === "Query" || booking_type === undefined ) {
             
             if (Number(is_active) === 0) {
 
@@ -219,7 +220,7 @@ function check_prepaid_balance(type) {
 function addBookingDialog() {
 
     count_number++;
-    var exp1 = /^[7-9]{1}[0-9]{9}$/;
+    var exp1 = /^[6-9]{1}[0-9]{9}$/;
 
 
     var p_contact_no = $('#booking_primary_contact_no').val();
@@ -284,7 +285,7 @@ function addBookingDialog() {
                 }
             }
             
-            if(booking_type ==="" || booking_type === "Query"){
+            if(booking_type ==="" || booking_type === "Query" || booking_type === undefined){
                 if(Number(is_active) === 0){
 
                     alert(LOW_CREDIT_MSG);

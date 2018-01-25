@@ -67,7 +67,7 @@
     function phonevalidate() {
         var ph_no = document.forms["my_Search_Form"]["phone_number"].value;
         var booking_id = document.forms["my_Search_Form"]["booking_id"].value;
-        var exp1 = /^[7-9]{1}[0-9]{9}$/;
+        var exp1 = /^[6-9]{1}[0-9]{9}$/;
         var exp2 = /^[a-zA-Z0-9]{6,}$/;
 
         if (ph_no === "" && booking_id === "" ) {
