@@ -56,6 +56,7 @@
                 <li role="presentation"><a href="#tomorrow_booking" aria-controls="tomorrow_booking" role="tab" data-toggle="tab">Tomorrow Bookings</a></li>
                 <li role="presentation"><a href="#rescheduled_booking" aria-controls="rescheduled_booking" role="tab" data-toggle="tab">Rescheduled Bookings</a></li>
                 <li role="presentation"><a href="#spare_required" aria-controls="spare_required" role="tab" data-toggle="tab">Spare Required Bookings</a></li>
+                <li role="presentation"><a href="#bookings_on_approval" aria-controls="bookings_on_approval" role="tab" data-toggle="tab">Bookings On Approval</a></li>
                 <?php } ?>
             </ul>
         </div>
