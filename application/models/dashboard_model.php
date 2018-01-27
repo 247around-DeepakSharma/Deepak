@@ -360,16 +360,20 @@ class dashboard_model extends CI_Model {
       */
      function get_sf_escalation_by_rm_by_sf_by_date($startDate=NULL,$endDate=NULL,$sf_id=NULL,$rm_id=NULL,$groupBy){
          //Create Blank Where Array For escalation and Booking
+    $booking_orderBy["YEAR(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))"] = "ASC";
     $booking_orderBy["month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))"] = "ASC";
     $escalation_orderBy["month(vendor_escalation_log.create_date)"] = "ASC";
+    $escalation_orderBy["YEAR(vendor_escalation_log.create_date)"] = "ASC";
     $escalation_where=array();
     $booking_where=array();
     //Create Join  Array For escalation and Booking (JOIN With employee Relation to get RM)
     $escalation_join = array("employee_relation"=>"FIND_IN_SET( vendor_escalation_log.vendor_id , employee_relation.service_centres_id )");
     $booking_join = array("employee_relation"=>"FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )");
     //Create Select String for booking and escalation
-    $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date,employee_relation.agent_id as rm_id,MONTHNAME(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_month';
-    $escalation_select = 'count(vendor_escalation_log.booking_id) AS total_escalation,vendor_escalation_log.vendor_id,vendor_escalation_log.create_date as escalation_date,employee_relation.agent_id as rm_id,MONTHNAME(vendor_escalation_log.create_date) as escalation_month';
+    $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date,employee_relation.agent_id as rm_id,'
+            . 'MONTH(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_month,YEAR(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_year';
+    $escalation_select = 'count(vendor_escalation_log.booking_id) AS total_escalation,vendor_escalation_log.vendor_id,vendor_escalation_log.create_date as escalation_date,'
+            . 'employee_relation.agent_id as rm_id,MONTH(vendor_escalation_log.create_date) as escalation_month,YEAR(vendor_escalation_log.create_date) as escalation_year';
    // If rm id is set add rm id in where array for booking and escalation
     if($rm_id){
        $escalation_where['employee_relation.agent_id'] = $rm_id;

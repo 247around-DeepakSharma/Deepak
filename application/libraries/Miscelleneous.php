@@ -475,7 +475,7 @@ class Miscelleneous {
     function check_unit_in_sc($booking_id) {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         if (!empty($booking_id)) {
-            $data = $this->My_CI->booking_model->getbooking_history($booking_id);
+            $data = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
             if (!empty($data)) {
                 log_message('info', __FUNCTION__ . " Booking Id DATA Found " . print_r($booking_id, true));
                 if (!is_null($data[0]['assigned_vendor_id'])) {
@@ -500,6 +500,20 @@ class Miscelleneous {
                             } else {
                                 log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true) . " Unit exist in sc table " . $value['id']);
                             }
+
+                            if ($data[0]['isEngineerApp'] == 1) {
+                                $en_data = $this->My_CI->engineer_model->getengineer_action_data("unit_details_id", array('unit_details_id' => $value['id'], 'booking_id' => $booking_id));
+                                if (empty($en_data)) {
+                                    $en['current_status'] = "Pending";
+                                    $en['create_date'] = date('Y-m-d H:i:s');
+                                    $en['internal_status'] = "Pending";
+                                    $en['service_center_id'] = $data[0]['assigned_vendor_id'];
+                                    $en['booking_id'] = $booking_id;
+                                    $en['unit_details_id'] = $value['id'];
+
+                                    $this->My_CI->engineer_model->insert_engineer_action($en);
+                                }
+                            }
                         }
                         $sc_data1 = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id", array('booking_id' => $booking_id));
                         if (!empty($sc_data1)) {
@@ -511,6 +525,19 @@ class Miscelleneous {
                                 }
                             }
                         }
+
+                        if ($data[0]['isEngineerApp'] == 1) {
+                            $en_data1 = $this->My_CI->engineer_model->getengineer_action_data("unit_details_id", array('booking_id' => $booking_id));
+                            if (!empty($en_data1)) {
+                                foreach ($en_data1 as $value2) {
+                                    $unit_details = $this->My_CI->booking_model->get_unit_details(array('id' => $value2['unit_details_id'], 'booking_id' => $booking_id));
+                                    if (empty($unit_details)) {
+                                        log_message('info', __FUNCTION__ . " Booking Unit details not exist  unit_id" . $value2['unit_details_id']);
+                                        $this->My_CI->engineer_model->delete_engineer_table(array('unit_details_id' => $value2['unit_details_id'], 'booking_id' => $booking_id));
+                                    }
+                                }
+                            }
+                        }
                     } else {
                         log_message('info', __FUNCTION__ . " Booking Unit details not exist  Booking Id  " . print_r($booking_id, true));
                     }
@@ -519,6 +546,9 @@ class Miscelleneous {
                     //service center booking action table as well.
                     log_message('info', __FUNCTION__ . " Request to delete booking from service center action table Booking ID" . $booking_id);
                     $this->My_CI->service_centers_model->delete_booking_id($booking_id);
+                    if ($data[0]['isEngineerApp'] == 1) {
+                        $this->My_CI->engineer_model->delete_booking_from_engineer_table($booking_id);
+                    }
                     log_message('info', __FUNCTION__ . " Booking Not Assign-  Booking Id  " . print_r($booking_id, true));
                 }
                 //Prepare job card
@@ -1065,24 +1095,9 @@ class Miscelleneous {
         }
 
         if ($flag) {
-            switch ($default_partner) {
-                case SNAPDEAL_ID:
-                    $data['partner_id'] = SNAPDEAL_ID;
-                    $data['source'] = 'SS';
-                    break;
-                case WYBOR_ID:
-                    $data['partner_id'] = WYBOR_ID;
-                    $data['source'] = 'SY';
-                    break;
-                case PAYTM:
-                    $data['partner_id'] = PAYTM;
-                    $data['source'] = 'SP';
-                    break;
-                case AKAI_ID:
-                    $data['partner_id'] = AKAI_ID;
-                    $data['source'] = 'PA';
-                    break;
-            }
+            $get_partner_source = $this->My_CI->partner_model->getpartner_details('bookings_sources.code', array('partners.id' => $default_partner));
+            $data['partner_id'] = $default_partner;
+            $data['source'] = $get_partner_source[0]['code'];
         }
 
         $blocked_brand = $this->My_CI->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['partner_id'], "brand" => $brand), "*");
@@ -1305,6 +1320,7 @@ class Miscelleneous {
 
         return $new_appliance_details;
     }
+
     /*
      * This Function use to update sf_not_found_pincode table
      * When we upload any new pincode and that pincode with same service_id exist in sf not found table, then this will update its active flag
@@ -1409,6 +1425,7 @@ class Miscelleneous {
         }
         log_message('info', __FUNCTION__ . " Exit ");
     }
+
     /**
      * @Desc: This function is used to check if user name is empty or not
      * if user name is not empty then return username otherwise check if email is not
@@ -1673,7 +1690,7 @@ class Miscelleneous {
      * @param array $data
      * @return string $output_file_excel
      */
-    function generate_excel_data($template, $download_file_name, $data) {
+    function generate_excel_data($template, $download_file_name, $data,$repeat = true,$cell = false, $imagePath = false) {
 
 
         // directory
@@ -1689,7 +1706,7 @@ class Miscelleneous {
         $R->load(array(
             array(
                 'id' => 'excel_data',
-                'repeat' => true,
+                'repeat' => $repeat,
                 'data' => $data,
             )
                 )
@@ -1704,7 +1721,7 @@ class Miscelleneous {
             unlink($output_file_excel);
         }
 
-        $R->render('excel', $output_file_excel);
+        $R->render('excel', $output_file_excel,$cell,$imagePath);
 
         return $output_file_excel;
     }

@@ -3,7 +3,13 @@
         <div><h1>Brackets History</h1></div>
         <div >
             <div class="span6 pull-right">
-                <a href="<?php echo !empty($data[0]['invoice_id'])?'https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$data[0]['invoice_id']:''?>" class="btn btn-primary" <?php echo !empty($data[0]['invoice_id'])?'':'disabled'?>>Download Invoice</a>
+                <?php if(!empty($data[0]['invoice_file_pdf'])) { ?> 
+                    <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/invoices-excel/<?php echo $data[0]['invoice_file_pdf']; ?>" class="btn btn-primary">Download Invoice</a>
+                <?php }else if(!empty($data[0]['invoice_file_excel'])){ ?>
+                    <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/invoices-excel/<?php echo $data[0]['invoice_file_excel']; ?>" class="btn btn-primary">Download Invoice</a>
+                <?php }else{ ?> 
+                    <button class="btn btn-primary" disabled="">Download Invoice</button>
+                <?php } ?>
             </div>
             <div class="span6">
                 <a href="<?php echo !empty($brackets[0]['shipment_receipt'])?'https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/'.$brackets[0]['shipment_receipt']:''?>" target="_blank" class="btn btn-primary" <?php echo !empty($brackets[0]['shipment_receipt'])?'':'disabled'?>>Download Docket File</a>

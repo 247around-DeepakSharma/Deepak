@@ -174,6 +174,8 @@ define("WYBOR_ID", 247010);
 define("ZOPPER_ID", 247012);
 //AKAI ID
 define("AKAI_ID", 247034);
+//AKAI ID
+define("AQUAGRAND_PLUS_ID", 247038);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, sachinj@247around.com, chhavid@247around.com');
 //Define Email ID to send system health emails
@@ -197,6 +199,8 @@ define('_247AROUND_PAYTM_DELIVERED','Paytm-Delivered');
 define('_247AROUND_SATYA_DELIVERED','Satya-Delivered');
 //Define Constant for Akai File 
 define('_247AROUND_AKAI_DELIVERED','Akai-Delivered');
+//Define Constant for Aquagrand File 
+define('_247AROUND_AQUAGRAND_PLUS_DELIVERED','Aquagrand-Plus-Delivered');
 //Define Constant for Vendor Pincode Excel File Type
 define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 //Define Constant for Vendor Pincode Excel File Type
@@ -344,7 +348,6 @@ define("RM_EMAIL", "nits@247around.com, suresh@247around.com, oza@247around.com,
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_TO", "adila@247around.com");
 define("SF_NOT_EXISTING_IN_PINCODE_MAPPING_FILE_CC", "");
 
-
 //promotional sms constant
 define('COMPLETED_PROMOTINAL_SMS_1','completed_promotional_sms_1');
 define('COMPLETED_PROMOTINAL_SMS_2','completed_promotional_sms_2');
@@ -452,7 +455,6 @@ define("PARTNER_INVOICE_BUTTON", "CRM Setup Invoice");
 define("CT_INVOICE_BUTTON", "Sweetener Invoice");
 define("QC_INVOICE_DESCRIPTION", "Service Charges for QC");
 define("CRM_SETUP_INVOICE_DESCRIPTION", "Annual Setup Charges");
-
 define("TAT_BREACH_DAYS", "-45 days");
 
 // QC Balance Read Email Constant
@@ -466,7 +468,6 @@ define("PARTNER_PROVIDE_UPCOUNTRY_PRICE_TAG", "1");
 
 define("REPEAT_BOOKING_TAG", "Repeat Booking");
 define("_247AROUND_PRODUCT_TAG", "Product"); 
-
 
 
 //tv service id
@@ -531,10 +532,14 @@ define('ACCOUNTANT_EMAILID',"adityag@247around.com" );
 //Booking Rescheduled Confirmation SMS Constant
 define('BOOKING_RESCHEDULED_CONFIRMATION_SMS','rescheduled_confirmation_sms');
 
+define('ENGINEER_COMPLETE_STATUS',"InProcess_Complete" );
+define('ENGINEER_CANCELLED_STATUS',"InProcess_Cancelled" );
+
+define('PINCODE_FILE_PASSSWORD',"247around" );
+
 define('PUSH_NOTIFICATION_API_KEY','3d15cad629128ac894c9a73a0ff5852b');
 define('PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL','https://pushcrew.com/api/v1/send/list');
 
-define('PINCODE_FILE_PASSSWORD',"247around" );
 define('BUYBACK','buyback');
 
 /* End of file constants.php */

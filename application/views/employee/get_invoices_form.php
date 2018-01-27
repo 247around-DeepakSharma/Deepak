@@ -72,7 +72,7 @@ function partner_vendor1(vendor_partner_id){
                 },
                 submitHandler: function(form) {
                     var partner_invoice_id  = $("#name").val();
-                    if(partner_invoice_id === "All"){
+                    if((partner_invoice_id[0] === "All" && partner_invoice_id.length >= 1) || partner_invoice_id.length > 1){
                         var vendor_partner = $("input[name='partner_vendor']:checked").val();
                         
                         if(vendor_partner === "vendor"){
@@ -196,7 +196,7 @@ color: red;
              <div class="form-group ">
               <label for="name" class="col-md-2">Company Name</label>
                 <div class="col-md-3">
-                  <select type="text" class="form-control"  id="name" name="partner_vendor_id"  required></select>
+                    <select class="form-control"  id="name" name="partner_vendor_id[]"  required multiple=""></select>
                 </div>
              </div>
 

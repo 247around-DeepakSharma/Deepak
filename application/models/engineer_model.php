@@ -2,7 +2,7 @@
 
 class Engineer_model extends CI_Model {
     
-    var $order = array('engineer_booking_action.update_date' => 'desc'); // default order 
+    var $order = array('booking_unit_details.product_or_services' => 'desc'); // default order 
 
     /**
      * @desc load both db
@@ -35,6 +35,14 @@ class Engineer_model extends CI_Model {
             }
         }
     }
+    
+    function delete_engineer_table($where){
+        if(!empty($where)){
+            $this->db->where($where);
+            $this->db->delete('engineer_booking_action');
+        }
+        log_message('info', __FUNCTION__ . '=> Delete sc unit details: ' .$this->db->last_query());
+    }
     /**
      * @desc This is used to select engineer action data 
      * @param String $select
@@ -45,6 +53,13 @@ class Engineer_model extends CI_Model {
         $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get("engineer_booking_action");
+        return $query->result_array();
+    }
+    
+    function getengineer_sign_table_data($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("engineer_table_sign");
         return $query->result_array();
     }
     
@@ -87,6 +102,8 @@ class Engineer_model extends CI_Model {
         
         $this->db->join('engineer_table_sign', 'booking_details.booking_id = engineer_booking_action.booking_id '
                 . ' AND booking_details.assigned_vendor_id = engineer_table_sign.service_center_id ', 'left');
+       
+        $this->db->join('users', 'users.user_id = booking_details.user_id', 'left');
 
         $this->db->join('services', 'services.id = booking_details.service_id');
         if (!empty($post['where'])) {
@@ -122,5 +139,13 @@ class Engineer_model extends CI_Model {
             $order = $this->order;
             $this->db->order_by(key($order), $order[key($order)]);
         }
+    }
+    
+    function get_engineers_details($where, $select){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("engineer_details");
+        return $query->result_array();
+        
     }
 }

@@ -228,14 +228,19 @@ class Do_background_upload_excel extends CI_Controller {
      * @param boolean $validation
      */
     function send_mail_column($subject, $message, $validation,$file_type,$partner_id){
-        if($partner_id === SNAPDEAL_ID){
-            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
-        }else if($partner_id === WYBOR_ID){
-            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
-        }else if($partner_id === AKAI_ID){
-            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
+        if(empty($this->email_send_to)){
+            if(empty($this->session->userdata('official_email'))){
+                $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
+                if (!empty($get_partner_am_id[0]['account_manager_id'])) {
+                    $file_upload_agent_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
+                }else{
+                    $file_upload_agent_email = _247AROUND_SALES_EMAIL;
+                }
+            }else{
+                $file_upload_agent_email = $this->session->userdata('official_email');
+            }
         }else{
-            $file_upload_agent_email = "";
+            $file_upload_agent_email = $this->email_send_to;
         }
         
         $to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
@@ -782,7 +787,7 @@ class Do_background_upload_excel extends CI_Controller {
                 if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
 		$data['valid_data'][$key]['appliance'] = 'Washing Machine';
                 }
-                if (stristr($prod, "Television") || stristr($prod, "TV") ||  stristr($prod, "Tv")) {
+                if (stristr($prod, "Television") || stristr($prod, "TV") ||  stristr($prod, "Tv") ||  stristr($prod, "LED")) {
                     $data['valid_data'][$key]['appliance'] = 'Television';
                 }
                 if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner") || strstr($prod, "AC")) {
@@ -1066,14 +1071,20 @@ class Do_background_upload_excel extends CI_Controller {
      * @param string $filetype
      */
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name,$partner_id,$file_upload = true) {
-        if($partner_id === SNAPDEAL_ID){
-            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_SALES_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
-        }else if($partner_id === WYBOR_ID){
-            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
-        }else if($partner_id === AKAI_ID){
-            $file_upload_agent_email = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?_247AROUND_VIJAYA_EMAIL:$this->session->userdata('official_email')):$this->email_send_to;
+        
+        if(empty($this->email_send_to)){
+            if(empty($this->session->userdata('official_email'))){
+                $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
+                if (!empty($get_partner_am_id[0]['account_manager_id'])) {
+                    $file_upload_agent_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
+                }else{
+                    $file_upload_agent_email = _247AROUND_SALES_EMAIL;
+                }
+            }else{
+                $file_upload_agent_email = $this->session->userdata('official_email');
+            }
         }else{
-            $file_upload_agent_email = "";
+            $file_upload_agent_email = $this->email_send_to;
         }
         
 	$to = NITS_ANUJ_EMAIL_ID.",".$file_upload_agent_email;
@@ -1251,19 +1262,8 @@ class Do_background_upload_excel extends CI_Controller {
             if ($header_data['status']) {
                 $header_data = array_merge($header_data,$file_status);
                 $header_data['file_type'] = $upload_file_type;
-                //process file upload accoding to upload file type
-                switch ($upload_file_type) {
-                    case _247AROUND_SATYA_DELIVERED:
-                        $redirect_to = 'upload_satya_file';
-                        $header_data['partner_id'] = WYBOR_ID;
-                        $response = $this->process_satya_file_upload($header_data);
-                        break;
-                    case _247AROUND_AKAI_DELIVERED:
-                        $redirect_to = 'upload_akai_file';
-                        $header_data['partner_id'] = AKAI_ID;
-                        $response = $this->process_akai_file_upload($header_data);
-                        break;
-                }
+                $redirect_to = $this->input->post('redirect_to');
+                $response = $this->process_file_upload($header_data);
                 
                 //if file uploaded successfully then log else send email 
                 if ($response['status']) {
@@ -1274,13 +1274,21 @@ class Do_background_upload_excel extends CI_Controller {
                     $this->miscelleneous->update_file_uploads($header_data['file_name'], $file_status['file_tmp_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
                     
                     //get email details 
-                    if (!empty($this->email_send_to)) {
+                    if(empty($this->email_send_to)){
+                        if(empty($this->session->userdata('official_email'))){
+                            $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
+                            if (!empty($get_partner_am_id[0]['account_manager_id'])) {
+                                $to = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
+                            }else{
+                                $to = _247AROUND_SALES_EMAIL;
+                            }
+                        }else{
+                            $to = $this->session->userdata('official_email');
+                        }
+                    }else{
                         $to = $this->email_send_to;
-                    } else if (!empty($this->session->userdata('official_email'))) {
-                        $to = $this->session->userdata('official_email');
-                    } else {
-                        $to = _247AROUND_VIJAYA_EMAIL;
                     }
+                    
                     $cc = DEVELOPER_EMAIL;
                     $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
                     $subject = "Failed! $upload_file_type File uploaded by " . $agent_name;
@@ -1323,7 +1331,7 @@ class Do_background_upload_excel extends CI_Controller {
             
             $response['status'] =  True;
         } else {
-            log_message('info', __FUNCTION__ . ' Empty File Uploaded for Satya File Upload');
+            log_message('info', __FUNCTION__ . ' Empty File Uploaded');
             $response['status'] =  False;
         }
         
@@ -1378,40 +1386,6 @@ class Do_background_upload_excel extends CI_Controller {
     }
     
     /**
-     * @desc: This function is used to process the satya file upload
-     * @param $data array
-     * @param $response array
-     */
-    function process_satya_file_upload($data) {
-        log_message('info', __FUNCTION__ . "=> Satya File Upload: Beginning processing...");
-        $select = 'sub_order_id,product_type,customer_name,customer_address,pincode,phone';
-        $data['actual_header_data'] = $this->reusable_model->get_search_query('partner_file_upload_header_mapping',$select,array('partner_id'=>$data['partner_id']),NULL,NULL,NULL,NULL,NULL)->result_array();
-        $response = $this->check_column_exist($data);
-        if ($response['status']) {          
-            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
-                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                $subArray = $this->get_sub_array($rowData,$data['actual_header_data'][0]);
-                $subArray['partner_source'] = "Satya-delivered-excel";
-                $subArray['partner_id'] = WYBOR_ID;
-                $this->get_final_file_data($subArray,$data['actual_header_data'][0]);
-            }
-            
-            if(!empty($this->finalArray)){
-                //process file to insert bookings
-                $this->process_upload_sd_file($this->finalArray,'delivered', $data['file_name'],$data['partner_id']);
-                
-                //save file and upload on s3
-                $this->miscelleneous->update_file_uploads($data['file_name'],$data['file_tmp_name'], $data['file_type'],FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
-            }
-            
-            $response['status'] = TRUE;
-        }
-        
-        return $response;
-    }
-    
-    /**
      * @desc: This function is used to get the sub array from the array
      * @param $parentArray array
      * @param $subsetArrayToGet array
@@ -1431,43 +1405,41 @@ class Do_background_upload_excel extends CI_Controller {
         $tmpArr['unique_id'] = 'Around';
         $tmpArr['referred_date_and_time'] = '';
         $tmpArr['sub_order_id'] = $data[$header_data['sub_order_id']];
+        $tmpArr['product_type'] = $data[$header_data['product_type']];
+        $tmpArr['customer_name'] = $data[$header_data['customer_name']];
+        $tmpArr['customer_address'] = $data[$header_data['customer_address']];
+        $tmpArr['pincode'] = $data[$header_data['pincode']];
         
-        if($data['partner_id'] === WYBOR_ID){
-            $tmpArr['brand'] = 'Wybor';
-        }else if($data['partner_id'] === AKAI_ID){
-            $tmpArr['brand'] = 'Akai';
+        if(isset($data[$header_data['brand']]) && !empty($data[$header_data['brand']])){
+            $tmpArr['brand'] = $data[$header_data['brand']];
+        }else{
+            $tmpArr['brand'] = '';
         }
         
-        if(isset($header_data['model']) && !empty($header_data['model'])){
+        if(isset($data[$header_data['model']]) && !empty($data[$header_data['model']])){
             $tmpArr['model'] = $data[$header_data['model']];
         }else{
             $tmpArr['model'] = '';
         }
         
-        if(isset($header_data['product']) && !empty($header_data['product'])){
+        if(isset($data[$header_data['product']]) && !empty($data[$header_data['product']])){
             $tmpArr['product'] = $data[$header_data['product']];
-        }else if(isset($data['partner_id']) && !empty($data['partner_id'])){
-            $tmpArr['product'] = 'Television';
         }else{
-            $tmpArr['product'] = '';
+            $tmpArr['product'] = $tmpArr['product_type'];
         }
         
-        $tmpArr['product_type'] = $data[$header_data['product_type']];
-        $tmpArr['customer_name'] = $data[$header_data['customer_name']];
-        $tmpArr['customer_address'] = $data[$header_data['customer_address']];
-        $tmpArr['pincode'] = $data[$header_data['pincode']];
-        if(isset($header_data['city']) && !empty($header_data['city'])){
+        if(isset($data[$header_data['city']]) && !empty($data[$header_data['city']])){
             $tmpArr['city'] = $data[$header_data['city']];
         }else{
             $tmpArr['city'] = '';
         }
         $tmpArr['phone'] = $data[$header_data['phone']];
-        if(isset($header_data['alternate_phone']) && !empty($header_data['alternate_phone'])){
+        if(isset($data[$header_data['alternate_phone']]) && !empty($data[$header_data['alternate_phone']])){
             $tmpArr['phone'] = $data[$header_data['phone']]."/".$data[$header_data['alternate_phone']];
         }else{
             $tmpArr['phone'] = $data[$header_data['phone']];
         }
-        if(isset($header_data['email_id']) && !empty($header_data['email_id'])){
+        if(isset($data[$header_data['email_id']]) && !empty($data[$header_data['email_id']])){
             $tmpArr['email_id'] = $data[$header_data['email_id']];
         }else{
             $tmpArr['email_id'] = '';
@@ -1480,48 +1452,13 @@ class Do_background_upload_excel extends CI_Controller {
     }
     
     /**
-     * @desc: This function is used to process the Akai file upload
-     * @param $data array
-     * @param $response array
-     */
-    private function process_akai_file_upload($data){
-        log_message('info', __FUNCTION__ . "=> Akai File Upload: Beginning processing...");
-        $select = 'sub_order_id,product_type,customer_name,customer_address,pincode,phone,alternate_phone';
-        $data['actual_header_data'] = $this->reusable_model->get_search_query('partner_file_upload_header_mapping',$select,array('partner_id'=>$data['partner_id']),NULL,NULL,NULL,NULL,NULL)->result_array();
-        $response = $this->check_column_exist($data);
-        
-        //if all column exist then retrive data from the file else send error mail
-        if ($response['status']) {
-            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
-                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                $subArray = $this->get_sub_array($rowData,$data['actual_header_data'][0]);
-                $subArray['partner_source'] = "Akai-delivered-excel";
-                $subArray['partner_id'] = AKAI_ID;
-                $this->get_final_file_data($subArray,$data['actual_header_data'][0]);
-            }
-            
-            if(!empty($this->finalArray)){
-                //process file to insert bookings
-                $this->process_upload_sd_file($this->finalArray,'delivered', $data['file_name'],$data['partner_id']);
-                
-                //save file and upload on s3
-                $this->miscelleneous->update_file_uploads($data['file_name'],$data['file_tmp_name'], $data['file_type'],FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
-            }
-            
-            $response['status'] = TRUE;
-        }
-        
-        return $response;
-    }
-    
-    /**
      * @desc: This function is used to validate upload file header
      * @param $data array
      * @param $return_response array
      */
     function check_column_exist($data){
-        $is_all_header_present = array_diff(array_values($data['actual_header_data'][0]),$data['header_data']);
+        $subArray = $this->get_sub_array($data['actual_header_data'][0],array('sub_order_id','product','product_type','customer_name','customer_address','pincode','phone'));
+        $is_all_header_present = array_diff(array_values($subArray),$data['header_data']);
         if(!empty($is_all_header_present)){
             $this->ColumnFailed = "<b>".implode($is_all_header_present, ',')." </b> column does not exist.Please correct these and upload again. <br><br><b> For reference,Please use previous successfully upload file from CRM</b>";
             $return_response['status'] = FALSE;
@@ -1532,6 +1469,34 @@ class Do_background_upload_excel extends CI_Controller {
         }
         
         return $return_response;
+    }
+    
+    function process_file_upload($data){
+        log_message('info', __FUNCTION__ . "=> File Upload: Beginning processing...");
+        $select = '*';
+        $data['actual_header_data'] = $this->reusable_model->get_search_query('partner_file_upload_header_mapping',$select,array('partner_id'=>$this->input->post('partner_id')),NULL,NULL,NULL,NULL,NULL)->result_array();
+        $response = $this->check_column_exist($data);
+        if ($response['status']) {          
+            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                $rowData['partner_source'] = $this->input->post('partner_source');
+                $rowData['partner_id'] = $this->input->post('partner_id');;
+                $this->get_final_file_data($rowData,$data['actual_header_data'][0]);
+            }
+            
+            if(!empty($this->finalArray)){
+                //process file to insert bookings
+                $this->process_upload_sd_file($this->finalArray,'delivered', $data['file_name'],$this->input->post('partner_id'));
+                
+                //save file and upload on s3
+                $this->miscelleneous->update_file_uploads($data['file_name'],$data['file_tmp_name'], $data['file_type'],FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
+            }
+            
+            $response['status'] = TRUE;
+        }
+        
+        return $response;
     }
 
 }

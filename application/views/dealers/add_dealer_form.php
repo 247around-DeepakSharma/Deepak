@@ -52,7 +52,7 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12">
                                 <label for="dealer name">Dealer Mobile No *</label>
-                                <input type="text" placeholder="Eneter Dealer Mobile Number" class="form-control" ng-pattern="/^[7-9]{1}[0-9]{9}$/" ng-minlength="10" ng-maxlength="10" ng-model="tempData.dealer_phone_number_1"
+                                <input type="text" placeholder="Eneter Dealer Mobile Number" class="form-control" ng-pattern="/^[6-9]{1}[0-9]{9}$/" ng-minlength="10" ng-maxlength="10" ng-model="tempData.dealer_phone_number_1"
                                        id="dealer_phone_number_1" name="dealer_phone_number_1" value = "" required>
                                  <span class="msg"  ng-show="dealerForm.dealer_phone_number_1.$dirty && dealerForm.dealer_phone_number_1.$error.required">Mobile No is required</span>
                                  <span class="msg"  ng-show="dealerForm.dealer_phone_number_1.$dirty && dealerForm.dealer_phone_number_1.$error.pattern">Please Enter Valid Mobile No</span>
@@ -88,7 +88,7 @@
                             <div class="form-group col-md-12">
                                 <label for="dealer name">Owner Mobile No </label>
                                 <input type="text" placeholder="Eneter Owner Mobile Number" class="form-control"
-                                       ng-pattern="/^[7-9]{1}[0-9]{9}$/" ng-minlength="10" ng-maxlength="10" ng-model="tempData.owner_phone_number_1"
+                                       ng-pattern="/^[6-9]{1}[0-9]{9}$/" ng-minlength="10" ng-maxlength="10" ng-model="tempData.owner_phone_number_1"
                                        id="owner_phone_number_1" name="owner_phone_number_1" value = "" >
 <!--                                 <span class="msg"  ng-show="dealerForm.owner_phone_number_1.$dirty && dealerForm.owner_phone_number_1.$error.required">Mobile No is required</span>-->
                                  <span class="msg"  ng-show="dealerForm.owner_phone_number_1.$dirty && dealerForm.owner_phone_number_1.$error.pattern">Please Enter Valid Mobile No</span>

@@ -2930,11 +2930,13 @@ class Api extends CI_Controller {
     function processEngineerLogin(){
          $requestData = json_decode($this->jsonRequestData['qsh'], true);
          $data = $this->dealer_model->entity_login(array("entity" => "engineer", 
-            "active" =>1, "user_id" => $requestData["mobile"], "password" => md5($requestData["mobile"])));
+            "active" =>1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
         if(!empty($data)){
-            $engineer  = $this->vendor_model->get_engineers_details(array("id" => $data[0]['entity_id']), "service_center_id, name");
+            $engineer  = $this->engineer_model->get_engineers_details(array("id" => $data[0]['entity_id']), "service_center_id, name");
             if(!empty($engineer)){
+                $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($engineer[0]['service_center_id']);
                 $data[0]['service_center_id'] = $engineer[0]['service_center_id'];
+                $data[0]['sc_agent_id'] = $sc_agent[0]['id'];
                 $data[0]['agent_name'] = $engineer[0]['name'];
                 $device['deviceInfo'] = $requestData["deviceInfo"];
                 $device["device_id"] = $this->deviceId;
@@ -2958,21 +2960,14 @@ class Api extends CI_Controller {
             $post['length'] = -1;
             $post['search_value'] = trim($requestData['search_text']);
             $post['where'] = array('assigned_vendor_id' => $requestData['service_center_id']);
-            $post['column_search'] = array('booking_details.booking_id', 'booking_details.booking_primary_contact_no',
-                'booking_alternate_contact_no', 'users.phone_number');
+            $post['column_search'] = array('engineer_booking_action.booking_id', 'booking_details.booking_primary_contact_no',
+                'booking_alternate_contact_no');
             $select = "services.services, booking_address, booking_details.booking_id, booking_details.booking_primary_contact_no, "
-                    . "users.name as customername,booking_details.current_status, booking_details.amount_due";
-
-            $data = $this->booking_model->get_bookings_by_status($post, $select);
+                    . "users.name as customername,engineer_booking_action.current_status, booking_details.amount_due";
+            
+            
+            $data = $this->engineer_model->get_engineer_action_table_list($post, $select);
             if (!empty($data) && isset($data[0]->booking_id)) {
-//                foreach ($data as $key => $value) {
-//                    $en = $this->engineer_model->getengineer_action_data("current_status", array("current_status" => $value->booking_id));
-//                    if(!empty($en)){
-//                        $data[$key]->current_status = $en[0]['current_status'];
-//                    } else {
-//                        $data[$key]->current_status = "InProcess";
-//                    }
-//                }
                 $this->jsonResponseString['bookingDetails'] = $data;
                 $this->sendJsonResponse(array('0000', 'success'));
             } else {
@@ -3004,7 +2999,7 @@ class Api extends CI_Controller {
     function processCompleteBookingByEngineer(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $unitDetails = json_decode($requestData["UnitArray"], true);
-      
+     
         $booking_id = $requestData["bookingID"];
         $validation = true;
         foreach($unitDetails as $value){
@@ -3040,7 +3035,8 @@ class Api extends CI_Controller {
                
             }
             $data["closed_date"] = date("Y-m-d H:i:s");
-            $data["agent_id"] = $requestData['agent_id'];
+            $data["engineer_id"] = $requestData['engineer_id'];
+           // $data["agent_id"] = $requestData['agent_id'];
             $this->engineer_model->update_engineer_table($data, array("unit_details_id" => $value["unitID"], "booking_id" =>$value["bookingID"] ));
         }
         
@@ -3050,18 +3046,21 @@ class Api extends CI_Controller {
             $this->generate_image($requestData["SignatureEncode"],$sign_pic_url );
             
             $en["amount_paid"] = $requestData["amountPaid"];
+            $en["booking_id"] = $booking_id;
             $en["signature"] = $sign_pic_url;
-            if(isset($requestData['pincode'])){
-                $en["pincode"] = $requestData['pincode'];
-                $en["city"] = $requestData['city'];
-                $en["address"] = $requestData['address'];
-                $en["service_center_id"] = $requestData['service_center_id'];
-                $en["engineer_id"] = $requestData['engineer_id'];
+            if(!empty($requestData['location']) ){
+                $location = json_decode($requestData['location'], true);
+                $en["pincode"] = $location['pincode'];
+                $en["city"] = $location['city'];
+                $en["address"] = $location['address'];
+               
             }
+            $en["service_center_id"] = $requestData['service_center_id'];
+            $en["engineer_id"] = $requestData['engineer_id'];
                     
             $this->engineer_model->insert_engineer_action_sign($en);
             $this->notify->insert_state_change($booking_id, ENGINEER_COMPLETE_STATUS, _247AROUND_PENDING, "Booking Updated By Engineer From App", 
-               _247AROUND_DEFAULT_AGENT, "247Around", _247AROUND);
+                    $requestData['sc_agent_id'], "", NULL, $requestData['service_center_id']);
             
             $this->sendJsonResponse(array('0000', 'success'));
         } else {
@@ -3086,8 +3085,10 @@ class Api extends CI_Controller {
             $data['engineer_id'] = $requestData["engineer_id"];
             $data["closed_date"] = date("Y-m-d H:i:s");
             $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
-            $this->notify->insert_state_change($requestData["bookingID"], ENGINEER_CANCELLED_STATUS, _247AROUND_PENDING, $requestData["cancellationReason"], 
-               _247AROUND_DEFAULT_AGENT, "247Around", _247AROUND);
+           
+            $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING, 
+                    "Booking Cancelled By Engineer From App", 
+                    $requestData['sc_agent_id'], "", NULL, $requestData['service_center_id']);
             
             $this->sendJsonResponse(array('0000', 'success'));
              

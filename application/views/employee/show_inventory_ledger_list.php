@@ -1,20 +1,4 @@
 <div id="page-wrapper" >
-    <div class="row">
-        <?php  if($this->uri->segment(3) == 'show_inventory_ledger_list'){?>
-        <div class="col-md-6 col-sm-6 col-xs-12" >
-            <div class="pagination">
-                    <select id="dynamic_select" class="form-control">
-                        <option value="<?php echo base_url().'employee/inventory/show_inventory_ledger_list'?>" <?php if($this->uri->segment(4) == 50){ echo 'selected';}?>>50</option>
-                        <option value="<?php echo base_url().'employee/inventory/show_inventory_ledger_list/100/0'?>" <?php if($this->uri->segment(4) == 100){ echo 'selected';}?>>100</option>
-                        <option value="<?php echo base_url().'employee/inventory/show_inventory_ledger_list/200/0'?>" <?php if($this->uri->segment(4) == 200){ echo 'selected';}?>>200</option>
-                        <option value="<?php echo base_url().'employee/inventory/show_inventory_ledger_list/500/0'?>" <?php if($this->uri->segment(4) == 500){ echo 'selected';}?>>500</option>
-                        <option value="<?php echo base_url().'employee/inventory/show_inventory_ledger_list/0/All'?>"<?php if($this->uri->segment(5) == "All"){ echo 'selected';}?> >All</option>
-
-                    </select>
-                </div>
-        </div>
-        <?php } ?>
-    </div>
     <div>
         <h3>Inventory Ledger Details</h3>
         <hr>
@@ -28,6 +12,7 @@
                         <th>Sender Name</th>
                         <th>Sender Type</th>
                         <th>Part Name</th>
+                        <th>Part Description</th>
                         <th>Quantity</th>
                         <th>Booking Id</th>
                         <th>Invoice Id</th>
@@ -49,6 +34,7 @@
                         <td><?php echo $value['sender'];?></td>
                         <td><?php echo $value['sender_entity_type'];?></td>
                         <td><?php echo $value['part_name'];?></td>
+                        <td><?php echo $value['description'];?></td>
                         <td><?php echo $value['quantity'];?></td>
                         <td>
                             <a href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $value['booking_id']; ?>">
