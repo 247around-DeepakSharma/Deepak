@@ -8,7 +8,7 @@ var pricesForCategoryCapacityUrl = baseUrl + '/employee/booking/getPricesForCate
 var get_booking_upcountry_details = baseUrl + '/employee/booking/get_booking_upcountry_details/';
 var count_number = 0;
 var DEFAULT_UPCOUNTRY_RATE = 3;
-var LOW_CREDIT_MSG = "Your Credit is low. Add credit";
+var LOW_CREDIT_MSG = "Low Balance, Please Inform Brand To Recharge Account Immediately";
 
 
 function getAppliance(service_id) {
